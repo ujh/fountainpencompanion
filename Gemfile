@@ -14,6 +14,7 @@ gem 'jquery-rails'
 gem 'pg', '~> 0.18'
 gem 'puma', '~> 3.0'
 gem 'sass-rails', '~> 5.0'
+gem 'slim'
 gem 'uglifier', '>= 1.3.0'
 
 group :development, :test do
