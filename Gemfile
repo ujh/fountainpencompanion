@@ -20,6 +20,7 @@ gem 'uglifier'
 
 group :development, :test do
   gem 'byebug', platform: :mri
+  gem 'letter_opener'
   gem 'rspec-rails'
 end
 
