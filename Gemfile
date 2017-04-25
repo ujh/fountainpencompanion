@@ -31,3 +31,7 @@ group :development do
   gem 'spring'
   gem 'web-console'
 end
+
+group :test do
+  gem 'simplecov', require: false
+end
