@@ -1,0 +1,6 @@
+h1 The home page!
+
+- if user_signed_in?
+  = "Hello #{current_user.email}"
+- else
+  | Not signed in

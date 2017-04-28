@@ -1,5 +1,7 @@
 source 'https://rubygems.org'
 
+ruby '2.4.1'
+
 git_source(:github) do |repo_name|
   repo_name = "#{repo_name}/#{repo_name}" unless repo_name.include?("/")
   "https://github.com/#{repo_name}.git"
@@ -7,23 +9,35 @@ end
 
 gem 'rails', '~> 5.0.2'
 
-gem 'bcrypt', '~> 3.1.7'
-gem 'coffee-rails', '~> 4.2'
-gem 'jbuilder', '~> 2.5'
+gem 'bcrypt'
+gem 'bootstrap-sass'
+gem 'coffee-rails'
+gem 'devise'
+gem 'jbuilder'
 gem 'jquery-rails'
-gem 'pg', '~> 0.18'
-gem 'puma', '~> 3.0'
-gem 'sass-rails', '~> 5.0'
-gem 'uglifier', '>= 1.3.0'
+gem 'pg'
+gem 'puma'
+gem 'sass-rails'
+gem 'slim'
+gem 'uglifier'
 
 group :development, :test do
   gem 'byebug', platform: :mri
-  gem 'rspec-rails', '~> 3.5'
+  gem 'letter_opener'
+  gem 'rspec-rails'
 end
 
 group :development do
-  gem 'listen', '~> 3.0.5'
-  gem 'spring-watcher-listen', '~> 2.0.0'
+  gem 'listen'
+  gem 'spring-watcher-listen'
   gem 'spring'
-  gem 'web-console', '>= 3.3.0'
+  gem 'web-console'
+end
+
+group :test do
+  gem 'simplecov', require: false
+end
+
+group :production do
+  gem 'rails_12factor'
 end
