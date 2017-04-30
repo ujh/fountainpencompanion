@@ -4,7 +4,7 @@ set -e
 
 git co master
 git merge --no-ff -m 'Merging develop into master' develop
-git `tag %(v#{`git tag`.split.map {|v| v.gsub('v','').to_i }.sort.last.succ})`
+git tag `ruby ./bin/version.rb`
 git push
 git push --tags
 
