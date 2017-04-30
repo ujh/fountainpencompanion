@@ -59,8 +59,9 @@ Rails.application.configure do
     port: 587,
     enable_starttls_auto: true,
     format: :html,
-    from: 'mailer@yourawesomeapp.com'
+    from: 'hello@fountainpencompanion.com'
   }
+  config.action_mailer.default_url_options = { host: 'fountainpencompanion.com' }
 
   # Ignore bad email addresses and do not raise email delivery errors.
   # Set this to true and configure the email server for immediate delivery to raise delivery errors.
