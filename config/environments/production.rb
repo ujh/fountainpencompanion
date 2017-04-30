@@ -59,7 +59,7 @@ Rails.application.configure do
     port: 587,
     enable_starttls_auto: true,
     format: :html,
-    from: 'mailer@yourawesomeapp.com'
+    from: 'hello@fountainpencompanion.com'
   }
   config.action_mailer.default_url_options = { host: 'fountainpencompanion.com' }
 
