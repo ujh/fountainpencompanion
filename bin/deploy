@@ -7,6 +7,10 @@ echo "| Running the tests |"
 echo "+-------------------+"
 rake
 
+echo "+---------------+"
+echo "| Outdated gems |"
+echo "+---------------+"
+echo -e "\033[1;35m`bundle outdated --parseable`\033[0m"
 
 echo "+---------------------+"
 echo "| Deploying to Heroku |"
