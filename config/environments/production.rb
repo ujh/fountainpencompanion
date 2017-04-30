@@ -52,6 +52,15 @@ Rails.application.configure do
   # config.active_job.queue_adapter     = :resque
   # config.active_job.queue_name_prefix = "fountainpencompanion_#{Rails.env}"
   config.action_mailer.perform_caching = false
+  config.action_mailer.smtp_settings = {
+    user_name: 'SMTP_Injection',
+    password: ENV['SPARKPOST_PWD'],
+    address: 'smtp.sparkpostmail.com',
+    port: 587,
+    enable_starttls_auto: true,
+    format: :html,
+    from: 'mailer@yourawesomeapp.com'
+  }
 
   # Ignore bad email addresses and do not raise email delivery errors.
   # Set this to true and configure the email server for immediate delivery to raise delivery errors.
