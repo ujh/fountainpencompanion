@@ -9,6 +9,7 @@ end
 
 gem 'rails', '~> 5.0.2'
 
+gem 'airbrake'
 gem 'bcrypt'
 gem 'bootstrap-sass'
 gem 'coffee-rails'
