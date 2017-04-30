@@ -1,0 +1,15 @@
+#!/bin/bash
+
+set -e
+
+echo "+-------------------+"
+echo "| Running the tests |"
+echo "+-------------------+"
+rake
+
+
+echo "+---------------------+"
+echo "| Deploying to Heroku |"
+echo "+---------------------+"
+git push heroku master
+heroku run rake db:migrate db:seed
