@@ -23,3 +23,6 @@ echo "| Deploying to Heroku |"
 echo "+---------------------+"
 git push heroku master
 heroku run rake db:migrate db:seed
+
+
+git co develop
