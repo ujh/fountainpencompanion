@@ -37,7 +37,3 @@ end
 group :test do
   gem 'simplecov', require: false
 end
-
-group :production do
-  gem 'rails_12factor'
-end
