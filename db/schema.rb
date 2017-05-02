@@ -10,12 +10,20 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170502060458) do
+ActiveRecord::Schema.define(version: 20170502061318) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "cube"
   enable_extension "earthdistance"
+
+  create_table "collected_inks", force: :cascade do |t|
+    t.string   "kind"
+    t.integer  "ink_id",     null: false
+    t.integer  "user_id",    null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
 
   create_table "inks", force: :cascade do |t|
     t.text     "name",            null: false
@@ -49,5 +57,7 @@ ActiveRecord::Schema.define(version: 20170502060458) do
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true, using: :btree
   end
 
+  add_foreign_key "collected_inks", "inks"
+  add_foreign_key "collected_inks", "users"
   add_foreign_key "inks", "manufacturers"
 end
