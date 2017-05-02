@@ -1,6 +1,9 @@
 require 'rails_helper'
 
 describe InksController do
+
+  render_views
+
   describe '#index' do
     it 'requires authentication' do
       get :index
