@@ -10,4 +10,10 @@ describe Ink do
     expect(subject).to_not be_valid
     expect(subject.errors).to include(:manufacturer)
   end
+
+  it 'requires a valid manufacturer' do
+    subject.manufacturer = Manufacturer.new
+    expect(subject).to_not be_valid
+    expect(subject.errors).to include(:manufacturer)
+  end
 end
