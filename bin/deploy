@@ -11,7 +11,7 @@ git push --tags
 echo "+-------------------+"
 echo "| Running the tests |"
 echo "+-------------------+"
-rake
+rspec --profile
 
 echo "+---------------+"
 echo "| Outdated gems |"
