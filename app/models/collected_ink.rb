@@ -25,6 +25,10 @@ class CollectedInk < ApplicationRecord
     ink&.name
   end
 
+  def name
+    "#{manufacturer_name} #{ink_name}"
+  end
+
   private
 
   def manufacturer

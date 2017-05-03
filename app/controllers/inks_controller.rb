@@ -16,4 +16,10 @@ class InksController < ApplicationController
       render :index
     end
   end
+
+  def destroy
+    current_user.collected_inks.find_by(id: params[:id])&.destroy
+    redirect_to inks_path
+  end
+
 end

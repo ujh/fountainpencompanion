@@ -2,10 +2,11 @@ table
   tr
     th Manufacturer
     th Name
-  - @collected_inks.each do |collected_ink|
+  - @collected_inks.each do |ci|
     tr
-      td= collected_ink.manufacturer_name
-      td= collected_ink.ink_name
+      td= ci.manufacturer_name
+      td= ci.ink_name
+      td= link_to "Delete", ink_path(ci), method: :delete, data: { confirm: "Really delete #{ci.name}" }
   tr
     = simple_form_for @new_collected_ink, url: inks_path, html: { class: 'form-inline'} do |f|
       td= f.input :manufacturer_name, label: false

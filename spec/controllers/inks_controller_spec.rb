@@ -58,4 +58,38 @@ describe InksController do
       end
     end
   end
+
+  describe '#destroy' do
+    fixtures :collected_inks
+
+    let(:collected_ink) { collected_inks(:monis_marine) }
+    it 'requires authentication' do
+      expect do
+        delete :destroy, params: { id: collected_ink.id }
+        expect(response).to redirect_to(new_user_session_path)
+      end.to_not change { CollectedInk.count }
+    end
+
+    describe 'signed in' do
+      let(:user) { users(:moni) }
+
+      before(:each) do
+        sign_in(user)
+      end
+
+      it 'deletes the collected ink' do
+        expect do
+          delete :destroy, params: { id: collected_ink.id }
+          expect(response).to redirect_to(inks_path)
+        end.to change { user.collected_inks.count }.by(-1)
+      end
+
+      it 'does not delete other users inks' do
+        expect do
+          delete :destroy, params: { id: collected_inks(:toms_marine) }
+          expect(response).to redirect_to(inks_path)
+        end.to_not change { CollectedInk.count }
+      end
+    end
+  end
 end
