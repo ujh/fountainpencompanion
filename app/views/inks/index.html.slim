@@ -5,9 +5,9 @@ table
   - @collected_inks.each do |collected_ink|
     tr
       td= collected_ink.manufacturer_name
-      td= collected_ink.name
+      td= collected_ink.ink_name
   tr
     = form_for @new_collected_ink, url: inks_path do |f|
       td= f.text_field :manufacturer_name
-      td= f.text_field :name
+      td= f.text_field :ink_name
       td= f.submit "Add"
