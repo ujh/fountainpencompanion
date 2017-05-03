@@ -2,6 +2,7 @@ require 'rails_helper'
 
 describe InksController do
 
+  fixtures :manufacturers, :inks, :users
   render_views
 
   describe '#index' do
@@ -11,14 +12,9 @@ describe InksController do
     end
 
     context 'signed in' do
-      let!(:user) do
-        user = User.new(email: 'test@example.com')
-        user.password = user.password_confirmation = 'password'
-        user.save!
-        user
-      end
-      let!(:manufacturer) { Manufacturer.create!(name: 'manufacturer') }
-      let!(:ink) { Ink.create!(name: 'ink', manufacturer: manufacturer) }
+      let(:user) { users(:moni) }
+      let(:manufacturer) { manufacturers(:diamine) }
+      let(:ink) { inks(:marine) }
       let!(:collected_ink) { CollectedInk.create!(user: user, ink: ink) }
 
       before(:each) do
