@@ -5,4 +5,10 @@ class User < ApplicationRecord
          :recoverable, :rememberable, :trackable, :validatable
 
   has_many :collected_inks
+
+  def build_collected_ink(params)
+    ci = CollectedInk.build(params)
+    ci.user = self
+    ci
+  end
 end
