@@ -7,7 +7,7 @@ table
       td= collected_ink.manufacturer_name
       td= collected_ink.ink_name
   tr
-    = form_for @new_collected_ink, url: inks_path do |f|
-      td= f.text_field :manufacturer_name
-      td= f.text_field :ink_name
+    = simple_form_for @new_collected_ink, url: inks_path, html: { class: 'form-inline'} do |f|
+      td= f.input :manufacturer_name, label: false
+      td= f.input :ink_name, label: false
       td= f.submit "Add"
