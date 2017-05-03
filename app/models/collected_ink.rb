@@ -18,16 +18,16 @@ class CollectedInk < ApplicationRecord
   end
 
   def manufacturer_name
-    manufacturer.name
+    manufacturer&.name
   end
 
   def ink_name
-    ink.name
+    ink&.name
   end
 
   private
 
   def manufacturer
-    ink.manufacturer
+    ink&.manufacturer
   end
 end
