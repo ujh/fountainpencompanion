@@ -1,0 +1,27 @@
+table
+  tr
+    th Manufacturer
+    th Name
+  - @collected_inks.each do |ci|
+    tr
+      - if ci == @collected_ink
+        = simple_form_for @collected_ink, url: ink_path(ci), method: :put, html: { class: 'form-inline'} do |f|
+          td= f.input :manufacturer_name, label: false
+          td= f.input :ink_name, label: false
+          td
+            = f.submit "Update"
+            = link_to "Cancel", inks_path
+      - else 
+        td
+          a name=ci.id
+          = ci.manufacturer_name
+        td= ci.ink_name
+        td
+          = link_to "Edit", edit_ink_path(ci, anchor: ci.id)
+          = link_to "Delete", ink_path(ci), method: :delete, data: { confirm: "Really delete #{ci.name}" }
+  - if @collected_ink.new_record?
+    tr
+      = simple_form_for @collected_ink, url: inks_path, html: { class: 'form-inline'} do |f|
+        td= f.input :manufacturer_name, label: false
+        td= f.input :ink_name, label: false
+        td= f.submit "Add"
