@@ -37,6 +37,6 @@ class InksController < ApplicationController
   private
 
   def retrieve_collected_inks
-    @collected_inks = current_user.collected_inks
+    @collected_inks = current_user.collected_inks.joins(ink: :manufacturer).order("manufacturers.name, inks.name")
   end
 end
