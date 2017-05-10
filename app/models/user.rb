@@ -11,4 +11,10 @@ class User < ApplicationRecord
     ci.user = self
     ci
   end
+
+  def update_collected_ink(params)
+    ci = CollectedInk.update(params)
+    ci.user = self
+    ci
+  end
 end

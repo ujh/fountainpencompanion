@@ -59,6 +59,51 @@ describe InksController do
     end
   end
 
+  describe '#update' do
+    fixtures :collected_inks
+
+    let(:collected_ink) { collected_inks(:monis_marine) }
+
+    it 'requires authentication' do
+      expect do
+        put :update, params: { id: collected_ink.id, collected_ink: { ink_name: 'Not Marine' } }
+        expect(response).to redirect_to(new_user_session_path)
+      end.to_not change { Ink.count }
+    end
+
+    context 'signed in' do
+      let(:user) { users(:moni) }
+
+      before(:each) do
+        sign_in(user)
+      end
+
+      it 'updates the ink' do
+        expect do
+          expect do
+            put :update, params: { id: collected_ink.id, collected_ink: { ink_name: 'Not Marine' } }
+            expect(response).to redirect_to(inks_path)
+            collected_ink.reload
+            expect(collected_ink.manufacturer_name).to eq('Diamine')
+            expect(collected_ink.ink_name).to eq('Not Marine')
+          end.to change { Ink.count }.by(1)
+        end.to_not change { Manufacturer.count }
+      end
+
+      it 'updates the manufacturer' do
+        expect do
+          expect do
+            put :update, params: { id: collected_ink.id, collected_ink: { manufacturer_name: 'Not Diamine' } }
+            expect(response).to redirect_to(inks_path)
+            collected_ink.reload
+            expect(collected_ink.manufacturer_name).to eq('Not Diamine')
+            expect(collected_ink.ink_name).to eq('Marine')
+          end.to change { Ink.count }.by(1)
+        end.to change { Manufacturer.count }.by(1)
+      end
+    end
+  end
+
   describe '#destroy' do
     fixtures :collected_inks
 

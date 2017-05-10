@@ -1,18 +1,30 @@
 class InksController < ApplicationController
   before_action :authenticate_user!
+  before_action :retrieve_collected_inks
 
   def index
-    @collected_inks = current_user.collected_inks
-    @new_collected_ink = CollectedInk.build
+    @collected_ink = CollectedInk.build
   end
 
   def create
-    @new_collected_ink = current_user.build_collected_ink(params[:collected_ink])
-    if @new_collected_ink.valid?
-      @new_collected_ink.save
+    @collected_ink = current_user.build_collected_ink(params[:collected_ink])
+    if @collected_ink.save
       redirect_to inks_path
     else
-      @collected_inks = current_user.collected_inks
+      render :index
+    end
+  end
+
+  def edit
+    @collected_ink = current_user.collected_inks.find(params[:id])
+    render :index
+  end
+
+  def update
+    @collected_ink = current_user.update_collected_ink(params)
+    if @collected_ink.save
+      redirect_to inks_path
+    else
       render :index
     end
   end
@@ -22,4 +34,9 @@ class InksController < ApplicationController
     redirect_to inks_path
   end
 
+  private
+
+  def retrieve_collected_inks
+    @collected_inks = current_user.collected_inks
+  end
 end

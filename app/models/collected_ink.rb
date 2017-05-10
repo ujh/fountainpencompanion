@@ -8,13 +8,15 @@ class CollectedInk < ApplicationRecord
   belongs_to :user
 
   def self.build(params = {})
-    manufacturer = Manufacturer.find_or_initialize_by(name: params[:manufacturer_name])
-    if manufacturer.new_record?
-      ink = Ink.new(name: params[:ink_name], manufacturer: manufacturer)
-    else
-      ink = Ink.find_or_initialize_by(name: params[:ink_name], manufacturer_id: manufacturer.id)
-    end
-    new(ink: ink)
+    record = new
+    record.update_from_params(params)
+    record
+  end
+
+  def self.update(params = {})
+    record = find(params[:id])
+    record.update_from_params(params[:collected_ink])
+    record
   end
 
   def manufacturer_name
@@ -29,7 +31,23 @@ class CollectedInk < ApplicationRecord
     "#{manufacturer_name} #{ink_name}"
   end
 
-  private
+  def update_from_params(params = {})
+    if params[:manufacturer_name]
+      manufacturer = Manufacturer.find_or_initialize_by(name: params[:manufacturer_name])
+    else
+      manufacturer = self.manufacturer || Manufacturer.new
+    end
+    ink_name = (params[:ink_name] || self.ink_name)
+    if manufacturer.new_record?
+      ink = Ink.new(name: ink_name, manufacturer: manufacturer)
+    else
+      ink = Ink.find_or_initialize_by(name: ink_name, manufacturer_id: manufacturer.id)
+    end
+    self.ink = ink
+    self
+  end
+
+  protected
 
   def manufacturer
     ink&.manufacturer
