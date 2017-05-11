@@ -6,7 +6,21 @@ html
     = stylesheet_link_tag    'application', media: 'all'
     = javascript_include_tag 'application'
   body
-    p class="notice"= notice
-    p class="alert"= alert
-    = yield
+    nav class="navbar navbar-default navbar-fixed-top"
+      div class="container"
+        ul class="nav navbar-nav"
+          li= link_to "Home", root_path
+          li= link_to "Inks", inks_path
+        ul class="nav navbar-nav navbar-right"
+          - if user_signed_in?
+            li= link_to "Logout", destroy_user_session_path, method: :delete
+          - else
+            li= link_to "Login", new_user_session_path
+    div class="container"
+      p class="notice"= notice
+      p class="alert"= alert
+      = yield
+    footer class="footer"
+      div class="container"
+        p Content
     = render partial: "layouts/ga"
