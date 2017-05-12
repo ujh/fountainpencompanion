@@ -1,6 +1,8 @@
 monis_marine:
   ink: marine
   user: moni
+  kind: bottle
 toms_marine:
   ink: marine
   user: tom
+  kind: sample

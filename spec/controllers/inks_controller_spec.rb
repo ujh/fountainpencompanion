@@ -50,11 +50,19 @@ describe InksController do
         expect do
           expect do
             expect do
-              post :create, params: { collected_ink: { ink_name: 'Ink', manufacturer_name: 'Manufacturer'}}
+              post :create, params: { collected_ink: {
+                ink_name: 'Ink',
+                manufacturer_name: 'Manufacturer',
+                kind: 'bottle'
+              }}
               expect(response).to redirect_to(inks_path)
             end.to change { Manufacturer.count }.by(1)
           end.to change { Ink.count }.by(1)
         end.to change { user.collected_inks.count }.by(1)
+        collected_ink = user.collected_inks.last
+        expect(collected_ink.manufacturer_name).to eq('Manufacturer')
+        expect(collected_ink.ink_name).to eq('Ink')
+        expect(collected_ink.kind).to eq('bottle')
       end
     end
   end
@@ -86,6 +94,7 @@ describe InksController do
             collected_ink.reload
             expect(collected_ink.manufacturer_name).to eq('Diamine')
             expect(collected_ink.ink_name).to eq('Not Marine')
+            expect(collected_ink.kind).to eq('bottle')
           end.to change { Ink.count }.by(1)
         end.to_not change { Manufacturer.count }
       end
@@ -98,8 +107,22 @@ describe InksController do
             collected_ink.reload
             expect(collected_ink.manufacturer_name).to eq('Not Diamine')
             expect(collected_ink.ink_name).to eq('Marine')
+            expect(collected_ink.kind).to eq('bottle')
           end.to change { Ink.count }.by(1)
         end.to change { Manufacturer.count }.by(1)
+      end
+
+      it 'updates the kind' do
+        expect do
+          expect do
+            put :update, params: { id: collected_ink.id, collected_ink: { kind: 'sample' } }
+            expect(response).to redirect_to(inks_path)
+            collected_ink.reload
+            expect(collected_ink.manufacturer_name).to eq('Diamine')
+            expect(collected_ink.ink_name).to eq('Marine')
+            expect(collected_ink.kind).to eq('sample')
+          end.to_not change { Ink.count }
+        end.to_not change { Manufacturer.count }
       end
     end
   end

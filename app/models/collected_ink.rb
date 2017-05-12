@@ -1,6 +1,9 @@
 class CollectedInk < ApplicationRecord
+
+  KINDS = %w(bottle sample cartridge)
+
   validates :ink, associated: true
-  validates :kind, inclusion: { in: %w(bottle sample cartridge), allow_nil: true }
+  validates :kind, inclusion: { in: KINDS, allow_nil: true }
   validates :manufacturer_name, presence: true
   validates :ink_name, presence: true
 
@@ -32,6 +35,7 @@ class CollectedInk < ApplicationRecord
   end
 
   def update_from_params(params = {})
+    self.kind = params[:kind] if params[:kind]
     if params[:manufacturer_name]
       manufacturer = Manufacturer.find_or_initialize_by(name: params[:manufacturer_name])
     else
