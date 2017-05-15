@@ -3,7 +3,7 @@ class CollectedInk < ApplicationRecord
   KINDS = %w(bottle sample cartridge)
 
   validates :ink, associated: true
-  validates :kind, inclusion: { in: KINDS, allow_nil: true }
+  validates :kind, inclusion: { in: KINDS, allow_blank: true }
   validates :manufacturer_name, presence: true
   validates :ink_name, presence: true
 
