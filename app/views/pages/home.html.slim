@@ -1,5 +1,4 @@
-h1 The home page!
-
+- content_for :title, "Home"
 - if user_signed_in?
   = "Hello #{current_user.email}"
 - else
