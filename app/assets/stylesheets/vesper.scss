@@ -24,10 +24,8 @@ vespercreative.com
 /* #Global Styles
 -------------------------------------------------- */
 body {
-    background: #fff url(bg-body.png) fixed repeat;
-    overflow-x: hidden;
-    overflow-y: hidden;
-    line-height: 22px;
+  background: #fff url(bg-body.png) fixed repeat;
+  line-height: 22px;
 	font-family: Arial, Helvetica, sans-serif;
 }
 h1,
@@ -52,13 +50,11 @@ i {
 #wrap {
     padding-top: 60px;
     position: relative;
-    z-index: 999;
 }
 .page {
     padding-top: 80px;
 	overflow: auto;
  }
-.navbar-fixed-top { position: fixed }
 [class*="span"] {
     width: auto;
     margin-left: 15px;
@@ -122,26 +118,6 @@ margin-left: 30px;
 }
 
 /* #Misc */
-div#plaxlines {
-    display: block;
-    position: fixed;
-    margin: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 1;
-}
-img#plax-lines1 {
-    position: absolute;
-    top: 0px;
-    left: -800px;
-    z-index: 3;
-}
-img#plax-lines2 {
-    position: absolute;
-    z-index: 4;
-    top: 0px;
-    left: 100px;
-}
 .left { float: left }
 .right { float: right }
 .center {
@@ -154,7 +130,7 @@ img#plax-lines2 {
 
 /* #Page Styles
 -------------------------------------------------- */
-.navbar-fixed-top .navbar-inner { background: #222 url(bg-header.png) repeat-x !important; height: 48px; filter:none !important;}
+
 .page-title {
     width: 100%;
     font: 50px/1 Droid Serif, Georgia, serif;
@@ -197,13 +173,13 @@ img#plax-lines2 {
     background: #fff;
     border-radius: 5px;
     margin-left: 0;
+    margin-right: 0;
     box-shadow: 0px 0px 5px rgba(0,0,0,0.1);
     margin-bottom: 10px;
 
 }
 .content {
-	padding-top: 15px;
-	padding-bottom: 15px;
+	padding: 15px;
 }
 
 .works .content {
