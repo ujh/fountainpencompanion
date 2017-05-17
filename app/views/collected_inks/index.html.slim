@@ -8,15 +8,7 @@ table class="table table-striped"
   - @collected_inks.each do |ci|
     tr class="#{ci == @collected_ink ? "info" : ""}"
       - if ci == @collected_ink
-        = simple_form_for @collected_ink, url: collected_ink_path(ci), method: :put, html: { class: 'form-inline'} do |f|
-          td= f.input :manufacturer_name, label: false
-          td= f.input :ink_name, label: false
-          th= f.input :kind, label: false, as: :select, collection: CollectedInk::KINDS
-          td
-            = f.button :button do
-              span class="glyphicon glyphicon-ok"
-            = link_to collected_inks_path, class: "btn btn-default" do
-              span class="glyphicon glyphicon-remove"
+        = render partial: "form", locals: { collected_ink: @collected_ink }
       - else 
         td
           a name=ci.id
@@ -30,9 +22,4 @@ table class="table table-striped"
             span class="glyphicon glyphicon-trash"
   - if @collected_ink.new_record?
     tr
-      = simple_form_for @collected_ink, url: collected_inks_path, html: { class: 'form-inline'} do |f|
-        td= f.input :manufacturer_name, label: false
-        td= f.input :ink_name, label: false
-        td= f.input :kind, label: false, as: :select, collection: CollectedInk::KINDS
-        td= f.button :button do
-          span class="glyphicon glyphicon-ok"
+      = render partial: "form", locals: { collected_ink: @collected_ink }
