@@ -1,9 +1,8 @@
-= simple_form_for collected_ink, html: { class: 'form-inline'} do |f|
-  td= f.input :manufacturer_name, label: false
-  td= f.input :ink_name, label: false
-  th= f.input :kind, label: false, as: :select, collection: CollectedInk::KINDS
-  td
-    = f.button :button do
-      span class="glyphicon glyphicon-ok"
-    = link_to collected_inks_path, class: "btn btn-default" do
-      span class="glyphicon glyphicon-remove"
+td= f.input :manufacturer_name, label: false
+td= f.input :ink_name, label: false
+th= f.input :kind, label: false, as: :select, collection: CollectedInk::KINDS
+td
+  = f.button :button do
+    span class="glyphicon glyphicon-ok"
+  = link_to collected_inks_path, class: "btn btn-default" do
+    span class="glyphicon glyphicon-remove"

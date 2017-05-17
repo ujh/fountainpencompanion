@@ -1,25 +1,25 @@
 - content_for :title, "Inks"
-table class="table table-striped"
-  tr
-    th Manufacturer
-    th Name
-    th Kind
-    th Actions
-  - @collected_inks.each do |ci|
-    tr class="#{ci == @collected_ink ? "info" : ""}"
-      - if ci == @collected_ink
-        = render partial: "form", locals: { collected_ink: @collected_ink }
-      - else 
-        td
-          a name=ci.id
-          = ci.manufacturer_name
-        td= ci.ink_name
-        td= ci.kind
-        td
-          = link_to edit_collected_ink_path(ci, anchor: ci.id), class: "btn btn-default", title: "Edit #{ci.name}" do
-            span class="glyphicon glyphicon-pencil"
-          = link_to collected_ink_path(ci), class: "btn btn-default", method: :delete, data: { confirm: "Really delete #{ci.name}" }, title: "Delete #{ci.name}"
-            span class="glyphicon glyphicon-trash"
-  - if @collected_ink.new_record?
+= simple_form_for @collected_ink, html: { class: 'form-inline', id: 'collected-ink-form'} do |f|
+  table class="table table-striped"
     tr
-      = render partial: "form", locals: { collected_ink: @collected_ink }
+      th Manufacturer
+      th Name
+      th Kind
+      th Actions
+    - @collected_inks.each do |ci|
+      - if ci == @collected_ink
+        tr class="info"= render partial: "form", locals: { f: f }
+      - else
+        tr
+          td
+            a name=ci.id
+            = ci.manufacturer_name
+          td= ci.ink_name
+          td= ci.kind
+          td
+            = link_to edit_collected_ink_path(ci, anchor: ci.id), class: "btn btn-default", title: "Edit #{ci.name}" do
+              span class="glyphicon glyphicon-pencil"
+            = link_to collected_ink_path(ci), class: "btn btn-default", method: :delete, data: { confirm: "Really delete #{ci.name}" }, title: "Delete #{ci.name}"
+              span class="glyphicon glyphicon-trash"
+    - if @collected_ink.new_record?
+      tr= render partial: "form", locals: { f: f }
