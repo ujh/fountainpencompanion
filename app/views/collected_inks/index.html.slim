@@ -8,14 +8,14 @@ table class="table table-striped"
   - @collected_inks.each do |ci|
     tr class="#{ci == @collected_ink ? "info" : ""}"
       - if ci == @collected_ink
-        = simple_form_for @collected_ink, url: ink_path(ci), method: :put, html: { class: 'form-inline'} do |f|
+        = simple_form_for @collected_ink, url: collected_ink_path(ci), method: :put, html: { class: 'form-inline'} do |f|
           td= f.input :manufacturer_name, label: false
           td= f.input :ink_name, label: false
           th= f.input :kind, label: false, as: :select, collection: CollectedInk::KINDS
           td
             = f.button :button do
               span class="glyphicon glyphicon-ok"
-            = link_to inks_path, class: "btn btn-default" do
+            = link_to collected_inks_path, class: "btn btn-default" do
               span class="glyphicon glyphicon-remove"
       - else 
         td
@@ -24,13 +24,13 @@ table class="table table-striped"
         td= ci.ink_name
         td= ci.kind
         td
-          = link_to edit_ink_path(ci, anchor: ci.id), class: "btn btn-default", title: "Edit #{ci.name}" do
+          = link_to edit_collected_ink_path(ci, anchor: ci.id), class: "btn btn-default", title: "Edit #{ci.name}" do
             span class="glyphicon glyphicon-pencil"
-          = link_to ink_path(ci), class: "btn btn-default", method: :delete, data: { confirm: "Really delete #{ci.name}" }, title: "Delete #{ci.name}"
+          = link_to collected_ink_path(ci), class: "btn btn-default", method: :delete, data: { confirm: "Really delete #{ci.name}" }, title: "Delete #{ci.name}"
             span class="glyphicon glyphicon-trash"
   - if @collected_ink.new_record?
     tr
-      = simple_form_for @collected_ink, url: inks_path, html: { class: 'form-inline'} do |f|
+      = simple_form_for @collected_ink, url: collected_inks_path, html: { class: 'form-inline'} do |f|
         td= f.input :manufacturer_name, label: false
         td= f.input :ink_name, label: false
         td= f.input :kind, label: false, as: :select, collection: CollectedInk::KINDS

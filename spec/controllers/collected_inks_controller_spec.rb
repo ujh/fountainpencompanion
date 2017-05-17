@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe InksController do
+describe CollectedInksController do
 
   fixtures :manufacturers, :inks, :users
   render_views
@@ -55,7 +55,7 @@ describe InksController do
                 manufacturer_name: 'Manufacturer',
                 kind: 'bottle'
               }}
-              expect(response).to redirect_to(inks_path)
+              expect(response).to redirect_to(collected_inks_path)
             end.to change { Manufacturer.count }.by(1)
           end.to change { Ink.count }.by(1)
         end.to change { user.collected_inks.count }.by(1)
@@ -90,7 +90,7 @@ describe InksController do
         expect do
           expect do
             put :update, params: { id: collected_ink.id, collected_ink: { ink_name: 'Not Marine' } }
-            expect(response).to redirect_to(inks_path)
+            expect(response).to redirect_to(collected_inks_path)
             collected_ink.reload
             expect(collected_ink.manufacturer_name).to eq('Diamine')
             expect(collected_ink.ink_name).to eq('Not Marine')
@@ -103,7 +103,7 @@ describe InksController do
         expect do
           expect do
             put :update, params: { id: collected_ink.id, collected_ink: { manufacturer_name: 'Not Diamine' } }
-            expect(response).to redirect_to(inks_path)
+            expect(response).to redirect_to(collected_inks_path)
             collected_ink.reload
             expect(collected_ink.manufacturer_name).to eq('Not Diamine')
             expect(collected_ink.ink_name).to eq('Marine')
@@ -116,7 +116,7 @@ describe InksController do
         expect do
           expect do
             put :update, params: { id: collected_ink.id, collected_ink: { kind: 'sample' } }
-            expect(response).to redirect_to(inks_path)
+            expect(response).to redirect_to(collected_inks_path)
             collected_ink.reload
             expect(collected_ink.manufacturer_name).to eq('Diamine')
             expect(collected_ink.ink_name).to eq('Marine')
@@ -148,14 +148,14 @@ describe InksController do
       it 'deletes the collected ink' do
         expect do
           delete :destroy, params: { id: collected_ink.id }
-          expect(response).to redirect_to(inks_path)
+          expect(response).to redirect_to(collected_inks_path)
         end.to change { user.collected_inks.count }.by(-1)
       end
 
       it 'does not delete other users inks' do
         expect do
           delete :destroy, params: { id: collected_inks(:toms_marine) }
-          expect(response).to redirect_to(inks_path)
+          expect(response).to redirect_to(collected_inks_path)
         end.to_not change { CollectedInk.count }
       end
     end

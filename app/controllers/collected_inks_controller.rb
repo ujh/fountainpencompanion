@@ -1,4 +1,4 @@
-class InksController < ApplicationController
+class CollectedInksController < ApplicationController
   before_action :authenticate_user!
   before_action :retrieve_collected_inks
 
@@ -9,7 +9,7 @@ class InksController < ApplicationController
   def create
     @collected_ink = current_user.build_collected_ink(params[:collected_ink])
     if @collected_ink.save
-      redirect_to inks_path
+      redirect_to collected_inks_path
     else
       render :index
     end
@@ -23,7 +23,7 @@ class InksController < ApplicationController
   def update
     @collected_ink = current_user.update_collected_ink(params)
     if @collected_ink.save
-      redirect_to inks_path
+      redirect_to collected_inks_path
     else
       render :index
     end
@@ -31,7 +31,7 @@ class InksController < ApplicationController
 
   def destroy
     current_user.collected_inks.find_by(id: params[:id])&.destroy
-    redirect_to inks_path
+    redirect_to collected_inks_path
   end
 
   private
