@@ -1,6 +1,12 @@
 // "bootstrap-sprockets" must be imported before "bootstrap" and "bootstrap/variables"
 @import "bootstrap-sprockets";
 @import "bootstrap";
+
+@import "jquery-ui/core";
+@import "jquery-ui/theme";
+@import "jquery-ui/autocomplete";
+@import "jquery-ui/menu";
+
 @import "vesper";
 @import "header";
 @import "footer";
