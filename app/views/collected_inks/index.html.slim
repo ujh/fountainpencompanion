@@ -2,15 +2,17 @@
 = simple_form_for @collected_ink, html: { class: 'form-inline', id: 'collected-ink-form'} do |f|
   table class="table table-striped"
     tr
+      th
       th Manufacturer
       th Name
       th Kind
       th Actions
     - @collected_inks.each do |ci|
       - if ci == @collected_ink
-        tr class="info"= render partial: "form", locals: { f: f }
+        tr class="info"= render partial: "form", locals: { f: f , ci: ci}
       - else
-        tr
+        tr class="#{ci.private? ? "private" : "public"}"
+          td= ci.private? ? fa_icon("lock") : fa_icon("unlock")
           td
             a name=ci.id
             = ci.manufacturer_name
@@ -18,8 +20,8 @@
           td= ci.kind
           td
             = link_to edit_collected_ink_path(ci, anchor: ci.id), class: "btn btn-default", title: "Edit #{ci.name}" do
-              span class="glyphicon glyphicon-pencil"
+              = fa_icon("pencil")
             = link_to collected_ink_path(ci), class: "btn btn-default", method: :delete, data: { confirm: "Really delete #{ci.name}" }, title: "Delete #{ci.name}"
-              span class="glyphicon glyphicon-trash"
+              = fa_icon("trash")
     - if @collected_ink.new_record?
-      tr= render partial: "form", locals: { f: f }
+      tr= render partial: "form", locals: { f: f , ci: @collected_ink }
