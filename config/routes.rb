@@ -4,6 +4,7 @@ Rails.application.routes.draw do
 
   resources :collected_inks
   resources :manufacturers, only: [:index]
+  resources :inks, only: [:index]
 
   root "pages#show", id: "home"
 end
