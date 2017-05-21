@@ -7,7 +7,7 @@ class CollectedInk < ApplicationRecord
   validates :brand_name, presence: true
   validates :ink_name, presence: true
 
-  belongs_to :ink
+  belongs_to :ink, autosave: true
   belongs_to :user
 
   def self.build(params = {})
@@ -45,11 +45,21 @@ class CollectedInk < ApplicationRecord
     else
       brand = self.brand || Brand.new
     end
+    line_name = (params[:line_name] || self.line_name)
     ink_name = (params[:ink_name] || self.ink_name)
     if brand.new_record?
       ink = Ink.new(name: ink_name, brand: brand)
+      if line_name.present?
+        ink.build_line(name: line_name, brand: brand)
+      end
     else
       ink = Ink.find_or_initialize_by(name: ink_name, brand_id: brand.id)
+      if line_name.present?
+        line = Line.find_or_initialize_by(name: line_name, brand_id: brand.id)
+        ink.line = line
+      else
+        ink.line = nil
+      end
     end
     self.ink = ink
     self
