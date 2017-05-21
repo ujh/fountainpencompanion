@@ -3,4 +3,5 @@ class Line < ApplicationRecord
   validates :name, presence: true
 
   belongs_to :brand
+  has_many :inks
 end
