@@ -1,5 +1,5 @@
 td= ci.private? ? fa_icon("lock") : fa_icon("unlock")
-td= f.input :manufacturer_name, label: false
+td= f.input :brand_name, label: false
 td= f.input :ink_name, label: false
 th= f.input :kind, label: false, as: :select, collection: CollectedInk::KINDS
 td

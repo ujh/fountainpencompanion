@@ -4,7 +4,7 @@ class CollectedInk < ApplicationRecord
 
   validates :ink, associated: true
   validates :kind, inclusion: { in: KINDS, allow_blank: true }
-  validates :manufacturer_name, presence: true
+  validates :brand_name, presence: true
   validates :ink_name, presence: true
 
   belongs_to :ink
@@ -22,8 +22,8 @@ class CollectedInk < ApplicationRecord
     record
   end
 
-  def manufacturer_name
-    manufacturer&.name
+  def brand_name
+    brand&.name
   end
 
   def ink_name
@@ -31,21 +31,21 @@ class CollectedInk < ApplicationRecord
   end
 
   def name
-    "#{manufacturer_name} #{ink_name}"
+    "#{brand_name} #{ink_name}"
   end
 
   def update_from_params(params = {})
     self.kind = params[:kind] if params[:kind]
-    if params[:manufacturer_name]
-      manufacturer = Manufacturer.find_or_initialize_by(name: params[:manufacturer_name])
+    if params[:brand_name]
+      brand = Brand.find_or_initialize_by(name: params[:brand_name])
     else
-      manufacturer = self.manufacturer || Manufacturer.new
+      brand = self.brand || Brand.new
     end
     ink_name = (params[:ink_name] || self.ink_name)
-    if manufacturer.new_record?
-      ink = Ink.new(name: ink_name, manufacturer: manufacturer)
+    if brand.new_record?
+      ink = Ink.new(name: ink_name, brand: brand)
     else
-      ink = Ink.find_or_initialize_by(name: ink_name, manufacturer_id: manufacturer.id)
+      ink = Ink.find_or_initialize_by(name: ink_name, brand_id: brand.id)
     end
     self.ink = ink
     self
@@ -53,7 +53,7 @@ class CollectedInk < ApplicationRecord
 
   protected
 
-  def manufacturer
-    ink&.manufacturer
+  def brand
+    ink&.brand
   end
 end

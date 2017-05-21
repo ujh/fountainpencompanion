@@ -3,7 +3,7 @@
   table class="table table-striped"
     tr
       th
-      th Manufacturer
+      th Brand
       th Name
       th Kind
       th Actions
@@ -15,7 +15,7 @@
           td= ci.private? ? fa_icon("lock") : fa_icon("unlock")
           td
             a name=ci.id
-            = ci.manufacturer_name
+            = ci.brand_name
           td= ci.ink_name
           td= ci.kind
           td

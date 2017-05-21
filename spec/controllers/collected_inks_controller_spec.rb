@@ -2,7 +2,7 @@ require 'rails_helper'
 
 describe CollectedInksController do
 
-  fixtures :manufacturers, :inks, :users
+  fixtures :brands, :inks, :users
   render_views
 
   let(:user) { users(:moni) }
@@ -14,7 +14,7 @@ describe CollectedInksController do
     end
 
     context 'signed in' do
-      let(:manufacturer) { manufacturers(:diamine) }
+      let(:brand) { brands(:diamine) }
       let(:ink) { inks(:marine) }
       let!(:collected_ink) { CollectedInk.create!(user: user, ink: ink) }
 
@@ -25,7 +25,7 @@ describe CollectedInksController do
       it 'renders the ink index page' do
         get :index
         expect(response).to be_successful
-        expect(response.body).to include(manufacturer.name)
+        expect(response.body).to include(brand.name)
         expect(response.body).to include(ink.name)
       end
     end
@@ -35,9 +35,9 @@ describe CollectedInksController do
     it 'requires authentication' do
       expect do
         expect do
-          post :create, params: { collected_ink: { ink_name: 'Ink', manufacturer_name: 'Manufacturer'}}
+          post :create, params: { collected_ink: { ink_name: 'Ink', brand_name: 'Brand'}}
           expect(response).to redirect_to(new_user_session_path)
-        end.to_not change { Manufacturer.count }
+        end.to_not change { Brand.count }
       end.to_not change { Ink.count }
     end
 
@@ -52,15 +52,15 @@ describe CollectedInksController do
             expect do
               post :create, params: { collected_ink: {
                 ink_name: 'Ink',
-                manufacturer_name: 'Manufacturer',
+                brand_name: 'Brand',
                 kind: 'bottle'
               }}
               expect(response).to redirect_to(collected_inks_path)
-            end.to change { Manufacturer.count }.by(1)
+            end.to change { Brand.count }.by(1)
           end.to change { Ink.count }.by(1)
         end.to change { user.collected_inks.count }.by(1)
         collected_ink = user.collected_inks.last
-        expect(collected_ink.manufacturer_name).to eq('Manufacturer')
+        expect(collected_ink.brand_name).to eq('Brand')
         expect(collected_ink.ink_name).to eq('Ink')
         expect(collected_ink.kind).to eq('bottle')
       end
@@ -92,24 +92,24 @@ describe CollectedInksController do
             put :update, params: { id: collected_ink.id, collected_ink: { ink_name: 'Not Marine' } }
             expect(response).to redirect_to(collected_inks_path)
             collected_ink.reload
-            expect(collected_ink.manufacturer_name).to eq('Diamine')
+            expect(collected_ink.brand_name).to eq('Diamine')
             expect(collected_ink.ink_name).to eq('Not Marine')
             expect(collected_ink.kind).to eq('bottle')
           end.to change { Ink.count }.by(1)
-        end.to_not change { Manufacturer.count }
+        end.to_not change { Brand.count }
       end
 
-      it 'updates the manufacturer' do
+      it 'updates the brand' do
         expect do
           expect do
-            put :update, params: { id: collected_ink.id, collected_ink: { manufacturer_name: 'Not Diamine' } }
+            put :update, params: { id: collected_ink.id, collected_ink: { brand_name: 'Not Diamine' } }
             expect(response).to redirect_to(collected_inks_path)
             collected_ink.reload
-            expect(collected_ink.manufacturer_name).to eq('Not Diamine')
+            expect(collected_ink.brand_name).to eq('Not Diamine')
             expect(collected_ink.ink_name).to eq('Marine')
             expect(collected_ink.kind).to eq('bottle')
           end.to change { Ink.count }.by(1)
-        end.to change { Manufacturer.count }.by(1)
+        end.to change { Brand.count }.by(1)
       end
 
       it 'updates the kind' do
@@ -118,11 +118,11 @@ describe CollectedInksController do
             put :update, params: { id: collected_ink.id, collected_ink: { kind: 'sample' } }
             expect(response).to redirect_to(collected_inks_path)
             collected_ink.reload
-            expect(collected_ink.manufacturer_name).to eq('Diamine')
+            expect(collected_ink.brand_name).to eq('Diamine')
             expect(collected_ink.ink_name).to eq('Marine')
             expect(collected_ink.kind).to eq('sample')
           end.to_not change { Ink.count }
-        end.to_not change { Manufacturer.count }
+        end.to_not change { Brand.count }
       end
     end
   end

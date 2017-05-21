@@ -6,14 +6,14 @@ describe Ink do
     expect(subject.errors).to include(:name)
   end
 
-  it 'requires a manufacturer' do
+  it 'requires a brand' do
     expect(subject).to_not be_valid
-    expect(subject.errors).to include(:manufacturer)
+    expect(subject.errors).to include(:brand)
   end
 
-  it 'requires a valid manufacturer' do
-    subject.manufacturer = Manufacturer.new
+  it 'requires a valid brand' do
+    subject.brand = Brand.new
     expect(subject).to_not be_valid
-    expect(subject.errors).to include(:manufacturer)
+    expect(subject.errors).to include(:brand)
   end
 end

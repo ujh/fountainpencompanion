@@ -10,12 +10,19 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170519062041) do
+ActiveRecord::Schema.define(version: 20170521181851) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "cube"
   enable_extension "earthdistance"
+
+  create_table "brands", force: :cascade do |t|
+    t.text     "name",       null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["name"], name: "index_brands_on_name", unique: true, using: :btree
+  end
 
   create_table "collected_inks", force: :cascade do |t|
     t.string   "kind"
@@ -27,18 +34,11 @@ ActiveRecord::Schema.define(version: 20170519062041) do
   end
 
   create_table "inks", force: :cascade do |t|
-    t.text     "name",            null: false
-    t.integer  "manufacturer_id", null: false
-    t.datetime "created_at",      null: false
-    t.datetime "updated_at",      null: false
-    t.index ["name", "manufacturer_id"], name: "index_inks_on_name_and_manufacturer_id", unique: true, using: :btree
-  end
-
-  create_table "manufacturers", force: :cascade do |t|
     t.text     "name",       null: false
+    t.integer  "brand_id",   null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["name"], name: "index_manufacturers_on_name", unique: true, using: :btree
+    t.index ["name", "brand_id"], name: "index_inks_on_name_and_brand_id", unique: true, using: :btree
   end
 
   create_table "users", force: :cascade do |t|
@@ -60,5 +60,5 @@ ActiveRecord::Schema.define(version: 20170519062041) do
 
   add_foreign_key "collected_inks", "inks"
   add_foreign_key "collected_inks", "users"
-  add_foreign_key "inks", "manufacturers"
+  add_foreign_key "inks", "brands"
 end

@@ -1,6 +1,6 @@
 class Ink < ApplicationRecord
-  validates :manufacturer, associated: true
+  validates :brand, associated: true
   validates :name, presence: true
 
-  belongs_to :manufacturer
+  belongs_to :brand
 end
