@@ -26,12 +26,16 @@ class CollectedInk < ApplicationRecord
     brand&.name
   end
 
+  def line_name
+    line&.name
+  end
+
   def ink_name
     ink&.name
   end
 
   def name
-    "#{brand_name} #{ink_name}"
+    "#{brand_name} #{line_name} #{ink_name}"
   end
 
   def update_from_params(params = {})
@@ -55,5 +59,9 @@ class CollectedInk < ApplicationRecord
 
   def brand
     ink&.brand
+  end
+
+  def line
+    ink&.line
   end
 end

@@ -4,5 +4,5 @@ class Ink < ApplicationRecord
   validates :name, presence: true
 
   belongs_to :brand
-  belongs_to :line
+  belongs_to :line, optional: true
 end

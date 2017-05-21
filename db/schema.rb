@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170521185337) do
+ActiveRecord::Schema.define(version: 20170521190332) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -38,6 +38,7 @@ ActiveRecord::Schema.define(version: 20170521185337) do
     t.integer  "brand_id",   null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer  "line_id"
     t.index ["name", "brand_id"], name: "index_inks_on_name_and_brand_id", unique: true, using: :btree
   end
 
@@ -69,5 +70,6 @@ ActiveRecord::Schema.define(version: 20170521185337) do
   add_foreign_key "collected_inks", "inks"
   add_foreign_key "collected_inks", "users"
   add_foreign_key "inks", "brands"
+  add_foreign_key "inks", "lines"
   add_foreign_key "lines", "brands"
 end
