@@ -12,7 +12,7 @@
         tr class="info"= render partial: "form", locals: { f: f , ci: ci}
       - else
         tr class="#{ci.private? ? "private" : "public"}"
-          td= ci.private? ? fa_icon("lock") : fa_icon("unlock")
+          td= privacy_link(ci)
           td
             a name=ci.id
             = ci.brand_name
