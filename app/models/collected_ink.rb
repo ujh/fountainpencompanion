@@ -2,76 +2,14 @@ class CollectedInk < ApplicationRecord
 
   KINDS = %w(bottle sample cartridge)
 
-  validates :ink, associated: true
   validates :kind, inclusion: { in: KINDS, allow_blank: true }
   validates :brand_name, presence: true
   validates :ink_name, presence: true
 
-  belongs_to :ink, autosave: true
   belongs_to :user
-
-  def self.build(params = {})
-    record = new
-    record.update_from_params(params)
-    record
-  end
-
-  def self.update(params = {})
-    record = find(params[:id])
-    record.update_from_params(params[:collected_ink])
-    record
-  end
-
-  def brand_name
-    brand&.name
-  end
-
-  def line_name
-    line&.name
-  end
-
-  def ink_name
-    ink&.name
-  end
 
   def name
     "#{brand_name} #{line_name} #{ink_name}"
   end
 
-  def update_from_params(params = {})
-    self.kind = params[:kind] if params[:kind]
-    if params[:brand_name]
-      brand = Brand.find_or_initialize_by(name: params[:brand_name])
-    else
-      brand = self.brand || Brand.new
-    end
-    line_name = (params[:line_name] || self.line_name)
-    ink_name = (params[:ink_name] || self.ink_name)
-    if brand.new_record?
-      ink = Ink.new(name: ink_name, brand: brand)
-      if line_name.present?
-        ink.build_line(name: line_name, brand: brand)
-      end
-    else
-      ink = Ink.find_or_initialize_by(name: ink_name, brand_id: brand.id)
-      if line_name.present?
-        line = Line.find_or_initialize_by(name: line_name, brand_id: brand.id)
-        ink.line = line
-      else
-        ink.line = nil
-      end
-    end
-    self.ink = ink
-    self
-  end
-
-  protected
-
-  def brand
-    ink&.brand
-  end
-
-  def line
-    ink&.line
-  end
 end

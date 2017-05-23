@@ -6,14 +6,13 @@ describe CollectedInk do
     expect(subject.errors).to include(:user)
   end
 
-  it 'requires an associated ink' do
+  it 'requires an ink name' do
     expect(subject).to_not be_valid
-    expect(subject.errors).to include(:ink)
+    expect(subject.errors).to include(:ink_name)
   end
 
-  it 'requires a valid ink' do
-    subject.ink = Ink.new
+  it 'requires a brand name' do
     expect(subject).to_not be_valid
-    expect(subject.errors).to include(:ink)
+    expect(subject.errors).to include(:brand_name)
   end
 end

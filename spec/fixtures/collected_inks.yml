@@ -1,8 +1,12 @@
 monis_marine:
-  ink: marine
+  brand_name: Diamine
+  line_name:
+  ink_name: Marine
   user: moni
   kind: bottle
 toms_marine:
-  ink: marine
+  brand_name: Diamine
+  line_name:
+  ink_name: Marine
   user: tom
-  kind: sample
+  kind: bottle

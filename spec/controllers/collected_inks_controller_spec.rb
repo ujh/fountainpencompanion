@@ -2,7 +2,7 @@ require 'rails_helper'
 
 describe CollectedInksController do
 
-  fixtures :brands, :inks, :users
+  fixtures :collected_inks, :users
   render_views
 
   let(:user) { users(:moni) }
@@ -14,9 +14,7 @@ describe CollectedInksController do
     end
 
     context 'signed in' do
-      let(:brand) { brands(:diamine) }
-      let(:ink) { inks(:marine) }
-      let!(:collected_ink) { CollectedInk.create!(user: user, ink: ink) }
+      let(:ink) { collected_inks(:monis_marine) }
 
       before(:each) do
         sign_in(user)
@@ -25,8 +23,8 @@ describe CollectedInksController do
       it 'renders the ink index page' do
         get :index
         expect(response).to be_successful
-        expect(response.body).to include(brand.name)
-        expect(response.body).to include(ink.name)
+        expect(response.body).to include(ink.ink_name)
+        expect(response.body).to include(ink.brand_name)
       end
     end
   end
@@ -34,11 +32,9 @@ describe CollectedInksController do
   describe '#create' do
     it 'requires authentication' do
       expect do
-        expect do
-          post :create, params: { collected_ink: { ink_name: 'Ink', brand_name: 'Brand'}}
-          expect(response).to redirect_to(new_user_session_path)
-        end.to_not change { Brand.count }
-      end.to_not change { Ink.count }
+        post :create, params: { collected_ink: { ink_name: 'Ink', brand_name: 'Brand'}}
+        expect(response).to redirect_to(new_user_session_path)
+      end.to_not change { CollectedInk.count }
     end
 
     context 'signed in' do
@@ -48,19 +44,17 @@ describe CollectedInksController do
 
       it 'creates the data' do
         expect do
-          expect do
-            expect do
-              post :create, params: { collected_ink: {
-                ink_name: 'Ink',
-                brand_name: 'Brand',
-                kind: 'bottle'
-              }}
-              expect(response).to redirect_to(collected_inks_path)
-            end.to change { Brand.count }.by(1)
-          end.to change { Ink.count }.by(1)
+          post :create, params: { collected_ink: {
+            ink_name: 'Ink',
+            line_name: 'Line',
+            brand_name: 'Brand',
+            kind: 'bottle'
+          }}
+          expect(response).to redirect_to(collected_inks_path)
         end.to change { user.collected_inks.count }.by(1)
         collected_ink = user.collected_inks.last
         expect(collected_ink.brand_name).to eq('Brand')
+        expect(collected_ink.line_name).to eq('Line')
         expect(collected_ink.ink_name).to eq('Ink')
         expect(collected_ink.kind).to eq('bottle')
       end
@@ -68,7 +62,6 @@ describe CollectedInksController do
   end
 
   describe '#update' do
-    fixtures :collected_inks
 
     let(:collected_ink) { collected_inks(:monis_marine) }
 
@@ -76,7 +69,7 @@ describe CollectedInksController do
       expect do
         put :update, params: { id: collected_ink.id, collected_ink: { ink_name: 'Not Marine' } }
         expect(response).to redirect_to(new_user_session_path)
-      end.to_not change { Ink.count }
+      end.to_not change { collected_ink.reload }
     end
 
     context 'signed in' do
@@ -87,48 +80,16 @@ describe CollectedInksController do
       end
 
       it 'updates the ink' do
-        expect do
-          expect do
-            put :update, params: { id: collected_ink.id, collected_ink: { ink_name: 'Not Marine' } }
-            expect(response).to redirect_to(collected_inks_path)
-            collected_ink.reload
-            expect(collected_ink.brand_name).to eq('Diamine')
-            expect(collected_ink.ink_name).to eq('Not Marine')
-            expect(collected_ink.kind).to eq('bottle')
-          end.to change { Ink.count }.by(1)
-        end.to_not change { Brand.count }
+        put :update, params: { id: collected_ink.id, collected_ink: { ink_name: 'Not Marine' } }
+        expect(response).to redirect_to(collected_inks_path)
+        collected_ink.reload
+        expect(collected_ink.ink_name).to eq('Not Marine')
       end
 
-      it 'updates the brand' do
-        expect do
-          expect do
-            put :update, params: { id: collected_ink.id, collected_ink: { brand_name: 'Not Diamine' } }
-            expect(response).to redirect_to(collected_inks_path)
-            collected_ink.reload
-            expect(collected_ink.brand_name).to eq('Not Diamine')
-            expect(collected_ink.ink_name).to eq('Marine')
-            expect(collected_ink.kind).to eq('bottle')
-          end.to change { Ink.count }.by(1)
-        end.to change { Brand.count }.by(1)
-      end
-
-      it 'updates the kind' do
-        expect do
-          expect do
-            put :update, params: { id: collected_ink.id, collected_ink: { kind: 'sample' } }
-            expect(response).to redirect_to(collected_inks_path)
-            collected_ink.reload
-            expect(collected_ink.brand_name).to eq('Diamine')
-            expect(collected_ink.ink_name).to eq('Marine')
-            expect(collected_ink.kind).to eq('sample')
-          end.to_not change { Ink.count }
-        end.to_not change { Brand.count }
-      end
     end
   end
 
   describe '#destroy' do
-    fixtures :collected_inks
 
     let(:collected_ink) { collected_inks(:monis_marine) }
     it 'requires authentication' do

@@ -10,44 +10,22 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170521190332) do
+ActiveRecord::Schema.define(version: 20170523152957) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "cube"
   enable_extension "earthdistance"
 
-  create_table "brands", force: :cascade do |t|
-    t.text     "name",       null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["name"], name: "index_brands_on_name", unique: true, using: :btree
-  end
-
   create_table "collected_inks", force: :cascade do |t|
     t.string   "kind"
-    t.integer  "ink_id",                    null: false
     t.integer  "user_id",                   null: false
     t.datetime "created_at",                null: false
     t.datetime "updated_at",                null: false
     t.boolean  "private",    default: true
-  end
-
-  create_table "inks", force: :cascade do |t|
-    t.text     "name",       null: false
-    t.integer  "brand_id",   null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.integer  "line_id"
-    t.index ["name", "brand_id"], name: "index_inks_on_name_and_brand_id", unique: true, using: :btree
-  end
-
-  create_table "lines", force: :cascade do |t|
-    t.text     "name",       null: false
-    t.integer  "brand_id",   null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["name", "brand_id"], name: "index_lines_on_name_and_brand_id", unique: true, using: :btree
+    t.text     "brand_name"
+    t.text     "line_name"
+    t.text     "ink_name"
   end
 
   create_table "users", force: :cascade do |t|
@@ -67,9 +45,5 @@ ActiveRecord::Schema.define(version: 20170521190332) do
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true, using: :btree
   end
 
-  add_foreign_key "collected_inks", "inks"
   add_foreign_key "collected_inks", "users"
-  add_foreign_key "inks", "brands"
-  add_foreign_key "inks", "lines"
-  add_foreign_key "lines", "brands"
 end

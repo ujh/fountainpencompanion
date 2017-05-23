@@ -3,11 +3,11 @@ class CollectedInksController < ApplicationController
   before_action :retrieve_collected_inks
 
   def index
-    @collected_ink = CollectedInk.build
+    @collected_ink = CollectedInk.new
   end
 
   def create
-    @collected_ink = current_user.build_collected_ink(params[:collected_ink])
+    @collected_ink = current_user.collected_inks.build(collected_ink_params)
     if @collected_ink.save
       redirect_to collected_inks_path
     else
@@ -21,8 +21,8 @@ class CollectedInksController < ApplicationController
   end
 
   def update
-    @collected_ink = current_user.update_collected_ink(params)
-    if @collected_ink.save
+    @collected_ink = current_user.collected_inks.find(params[:id])
+    if @collected_ink.update(collected_ink_params)
       redirect_to collected_inks_path
     else
       render :index
@@ -36,7 +36,11 @@ class CollectedInksController < ApplicationController
 
   private
 
+  def collected_ink_params
+    params.require(:collected_ink).permit(:ink_name, :line_name, :brand_name, :kind)
+  end
+
   def retrieve_collected_inks
-    @collected_inks = current_user.collected_inks.joins(ink: :brand).order("brands.name, inks.name")
+    @collected_inks = current_user.collected_inks.order("brand_name, line_name, ink_name")
   end
 end
