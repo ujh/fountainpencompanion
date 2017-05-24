@@ -4,6 +4,12 @@ monis_marine:
   ink_name: Marine
   user: moni
   kind: bottle
+monis_fire_and_ice:
+  brand_name: Robert Oster
+  line_name: Signature
+  ink_name: Fire & Ice
+  user: moni
+  kind: bottle
 toms_marine:
   brand_name: Diamine
   line_name:

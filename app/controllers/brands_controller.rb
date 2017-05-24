@@ -1,6 +1,6 @@
 class BrandsController < ApplicationController
   def index
-    brands = Brand.where("LOWER(name) LIKE ?", "#{params[:term].downcase}%").order(:name)
-    render json: brands.pluck(:name)
+    brands = CollectedInk.where("LOWER(brand_name) LIKE ?", "#{params[:term].downcase}%").group(:brand_name).order(:brand_name)
+    render json: brands.pluck(:brand_name)
   end
 end
