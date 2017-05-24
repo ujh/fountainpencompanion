@@ -1,5 +1,22 @@
 require 'rails_helper'
 
-RSpec.describe InksController, type: :controller do
+describe InksController do
+  fixtures :collected_inks
+
+  describe '#index' do
+
+    it 'returns all inks by default' do
+      get :index, params: { term: '' }
+      expect(response).to be_successful
+      expect(JSON.parse(response.body)).to eq(["Fire & Ice", "Marine"])
+    end
+
+    it 'filters by term' do
+      get :index, params: { term: 'Mar' }
+      expect(response).to be_successful
+      expect(JSON.parse(response.body)).to eq(["Marine"])
+    end
+  end
+
 
 end

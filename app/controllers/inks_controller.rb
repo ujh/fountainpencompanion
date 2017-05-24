@@ -1,7 +1,7 @@
 class InksController < ApplicationController
 
   def index
-    inks = Ink.where("LOWER(name) LIKE ?", "#{params[:term].downcase}%").order(:name)
-    render json: inks.pluck(:name)
+    inks = CollectedInk.field_by_term(:ink_name, params[:term])
+    render json: inks
   end
 end
