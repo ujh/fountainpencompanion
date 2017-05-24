@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170524055721) do
+ActiveRecord::Schema.define(version: 20170524060841) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -26,6 +26,10 @@ ActiveRecord::Schema.define(version: 20170524055721) do
     t.string   "brand_name", limit: 100,                null: false
     t.string   "line_name",  limit: 100
     t.string   "ink_name",   limit: 100,                null: false
+    t.index ["brand_name"], name: "index_collected_inks_on_brand_name", using: :btree
+    t.index ["ink_name"], name: "index_collected_inks_on_ink_name", using: :btree
+    t.index ["line_name"], name: "index_collected_inks_on_line_name", using: :btree
+    t.index ["user_id", "brand_name", "line_name", "ink_name"], name: "unique_per_user", unique: true, using: :btree
   end
 
   create_table "users", force: :cascade do |t|
