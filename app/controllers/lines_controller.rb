@@ -1,6 +1,6 @@
 class LinesController < ApplicationController
   def index
-    lines = Line.where("LOWER(name) LIKE ?", "#{params[:term].downcase}%").order(:name)
-    render json: lines.pluck(:name)
+    lines = CollectedInk.field_by_term(:line_name, params[:term])
+    render json: lines
   end
 end

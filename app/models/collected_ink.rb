@@ -9,6 +9,10 @@ class CollectedInk < ApplicationRecord
 
   belongs_to :user
 
+  def self.field_by_term(field, term)
+    where("LOWER(#{field}) LIKE ?", "#{term.downcase}%").group(field).order(field).pluck(field)
+  end
+
   def name
     "#{brand_name} #{line_name} #{ink_name}"
   end
