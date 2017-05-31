@@ -8,6 +8,7 @@ Rails.application.routes.draw do
   resources :brands, only: [:index]
   resources :lines, only: [:index]
   resources :inks, only: [:index]
+  resource :account, only: [:show, :edit, :update]
 
   root "pages#show", id: "home"
 end
