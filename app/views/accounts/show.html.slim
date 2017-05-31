@@ -1,0 +1,11 @@
+div class="col-xs-6 image"
+  = profile_image(current_user)
+div class="col-xs-6 data"
+  div class="row"
+    div class="col-xs-6" Name: 
+    div class="col-xs-6"
+    - if current_user.name
+      = current_user.name
+    - else
+      em Not Set
+  div= link_to "Edit", edit_account_path, class: "btn btn-primary"

@@ -1,5 +1,5 @@
 - content_for :title, "Inks"
-= simple_form_for @collected_ink, html: { class: 'form-inline', id: 'collected-ink-form'} do |f|
+= simple_form_for @collected_ink, html: { id: 'collected-ink-form'}, wrapper: :inline_form do |f|
   table class="table table-striped"
     tr
       th
