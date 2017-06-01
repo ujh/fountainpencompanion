@@ -1,6 +1,6 @@
 div id="account"
   div class="col-xs-6 image"
-    = profile_image(current_user)
+    = profile_image
   div class="col-xs-6 data"
     = simple_form_for current_user, url: account_path, html: { class: 'form-horizontal' } do |f|
       = f.input :name, wrapper: :horizontal_form
