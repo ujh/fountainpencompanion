@@ -1,0 +1,21 @@
+div id="account"
+  div class="col-xs-6 image"
+    = profile_image_for(@user)
+  div class="col-xs-6 data"
+    div class="row"
+      div class="col-xs-3" Name:
+      div class="col-xs-9"= @user.name
+
+div id="public-inks" class="col-xs-12"
+  table class="table table-striped"
+    tr
+      th Brand
+      th Line
+      th Name
+      th Type
+    - @user.public_inks.each do |ci|
+      tr
+        td= ci.brand_name
+        td= ci.line_name
+        td= ci.ink_name
+        td= ci.kind
