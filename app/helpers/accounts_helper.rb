@@ -1,7 +1,7 @@
 module AccountsHelper
 
   def profile_image(user)
-    image_tag(profile_image_url(user), size: "500x500")
+    image_tag(profile_image_url(user))
   end
 
   def profile_image_url(user)
