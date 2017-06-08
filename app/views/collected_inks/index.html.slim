@@ -1,29 +1,32 @@
 - content_for :title, "Inks"
-= simple_form_for @collected_ink, html: { id: 'collected-ink-form'}, wrapper: :inline_form do |f|
-  table class="table table-striped"
-    tr
-      th
-      th Brand
-      th Line
-      th Name
-      th Type
-      th Actions
-    - @collected_inks.each do |ci|
-      - if ci == @collected_ink
-        tr class="info"= render partial: "form", locals: { f: f , ci: ci}
-      - else
-        tr class="#{ci.private? ? "private" : "public"}"
-          td= privacy_link(ci)
-          td
-            a name=ci.id
-            = ci.brand_name
-          td= ci.line_name
-          td= ci.ink_name
-          td= ci.kind
-          td
-            = link_to edit_collected_ink_path(ci, anchor: ci.id), class: "btn btn-default", title: "Edit #{ci.name}" do
-              = fa_icon("pencil")
-            = link_to collected_ink_path(ci), class: "btn btn-default", method: :delete, data: { confirm: "Really delete #{ci.name}" }, title: "Delete #{ci.name}"
-              = fa_icon("trash")
-    - if @collected_ink.new_record?
-      tr= render partial: "form", locals: { f: f , ci: @collected_ink }
+div id="collected-inks"
+  div class="export"
+    = link_to "Export data", collected_inks_path(format: "csv"), class: "btn btn-primary"
+  = simple_form_for @collected_ink, html: { id: 'collected-ink-form'}, wrapper: :inline_form do |f|
+    table class="table table-striped"
+      tr
+        th
+        th Brand
+        th Line
+        th Name
+        th Type
+        th Actions
+      - @collected_inks.each do |ci|
+        - if ci == @collected_ink
+          tr class="info"= render partial: "form", locals: { f: f , ci: ci}
+        - else
+          tr class="#{ci.private? ? "private" : "public"}"
+            td= privacy_link(ci)
+            td
+              a name=ci.id
+              = ci.brand_name
+            td= ci.line_name
+            td= ci.ink_name
+            td= ci.kind
+            td
+              = link_to edit_collected_ink_path(ci, anchor: ci.id), class: "btn btn-default", title: "Edit #{ci.name}" do
+                = fa_icon("pencil")
+              = link_to collected_ink_path(ci), class: "btn btn-default", method: :delete, data: { confirm: "Really delete #{ci.name}" }, title: "Delete #{ci.name}"
+                = fa_icon("trash")
+      - if @collected_ink.new_record?
+        tr= render partial: "form", locals: { f: f , ci: @collected_ink }

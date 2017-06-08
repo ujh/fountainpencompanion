@@ -26,6 +26,19 @@ describe CollectedInksController do
         expect(response.body).to include(ink.ink_name)
         expect(response.body).to include(ink.brand_name)
       end
+
+      it 'renders the CSV' do
+        get :index, format: "csv"
+        expect(response).to be_successful
+        csv = CSV.generate(col_sep: ";") do |csv|
+          csv << ["Brand", "Line", "Name", "Type"]
+          [:monis_marine, :monis_fire_and_ice].each do |k|
+            ci = collected_inks(k)
+            csv << [ci.brand_name, ci.line_name, ci.ink_name, ci.kind]
+          end
+        end
+        expect(response.body).to eq(csv)
+      end
     end
   end
 
