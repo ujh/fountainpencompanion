@@ -9,7 +9,9 @@ class User < ApplicationRecord
   validates :name, length: { in: 1..100, allow_blank: true }
 
   def to_param
-    "#{id}-#{name.downcase.gsub(/\s/, '-')}"
+    value = "#{id}"
+    value << "-#{name.downcase.gsub(/\s/, '-')}" if name.present?
+    value
   end
 
   def public_inks
