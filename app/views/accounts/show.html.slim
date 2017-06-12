@@ -5,6 +5,7 @@ div id="account"
   div class="col-xs-6 data"
     = simple_form_for current_user, url: account_path, html: { class: 'form-horizontal' } do |f|
       = f.input :name, wrapper: :horizontal_form
+      = f.input :email, disabled: true, wrapper: :horizontal_form, hint: link_to("Change Email Address", edit_user_registration_path)
       div class="form-group"
         div class="col-sm-9 col-sm-offset-3"
           = f.button :button, "Save"
