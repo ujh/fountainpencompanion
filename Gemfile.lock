@@ -40,9 +40,9 @@ GEM
       tzinfo (~> 1.1)
     addressable (2.5.1)
       public_suffix (~> 2.0, >= 2.0.2)
-    airbrake (6.0.0)
-      airbrake-ruby (~> 2.0)
-    airbrake-ruby (2.1.0)
+    airbrake (6.1.1)
+      airbrake-ruby (~> 2.2, >= 2.2.5)
+    airbrake-ruby (2.2.5)
     arel (8.0.0)
     autoprefixer-rails (6.7.7.2)
       execjs
