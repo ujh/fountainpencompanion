@@ -18,6 +18,10 @@ class User < ApplicationRecord
     collected_inks.where(private: false).order("brand_name, line_name, ink_name")
   end
 
+  def public_name
+    private? ? "Anonymous" : name
+  end
+
   def private?
     name.blank?
   end

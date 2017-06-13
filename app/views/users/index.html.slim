@@ -1,0 +1,6 @@
+- content_for :title, "Users"
+- @users.each do |user_group|
+  div class="col-xs-4"
+    ul
+      - user_group.each do |user|
+        li= link_to user.public_name, user_path(user)

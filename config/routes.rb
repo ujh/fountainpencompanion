@@ -10,7 +10,7 @@ Rails.application.routes.draw do
   resources :inks, only: [:index]
   resource :account, only: [:show, :edit, :update]
 
-  resources :users, only: [:show]
+  resources :users, only: [:index, :show]
 
   root "pages#show", id: "home"
 end
