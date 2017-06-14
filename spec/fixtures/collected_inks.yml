@@ -1,18 +1,21 @@
 monis_marine:
   brand_name: Diamine
-  line_name:
+  line_name: ''
   ink_name: Marine
   user: moni
   kind: bottle
+  private: false
 monis_fire_and_ice:
   brand_name: Robert Oster
   line_name: Signature
   ink_name: Fire & Ice
   user: moni
   kind: bottle
+  private: false
 toms_marine:
   brand_name: Diamine
-  line_name:
+  line_name: ''
   ink_name: Marine
   user: tom
   kind: bottle
+  private: false

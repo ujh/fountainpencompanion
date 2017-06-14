@@ -6,6 +6,11 @@ div id="account"
     div class="row"
       div class="col-xs-3" Name:
       div class="col-xs-9"= @user.name
+    - if user_signed_in?
+      div class="row"
+        div class="col-xs-12"= link_to "Inks the user might be interested in", user_possibly_wanted_path(@user)
+      div class="row"
+        div class="col-xs-12"= link_to "Users's inks you might be intereste in", user_possibly_interesting_path(@user)
 
 div id="public-inks" class="col-xs-12"
   table class="table table-striped"
