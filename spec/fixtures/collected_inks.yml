@@ -12,6 +12,13 @@ monis_fire_and_ice:
   user: moni
   kind: bottle
   private: false
+monis_syrah:
+  brand_name: Diamine
+  line_name: ''
+  ink_name: Syrah
+  user: moni
+  kind: bottle
+  private: true
 toms_marine:
   brand_name: Diamine
   line_name: ''

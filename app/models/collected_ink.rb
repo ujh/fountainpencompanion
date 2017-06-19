@@ -10,6 +10,7 @@ class CollectedInk < ApplicationRecord
   belongs_to :user
 
   def self.field_by_term(field, term)
+    where(private: false).
     where("#{field} <> ?", '').
     where("LOWER(#{field}) LIKE ?", "#{term.downcase}%").group(field).order(field).pluck(field)
   end
