@@ -1,8 +1,9 @@
 class UsersController < ApplicationController
 
   def index
-    count = User.count
-    @users = User.order('name').in_groups_of((count.to_f / 3).ceil, false)
+    rel = user_signed_in? ? User.where("id <> ?", current_user.id) : User
+    count = rel.count
+    @users = rel.order('name').in_groups_of((count.to_f / 3).ceil, false)
   end
 
   def show
