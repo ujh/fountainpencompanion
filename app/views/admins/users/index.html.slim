@@ -1,0 +1,10 @@
+table class="table table-striped"
+  tr
+    th ID
+    th Email
+    th Name
+  - @users.each do |user|
+    tr
+      td= user.id
+      td= user.email
+      td= user.public_name

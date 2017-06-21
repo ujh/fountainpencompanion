@@ -8,6 +8,10 @@ class User < ApplicationRecord
 
   validates :name, length: { in: 1..100, allow_blank: true }
 
+  def admin?
+    false
+  end
+
   def to_param
     value = "#{id}"
     value << "-#{name.downcase.gsub(/\s/, '-')}" if name.present?

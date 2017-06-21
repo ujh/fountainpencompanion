@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  devise_for :admins
   devise_for :users
   get "/pages/:id" => "pages#show"
 
@@ -13,6 +14,10 @@ Rails.application.routes.draw do
   resources :users, only: [:index, :show] do
     resource :possibly_wanted, only: [:show]
     resource :possibly_interesting, only: [:show]
+  end
+
+  namespace :admins do
+    resources :users, only: [:index]
   end
 
   root "pages#show", id: "home"

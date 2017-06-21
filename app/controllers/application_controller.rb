@@ -6,6 +6,10 @@ class ApplicationController < ActionController::Base
   end
 
   def after_sign_in_path_for(resource)
-    collected_inks_path
+    if resource.admin?
+      admins_users_path
+    else
+      collected_inks_path
+    end
   end
 end
