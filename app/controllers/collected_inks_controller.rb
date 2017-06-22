@@ -5,6 +5,9 @@ class CollectedInksController < ApplicationController
   before_action :retrieve_collected_inks
 
   def index
+    if current_user.collected_inks.empty?
+      flash.now[:notice] = "Your ink collection is empty. Check out the <a href='/pages/documentation'>documentation</a> on how to add some.".html_safe
+    end
     respond_to do |format|
       format.html { @collected_ink = CollectedInk.new }
       format.csv do
