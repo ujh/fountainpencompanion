@@ -20,4 +20,10 @@ body {
   filter:none !important;
   font-family: Droid Serif, Georgia;
   font-size: 14px;
+  a {
+    color: #999;
+  }
+  a:hover {
+    color: #fff;
+  }
 }

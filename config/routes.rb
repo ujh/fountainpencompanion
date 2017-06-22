@@ -1,7 +1,8 @@
 Rails.application.routes.draw do
   devise_for :admins
   devise_for :users
-  get "/pages/:id" => "pages#show"
+
+  resources :pages, only: [:show]
 
   resources :collected_inks do
     resource :privacy, only: [:create, :destroy]
