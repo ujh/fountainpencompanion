@@ -1,5 +1,12 @@
 div id="wrap"
   div class="container" id="main"
+    - unless cookies['cookie-alert']
+      div id="cookie-alert" class="alert alert-info alert-dismissible"
+        button type="button" class="close" data-dismiss="alert"
+          span &times;
+        | This site uses cookies to make some of it's functionality possible and to improve the
+        | service. 
+        = link_to "Go to this page to find out more.", page_path('cookies')
     h1 class="page-title"= content_for :title
     div class="row content"
       / p class="notice"= notice
