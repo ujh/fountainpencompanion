@@ -18,7 +18,11 @@ Rails.application.routes.draw do
   end
 
   namespace :admins do
-    resources :users, only: [:index]
+    resources :users, only: [:index] do
+      member do
+        post 'become'
+      end
+    end
   end
 
   root "pages#show", id: "home"
