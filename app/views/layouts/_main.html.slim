@@ -7,8 +7,10 @@ div id="wrap"
         | This site uses cookies to make some of it's functionality possible and to improve the
         | service. 
         = link_to "Go to this page to find out more.", page_path('cookies')
+    - if flash[:notice]
+      div class="alert alert-success"= flash[:notice]
+    - if flash[:alert]
+      div class="alert alert-danger"= flash[:alert]
     h1 class="page-title"= content_for :title
     div class="row content"
-      / p class="notice"= notice
-      / p class="alert"= alert
       = yield
