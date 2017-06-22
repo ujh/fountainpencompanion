@@ -1,0 +1,33 @@
+- content_for :title, "Documentation"
+div class="col-xs-12"
+  p
+    | This site is meant to allow you to track your ink collection and to simplify sharing this data
+    |  with others. It also aims to help you trade ink samples with other users.
+  h2 Account
+  p
+    | On the account page you can change your name (or leave it blank) and your email address. You
+    |  can also find the URL to your public profile on that page. To change your profile picture you
+    |  need to change the data for your email address on <a href="http://gravatar.com">gravatar.com</a>.
+  h2 Adding an ink
+  p
+    | Once you've created an account you can go to the 
+    = link_to "inks", collected_inks_path
+    |  page and add your inks. There are three fields you can fill in. <i>Brand</i> is the ink brand
+    |  (like Pelikan or Diamine), <i>Line</i> is a specific ink like (like Edelstein from Pelikan or
+    |  Iroshizuku from Pilot) and <i>Name</i> is the name of the actual ink. Brand and Name need to
+    |  be filled in, but you can leave <i>Line</i> blank if you want. To create an entry you then
+    |  also select the type of container your ink is in. Right now you can select bottle,
+    |  cartridge, or ink sample.
+  h2 Sharing with others
+  p
+    | By default only you can see the entries in your ink collection. By clicking on the 
+    = fa_icon("lock")
+    |  (lock) sign next to each entry you can make each entry visible (or hide it again) to everyone.
+  p
+    | Once you've made some of your inks public others can see them on your public page. If they're
+    |  logged in as well they can also compare their ink collection with yours (obviously only with
+    |  your public ones). They can see a list of inks <i>they</i> own that you don't (which would be
+    |  the inks they could send you samples of) and a list of inks <i>you</i> own that they don't
+    |  (those would be the inks you might want to ask the other user about).
+  h2 Exporting
+  p You can export your whole ink collection as a CSV file at any point.
