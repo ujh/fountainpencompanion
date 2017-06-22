@@ -1,4 +1,6 @@
 moni:
   email: moni@example.com
+  confirmed_at: <%= 1.day.ago.to_s(:db) %>
 tom:
   email: tom@example.com
+  confirmed_at: <%= 1.day.ago.to_s(:db) %>

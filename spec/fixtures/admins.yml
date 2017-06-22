@@ -1,0 +1,3 @@
+urban:
+  email: urban@example.com
+  confirmed_at: <%= 1.day.ago.to_s(:db) %>

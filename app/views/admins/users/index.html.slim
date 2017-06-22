@@ -1,0 +1,12 @@
+table class="table table-striped"
+  tr
+    th ID
+    th Email
+    th Name
+    th
+  - @users.each do |user|
+    tr
+      td= user.id
+      td= user.email
+      td= user.public_name
+      td= link_to "Login", become_admins_user_path(user), method: :post, target: "_blank"

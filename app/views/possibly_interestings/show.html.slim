@@ -1,0 +1,11 @@
+- content_for :title, "Inks you might be interested in"
+table class="table table-striped"
+  tr
+    th Brand
+    th Line
+    th Name
+  - @possibly_interesting_inks.each do |ci|
+    tr
+      td= ci.brand_name
+      td= ci.line_name
+      td= ci.ink_name

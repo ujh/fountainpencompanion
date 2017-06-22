@@ -1,0 +1,23 @@
+nav class="navbar navbar-default navbar-fixed-top" id="header"
+  div class="container"
+    div class="navbar-header"
+      button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#header-menu"
+        span class="icon-bar"
+        span class="icon-bar"
+        span class="icon-bar"
+      a class="navbar-brand" href="#"
+
+    div class="collapse navbar-collapse" id="header-menu"
+      ul class="nav navbar-nav"
+        li= link_to "Home", root_path
+        li= link_to "Users", users_path
+        - if user_signed_in?
+          li= link_to "Inks", collected_inks_path
+      ul class="nav navbar-nav navbar-right"
+        - if user_signed_in?
+          li= link_to "Account", account_path
+          li= link_to "Logout", destroy_user_session_path, method: :delete
+          li= profile_image(size: 100)
+        - else
+          li= link_to "Sign Up", new_user_registration_path
+          li= link_to "Login", new_user_session_path
