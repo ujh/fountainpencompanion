@@ -24,7 +24,7 @@ vespercreative.com
 /* #Global Styles
 -------------------------------------------------- */
 body {
-  background: #fff url(bg-body.png) fixed repeat;
+  background: #fff image-url("bg-body.png") fixed repeat;
   line-height: 22px;
 	font-family: Arial, Helvetica, sans-serif;
 }
@@ -164,7 +164,7 @@ margin-left: 30px;
     color: #757575;
 }
 #wrap .container {
-    background: transparent url(bg-page.png) repeat;
+    background: transparent image-url("bg-page.png") repeat;
     border-radius: 10px;
     display: block;
     padding: 10px;
