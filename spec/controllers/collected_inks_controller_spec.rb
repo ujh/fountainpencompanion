@@ -63,7 +63,8 @@ describe CollectedInksController do
             brand_name: 'Brand',
             kind: 'bottle'
           }}
-          expect(response).to redirect_to(collected_inks_path)
+          collected_ink = CollectedInk.order(:id).last
+          expect(response).to redirect_to(collected_inks_path(anchor: collected_ink.id))
         end.to change { user.collected_inks.count }.by(1)
         collected_ink = user.collected_inks.last
         expect(collected_ink.brand_name).to eq('Brand')

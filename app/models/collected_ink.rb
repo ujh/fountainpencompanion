@@ -11,10 +11,14 @@ class CollectedInk < ApplicationRecord
 
   belongs_to :user
 
-  def self.field_by_term(field, term)
-    where(private: false).
-    where("#{field} <> ?", '').
-    where("LOWER(#{field}) LIKE ?", "#{term.downcase}%").group(field).order(field).pluck(field)
+  def self.field_by_term(field, term, user)
+    relation = where("#{field} <> ?", '')
+    if user
+      relation = relation.where("private = ? OR user_id = ?", false, user.id)
+    else
+      relation = relation.where(private: false)
+    end
+    relation.where("LOWER(#{field}) LIKE ?", "#{term.downcase}%").group(field).order(field).pluck(field)
   end
 
   def self.unique_count
