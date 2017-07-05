@@ -8,7 +8,10 @@ table class="table table-striped"
   - @users.each do |user|
     tr
       td= user.id
-      td= user.email
+      td
+        = user.email
+        - unless user.confirmed?
+          |  (unconfirmed)
       td= user.public_name
       td= link_to "Login", become_admins_user_path(user), method: :post, target: "_blank"
       td= form_tag(import_admins_user_path(user), method: :post, multipart: true) do
