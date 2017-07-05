@@ -18,8 +18,11 @@ class Admins::UsersController < ApplicationController
     count = 0
     CSV.parse(params[:file].read, headers: true) do |row|
       row = row.to_hash
+      row.keys.each {|k|
+        row[k] = '' if row[k].nil?
+        row[k] = row[k].strip
+      }
       row["private"] = !row["private"].blank?
-      row.keys.each {|k| row[k] = '' if row[k].nil?}
       count +=1 if @user.collected_inks.create(row)
     end
     flash[:notice] = "#{count} inks imported for #{@user.email}"

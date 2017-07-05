@@ -34,6 +34,7 @@ describe Admins::UsersController do
         csv << %w(brand_name line_name ink_name kind private)
         csv << ['Diamine', 'Shimmertastic', 'Purple Pazzazz', 'bottle', 'x']
         csv << ['J. Herbin', '', 'Vert Olive', 'sample']
+        csv << ['Pelikan', ' Edelstein ', 'Aventurine', 'sample']
       end
       name
     end
@@ -53,9 +54,11 @@ describe Admins::UsersController do
       it 'processes the CSV file' do
         expect do
           post :import, params: { id: user.id, file: file_upload }
-        end.to change { user.collected_inks.count }.by(2)
+        end.to change { user.collected_inks.count }.by(3)
         expect(user.collected_inks.find_by(ink_name: 'Purple Pazzazz')).to be_private
         expect(user.collected_inks.find_by(ink_name: 'Vert Olive')).to_not be_private
+        # Removes whitespace
+        expect(user.collected_inks.find_by(ink_name: 'Aventurine').line_name).to eq('Edelstein')
       end
     end
   end
