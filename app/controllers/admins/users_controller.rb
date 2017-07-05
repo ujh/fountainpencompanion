@@ -1,3 +1,5 @@
+require 'csv'
+
 class Admins::UsersController < ApplicationController
 
   layout 'admin'
@@ -6,7 +8,7 @@ class Admins::UsersController < ApplicationController
   before_action :fetch_user, only: [:become, :import]
 
   def index
-    @users = User.all
+    @users = User.order(:id)
   end
 
   def become
@@ -18,9 +20,13 @@ class Admins::UsersController < ApplicationController
     count = 0
     CSV.parse(params[:file].read, headers: true) do |row|
       row = row.to_hash
+      row.keys.each {|k|
+        row[k] = '' if row[k].nil?
+        row[k] = row[k].strip
+      }
       row["private"] = !row["private"].blank?
-      row.keys.each {|k| row[k] = '' if row[k].nil?}
-      count +=1 if @user.collected_inks.create(row)
+      ci = @user.collected_inks.create(row.slice("brand_name", "line_name", "ink_name", "kind", "private"))
+      count +=1 if ci.persisted?
     end
     flash[:notice] = "#{count} inks imported for #{@user.email}"
     redirect_to admins_users_path
