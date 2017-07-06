@@ -21,8 +21,9 @@ class CollectedInk < ApplicationRecord
     relation.where("LOWER(#{field}) LIKE ?", "#{term.downcase}%").group(field).order(field).pluck(field)
   end
 
-  def self.unique_count
-    group("LOWER(brand_name), LOWER(line_name), LOWER(ink_name)").count.size
+  def self.unique_for_brand(brand_name)
+    fields = "brand_name, line_name, ink_name"
+    where(brand_name: brand_name).order(fields).group(fields).select("#{fields}, count(*) as count")
   end
 
   def name

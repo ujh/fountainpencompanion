@@ -10,5 +10,6 @@ nav class="navbar navbar-default navbar-fixed-top" id="header"
     div class="collapse navbar-collapse" id="header-menu"
       ul class="nav navbar-nav"
         li= link_to "Users", admins_users_path
+        li= link_to "Brands", admins_brands_path
       ul class="nav navbar-nav navbar-right"
         li= link_to "Logout", destroy_admin_session_path, method: :delete

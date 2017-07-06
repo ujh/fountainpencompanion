@@ -24,6 +24,8 @@ Rails.application.routes.draw do
         post 'import'
       end
     end
+    resources :brands, only: [:index]
+    get 'brands/:id', to: "brands#show", constraints: { id: /[^\/]+/}, as: "brand"
   end
 
   root "pages#show", id: "home"
