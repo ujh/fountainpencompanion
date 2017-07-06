@@ -5,7 +5,7 @@ div class="col-xs-4 home"
     | Track your ink collection. 
     = link_to "#{User.count} other people", users_path
     |  are already using this service to track 
-    = CollectedInk.unique_count
+    = CollectedInk.count
     |  inks.
 div class="col-xs-4 home"
   = fa_icon("eye")
