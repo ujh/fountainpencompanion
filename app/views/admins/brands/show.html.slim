@@ -1,0 +1,16 @@
+- content_for :title, "#{@inks.length} inks"
+
+table class="table table-striped"
+  thead
+    tr
+      th Count
+      th Brand
+      th Line
+      th Ink
+  tbody
+    - @inks.each do |ink|
+      tr
+        td= ink.count
+        td= ink.brand_name
+        td= ink.line_name
+        td= ink.ink_name
