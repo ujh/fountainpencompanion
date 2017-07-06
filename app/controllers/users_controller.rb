@@ -1,9 +1,7 @@
 class UsersController < ApplicationController
 
   def index
-    rel = User
-    count = [rel.count, 1].max
-    @users = rel.order('name').in_groups_of((count.to_f / 3).ceil, false)
+    @users = User.active.order('lower(name), id')
   end
 
   def show
