@@ -1,5 +1,5 @@
 - content_for :title, "Users"
-- @users.each do |user_group|
+- @users.in_groups(3, false).each do |user_group|
   div class="col-xs-4"
     ul
       - user_group.each do |user|

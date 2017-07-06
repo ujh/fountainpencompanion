@@ -8,6 +8,10 @@ class User < ApplicationRecord
 
   validates :name, length: { in: 1..100, allow_blank: true }
 
+  def self.active
+    where.not(confirmed_at: nil)
+  end
+
   def admin?
     false
   end
