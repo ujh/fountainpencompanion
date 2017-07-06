@@ -1,10 +1,7 @@
 require 'csv'
 
-class Admins::UsersController < ApplicationController
+class Admins::UsersController < Admins::BaseController
 
-  layout 'admin'
-
-  before_action :authenticate_admin!
   before_action :fetch_user, only: [:become, :import]
 
   def index

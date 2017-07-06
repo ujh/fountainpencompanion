@@ -24,6 +24,7 @@ Rails.application.routes.draw do
         post 'import'
       end
     end
+    resources :brands, only: [:index, :show]
   end
 
   root "pages#show", id: "home"
