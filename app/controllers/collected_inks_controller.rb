@@ -25,6 +25,7 @@ class CollectedInksController < ApplicationController
     if @collected_ink.save
       redirect_to collected_inks_path(anchor: "add-form")
     else
+      @elementToScrollTo = "#add-form"
       render :index
     end
   end
@@ -39,6 +40,7 @@ class CollectedInksController < ApplicationController
     if @collected_ink.update(collected_ink_params)
       redirect_to collected_inks_path
     else
+      @elementToScrollTo = "##{@collected_ink.id}"
       render :index
     end
   end

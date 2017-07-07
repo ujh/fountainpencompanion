@@ -11,3 +11,5 @@ html
     = render partial: "layouts/main"
     = render partial: "layouts/footer"
     = render partial: "layouts/ga"
+    = javascript_tag do
+      = "elementToScrollTo = #{@elementToScrollTo.to_s.inspect}".html_safe
