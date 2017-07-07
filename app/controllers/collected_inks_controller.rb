@@ -23,8 +23,9 @@ class CollectedInksController < ApplicationController
   def create
     @collected_ink = current_user.collected_inks.build(collected_ink_params)
     if @collected_ink.save
-      redirect_to collected_inks_path(anchor: @collected_ink.id)
+      redirect_to collected_inks_path(anchor: "add-form")
     else
+      @elementToScrollTo = "#add-form"
       render :index
     end
   end
@@ -39,6 +40,7 @@ class CollectedInksController < ApplicationController
     if @collected_ink.update(collected_ink_params)
       redirect_to collected_inks_path
     else
+      @elementToScrollTo = "##{@collected_ink.id}"
       render :index
     end
   end

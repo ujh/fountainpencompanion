@@ -30,6 +30,18 @@ class CollectedInk < ApplicationRecord
     "#{brand_name} #{line_name} #{ink_name}"
   end
 
+  def brand_name=(value)
+    super(value.strip)
+  end
+
+  def line_name=(value)
+    super(value.strip)
+  end
+
+  def ink_name=(value)
+    super(value.strip)
+  end
+
   private
 
   def unique_constraint

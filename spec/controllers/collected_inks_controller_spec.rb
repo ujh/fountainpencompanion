@@ -72,6 +72,24 @@ describe CollectedInksController do
         expect(collected_ink.ink_name).to eq('Ink')
         expect(collected_ink.kind).to eq('bottle')
       end
+
+      it 'strips out extraneous whitespace' do
+        expect do
+          post :create, params: { collected_ink: {
+            ink_name: ' Ink ',
+            line_name: ' Line ',
+            brand_name: ' Brand ',
+            kind: 'bottle'
+          }}
+          collected_ink = CollectedInk.order(:id).last
+          expect(response).to redirect_to(collected_inks_path(anchor: collected_ink.id))
+        end.to change { user.collected_inks.count }.by(1)
+        collected_ink = user.collected_inks.last
+        expect(collected_ink.brand_name).to eq('Brand')
+        expect(collected_ink.line_name).to eq('Line')
+        expect(collected_ink.ink_name).to eq('Ink')
+        expect(collected_ink.kind).to eq('bottle')
+      end
     end
   end
 
@@ -100,6 +118,20 @@ describe CollectedInksController do
         expect(collected_ink.ink_name).to eq('Not Marine')
       end
 
+      it 'strips out whitespace' do
+        put :update, params: {
+          id: collected_ink.id, collected_ink: {
+            ink_name: ' Not Marine ',
+            line_name: ' Not 1670 ',
+            brand_name: ' Not Diamine ',
+          }
+        }
+        expect(response).to redirect_to(collected_inks_path)
+        collected_ink.reload
+        expect(collected_ink.ink_name).to eq('Not Marine')
+        expect(collected_ink.line_name).to eq('Not 1670')
+        expect(collected_ink.brand_name).to eq('Not Diamine')
+      end
     end
   end
 
