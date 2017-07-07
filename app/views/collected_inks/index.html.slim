@@ -27,4 +27,4 @@ div id="collected-inks"
               = link_to collected_ink_path(ci), class: "btn btn-default", method: :delete, data: { confirm: "Really delete #{ci.name}" }, title: "Delete #{ci.name}"
                 = fa_icon("trash")
       - if @collected_ink.new_record?
-        tr= render partial: "form", locals: { f: f , ci: @collected_ink }
+        tr id="add-form"= render partial: "form", locals: { f: f , ci: @collected_ink }

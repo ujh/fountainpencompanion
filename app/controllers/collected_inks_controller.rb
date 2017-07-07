@@ -23,7 +23,7 @@ class CollectedInksController < ApplicationController
   def create
     @collected_ink = current_user.collected_inks.build(collected_ink_params)
     if @collected_ink.save
-      redirect_to collected_inks_path(anchor: @collected_ink.id)
+      redirect_to collected_inks_path(anchor: "add-form")
     else
       render :index
     end
