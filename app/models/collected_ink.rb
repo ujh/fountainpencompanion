@@ -26,6 +26,10 @@ class CollectedInk < ApplicationRecord
     where(brand_name: brand_name).order(fields).group(fields).select("#{fields}, count(*) as count")
   end
 
+  def self.brand_count
+    order(:brand_name).group(:brand_name).pluck(:brand_name).size
+  end
+
   def name
     "#{brand_name} #{line_name} #{ink_name}"
   end
