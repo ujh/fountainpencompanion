@@ -3,6 +3,7 @@ td class="form"= f.input :brand_name, label: false
 td class="form"= f.input :line_name, label: false
 td class="form"= f.input :ink_name, label: false
 td class="form"= f.input :kind, label: false, as: :select, collection: CollectedInk::KINDS
+td class="form"= f.input :comment
 td class="form"
   = f.button :button do
     = fa_icon("check")

@@ -10,6 +10,7 @@ div id="collected-inks"
         th Line
         th Name
         th Type
+        th Comment
         th Actions
       - @collected_inks.each do |ci|
         - if ci == @collected_ink
@@ -21,6 +22,7 @@ div id="collected-inks"
             td= ci.line_name
             td= ci.ink_name
             td= ci.kind
+            td= ci.comment
             td
               = link_to edit_collected_ink_path(ci, anchor: ci.id), class: "btn btn-default", title: "Edit #{ci.name}" do
                 = fa_icon("pencil")
