@@ -38,7 +38,7 @@ class CollectedInksController < ApplicationController
   def update
     @collected_ink = current_user.collected_inks.find(params[:id])
     if @collected_ink.update(collected_ink_params)
-      redirect_to collected_inks_path
+      redirect_to collected_inks_path(anchor: @collected_ink.id)
     else
       @elementToScrollTo = "##{@collected_ink.id}"
       render :index
