@@ -53,7 +53,13 @@ class CollectedInksController < ApplicationController
   private
 
   def collected_ink_params
-    params.require(:collected_ink).permit(:ink_name, :line_name, :brand_name, :kind)
+    params.require(:collected_ink).permit(
+      :ink_name,
+      :line_name,
+      :brand_name,
+      :kind,
+      :comment,
+    )
   end
 
   def retrieve_collected_inks
