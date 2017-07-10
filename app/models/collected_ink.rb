@@ -23,7 +23,11 @@ class CollectedInk < ApplicationRecord
 
   def self.unique_for_brand(brand_name)
     fields = "brand_name, line_name, ink_name"
-    where(brand_name: brand_name).order(fields).group(fields).select("#{fields}, count(*) as count")
+    where(brand_name: brand_name).alphabetical.group(fields).select("#{fields}, count(*) as count")
+  end
+
+  def self.alphabetical
+    order("brand_name, line_name, ink_name")
   end
 
   def self.brand_count

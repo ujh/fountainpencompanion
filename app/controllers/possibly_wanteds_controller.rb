@@ -4,7 +4,7 @@ class PossiblyWantedsController < ApplicationController
   before_action :find_user
 
   def show
-    @possibly_wanted_inks = current_user.possibly_wanted_inks_from(@user)
+    @possibly_wanted_inks = current_user.possibly_wanted_inks_from(@user).alphabetical
   end
 
   private
