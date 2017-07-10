@@ -113,7 +113,7 @@ describe CollectedInksController do
 
       it 'updates the ink' do
         put :update, params: { id: collected_ink.id, collected_ink: { ink_name: 'Not Marine' } }
-        expect(response).to redirect_to(collected_inks_path)
+        expect(response).to redirect_to(collected_inks_path(anchor: collected_ink.id))
         collected_ink.reload
         expect(collected_ink.ink_name).to eq('Not Marine')
       end
@@ -126,7 +126,7 @@ describe CollectedInksController do
             brand_name: ' Not Diamine ',
           }
         }
-        expect(response).to redirect_to(collected_inks_path)
+        expect(response).to redirect_to(collected_inks_path(anchor: collected_ink.id))
         collected_ink.reload
         expect(collected_ink.ink_name).to eq('Not Marine')
         expect(collected_ink.line_name).to eq('Not 1670')
