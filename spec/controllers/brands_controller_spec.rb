@@ -6,13 +6,13 @@ describe BrandsController do
   describe '#index' do
 
     it 'returns all brands by default' do
-      get :index, params: { term: '' }
+      get :index, params: { term: '' }, format: :json
       expect(response).to be_successful
       expect(JSON.parse(response.body)).to eq(["Diamine", "Robert Oster"])
     end
 
     it 'filters by term' do
-      get :index, params: { term: 'Dia' }
+      get :index, params: { term: 'Dia' }, format: :json
       expect(response).to be_successful
       expect(JSON.parse(response.body)).to eq(["Diamine"])
     end

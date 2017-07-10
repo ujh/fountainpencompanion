@@ -8,6 +8,7 @@ Rails.application.routes.draw do
     resource :privacy, only: [:create, :destroy]
   end
   resources :brands, only: [:index]
+  get 'brands/:id', to: "brands#show", constraints: { id: /[^\/]+/}, as: "brand"
   resources :lines, only: [:index]
   resources :inks, only: [:index]
   resource :account, only: [:show, :edit, :update]
@@ -24,8 +25,6 @@ Rails.application.routes.draw do
         post 'import'
       end
     end
-    resources :brands, only: [:index]
-    get 'brands/:id', to: "brands#show", constraints: { id: /[^\/]+/}, as: "brand"
   end
 
   root "pages#show", id: "home"
