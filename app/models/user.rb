@@ -26,6 +26,22 @@ class User < ApplicationRecord
     collected_inks.where(private: false).order("brand_name, line_name, ink_name")
   end
 
+  def public_count
+    public_inks.count
+  end
+
+  def public_bottle_count
+    public_inks.bottles.count
+  end
+
+  def public_sample_count
+    public_inks.samples.count
+  end
+
+  def public_cartridge_count
+    public_inks.cartridges.count
+  end
+
   def public_name
     private? ? "Anonymous" : name
   end

@@ -34,6 +34,18 @@ class CollectedInk < ApplicationRecord
     order(:brand_name).group(:brand_name).pluck(:brand_name).size
   end
 
+  def self.bottles
+    where(kind: "bottle")
+  end
+
+  def self.samples
+    where(kind: "sample")
+  end
+
+  def self.cartridges
+    where(kind: "cartridge")
+  end
+
   def name
     "#{brand_name} #{line_name} #{ink_name}"
   end
