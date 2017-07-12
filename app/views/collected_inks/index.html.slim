@@ -30,3 +30,16 @@ div id="collected-inks"
                 = fa_icon("trash")
       - if @collected_ink.new_record?
         tr id="add-form"= render partial: "form", locals: { f: f , ci: @collected_ink }
+      tr
+        th
+        th= "#{current_user.brand_count} brands"
+        th
+        th= "#{current_user.ink_count} inks"
+        th
+          = "#{current_user.bottle_count}x bottle"
+          br
+          = "#{current_user.sample_count}x sample"
+          br
+          = "#{current_user.cartridge_count}x cartridge"
+        th
+        th
