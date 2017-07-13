@@ -19,8 +19,9 @@ div id="account"
         div class="col-xs-12"= link_to "Inks the user might be interested in", user_possibly_wanted_path(@user)
       div class="row"
         div class="col-xs-12"= link_to "Users's inks you might be interested in", user_possibly_interesting_path(@user)
-    div class="row"
-      div class="col-xs-12 blurb"= Slodown::Formatter.new(@user.blurb).complete.to_s.html_safe
+    - if @user.blurb.present?
+      div class="row"
+        div class="col-xs-12 blurb"= Slodown::Formatter.new(@user.blurb).complete.to_s.html_safe
 
 div id="public-inks" class="col-xs-12"
   table class="table table-striped"
