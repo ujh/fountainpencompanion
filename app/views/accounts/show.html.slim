@@ -1,8 +1,8 @@
 - content_for :title, "Account"
 div id="account"
-  div class="col-xs-6 image"
+  div class="col-xs-3 image"
     = profile_image
-  div class="col-xs-6 data"
+  div class="col-xs-9 data"
     = simple_form_for current_user, url: account_path, html: { class: 'form-horizontal' } do |f|
       = f.input :name, wrapper: :horizontal_form
       = f.input :email, disabled: true, wrapper: :horizontal_form, hint: link_to("Change Email Address", edit_user_registration_path)
