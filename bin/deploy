@@ -2,6 +2,12 @@
 
 set -e
 
+echo "+-----------------+"
+echo "| Pushing develop |"
+echo "+-----------------+"
+git co develop
+git push
+
 echo "+-------------------+"
 echo "| Running the tests |"
 echo "+-------------------+"
