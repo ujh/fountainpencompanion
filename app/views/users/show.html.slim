@@ -2,7 +2,6 @@
 div id="account"
   div class="col-xs-3 image"
     = profile_image_for(@user)
-  div class="col-xs-9 data"
     div class="row"
       div class="col-xs-3" Name:
       div class="col-xs-9"= @user.public_name
@@ -19,6 +18,7 @@ div id="account"
         div class="col-xs-12"= link_to "Inks the user might be interested in", user_possibly_wanted_path(@user)
       div class="row"
         div class="col-xs-12"= link_to "Users's inks you might be interested in", user_possibly_interesting_path(@user)
+  div class="col-xs-9 data"
     - if @user.blurb.present?
       div class="row"
         div class="col-xs-12 blurb"= Slodown::Formatter.new(@user.blurb).complete.to_s.html_safe
