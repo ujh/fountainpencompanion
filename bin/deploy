@@ -2,16 +2,19 @@
 
 set -e
 
+echo "+-------------------+"
+echo "| Running the tests |"
+echo "+-------------------+"
+rspec --profile
+
+echo "+--------------------------------+"
+echo "| Switching to the master branch |"
+echo "+--------------------------------+"
 git co master
 git merge --no-ff -m 'Merging develop into master' develop
 git tag `ruby ./bin/version.rb`
 git push
 git push --tags
-
-echo "+-------------------+"
-echo "| Running the tests |"
-echo "+-------------------+"
-rspec --profile
 
 echo "+---------------+"
 echo "| Outdated gems |"
