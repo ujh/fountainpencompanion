@@ -10,7 +10,7 @@ module AccountsHelper
 
   def profile_image_url(user, size:)
     hash = Digest::MD5.hexdigest(user.email.downcase)
-    "https://www.gravatar.com/avatar/#{hash}.jpg?s=#{size}"
+    "https://www.gravatar.com/avatar/#{hash}.jpg?s=#{size}&d=identicon"
   end
 
 end
