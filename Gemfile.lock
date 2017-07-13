@@ -61,6 +61,7 @@ GEM
       execjs
     coffee-script-source (1.12.2)
     concurrent-ruby (1.0.5)
+    crass (1.0.2)
     devise (4.3.0)
       bcrypt (~> 3.0)
       orm_adapter (~> 0.1)
@@ -87,6 +88,7 @@ GEM
     jquery-ui-rails (6.0.1)
       railties (>= 3.2.16)
     json (2.1.0)
+    kramdown (1.14.0)
     launchy (2.4.3)
       addressable (~> 2.3)
     letter_opener (1.4.1)
@@ -109,6 +111,8 @@ GEM
     nio4r (2.1.0)
     nokogiri (1.8.0)
       mini_portile2 (~> 2.2.0)
+    nokogumbo (1.4.13)
+      nokogiri
     orm_adapter (0.5.0)
     pg (0.21.0)
     public_suffix (2.0.5)
@@ -146,6 +150,7 @@ GEM
     responders (2.4.0)
       actionpack (>= 4.2.0, < 5.3)
       railties (>= 4.2.0, < 5.3)
+    rinku (2.0.2)
     rspec-core (3.6.0)
       rspec-support (~> 3.6.0)
     rspec-expectations (3.6.0)
@@ -163,7 +168,12 @@ GEM
       rspec-mocks (~> 3.6.0)
       rspec-support (~> 3.6.0)
     rspec-support (3.6.0)
+    ruby-oembed (0.12.0)
     ruby_dep (1.5.0)
+    sanitize (4.5.0)
+      crass (~> 1.0.2)
+      nokogiri (>= 1.4.4)
+      nokogumbo (~> 1.4.1)
     sass (3.4.24)
     sass-rails (5.0.6)
       railties (>= 4.0.0, < 6)
@@ -182,6 +192,11 @@ GEM
     slim (3.0.8)
       temple (>= 0.7.6, < 0.9)
       tilt (>= 1.3.3, < 2.1)
+    slodown (0.4.0)
+      kramdown (>= 1.5.0)
+      rinku (>= 1.7.0)
+      ruby-oembed (>= 0.9.0)
+      sanitize (>= 2.0.0)
     spring (2.0.2)
       activesupport (>= 4.2)
     spring-watcher-listen (2.0.1)
@@ -237,6 +252,7 @@ DEPENDENCIES
   simple_form
   simplecov
   slim
+  slodown
   spring
   spring-watcher-listen
   uglifier

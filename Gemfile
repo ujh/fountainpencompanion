@@ -23,6 +23,7 @@ gem 'puma'
 gem 'sass-rails'
 gem 'simple_form'
 gem 'slim'
+gem 'slodown'
 gem 'uglifier'
 
 group :development, :test do

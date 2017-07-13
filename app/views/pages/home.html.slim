@@ -7,8 +7,8 @@ div class="col-xs-4 home"
     |  are already using this service to track 
     = CollectedInk.count
     |  inks of  
-    = CollectedInk.brand_count
-    |  brands.
+    = link_to "#{CollectedInk.brand_count} brands", brands_path
+    | .
 div class="col-xs-4 home"
   = fa_icon("eye")
   div
