@@ -1,6 +1,4 @@
 class LeaderBoard
-
-
   def self.inks
     User.joins(:collected_inks).group("users.id").order("count(*) DESC").limit(10)
   end
