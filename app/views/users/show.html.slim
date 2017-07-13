@@ -1,8 +1,8 @@
 - content_for :title, @user.public_name
 div id="account"
-  div class="col-xs-6 image"
+  div class="col-xs-3 image"
     = profile_image_for(@user)
-  div class="col-xs-6 data"
+  div class="col-xs-9 data"
     div class="row"
       div class="col-xs-3" Name:
       div class="col-xs-9"= @user.public_name
