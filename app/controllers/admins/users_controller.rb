@@ -22,7 +22,9 @@ class Admins::UsersController < Admins::BaseController
         row[k] = row[k].strip
       }
       row["private"] = !row["private"].blank?
-      ci = @user.collected_inks.create(row.slice("brand_name", "line_name", "ink_name", "kind", "private"))
+      ci = @user.collected_inks.create(row.slice(
+        "brand_name", "line_name", "ink_name", "kind", "private", "comment"
+      ))
       count +=1 if ci.persisted?
     end
     flash[:notice] = "#{count} inks imported for #{@user.email}"
