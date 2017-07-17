@@ -26,9 +26,22 @@ describe CollectedInk do
         user_id: existing_ink.user_id,
         brand_name: existing_ink.brand_name,
         line_name: existing_ink.line_name,
-        ink_name: existing_ink.ink_name
+        ink_name: existing_ink.ink_name,
+        kind: existing_ink.kind,
       )
       expect(new_ink).to_not be_valid
+    end
+
+    it 'is allowed to have the same ink with a different kind' do
+      existing_ink.update_attributes!(kind: 'bottle')
+      new_ink = CollectedInk.new(
+        user_id: existing_ink.user_id,
+        brand_name: existing_ink.brand_name,
+        line_name: existing_ink.line_name,
+        ink_name: existing_ink.ink_name,
+        kind: 'sample',
+      )
+      expect(new_ink).to be_valid
     end
 
     it 'is allowed to create the same ink for another user' do
@@ -46,7 +59,8 @@ describe CollectedInk do
         user_id: existing_ink.user_id,
         brand_name: existing_ink.brand_name.upcase,
         line_name: existing_ink.line_name,
-        ink_name: existing_ink.ink_name
+        ink_name: existing_ink.ink_name,
+        kind: existing_ink.kind,
       )
       expect(new_ink).to_not be_valid
     end

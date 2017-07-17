@@ -70,7 +70,7 @@ class CollectedInk < ApplicationRecord
       brand_name.to_s.downcase,
       line_name.to_s.downcase,
       ink_name.to_s.downcase
-    ).where(user_id: user_id)
+    ).where(user_id: user_id).where(kind: kind)
     rel = rel.where("id <> ?", id) if persisted?
     errors.add(:ink_name, "Duplicate!") if rel.exists?
   end
