@@ -18,7 +18,7 @@ class CollectedInk < ApplicationRecord
     else
       relation = relation.where(private: false)
     end
-    relation.where("LOWER(#{field}) LIKE ?", "#{term.downcase}%").group(field).order(field).pluck(field)
+    relation.where("LOWER(#{field}) LIKE ?", "%#{term.downcase}%").group(field).order(field).pluck(field)
   end
 
   def self.unique_for_brand(brand_name)
