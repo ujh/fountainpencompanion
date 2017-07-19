@@ -1,0 +1,5 @@
+- if user_signed_in? && ci.user_id == current_user.id
+  = link_to edit_collected_ink_path(ci, anchor: ci.id), class: "btn btn-default", title: "Edit #{ci.name}" do
+    = fa_icon("pencil")
+  = link_to collected_ink_path(ci), class: "btn btn-default", method: :delete, data: { confirm: "Really delete #{ci.name}" }, title: "Delete #{ci.name}"
+    = fa_icon("trash")

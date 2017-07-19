@@ -1,0 +1,40 @@
+div class="ink-collection"
+  table class="table table-striped"
+    thead
+      tr
+        th
+        th Brand
+        th Line
+        th Name
+        th Type
+        th Comment
+        th= @collected_ink ? "Actions" : ""
+    tbody
+      - ink_collection.each do |ci|
+        - if ci == @collected_ink
+          tr id="#{ci.id}" class="info"= render partial: "ink_collection/form", locals: { f: f , ci: ci}
+        - else
+          tr id="#{ci.id}" class="#{ci.private? ? "private" : "public"}"
+            td= privacy_link(ci)
+            td= ci.brand_name
+            td= ci.line_name
+            td= ci.ink_name
+            td= ci.kind
+            td= ci.comment
+            td= render partial: "ink_collection/actions", locals: { ci: ci }
+    tfoot
+      - if @collected_ink&.new_record?
+        tr id="add-form"= render partial: "ink_collection/form", locals: { f: f , ci: @collected_ink }
+      tr
+        th
+        th= "#{ink_collection.brand_count} brands"
+        th
+        th= "#{ink_collection.count} inks"
+        th
+          = "#{ink_collection.bottle_count}x bottle"
+          br
+          = "#{ink_collection.sample_count}x sample"
+          br
+          = "#{ink_collection.cartridge_count}x cartridge"
+        th
+        th
