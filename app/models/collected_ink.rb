@@ -31,7 +31,11 @@ class CollectedInk < ApplicationRecord
   end
 
   def self.brand_count
-    reorder('').group(:brand_name).pluck(:brand_name).size
+    brands.size
+  end
+
+  def self.brands
+    reorder(:brand_name).group(:brand_name).pluck(:brand_name)
   end
 
   def self.bottles

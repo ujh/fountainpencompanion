@@ -1,4 +1,6 @@
 div class="ink-collection"
+  div class="filters"
+    = select_tag "brands", options_for_select([''] + ink_collection.brands)
   table class="table table-striped"
     thead
       tr
@@ -14,13 +16,13 @@ div class="ink-collection"
         - if ci == @collected_ink
           tr id="#{ci.id}" class="info"= render partial: "ink_collection/form", locals: { f: f , ci: ci}
         - else
-          tr id="#{ci.id}" class="#{ci.private? ? "private" : "public"}"
+          tr id="#{ci.id}" class="#{ci.private? ? "private" : "public"}" data-name="entry"
             td= privacy_link(ci)
-            td= ci.brand_name
-            td= ci.line_name
-            td= ci.ink_name
-            td= ci.kind
-            td= ci.comment
+            td data-name="brand_name"= ci.brand_name
+            td data-name="line_name"= ci.line_name
+            td data-name="ink_name"= ci.ink_name
+            td data-name="kind"= ci.kind
+            td data-name="comment"= ci.comment
             td= render partial: "ink_collection/actions", locals: { ci: ci }
     tfoot
       - if @collected_ink&.new_record?
