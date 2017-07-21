@@ -1,6 +1,8 @@
 div class="ink-collection"
   div class="filters"
-    = select_tag "brands", options_for_select([''] + ink_collection.brands)
+    div class="form-group"
+      = label_tag "brands", "Filter by brand:"
+      = select_tag "brands", options_for_select([''] + ink_collection.brands)
   table class="table table-striped"
     thead
       tr
