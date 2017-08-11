@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170713111102) do
+ActiveRecord::Schema.define(version: 20170811073112) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -51,7 +51,6 @@ ActiveRecord::Schema.define(version: 20170713111102) do
     t.index ["brand_name"], name: "index_collected_inks_on_brand_name"
     t.index ["ink_name"], name: "index_collected_inks_on_ink_name"
     t.index ["line_name"], name: "index_collected_inks_on_line_name"
-    t.index ["user_id", "brand_name", "line_name", "ink_name"], name: "unique_per_user", unique: true
   end
 
   create_table "users", id: :serial, force: :cascade do |t|
