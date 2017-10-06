@@ -93,4 +93,22 @@ describe CollectedInk do
       expect(collected_ink.simplified_ink_name).to eq('doyou')
     end
   end
+
+  describe '#brand_count' do
+
+    fixtures :users
+
+    let(:user) { User.first }
+
+    before(:each) do
+      CollectedInk.delete_all
+      CollectedInk.create!(user_id: user.id, brand_name: 'Diamine', ink_name: 'A')
+      CollectedInk.create!(user_id: user.id, brand_name: 'diamine', ink_name: 'B')
+      CollectedInk.create!(user_id: user.id, brand_name: 'Sailor', ink_name: 'C')
+    end
+
+    it 'returns the number of unique brands' do
+      expect(described_class.brand_count).to eq(2)
+    end
+  end
 end
