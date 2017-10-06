@@ -14,5 +14,9 @@ describe Simplifier do
     it "replaces ampersand with and" do
       expect(described_class.simplify("Rohrer & Klingner")).to eq("Rohrer and Klingner")
     end
+
+    it "only keeps letters and numbers" do
+      expect(described_class.simplify("123Abc,.;")).to eq("123Abc")
+    end
   end
 end
