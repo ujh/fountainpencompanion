@@ -66,4 +66,31 @@ describe CollectedInk do
     end
 
   end
+
+  context 'simplified fields' do
+
+    fixtures :users
+    let(:collected_ink) do
+      CollectedInk.create!(
+        user_id: users(:moni).id,
+        brand_name: 'Sailor',
+        line_name: 'Jentle',
+        ink_name: 'Doyou'
+      )
+    end
+
+    it 'populates before save' do
+      expect(collected_ink.simplified_brand_name).to eq('sailor')
+      expect(collected_ink.simplified_line_name).to eq('jentle')
+      expect(collected_ink.simplified_ink_name).to eq('doyou')
+    end
+
+    it 'does not change the fields when validation fails' do
+      collected_ink.brand_name = ''
+      collected_ink.save
+      expect(collected_ink.simplified_brand_name).to eq('sailor')
+      expect(collected_ink.simplified_line_name).to eq('jentle')
+      expect(collected_ink.simplified_ink_name).to eq('doyou')
+    end
+  end
 end

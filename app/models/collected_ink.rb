@@ -9,6 +9,8 @@ class CollectedInk < ApplicationRecord
 
   validate :unique_constraint
 
+  before_save :simplify
+
   belongs_to :user
 
   def self.field_by_term(field, term, user)
@@ -89,5 +91,9 @@ class CollectedInk < ApplicationRecord
     ).where(user_id: user_id).where(kind: kind)
     rel = rel.where("id <> ?", id) if persisted?
     errors.add(:ink_name, "Duplicate!") if rel.exists?
+  end
+
+  def simplify
+    Simplifier.for_collected_ink(self).run
   end
 end

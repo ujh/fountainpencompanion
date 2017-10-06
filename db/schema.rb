@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170811073112) do
+ActiveRecord::Schema.define(version: 20171006062828) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -48,6 +48,9 @@ ActiveRecord::Schema.define(version: 20170811073112) do
     t.string "line_name", limit: 100, default: "", null: false
     t.string "ink_name", limit: 100, null: false
     t.text "comment", default: ""
+    t.string "simplified_brand_name", limit: 100
+    t.string "simplified_line_name", limit: 100
+    t.string "simplified_ink_name", limit: 100
     t.index ["brand_name"], name: "index_collected_inks_on_brand_name"
     t.index ["ink_name"], name: "index_collected_inks_on_ink_name"
     t.index ["line_name"], name: "index_collected_inks_on_line_name"
