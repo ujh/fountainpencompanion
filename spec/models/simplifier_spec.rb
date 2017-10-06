@@ -10,5 +10,9 @@ describe Simplifier do
     it "removes stuff in brackets" do
       expect(described_class.simplify("some (thing)")).to eq("some ")
     end
+
+    it "replaces ampersand with and" do
+      expect(described_class.simplify("Rohrer & Klingner")).to eq("Rohrer and Klingner")
+    end
   end
 end
