@@ -8,15 +8,19 @@ describe Simplifier do
     end
 
     it "removes stuff in brackets" do
-      expect(described_class.simplify("some (thing)")).to eq("some ")
+      expect(described_class.simplify("some (thing)")).to eq("some")
     end
 
     it "replaces ampersand with and" do
-      expect(described_class.simplify("Rohrer & Klingner")).to eq("Rohrer and Klingner")
+      expect(described_class.simplify("Rohrer & Klingner")).to eq("rohrerandklingner")
     end
 
     it "only keeps letters and numbers" do
-      expect(described_class.simplify("123Abc,.;")).to eq("123Abc")
+      expect(described_class.simplify("123 Abc,.;")).to eq("123abc")
+    end
+
+    it "downcases the string" do
+      expect(described_class.simplify("ABc")).to eq("abc")
     end
   end
 end
