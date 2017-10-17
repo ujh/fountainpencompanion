@@ -3,4 +3,4 @@
   div class="col-xs-4"
     ul
       - group.each do |brand|
-        li= link_to "#{brand.popular_name} (#{CollectedInk.unique_inks_per_brand(brand)})", brand_path(brand.simplified_brand_name)
+        li= link_to "#{brand.popular_name} (#{CollectedInk.unique_inks_per_brand(brand.simplified_brand_name)})", brand_path(brand.simplified_brand_name)
