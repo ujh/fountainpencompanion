@@ -23,9 +23,9 @@ class CollectedInk < ApplicationRecord
     relation.where("LOWER(#{field}) LIKE ?", "%#{term.downcase}%").group(field).order(field).pluck(field)
   end
 
-  def self.unique_for_brand(brand_name)
+  def self.unique_for_brand(simplified_brand_name)
     fields = "brand_name, line_name, ink_name"
-    where(brand_name: brand_name).alphabetical.group(fields).select("#{fields}, count(*) as count")
+    where(simplified_brand_name: simplified_brand_name).alphabetical.group(fields).select("#{fields}, count(*) as count")
   end
 
   def self.alphabetical
@@ -34,6 +34,22 @@ class CollectedInk < ApplicationRecord
 
   def self.brand_count
     reorder(:simplified_brand_name).group(:simplified_brand_name).pluck(:simplified_brand_name).size
+  end
+
+  def self.unique_brands
+    display_name_select = "(select brand_name from collected_inks as ci
+     	where ci.simplified_brand_name = collected_inks.simplified_brand_name
+     	group by ci.brand_name order by count(*) desc limit 1
+    )"
+    select("simplified_brand_name, #{display_name_select} as popular_name")
+    .group(:simplified_brand_name)
+    .order(:simplified_brand_name)
+  end
+
+  def self.unique_inks_per_brand(ci)
+    # Ignore the simplified_line_name here as it's unlikely that a single brand will have the same
+    # ink name in two different lines.
+    where(simplified_brand_name: ci.simplified_brand_name).group(:simplified_ink_name).count.size
   end
 
   def self.brands
