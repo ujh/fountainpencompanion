@@ -6,7 +6,7 @@ class BrandsController < ApplicationController
         render json: brands
       }
       format.html {
-        @brands = CollectedInk.order(:brand_name).group(:brand_name).pluck(:brand_name)
+        @brands = CollectedInk.unique_brands
       }
     end
 
