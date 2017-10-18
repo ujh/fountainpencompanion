@@ -94,7 +94,7 @@ class CollectedInk < ApplicationRecord
   def popular_brand_name
     self.class.where(simplified_brand_name: simplified_brand_name)
     .group(:brand_name)
-    .order("brand_name desc")
+    .order("count(*) desc")
     .limit(1)
     .pluck(:brand_name)
     .first
@@ -103,7 +103,7 @@ class CollectedInk < ApplicationRecord
   def popular_line_name
     self.class.where(simplified_brand_name: simplified_brand_name, simplified_line_name: simplified_line_name)
     .group(:line_name)
-    .order("line_name desc")
+    .order("count(*) desc")
     .limit(1)
     .pluck(:line_name)
     .first
@@ -112,7 +112,7 @@ class CollectedInk < ApplicationRecord
   def popular_ink_name
     self.class.where(simplified_brand_name: simplified_brand_name, simplified_ink_name: simplified_ink_name)
     .group(:ink_name)
-    .order("ink_name desc")
+    .order("count(*) desc")
     .limit(1)
     .pluck(:ink_name)
     .first
