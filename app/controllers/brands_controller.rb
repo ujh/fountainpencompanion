@@ -9,9 +9,10 @@ class BrandsController < ApplicationController
         @brands = CollectedInk.unique_brands
       }
     end
-
-    def show
-      @inks = CollectedInk.unique_for_brand(params[:id])
-    end
   end
+
+  def show
+    @inks = CollectedInk.unique_for_brand(params[:id])
+  end
+
 end
