@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20171006062828) do
+ActiveRecord::Schema.define(version: 20171019061342) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -81,4 +81,17 @@ ActiveRecord::Schema.define(version: 20171006062828) do
   end
 
   add_foreign_key "collected_inks", "users"
+
+  create_view "brands",  sql_definition: <<-SQL
+      SELECT collected_inks.simplified_brand_name,
+      ( SELECT ci.brand_name
+             FROM collected_inks ci
+            WHERE ((ci.simplified_brand_name)::text = (collected_inks.simplified_brand_name)::text)
+            GROUP BY ci.brand_name
+            ORDER BY (count(*)) DESC
+           LIMIT 1) AS popular_name
+     FROM collected_inks
+    GROUP BY collected_inks.simplified_brand_name;
+  SQL
+
 end
