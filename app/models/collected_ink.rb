@@ -81,37 +81,6 @@ class CollectedInk < ApplicationRecord
     cartridges.count
   end
 
-  def popular_brand_name
-    self.class.where(simplified_brand_name: simplified_brand_name)
-    .group(:brand_name)
-    .order("count(*) desc")
-    .limit(1)
-    .pluck(:brand_name)
-    .first
-  end
-
-  def popular_line_name
-    self.class.where(simplified_brand_name: simplified_brand_name, simplified_line_name: simplified_line_name)
-    .group(:line_name)
-    .order("count(*) desc")
-    .limit(1)
-    .pluck(:line_name)
-    .first
-  end
-
-  def popular_ink_name
-    self.class.where(simplified_brand_name: simplified_brand_name, simplified_ink_name: simplified_ink_name)
-    .group(:ink_name)
-    .order("count(*) desc")
-    .limit(1)
-    .pluck(:ink_name)
-    .first
-  end
-
-  def count
-    self.class.where(simplified_brand_name: simplified_brand_name, simplified_ink_name: simplified_ink_name).count
-  end
-
   def name
     "#{brand_name} #{line_name} #{ink_name}"
   end
