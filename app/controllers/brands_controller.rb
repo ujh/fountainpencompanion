@@ -6,7 +6,7 @@ class BrandsController < ApplicationController
         render json: brands
       }
       format.html {
-        @brands = CollectedInk.unique_brands
+        @brands = Brand.order(:popular_name)
       }
     end
   end
