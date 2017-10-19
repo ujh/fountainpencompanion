@@ -6,13 +6,13 @@ class BrandsController < ApplicationController
         render json: brands
       }
       format.html {
-        @brands = CollectedInk.unique_brands
+        @brands = Brand.order(:popular_name)
       }
     end
   end
 
   def show
-    @inks = CollectedInk.unique_for_brand(params[:id])
+    @inks = Ink.where(simplified_brand_name: params[:id]).order("simplified_line_name, simplified_ink_name")
   end
 
 end

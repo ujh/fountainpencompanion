@@ -1,4 +1,4 @@
-- content_for :title, "#{CollectedInk.brand_count} brands"
+- content_for :title, "#{Brand.count} brands"
 - @brands.in_groups(3, false).each do |group|
   div class="col-xs-4"
     ul

@@ -47,16 +47,6 @@ class CollectedInk < ApplicationRecord
     reorder(:simplified_brand_name).group(:simplified_brand_name).pluck(:simplified_brand_name).size
   end
 
-  def self.unique_brands
-    display_name_select = "(select brand_name from collected_inks as ci
-     	where ci.simplified_brand_name = collected_inks.simplified_brand_name
-     	group by ci.brand_name order by count(*) desc limit 1
-    )"
-    select("simplified_brand_name, #{display_name_select} as popular_name")
-    .group(:simplified_brand_name)
-    .order(:simplified_brand_name)
-  end
-
   def self.unique_inks_per_brand(name)
     # Ignore the simplified_line_name here as it's unlikely that a single brand will have the same
     # ink name in two different lines.
@@ -89,37 +79,6 @@ class CollectedInk < ApplicationRecord
 
   def self.cartridge_count
     cartridges.count
-  end
-
-  def popular_brand_name
-    self.class.where(simplified_brand_name: simplified_brand_name)
-    .group(:brand_name)
-    .order("count(*) desc")
-    .limit(1)
-    .pluck(:brand_name)
-    .first
-  end
-
-  def popular_line_name
-    self.class.where(simplified_brand_name: simplified_brand_name, simplified_line_name: simplified_line_name)
-    .group(:line_name)
-    .order("count(*) desc")
-    .limit(1)
-    .pluck(:line_name)
-    .first
-  end
-
-  def popular_ink_name
-    self.class.where(simplified_brand_name: simplified_brand_name, simplified_ink_name: simplified_ink_name)
-    .group(:ink_name)
-    .order("count(*) desc")
-    .limit(1)
-    .pluck(:ink_name)
-    .first
-  end
-
-  def count
-    self.class.where(simplified_brand_name: simplified_brand_name, simplified_ink_name: simplified_ink_name).count
   end
 
   def name
