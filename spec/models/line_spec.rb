@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe Ink do
+describe Line do
 
   describe '#search' do
 
