@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20171019155404) do
+ActiveRecord::Schema.define(version: 20171020060546) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -82,18 +82,6 @@ ActiveRecord::Schema.define(version: 20171019155404) do
 
   add_foreign_key "collected_inks", "users"
 
-  create_view "brands",  sql_definition: <<-SQL
-      SELECT collected_inks.simplified_brand_name,
-      ( SELECT ci.brand_name
-             FROM collected_inks ci
-            WHERE ((ci.simplified_brand_name)::text = (collected_inks.simplified_brand_name)::text)
-            GROUP BY ci.brand_name
-            ORDER BY (count(*)) DESC
-           LIMIT 1) AS popular_name
-     FROM collected_inks
-    GROUP BY collected_inks.simplified_brand_name;
-  SQL
-
   create_view "inks",  sql_definition: <<-SQL
       SELECT count(*) AS count,
       collected_inks.simplified_brand_name,
@@ -112,6 +100,19 @@ ActiveRecord::Schema.define(version: 20171019155404) do
            LIMIT 1) AS popular_ink_name
      FROM collected_inks
     GROUP BY collected_inks.simplified_brand_name, collected_inks.simplified_ink_name;
+  SQL
+
+  create_view "brands",  sql_definition: <<-SQL
+      SELECT collected_inks.simplified_brand_name,
+      ( SELECT ci.brand_name
+             FROM collected_inks ci
+            WHERE ((ci.simplified_brand_name)::text = (collected_inks.simplified_brand_name)::text)
+            GROUP BY ci.brand_name
+            ORDER BY (count(*)) DESC
+           LIMIT 1) AS popular_name
+     FROM collected_inks
+    WHERE (collected_inks.private = false)
+    GROUP BY collected_inks.simplified_brand_name;
   SQL
 
 end
