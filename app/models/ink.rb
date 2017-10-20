@@ -3,7 +3,7 @@ class Ink < ApplicationRecord
   belongs_to :brand, foreign_key: :simplified_brand_name, primary_key: :simplified_brand_name
 
   def self.search(term)
-    simplified_term = Simplifier.simplify(term)
+    simplified_term = Simplifier.simplify(term.to_s)
     where("simplified_ink_name LIKE ?", "%#{simplified_term}%").group(:popular_ink_name).order(:popular_ink_name)
   end
 

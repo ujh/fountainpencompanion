@@ -1,5 +1,13 @@
 require 'rails_helper'
 
-RSpec.describe Brand, type: :model do
-  pending "add some examples to (or delete) #{__FILE__}"
+describe Brand do
+
+  describe '#search' do
+
+    it 'does not fail when term is nil' do
+      expect { described_class.search(nil) }.to_not raise_error
+    end
+
+  end
+
 end
