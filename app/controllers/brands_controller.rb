@@ -2,7 +2,7 @@ class BrandsController < ApplicationController
   def index
     respond_to do |format|
       format.json {
-        brands = CollectedInk.field_by_term(:brand_name, params[:term], current_user)
+        brands = Brand.search(params[:term]).pluck(:popular_name)
         render json: brands
       }
       format.html {

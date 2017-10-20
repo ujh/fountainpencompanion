@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20171019155404) do
+ActiveRecord::Schema.define(version: 20171020061358) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -91,6 +91,7 @@ ActiveRecord::Schema.define(version: 20171019155404) do
             ORDER BY (count(*)) DESC
            LIMIT 1) AS popular_name
      FROM collected_inks
+    WHERE (collected_inks.private = false)
     GROUP BY collected_inks.simplified_brand_name;
   SQL
 
@@ -111,7 +112,22 @@ ActiveRecord::Schema.define(version: 20171019155404) do
             ORDER BY (count(*)) DESC
            LIMIT 1) AS popular_ink_name
      FROM collected_inks
+    WHERE (collected_inks.private = false)
     GROUP BY collected_inks.simplified_brand_name, collected_inks.simplified_ink_name;
+  SQL
+
+  create_view "lines",  sql_definition: <<-SQL
+      SELECT collected_inks.simplified_brand_name,
+      collected_inks.simplified_line_name,
+      ( SELECT ci.line_name
+             FROM collected_inks ci
+            WHERE (((ci.simplified_brand_name)::text = (collected_inks.simplified_brand_name)::text) AND ((ci.simplified_line_name)::text = (collected_inks.simplified_line_name)::text))
+            GROUP BY ci.line_name
+            ORDER BY (count(*)) DESC
+           LIMIT 1) AS popular_line_name
+     FROM collected_inks
+    WHERE (collected_inks.private = false)
+    GROUP BY collected_inks.simplified_brand_name, collected_inks.simplified_line_name;
   SQL
 
 end

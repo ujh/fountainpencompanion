@@ -5,6 +5,11 @@ describe BrandsController do
 
   describe '#index' do
 
+    before(:each) do
+      # Trigger simplification
+      CollectedInk.all.map(&:save)
+    end
+
     it 'returns all brands by default' do
       get :index, params: { term: '' }, format: :json
       expect(response).to be_successful
