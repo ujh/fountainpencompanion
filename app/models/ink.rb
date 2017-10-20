@@ -12,14 +12,9 @@ class Ink < ApplicationRecord
   end
 
   def popular_line_name
-    CollectedInk.where(
+    Line.find_by(
       simplified_brand_name: simplified_brand_name,
-      simplified_ink_name: simplified_ink_name
-    )
-    .group(:line_name)
-    .order("count(*) desc")
-    .limit(1)
-    .pluck(:line_name)
-    .first
+      simplified_line_name: simplified_line_name
+    ).popular_line_name
   end
 end
