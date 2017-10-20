@@ -1,7 +1,7 @@
 class InksController < ApplicationController
 
   def index
-    inks = CollectedInk.field_by_term(:ink_name, params[:term], current_user)
+    inks = Ink.search(params[:term]).pluck(:popular_ink_name)
     render json: inks
   end
 end
