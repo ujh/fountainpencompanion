@@ -12,7 +12,7 @@ class LeaderBoard
   end
 
   def self.brands
-    select_clause = "users.*,  (select sum(1) OVER () from collected_inks where collected_inks.user_id = users.id group by collected_inks.brand_name limit 1) as brand_count"
+    select_clause = "users.*,  (select sum(1) OVER () from collected_inks where collected_inks.user_id = users.id group by collected_inks.simplified_brand_name limit 1) as brand_count"
     User.joins(:collected_inks).select(select_clause).group("users.id").order("brand_count DESC").limit(10)
   end
 end
