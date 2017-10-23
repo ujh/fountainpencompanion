@@ -13,22 +13,6 @@ class CollectedInk < ApplicationRecord
 
   belongs_to :user
 
-  def self.unique_for_brand(simplified_brand_name)
-    unique_inks = where(simplified_brand_name: simplified_brand_name)
-      .group(:simplified_ink_name)
-      .pluck(:simplified_ink_name)
-    unique_inks = unique_inks.map do |ui|
-      CollectedInk.find_by(simplified_brand_name: simplified_brand_name, simplified_ink_name: ui)
-    end
-    unique_inks.sort do |ci1, ci2|
-      if ci1.popular_line_name == ci2.popular_line_name
-        ci1.popular_ink_name <=> ci2.popular_ink_name
-      else
-        ci1.popular_line_name <=> ci2.popular_line_name
-      end
-    end
-  end
-
   def self.alphabetical
     order("brand_name, line_name, ink_name")
   end
