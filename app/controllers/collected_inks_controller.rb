@@ -10,6 +10,7 @@ class CollectedInksController < ApplicationController
     end
     respond_to do |format|
       format.html { @collected_ink = CollectedInk.new }
+      format.json
       format.csv do
         csv = CSV.generate(col_sep: ";") do |csv|
           csv << ["Brand", "Line", "Name", "Type"]
