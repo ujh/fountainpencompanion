@@ -1,6 +1,5 @@
 #header {
-  background: #222 image-url("bg-header.png") repeat-x !important;
-  height: 48px;
+  background: black;
   filter:none !important;
   font-family: Droid Serif, Georgia;
   font-size: 14px;
@@ -9,6 +8,11 @@
   }
   a:hover {
     color: #fff;
+  }
+  .collapse.in, .collapsing {
+    img {
+      display: none;
+    }
   }
   .navbar-right img {
     margin-top: 6px;
