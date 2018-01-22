@@ -1,6 +1,5 @@
 - content_for :title, "#{Brand.count} brands"
-- @brands.in_groups(3, false).each do |group|
-  div class="col-xs-4"
-    ul
-      - group.each do |brand|
-        li= link_to "#{brand.popular_name} (#{CollectedInk.unique_inks_per_brand(brand.simplified_brand_name)})", brand_path(brand.simplified_brand_name)
+- @brands.each_with_index do |brand, i|
+  div class="col-xs-12 col-sm-6 col-md-4 col-lg-3"
+    = "#{i+1}. "
+    = link_to "#{brand.popular_name} (#{CollectedInk.unique_inks_per_brand(brand.simplified_brand_name)})", brand_path(brand.simplified_brand_name)

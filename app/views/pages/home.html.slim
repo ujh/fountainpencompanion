@@ -1,5 +1,5 @@
 - content_for :title, "Home"
-div class="col-xs-4 home"
+div class="col-xs-12 col-sm-4 home"
   = fa_icon("bar-chart")
   div
     | Track your ink collection.
@@ -9,17 +9,17 @@ div class="col-xs-4 home"
     |  inks of
     = link_to " #{Brand.count} brands", brands_path
     | .
-div class="col-xs-4 home"
+div class="col-xs-12 col-sm-4 home"
   = fa_icon("eye")
   div
     | Compare your ink collection with other users to easily see which inks you own that the other
     | user doesn't to facilitate ink sample trading.
-div class="col-xs-4 home"
+div class="col-xs-12 col-sm-4 home"
   = fa_icon("lock")
   div
     | You have full control over your data. You are able to export at any time and
     | leave the service at any time. You can also make your ink collection private if you don't want
     | to share what you own with anyone.
 
-div class="col-xs-4 col-xs-offset-4 home"
+div class="col-xs-12 home"
   = link_to "Sign Up Now!", new_user_registration_path, class: "btn btn-primary"
