@@ -26,6 +26,7 @@ gem 'scenic'
 gem 'simple_form'
 gem 'slim'
 gem 'slodown'
+gem 'webpacker'
 gem 'uglifier'
 
 group :development, :test do
