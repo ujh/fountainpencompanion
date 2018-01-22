@@ -1,24 +1,13 @@
 - content_for :title, @user.public_name
 div id="account"
-  div class="col-xs-3 image"
+  div class="col-xs-12 col-sm-3 image"
     = profile_image_for(@user)
-    div class="row"
-      div class="col-xs-3" Name:
-      div class="col-xs-9"= @user.public_name
-    div class="row"
-      div class="col-xs-12"= "#{@user.public_count} inks in total"
-    div class="row"
-      div class="col-xs-12"= "#{@user.public_bottle_count} bottles of ink"
-    div class="row"
-      div class="col-xs-12"= "#{@user.public_sample_count} ink samples"
-    div class="row"
-      div class="col-xs-12"= "#{@user.public_cartridge_count} inks in cartridges"
     - if user_signed_in?
       div class="row"
         div class="col-xs-12"= link_to "Inks the user might be interested in", user_possibly_wanted_path(@user)
       div class="row"
         div class="col-xs-12"= link_to "Users's inks you might be interested in", user_possibly_interesting_path(@user)
-  div class="col-xs-9 data"
+  div class="col-xs-12 col-sm-9 data"
     - if @user.blurb.present?
       div class="row"
         div class="col-xs-12 blurb"= Slodown::Formatter.new(@user.blurb).complete.to_s.html_safe
