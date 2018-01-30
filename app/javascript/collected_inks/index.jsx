@@ -24,14 +24,15 @@ class App extends React.Component {
 
   render() {
     let color = this.state.color;
-    return <div onClick={ () => this.handleClick() }>
-      <Button color={color}/>
+    return <div>
+      <Button color={color} onClick={ () => this.handleClick() }/>
+      { this.state.displayColorPicker ? <ChromePicker /> : ""}
       <ColorInputField color={color} />
     </div>;
   }
 }
 
-const Button = ({color}) => {
+const Button = ({color, onClick}) => {
   let outerCSS = {
     padding: '5px',
     background: '#fff',
@@ -47,7 +48,7 @@ const Button = ({color}) => {
     boxShadow: '0 0 0 1px rgba(0,0,0,.1)',
     backgroundColor: color,
   };
-  return <div style={outerCSS}><div style={innerCSS}></div></div>;
+  return <div onClick={onClick} style={outerCSS}><div style={innerCSS}></div></div>;
 }
 
 const ColorInputField = ({color}) => {
