@@ -18,9 +18,13 @@ class App extends React.Component {
     }
   }
 
+  handleClick() {
+    this.setState({displayColorPicker: !this.state.displayColorPicker})
+  }
+
   render() {
     let color = this.state.color;
-    return <div>
+    return <div onClick={ () => this.handleClick() }>
       <Button color={color}/>
       <ColorInputField color={color} />
     </div>;
