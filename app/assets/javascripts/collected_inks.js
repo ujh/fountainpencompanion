@@ -9,6 +9,6 @@ $(function() {
     source: "/inks"
   })
   $('#collected-ink-form #collected_ink_color').each(function() {
-    renderColorPickerApp(this);
+    renderColorPickerApp($(this).closest('td').get(0));
   })
 })
