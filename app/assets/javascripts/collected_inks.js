@@ -8,4 +8,7 @@ $(function() {
   $('#collected-ink-form #collected_ink_ink_name').autocomplete({
     source: "/inks"
   })
+  $('#collected-ink-form #collected_ink_color').each(function() {
+    renderColorPickerApp(this);
+  })
 })
