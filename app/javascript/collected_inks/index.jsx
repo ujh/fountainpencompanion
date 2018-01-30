@@ -22,12 +22,12 @@ class App extends React.Component {
     let color = this.state.color;
     return <div style={{backgroundColor: color}}>
       {color}
-      <ColorInput color={color} />
+      <ColorInputField color={color} />
     </div>;
   }
 }
 
-const ColorInput = ({color}) => {
+const ColorInputField = ({color}) => {
   return <div>
     <input type="hidden" name="collected_ink[color]" value={color} />
   </div>;
