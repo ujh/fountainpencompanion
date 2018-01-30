@@ -12,10 +12,14 @@ class App extends React.Component {
 
   constructor(props) {
     super(props);
+    this.state = {
+      displayColorPicker: false,
+      color: props.color
+    }
   }
 
   render() {
-    let color = this.props.color;
+    let color = this.state.color;
     return <div style={{backgroundColor: color}}>
       {color}
       <ColorInput color={color} />
