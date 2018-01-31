@@ -64,7 +64,7 @@ const ColorPicker = ({color, onChange, onClose}) => {
   };
   return <div style={outerCSS}>
     <div style={overlayCSS} onClick={onClose}></div>
-    <ChromePicker color={color} onChange={onChange}/>
+    <ChromePicker color={color} onChange={onChange} disableAlpha={true}/>
   </div>;
 }
 
