@@ -26,22 +26,44 @@ class App extends React.Component {
     this.setState({color: color.hex});
   }
 
+  handleClose() {
+    this.setState({displayColorPicker: false})
+  }
+
+  renderColorPicker() {
+    if (!this.state.displayColorPicker) return;
+    let color = this.state.color;
+    return <ColorPicker
+      color={color}
+      onChange={ (c) => this.handleChange(c)}
+      onClose= { () => this.handleClose() }
+    />;
+  }
+
   render() {
     let color = this.state.color;
     return <div>
       <Button color={color} onClick={ () => this.handleClick() }/>
-      { this.state.displayColorPicker ? <ColorPicker color={color} onChange={ (c) => this.handleChange(c)}/> : ""}
+      { this.renderColorPicker() }
       <ColorInputField color={color} />
     </div>;
   }
 }
 
-const ColorPicker = ({color, onChange}) => {
+const ColorPicker = ({color, onChange, onClose}) => {
   let outerCSS = {
     position: 'absolute',
     zIndex: 2
   };
+  let overlayCSS = {
+    position: 'fixed',
+    top: '0px',
+    left: '0px',
+    right: '0px',
+    bottom: '0px',
+  };
   return <div style={outerCSS}>
+    <div style={overlayCSS} onClick={onClose}></div>
     <ChromePicker color={color} onChange={onChange}/>
   </div>;
 }
