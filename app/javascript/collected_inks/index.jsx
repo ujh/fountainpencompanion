@@ -22,14 +22,28 @@ class App extends React.Component {
     this.setState({displayColorPicker: !this.state.displayColorPicker})
   }
 
+  handleChange(color) {
+    this.setState({color: color.hex});
+  }
+
   render() {
     let color = this.state.color;
     return <div>
       <Button color={color} onClick={ () => this.handleClick() }/>
-      { this.state.displayColorPicker ? <ChromePicker /> : ""}
+      { this.state.displayColorPicker ? <ColorPicker color={color} onChange={ (c) => this.handleChange(c)}/> : ""}
       <ColorInputField color={color} />
     </div>;
   }
+}
+
+const ColorPicker = ({color, onChange}) => {
+  let outerCSS = {
+    position: 'absolute',
+    zIndex: 2
+  };
+  return <div style={outerCSS}>
+    <ChromePicker color={color} onChange={onChange}/>
+  </div>;
 }
 
 const Button = ({color, onClick}) => {
