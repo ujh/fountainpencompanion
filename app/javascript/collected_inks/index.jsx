@@ -4,7 +4,7 @@ import { ChromePicker } from "react-color";
 
 export function renderColorPickerApp(element) {
   let input = $(element).find('input');
-  let initialColor = input.val() || "#000";
+  let initialColor = input.val();
   ReactDOM.render(<App color={initialColor} />, element);
 }
 
