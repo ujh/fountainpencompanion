@@ -12,6 +12,7 @@ div class="ink-collection"
           th Line
           th Name
           th Type
+          th Color
           th Comment
           th= @collected_ink ? "Actions" : ""
       tbody
@@ -25,6 +26,7 @@ div class="ink-collection"
               td data-name="line_name"= ci.line_name
               td data-name="ink_name"= ci.ink_name
               td data-name="kind"= ci.kind
+              td data-name="color" style="background-color:#{ci.color}"
               td data-name="comment"= ci.comment
               td= render partial: "ink_collection/actions", locals: { ci: ci }
       tfoot
@@ -41,5 +43,6 @@ div class="ink-collection"
             = "#{ink_collection.sample_count}x sample"
             br
             = "#{ink_collection.cartridge_count}x cartridge"
+          th
           th
           th
