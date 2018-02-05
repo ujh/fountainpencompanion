@@ -1,1 +1,4 @@
 - content_for :title, "Pens"
+div id="collected-pens"
+  = simple_form_for @collected_pen, html: { id: 'collected-pen-form'}, wrapper: :inline_form do |f|
+    = render partial: "pen_collection/table", locals: { pen_collection: @collected_pens, f: f }
