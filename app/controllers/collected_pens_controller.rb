@@ -4,7 +4,7 @@ class CollectedPensController < ApplicationController
   before_action :retrieve_collected_pen, only: [:edit, :update, :destroy]
 
   def index
-    @collected_pen = Pen.new
+    @collected_pen = CollectedPen.new
   end
 
   def edit
