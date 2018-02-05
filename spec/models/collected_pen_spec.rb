@@ -15,4 +15,12 @@ describe CollectedPen do
     expect(subject).to_not be_valid
     expect(subject.errors).to include(:model)
   end
+
+  context '#name' do
+    it 'combines brand and model' do
+      subject.brand = 'brand'
+      subject.model = 'model'
+      expect(subject.name).to eq('brand model')
+    end
+  end
 end
