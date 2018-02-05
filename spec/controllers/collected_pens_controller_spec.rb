@@ -69,4 +69,36 @@ describe CollectedPensController do
       end
     end
   end
+
+  describe '#update' do
+
+    let(:collected_pen) { collected_pens(:monis_wing_sung) }
+
+    it 'requires authentication' do
+      expect do
+        put :update, params: { id: collected_pen.id, collected_pen: { brand: 'Not Wing Sung' } }
+        expect(response).to redirect_to(new_user_session_path)
+      end.to_not change { collected_pen.reload }
+    end
+
+    context 'signed in' do
+      before(:each) do
+        sign_in(user)
+      end
+
+      it 'updates the pen' do
+        expect do
+          put :update, params: { id: collected_pen.id, collected_pen: { brand: 'Not Wing Sung' } }
+          expect(response).to redirect_to(collected_pens_path(anchor: collected_pen.id))
+        end.to change { collected_pen.reload.brand }.from('Wing Sung').to('Not Wing Sung')
+      end
+
+      it 'strips out whitespace' do
+        expect do
+          put :update, params: { id: collected_pen.id, collected_pen: { brand: ' Not Wing Sung ' } }
+          expect(response).to redirect_to(collected_pens_path(anchor: collected_pen.id))
+        end.to change { collected_pen.reload.brand }.from('Wing Sung').to('Not Wing Sung')
+      end
+    end
+  end
 end
