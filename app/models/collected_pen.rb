@@ -7,4 +7,12 @@ class CollectedPen < ApplicationRecord
   def name
     "#{brand} #{model}"
   end
+
+  def brand=(value)
+    super(value.strip)
+  end
+
+  def model=(value)
+    super(value.strip)
+  end
 end

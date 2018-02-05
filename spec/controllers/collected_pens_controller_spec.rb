@@ -26,4 +26,47 @@ describe CollectedPensController do
       end
     end
   end
+
+  describe '#create' do
+    it 'requires authentication' do
+      expect do
+        post :create, params: { collected_pen: { brand: 'Pelikan', model: 'M205'}}
+        expect(response).to redirect_to(new_user_session_path)
+      end.to_not change { CollectedPen.count }
+    end
+
+    context 'signed in' do
+      before(:each) do
+        sign_in(user)
+      end
+
+      it 'creates the data' do
+        expect do
+          post :create, params: { collected_pen: {
+            brand: 'Pelikan',
+            model: 'M205'
+          }}
+          collected_pen = CollectedPen.order(:id).last
+          expect(response).to redirect_to(collected_pens_path(anchor: "add-form"))
+        end.to change { user.collected_pens.count }.by(1)
+        collected_pen = user.collected_pens.order(:id).last
+        expect(collected_pen.brand).to eq('Pelikan')
+        expect(collected_pen.model).to eq('M205')
+      end
+
+      it 'strips out extraneous whitespace' do
+        expect do
+          post :create, params: { collected_pen: {
+            brand: ' Pelikan ',
+            model: ' M205 '
+          }}
+          collected_pen = CollectedPen.order(:id).last
+          expect(response).to redirect_to(collected_pens_path(anchor: "add-form"))
+        end.to change { user.collected_pens.count }.by(1)
+        collected_pen = user.collected_pens.order(:id).last
+        expect(collected_pen.brand).to eq('Pelikan')
+        expect(collected_pen.model).to eq('M205')
+      end
+    end
+  end
 end
