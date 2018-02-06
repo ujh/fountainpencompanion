@@ -16,11 +16,19 @@ describe CollectedPen do
     expect(subject.errors).to include(:model)
   end
 
-  context '#name' do
+  describe '#name' do
     it 'combines brand and model' do
       subject.brand = 'brand'
       subject.model = 'model'
       expect(subject.name).to eq('brand model')
+    end
+  end
+
+  describe '#search' do
+    fixtures :collected_pens
+
+    it 'finds matching entries by substring search' do
+      expect(described_class.search(:brand, 'P')).to eq(["Pilot", "Platinum"])
     end
   end
 end
