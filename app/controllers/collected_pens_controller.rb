@@ -1,5 +1,6 @@
 class CollectedPensController < ApplicationController
   before_action :authenticate_user!
+  before_action :set_flash
   before_action :retrieve_collected_pens, only: [:index, :edit, :create, :update]
   before_action :retrieve_collected_pen, only: [:edit, :update, :destroy]
 
@@ -51,5 +52,9 @@ class CollectedPensController < ApplicationController
 
   def retrieve_collected_pens
     @collected_pens = current_user.collected_pens.order('brand, model')
+  end
+
+  def set_flash
+    flash.now[:notice] = "Your pen collection is private and no one but you can see it. This is because pens can be worth quite a lot and I don't want to provide a list of people to rob. Maybe this will change in the future, but there will always be the possibility to keep this part private."
   end
 end
