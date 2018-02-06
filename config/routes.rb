@@ -7,7 +7,12 @@ Rails.application.routes.draw do
   resources :collected_inks do
     resource :privacy, only: [:create, :destroy]
   end
+  resources :collected_pens
   resources :brands, only: [:index]
+  namespace :pens do
+    resources :brands, only: [:index]
+    resources :models, only: [:index]
+  end
   get 'brands/:id', to: "brands#show", constraints: { id: /[^\/]+/}, as: "brand"
   resources :lines, only: [:index]
   resources :inks, only: [:index]
