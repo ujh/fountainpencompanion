@@ -31,7 +31,7 @@ class CollectedPensController < ApplicationController
   end
 
   def destroy
-    @collected_pen.destroy
+    @collected_pen&.destroy
     redirect_to collected_pens_path
   end
 

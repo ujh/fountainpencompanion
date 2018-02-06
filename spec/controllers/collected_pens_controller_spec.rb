@@ -101,4 +101,37 @@ describe CollectedPensController do
       end
     end
   end
+
+  describe '#destroy' do
+
+    let(:collected_pen) { collected_pens(:monis_wing_sung) }
+
+    it 'requires authentication' do
+      expect do
+        delete :destroy, params: { id: collected_pen.id }
+        expect(response).to redirect_to(new_user_session_path)
+      end.to_not change { CollectedPen.count }
+    end
+
+    describe 'signed in' do
+      before(:each) do
+        sign_in(user)
+      end
+
+      it 'deletes the collected pen' do
+        expect do
+          delete :destroy, params: { id: collected_pen.id }
+          expect(response).to redirect_to(collected_pens_path)
+        end.to change { CollectedPen.count }.by(-1)
+      end
+
+      it 'does not delete other users pens' do
+        collected_pen = collected_pens(:toms_platinum)
+        expect do
+          delete :destroy, params: { id: collected_pen.id }
+          expect(response).to redirect_to(collected_pens_path)
+        end.to_not change { CollectedPen.count }
+      end
+    end
+  end
 end
