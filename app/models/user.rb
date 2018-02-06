@@ -5,6 +5,7 @@ class User < ApplicationRecord
          :recoverable, :rememberable, :trackable, :validatable
 
   has_many :collected_inks
+  has_many :collected_pens
 
   validates :name, length: { in: 1..100, allow_blank: true }
 
