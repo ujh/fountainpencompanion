@@ -4,6 +4,10 @@ class CollectedPen < ApplicationRecord
   validates :brand, length: { in: 1..100 }
   validates :model, length: { in: 1..100 }
 
+  def self.search(field, term)
+    where("#{field} like ?", "%#{term}%").order(field).pluck(field).uniq
+  end
+
   def name
     "#{brand} #{model}"
   end
