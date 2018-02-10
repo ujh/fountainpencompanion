@@ -6,8 +6,6 @@ class CollectedPen < ApplicationRecord
   validates :model, length: { in: 1..100 }
   validates :nib, length: { in: 1..100, allow_blank: true }
 
-  before_save :simplify
-
   def self.search(field, term)
     where("#{field} like ?", "%#{term}%").order(field).pluck(field).uniq
   end
@@ -30,11 +28,5 @@ class CollectedPen < ApplicationRecord
 
   def color=(value)
     super(value.strip)
-  end
-
-  private
-
-  def simplify
-    self.search_name = Simplifier.simplify(name)
   end
 end

@@ -86,6 +86,5 @@ class CollectedInk < ApplicationRecord
 
   def simplify
     Simplifier.for_collected_ink(self).run
-    self.search_name = Simplifier.simplify(name)
   end
 end
