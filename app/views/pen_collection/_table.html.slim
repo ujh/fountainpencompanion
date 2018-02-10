@@ -5,6 +5,8 @@ div class="pen-collection"
         tr
           th Brand
           th Model
+          th Nib
+          th Color
           th Comment
           th Actions
       tbody
@@ -15,6 +17,8 @@ div class="pen-collection"
             tr id="#{cp.id}" data-name="entry"
               td data-name="brand"= cp.brand
               td data-name="model"= cp.model
+              td data-name="nib"= cp.nib
+              td data-name="color"= cp.color
               td data-name="comment"= cp.comment
               td= render partial: "pen_collection/actions", locals: { cp: cp }
       tfoot

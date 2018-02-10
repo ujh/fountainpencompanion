@@ -17,7 +17,15 @@ describe CollectedPen do
   end
 
   describe '#name' do
-    it 'combines brand and model' do
+    it 'combines brand, model, nib, and color' do
+      subject.brand = 'brand'
+      subject.model = 'model'
+      subject.nib = 'nib'
+      subject.color = 'color'
+      expect(subject.name).to eq('brand model nib color')
+    end
+
+    it 'leaves out empty fields' do
       subject.brand = 'brand'
       subject.model = 'model'
       expect(subject.name).to eq('brand model')
