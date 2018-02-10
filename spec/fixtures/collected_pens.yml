@@ -1,10 +1,14 @@
 monis_wing_sung:
   brand: Wing Sung
   model: 618
+  nib: F
+  color: black
   user: moni
 monis_pilot_custom_74:
   brand: Pilot
   model: Custom 74
+  nib: M
+  color: orange
   user: moni
 toms_platinum:
   brand: Platinum

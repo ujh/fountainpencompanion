@@ -42,6 +42,8 @@ class CollectedPensController < ApplicationController
     params.require(:collected_pen).permit(
       :brand,
       :model,
+      :nib,
+      :color,
       :comment,
     )
   end
