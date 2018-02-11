@@ -70,7 +70,6 @@ ActiveRecord::Schema.define(version: 20180210084805) do
 
   create_table "currently_inkeds", force: :cascade do |t|
     t.text "comment"
-    t.string "state"
     t.bigint "collected_ink_id", null: false
     t.bigint "collected_pen_id", null: false
     t.datetime "created_at", null: false
