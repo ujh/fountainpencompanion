@@ -1,0 +1,5 @@
+span class="actions"
+  = link_to edit_currently_inked_path(ci, anchor: ci.id), class: "btn btn-default", title: "Edit #{ci.name}" do
+    = fa_icon("pencil")
+  = link_to currently_inked_path(ci), class: "btn btn-default", method: :delete, data: { confirm: "Really delete #{ci.name}" }, title: "Delete #{ci.name}"
+    = fa_icon("trash")
