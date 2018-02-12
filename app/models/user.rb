@@ -80,6 +80,15 @@ class User < ApplicationRecord
     collected_inks_intersection(other_user.public_inks)
   end
 
+  def collected_inks_for_select
+    collected_inks.order('brand_name, line_name, ink_name')
+  end
+
+  def collected_pens_for_select
+    pens_used = currently_inkeds.pluck(:collected_pen_id)
+    collected_pens.where.not(id: pens_used).order('brand, model, nib, color')
+  end
+
   protected
 
   def collected_inks_intersection(other_user_rel)

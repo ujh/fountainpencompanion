@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180212111548) do
+ActiveRecord::Schema.define(version: 20180212114732) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -77,6 +77,7 @@ ActiveRecord::Schema.define(version: 20180212111548) do
     t.bigint "user_id", null: false
     t.index ["collected_ink_id"], name: "index_currently_inked_on_collected_ink_id"
     t.index ["collected_pen_id"], name: "index_currently_inked_on_collected_pen_id"
+    t.index ["user_id", "collected_pen_id"], name: "index_currently_inked_on_user_id_and_collected_pen_id", unique: true
     t.index ["user_id"], name: "index_currently_inked_on_user_id"
   end
 
