@@ -4,6 +4,7 @@ div class="table-responsive"
       tr
         th Pen
         th Ink
+        th Date Inked
         th Comment
         th Actions
     tbody
@@ -14,6 +15,7 @@ div class="table-responsive"
           tr
             td= ci.pen_name
             td= ci.ink_name
+            td=l ci.created_at.to_date
             td= ci.comment
             td= render partial: "actions", locals: { ci: ci }
     tfoot
