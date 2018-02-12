@@ -11,6 +11,14 @@ class CurrentlyInked < ApplicationRecord
   validate :collected_ink_belongs_to_user
   validate :collected_pen_belongs_to_user
 
+  def self.active
+    where(archived_on: nil)
+  end
+
+  def self.archived
+    where.not(archived_on: nil)
+  end
+
   def name
     "#{collected_ink.name} - #{collected_pen.name}"
   end

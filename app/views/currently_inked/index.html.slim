@@ -2,3 +2,8 @@
 div id="currently-inked"
   = simple_form_for @currently_inked, html: { id: 'currently-inked-form'}, wrapper: :inline_form do |f|
     = render partial: "table", locals: { currently_inkeds: @currently_inkeds, f: f }
+
+div id="currently-inked-archive"
+  h1 Archive
+  = simple_form_for @currently_inked, html: { id: 'currently-inked-form'}, wrapper: :inline_form do |f|
+    = render partial: "archive", locals: { currently_inkeds: @archived, f: f }

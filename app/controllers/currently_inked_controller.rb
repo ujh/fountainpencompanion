@@ -41,12 +41,15 @@ class CurrentlyInkedController < ApplicationController
     params.require(:currently_inked).permit(
       :collected_ink_id,
       :collected_pen_id,
+      :created_at,
+      :archived_on,
       :comment
     )
   end
 
   def retrieve_currently_inkeds
-    @currently_inkeds = current_user.currently_inkeds.sort_by {|ci| "#{ci.pen_name} #{ci.ink_name}"}
+    @currently_inkeds = current_user.currently_inkeds.active.sort_by {|ci| "#{ci.pen_name} #{ci.ink_name}"}
+    @archived = current_user.currently_inkeds.archived.order('archived_on, created_at')
   end
 
   def retrieve_currently_inked
