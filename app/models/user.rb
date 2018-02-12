@@ -6,6 +6,7 @@ class User < ApplicationRecord
 
   has_many :collected_inks
   has_many :collected_pens
+  has_many :currently_inkeds
 
   validates :name, length: { in: 1..100, allow_blank: true }
 
