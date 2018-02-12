@@ -8,6 +8,7 @@ Rails.application.routes.draw do
     resource :privacy, only: [:create, :destroy]
   end
   resources :collected_pens
+  resources :currently_inked
   resources :brands, only: [:index]
   namespace :pens do
     resources :brands, only: [:index]

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180210084805) do
+ActiveRecord::Schema.define(version: 20180212114732) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -52,7 +52,6 @@ ActiveRecord::Schema.define(version: 20180210084805) do
     t.string "simplified_line_name", limit: 100
     t.string "simplified_ink_name", limit: 100
     t.string "color", limit: 7
-    t.string "search_name"
     t.index ["brand_name"], name: "index_collected_inks_on_brand_name"
     t.index ["ink_name"], name: "index_collected_inks_on_ink_name"
     t.index ["line_name"], name: "index_collected_inks_on_line_name"
@@ -65,20 +64,21 @@ ActiveRecord::Schema.define(version: 20180210084805) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.text "comment"
-    t.string "search_name"
     t.string "nib", limit: 100
     t.string "color", limit: 100
   end
 
-  create_table "currently_inkeds", force: :cascade do |t|
+  create_table "currently_inked", force: :cascade do |t|
     t.text "comment"
-    t.string "state"
     t.bigint "collected_ink_id", null: false
     t.bigint "collected_pen_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["collected_ink_id"], name: "index_currently_inkeds_on_collected_ink_id"
-    t.index ["collected_pen_id"], name: "index_currently_inkeds_on_collected_pen_id"
+    t.bigint "user_id", null: false
+    t.index ["collected_ink_id"], name: "index_currently_inked_on_collected_ink_id"
+    t.index ["collected_pen_id"], name: "index_currently_inked_on_collected_pen_id"
+    t.index ["user_id", "collected_pen_id"], name: "index_currently_inked_on_user_id_and_collected_pen_id", unique: true
+    t.index ["user_id"], name: "index_currently_inked_on_user_id"
   end
 
   create_table "users", id: :serial, force: :cascade do |t|
@@ -107,8 +107,9 @@ ActiveRecord::Schema.define(version: 20180210084805) do
 
   add_foreign_key "collected_inks", "users"
   add_foreign_key "collected_pens", "users"
-  add_foreign_key "currently_inkeds", "collected_inks"
-  add_foreign_key "currently_inkeds", "collected_pens"
+  add_foreign_key "currently_inked", "collected_inks"
+  add_foreign_key "currently_inked", "collected_pens"
+  add_foreign_key "currently_inked", "users"
 
   create_view "brands",  sql_definition: <<-SQL
       SELECT collected_inks.simplified_brand_name,

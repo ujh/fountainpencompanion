@@ -56,7 +56,7 @@ class CollectedInk < ApplicationRecord
   end
 
   def name
-    "#{brand_name} #{line_name} #{ink_name}"
+    [brand_name, line_name, ink_name, "(#{kind})"].reject {|f| f.blank? }.join(' ')
   end
 
   def brand_name=(value)
