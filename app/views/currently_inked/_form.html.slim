@@ -1,5 +1,5 @@
-td class="form"= f.association :collected_ink, label: false, collection: currently_inked.user.collected_inks_for_select
-td class="form"= f.association :collected_pen, label: false, collection: currently_inked.user.collected_pens_for_select
+td class="form"= f.association :collected_ink, label: false, collection: currently_inked.collected_inks_for_select
+td class="form"= f.association :collected_pen, label: false, collection: currently_inked.collected_pens_for_select
 td class="form"= f.input :comment, as: :string, label: false
 td class="form"
   = f.button :button do

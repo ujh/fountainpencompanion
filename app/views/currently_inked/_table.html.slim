@@ -5,14 +5,17 @@ div class="table-responsive"
         th Ink
         th Pen
         th Comment
-        th
+        th Actions
     tbody
       - currently_inkeds.each do |ci|
-        tr
-          td= ci.ink_name
-          td= ci.pen_name
-          td= ci.comment
-          td
+        - if ci == @currently_inked
+          tr id="#{ci.id}" class="info"= render partial: "form", locals: { f: f , currently_inked: @currently_inked }
+        - else
+          tr
+            td= ci.ink_name
+            td= ci.pen_name
+            td= ci.comment
+            td= render partial: "actions", locals: { ci: ci }
     tfoot
       - if @currently_inked&.new_record?
         tr id="add-form"= render partial: "form", locals: { f: f , currently_inked: @currently_inked }
