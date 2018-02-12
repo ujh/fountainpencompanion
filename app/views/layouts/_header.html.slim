@@ -15,6 +15,7 @@ nav class="navbar navbar-default navbar-fixed-top" id="header"
         li= link_to "Leaderboards", page_path("leaderboards")
       ul class="nav navbar-nav navbar-right"
         - if user_signed_in?
+          li= link_to "Currently Inked", currently_inked_index_path
           li= link_to "My Pens", collected_pens_path
           li= link_to "My Inks", collected_inks_path
           li= link_to "Account", account_path
