@@ -10,6 +10,7 @@ class CurrentlyInked < ApplicationRecord
 
   validate :collected_ink_belongs_to_user
   validate :collected_pen_belongs_to_user
+  validate :pen_not_already_in_use
 
   def self.active
     where(archived_on: nil)
@@ -37,6 +38,12 @@ class CurrentlyInked < ApplicationRecord
   def collected_pen_belongs_to_user
     return unless user_id && collected_pen
     errors.add(:collected_pen) if user_id != collected_pen.user_id
+  end
+
+  def pen_not_already_in_use
+    return unless user && collected_pen
+    return if archived_on.present?
+    errors.add(:collected_pen_id, "already in use") if user.currently_inkeds.active.where(collected_pen_id: collected_pen.id).where('id <> ?', id).exists?
   end
 
 end

@@ -49,7 +49,7 @@ class CurrentlyInkedController < ApplicationController
 
   def retrieve_currently_inkeds
     @currently_inkeds = current_user.currently_inkeds.active.sort_by {|ci| "#{ci.pen_name} #{ci.ink_name}"}
-    @archived = current_user.currently_inkeds.archived.order('archived_on, created_at')
+    @archived = current_user.currently_inkeds.archived.order('archived_on DESC, created_at DESC')
   end
 
   def retrieve_currently_inked
