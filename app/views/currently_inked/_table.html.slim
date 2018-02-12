@@ -5,6 +5,7 @@ div class="table-responsive"
         th Pen
         th Ink
         th Date Inked
+        th Date Cleaned
         th Comment
         th Actions
     tbody
@@ -16,6 +17,7 @@ div class="table-responsive"
             td= ci.pen_name
             td= ci.ink_name
             td=l ci.created_at.to_date
+            td= ci.archived_on ? l(ci.archived_on) : ""
             td= ci.comment
             td= render partial: "actions", locals: { ci: ci }
     tfoot

@@ -42,6 +42,7 @@ class CurrentlyInkedController < ApplicationController
       :collected_ink_id,
       :collected_pen_id,
       :created_at,
+      :archived_on,
       :comment
     )
   end
