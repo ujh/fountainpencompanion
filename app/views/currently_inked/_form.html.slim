@@ -1,5 +1,5 @@
-td class="form"= f.association :collected_pen, label: false, collection: currently_inked.collected_pens_for_select
-td class="form"= f.association :collected_ink, label: false, collection: currently_inked.collected_inks_for_select
+td class="form"= f.association :collected_pen, label: false, collection: currently_inked.collected_pens_for_select, prompt: '(Pick a pen)'
+td class="form"= f.association :collected_ink, label: false, collection: currently_inked.collected_inks_for_select, prompt: '(Pick an ink)'
 td class="form"= f.input :created_at, as: :date, html5: true, label: false, use_month_numbers: true
 td class="form"= f.input :archived_on, as: :date, html5: true, label: false, include_blank: true, use_month_numbers: true
 td class="form"= f.input :comment, as: :string, label: false
