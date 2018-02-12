@@ -1,0 +1,18 @@
+div class="table-responsive"
+  table class="table table-striped"
+    thead
+      tr
+        th Ink
+        th Pen
+        th Comment
+        th
+    tbody
+      - currently_inkeds.each do |ci|
+        tr
+          td= ci.ink_name
+          td= ci.pen_name
+          td= ci.comment
+          td
+    tfoot
+      - if @currently_inked&.new_record?
+        tr id="add-form"= render partial: "form", locals: { f: f , currently_inked: @currently_inked }
