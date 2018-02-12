@@ -24,3 +24,10 @@ div class="pen-collection"
       tfoot
         - if @collected_pen&.new_record?
           tr id="add-form"= render partial: "pen_collection/form", locals: { f: f , cp: @collected_pen }
+        tr
+          th
+          th= "#{pen_collection.count} pens"
+          th
+          th
+          th
+          th
