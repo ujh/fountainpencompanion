@@ -46,7 +46,7 @@ class CurrentlyInkedController < ApplicationController
   end
 
   def retrieve_currently_inkeds
-    @currently_inkeds = current_user.currently_inkeds
+    @currently_inkeds = current_user.currently_inkeds.sort_by {|ci| "#{ci.pen_name} #{ci.ink_name}"}
   end
 
   def retrieve_currently_inked

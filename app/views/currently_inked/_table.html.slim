@@ -2,8 +2,8 @@ div class="table-responsive"
   table class="table table-striped"
     thead
       tr
-        th Ink
         th Pen
+        th Ink
         th Comment
         th Actions
     tbody
@@ -12,8 +12,8 @@ div class="table-responsive"
           tr id="#{ci.id}" class="info"= render partial: "form", locals: { f: f , currently_inked: @currently_inked }
         - else
           tr
-            td= ci.ink_name
             td= ci.pen_name
+            td= ci.ink_name
             td= ci.comment
             td= render partial: "actions", locals: { ci: ci }
     tfoot
