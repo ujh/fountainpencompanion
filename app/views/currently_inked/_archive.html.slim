@@ -20,6 +20,3 @@ div class="table-responsive"
             td= ci.archived_on ? l(ci.archived_on) : ""
             td= ci.comment
             td= render partial: "actions", locals: { ci: ci }
-    tfoot
-      - if @currently_inked&.new_record?
-        tr id="add-form"= render partial: "form", locals: { f: f , currently_inked: @currently_inked }
