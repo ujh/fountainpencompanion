@@ -70,7 +70,7 @@ Rails.application.configure do
     format: :html,
     from: 'hello@fountainpencompanion.com'
   }
-  config.action_mailer.default_url_options = { host: 'fountainpencompanion.com' }
+  config.action_mailer.default_url_options = { host: 'www.fountainpencompanion.com' }
 
   # Ignore bad email addresses and do not raise email delivery errors.
   # Set this to true and configure the email server for immediate delivery to raise delivery errors.
