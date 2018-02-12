@@ -5,7 +5,7 @@ td class="form"= f.input :ink_name, label: false
 td class="form"= f.input :kind, label: false, as: :select, collection: CollectedInk::KINDS
 td class="form"= f.input :color, as: :hidden
 td class="form"= f.input :comment
-td class="form"
+td class="form actions"
   = f.button :button do
     = fa_icon("check")
   = link_to collected_inks_path, class: "btn btn-default" do
