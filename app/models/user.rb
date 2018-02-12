@@ -86,7 +86,7 @@ class User < ApplicationRecord
 
   def collected_pens_for_select(currently_inked)
     collected_pen_id = currently_inked.persisted? && CurrentlyInked.find(currently_inked.id).collected_pen_id
-    pens_used = currently_inkeds.pluck(:collected_pen_id).reject {|cid| cid == collected_pen_id }
+    pens_used = currently_inkeds.active.pluck(:collected_pen_id).reject {|cid| cid == collected_pen_id }
     collected_pens.where.not(id: pens_used).order('brand, model, nib, color')
   end
 

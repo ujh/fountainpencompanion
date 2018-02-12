@@ -1,0 +1,22 @@
+div class="table-responsive"
+  table class="table table-striped"
+    thead
+      tr
+        th Pen
+        th Ink
+        th Date Inked
+        th Date Cleaned
+        th Comment
+        th Actions
+    tbody
+      - currently_inkeds.each do |ci|
+        - if ci == @currently_inked
+          tr id="#{ci.id}" class="info"= render partial: "form", locals: { f: f , currently_inked: @currently_inked }
+        - else
+          tr
+            td= ci.pen_name
+            td= ci.ink_name
+            td=l ci.created_at.to_date
+            td= ci.archived_on ? l(ci.archived_on) : ""
+            td= ci.comment
+            td= render partial: "actions", locals: { ci: ci }
