@@ -3,3 +3,9 @@
     text-align: center;
   }
 }
+
+#currently-inked, #currently-inked-archive {
+  .actions {
+    white-space: nowrap;
+  }
+}

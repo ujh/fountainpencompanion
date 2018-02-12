@@ -1,5 +1,6 @@
 GEM
   remote: https://rubygems.org/
+  remote: https://rails-assets.org/
   specs:
     actioncable (5.1.4)
       actionpack (= 5.1.4)
@@ -136,6 +137,7 @@ GEM
       bundler (>= 1.3.0)
       railties (= 5.1.4)
       sprockets-rails (>= 2.0.0)
+    rails-assets-select2 (4.0.5)
     rails-dom-testing (2.0.3)
       activesupport (>= 4.2.0)
       nokogiri (>= 1.6)
@@ -263,6 +265,7 @@ DEPENDENCIES
   pg
   puma
   rails (~> 5.1.1)
+  rails-assets-select2!
   rspec-rails
   sass-rails
   scenic
@@ -280,4 +283,4 @@ RUBY VERSION
    ruby 2.4.1p111
 
 BUNDLED WITH
-   1.15.3
+   1.16.1

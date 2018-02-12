@@ -21,13 +21,14 @@ gem 'jquery-ui-rails'
 gem 'newrelic_rpm'
 gem 'pg'
 gem 'puma'
+gem 'rails-assets-select2', source: 'https://rails-assets.org'
 gem 'sass-rails'
 gem 'scenic'
 gem 'simple_form'
 gem 'slim'
 gem 'slodown'
-gem 'webpacker'
 gem 'uglifier'
+gem 'webpacker'
 
 group :development, :test do
   gem 'byebug', platform: :mri
