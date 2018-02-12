@@ -43,7 +43,7 @@ class CurrentlyInked < ApplicationRecord
   def pen_not_already_in_use
     return unless user && collected_pen
     return if archived_on.present?
-    errors.add(:collected_pen_id, "already in use") if user.currently_inkeds.active.where(collected_pen_id: collected_pen.id).where('id <> ?', id).exists?
+    errors.add(:collected_pen_id, "already in use") if user.currently_inkeds.active.where(collected_pen_id: collected_pen.id).where.not(id: id).exists?
   end
 
 end
