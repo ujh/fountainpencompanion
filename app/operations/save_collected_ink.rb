@@ -21,7 +21,11 @@ class SaveCollectedInk
   end
 
   def unset_twins
-    collected_ink.twins.without_color
+    twins.without_color
+  end
+
+  def twins
+    collected_ink.twins
   end
 
   def average_color
