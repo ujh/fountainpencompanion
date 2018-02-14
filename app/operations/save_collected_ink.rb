@@ -17,7 +17,11 @@ class SaveCollectedInk
   attr_accessor :collected_ink_params
 
   def update_color_of_unset_twins!
-    collected_ink.twins.without_color.update_all(color: average_color)
+    unset_twins.update_all(color: average_color)
+  end
+
+  def unset_twins
+    collected_ink.twins.without_color
   end
 
   def average_color
