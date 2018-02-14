@@ -61,6 +61,7 @@ GEM
       coffee-script-source
       execjs
     coffee-script-source (1.12.2)
+    color (1.8)
     concurrent-ruby (1.0.5)
     crass (1.0.2)
     devise (4.3.0)
@@ -254,6 +255,7 @@ DEPENDENCIES
   bootstrap-sass
   byebug
   coffee-rails
+  color
   devise
   font-awesome-rails
   jbuilder
