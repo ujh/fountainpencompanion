@@ -6,7 +6,9 @@ class UpdateCollectedInk
   end
 
   def perform
-    collected_ink.update(collected_ink_params)
+    res = collected_ink.update(collected_ink_params)
+    collected_ink.twins.without_color.update_all(color: collected_ink.color)
+    res
   end
 
   private

@@ -5,7 +5,9 @@ class CreateCollectedInk
   end
 
   def perform
-    collected_ink.save
+    res = collected_ink.save
+    collected_ink.twins.without_color.update_all(color: collected_ink.color)
+    res
   end
 
   private
