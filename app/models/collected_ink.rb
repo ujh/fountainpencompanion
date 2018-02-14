@@ -13,6 +13,14 @@ class CollectedInk < ApplicationRecord
 
   belongs_to :user
 
+  def self.without_color
+    where(color: '')
+  end
+
+  def self.with_color
+    where.not(color: '')
+  end
+
   def self.alphabetical
     order("brand_name, line_name, ink_name")
   end
@@ -53,6 +61,13 @@ class CollectedInk < ApplicationRecord
 
   def self.cartridge_count
     cartridges.count
+  end
+
+  def twins
+    self.class.where(
+      simplified_brand_name: simplified_brand_name,
+      simplified_ink_name: simplified_ink_name
+    )
   end
 
   def name
