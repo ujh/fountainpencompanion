@@ -17,7 +17,7 @@ class SaveCollectedInk
   attr_accessor :collected_ink_params
 
   def update_color_of_unset_twins!
-    unset_twins.update_all(color: average_color)
+    unset_twins.update_all(color: average_color) if twins_with_color.exists?
   end
 
   def unset_twins
@@ -29,6 +29,22 @@ class SaveCollectedInk
   end
 
   def average_color
-    collected_ink.color
+    Color.new([:red, :green, :blue].map {|f| average_for(colors_of_twins, f)}).html
+  end
+
+  def colors_of_twins
+    @colors ||= twins_with_color.pluck(:color).map do |c|
+      Color::RGB.from_html(c)
+    end
+  end
+
+  def twins_with_color
+    twins.with_color
+  end
+
+  def average_for(colors, field)
+    sum = (colors.map {|c| c.send(field)**2}.sum)
+    size = colors.size.to_f
+    Math.sqrt(sum/size).round
   end
 end
