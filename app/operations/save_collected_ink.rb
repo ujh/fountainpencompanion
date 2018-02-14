@@ -7,7 +7,7 @@ class SaveCollectedInk
 
   def perform
     res = collected_ink.update(collected_ink_params)
-    collected_ink.twins.without_color.update_all(color: collected_ink.color)
+    update_color_of_unset_twins!
     res
   end
 
@@ -15,4 +15,8 @@ class SaveCollectedInk
 
   attr_accessor :collected_ink
   attr_accessor :collected_ink_params
+
+  def update_color_of_unset_twins!
+    collected_ink.twins.without_color.update_all(color: collected_ink.color)
+  end
 end

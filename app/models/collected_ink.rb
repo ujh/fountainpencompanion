@@ -67,7 +67,7 @@ class CollectedInk < ApplicationRecord
     self.class.where(
       simplified_brand_name: simplified_brand_name,
       simplified_ink_name: simplified_ink_name
-    ).where.not(id: id)
+    )
   end
 
   def name
