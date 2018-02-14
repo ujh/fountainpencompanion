@@ -1,4 +1,4 @@
-class UpdateCollectedInk
+class SaveCollectedInk
 
   def initialize(collected_ink, collected_ink_params)
     self.collected_ink = collected_ink
