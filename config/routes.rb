@@ -25,6 +25,7 @@ Rails.application.routes.draw do
   end
 
   namespace :admins do
+    resource :dashboard, only: [:show]
     resources :users, only: [:index] do
       member do
         post 'become'
