@@ -1,0 +1,23 @@
+table class="table table-striped"
+  thead
+    th Name
+    th Value
+  tbody
+    tr
+      td Number of users
+      td= User.count
+    tr
+      td Number of collected inks
+      td= CollectedInk.count
+    tr
+      td Number of collected inks with color
+      td= CollectedInk.with_color.count
+    tr
+      td Number of collected inks without color
+      td= CollectedInk.without_color.count
+    tr
+      td Number of collected pens
+      td= CollectedPen.count
+    tr
+      td Number of "Currently Inked"
+      td= CurrentlyInked.count

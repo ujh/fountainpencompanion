@@ -17,6 +17,10 @@ class CollectedInk < ApplicationRecord
     where(color: '')
   end
 
+  def self.with_color
+    where.not(color: '')
+  end
+
   def self.alphabetical
     order("brand_name, line_name, ink_name")
   end
