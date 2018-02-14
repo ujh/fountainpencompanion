@@ -23,7 +23,7 @@ class CollectedInksController < ApplicationController
 
   def create
     @collected_ink = current_user.collected_inks.build(collected_ink_params)
-    if @collected_ink.save
+    if CreateCollectedInk.new(@collected_ink).perform
       redirect_to collected_inks_path(anchor: "add-form")
     else
       @elementToScrollTo = "#add-form"
@@ -38,7 +38,7 @@ class CollectedInksController < ApplicationController
 
   def update
     @collected_ink = current_user.collected_inks.find(params[:id])
-    if @collected_ink.update(collected_ink_params)
+    if UpdateCollectedInk.new(@collected_ink, collected_ink_params).perform
       redirect_to collected_inks_path(anchor: @collected_ink.id)
     else
       @elementToScrollTo = "##{@collected_ink.id}"
