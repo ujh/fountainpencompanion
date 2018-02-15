@@ -2,7 +2,7 @@ class Simplifier
 
   def self.simplify(name)
     without_brackets = name.gsub(/\(.*\)/, '')
-    without_hashtag_number = without_brackets.gsub(/^#\d+/, '')
+    without_hashtag_number = without_brackets.gsub(/^#?\d+/, '')
     without_no_at_beginning = without_hashtag_number.gsub(/^no\s*\.\s*\d+/i, '')
     without_ampersand = without_no_at_beginning.gsub('&', 'and')
     without_non_english_letters = I18n.transliterate(without_ampersand)
