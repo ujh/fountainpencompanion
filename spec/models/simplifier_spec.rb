@@ -19,12 +19,16 @@ describe Simplifier do
       expect(described_class.simplify("#8 Diep-Duinwaterblauw")).to eq("diepduinwaterblauw")
     end
 
+    it "removes numbers at the beginning" do
+      expect(described_class.simplify("05 Shocking Blue")).to eq("shockingblue")
+    end
+
     it "removes no. N at the beginning" do
       expect(described_class.simplify("No. 5 Shocking Blue")).to eq("shockingblue")
     end
 
     it "only keeps letters and numbers" do
-      expect(described_class.simplify("123 Abc,.;")).to eq("123abc")
+      expect(described_class.simplify("Abc123,.;")).to eq("abc123")
     end
 
     it "downcases the string" do
