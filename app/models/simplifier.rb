@@ -6,7 +6,7 @@ class Simplifier
     without_no_at_beginning = without_hashtag_number.gsub(/^no\s*\.\s*\d+/i, '')
     without_ampersand = without_no_at_beginning.gsub('&', 'and')
     without_non_english_letters = I18n.transliterate(without_ampersand)
-    without_quotes_at_end = without_non_english_letters.gsub(/"([^"]*)"$/, '')
+    without_quotes_at_end = without_non_english_letters.gsub(/"([^"]*)"/, '')
     only_letters_and_numbers = without_quotes_at_end.gsub(/\W/, '')
     downcased = only_letters_and_numbers.downcase
     downcased

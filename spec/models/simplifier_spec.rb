@@ -27,8 +27,8 @@ describe Simplifier do
       expect(described_class.simplify('something "bla"')).to eq("something")
     end
 
-    it "does not remove stuff in quotes in the middle" do
-      expect(described_class.simplify('something "bla" else')).to eq("somethingblaelse")
+    it "remove stuff in quotes in the middle" do
+      expect(described_class.simplify('something "bla" else')).to eq("somethingelse")
     end
 
     it "removes no. N at the beginning" do
