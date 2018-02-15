@@ -23,6 +23,14 @@ describe Simplifier do
       expect(described_class.simplify("05 Shocking Blue")).to eq("shockingblue")
     end
 
+    it "removes stuff in quotes at the end" do
+      expect(described_class.simplify('something "bla"')).to eq("something")
+    end
+
+    it "does not remove stuff in quotes in the middle" do
+      expect(described_class.simplify('something "bla" else')).to eq("somethingblaelse")
+    end
+
     it "removes no. N at the beginning" do
       expect(described_class.simplify("No. 5 Shocking Blue")).to eq("shockingblue")
     end
