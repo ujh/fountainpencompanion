@@ -12,7 +12,7 @@ class BrandsController < ApplicationController
   end
 
   def show
-    @inks = Ink.where(simplified_brand_name: params[:id]).order("simplified_line_name, simplified_ink_name")
+    @inks = Ink.where(simplified_brand_name: params[:id]).order("simplified_line_name, popular_ink_name")
   end
 
 end
