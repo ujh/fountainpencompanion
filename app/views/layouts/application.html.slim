@@ -9,10 +9,11 @@ html
     link href="https://fonts.googleapis.com/css?family=Droid+Serif" rel="stylesheet" type="text/css" media="screen"
     meta name="viewport" content="width=device-width, initial-scale=1"
   body
-    = render partial: "layouts/header"
-    = render partial: "layouts/main"
-    = render partial: "layouts/footer"
-    - if Rails.env.production?
-      = render partial: "layouts/ga"
-    = javascript_tag do
-      = "elementToScrollTo = #{@elementToScrollTo.to_s.inspect}".html_safe
+    div id="wrapper"
+      = render partial: "layouts/header"
+      = render partial: "layouts/main"
+      = render partial: "layouts/footer"
+      - if Rails.env.production?
+        = render partial: "layouts/ga"
+      = javascript_tag do
+        = "elementToScrollTo = #{@elementToScrollTo.to_s.inspect}".html_safe
