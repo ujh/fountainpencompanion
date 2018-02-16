@@ -35,6 +35,14 @@ describe Simplifier do
       expect(described_class.simplify("No. 5 Shocking Blue")).to eq("shockingblue")
     end
 
+    it "removes initials" do
+      expect(described_class.simplify("P.W. Akkerman")).to eq("akkerman")
+    end
+
+    it "does not remove initials in the middle" do
+      expect(described_class.simplify("XX P.W. Akkerman")).to eq("xxpwakkerman")
+    end
+
     it "only keeps letters and numbers" do
       expect(described_class.simplify("Abc123,.;")).to eq("abc123")
     end
