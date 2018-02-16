@@ -60,6 +60,7 @@ class CollectedInksController < ApplicationController
       :brand_name,
       :kind,
       :color,
+      :swabbed,
       :comment,
     )
   end

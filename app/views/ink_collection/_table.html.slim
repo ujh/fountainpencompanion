@@ -13,8 +13,11 @@ div class="ink-collection"
           th Name
           th Type
           th Color
+          - if @collected_ink
+            th Swabbed
           th Comment
-          th= @collected_ink ? "Actions" : ""
+          - if @collected_ink
+            th Actions
       tbody
         - ink_collection.each do |ci|
           - if ci == @collected_ink
@@ -27,8 +30,15 @@ div class="ink-collection"
               td data-name="ink_name"= ci.ink_name
               td data-name="kind"= ci.kind
               td data-name="color" style="background-color:#{ci.color}"
+              - if @collected_ink
+                td data-name="swabbed" class="swabbed #{ci.swabbed}"
+                  - if ci.swabbed
+                    = fa_icon "check"
+                  - else
+                    = fa_icon "times"
               td data-name="comment"= ci.comment
-              td= render partial: "ink_collection/actions", locals: { ci: ci }
+              - if @collected_ink
+                td= render partial: "ink_collection/actions", locals: { ci: ci }
       tfoot
         - if @collected_ink&.new_record?
           tr id="add-form"= render partial: "ink_collection/form", locals: { f: f , ci: @collected_ink }
@@ -44,5 +54,8 @@ div class="ink-collection"
             br
             = "#{ink_collection.cartridge_count}x cartridge"
           th
+          - if @collected_ink
+            th
           th
-          th
+          - if @collected_ink
+            th

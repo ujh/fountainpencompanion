@@ -59,6 +59,10 @@ class CollectedInk < ApplicationRecord
     where(kind: "cartridge")
   end
 
+  def self.unswabbed_count
+    where(swabbed: false).count
+  end
+
   def self.cartridge_count
     cartridges.count
   end
