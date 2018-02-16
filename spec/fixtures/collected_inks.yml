@@ -4,6 +4,9 @@ monis_marine:
   ink_name: Marine
   user: moni
   kind: bottle
+  swabbed: true
+  comment: "My comment"
+  color: "#ffffff"
   private: false
 monis_fire_and_ice:
   brand_name: Robert Oster
