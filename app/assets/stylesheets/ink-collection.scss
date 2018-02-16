@@ -11,4 +11,19 @@
   .actions {
     white-space: nowrap;
   }
+  .swabbed {
+    text-align: center;
+    &.true {
+      color: green;
+    }
+    &.false {
+      color: red;
+    }
+  }
+  .collected_ink_swabbed {
+    text-align: center;
+    label {
+      margin: 0;
+    }
+  }
 }
