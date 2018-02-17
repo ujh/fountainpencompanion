@@ -11,7 +11,7 @@
   .actions {
     white-space: nowrap;
   }
-  .swabbed {
+  .swabbed, .used {
     text-align: center;
     &.true {
       color: green;
@@ -21,7 +21,7 @@
     }
   }
   .collected_ink_swabbed {
-    text-align: center;
+    // text-align: center;
     label {
       margin: 0;
     }
