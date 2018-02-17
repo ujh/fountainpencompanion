@@ -4,7 +4,8 @@ td class="form"= f.input :line_name, label: false
 td class="form"= f.input :ink_name, label: false
 td class="form"= f.input :kind, label: false, as: :select, collection: CollectedInk::KINDS
 td class="form"= f.input :color, as: :hidden
-td class="form"= f.input :swabbed, label: false
+td class="form"= f.input :swabbed
+td class="form"= f.input :used
 td class="form"= f.input :comment
 td class="form actions"
   = f.button :button do

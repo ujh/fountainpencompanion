@@ -15,6 +15,7 @@ div class="ink-collection"
           th Color
           - if @collected_ink
             th Swabbed
+            th Used
           th Comment
           - if @collected_ink
             th Actions
@@ -33,6 +34,11 @@ div class="ink-collection"
               - if @collected_ink
                 td data-name="swabbed" class="swabbed #{ci.swabbed}"
                   - if ci.swabbed
+                    = fa_icon "check"
+                  - else
+                    = fa_icon "times"
+                td data-name="used" class="used #{ci.used}"
+                  - if ci.used
                     = fa_icon "check"
                   - else
                     = fa_icon "times"
@@ -55,6 +61,7 @@ div class="ink-collection"
             = "#{ink_collection.cartridge_count}x cartridge"
           th
           - if @collected_ink
+            th
             th
           th
           - if @collected_ink

@@ -14,6 +14,7 @@ class CurrentlyInkedController < ApplicationController
   def create
     @currently_inked = current_user.currently_inkeds.build(currently_inked_params)
     if @currently_inked.save
+      @currently_inked.collected_ink.update(used: true)
       redirect_to currently_inked_index_path(anchor: "add-form")
     else
       @elementToScrollTo = "#add-form"
@@ -23,6 +24,7 @@ class CurrentlyInkedController < ApplicationController
 
   def update
     if @currently_inked.update(currently_inked_params)
+      @currently_inked.collected_ink.update(used: true)
       redirect_to currently_inked_index_path(anchor: @currently_inked.id)
     else
       @elementToScrollTo = "##{@currently_inked.id}"

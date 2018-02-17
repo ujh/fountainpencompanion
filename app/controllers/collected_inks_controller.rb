@@ -13,8 +13,8 @@ class CollectedInksController < ApplicationController
       format.json
       format.csv do
         csv = CSV.generate(col_sep: ";") do |csv|
-          csv << ["Brand", "Line", "Name", "Type", "Color", "Swabbed", "Comment"]
-          @collected_inks.each {|ci| csv << [ci.brand_name, ci.line_name, ci.ink_name, ci.kind, ci.color, ci.swabbed, ci.comment]}
+          csv << ["Brand", "Line", "Name", "Type", "Color", "Swabbed", "Used", "Comment"]
+          @collected_inks.each {|ci| csv << [ci.brand_name, ci.line_name, ci.ink_name, ci.kind, ci.color, ci.swabbed, ci.used, ci.comment]}
         end
         send_data csv, type: "text/csv", filename: "collected_inks.csv"
       end
@@ -61,6 +61,7 @@ class CollectedInksController < ApplicationController
       :kind,
       :color,
       :swabbed,
+      :used,
       :comment,
     )
   end
