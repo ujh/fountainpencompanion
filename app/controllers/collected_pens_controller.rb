@@ -53,7 +53,7 @@ class CollectedPensController < ApplicationController
   end
 
   def retrieve_collected_pens
-    @collected_pens = current_user.collected_pens.order('brand, model')
+    @collected_pens = current_user.collected_pens.includes(:currently_inkeds).order('brand, model')
   end
 
   def set_flash
