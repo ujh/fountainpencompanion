@@ -7,6 +7,7 @@ class CurrentlyInked < ApplicationRecord
   delegate :collected_inks_for_select, to: :user
   delegate :name, to: :collected_ink, prefix: 'ink', allow_nil: true
   delegate :name, to: :collected_pen, prefix: 'pen', allow_nil: true
+  delegate :color, to: :collected_ink, prefix: 'ink'
 
   validate :collected_ink_belongs_to_user
   validate :collected_pen_belongs_to_user

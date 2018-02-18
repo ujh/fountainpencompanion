@@ -3,7 +3,7 @@ div class="table-responsive"
     thead
       tr
         th Pen
-        th Ink
+        th colspan="2" Ink
         th Date Inked
         th Date Cleaned
         th Comment
@@ -15,6 +15,7 @@ div class="table-responsive"
         - else
           tr
             td= ci.pen_name
+            td style="background-color:#{ci.ink_color};width:30px;"
             td= ci.ink_name
             td=l ci.inked_on
             td=l ci.archived_on

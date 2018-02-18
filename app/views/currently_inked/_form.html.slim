@@ -1,5 +1,5 @@
 td class="form"= f.association :collected_pen, collection: currently_inked.collected_pens_for_select, prompt: '(Pick a pen)'
-td class="form"= f.association :collected_ink, collection: currently_inked.collected_inks_for_select, prompt: '(Pick an ink)'
+td colspan="2" class="form"= f.association :collected_ink, collection: currently_inked.collected_inks_for_select, prompt: '(Pick an ink)'
 td class="form"= f.input :inked_on, as: :string
 td class="form"= f.input :archived_on, as: :string
 td class="form"= f.input :comment, as: :string
