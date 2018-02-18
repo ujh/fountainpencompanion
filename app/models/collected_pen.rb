@@ -1,4 +1,7 @@
 class CollectedPen < ApplicationRecord
+
+  include Archivable
+
   belongs_to :user
   has_many :currently_inkeds
 
