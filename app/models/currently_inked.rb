@@ -11,6 +11,9 @@ class CurrentlyInked < ApplicationRecord
   validate :collected_ink_belongs_to_user
   validate :collected_pen_belongs_to_user
   validate :pen_not_already_in_use
+  validates :inked_on, presence: true
+
+  after_initialize :set_default_inked_on
 
   def self.active
     where(archived_on: nil)
@@ -29,6 +32,10 @@ class CurrentlyInked < ApplicationRecord
   end
 
   private
+
+  def set_default_inked_on
+    self.inked_on ||= Date.today
+  end
 
   def collected_ink_belongs_to_user
     return unless user_id && collected_ink

@@ -16,7 +16,7 @@ div class="table-responsive"
           tr
             td= ci.pen_name
             td= ci.ink_name
-            td=l ci.created_at.to_date
-            td= ci.archived_on ? l(ci.archived_on) : ""
+            td=l ci.inked_on
+            td=l ci.archived_on
             td= ci.comment
             td= render partial: "actions", locals: { ci: ci }

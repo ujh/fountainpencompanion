@@ -43,7 +43,7 @@ class CurrentlyInkedController < ApplicationController
     params.require(:currently_inked).permit(
       :collected_ink_id,
       :collected_pen_id,
-      :created_at,
+      :inked_on,
       :archived_on,
       :comment
     )
