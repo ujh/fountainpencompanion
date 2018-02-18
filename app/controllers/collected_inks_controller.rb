@@ -12,11 +12,7 @@ class CollectedInksController < ApplicationController
       format.html { @collected_ink = CollectedInk.new }
       format.json
       format.csv do
-        csv = CSV.generate(col_sep: ";") do |csv|
-          csv << ["Brand", "Line", "Name", "Type", "Color", "Swabbed", "Used", "Comment"]
-          @collected_inks.each {|ci| csv << [ci.brand_name, ci.line_name, ci.ink_name, ci.kind, ci.color, ci.swabbed, ci.used, ci.comment]}
-        end
-        send_data csv, type: "text/csv", filename: "collected_inks.csv"
+        send_data current_user.collected_inks.order("brand_name, line_name, ink_name").to_csv, type: "text/csv", filename: "collected_inks.csv"
       end
     end
   end
@@ -67,6 +63,7 @@ class CollectedInksController < ApplicationController
   end
 
   def retrieve_collected_inks
-    @collected_inks = current_user.collected_inks.includes(:currently_inkeds).order("brand_name, line_name, ink_name")
+    @collected_inks = current_user.active_collected_inks.includes(:currently_inkeds).order("brand_name, line_name, ink_name")
+    @archived_collected_inks = current_user.archived_collected_inks.includes(:currently_inkeds).order("brand_name, line_name, ink_name")
   end
 end

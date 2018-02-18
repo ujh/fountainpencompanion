@@ -1,5 +1,10 @@
 $(function() {
-  var base = $('.ink-collection');
+  $('.ink-collection').each(function(){
+    filterFor($(this));
+  });
+})
+
+function filterFor(base) {
   if (!base.length) return;
   var rows = base.find('tbody tr[data-name=entry]');
   var brandsSelector = base.find('.filters select[name=brands]');
@@ -18,4 +23,4 @@ $(function() {
       rows.show();
     }
   })
-})
+}

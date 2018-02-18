@@ -96,6 +96,14 @@ class User < ApplicationRecord
     collected_pens.archived
   end
 
+  def active_collected_inks
+    collected_inks.active
+  end
+
+  def archived_collected_inks
+    collected_inks.archived
+  end
+
   protected
 
   def collected_inks_intersection(other_user_rel)

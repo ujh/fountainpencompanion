@@ -5,6 +5,7 @@ Rails.application.routes.draw do
   resources :pages, only: [:show]
 
   resources :collected_inks do
+    resource :archive, only: [:create, :destroy]
     resource :privacy, only: [:create, :destroy]
   end
   resources :collected_pens do

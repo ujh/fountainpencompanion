@@ -1,5 +1,7 @@
 class CollectedInk < ApplicationRecord
 
+  include Archivable
+
   KINDS = %w(bottle sample cartridge)
 
   validates :kind, inclusion: { in: KINDS, allow_blank: true }
@@ -68,6 +70,25 @@ class CollectedInk < ApplicationRecord
     cartridges.count
   end
 
+  def self.to_csv
+    CSV.generate(col_sep: ";") do |csv|
+      csv << ["Brand", "Line", "Name", "Type", "Color", "Swabbed", "Used", "Comment", "Archived"]
+      all.each do |ci|
+        csv << [
+          ci.brand_name,
+          ci.line_name,
+          ci.ink_name,
+          ci.kind,
+          ci.color,
+          ci.swabbed,
+          ci.used,
+          ci.comment,
+          ci.archived?,
+        ]
+      end
+    end
+  end
+
   def twins
     self.class.where(
       simplified_brand_name: simplified_brand_name,
@@ -76,7 +97,10 @@ class CollectedInk < ApplicationRecord
   end
 
   def name
-    [brand_name, line_name, ink_name, "(#{kind})"].reject {|f| f.blank? }.join(' ')
+    n = [brand_name, line_name, ink_name].reject {|f| f.blank? }.join(' ')
+    n = "#{n} - #{kind}" if kind.present?
+    n = "#{n} (archived)" if archived?
+    n
   end
 
   def brand_name=(value)
