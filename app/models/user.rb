@@ -88,6 +88,14 @@ class User < ApplicationRecord
     collected_pens.order('brand, model, nib, color')
   end
 
+  def active_collected_pens
+    collected_pens.active
+  end
+
+  def archived_collected_pens
+    collected_pens.archived
+  end
+
   protected
 
   def collected_inks_intersection(other_user_rel)

@@ -2,3 +2,8 @@
 div id="collected-pens"
   = simple_form_for @collected_pen, html: { id: 'collected-pen-form'}, wrapper: :inline_form do |f|
     = render partial: "pen_collection/table", locals: { pen_collection: @collected_pens, f: f }
+
+div id="collected-pens-archive"
+  h1 Archive
+  = simple_form_for @collected_pen, html: { id: 'collected-pen-form'}, wrapper: :inline_form do |f|
+    = render partial: "pen_collection/table", locals: { pen_collection: @archived_collected_pens, f: f }

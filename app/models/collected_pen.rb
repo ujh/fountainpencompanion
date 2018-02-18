@@ -15,7 +15,9 @@ class CollectedPen < ApplicationRecord
   end
 
   def name
-    [brand, model, nib, color].reject {|f| f.blank?}.join(' ')
+    n = [brand, model, nib, color].reject {|f| f.blank?}.join(' ')
+    n = "#{n} (archived)" if archived?
+    n
   end
 
   def brand=(value)

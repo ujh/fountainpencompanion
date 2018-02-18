@@ -16,7 +16,7 @@ class ArchivesController < ApplicationController
 
   def retrieve_record
     if params[:collected_pen_id]
-      @record = user.collected_pens.find_by(id: params[:collected_pen_id])
+      @record = current_user.collected_pens.find_by(id: params[:collected_pen_id])
     end
   end
 end
