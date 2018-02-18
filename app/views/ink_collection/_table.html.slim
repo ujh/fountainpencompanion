@@ -46,7 +46,7 @@ div class="ink-collection"
               - if @collected_ink
                 td= render partial: "ink_collection/actions", locals: { ci: ci }
       tfoot
-        - if @collected_ink&.new_record?
+        - if @collected_ink&.new_record? && !archive
           tr id="add-form"= render partial: "ink_collection/form", locals: { f: f , ci: @collected_ink }
         tr
           th
