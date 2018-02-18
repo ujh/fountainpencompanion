@@ -22,7 +22,7 @@ div class="pen-collection"
               td data-name="comment"= cp.comment
               td= render partial: "pen_collection/actions", locals: { cp: cp }
       tfoot
-        - if @collected_pen&.new_record?
+        - if @collected_pen&.new_record? && !archive
           tr id="add-form"= render partial: "pen_collection/form", locals: { f: f , cp: @collected_pen }
         tr
           th
