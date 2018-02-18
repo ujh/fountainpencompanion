@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180218142925) do
+ActiveRecord::Schema.define(version: 20180218190002) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -68,6 +68,7 @@ ActiveRecord::Schema.define(version: 20180218142925) do
     t.text "comment"
     t.string "nib", limit: 100
     t.string "color", limit: 100
+    t.date "archived_on"
   end
 
   create_table "currently_inked", force: :cascade do |t|

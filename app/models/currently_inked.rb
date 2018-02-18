@@ -1,5 +1,7 @@
 class CurrentlyInked < ApplicationRecord
 
+  include Archivable
+
   belongs_to :collected_ink
   belongs_to :collected_pen
   belongs_to :user
@@ -15,14 +17,6 @@ class CurrentlyInked < ApplicationRecord
   validates :inked_on, presence: true
 
   after_initialize :set_default_inked_on
-
-  def self.active
-    where(archived_on: nil)
-  end
-
-  def self.archived
-    where.not(archived_on: nil)
-  end
 
   def name
     "#{collected_ink.name} - #{collected_pen.name}"
