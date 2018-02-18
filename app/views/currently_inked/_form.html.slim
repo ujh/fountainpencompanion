@@ -1,8 +1,8 @@
-td class="form"= f.association :collected_pen, label: false, collection: currently_inked.collected_pens_for_select, prompt: '(Pick a pen)'
-td class="form"= f.association :collected_ink, label: false, collection: currently_inked.collected_inks_for_select, prompt: '(Pick an ink)'
-td class="form"= f.input :inked_on, as: :date, html5: true, label: false
-td class="form"= f.input :archived_on, as: :date, html5: true, label: false
-td class="form"= f.input :comment, as: :string, label: false
+td class="form"= f.association :collected_pen, collection: currently_inked.collected_pens_for_select, prompt: '(Pick a pen)'
+td class="form"= f.association :collected_ink, collection: currently_inked.collected_inks_for_select, prompt: '(Pick an ink)'
+td class="form"= f.input :inked_on, as: :string
+td class="form"= f.input :archived_on, as: :string
+td class="form"= f.input :comment, as: :string
 td class="form actions"
   = f.button :button do
     = fa_icon("check")
