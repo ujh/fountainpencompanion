@@ -67,6 +67,6 @@ class CollectedInksController < ApplicationController
   end
 
   def retrieve_collected_inks
-    @collected_inks = current_user.collected_inks.order("brand_name, line_name, ink_name")
+    @collected_inks = current_user.collected_inks.includes(:currently_inkeds).order("brand_name, line_name, ink_name")
   end
 end

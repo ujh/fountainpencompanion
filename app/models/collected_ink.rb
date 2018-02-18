@@ -12,6 +12,7 @@ class CollectedInk < ApplicationRecord
   before_save :simplify
 
   belongs_to :user
+  has_many :currently_inkeds
 
   def self.without_color
     where(color: '')
@@ -88,6 +89,10 @@ class CollectedInk < ApplicationRecord
 
   def ink_name=(value)
     super(value.strip)
+  end
+
+  def deletable?
+    currently_inkeds.empty?
   end
 
   private
