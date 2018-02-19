@@ -13,10 +13,18 @@ class CurrentlyInkedController < ApplicationController
   end
 
   def create
-    @currently_inked = current_user.currently_inkeds.build(currently_inked_params)
-    if @currently_inked.save
-      @currently_inked.collected_ink.update(used: true)
-      redirect_to currently_inked_index_path(anchor: "add-form")
+    @currently_inked = CurrentlyInked.new(user: current_user)
+    @archival_currently_inked = CurrentlyInked.new(user: current_user, archived_on: Date.today)
+    record = current_user.currently_inkeds.build(currently_inked_params)
+    if record.archived?
+      @archival_currently_inked = record
+    else
+      @currently_inked = record
+    end
+    if record.save
+      record.collected_ink.update(used: true)
+      anchor = record.archived? ? "archive-add-form" : "add-form"
+      redirect_to currently_inked_index_path(anchor: anchor)
     else
       @elementToScrollTo = "#add-form"
       render :index

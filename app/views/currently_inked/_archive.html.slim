@@ -10,7 +10,7 @@ div class="table-responsive"
         th Actions
     tbody
       - if @archival_currently_inked&.new_record?
-        tr id="#archive-add-form" class="info"= render partial: "archive_form", locals: { f: f , currently_inked: @archival_currently_inked }
+        tr id="archive-add-form" class="info"= render partial: "archive_form", locals: { f: f , currently_inked: @archival_currently_inked }
       - currently_inkeds.each do |ci|
         - if ci == @archival_currently_inked
           tr id="#{ci.id}" class="info"= render partial: "archive_form", locals: { f: f , currently_inked: @archival_currently_inked }
