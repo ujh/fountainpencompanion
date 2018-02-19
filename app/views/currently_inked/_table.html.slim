@@ -5,7 +5,6 @@ div class="table-responsive"
         th Pen
         th colspan="2" Ink
         th Date Inked
-        th Date Cleaned
         th Comment
         th Actions
     tbody
@@ -18,7 +17,6 @@ div class="table-responsive"
             td style="background-color:#{ci.ink_color};width:30px;"
             td= ci.ink_name
             td=l ci.inked_on
-            td= ci.archived_on ? l(ci.archived_on) : ""
             td= ci.comment
             td= render partial: "actions", locals: { ci: ci }
     tfoot

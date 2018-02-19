@@ -84,7 +84,7 @@ class User < ApplicationRecord
     collected_inks.order('brand_name, line_name, ink_name')
   end
 
-  def collected_pens_for_select(currently_inked)
+  def collected_pens_for_select
     collected_pens.order('brand, model, nib, color')
   end
 

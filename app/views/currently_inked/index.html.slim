@@ -5,5 +5,5 @@ div id="currently-inked"
 
 div id="currently-inked-archive"
   h1 Archive
-  = simple_form_for @currently_inked, html: { id: 'currently-inked-form'}, wrapper: :inline_form do |f|
+  = simple_form_for @archival_currently_inked, html: { id: 'currently-inked-form'}, wrapper: :inline_form do |f|
     = render partial: "archive", locals: { currently_inkeds: @archived, f: f }

@@ -7,6 +7,7 @@ class CurrentlyInked < ApplicationRecord
   belongs_to :user
 
   delegate :collected_inks_for_select, to: :user
+  delegate :collected_pens_for_select, to: :user
   delegate :name, to: :collected_ink, prefix: 'ink', allow_nil: true
   delegate :name, to: :collected_pen, prefix: 'pen', allow_nil: true
   delegate :color, to: :collected_ink, prefix: 'ink'
@@ -22,8 +23,17 @@ class CurrentlyInked < ApplicationRecord
     "#{collected_ink.name} - #{collected_pen.name}"
   end
 
-  def collected_pens_for_select
-    user.collected_pens_for_select(self)
+  def unarchivable?
+    !user.currently_inkeds.where(collected_pen_id: collected_pen_id, archived_on: nil).exists?
+  end
+
+  def collected_pens_for_active_select
+    ids = user.currently_inkeds.active.pluck(:collected_pen_id) - [collected_pen_id]
+    user.collected_pens.active.where.not(id: ids)
+  end
+
+  def collected_inks_for_active_select
+    user.active_collected_inks
   end
 
   private
