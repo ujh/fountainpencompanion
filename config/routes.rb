@@ -11,7 +11,9 @@ Rails.application.routes.draw do
   resources :collected_pens do
     resource :archive, only: [:create, :destroy]
   end
-  resources :currently_inked
+  resources :currently_inked do
+    resource :archive, only: [:create, :destroy]
+  end
   resources :brands, only: [:index]
   namespace :pens do
     resources :brands, only: [:index]

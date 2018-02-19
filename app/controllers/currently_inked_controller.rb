@@ -5,6 +5,7 @@ class CurrentlyInkedController < ApplicationController
 
   def index
     @currently_inked = CurrentlyInked.new(user: current_user)
+    @archival_currently_inked = CurrentlyInked.new(user: current_user, archived_on: Date.today)
   end
 
   def edit
@@ -55,6 +56,13 @@ class CurrentlyInkedController < ApplicationController
   end
 
   def retrieve_currently_inked
-    @currently_inked = current_user.currently_inkeds.find_by(id: params[:id])
+    record = current_user.currently_inkeds.find_by(id: params[:id])
+    if record&.archived?
+      @archival_currently_inked = record
+      @currently_inked = CurrentlyInked.new(user: current_user)
+    else
+      @currently_inked = record
+      @archival_currently_inked = CurrentlyInked.new(user: current_user, archived_on: Date.today)
+    end
   end
 end

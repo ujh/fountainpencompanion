@@ -22,15 +22,25 @@ class ArchivesController < ApplicationController
     params[:collected_pen_id].present?
   end
 
+  def ink?
+    params[:collected_ink_id].present?
+  end
+
   def collection
-    pen? ? current_user.collected_pens : current_user.collected_inks
+    return current_user.collected_pens if pen?
+    return current_user.collected_inks if ink?
+    current_user.currently_inkeds
   end
 
   def record_id
-    pen? ? params[:collected_pen_id] : params[:collected_ink_id]
+    return params[:collected_pen_id] if pen?
+    return params[:collected_ink_id] if ink?
+    params[:currently_inked_id]
   end
 
   def route
-    pen? ? collected_pens_path : collected_inks_path
+    return collected_pens_path if pen?
+    return collected_inks_path if ink?
+    currently_inked_index_path
   end
 end
