@@ -41,9 +41,6 @@ GEM
       tzinfo (~> 1.1)
     addressable (2.5.2)
       public_suffix (>= 2.0.2, < 4.0)
-    airbrake (7.0.2)
-      airbrake-ruby (~> 2.4)
-    airbrake-ruby (2.4.0)
     arel (8.0.0)
     autoprefixer-rails (7.1.4.1)
       execjs
@@ -113,7 +110,6 @@ GEM
     mini_portile2 (2.3.0)
     minitest (5.11.3)
     multi_json (1.12.2)
-    newrelic_rpm (4.5.0.337)
     nio4r (2.2.0)
     nokogiri (1.8.2)
       mini_portile2 (~> 2.3.0)
@@ -252,7 +248,6 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  airbrake
   bcrypt
   bootstrap-sass
   byebug
@@ -266,7 +261,6 @@ DEPENDENCIES
   jquery-ui-rails
   letter_opener
   listen
-  newrelic_rpm
   pg
   puma
   rails (~> 5.1.1)
