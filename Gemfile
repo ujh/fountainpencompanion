@@ -9,7 +9,6 @@ end
 
 gem 'rails', '~> 5.1.1'
 
-gem 'airbrake'
 gem 'bcrypt'
 gem 'bootstrap-sass'
 gem 'coffee-rails'
@@ -20,7 +19,6 @@ gem 'font-awesome-rails'
 gem 'jbuilder'
 gem 'jquery-rails'
 gem 'jquery-ui-rails'
-gem 'newrelic_rpm'
 gem 'pg'
 gem 'puma'
 gem 'rails-assets-select2', source: 'https://rails-assets.org'
