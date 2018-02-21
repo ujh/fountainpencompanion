@@ -83,3 +83,4 @@ production:
   database: fountainpencompanion_production
   username: fountainpencompanion
   password: <%= ENV['FOUNTAINPENCOMPANION_DATABASE_PASSWORD'] %>
+  pool: 12
