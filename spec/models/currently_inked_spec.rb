@@ -104,9 +104,46 @@ describe CurrentlyInked do
 
   describe '#collected_pens_for_active_select' do
 
+    let(:pen) { collected_pens(:monis_wing_sung) }
+
+    it 'includes pens that are active' do
+      expect(subject.collected_pens_for_active_select).to match_array([
+        collected_pens(:monis_wing_sung),
+        collected_pens(:monis_pilot_custom_74)
+      ])
+    end
+
+    it 'does not include pens that have an active currently inked' do
+      user.currently_inkeds.create!(
+        collected_pen: pen,
+        collected_ink: collected_inks(:monis_marine)
+      )
+      expect(subject.collected_pens_for_active_select).to match_array([collected_pens(:monis_pilot_custom_74)])
+    end
+
+    it 'includes pens that have an archived currently inked' do
+      user.currently_inkeds.create!(
+        collected_pen: pen,
+        collected_ink: collected_inks(:monis_marine),
+        archived_on: Date.today
+      )
+      expect(subject.collected_pens_for_active_select).to match_array([
+        collected_pens(:monis_wing_sung),
+        collected_pens(:monis_pilot_custom_74)
+      ])
+    end
+
+    it 'includes the pen for this currently inked' do
+      user.currently_inkeds.create!(
+        collected_pen: pen,
+        collected_ink: collected_inks(:monis_marine)
+      )
+      subject.collected_pen = pen
+      expect(subject.collected_pens_for_active_select).to match_array([
+        collected_pens(:monis_wing_sung),
+        collected_pens(:monis_pilot_custom_74)
+      ])
+    end
   end
 
-  describe '#collected_inks_for_active_select' do
-
-  end
 end
