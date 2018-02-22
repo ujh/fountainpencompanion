@@ -7,6 +7,6 @@
 // To reference this file, add <%= javascript_pack_tag 'application' %> to the appropriate
 // layout file, like app/views/layouts/application.html.erb
 
-import { renderColorPickerApp } from "../collected_inks";
+import { renderColorPickerApp } from "../src/collected_inks";
 
 window.renderColorPickerApp = renderColorPickerApp;
