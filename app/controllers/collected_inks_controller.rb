@@ -10,7 +10,9 @@ class CollectedInksController < ApplicationController
     end
     respond_to do |format|
       format.html { @collected_ink = CollectedInk.new }
-      format.json
+      format.json {
+        render jsonapi: current_user.collected_inks.includes(:currently_inkeds)
+      }
       format.csv do
         send_data current_user.collected_inks.order("brand_name, line_name, ink_name").to_csv, type: "text/csv", filename: "collected_inks.csv"
       end

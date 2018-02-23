@@ -39,6 +39,11 @@ describe CollectedInksController do
         end
         expect(response.body).to eq(csv)
       end
+
+      it 'renders the JSON' do
+        get :index, format: :json
+        expect(response).to be_successful
+      end
     end
   end
 
