@@ -59,8 +59,8 @@ class CurrentlyInkedController < ApplicationController
   end
 
   def retrieve_currently_inkeds
-    @currently_inkeds = current_user.currently_inkeds.active.sort_by {|ci| "#{ci.pen_name} #{ci.ink_name}"}
-    @archived = current_user.currently_inkeds.archived.order('archived_on DESC, created_at DESC')
+    @currently_inkeds = current_user.currently_inkeds.active.includes(:collected_pen, :collected_ink).sort_by {|ci| "#{ci.pen_name} #{ci.ink_name}"}
+    @archived = current_user.currently_inkeds.archived.includes(:collected_pen, :collected_ink).order('archived_on DESC, created_at DESC')
   end
 
   def retrieve_currently_inked
