@@ -2,6 +2,11 @@
 
 set -e
 
+echo "+---------------+"
+echo "| Outdated gems |"
+echo "+---------------+"
+echo -e "\033[1;35m`bundle outdated --parseable`\033[0m"
+
 echo "+-----------------+"
 echo "| Pushing develop |"
 echo "+-----------------+"
@@ -12,6 +17,7 @@ echo "+-------------------+"
 echo "| Running the tests |"
 echo "+-------------------+"
 rspec --profile
+yarn test --single-run
 
 echo "+--------------------------------+"
 echo "| Switching to the master branch |"
@@ -21,11 +27,6 @@ git merge --no-ff -m 'Merging develop into master' develop
 git tag `ruby ./bin/version.rb`
 git push
 git push --tags
-
-echo "+---------------+"
-echo "| Outdated gems |"
-echo "+---------------+"
-echo -e "\033[1;35m`bundle outdated --parseable`\033[0m"
 
 echo "+---------------------+"
 echo "| Deploying to Heroku |"
