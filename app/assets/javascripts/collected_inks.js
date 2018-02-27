@@ -11,4 +11,7 @@ $(function() {
   $('#collected-ink-form #collected_ink_color').each(function() {
     renderColorPickerApp($(this).closest('td').get(0));
   })
+  $('#collected-inks-app').each(function() {
+    renderCollectedInks(this)
+  })
 })

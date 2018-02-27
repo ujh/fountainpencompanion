@@ -18,6 +18,10 @@ if (!window.Promise) {
 // fetch polyfill. https://github.com/github/fetch
 import "whatwg-fetch";
 
-import { renderColorPickerApp } from "../src/collected_inks";
+import {
+  renderCollectedInks,
+  renderColorPickerApp,
+} from "../src/collected_inks";
 
+window.renderCollectedInks = renderCollectedInks;
 window.renderColorPickerApp = renderColorPickerApp;
