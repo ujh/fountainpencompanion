@@ -10,12 +10,12 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180218193150) do
+ActiveRecord::Schema.define(version: 2018_02_27_181153) do
 
   # These are extensions that must be enabled in order to support this database
-  enable_extension "plpgsql"
   enable_extension "cube"
   enable_extension "earthdistance"
+  enable_extension "plpgsql"
 
   create_table "admins", force: :cascade do |t|
     t.string "email", default: "", null: false
@@ -58,6 +58,7 @@ ActiveRecord::Schema.define(version: 20180218193150) do
     t.index ["brand_name"], name: "index_collected_inks_on_brand_name"
     t.index ["ink_name"], name: "index_collected_inks_on_ink_name"
     t.index ["line_name"], name: "index_collected_inks_on_line_name"
+    t.index ["simplified_ink_name"], name: "index_collected_inks_on_simplified_ink_name"
   end
 
   create_table "collected_pens", force: :cascade do |t|
