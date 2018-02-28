@@ -1,11 +1,13 @@
 import * as React from "react";
+import { connect } from "react-redux";
 
-import ActiveCollectedInks from "./components/active_collected_inks";
-import ArchivedCollectedInks from "./components/archived_collected_inks";
+import CollectedInks from "./components/collected_inks";
+import Loading from "./components/loading";
 
-const App = () => <div>
-  <ActiveCollectedInks />
-  <ArchivedCollectedInks />
+const mapStateToProps = ({loading}) => ({loading});
+
+const App = ({loading}) => <div>
+  {loading ? <Loading /> : <CollectedInks />}
 </div>;
 
-export default App;
+export default connect(mapStateToProps)(App);
