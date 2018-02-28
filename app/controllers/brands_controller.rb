@@ -6,7 +6,7 @@ class BrandsController < ApplicationController
         render json: brands
       }
       format.html {
-        @brands = Brand.order(:popular_name)
+        @brands = Brand.order(:popular_name).where.not(simplified_brand_name: "")
       }
     end
   end
