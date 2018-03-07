@@ -15,14 +15,15 @@ class Admins::UsersController < Admins::BaseController
 
   def import
     count = 0
-    CSV.parse(params[:file].read, headers: true) do |row|
+    content = params[:file].read.force_encoding('UTF-8')
+    CSV.parse(content, headers: true) do |row|
       row = row.to_hash
       row.keys.each {|k|
         row[k] = '' if row[k].nil?
         row[k] = row[k].strip
       }
       row["private"] = !row["private"].blank?
-      row["used"] = row["used"].present? ? (row["used"].downcase == "true") : false
+      row["used"] = row["used"].present? ? (["true", "1"].include?(row["used"].downcase)) : false
       ci = @user.collected_inks.build
       ink_params = row.slice(
         "brand_name", "line_name", "ink_name", "kind", "private", "comment", "used"
