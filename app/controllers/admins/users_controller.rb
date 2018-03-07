@@ -22,9 +22,10 @@ class Admins::UsersController < Admins::BaseController
         row[k] = row[k].strip
       }
       row["private"] = !row["private"].blank?
+      row["used"] = row["used"].present? ? (row["used"].downcase == "true") : false
       ci = @user.collected_inks.build
       ink_params = row.slice(
-        "brand_name", "line_name", "ink_name", "kind", "private", "comment"
+        "brand_name", "line_name", "ink_name", "kind", "private", "comment", "used"
       )
       SaveCollectedInk.new(ci, ink_params).perform
       count +=1 if ci.persisted?
