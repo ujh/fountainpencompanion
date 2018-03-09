@@ -36,11 +36,26 @@ const Row = (props) => <tr className={`${props.private ? "private" : ""}`}>
   <td className={`used ${props.used}`}><i className={`fa fa-${props.used ? "check" : "times"}`}></i></td>
   <td>{props.comment}</td>
   <td>
-    <a className="btn btn-default"><i className="fa fa-archive" /></a>
-    {props.deletable ? <a className="btn btn-default"><i className="fa fa-trash" /></a> : null }
+    <span className="actions">
+      <a className="btn btn-default"><i className="fa fa-archive" /></a>
+      {props.deletable ? <a className="btn btn-default"><i className="fa fa-trash" /></a> : null }
+    </span>
   </td>
 </tr>;
 
-const Footer = ({entries}) => <tfoot></tfoot>;
+const Footer = ({entries}) => <tfoot>
+  <tr>
+    <th></th>
+    <th>X brands</th>
+    <th></th>
+    <th>X inks</th>
+    <th>X kind</th>
+    <th></th>
+    <th></th>
+    <th></th>
+    <th></th>
+    <th></th>
+  </tr>
+</tfoot>;
 
 export default InkTable;
