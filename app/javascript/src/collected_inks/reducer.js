@@ -27,10 +27,20 @@ export default function reducer(state = defaultState, action) {
 
 const activeEntries = (data) => {
   const entries = data.data.filter(entry => !entry.attributes.archived)
+  sortInks(entries);
   return entries;
 }
 
 const archivedEntries = (data) => {
   const entries = data.data.filter(entry => entry.attributes.archived)
+  sortInks(entries);
   return entries;
+}
+
+function sortInks(inks) {
+  inks.sort((a, b) => {
+    const keya = ["brand_name", "line_name", "ink_name"].map(n => a.attributes[n]).join();
+    const keyb = ["brand_name", "line_name", "ink_name"].map(n => b.attributes[n]).join();
+    return keya.localeCompare(keyb);
+  })
 }
