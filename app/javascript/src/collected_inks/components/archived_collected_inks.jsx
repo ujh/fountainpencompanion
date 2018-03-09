@@ -5,6 +5,9 @@ import InkTable from "./ink_table";
 
 const mapStateToProps = ({ archived }) => ({ entries: archived });
 
-const ArchivedCollectedInks = ({entries}) => <div><InkTable entries={entries} /></div>;
+const ArchivedCollectedInks = ({entries}) => <div>
+  <h1>Archive</h1>
+  <InkTable entries={entries} />
+</div>;
 
 export default connect(mapStateToProps)(ArchivedCollectedInks);
