@@ -28,13 +28,13 @@ export default function reducer(state = defaultState, action) {
 const activeEntries = (data) => {
   const entries = data.data.filter(entry => !entry.attributes.archived)
   sortInks(entries);
-  return entries;
+  return {entries, stats: calculateStats(entries)};
 }
 
 const archivedEntries = (data) => {
   const entries = data.data.filter(entry => entry.attributes.archived)
   sortInks(entries);
-  return entries;
+  return {entries, stats: calculateStats(entries)};
 }
 
 function sortInks(inks) {
@@ -43,4 +43,14 @@ function sortInks(inks) {
     const keyb = ["brand_name", "line_name", "ink_name"].map(n => b.attributes[n]).join();
     return keya.localeCompare(keyb);
   })
+}
+
+function calculateStats(inks) {
+  const stats = {};
+  stats.inks = inks.length;
+  stats.bottles = inks.filter(ink => ink.attributes.kind == "bottle").length;
+  stats.samples = inks.filter(ink => ink.attributes.kind == "sample").length;
+  stats.cartridges = inks.filter(ink => ink.attributes.kind == "cartridge").length;
+  stats.brands = (new Set(inks.map(ink => ink.attributes.brand_name))).size;
+  return stats;
 }

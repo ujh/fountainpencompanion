@@ -3,11 +3,11 @@ import { connect } from "react-redux";
 
 import InkTable from "./ink_table";
 
-const mapStateToProps = ({ archived }) => ({ entries: archived });
+const mapStateToProps = ({ archived }) => ({ ...archived });
 
-const ArchivedCollectedInks = ({entries}) => <div>
+const ArchivedCollectedInks = (props) => <div>
   <h1>Archive</h1>
-  <InkTable entries={entries} />
+  <InkTable {...props} />
 </div>;
 
 export default connect(mapStateToProps)(ArchivedCollectedInks);

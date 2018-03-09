@@ -3,8 +3,8 @@ import { connect } from "react-redux";
 
 import InkTable from "./ink_table";
 
-const mapStateToProps = ({ active }) => ({ entries: active });
+const mapStateToProps = ({ active }) => ({ ...active });
 
-const ActiveCollectedInks = ({entries}) => <div><InkTable entries={entries}/></div>;
+const ActiveCollectedInks = (props) => <div><InkTable {...props}/></div>;
 
 export default connect(mapStateToProps)(ActiveCollectedInks);

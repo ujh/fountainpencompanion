@@ -1,10 +1,10 @@
 import * as React from "react";
 
-const InkTable = ({entries}) => <div className="table-responsive">
+const InkTable = ({entries, stats}) => <div className="table-responsive">
   <table className="table table-striped ink-collection">
     <Header entries={entries} />
     <Body entries={entries} />
-    <Footer entries={entries} />
+    <Footer {...stats} />
   </table>
 </div>;
 
@@ -43,13 +43,19 @@ const Row = (props) => <tr className={`${props.private ? "private" : ""}`}>
   </td>
 </tr>;
 
-const Footer = ({entries}) => <tfoot>
+const Footer = ({brands, inks, bottles, samples, cartridges}) => <tfoot>
   <tr>
     <th></th>
-    <th>X brands</th>
+    <th>{brands} brands</th>
     <th></th>
-    <th>X inks</th>
-    <th>X kind</th>
+    <th>{inks} inks</th>
+    <th>
+      {bottles}x bottle
+      <br />
+      {samples}x sample
+      <br />
+      {cartridges}x cartridge
+    </th>
     <th></th>
     <th></th>
     <th></th>
