@@ -6,6 +6,10 @@ import {
 const defaultState = {
   active: [],
   archived: [],
+  entries: [],
+  filters: {
+    active: {brand_name: "Sailor"}
+  },
   loading: true,
 };
 
@@ -14,8 +18,9 @@ export default function reducer(state = defaultState, action) {
     case DATA_RECEIVED:
       return {
         ...state,
-        active: activeEntries(action.data),
-        archived: archivedEntries(action.data),
+        active: activeEntries(action.data, state.filters.active),
+        archived: archivedEntries(action.data, state.filters.archived),
+        entries: action.data,
         loading: false,
       }
     case LOADING_DATA:
@@ -25,16 +30,40 @@ export default function reducer(state = defaultState, action) {
   }
 }
 
-const activeEntries = (data) => {
+const activeEntries = (data, filters) => {
   const entries = data.data.filter(entry => !entry.attributes.archived)
-  sortInks(entries);
-  return {entries, stats: calculateStats(entries), brands: calculateListOfBrands(entries)};
+  const filteredEntries = filterEntries(entries, filters);
+  sortInks(filteredEntries);
+  return {
+    entries: filteredEntries,
+    stats: calculateStats(filteredEntries),
+    brands: calculateListOfBrands(entries),
+  };
 }
 
-const archivedEntries = (data) => {
+const archivedEntries = (data, filters) => {
   const entries = data.data.filter(entry => entry.attributes.archived)
-  sortInks(entries);
-  return {entries, stats: calculateStats(entries), brands: calculateListOfBrands(entries)};
+  const filteredEntries = filterEntries(entries, filters);
+  sortInks(filteredEntries);
+  return {
+    entries: filteredEntries,
+    stats: calculateStats(filteredEntries),
+    brands: calculateListOfBrands(entries),
+  };
+}
+
+const filterEntries = (entries, filter = {}) => {
+  let filteredEntries = [...entries];
+  Object.entries(filter).forEach(([key, value]) => {
+    filteredEntries = filteredEntries.filter(entry => {
+      if (value) {
+        return entry.attributes[key] == value;
+      } else {
+        return true;
+      }
+    })
+  })
+  return filteredEntries;
 }
 
 function sortInks(inks) {
