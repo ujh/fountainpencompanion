@@ -28,13 +28,13 @@ export default function reducer(state = defaultState, action) {
 const activeEntries = (data) => {
   const entries = data.data.filter(entry => !entry.attributes.archived)
   sortInks(entries);
-  return {entries, stats: calculateStats(entries)};
+  return {entries, stats: calculateStats(entries), brands: calculateListOfBrands(entries)};
 }
 
 const archivedEntries = (data) => {
   const entries = data.data.filter(entry => entry.attributes.archived)
   sortInks(entries);
-  return {entries, stats: calculateStats(entries)};
+  return {entries, stats: calculateStats(entries), brands: calculateListOfBrands(entries)};
 }
 
 function sortInks(inks) {
@@ -53,4 +53,10 @@ function calculateStats(inks) {
   stats.cartridges = inks.filter(ink => ink.attributes.kind == "cartridge").length;
   stats.brands = (new Set(inks.map(ink => ink.attributes.brand_name))).size;
   return stats;
+}
+
+function calculateListOfBrands(inks) {
+  const brands = [...(new Set(inks.map(ink => ink.attributes.brand_name)))];
+  brands.sort()
+  return ["", ...brands];
 }
