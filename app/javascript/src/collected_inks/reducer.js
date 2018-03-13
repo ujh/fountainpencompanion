@@ -1,34 +1,46 @@
 import {
   DATA_RECEIVED,
+  FILTER_DATA,
   LOADING_DATA,
+  UPDATE_FILTER,
 } from "./actions";
 
 const defaultState = {
   active: [],
   archived: [],
   entries: [],
-  filters: {
-    active: {brand_name: "Sailor"}
-  },
+  filters: {},
   loading: true,
 };
 
 export default function reducer(state = defaultState, action) {
   switch(action.type) {
     case DATA_RECEIVED:
-      return {
+      return filterData({
         ...state,
-        active: activeEntries(action.data, state.filters.active),
-        archived: archivedEntries(action.data, state.filters.archived),
         entries: action.data,
         loading: false,
-      }
+      });
+    case FILTER_DATA:
+      return filterData(state);
     case LOADING_DATA:
       return { ...state, loading: true};
+    case UPDATE_FILTER:
+      const newFilter = { ...state.filters[action.filterName]};
+      newFilter[action.filterField] = action.filterValue;
+      const newFilters = { ...state.filters };
+      newFilters[action.filterName] = newFilter;
+      return { ...state, filters: newFilters };
     default:
       return state;
   }
 }
+
+const filterData = (state) => ({
+  ...state,
+  active: activeEntries(state.entries, state.filters.active),
+  archived: archivedEntries(state.entries, state.filters.archived)
+});
 
 const activeEntries = (data, filters) => {
   const entries = data.data.filter(entry => !entry.attributes.archived)
