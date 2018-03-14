@@ -2,14 +2,13 @@ require 'csv'
 
 class CollectedInksController < ApplicationController
   before_action :authenticate_user!
-  before_action :retrieve_collected_inks
 
   def index
     if current_user.collected_inks.empty?
       flash.now[:notice] = "Your ink collection is empty. Check out the <a href='/pages/documentation'>documentation</a> on how to add some.".html_safe
     end
     respond_to do |format|
-      format.html { @collected_ink = CollectedInk.new }
+      format.html
       format.json {
         render jsonapi: current_user.collected_inks.includes(:currently_inkeds)
       }
@@ -27,11 +26,6 @@ class CollectedInksController < ApplicationController
       @elementToScrollTo = "#add-form"
       render :index
     end
-  end
-
-  def edit
-    @collected_ink = current_user.collected_inks.find(params[:id])
-    render :index
   end
 
   def update
@@ -64,8 +58,4 @@ class CollectedInksController < ApplicationController
     )
   end
 
-  def retrieve_collected_inks
-    @collected_inks = current_user.active_collected_inks.includes(:currently_inkeds).order("brand_name, line_name, ink_name")
-    @archived_collected_inks = current_user.archived_collected_inks.includes(:currently_inkeds).order("brand_name, line_name, ink_name")
-  end
 end

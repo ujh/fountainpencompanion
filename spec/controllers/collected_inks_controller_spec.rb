@@ -23,8 +23,6 @@ describe CollectedInksController do
       it 'renders the ink index page' do
         get :index
         expect(response).to be_successful
-        expect(response.body).to include(ink.ink_name)
-        expect(response.body).to include(ink.brand_name)
       end
 
       it 'renders the CSV' do
@@ -43,6 +41,8 @@ describe CollectedInksController do
       it 'renders the JSON' do
         get :index, format: :json
         expect(response).to be_successful
+        expect(response.body).to include(ink.ink_name)
+        expect(response.body).to include(ink.brand_name)
       end
     end
   end
