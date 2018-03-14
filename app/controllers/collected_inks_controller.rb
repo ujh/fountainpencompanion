@@ -19,28 +19,27 @@ class CollectedInksController < ApplicationController
   end
 
   def create
-    @collected_ink = current_user.collected_inks.build
-    if SaveCollectedInk.new(@collected_ink, collected_ink_params).perform
-      redirect_to collected_inks_path(anchor: "add-form")
+    collected_ink = current_user.collected_inks.build
+    if SaveCollectedInk.new(collected_ink, collected_ink_params).perform
+      render jsonapi: collected_ink
     else
-      @elementToScrollTo = "#add-form"
-      render :index
+      render jsonapi_errors: collected_ink.errors
     end
   end
 
   def update
-    @collected_ink = current_user.collected_inks.find(params[:id])
-    if SaveCollectedInk.new(@collected_ink, collected_ink_params).perform
-      redirect_to collected_inks_path(anchor: @collected_ink.id)
+    collected_ink = current_user.collected_inks.find(params[:id])
+    if SaveCollectedInk.new(collected_ink, collected_ink_params).perform
+      render jsonapi: collected_ink
     else
-      @elementToScrollTo = "##{@collected_ink.id}"
-      render :index
+      render jsonapi_errors: collected_ink.errors
     end
   end
 
   def destroy
-    current_user.collected_inks.find_by(id: params[:id])&.destroy
-    redirect_to collected_inks_path
+    collected_ink = current_user.collected_inks.find(params[:id])
+    collected_ink.destroy
+    render jsonapi: collected_ink
   end
 
   private
