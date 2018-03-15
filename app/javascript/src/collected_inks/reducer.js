@@ -1,5 +1,6 @@
 import {
   DATA_RECEIVED,
+  DELETE_ENTRY,
   FILTER_DATA,
   LOADING_DATA,
   UPDATE_FILTER,
@@ -18,9 +19,14 @@ export default function reducer(state = defaultState, action) {
     case DATA_RECEIVED:
       return filterData({
         ...state,
-        entries: action.data,
+        entries: action.data.data,
         loading: false,
       });
+    case DELETE_ENTRY:
+      return {
+        ...state,
+        entries: state.entries.filter(entry => entry.id != action.id)
+      }
     case FILTER_DATA:
       return filterData(state);
     case LOADING_DATA:
@@ -43,7 +49,7 @@ const filterData = (state) => ({
 });
 
 const activeEntries = (data, filters) => {
-  const entries = data.data.filter(entry => !entry.attributes.archived)
+  const entries = data.filter(entry => !entry.attributes.archived)
   const filteredEntries = filterEntries(entries, filters);
   sortInks(filteredEntries);
   return {
@@ -54,7 +60,7 @@ const activeEntries = (data, filters) => {
 }
 
 const archivedEntries = (data, filters) => {
-  const entries = data.data.filter(entry => entry.attributes.archived)
+  const entries = data.filter(entry => entry.attributes.archived)
   const filteredEntries = filterEntries(entries, filters);
   sortInks(filteredEntries);
   return {
