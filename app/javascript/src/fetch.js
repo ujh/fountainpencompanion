@@ -1,9 +1,17 @@
+export function deleteRequest(path) {
+  return request(path, "DELETE");
+}
+
 export function getRequest(path) {
   return request(path, "GET");
 }
 
-export function deleteRequest(path) {
-  return request(path, "DELETE");
+export function postRequest(path) {
+  return request(path, "POST");
+}
+
+export function putRequest(path) {
+  return request(path, "PUT");
 }
 
 function request(path, method) {
