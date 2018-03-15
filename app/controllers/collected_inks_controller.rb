@@ -46,6 +46,7 @@ class CollectedInksController < ApplicationController
 
   def collected_ink_params
     params.require(:collected_ink).permit(
+      :private,
       :ink_name,
       :line_name,
       :brand_name,
