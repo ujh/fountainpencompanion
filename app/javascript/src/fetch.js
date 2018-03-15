@@ -1,7 +1,15 @@
-export function get(path) {
+export function getRequest(path) {
+  return request(path, "GET");
+}
+
+export function deleteRequest(path) {
+  return request(path, "DELETE");
+}
+
+function request(path, method) {
   return fetch(path, {
     credentials: "same-origin",
-    method: "GET",
+    method: method,
     headers: {
       "Accept": "application/json",
       "Content-Type": "application/json",
