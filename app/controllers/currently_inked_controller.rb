@@ -42,7 +42,7 @@ class CurrentlyInkedController < ApplicationController
   end
 
   def destroy
-    @currently_inked&.destroy
+    @record&.destroy
     redirect_to currently_inked_index_path
   end
 
@@ -64,12 +64,12 @@ class CurrentlyInkedController < ApplicationController
   end
 
   def retrieve_currently_inked
-    record = current_user.currently_inkeds.find_by(id: params[:id])
-    if record&.archived?
-      @archival_currently_inked = record
+    @record = current_user.currently_inkeds.find_by(id: params[:id])
+    if @record&.archived?
+      @archival_currently_inked = @record
       @currently_inked = CurrentlyInked.new(user: current_user)
     else
-      @currently_inked = record
+      @currently_inked = @record
       @archival_currently_inked = CurrentlyInked.new(user: current_user, archived_on: Date.today)
     end
   end

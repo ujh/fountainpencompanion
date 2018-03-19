@@ -143,6 +143,14 @@ describe CurrentlyInkedController do
         end.to change { CurrentlyInked.count }.by(-1)
       end
 
+      it 'deletes an archived entry' do
+        currently_inked.update(archived_on: Date.today)
+        expect do
+          delete :destroy, params: { id: currently_inked.id }
+          expect(response).to redirect_to(currently_inked_index_path)
+        end.to change { CurrentlyInked.count }.by(-1)
+      end
+
       it 'does not delete data from other users' do
         currently_inked = users(:tom).currently_inkeds.create!(
           collected_ink: collected_inks(:toms_marine),
