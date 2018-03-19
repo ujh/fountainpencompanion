@@ -4,6 +4,7 @@ export const DATA_RECEIVED = "DATA_RECEIVED";
 export const DELETE_ENTRY = "DELETE_ENTRY";
 export const FILTER_DATA = "FILTER_DATA";
 export const LOADING_DATA = "LOADING_DATA";
+export const TOGGLE_FIELD = "TOGGLE_FIELD";
 export const UPDATE_FILTER = "UPDATE_FILTER";
 
 export const dataReceived = data => ({type: DATA_RECEIVED, data});
@@ -26,6 +27,23 @@ export const fetchData = () => dispatch => {
   ).then(
     json => dispatch(dataReceived(json))
   )
+}
+
+export const toggleField = (fieldName, id) => ({type: TOGGLE_FIELD, fieldName, id});
+
+export const togglePrivacy = (id) => (dispatch, getState) => {
+  dispatch(toggleField("private", id));
+  dispatch(filterData());
+}
+
+export const toggleSwabbed = (id) => (dispatch, getState) => {
+  dispatch(toggleField("swabbed", id));
+  dispatch(filterData());
+}
+
+export const toggleUsed = (id) => (dispatch, getState) => {
+  dispatch(toggleField("used", id));
+  dispatch(filterData());
 }
 
 export const updateFilterAndRecalculate = (data) => dispatch => {
