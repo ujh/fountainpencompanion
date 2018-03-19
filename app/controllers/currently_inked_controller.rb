@@ -32,11 +32,11 @@ class CurrentlyInkedController < ApplicationController
   end
 
   def update
-    if @currently_inked.update(currently_inked_params)
-      @currently_inked.collected_ink.update(used: true)
-      redirect_to currently_inked_index_path(anchor: @currently_inked.id)
+    if @record.update(currently_inked_params)
+      @record.collected_ink.update(used: true)
+      redirect_to currently_inked_index_path(anchor: @record.id)
     else
-      @elementToScrollTo = "##{@currently_inked.id}"
+      @elementToScrollTo = "##{@record.id}"
       render :index
     end
   end
