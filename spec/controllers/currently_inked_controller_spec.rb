@@ -100,8 +100,18 @@ describe CurrentlyInkedController do
         sign_in(user)
       end
 
+      let(:new_collected_ink) { collected_inks(:monis_fire_and_ice) }
       it 'updates the data' do
-        new_collected_ink = collected_inks(:monis_fire_and_ice)
+        expect do
+          put :update, params: { id: currently_inked.id, currently_inked: {
+            collected_ink_id: new_collected_ink.id
+          }}
+          expect(response).to redirect_to(currently_inked_index_path(anchor: currently_inked.id))
+        end.to change { currently_inked.reload.collected_ink }.from(collected_ink).to(new_collected_ink)
+      end
+
+      it 'updates an archived entry' do
+        currently_inked.update(archived_on: Date.today)
         expect do
           put :update, params: { id: currently_inked.id, currently_inked: {
             collected_ink_id: new_collected_ink.id
@@ -137,6 +147,14 @@ describe CurrentlyInkedController do
       end
 
       it 'deletes the entry' do
+        expect do
+          delete :destroy, params: { id: currently_inked.id }
+          expect(response).to redirect_to(currently_inked_index_path)
+        end.to change { CurrentlyInked.count }.by(-1)
+      end
+
+      it 'deletes an archived entry' do
+        currently_inked.update(archived_on: Date.today)
         expect do
           delete :destroy, params: { id: currently_inked.id }
           expect(response).to redirect_to(currently_inked_index_path)

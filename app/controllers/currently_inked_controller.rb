@@ -32,17 +32,17 @@ class CurrentlyInkedController < ApplicationController
   end
 
   def update
-    if @currently_inked.update(currently_inked_params)
-      @currently_inked.collected_ink.update(used: true)
-      redirect_to currently_inked_index_path(anchor: @currently_inked.id)
+    if @record.update(currently_inked_params)
+      @record.collected_ink.update(used: true)
+      redirect_to currently_inked_index_path(anchor: @record.id)
     else
-      @elementToScrollTo = "##{@currently_inked.id}"
+      @elementToScrollTo = "##{@record.id}"
       render :index
     end
   end
 
   def destroy
-    @currently_inked&.destroy
+    @record&.destroy
     redirect_to currently_inked_index_path
   end
 
@@ -64,12 +64,12 @@ class CurrentlyInkedController < ApplicationController
   end
 
   def retrieve_currently_inked
-    record = current_user.currently_inkeds.find_by(id: params[:id])
-    if record&.archived?
-      @archival_currently_inked = record
+    @record = current_user.currently_inkeds.find_by(id: params[:id])
+    if @record&.archived?
+      @archival_currently_inked = @record
       @currently_inked = CurrentlyInked.new(user: current_user)
     else
-      @currently_inked = record
+      @currently_inked = @record
       @archival_currently_inked = CurrentlyInked.new(user: current_user, archived_on: Date.today)
     end
   end
