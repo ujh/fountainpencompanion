@@ -43,10 +43,10 @@ class Kind extends React.Component {
   }
 
   renderDefaultView() {
-    const displayValue = this.props.kind || "NOT SET"
-    return <span className="editable" onClick={() => this.setState({editing: true})}>
+    const displayValue = this.props.kind || <span>&nbsp;</span>;
+    return <div className="editable" onClick={() => this.setState({editing: true})}>
       {displayValue}
-    </span>;
+    </div>;
   }
 }
 
