@@ -1,7 +1,14 @@
 import * as React from "react";
 import { connect } from "react-redux";
 
-import { deleteEntry, togglePrivacy, toggleSwabbed, toggleUsed } from "src/collected_inks/actions";
+import {
+  deleteEntry,
+  togglePrivacy,
+  toggleSwabbed,
+  toggleUsed,
+  updateKind,
+} from "src/collected_inks/actions";
+import Kind from "./kind";
 
 class Row extends React.Component {
   render() {
@@ -11,7 +18,7 @@ class Row extends React.Component {
       <td>{props.brand_name}</td>
       <td>{props.line_name}</td>
       <td>{props.ink_name}</td>
-      <td>{props.kind}</td>
+      <td><Kind kind={props.kind} onChange={props.onChangeKind}/></td>
       <td style={{backgroundColor: props.color}}></td>
       <td><Swabbed swabbed={props.swabbed} onClick={props.onToggleSwabbed}/></td>
       <td><Used used={props.used} onClick={props.onToggleUsed}/></td>
@@ -58,6 +65,9 @@ const DeleteButton = ({deletable, onClick}) => {
 }
 
 const mapDispatchToProps = (dispatch, {id}) => ({
+  onChangeKind(value) {
+    dispatch(updateKind(id, value))
+  },
   onDelete() {
     dispatch(deleteEntry(id))
   },

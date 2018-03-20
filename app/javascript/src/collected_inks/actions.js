@@ -5,6 +5,7 @@ export const DELETE_ENTRY = "DELETE_ENTRY";
 export const FILTER_DATA = "FILTER_DATA";
 export const LOADING_DATA = "LOADING_DATA";
 export const TOGGLE_FIELD = "TOGGLE_FIELD";
+export const UPDATE_FIELD = "UPDATE_FIELD";
 export const UPDATE_FILTER = "UPDATE_FILTER";
 
 export const dataReceived = data => ({type: DATA_RECEIVED, data});
@@ -43,6 +44,13 @@ export const toggleSwabbed = (id) => (dispatch, getState) => {
 
 export const toggleUsed = (id) => (dispatch, getState) => {
   dispatch(toggleField("used", id));
+  dispatch(filterData());
+}
+
+export const updateField = (id, fieldName, value) => ({type: UPDATE_FIELD, id, fieldName, value});
+
+export const updateKind = (id, value) => (dispatch, getState) => {
+  dispatch(updateField(id, "kind", value));
   dispatch(filterData());
 }
 

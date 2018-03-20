@@ -4,6 +4,7 @@ import {
   FILTER_DATA,
   LOADING_DATA,
   TOGGLE_FIELD,
+  UPDATE_FIELD,
   UPDATE_FILTER,
 } from "./actions";
 
@@ -37,6 +38,11 @@ export default function reducer(state = defaultState, action) {
         ...state,
         entries: state.entries.map(entry => toggleField(entry, action.fieldName, action.id))
       }
+    case UPDATE_FIELD:
+    return {
+      ...state,
+      entries: state.entries.map(entry => updateField(entry, action.fieldName, action.value, action.id))
+    }
     case UPDATE_FILTER:
       const newFilter = { ...state.filters[action.filterName]};
       newFilter[action.filterField] = action.filterValue;
@@ -45,6 +51,17 @@ export default function reducer(state = defaultState, action) {
       return { ...state, filters: newFilters };
     default:
       return state;
+  }
+}
+
+const updateField = (entry, fieldName, value, id) => {
+  if (entry.id != id) return entry;
+  return {
+    ...entry,
+    attributes: {
+      ...entry.attributes,
+      [fieldName]: value
+    }
   }
 }
 
