@@ -9,6 +9,9 @@ import {
   updateKind,
 } from "src/collected_inks/actions";
 import Kind from "./kind";
+import Privacy from "./privacy";
+import Swabbed from "./swabbed";
+import Used from "./used";
 
 class Row extends React.Component {
   render() {
@@ -37,28 +40,6 @@ class Row extends React.Component {
   }
 }
 
-const Swabbed = ({swabbed, onClick}) => {
-  const className = `swabbed ${swabbed}`;
-  const icon = swabbed ? "check" : "times";
-  return <div className={className} onClick={onClick}>
-    <span className="editable"><i className={`fa fa-${icon}`}></i></span>
-  </div>;
-};
-
-const Used = ({used, onClick}) => {
-  const className = `used ${used}`;
-  const icon = used ? "check" : "times";
-  return <div className={className} onClick={onClick}>
-    <span className="editable"><i className={`fa fa-${icon}`}></i></span>
-  </div>;
-};
-
-const Privacy = (props) => {
-  const icon = props.private ? "lock" : "unlock";
-  return <div onClick={props.onClick}>
-    <span className="editable"><i className={`fa fa-${icon}`}></i></span>
-  </div>;
-}
 const DeleteButton = ({deletable, onClick}) => {
   if (!deletable) return null;
   return <a onClick={onClick} className="btn btn-default"><i className="fa fa-trash" /></a>;
