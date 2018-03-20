@@ -1,18 +1,17 @@
-#collected-inks, #collected-inks-app {
+#collected-inks-app {
   .export {
     float: right;
     margin-bottom: 20px;
   }
-}
-
-#collected-inks-archive, #collected-inks-app {
   h1 {
     text-align: center;
   }
-}
-
-#collected-ink-form {
-  td.form {
-    vertical-align: top;
+  .editable {
+    border-radius: 5px;
+    padding: 5px;
+    &:hover {
+      border: 1px dotted grey;
+      padding: 4px;
+    }
   }
 }
