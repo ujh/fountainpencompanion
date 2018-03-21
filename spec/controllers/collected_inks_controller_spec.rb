@@ -39,7 +39,7 @@ describe CollectedInksController do
       end
 
       it 'renders the JSON' do
-        get :index, format: :json
+        get :index, format: :jsonapi
         expect(response).to be_successful
         expect(response.body).to include(ink.ink_name)
         expect(response.body).to include(ink.brand_name)
@@ -50,7 +50,16 @@ describe CollectedInksController do
   describe '#create' do
     it 'requires authentication' do
       expect do
-        post :create, params: { collected_ink: { ink_name: 'Ink', brand_name: 'Brand'}}
+        payload = { data: {
+          type: 'collected_ink',
+          attributes: {
+            ink_name: 'Ink',
+            line_name: 'Line',
+            brand_name: 'Brand',
+            kind: 'bottle'
+          }
+        }}
+        post :create, params: { _jsonapi: payload }
         expect(response).to redirect_to(new_user_session_path)
       end.to_not change { CollectedInk.count }
     end
@@ -61,17 +70,29 @@ describe CollectedInksController do
       end
 
       it 'creates the data' do
-        expect do
-          post :create, params: { collected_ink: {
+        payload = { data: {
+          type: 'collected_ink',
+          attributes: {
             ink_name: 'Ink',
             line_name: 'Line',
             brand_name: 'Brand',
             kind: 'bottle'
-          }}
+          }
+        }}
+        expect do
+          post :create, params: { _jsonapi: payload }
           collected_ink = CollectedInk.order(:id).last
-          expect(response).to redirect_to(collected_inks_path(anchor: "add-form"))
+          expect(response).to be_successful
         end.to change { user.collected_inks.count }.by(1)
+        json = JSON.parse(response.body)
         collected_ink = user.collected_inks.last
+        expect(json["data"]).to include("id" => collected_ink.id.to_s)
+        expect(json["data"]["attributes"]).to include(
+          "brand_name" => "Brand",
+          "line_name" => "Line",
+          "ink_name" => "Ink",
+          "kind" => "bottle"
+        )
         expect(collected_ink.brand_name).to eq('Brand')
         expect(collected_ink.line_name).to eq('Line')
         expect(collected_ink.ink_name).to eq('Ink')
@@ -79,17 +100,29 @@ describe CollectedInksController do
       end
 
       it 'strips out extraneous whitespace' do
-        expect do
-          post :create, params: { collected_ink: {
+        payload = { data: {
+          type: 'collected_ink',
+          attributes: {
             ink_name: ' Ink ',
             line_name: ' Line ',
             brand_name: ' Brand ',
             kind: 'bottle'
-          }}
+          }
+        }}
+        expect do
+          post :create, params: { _jsonapi: payload }
           collected_ink = CollectedInk.order(:id).last
-          expect(response).to redirect_to(collected_inks_path(anchor: "add-form"))
+          expect(response).to be_successful
         end.to change { user.collected_inks.count }.by(1)
+        json = JSON.parse(response.body)
         collected_ink = user.collected_inks.last
+        expect(json["data"]).to include("id" => collected_ink.id.to_s)
+        expect(json["data"]["attributes"]).to include(
+          "brand_name" => "Brand",
+          "line_name" => "Line",
+          "ink_name" => "Ink",
+          "kind" => "bottle"
+        )
         expect(collected_ink.brand_name).to eq('Brand')
         expect(collected_ink.line_name).to eq('Line')
         expect(collected_ink.ink_name).to eq('Ink')
@@ -104,7 +137,8 @@ describe CollectedInksController do
 
     it 'requires authentication' do
       expect do
-        put :update, params: { id: collected_ink.id, collected_ink: { ink_name: 'Not Marine' } }
+        payload = { data: { type: 'collected_ink', attributes: { ink_name: 'Not Marine' } } }
+        put :update, params: { id: collected_ink.id, _jsonapi: payload}
         expect(response).to redirect_to(new_user_session_path)
       end.to_not change { collected_ink.reload }
     end
@@ -117,21 +151,34 @@ describe CollectedInksController do
       end
 
       it 'updates the ink' do
-        put :update, params: { id: collected_ink.id, collected_ink: { ink_name: 'Not Marine' } }
-        expect(response).to redirect_to(collected_inks_path(anchor: collected_ink.id))
+        payload = { data: { type: 'collected_ink', attributes: { ink_name: 'Not Marine' } } }
+        put :update, params: { id: collected_ink.id, _jsonapi: payload}
+        expect(response).to be_successful
+        json = JSON.parse(response.body)
+        expect(json["data"]).to include("id" => collected_ink.id.to_s)
+        expect(json["data"]["attributes"]).to include("ink_name" => "Not Marine")
         collected_ink.reload
         expect(collected_ink.ink_name).to eq('Not Marine')
       end
 
       it 'strips out whitespace' do
-        put :update, params: {
-          id: collected_ink.id, collected_ink: {
+        payload = { data: {
+          type: 'collected_ink',
+          attributes: {
             ink_name: ' Not Marine ',
             line_name: ' Not 1670 ',
             brand_name: ' Not Diamine ',
           }
-        }
-        expect(response).to redirect_to(collected_inks_path(anchor: collected_ink.id))
+        }}
+        put :update, params: { id: collected_ink.id, _jsonapi: payload}
+        expect(response).to be_successful
+        json = JSON.parse(response.body)
+        expect(json["data"]).to include("id" => collected_ink.id.to_s)
+        expect(json["data"]["attributes"]).to include(
+          "ink_name" => "Not Marine",
+          "line_name" => "Not 1670",
+          "brand_name" => "Not Diamine"
+        )
         collected_ink.reload
         expect(collected_ink.ink_name).to eq('Not Marine')
         expect(collected_ink.line_name).to eq('Not 1670')
@@ -160,14 +207,15 @@ describe CollectedInksController do
       it 'deletes the collected ink' do
         expect do
           delete :destroy, params: { id: collected_ink.id }
-          expect(response).to redirect_to(collected_inks_path)
+          expect(response).to be_successful
         end.to change { user.collected_inks.count }.by(-1)
       end
 
       it 'does not delete other users inks' do
         expect do
-          delete :destroy, params: { id: collected_inks(:toms_marine) }
-          expect(response).to redirect_to(collected_inks_path)
+          expect do
+            delete :destroy, params: { id: collected_inks(:toms_marine) }
+          end.to raise_error(ActiveRecord::RecordNotFound)
         end.to_not change { CollectedInk.count }
       end
     end
