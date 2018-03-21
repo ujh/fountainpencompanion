@@ -10,18 +10,18 @@ export function postRequest(path) {
   return request(path, "POST");
 }
 
-export function putRequest(path) {
-  return request(path, "PUT");
+export function putRequest(path, body) {
+  return request(path, "PUT", body);
 }
 
-function request(path, method) {
+function request(path, method, body) {
   return fetch(path, {
     credentials: "same-origin",
     method: method,
+    body: JSON.stringify(body),
     headers: {
-      "Accept": "application/json",
-      "Content-Type": "application/json",
-      "X-Requested-With": "XMLHttpRequest",
+      "Accept": "application/vnd.api+json",
+      "Content-Type": "application/vnd.api+json",
       "X-CSRF-Token": csrfToken(),
     }
   })

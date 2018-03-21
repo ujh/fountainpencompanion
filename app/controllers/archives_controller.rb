@@ -7,6 +7,7 @@ class ArchivesController < ApplicationController
     respond_to do |format|
       format.html { redirect_to route }
       format.json { render jsonapi: @record }
+      format.jsonapi { render jsonapi: @record }
     end
   end
 
@@ -15,6 +16,7 @@ class ArchivesController < ApplicationController
     respond_to do |format|
       format.html { redirect_to route }
       format.json { render jsonapi: @record }
+      format.jsonapi { render jsonapi: @record }
     end
   end
 

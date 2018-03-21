@@ -1,4 +1,4 @@
-import { deleteRequest, getRequest, postRequest } from "src/fetch";
+import { deleteRequest, getRequest, postRequest, putRequest } from "src/fetch";
 
 export const DATA_RECEIVED = "DATA_RECEIVED";
 export const DELETE_ENTRY = "DELETE_ENTRY";
@@ -30,7 +30,10 @@ export const fetchData = () => dispatch => {
   )
 }
 
-export const toggleField = (fieldName, id) => ({type: TOGGLE_FIELD, fieldName, id});
+export const toggleField = (fieldName, id) => (dispatch, getState) => {
+  dispatch({type: TOGGLE_FIELD, fieldName, id});
+  updateEntryOnServer(id, getState);
+};
 
 export const toggleArchived = (id) => (dispatch, getState) => {
   const previouslyArchived = getEntry(id, getState).attributes.archived;
@@ -44,22 +47,25 @@ export const toggleArchived = (id) => (dispatch, getState) => {
   }
 }
 
-export const togglePrivacy = (id) => (dispatch, getState) => {
+export const togglePrivacy = (id) => dispatch => {
   dispatch(toggleField("private", id));
   dispatch(filterData());
 }
 
-export const toggleSwabbed = (id) => (dispatch, getState) => {
+export const toggleSwabbed = (id) => dispatch => {
   dispatch(toggleField("swabbed", id));
   dispatch(filterData());
 }
 
-export const toggleUsed = (id) => (dispatch, getState) => {
+export const toggleUsed = (id) => dispatch => {
   dispatch(toggleField("used", id));
   dispatch(filterData());
 }
 
-export const updateField = (id, fieldName, value) => ({type: UPDATE_FIELD, id, fieldName, value});
+export const updateField = (id, fieldName, value) => (dispatch, getState) => {
+  dispatch({type: UPDATE_FIELD, id, fieldName, value});
+  updateEntryOnServer(id, getState);
+}
 
 export const updateKind = (id, value) => (dispatch, getState) => {
   dispatch(updateField(id, "kind", value));
@@ -72,3 +78,8 @@ export const updateFilterAndRecalculate = (data) => dispatch => {
 }
 
 const getEntry = (id, getState) => getState().entries.find(e => e.id == id);
+
+const updateEntryOnServer = (id, getState) => {
+  const entry = getEntry(id, getState);
+  putRequest(`/collected_inks/${id}`, {data: entry})
+}

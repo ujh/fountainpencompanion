@@ -2,6 +2,7 @@ require 'csv'
 
 class CollectedInksController < ApplicationController
   before_action :authenticate_user!
+  deserializable_resource :collected_ink, only: [:create, :update]
 
   def index
     if current_user.collected_inks.empty?
@@ -9,7 +10,7 @@ class CollectedInksController < ApplicationController
     end
     respond_to do |format|
       format.html
-      format.json {
+      format.jsonapi {
         render jsonapi: current_user.collected_inks.includes(:currently_inkeds)
       }
       format.csv do
