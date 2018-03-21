@@ -1,4 +1,4 @@
-import { deleteRequest, getRequest } from "src/fetch";
+import { deleteRequest, getRequest, postRequest } from "src/fetch";
 
 export const DATA_RECEIVED = "DATA_RECEIVED";
 export const DELETE_ENTRY = "DELETE_ENTRY";
@@ -32,6 +32,18 @@ export const fetchData = () => dispatch => {
 
 export const toggleField = (fieldName, id) => ({type: TOGGLE_FIELD, fieldName, id});
 
+export const toggleArchived = (id) => (dispatch, getState) => {
+  const previouslyArchived = getEntry(id, getState).attributes.archived;
+  dispatch(toggleField("archived", id));
+  dispatch(filterData());
+  const url = `/collected_inks/${id}/archive`;
+  if (previouslyArchived) {
+    return deleteRequest(url);
+  } else {
+    return postRequest(url);
+  }
+}
+
 export const togglePrivacy = (id) => (dispatch, getState) => {
   dispatch(toggleField("private", id));
   dispatch(filterData());
@@ -58,3 +70,5 @@ export const updateFilterAndRecalculate = (data) => dispatch => {
   dispatch(updateFilter(data));
   dispatch(filterData());
 }
+
+const getEntry = (id, getState) => getState().entries.find(e => e.id == id);

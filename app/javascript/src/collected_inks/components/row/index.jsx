@@ -3,11 +3,13 @@ import { connect } from "react-redux";
 
 import {
   deleteEntry,
+  toggleArchived,
   togglePrivacy,
   toggleSwabbed,
   toggleUsed,
   updateKind,
 } from "src/collected_inks/actions";
+import ActionButtons from "./action_buttons";
 import Kind from "./kind";
 import Privacy from "./privacy";
 import Swabbed from "./swabbed";
@@ -27,10 +29,11 @@ class Row extends React.Component {
       <td><Used used={props.used} onClick={props.onToggleUsed}/></td>
       <td>{props.comment}</td>
       <td>
-        <span className="actions">
-          <a className="btn btn-default"><i className="fa fa-archive" /></a>
-          <DeleteButton deletable={props.deletable} onClick={props.onDelete}/>
-        </span>
+        <ActionButtons
+          deletable={props.deletable}
+          onArchiveClick={props.onToggleArchived}
+          onDeleteClick={props.onDeleteClick}
+        />
       </td>
     </tr>;
   }
@@ -40,17 +43,15 @@ class Row extends React.Component {
   }
 }
 
-const DeleteButton = ({deletable, onClick}) => {
-  if (!deletable) return null;
-  return <a onClick={onClick} className="btn btn-default"><i className="fa fa-trash" /></a>;
-}
-
 const mapDispatchToProps = (dispatch, {id}) => ({
   onChangeKind(value) {
     dispatch(updateKind(id, value))
   },
   onDelete() {
     dispatch(deleteEntry(id))
+  },
+  onToggleArchived() {
+    dispatch(toggleArchived(id))
   },
   onTogglePrivacy() {
     dispatch(togglePrivacy(id))
