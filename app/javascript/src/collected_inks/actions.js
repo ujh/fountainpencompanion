@@ -77,6 +77,11 @@ export const updateComment = (id, value) => (dispatch, getState) => {
   dispatch(filterData());
 }
 
+export const updateInk = (id, value) => (dispatch, getState) => {
+  dispatch(updateField(id, "ink_name", value));
+  dispatch(filterData());
+}
+
 export const updateKind = (id, value) => (dispatch, getState) => {
   dispatch(updateField(id, "kind", value));
   dispatch(filterData());

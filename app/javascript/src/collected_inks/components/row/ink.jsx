@@ -1,11 +1,11 @@
 import * as React from "react";
 
-class Brand extends React.Component {
+class Ink extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       editing: false,
-      value: props.brand
+      value: props.ink
     };
   }
 
@@ -36,7 +36,7 @@ class Brand extends React.Component {
     } else if (code === 27) { // Escape
       this.setState({
         editing: false,
-        value: this.props.brand
+        value: this.props.ink
       })
     }
   }
@@ -70,4 +70,4 @@ class Brand extends React.Component {
   }
 }
 
-export default Brand;
+export default Ink;
