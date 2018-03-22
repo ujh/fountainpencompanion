@@ -7,11 +7,13 @@ import {
   togglePrivacy,
   toggleSwabbed,
   toggleUsed,
+  updateBrand,
   updateComment,
   updateKind,
   updateLine,
 } from "src/collected_inks/actions";
 import ActionButtons from "./action_buttons";
+import Brand from "./brand";
 import Comment from "./comment";
 import Kind from "./kind";
 import Line from "./line";
@@ -24,7 +26,7 @@ class Row extends React.Component {
     const props = this.props;
     return <tr className={this.className()}>
       <td><Privacy private={props.private} onClick={props.onTogglePrivacy} /></td>
-      <td>{props.brand_name}</td>
+      <td><Brand brand={props.brand_name} onChange={props.onChangeBrand}/></td>
       <td><Line line={props.line_name} onChange={props.onChangeLine} /></td>
       <td>{props.ink_name}</td>
       <td><Kind kind={props.kind} onChange={props.onChangeKind}/></td>
@@ -48,6 +50,9 @@ class Row extends React.Component {
 }
 
 const mapDispatchToProps = (dispatch, {id}) => ({
+  onChangeBrand(value) {
+    dispatch(updateBrand(id, value))
+  },
   onChangeComment(value) {
     dispatch(updateComment(id, value))
   },

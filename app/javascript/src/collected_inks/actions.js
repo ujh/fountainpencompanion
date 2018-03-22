@@ -67,6 +67,11 @@ export const updateField = (id, fieldName, value) => (dispatch, getState) => {
   updateEntryOnServer(id, getState);
 }
 
+export const updateBrand = (id, value) => (dispatch, getState) => {
+  dispatch(updateField(id, "brand_name", value));
+  dispatch(filterData());
+}
+
 export const updateComment = (id, value) => (dispatch, getState) => {
   dispatch(updateField(id, "comment", value));
   dispatch(filterData());
