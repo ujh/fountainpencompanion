@@ -77,6 +77,11 @@ export const updateKind = (id, value) => (dispatch, getState) => {
   dispatch(filterData());
 }
 
+export const updateLine = (id, value) => (dispatch, getState) => {
+  dispatch(updateField(id, "line_name", value));
+  dispatch(filterData());
+}
+
 export const updateFilterAndRecalculate = (data) => dispatch => {
   dispatch(updateFilter(data));
   dispatch(filterData());
