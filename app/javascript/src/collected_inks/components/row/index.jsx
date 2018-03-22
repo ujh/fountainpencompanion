@@ -7,9 +7,11 @@ import {
   togglePrivacy,
   toggleSwabbed,
   toggleUsed,
+  updateComment,
   updateKind,
 } from "src/collected_inks/actions";
 import ActionButtons from "./action_buttons";
+import Comment from "./comment";
 import Kind from "./kind";
 import Privacy from "./privacy";
 import Swabbed from "./swabbed";
@@ -27,7 +29,7 @@ class Row extends React.Component {
       <td style={{backgroundColor: props.color}}></td>
       <td><Swabbed swabbed={props.swabbed} onClick={props.onToggleSwabbed}/></td>
       <td><Used used={props.used} onClick={props.onToggleUsed}/></td>
-      <td>{props.comment}</td>
+      <td><Comment comment={props.comment} onChange={props.onChangeComment}/></td>
       <td>
         <ActionButtons
           deletable={props.deletable}
@@ -44,6 +46,9 @@ class Row extends React.Component {
 }
 
 const mapDispatchToProps = (dispatch, {id}) => ({
+  onChangeComment(value) {
+    dispatch(updateComment(id, value))
+  },
   onChangeKind(value) {
     dispatch(updateKind(id, value))
   },
