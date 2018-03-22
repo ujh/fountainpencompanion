@@ -29,11 +29,25 @@ class Kind extends React.Component {
     this.props.onChange(event.target.value)
   }
 
+  onKeyDown(e) {
+    // This is only executed when the select is closed!
+    const code = e.keyCode;
+    if (code === 13) { // Enter
+      this.setState({editing: false})
+    } else if (code === 27) { // Escape
+      this.setState({editing: false})
+    }
+  }
+
   renderEditView() {
-    // TODO: Add an overlay div (see the color picker) to handle the case where the user selects
-    //       the same option. Alternatively check if using onclick would work. Look into riek!
+    // TODO: Handle pressing of the escape and enter (?) keys
     return <span>
-      <select value={this.props.kind} onBlur={() => this.onBlur()} onChange={(e) => this.onSelectChanged(e)}>
+      <select
+        value={this.props.kind}
+        onBlur={() => this.onBlur()}
+        onChange={(e) => this.onSelectChanged(e)}
+        onKeyDown={(e) => this.onKeyDown(e)}
+      >
         <option></option>
         <option>bottle</option>
         <option>sample</option>
