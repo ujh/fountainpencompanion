@@ -11,7 +11,3 @@ export const renderCollectedInks = (el) => {
   ReactDOM.render(<Provider store={appStore}><App /></Provider>, el)
   appStore.dispatch(fetchData())
 };
-
-
-import renderColorPickerApp from "./color_picker";
-export { renderColorPickerApp };

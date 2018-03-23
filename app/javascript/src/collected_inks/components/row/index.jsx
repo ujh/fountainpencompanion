@@ -8,6 +8,7 @@ import {
   toggleSwabbed,
   toggleUsed,
   updateBrand,
+  updateColor,
   updateComment,
   updateInk,
   updateKind,
@@ -15,6 +16,7 @@ import {
 } from "src/collected_inks/actions";
 import ActionButtons from "./action_buttons";
 import Brand from "./brand";
+import Color from "./color";
 import Comment from "./comment";
 import Ink from "./ink";
 import Kind from "./kind";
@@ -32,7 +34,7 @@ class Row extends React.Component {
       <td><Line line={props.line_name} onChange={props.onChangeLine} /></td>
       <td><Ink ink={props.ink_name} onChange={props.onChangeInk} /></td>
       <td><Kind kind={props.kind} onChange={props.onChangeKind}/></td>
-      <td style={{backgroundColor: props.color}}></td>
+      <td><Color color={props.color} onChange={props.onChangeColor}/></td>
       <td><Swabbed swabbed={props.swabbed} onClick={props.onToggleSwabbed}/></td>
       <td><Used used={props.used} onClick={props.onToggleUsed}/></td>
       <td><Comment comment={props.comment} onChange={props.onChangeComment}/></td>
@@ -54,6 +56,9 @@ class Row extends React.Component {
 const mapDispatchToProps = (dispatch, {id}) => ({
   onChangeBrand(value) {
     dispatch(updateBrand(id, value))
+  },
+  onChangeColor(value) {
+    dispatch(updateColor(id, value))
   },
   onChangeComment(value) {
     dispatch(updateComment(id, value))

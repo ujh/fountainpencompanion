@@ -72,6 +72,11 @@ export const updateBrand = (id, value) => (dispatch, getState) => {
   dispatch(filterData());
 }
 
+export const updateColor = (id, value) => (dispatch, getState) => {
+  dispatch(updateField(id, "color", value));
+  dispatch(filterData());
+}
+
 export const updateComment = (id, value) => (dispatch, getState) => {
   dispatch(updateField(id, "comment", value));
   dispatch(filterData());

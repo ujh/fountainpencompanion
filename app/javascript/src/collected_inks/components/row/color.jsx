@@ -1,14 +1,7 @@
 import * as React from "react";
-import * as ReactDOM from "react-dom";
 import { ChromePicker } from "react-color";
 
-export default function renderColorPickerApp(element) {
-  let input = $(element).find('input');
-  let initialColor = input.val();
-  ReactDOM.render(<App color={initialColor} />, element);
-}
-
-class App extends React.Component {
+export default class Color extends React.Component {
 
   constructor(props) {
     super(props);
@@ -28,6 +21,7 @@ class App extends React.Component {
 
   handleClose() {
     this.setState({displayColorPicker: false})
+    this.props.onChange(this.state.color);
   }
 
   renderColorPicker() {
@@ -45,27 +39,8 @@ class App extends React.Component {
     return <div>
       <Button color={color} onClick={ () => this.handleClick() }/>
       { this.renderColorPicker() }
-      <ColorInputField color={color} />
     </div>;
   }
-}
-
-const ColorPicker = ({color, onChange, onClose}) => {
-  let outerCSS = {
-    position: 'absolute',
-    zIndex: 2
-  };
-  let overlayCSS = {
-    position: 'fixed',
-    top: '0px',
-    left: '0px',
-    right: '0px',
-    bottom: '0px',
-  };
-  return <div style={outerCSS}>
-    <div style={overlayCSS} onClick={onClose}></div>
-    <ChromePicker color={color} onChange={onChange} disableAlpha={true}/>
-  </div>;
 }
 
 const Button = ({color, onClick}) => {
@@ -87,8 +62,21 @@ const Button = ({color, onClick}) => {
   return <div onClick={onClick} style={outerCSS}><div style={innerCSS}></div></div>;
 }
 
-const ColorInputField = ({color}) => {
-  return <div>
-    <input type="hidden" name="collected_ink[color]" value={color} />
+const ColorPicker = ({color, onChange, onClose}) => {
+  let outerCSS = {
+    opacity: '1.0',
+    position: 'absolute',
+    zIndex: 2
+  };
+  let overlayCSS = {
+    position: 'fixed',
+    top: '0px',
+    left: '0px',
+    right: '0px',
+    bottom: '0px',
+  };
+  return <div style={outerCSS}>
+    <div style={overlayCSS} onClick={onClose}></div>
+    <ChromePicker color={color} onChange={onChange} disableAlpha={true}/>
   </div>;
 }

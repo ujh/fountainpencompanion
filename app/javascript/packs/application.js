@@ -20,8 +20,6 @@ import "whatwg-fetch";
 
 import {
   renderCollectedInks,
-  renderColorPickerApp,
 } from "../src/collected_inks";
 
 window.renderCollectedInks = renderCollectedInks;
-window.renderColorPickerApp = renderColorPickerApp;
