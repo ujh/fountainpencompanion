@@ -15,4 +15,12 @@
       padding: 4px;
     }
   }
+  td .form-group {
+    margin-bottom: -8px;
+    .help-block {
+      font-size: 10px;
+      margin-bottom: 0px;
+      margin-top: 0px;
+    }
+  }
 }

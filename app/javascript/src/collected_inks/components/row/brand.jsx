@@ -34,10 +34,7 @@ class Brand extends React.Component {
     if (code === 13) { // Enter
       this.finishedEditing()
     } else if (code === 27) { // Escape
-      this.setState({
-        editing: false,
-        value: this.props.brand
-      })
+      this.cancelEditing()
     }
   }
 
@@ -45,21 +42,42 @@ class Brand extends React.Component {
     e.target.select();
   }
 
+  cancelEditing() {
+    this.setState({
+      editing: false,
+      value: this.props.brand
+    })
+  }
+
   finishedEditing() {
-    this.setState({editing: false});
-    this.props.onChange(this.state.value);
+    if (this.state.value) {
+      this.setState({editing: false});
+      this.props.onChange(this.state.value);
+    } else {
+      this.cancelEditing()
+    }
   }
 
   renderEditView() {
-    return <input
-      type="text"
-      value={this.state.value}
-      onBlur={(e) => this.onBlur(e)}
-      onKeyDown={(e) => this.onKeyDown(e)}
-      onChange={(e) => this.onChange(e)}
-      onFocus={(e) => this.onFocus(e)}
-      autoFocus
-    />
+    let className = "form-group"
+    let help = null;
+    if (!this.state.value) {
+      className += " has-error"
+      help = <span className="help-block">required</span>
+    }
+    return <div className={className}>
+      <input
+        type="text"
+        className="form-control"
+        value={this.state.value}
+        onBlur={(e) => this.onBlur(e)}
+        onKeyDown={(e) => this.onKeyDown(e)}
+        onChange={(e) => this.onChange(e)}
+        onFocus={(e) => this.onFocus(e)}
+        autoFocus
+      />
+      { help }
+    </div>
   }
 
   renderDefaultView() {
