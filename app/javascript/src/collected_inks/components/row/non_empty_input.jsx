@@ -35,10 +35,17 @@ class NonEmptyInput extends React.Component {
 
   onKeyDown(e) {
     const code = e.keyCode;
-    if (code === 13) { // Enter
-      this.finishedEditing()
-    } else if (code === 27) { // Escape
-      this.cancelEditing()
+    switch (code) {
+      case 9: // Tab
+        e.preventDefault();
+        this.finishedEditing();
+        return;
+      case 13: // Enter
+        this.finishedEditing();
+        return;
+      case 27: // Escape
+        this.cancelEditing();
+        return;
     }
   }
 
