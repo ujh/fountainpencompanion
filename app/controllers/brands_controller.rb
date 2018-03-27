@@ -2,7 +2,7 @@ class BrandsController < ApplicationController
   def index
     respond_to do |format|
       format.json {
-        brands = Brand.search(params[:term]).pluck(:popular_name)
+        brands = Brand.search(params[:term])
         render json: brands
       }
       format.html {
