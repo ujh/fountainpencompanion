@@ -1,4 +1,5 @@
 import {
+  BRANDS_DATA_RECEIVED,
   DATA_RECEIVED,
   DELETE_ENTRY,
   FILTER_DATA,
@@ -11,6 +12,7 @@ import {
 const defaultState = {
   active: [],
   archived: [],
+  brands: [],
   entries: [],
   filters: {},
   loading: true,
@@ -18,6 +20,11 @@ const defaultState = {
 
 export default function reducer(state = defaultState, action) {
   switch(action.type) {
+    case BRANDS_DATA_RECEIVED:
+      return {
+        ...state,
+        brands: action.data.data
+      }
     case DATA_RECEIVED:
       return filterData({
         ...state,

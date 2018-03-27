@@ -1,5 +1,6 @@
 import { deleteRequest, getRequest, postRequest, putRequest } from "src/fetch";
 
+export const BRANDS_DATA_RECEIVED = "BRANDS_DATA_RECEIVED";
 export const DATA_RECEIVED = "DATA_RECEIVED";
 export const DELETE_ENTRY = "DELETE_ENTRY";
 export const FILTER_DATA = "FILTER_DATA";
@@ -8,6 +9,7 @@ export const TOGGLE_FIELD = "TOGGLE_FIELD";
 export const UPDATE_FIELD = "UPDATE_FIELD";
 export const UPDATE_FILTER = "UPDATE_FILTER";
 
+export const brandsDataReceived = data => ({type: BRANDS_DATA_RECEIVED, data});
 export const dataReceived = data => ({type: DATA_RECEIVED, data});
 export const filterData = () => ({type: FILTER_DATA});
 export const loadingData = () => ({type: LOADING_DATA});
@@ -23,10 +25,22 @@ export const deleteEntry = (id) => dispatch => {
 }
 export const fetchData = () => dispatch => {
   dispatch(loadingData());
+  dispatch(fetchAutocompleteData())
   return getRequest("/collected_inks").then(
     response => response.json()
   ).then(
     json => dispatch(dataReceived(json))
+  )
+}
+
+export const fetchAutocompleteData = () => dispatch => {
+  return getRequest("/brands").then(
+    response => response.json()
+  ).then(
+    json => {
+      setTimeout(() => fetchAutocompleteData()(dispatch), 5000);
+      return dispatch(brandsDataReceived(json));
+    }
   )
 }
 
