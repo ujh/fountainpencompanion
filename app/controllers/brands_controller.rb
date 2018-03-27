@@ -1,9 +1,9 @@
 class BrandsController < ApplicationController
   def index
     respond_to do |format|
-      format.json {
+      format.jsonapi {
         brands = Brand.search(params[:term])
-        render json: brands
+        render jsonapi: brands
       }
       format.html {
         @brands = Brand.order(:popular_name).where.not(simplified_brand_name: "")
