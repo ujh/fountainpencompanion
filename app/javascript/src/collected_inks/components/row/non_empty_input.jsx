@@ -116,11 +116,28 @@ class Select2Input extends React.Component {
 
   componentDidMount() {
     $(this.select).select2({
+      allowClear: true,
+      placeholder: {
+        id: "0",
+        text: "Brand"
+      },
       tags: true
     })
     $(this.select).select2("open")
-    $(this.select).on('change', (e) => this.props.onChange(e))
-    $(this.select).on("select2:close", (e) => this.props.onBlur(e))
+    $(this.select).on('select2:select', (e) => {
+      this.props.onChange(e)
+    })
+    $(this.select).on("select2:close", (e) => {
+      // setTimeout necessary for unselect to work properly
+      setTimeout(() => {this.props.onBlur()}, 0)
+    })
+    $(this.select).on("select2:unselect", (e) => {
+      this.props.onChange({target: {value: ''}})
+    })
+  }
+
+  componentWillUnmount() {
+    $(this.select).select2('destroy')
   }
 }
 
