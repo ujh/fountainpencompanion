@@ -70,6 +70,16 @@ class NonEmptyInput extends React.Component {
   }
 
   renderEditView() {
+    return this.renderInputComponent({
+      value: this.state.value,
+      onBlur: (e) => this.onBlur(e),
+      onKeyDown: (e) => this.onKeyDown(e),
+      onChange: (e) => this.onChange(e),
+      onFocus: (e) => this.onFocus(e),
+    })
+  }
+
+  renderInputComponent(inputProps) {
     let className = "form-group"
     let help = null;
     if (!this.state.value) {
@@ -77,16 +87,7 @@ class NonEmptyInput extends React.Component {
       help = <span className="help-block">required</span>
     }
     return <div className={className}>
-      <input
-        type="text"
-        className="form-control"
-        value={this.state.value}
-        onBlur={(e) => this.onBlur(e)}
-        onKeyDown={(e) => this.onKeyDown(e)}
-        onChange={(e) => this.onChange(e)}
-        onFocus={(e) => this.onFocus(e)}
-        autoFocus
-      />
+      <input type="text" autoFocus className="form-control" {...inputProps} />
       { help }
     </div>
   }
