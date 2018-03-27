@@ -86,10 +86,17 @@ class NonEmptyInput extends React.Component {
       className += " has-error"
       help = <span className="help-block">required</span>
     }
-    return <div className={className}>
-      <input type="text" autoFocus className="form-control" {...inputProps} />
-      { help }
-    </div>
+    if (this.props.suggestions) {
+      return <div className={className}>
+        <Select2Input {...inputProps} suggestions={this.props.suggestions}/>
+        { help }
+      </div>;
+    } else {
+      return <div className={className}>
+        <input type="text" autoFocus className="form-control" {...inputProps} />
+        { help }
+      </div>;
+    }
   }
 
   renderDefaultView() {
@@ -97,6 +104,23 @@ class NonEmptyInput extends React.Component {
     return <div className="editable" onClick={() => this.setState({editing: true})}>
       {displayValue}
     </div>;
+  }
+}
+
+class Select2Input extends React.Component {
+  render() {
+    return <select {...this.props} ref={s => this.select = s}>
+      {this.props.suggestions.map(s => <option key={s}>{s}</option>)}
+    </select>
+  };
+
+  componentDidMount() {
+    $(this.select).select2({
+      tags: true
+    })
+    $(this.select).select2("open")
+    $(this.select).on('change', (e) => this.props.onChange(e))
+    $(this.select).on("select2:close", (e) => this.props.onBlur(e))
   }
 }
 

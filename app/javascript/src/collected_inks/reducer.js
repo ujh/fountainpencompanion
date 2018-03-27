@@ -5,6 +5,7 @@ import {
   FILTER_DATA,
   LOADING_DATA,
   TOGGLE_FIELD,
+  UPDATE_SUGGESTIONS,
   UPDATE_FIELD,
   UPDATE_FILTER,
 } from "./actions";
@@ -16,6 +17,9 @@ const defaultState = {
   entries: [],
   filters: {},
   loading: true,
+  suggestions: {
+    brands: []
+  }
 };
 
 export default function reducer(state = defaultState, action) {
@@ -56,6 +60,11 @@ export default function reducer(state = defaultState, action) {
       const newFilters = { ...state.filters };
       newFilters[action.filterName] = newFilter;
       return { ...state, filters: newFilters };
+    case UPDATE_SUGGESTIONS:
+      return {
+        ...state,
+        suggestions: updateSuggestions(state)
+      }
     default:
       return state;
   }
@@ -147,4 +156,12 @@ function calculateListOfBrands(inks) {
   const brands = [...(new Set(inks.map(ink => ink.attributes.brand_name)))];
   brands.sort()
   return ["", ...brands];
+}
+
+const updateSuggestions = ({brands, entries}) => {
+  const brand_names = brands.map(b => b.attributes.popular_name);
+  const user_brand_names = entries.map(e => e.attributes.brand_name);
+  const brand_suggestions = [...(new Set([...brand_names, ...user_brand_names]))];
+  brand_suggestions.sort();
+  return { brands: brand_suggestions };
 }

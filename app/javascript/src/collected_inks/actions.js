@@ -8,15 +8,25 @@ export const LOADING_DATA = "LOADING_DATA";
 export const TOGGLE_FIELD = "TOGGLE_FIELD";
 export const UPDATE_FIELD = "UPDATE_FIELD";
 export const UPDATE_FILTER = "UPDATE_FILTER";
+export const UPDATE_SUGGESTIONS = "UPDATE_SUGGESTIONS";
 
-export const brandsDataReceived = data => ({type: BRANDS_DATA_RECEIVED, data});
-export const dataReceived = data => ({type: DATA_RECEIVED, data});
 export const filterData = () => ({type: FILTER_DATA});
 export const loadingData = () => ({type: LOADING_DATA});
 export const updateFilter = (data) => ({
   type: UPDATE_FILTER,
   ...data
 });
+export const updateSuggestions = () => ({type: UPDATE_SUGGESTIONS});
+
+export const brandsDataReceived = data => (dispatch) => {
+  dispatch({type: BRANDS_DATA_RECEIVED, data});
+  dispatch(updateSuggestions());
+}
+
+export const dataReceived = data => (dispatch) => {
+  dispatch({type: DATA_RECEIVED, data});
+  dispatch(updateSuggestions());
+}
 
 export const deleteEntry = (id) => dispatch => {
   dispatch({type: DELETE_ENTRY, id});
@@ -38,7 +48,7 @@ export const fetchAutocompleteData = () => dispatch => {
     response => response.json()
   ).then(
     json => {
-      setTimeout(() => fetchAutocompleteData()(dispatch), 5000);
+      setTimeout(() => fetchAutocompleteData()(dispatch), 1000*30);
       return dispatch(brandsDataReceived(json));
     }
   )
@@ -83,6 +93,7 @@ export const updateField = (id, fieldName, value) => (dispatch, getState) => {
 
 export const updateBrand = (id, value) => (dispatch, getState) => {
   dispatch(updateField(id, "brand_name", value));
+  dispatch(updateSuggestions());
   dispatch(filterData());
 }
 
@@ -98,6 +109,7 @@ export const updateComment = (id, value) => (dispatch, getState) => {
 
 export const updateInk = (id, value) => (dispatch, getState) => {
   dispatch(updateField(id, "ink_name", value));
+  dispatch(updateSuggestions());
   dispatch(filterData());
 }
 
@@ -108,6 +120,7 @@ export const updateKind = (id, value) => (dispatch, getState) => {
 
 export const updateLine = (id, value) => (dispatch, getState) => {
   dispatch(updateField(id, "line_name", value));
+  dispatch(updateSuggestions());
   dispatch(filterData());
 }
 
