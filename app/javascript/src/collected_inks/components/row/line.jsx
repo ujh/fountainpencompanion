@@ -1,4 +1,5 @@
 import * as React from "react";
+import { connect } from "react-redux";
 
 import FancyInput from "./fancy_input";
 
@@ -17,4 +18,8 @@ class Line extends FancyInput {
 
 }
 
-export default Line;
+const mapStateToProps = ({suggestions}) => ({suggestions: suggestions.lines});
+
+const mapDispatchToProps = (_) => ({});
+
+export default connect(mapStateToProps, mapDispatchToProps)(Line);
