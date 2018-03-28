@@ -8,6 +8,7 @@ export const FILTER_DATA = "FILTER_DATA";
 export const INKS_DATA_RECEIVED = "INKS_DATA_RECEIVED";
 export const LINES_DATA_RECEIVED = "LINES_DATA_RECEIVED";
 export const LOADING_DATA = "LOADING_DATA";
+export const REPLACE_ENTRY = "REPLACE_ENTRY";
 export const TOGGLE_FIELD = "TOGGLE_FIELD";
 export const UPDATE_FIELD = "UPDATE_FIELD";
 export const UPDATE_FILTER = "UPDATE_FILTER";
@@ -15,6 +16,7 @@ export const UPDATE_SUGGESTIONS = "UPDATE_SUGGESTIONS";
 
 export const filterData = () => ({type: FILTER_DATA});
 export const loadingData = () => ({type: LOADING_DATA});
+export const replaceEntry = (id, data) => ({type: REPLACE_ENTRY, id, data})
 export const updateFilter = (data) => ({
   type: UPDATE_FILTER,
   ...data
@@ -23,14 +25,21 @@ export const updateSuggestions = () => ({type: UPDATE_SUGGESTIONS});
 
 let newEntryId = 0;
 export const addEntry = (data) => (dispatch) => {
-  const entryId = newEntryId++
+  const entryId = `new-entry-${newEntryId++}`;
   const entry = {
-    id: `new-entry-${entryId}`,
+    id: entryId,
     type: "collected_inks",
     attributes: data
   };
   dispatch({type: ADD_ENTRY, data: entry})
-  postRequest("/collected_inks", {data: entry})
+  postRequest("/collected_inks", {data: entry}).then(
+    response => response.json()
+  ).then(
+    json => {
+      dispatch(replaceEntry(entryId, json))
+      dispatch(filterData())
+    }
+  )
   dispatch(filterData())
 }
 export const brandsDataReceived = data => (dispatch) => {

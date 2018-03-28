@@ -7,6 +7,7 @@ import {
   INKS_DATA_RECEIVED,
   LINES_DATA_RECEIVED,
   LOADING_DATA,
+  REPLACE_ENTRY,
   TOGGLE_FIELD,
   UPDATE_SUGGESTIONS,
   UPDATE_FIELD,
@@ -31,6 +32,11 @@ const defaultState = {
 
 export default function reducer(state = defaultState, action) {
   switch(action.type) {
+    case REPLACE_ENTRY:
+      return {
+        ...state,
+        entries: replaceEntry(state.entries, action.id, action.data)
+      }
     case ADD_ENTRY:
       return {
         ...state,
@@ -231,3 +237,11 @@ const transformAddedEntry = (entry) => {
     }
   }
 }
+
+const replaceEntry = (entries, id, data) => entries.map(e => {
+  if (e.id == id) {
+    return data.data;
+  } else {
+    return e;
+  }
+})
