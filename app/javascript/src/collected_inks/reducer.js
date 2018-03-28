@@ -16,9 +16,13 @@ const defaultState = {
   brands: [],
   entries: [],
   filters: {},
+  lines: [],
   loading: true,
+  inks: [],
   suggestions: {
-    brands: []
+    brands: [],
+    lines: [],
+    inks: [],
   }
 };
 
@@ -158,10 +162,34 @@ function calculateListOfBrands(inks) {
   return ["", ...brands];
 }
 
-const updateSuggestions = ({brands, entries}) => {
+const updateSuggestions = (args) => {
+  return {
+    brands: brandSuggestions(args),
+    lines: lineSuggestions(args),
+    inks: inkSuggestions(args)
+  }
+}
+
+const brandSuggestions = ({brands, entries}) => {
   const brand_names = brands.map(b => b.attributes.popular_name);
   const user_brand_names = entries.map(e => e.attributes.brand_name);
   const brand_suggestions = [...(new Set([...brand_names, ...user_brand_names]))];
   brand_suggestions.sort();
-  return { brands: brand_suggestions };
+  return brand_suggestions;
+}
+
+const lineSuggestions = ({lines, entries}) => {
+  const line_names = lines.map(l => l.attributes.popular_name);
+  const user_line_names = entries.map(e => e.attributes.line_name);
+  const line_suggestions = [...(new Set([...line_names, ...user_line_names]))];
+  line_suggestions.sort();
+  return line_suggestions;
+}
+
+const inkSuggestions = ({inks, entries}) => {
+  const ink_names = inks.map(i => i.attributes.popular_name);
+  const user_ink_names = entries.map(e => e.attributes.ink_name);
+  const ink_suggestions = [...(new Set([...ink_names, ...user_ink_names]))];
+  ink_suggestions.sort();
+  return ink_suggestions;
 }
