@@ -1,12 +1,13 @@
 import * as React from "react";
 
+import NewEntry from "./new_entry";
 import Row from "./row";
 
-const InkTable = ({entries, stats}) => <div className="table-responsive">
+const InkTable = ({newEntryForm, entries, stats}) => <div className="table-responsive">
   <table className="table table-striped ink-collection">
     <Header entries={entries} />
     <Body entries={entries} />
-    <Footer {...stats} />
+    <Footer {...stats} newEntryForm={newEntryForm} />
   </table>
 </div>;
 
@@ -29,7 +30,8 @@ const Body = ({entries}) => <tbody>
   { entries.map(entry => <Row {...entry.attributes} id={entry.id} key={entry.id}/>) }
 </tbody>;
 
-const Footer = ({brands, inks, bottles, samples, cartridges}) => <tfoot>
+const Footer = ({brands, inks, bottles, samples, cartridges, newEntryForm}) => <tfoot>
+  {newEntryForm ? <NewEntry /> : null }
   <tr>
     <th></th>
     <th>{brands} brands</th>

@@ -9,6 +9,12 @@ class FancyInput extends React.Component {
     };
   }
 
+  componentDidUpdate(prevProps) {
+    if (prevProps[this.valueFieldName()] != this.value()) {
+      this.setState({value: this.value()})
+    }
+  }
+
   required() {
     throw "Implement in subclass";
   }

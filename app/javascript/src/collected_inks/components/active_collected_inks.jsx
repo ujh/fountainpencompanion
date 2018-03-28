@@ -15,7 +15,7 @@ const mapStateToProps = ({ active }) => ({ ...active });
 
 const ActiveCollectedInks = ({brands, entries, stats, onChange}) => <div className="ink-collection">
   <Filters brands={brands} onChange={onChange} />
-  <InkTable entries={entries} stats={stats} />
+  <InkTable newEntryForm entries={entries} stats={stats} />
 </div>;
 
 export default connect(mapStateToProps, mapDispatchToProps)(ActiveCollectedInks);
