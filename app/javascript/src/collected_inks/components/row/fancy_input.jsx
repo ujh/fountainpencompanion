@@ -178,7 +178,7 @@ class InputComponent extends React.Component {
     $(this.input).autocomplete({
       source: this.props.suggestions
     })
-    $(this.input).on("autocompleteselect", (e) => {
+    $(this.input).on("autocompletechange", (e) => {
       // Otherwise clicking on an autocomplete entry won't work
       setTimeout(() => {
         this.props.onChange(e)
