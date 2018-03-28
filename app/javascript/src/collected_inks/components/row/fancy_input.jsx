@@ -160,8 +160,11 @@ class InputComponent extends React.Component {
       source: this.props.suggestions
     })
     $(this.input).on("autocompleteselect", (e) => {
-      this.props.onChange(e)
-      this.props.onBlur(e)
+      // Otherwise clicking on an autocomplete entry won't work
+      setTimeout(() => {
+        this.props.onChange(e)
+        this.props.onBlur(e)
+      }, 0)
     })
     this.input.select()
   }
