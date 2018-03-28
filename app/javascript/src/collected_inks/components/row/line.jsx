@@ -1,8 +1,8 @@
 import * as React from "react";
 
-import NonEmptyInput from "./non_empty_input";
+import FancyInput from "./fancy_input";
 
-class Line extends NonEmptyInput {
+class Line extends FancyInput {
   constructor(props) {
     super(props);
   }

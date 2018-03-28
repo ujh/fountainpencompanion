@@ -1,9 +1,9 @@
 import * as React from "react";
 import { connect } from "react-redux";
 
-import NonEmptyInput from "./non_empty_input";
+import FancyInput from "./fancy_input";
 
-class Brand extends NonEmptyInput {
+class Brand extends FancyInput {
   constructor(props) {
     super(props);
   }
