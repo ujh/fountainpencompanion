@@ -1,5 +1,6 @@
 import { deleteRequest, getRequest, postRequest, putRequest } from "src/fetch";
 
+export const ADD_ENTRY = "ADD_ENTRY";
 export const BRANDS_DATA_RECEIVED = "BRANDS_DATA_RECEIVED";
 export const DATA_RECEIVED = "DATA_RECEIVED";
 export const DELETE_ENTRY = "DELETE_ENTRY";
@@ -20,6 +21,10 @@ export const updateFilter = (data) => ({
 });
 export const updateSuggestions = () => ({type: UPDATE_SUGGESTIONS});
 
+export const addEntry = (data) => (dispatch) => {
+  dispatch({type: ADD_ENTRY, data})
+  dispatch(filterData())
+}
 export const brandsDataReceived = data => (dispatch) => {
   dispatch({type: BRANDS_DATA_RECEIVED, data});
   dispatch(updateSuggestions());

@@ -1,4 +1,5 @@
 import {
+  ADD_ENTRY,
   BRANDS_DATA_RECEIVED,
   DATA_RECEIVED,
   DELETE_ENTRY,
@@ -30,6 +31,14 @@ const defaultState = {
 
 export default function reducer(state = defaultState, action) {
   switch(action.type) {
+    case ADD_ENTRY:
+      return {
+        ...state,
+        entries: [
+          ...state.entries.map(e => ({...e, attributes: {...e.attributes, highlighted: false}})),
+          transformAddedEntry(action.data)
+        ]
+      }
     case BRANDS_DATA_RECEIVED:
       return {
         ...state,
@@ -211,4 +220,16 @@ const inkSuggestions = ({inks, entries}) => {
   const ink_suggestions = [...(new Set([...inks, ...user_ink_names]))];
   ink_suggestions.sort();
   return ink_suggestions;
+}
+
+let newEntryId = 0;
+const transformAddedEntry = (attributes) => {
+  return {
+    id: `new-entry-${newEntryId++}`,
+    type: "collected_inks",
+    attributes: {
+      ...attributes,
+      highlighted: true
+    }
+  }
 }

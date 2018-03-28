@@ -1,6 +1,8 @@
 import * as React from "react";
 import { connect } from "react-redux";
 
+import { addEntry } from "src/collected_inks/actions";
+
 import Brand from "./row/brand";
 import Privacy from "./row/privacy";
 import Line from "./row/line";
@@ -35,6 +37,11 @@ class NewEntry extends React.Component {
 
   onReset = () => {
     this.setState(this.emptyState())
+  }
+
+  onSaveClicked = () => {
+    this.props.onSave(this.state)
+    this.onReset();
   }
 
   onTogglePrivacy = () => {
@@ -86,7 +93,7 @@ class NewEntry extends React.Component {
       <td><Used used={state.used} onClick={this.onToggleUsed}/></td>
       <td><Comment onlyEdit comment={state.comment} onChange={this.onChangeComment}/></td>
       <td>
-        <a className="btn btn-default">
+        <a onClick={this.onSaveClicked} className="btn btn-default">
           <i className="fa fa-check" />
         </a>
         <a onClick={this.onReset} className="btn btn-default">
@@ -97,4 +104,10 @@ class NewEntry extends React.Component {
   }
 }
 
-export default NewEntry;
+const mapDispatchToProps = dispatch => ({
+  onSave(data) {
+    dispatch(addEntry(data))
+  }
+});
+
+export default connect(null, mapDispatchToProps)(NewEntry);
