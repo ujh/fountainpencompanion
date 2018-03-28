@@ -3,6 +3,7 @@ import {
   DATA_RECEIVED,
   DELETE_ENTRY,
   FILTER_DATA,
+  INKS_DATA_RECEIVED,
   LINES_DATA_RECEIVED,
   LOADING_DATA,
   TOGGLE_FIELD,
@@ -38,6 +39,11 @@ export default function reducer(state = defaultState, action) {
       return {
         ...state,
         lines: action.data
+      }
+    case INKS_DATA_RECEIVED:
+      return {
+        ...state,
+        inks: action.data
       }
     case DATA_RECEIVED:
       return filterData({
@@ -192,9 +198,8 @@ const lineSuggestions = ({lines, entries}) => {
 }
 
 const inkSuggestions = ({inks, entries}) => {
-  const ink_names = inks.map(i => i.attributes.popular_name);
   const user_ink_names = entries.map(e => e.attributes.ink_name);
-  const ink_suggestions = [...(new Set([...ink_names, ...user_ink_names]))];
+  const ink_suggestions = [...(new Set([...inks, ...user_ink_names]))];
   ink_suggestions.sort();
   return ink_suggestions;
 }
