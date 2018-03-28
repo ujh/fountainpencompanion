@@ -23,6 +23,7 @@ export const updateSuggestions = () => ({type: UPDATE_SUGGESTIONS});
 
 export const addEntry = (data) => (dispatch) => {
   dispatch({type: ADD_ENTRY, data})
+  postRequest("/collected_inks", {data: {type: "collected_inks", attributes: data}})
   dispatch(filterData())
 }
 export const brandsDataReceived = data => (dispatch) => {

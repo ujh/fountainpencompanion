@@ -6,8 +6,8 @@ export function getRequest(path) {
   return request(path, "GET");
 }
 
-export function postRequest(path) {
-  return request(path, "POST");
+export function postRequest(path, body) {
+  return request(path, "POST", body);
 }
 
 export function putRequest(path, body) {
