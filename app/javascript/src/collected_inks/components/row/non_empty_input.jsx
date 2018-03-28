@@ -71,6 +71,7 @@ class NonEmptyInput extends React.Component {
 
   renderEditView() {
     return this.renderInputComponent({
+      suggestions: this.props.suggestions,
       value: this.state.value,
       onBlur: (e) => this.onBlur(e),
       onKeyDown: (e) => this.onKeyDown(e),
@@ -86,17 +87,10 @@ class NonEmptyInput extends React.Component {
       className += " has-error"
       help = <span className="help-block">required</span>
     }
-    if (this.props.suggestions) {
-      return <div className={className}>
-        <Select2Input {...inputProps} suggestions={this.props.suggestions}/>
-        { help }
-      </div>;
-    } else {
-      return <div className={className}>
-        <input type="text" autoFocus className="form-control" {...inputProps} />
-        { help }
-      </div>;
-    }
+    return <div className={className}>
+      <InputComponent {...inputProps} />
+      { help }
+    </div>;
   }
 
   renderDefaultView() {
@@ -107,37 +101,53 @@ class NonEmptyInput extends React.Component {
   }
 }
 
-class Select2Input extends React.Component {
-  render() {
-    return <select {...this.props} ref={s => this.select = s}>
-      {this.props.suggestions.map(s => <option key={s}>{s}</option>)}
-    </select>
-  };
+class InputComponent extends React.Component {
 
-  componentDidMount() {
-    $(this.select).select2({
-      allowClear: true,
-      placeholder: {
-        id: "0",
-        text: "Brand"
-      },
-      tags: true
-    })
-    $(this.select).select2("open")
-    $(this.select).on('select2:select', (e) => {
-      this.props.onChange(e)
-    })
-    $(this.select).on("select2:close", (e) => {
-      // setTimeout necessary for unselect to work properly
-      setTimeout(() => {this.props.onBlur()}, 0)
-    })
-    $(this.select).on("select2:unselect", (e) => {
-      this.props.onChange({target: {value: ''}})
-    })
+  withAutocomplete() {
+    return !!this.props.suggestions
   }
 
-  componentWillUnmount() {
-    $(this.select).select2('destroy')
+  render() {
+    if (this.withAutocomplete()) {
+      return this.renderWithAutocomplete()
+    } else {
+      return this.renderWithoutAutocomplete()
+    }
+  }
+
+  renderWithoutAutocomplete() {
+    return <input
+      type="text"
+      autoFocus
+      className="form-control"
+      {...this.props}
+    />
+  }
+
+  renderWithAutocomplete() {
+    return <input
+      type="text"
+      className="form-control"
+      ref={i => this.input = i}
+      defaultValue={this.props.value}
+      onChange={this.props.onChange}
+      onKeyDown={this.props.onKeyDown}
+    />
+  }
+
+  componentDidMount() {
+    if (this.props.suggestions) this.setupAutocomplete()
+  }
+
+  setupAutocomplete() {
+    $(this.input).autocomplete({
+      source: this.props.suggestions
+    })
+    $(this.input).on("autocompleteselect", (e) => {
+      this.props.onChange(e)
+      this.props.onBlur(e)
+    })
+    this.input.select()
   }
 }
 
