@@ -160,7 +160,6 @@ class InputComponent extends React.Component {
       ref={i => this.input = i}
       defaultValue={this.props.value}
       onBlur={this.props.onBlur}
-      onChange={this.props.onChange}
       onKeyDown={this.props.onKeyDown}
     />
   }
