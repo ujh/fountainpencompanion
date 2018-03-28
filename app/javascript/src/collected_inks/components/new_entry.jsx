@@ -89,14 +89,14 @@ class NewEntry extends React.Component {
     const state = this.state;
     return <tr>
       <td><Privacy private={state.private} onClick={this.onTogglePrivacy} /></td>
-      <td><Brand onlyEdit brand={state.brand_name} onChange={this.onChangeBrand}/></td>
-      <td><Line onlyEdit line={state.line_name} onChange={this.onChangeLine} /></td>
-      <td><Ink onlyEdit ink={state.ink_name} onChange={this.onChangeInk} /></td>
+      <td className="new-entry"><Brand onlyEdit brand={state.brand_name} onChange={this.onChangeBrand}/></td>
+      <td className="new-entry"><Line onlyEdit line={state.line_name} onChange={this.onChangeLine} /></td>
+      <td className="new-entry"><Ink onlyEdit ink={state.ink_name} onChange={this.onChangeInk} /></td>
       <td><Kind kind={state.kind} onChange={this.onChangeKind}/></td>
       <td><Color color={state.color} onChange={this.onChangeColor}/></td>
       <td><Swabbed swabbed={state.swabbed} onClick={this.onToggleSwabbed}/></td>
       <td><Used used={state.used} onClick={this.onToggleUsed}/></td>
-      <td><Comment onlyEdit comment={state.comment} onChange={this.onChangeComment}/></td>
+      <td className="new-entry"><Comment onlyEdit comment={state.comment} onChange={this.onChangeComment}/></td>
       <td>
         <a onClick={this.onSaveClicked} className="btn btn-default">
           <i className="fa fa-check" />

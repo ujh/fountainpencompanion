@@ -4,7 +4,7 @@ class FancyInput extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      editing: false,
+      editing: this.defaultEditing(),
       value: this.value()
     };
   }
@@ -13,6 +13,13 @@ class FancyInput extends React.Component {
     if (prevProps[this.valueFieldName()] != this.value()) {
       this.setState({value: this.value()})
     }
+  }
+
+  defaultEditing() {
+    if (this.props.onlyEdit) {
+      return true;
+    }
+    return false;
   }
 
   required() {
@@ -47,7 +54,7 @@ class FancyInput extends React.Component {
     const code = e.keyCode;
     switch (code) {
       case 9: // Tab
-        e.preventDefault();
+        if (this.autoFocus()) e.preventDefault();
         this.finishedEditing();
         return;
       case 13: // Enter
@@ -65,7 +72,7 @@ class FancyInput extends React.Component {
 
   cancelEditing() {
     this.setState({
-      editing: false,
+      editing: this.defaultEditing(),
       value: this.value()
     })
   }
@@ -73,19 +80,27 @@ class FancyInput extends React.Component {
   finishedEditing() {
     if (this.required()) {
       if (this.state.value) {
-        this.setState({editing: false});
+        this.setState({editing: this.defaultEditing()});
         this.props.onChange(this.state.value);
       } else {
         this.cancelEditing()
       }
     } else {
-      this.setState({editing: false});
+      this.setState({editing: this.defaultEditing()});
       this.props.onChange(this.state.value);
     }
   }
 
+  autoFocus() {
+    if (this.props.onlyEdit) {
+      return false;
+    }
+    return true;
+  }
+
   renderEditView() {
     return this.renderInputComponent({
+      autoFocus: this.autoFocus(),
       suggestions: this.props.suggestions,
       value: this.state.value,
       onBlur: (e) => this.onBlur(e),
@@ -133,7 +148,6 @@ class InputComponent extends React.Component {
   renderWithoutAutocomplete() {
     return <input
       type="text"
-      autoFocus
       className="form-control"
       {...this.props}
     />
@@ -155,6 +169,12 @@ class InputComponent extends React.Component {
     if (this.props.suggestions) this.setupAutocomplete()
   }
 
+  componentDidUpdate() {
+    if (this.props.suggestions) {
+      $(this.input).autocomplete("option", "source", this.props.suggestions)
+    }
+  }
+
   setupAutocomplete() {
     $(this.input).autocomplete({
       source: this.props.suggestions
@@ -166,7 +186,7 @@ class InputComponent extends React.Component {
         this.props.onBlur(e)
       }, 0)
     })
-    this.input.select()
+    if (this.props.autoFocus) this.input.select()
   }
 }
 
