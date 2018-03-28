@@ -26,9 +26,45 @@ import Swabbed from "./swabbed";
 import Used from "./used";
 
 class Row extends React.Component {
+
+  componentDidMount() {
+    this.focusIfHighlighted()
+  }
+
+  componentDidUpdate() {
+    this.focusIfHighlighted()
+  }
+
+  focusIfHighlighted() {
+    if (this.props.highlighted) {
+      // Do not scroll if the element is already visible as that's pretty confusing
+      if (!this.isElementVisible(this.tr)) {
+        this.tr.scrollIntoView();
+        // Scroll so that it's in the middle of the viewport
+        setTimeout(function() {
+          window.scrollBy(0, -(document.documentElement.clientHeight/2));
+        }, 20)
+      }
+      $(this.tr).css({backgroundColor: '#FFD700'})
+      $(this.tr).animate({
+        backgroundColor: '#fff'
+      }, 1000)
+    }
+  }
+
+  isElementVisible(el) {
+    const rect = el.getBoundingClientRect();
+    return (
+        rect.top >= 0 &&
+        rect.left >= 0 &&
+        rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&
+        rect.right <= (window.innerWidth || document.documentElement.clientWidth)
+    );
+  }
+
   render() {
     const props = this.props;
-    return <tr className={this.className()}>
+    return <tr className={this.className()} ref={tr => this.tr = tr}>
       <td><Privacy private={props.private} onClick={props.onTogglePrivacy} /></td>
       <td><Brand brand={props.brand_name} onChange={props.onChangeBrand}/></td>
       <td><Line line={props.line_name} onChange={props.onChangeLine} /></td>

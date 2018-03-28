@@ -87,12 +87,21 @@ export default function reducer(state = defaultState, action) {
 }
 
 const updateField = (entry, fieldName, value, id) => {
-  if (entry.id != id) return entry;
+  if (entry.id != id) {
+    return {
+      ...entry,
+      attributes: {
+        ...entry.attributes,
+        highlighted: false
+      }
+    }
+  }
   return {
     ...entry,
     attributes: {
       ...entry.attributes,
-      [fieldName]: value
+      [fieldName]: value,
+      highlighted: true
     }
   }
 }
