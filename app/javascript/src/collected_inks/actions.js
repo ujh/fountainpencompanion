@@ -21,9 +21,16 @@ export const updateFilter = (data) => ({
 });
 export const updateSuggestions = () => ({type: UPDATE_SUGGESTIONS});
 
+let newEntryId = 0;
 export const addEntry = (data) => (dispatch) => {
-  dispatch({type: ADD_ENTRY, data})
-  postRequest("/collected_inks", {data: {type: "collected_inks", attributes: data}})
+  const entryId = newEntryId++
+  const entry = {
+    id: `new-entry-${entryId}`,
+    type: "collected_inks",
+    attributes: data
+  };
+  dispatch({type: ADD_ENTRY, data: entry})
+  postRequest("/collected_inks", {data: entry})
   dispatch(filterData())
 }
 export const brandsDataReceived = data => (dispatch) => {

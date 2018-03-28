@@ -222,13 +222,11 @@ const inkSuggestions = ({inks, entries}) => {
   return ink_suggestions;
 }
 
-let newEntryId = 0;
-const transformAddedEntry = (attributes) => {
+const transformAddedEntry = (entry) => {
   return {
-    id: `new-entry-${newEntryId++}`,
-    type: "collected_inks",
+    ...entry,
     attributes: {
-      ...attributes,
+      ...entry.attributes,
       highlighted: true
     }
   }
