@@ -39,7 +39,12 @@ class NewEntry extends React.Component {
     this.setState(this.emptyState())
   }
 
+  isValid() {
+    return this.state.brand_name && this.state.ink_name;
+  }
+
   onSaveClicked = () => {
+    if (!this.isValid()) return;
     this.props.onSave(this.state)
     this.onReset();
   }
