@@ -78,7 +78,7 @@ class Row extends React.Component {
         <ActionButtons
           deletable={props.deletable}
           onArchiveClick={props.onToggleArchived}
-          onDeleteClick={props.onDeleteClick}
+          onDeleteClick={props.onDelete}
         />
       </td>
     </tr>;
