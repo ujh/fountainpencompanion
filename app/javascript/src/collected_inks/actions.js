@@ -4,6 +4,7 @@ export const BRANDS_DATA_RECEIVED = "BRANDS_DATA_RECEIVED";
 export const DATA_RECEIVED = "DATA_RECEIVED";
 export const DELETE_ENTRY = "DELETE_ENTRY";
 export const FILTER_DATA = "FILTER_DATA";
+export const LINES_DATA_RECEIVED = "LINES_DATA_RECEIVED";
 export const LOADING_DATA = "LOADING_DATA";
 export const TOGGLE_FIELD = "TOGGLE_FIELD";
 export const UPDATE_FIELD = "UPDATE_FIELD";
@@ -20,6 +21,11 @@ export const updateSuggestions = () => ({type: UPDATE_SUGGESTIONS});
 
 export const brandsDataReceived = data => (dispatch) => {
   dispatch({type: BRANDS_DATA_RECEIVED, data});
+  dispatch(updateSuggestions());
+}
+
+export const linesDataReceived = data => (dispatch) => {
+  dispatch({type: LINES_DATA_RECEIVED, data});
   dispatch(updateSuggestions());
 }
 
@@ -44,12 +50,28 @@ export const fetchData = () => dispatch => {
 }
 
 export const fetchAutocompleteData = () => dispatch => {
+  dispatch(fetchBrandsAutocompleteData());
+  dispatch(fetchLinesAutocompleteData());
+}
+
+export const fetchBrandsAutocompleteData = () => dispatch => {
   return getRequest("/brands").then(
     response => response.json()
   ).then(
     json => {
-      setTimeout(() => fetchAutocompleteData()(dispatch), 1000*30);
+      setTimeout(() => fetchBrandsAutocompleteData()(dispatch), 1000*30);
       return dispatch(brandsDataReceived(json));
+    }
+  )
+}
+
+export const fetchLinesAutocompleteData = () => dispatch => {
+  return getRequest("/lines").then(
+    response => response.json()
+  ).then(
+    json => {
+      setTimeout(() => fetchLinesAutocompleteData()(dispatch), 1000*30);
+      return dispatch(linesDataReceived(json));
     }
   )
 }

@@ -3,6 +3,7 @@ import {
   DATA_RECEIVED,
   DELETE_ENTRY,
   FILTER_DATA,
+  LINES_DATA_RECEIVED,
   LOADING_DATA,
   TOGGLE_FIELD,
   UPDATE_SUGGESTIONS,
@@ -32,6 +33,11 @@ export default function reducer(state = defaultState, action) {
       return {
         ...state,
         brands: action.data.data
+      }
+    case LINES_DATA_RECEIVED:
+      return {
+        ...state,
+        lines: action.data
       }
     case DATA_RECEIVED:
       return filterData({
@@ -179,9 +185,8 @@ const brandSuggestions = ({brands, entries}) => {
 }
 
 const lineSuggestions = ({lines, entries}) => {
-  const line_names = lines.map(l => l.attributes.popular_name);
   const user_line_names = entries.map(e => e.attributes.line_name);
-  const line_suggestions = [...(new Set([...line_names, ...user_line_names]))];
+  const line_suggestions = [...(new Set([...lines, ...user_line_names]))];
   line_suggestions.sort();
   return line_suggestions;
 }
