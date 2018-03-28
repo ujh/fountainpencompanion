@@ -1,4 +1,18 @@
 .ink-collection {
+  td {
+    vertical-align: middle !important;
+  }
+  td.new-entry {
+    vertical-align: top !important;
+  }
+
+  tr.private {
+    opacity: 0.7;
+  }
+  i {
+    font-size: 18px;
+    margin: 0;
+  }
   .filters {
     margin-bottom: 20px;
   }
@@ -18,12 +32,6 @@
     }
     &.false {
       color: red;
-    }
-  }
-  .collected_ink_swabbed {
-    // text-align: center;
-    label {
-      margin: 0;
     }
   }
 }

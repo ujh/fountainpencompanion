@@ -97,6 +97,17 @@ GEM
     jquery-ui-rails (6.0.1)
       railties (>= 3.2.16)
     json (2.1.0)
+    jsonapi-deserializable (0.2.0)
+    jsonapi-parser (0.1.1)
+    jsonapi-rails (0.3.1)
+      jsonapi-parser (~> 0.1.0)
+      jsonapi-rb (~> 0.5.0)
+    jsonapi-rb (0.5.0)
+      jsonapi-deserializable (~> 0.2.0)
+      jsonapi-serializable (~> 0.3.0)
+    jsonapi-renderer (0.2.0)
+    jsonapi-serializable (0.3.0)
+      jsonapi-renderer (~> 0.2.0)
     kramdown (1.16.2)
     launchy (2.4.3)
       addressable (~> 2.3)
@@ -272,6 +283,7 @@ DEPENDENCIES
   jbuilder
   jquery-rails
   jquery-ui-rails
+  jsonapi-rails
   letter_opener
   listen
   newrelic_rpm

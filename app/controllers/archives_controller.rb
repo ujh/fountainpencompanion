@@ -4,12 +4,20 @@ class ArchivesController < ApplicationController
 
   def create
     @record&.update(archived_on: Date.today)
-    redirect_to route
+    respond_to do |format|
+      format.html { redirect_to route }
+      format.json { render jsonapi: @record }
+      format.jsonapi { render jsonapi: @record }
+    end
   end
 
   def destroy
     @record&.update(archived_on: nil)
-    redirect_to route
+    respond_to do |format|
+      format.html { redirect_to route }
+      format.json { render jsonapi: @record }
+      format.jsonapi { render jsonapi: @record }
+    end
   end
 
   private

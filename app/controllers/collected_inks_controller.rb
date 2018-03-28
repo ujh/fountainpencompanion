@@ -2,15 +2,17 @@ require 'csv'
 
 class CollectedInksController < ApplicationController
   before_action :authenticate_user!
-  before_action :retrieve_collected_inks
+  deserializable_resource :collected_ink, only: [:create, :update]
 
   def index
     if current_user.collected_inks.empty?
       flash.now[:notice] = "Your ink collection is empty. Check out the <a href='/pages/documentation'>documentation</a> on how to add some.".html_safe
     end
     respond_to do |format|
-      format.html { @collected_ink = CollectedInk.new }
-      format.json
+      format.html
+      format.jsonapi {
+        render jsonapi: current_user.collected_inks.includes(:currently_inkeds)
+      }
       format.csv do
         send_data current_user.collected_inks.order("brand_name, line_name, ink_name").to_csv, type: "text/csv", filename: "collected_inks.csv"
       end
@@ -18,39 +20,34 @@ class CollectedInksController < ApplicationController
   end
 
   def create
-    @collected_ink = current_user.collected_inks.build
-    if SaveCollectedInk.new(@collected_ink, collected_ink_params).perform
-      redirect_to collected_inks_path(anchor: "add-form")
+    collected_ink = current_user.collected_inks.build
+    if SaveCollectedInk.new(collected_ink, collected_ink_params).perform
+      render jsonapi: collected_ink
     else
-      @elementToScrollTo = "#add-form"
-      render :index
+      render jsonapi_errors: collected_ink.errors
     end
   end
 
-  def edit
-    @collected_ink = current_user.collected_inks.find(params[:id])
-    render :index
-  end
-
   def update
-    @collected_ink = current_user.collected_inks.find(params[:id])
-    if SaveCollectedInk.new(@collected_ink, collected_ink_params).perform
-      redirect_to collected_inks_path(anchor: @collected_ink.id)
+    collected_ink = current_user.collected_inks.find(params[:id])
+    if SaveCollectedInk.new(collected_ink, collected_ink_params).perform
+      render jsonapi: collected_ink
     else
-      @elementToScrollTo = "##{@collected_ink.id}"
-      render :index
+      render jsonapi_errors: collected_ink.errors
     end
   end
 
   def destroy
-    current_user.collected_inks.find_by(id: params[:id])&.destroy
-    redirect_to collected_inks_path
+    collected_ink = current_user.collected_inks.find(params[:id])
+    collected_ink.destroy
+    render jsonapi: collected_ink
   end
 
   private
 
   def collected_ink_params
     params.require(:collected_ink).permit(
+      :private,
       :ink_name,
       :line_name,
       :brand_name,
@@ -62,8 +59,4 @@ class CollectedInksController < ApplicationController
     )
   end
 
-  def retrieve_collected_inks
-    @collected_inks = current_user.active_collected_inks.includes(:currently_inkeds).order("brand_name, line_name, ink_name")
-    @archived_collected_inks = current_user.archived_collected_inks.includes(:currently_inkeds).order("brand_name, line_name, ink_name")
-  end
 end
