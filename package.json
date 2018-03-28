@@ -34,7 +34,7 @@
     "webpack-dev-server": "^2.9.3"
   },
   "engines": {
-    "node": "6.11.1"
+    "node": "8.10.0"
   },
   "scripts": {
     "test": "NODE_ENV=test karma start"
