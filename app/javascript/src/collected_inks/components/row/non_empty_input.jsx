@@ -9,6 +9,10 @@ class NonEmptyInput extends React.Component {
     };
   }
 
+  required() {
+    throw "Implement in subclass";
+  }
+
   value() {
     return this.props[this.valueFieldName()]
   }
@@ -61,11 +65,16 @@ class NonEmptyInput extends React.Component {
   }
 
   finishedEditing() {
-    if (this.state.value) {
+    if (this.required()) {
+      if (this.state.value) {
+        this.setState({editing: false});
+        this.props.onChange(this.state.value);
+      } else {
+        this.cancelEditing()
+      }
+    } else {
       this.setState({editing: false});
       this.props.onChange(this.state.value);
-    } else {
-      this.cancelEditing()
     }
   }
 
@@ -83,7 +92,7 @@ class NonEmptyInput extends React.Component {
   renderInputComponent(inputProps) {
     let className = "form-group"
     let help = null;
-    if (!this.state.value) {
+    if (this.required() && !this.state.value) {
       className += " has-error"
       help = <span className="help-block">required</span>
     }

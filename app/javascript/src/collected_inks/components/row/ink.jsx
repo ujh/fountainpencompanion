@@ -11,6 +11,10 @@ class Ink extends NonEmptyInput {
     return "ink";
   }
 
+  required() {
+    return true;
+  }
+
 }
 
 export default Ink;

@@ -12,6 +12,9 @@ class Brand extends NonEmptyInput {
     return "brand";
   }
 
+  required() {
+    return true;
+  }
 }
 
 const mapStateToProps = ({suggestions}) => ({suggestions: suggestions.brands});
