@@ -139,6 +139,7 @@ class InputComponent extends React.Component {
       className="form-control"
       ref={i => this.input = i}
       defaultValue={this.props.value}
+      onBlur={this.props.onBlur}
       onChange={this.props.onChange}
       onKeyDown={this.props.onKeyDown}
     />
