@@ -1,12 +1,12 @@
 #!/bin/bash
 
-set -e
-
 echo "+---------------+"
 echo "| Outdated gems |"
 echo "+---------------+"
 echo -e "\033[1;35m`bundle outdated --parseable`\033[0m"
 yarn outdated
+
+set -e
 
 echo "+-----------------+"
 echo "| Pushing develop |"
