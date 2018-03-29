@@ -6,6 +6,7 @@ echo "+---------------+"
 echo "| Outdated gems |"
 echo "+---------------+"
 echo -e "\033[1;35m`bundle outdated --parseable`\033[0m"
+yarn outdated
 
 echo "+-----------------+"
 echo "| Pushing develop |"
