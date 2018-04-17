@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2018_02_27_181153) do
+ActiveRecord::Schema.define(version: 2018_04_17_144312) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "cube"

@@ -8,6 +8,7 @@ class SaveCollectedInk
   def perform
     res = collected_ink.update(collected_ink_params)
     update_color_of_unset_twins!
+    collected_ink.reload if res # to return the updated color
     res
   end
 

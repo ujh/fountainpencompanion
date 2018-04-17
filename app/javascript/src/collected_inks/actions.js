@@ -118,7 +118,7 @@ export const fetchInksAutocompleteData = () => dispatch => {
 
 export const toggleField = (fieldName, id) => (dispatch, getState) => {
   dispatch({type: TOGGLE_FIELD, fieldName, id});
-  updateEntryOnServer(id, getState);
+  dispatch(updateEntryOnServer(id));
 };
 
 export const toggleArchived = (id) => (dispatch, getState) => {
@@ -150,7 +150,7 @@ export const toggleUsed = (id) => dispatch => {
 
 export const updateField = (id, fieldName, value) => (dispatch, getState) => {
   dispatch({type: UPDATE_FIELD, id, fieldName, value});
-  updateEntryOnServer(id, getState);
+  dispatch(updateEntryOnServer(id));
 }
 
 export const updateBrand = (id, value) => (dispatch, getState) => {
@@ -193,7 +193,14 @@ export const updateFilterAndRecalculate = (data) => dispatch => {
 
 const getEntry = (id, getState) => getState().entries.find(e => e.id == id);
 
-const updateEntryOnServer = (id, getState) => {
+const updateEntryOnServer = id => (dispatch, getState) => {
   const entry = getEntry(id, getState);
-  putRequest(`/collected_inks/${id}`, {data: entry})
+  putRequest(`/collected_inks/${id}`, {data: entry}).then(
+    response => response.json()
+  ).then(
+    json => {
+      dispatch(replaceEntry(id, json))
+      dispatch(filterData())
+    }
+  )
 }
