@@ -168,9 +168,12 @@ class InputComponent extends React.Component {
     if (this.props.suggestions) this.setupAutocomplete()
   }
 
-  componentDidUpdate() {
+  componentDidUpdate(prevProps) {
     if (this.props.suggestions) {
       $(this.input).autocomplete("option", "source", this.props.suggestions)
+      if (prevProps.value != this.props.value) {
+        $(this.input).val(this.props.value)
+      }
     }
   }
 
