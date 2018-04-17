@@ -10,7 +10,7 @@ class Simplifier
     without_quotes_at_end = without_non_english_letters.gsub(/"([^"]*)"/, '')
     only_letters_and_numbers = without_quotes_at_end.gsub(/\W/, '')
     downcased = only_letters_and_numbers.downcase
-    downcased
+    downcased.present? ? downcased : name
   end
 
   def self.for_collected_ink(collected_ink)

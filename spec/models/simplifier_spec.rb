@@ -50,5 +50,13 @@ describe Simplifier do
     it "downcases the string" do
       expect(described_class.simplify("ABc")).to eq("abc")
     end
+
+    it "leaves an entry alone that only consists of numbers" do
+      expect(described_class.simplify("44")).to eq("44")
+    end
+
+    it "leaves an entry alone that has a number with a pound sign in front of it" do
+      expect(described_class.simplify("#44")).to eq("#44")
+    end
   end
 end
