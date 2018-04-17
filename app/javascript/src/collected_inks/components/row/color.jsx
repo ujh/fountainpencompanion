@@ -11,6 +11,12 @@ export default class Color extends React.Component {
     }
   }
 
+  componentDidUpdate(prevProps) {
+    if (prevProps.color != this.props.color) {
+      this.setState({color: this.props.color})
+    }
+  }
+
   handleClick() {
     this.setState({displayColorPicker: !this.state.displayColorPicker})
   }
