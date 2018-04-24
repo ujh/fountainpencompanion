@@ -12,7 +12,7 @@ before_install:
   - yarn install
 
 before_script:
-  - rake db:test:prepare
+  - bundle exec rake db:test:prepare
 
 after_script:
   - yarn test --single-run
