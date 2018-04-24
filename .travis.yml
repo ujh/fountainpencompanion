@@ -2,7 +2,8 @@ language: ruby
 
 cache:
   - bundler
-  - yarn
+  directories:
+    - node_modules
 
 before_install:
   - nvm install
@@ -14,5 +15,6 @@ before_install:
 before_script:
   - bundle exec rake db:test:prepare
 
-after_script:
+script:
+  - bundle exec rake
   - yarn test --single-run
