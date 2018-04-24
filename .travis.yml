@@ -1,1 +1,14 @@
 language: ruby
+
+before_install:
+  - nvm install
+  - nvm use
+  - curl -o- -L https://yarnpkg.com/install.sh | bash -s
+  - export PATH="$HOME/.yarn/bin:$PATH"
+  - yarn install
+
+before_script:
+  - rake db:test:prepare
+
+after_script:
+  - yarn test --single-run
