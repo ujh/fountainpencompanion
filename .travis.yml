@@ -1,5 +1,9 @@
 language: ruby
 
+cache:
+  - bundler
+  - yarn
+
 before_install:
   - nvm install
   - nvm use
