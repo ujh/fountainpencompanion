@@ -13,6 +13,10 @@ nav class="navbar navbar-default navbar-fixed-top" id="header"
         li= link_to "Users", users_path
         li= link_to "Brands", brands_path
         li= link_to "Leaderboards", page_path("leaderboards")
+        li
+          a href="http://podcast.fpc.ink" target="_blank"
+            span Podcast
+            sup NEW
       ul class="nav navbar-nav navbar-right"
         - if user_signed_in?
           li= link_to "Currently Inked", currently_inked_index_path
