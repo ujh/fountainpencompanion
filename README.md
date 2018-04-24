@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/ujh/fountainpencompanion.svg?branch=develop)](https://travis-ci.org/ujh/fountainpencompanion)
+
 # Goals
 
 There's two things that FPC wants to do. First of all it should be a place where users can manage their inks & pens.
