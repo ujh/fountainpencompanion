@@ -96,6 +96,7 @@ class NewEntry extends React.Component {
       <td><Color color={state.color} onChange={this.onChangeColor}/></td>
       <td><Swabbed swabbed={state.swabbed} onClick={this.onToggleSwabbed}/></td>
       <td><Used used={state.used} onClick={this.onToggleUsed}/></td>
+      <td></td>
       <td className="new-entry"><Comment onlyEdit comment={state.comment} onChange={this.onChangeComment}/></td>
       <td>
         <a onClick={this.onSaveClicked} className="btn btn-default">
