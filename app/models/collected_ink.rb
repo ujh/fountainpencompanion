@@ -1,3 +1,5 @@
+require 'csv'
+
 class CollectedInk < ApplicationRecord
 
   include Archivable

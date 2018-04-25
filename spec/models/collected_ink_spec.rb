@@ -111,4 +111,75 @@ describe CollectedInk do
       expect(described_class.brand_count).to eq(2)
     end
   end
+
+  describe '#to_csv' do
+
+    fixtures :collected_inks, :collected_pens, :users
+
+    let(:collected_ink) { collected_inks(:monis_fire_and_ice) }
+    let(:csv) do
+      CSV.parse(CollectedInk.where(id: [collected_ink.id]).to_csv, headers: true, col_sep: ";")
+    end
+    let(:entry) { csv.first }
+
+    it 'has a header row' do
+      expect(CollectedInk.none.to_csv).to eq("Brand;Line;Name;Type;Color;Swabbed;Used;Comment;Archived;Usage\n")
+    end
+
+    it 'has the correct brand' do
+      expect(entry["Brand"]).to eq("Robert Oster")
+    end
+
+    it 'has the correct line' do
+      expect(entry["Line"]).to eq("Signature")
+    end
+
+    it 'has the correct name' do
+      expect(entry["Name"]).to eq("Fire & Ice")
+    end
+
+    it 'has the correct type' do
+      expect(entry["Type"]).to eq("bottle")
+    end
+
+    it 'has the correct color' do
+      collected_ink.update(color: '#cdcdcd')
+      expect(entry["Color"]).to eq('#cdcdcd')
+    end
+
+    it 'has the correct value for swabbed' do
+      collected_ink.update(swabbed: true)
+      expect(entry["Swabbed"]).to eq('true')
+    end
+
+    it 'has the correct value for used' do
+      collected_ink.update(used: true)
+      expect(entry["Used"]).to eq('true')
+    end
+
+    it 'has the correct comment' do
+      collected_ink.update(comment: 'comment')
+      expect(entry['Comment']).to eq('comment')
+    end
+
+    it 'has the correct value for archived' do
+      collected_ink.update(archived_on: Date.today)
+      expect(entry['Archived']).to eq('true')
+    end
+
+    it 'has the correct value for Usage' do
+      CurrentlyInked.create!(
+        collected_ink: collected_ink,
+        collected_pen: collected_pens(:monis_wing_sung),
+        user: collected_ink.user
+      )
+      CurrentlyInked.create!(
+        collected_ink: collected_ink,
+        collected_pen: collected_pens(:monis_pilot_custom_74),
+        user: collected_ink.user,
+        archived_on: Date.today
+      )
+      expect(entry['Usage']).to eq('2')
+    end
+  end
 end
