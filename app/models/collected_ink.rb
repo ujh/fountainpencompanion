@@ -1,3 +1,5 @@
+require 'csv'
+
 class CollectedInk < ApplicationRecord
 
   include Archivable
@@ -72,7 +74,7 @@ class CollectedInk < ApplicationRecord
 
   def self.to_csv
     CSV.generate(col_sep: ";") do |csv|
-      csv << ["Brand", "Line", "Name", "Type", "Color", "Swabbed", "Used", "Comment", "Archived"]
+      csv << ["Brand", "Line", "Name", "Type", "Color", "Swabbed", "Used", "Comment", "Archived", "Usage"]
       all.each do |ci|
         csv << [
           ci.brand_name,
@@ -84,6 +86,7 @@ class CollectedInk < ApplicationRecord
           ci.used,
           ci.comment,
           ci.archived?,
+          ci.currently_inkeds.length
         ]
       end
     end

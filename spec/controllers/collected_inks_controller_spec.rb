@@ -29,10 +29,32 @@ describe CollectedInksController do
         get :index, format: "csv"
         expect(response).to be_successful
         csv = CSV.generate(col_sep: ";") do |csv|
-          csv << ["Brand", "Line", "Name", "Type", "Color", "Swabbed", "Used", "Comment", "Archived"]
+          csv << [
+            "Brand",
+            "Line",
+            "Name",
+            "Type",
+            "Color",
+            "Swabbed",
+            "Used",
+            "Comment",
+            "Archived",
+            "Usage"
+          ]
           [:monis_marine, :monis_syrah, :monis_fire_and_ice].each do |k|
             ci = collected_inks(k)
-            csv << [ci.brand_name, ci.line_name, ci.ink_name, ci.kind, ci.color, ci.swabbed, ci.used, ci.comment, ci.archived?]
+            csv << [
+              ci.brand_name,
+              ci.line_name,
+              ci.ink_name,
+              ci.kind,
+              ci.color,
+              ci.swabbed,
+              ci.used,
+              ci.comment,
+              ci.archived?,
+              ci.currently_inkeds.count
+            ]
           end
         end
         expect(response.body).to eq(csv)
