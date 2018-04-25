@@ -23,6 +23,7 @@ import Kind from "./kind";
 import Line from "./line";
 import Privacy from "./privacy";
 import Swabbed from "./swabbed";
+import Usage from "./usage";
 import Used from "./used";
 
 class Row extends React.Component {
@@ -73,6 +74,7 @@ class Row extends React.Component {
       <td><Color color={props.color} onChange={props.onChangeColor}/></td>
       <td><Swabbed swabbed={props.swabbed} onClick={props.onToggleSwabbed}/></td>
       <td><Used used={props.used} onClick={props.onToggleUsed}/></td>
+      <td><Usage usage={props.usage} /></td>
       <td><Comment comment={props.comment} onChange={props.onChangeComment}/></td>
       <td>
         <ActionButtons

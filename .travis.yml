@@ -13,7 +13,8 @@ before_install:
   - yarn install
 
 before_script:
-  - bundle exec rake db:test:prepare
+  - RAILS_ENV=test bundle exec rails db:drop db:create
+  - bundle exec rails db:test:prepare
 
 script:
   - bundle exec rake

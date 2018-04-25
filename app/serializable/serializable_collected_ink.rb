@@ -19,6 +19,9 @@ class SerializableCollectedInk < JSONAPI::Serializable::Resource
   attribute :simplified_ink_name
   attribute :simplified_line_name
   attribute :swabbed
+  attribute :usage do
+    @object.currently_inkeds.length
+  end
   attribute :used
 
 end
