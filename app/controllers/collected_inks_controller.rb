@@ -8,13 +8,14 @@ class CollectedInksController < ApplicationController
     if current_user.collected_inks.empty?
       flash.now[:notice] = "Your ink collection is empty. Check out the <a href='/pages/documentation'>documentation</a> on how to add some.".html_safe
     end
+    inks = current_user.collected_inks.includes(:currently_inkeds).order("brand_name, line_name, ink_name")
     respond_to do |format|
       format.html
       format.jsonapi {
-        render jsonapi: current_user.collected_inks.includes(:currently_inkeds)
+        render jsonapi: inks
       }
       format.csv do
-        send_data current_user.collected_inks.order("brand_name, line_name, ink_name").to_csv, type: "text/csv", filename: "collected_inks.csv"
+        send_data inks.to_csv, type: "text/csv", filename: "collected_inks.csv"
       end
     end
   end
