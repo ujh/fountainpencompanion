@@ -8,6 +8,7 @@ describe LinesController do
     before(:each) do
       # Trigger simplification
       CollectedInk.all.map(&:save)
+      sleep 1
     end
 
     it 'returns all lines by default' do
