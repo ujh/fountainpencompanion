@@ -5,7 +5,7 @@
     "babel-polyfill": "^6.26.0",
     "babel-preset-react": "^6.24.1",
     "coffeescript": "1.12.7",
-    "promise-polyfill": "^7.1.0",
+    "promise-polyfill": "^7.1.2",
     "prop-types": "^15.6.0",
     "react": "^16.0.0",
     "react-color": "^2.13.8",
