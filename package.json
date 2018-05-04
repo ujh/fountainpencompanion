@@ -1,7 +1,7 @@
 {
   "license": "UNLICENSED",
   "dependencies": {
-    "@rails/webpacker": "^3.2.2",
+    "@rails/webpacker": "^3.5.3",
     "babel-polyfill": "^6.26.0",
     "babel-preset-react": "^6.24.1",
     "coffeescript": "2.3.0",
