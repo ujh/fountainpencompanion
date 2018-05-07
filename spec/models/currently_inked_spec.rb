@@ -179,4 +179,19 @@ describe CurrentlyInked do
       end.to change { subject.nib }.from(pen.nib).to("")
     end
   end
+
+  describe '#pen_name' do
+    before(:each) do
+      subject.collected_pen = collected_pens(:monis_pilot_custom_74)
+    end
+
+    it 'uses the nib from the pen' do
+      expect(subject.pen_name).to eq('Pilot Custom 74 M orange')
+    end
+
+    it 'uses the nib from self' do
+      subject.nib = 'my nib'
+      expect(subject.pen_name).to eq('Pilot Custom 74 my nib orange')
+    end
+  end
 end

@@ -1,6 +1,7 @@
 class CurrentlyInked < ApplicationRecord
 
   include Archivable
+  include PenName
 
   belongs_to :collected_ink
   belongs_to :collected_pen
@@ -9,7 +10,6 @@ class CurrentlyInked < ApplicationRecord
   delegate :collected_inks_for_select, to: :user
   delegate :collected_pens_for_select, to: :user
   delegate :name, to: :collected_ink, prefix: 'ink', allow_nil: true
-  delegate :name, to: :collected_pen, prefix: 'pen', allow_nil: true
   delegate :color, to: :collected_ink, prefix: 'ink'
 
   validate :collected_ink_belongs_to_user
@@ -24,12 +24,19 @@ class CurrentlyInked < ApplicationRecord
     "#{ink_name} - #{pen_name}"
   end
 
-  def ink_name
-    collected_ink.name
-  end
-
   def pen_name
-    collected_pen.name
+    nib = if self.nib.present?
+      self.nib
+    else
+      collected_pen.nib
+    end
+    pen_name_generator(
+      brand: collected_pen.brand,
+      model: collected_pen.model,
+      nib: nib,
+      color: collected_pen.color,
+      archived: collected_pen.archived?
+    )
   end
 
   def unarchivable?
