@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2018_04_17_144312) do
+ActiveRecord::Schema.define(version: 2018_05_07_063532) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "cube"
@@ -82,6 +82,7 @@ ActiveRecord::Schema.define(version: 2018_04_17_144312) do
     t.bigint "user_id", null: false
     t.date "archived_on"
     t.date "inked_on", null: false
+    t.string "nib", limit: 100, default: ""
     t.index ["collected_ink_id"], name: "index_currently_inked_on_collected_ink_id"
     t.index ["collected_pen_id"], name: "index_currently_inked_on_collected_pen_id"
     t.index ["user_id"], name: "index_currently_inked_on_user_id"

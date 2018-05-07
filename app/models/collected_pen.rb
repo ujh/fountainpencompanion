@@ -1,6 +1,7 @@
 class CollectedPen < ApplicationRecord
 
   include Archivable
+  include PenName
 
   belongs_to :user
   has_many :currently_inkeds
@@ -15,9 +16,13 @@ class CollectedPen < ApplicationRecord
   end
 
   def name
-    n = [brand, model, nib, color].reject {|f| f.blank?}.join(' ')
-    n = "#{n} (archived)" if archived?
-    n
+    pen_name_generator(
+      brand: brand,
+      model: model,
+      nib: nib,
+      color: color,
+      archived: archived?
+    )
   end
 
   def brand=(value)

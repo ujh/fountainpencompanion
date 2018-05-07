@@ -3,7 +3,7 @@ require 'rails_helper'
 describe BrandsController do
   fixtures :collected_inks
 
-  describe '#index' do
+  pending '#index' do
 
     before(:each) do
       # Trigger simplification
