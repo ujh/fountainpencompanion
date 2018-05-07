@@ -21,7 +21,15 @@ class CurrentlyInked < ApplicationRecord
   before_save :update_nib
 
   def name
-    "#{collected_ink.name} - #{collected_pen.name}"
+    "#{ink_name} - #{pen_name}"
+  end
+
+  def ink_name
+    collected_ink.name
+  end
+
+  def pen_name
+    collected_pen.name
   end
 
   def unarchivable?
