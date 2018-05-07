@@ -18,6 +18,7 @@ class CurrentlyInked < ApplicationRecord
   validates :inked_on, presence: true
 
   after_initialize :set_default_inked_on
+  before_save :update_nib
 
   def name
     "#{collected_ink.name} - #{collected_pen.name}"
@@ -40,6 +41,15 @@ class CurrentlyInked < ApplicationRecord
 
   def set_default_inked_on
     self.inked_on ||= Date.today
+  end
+
+  def update_nib
+    return unless archived_on_changed?
+    if archived?
+      self.nib = collected_pen.nib
+    else
+      self.nib = ""
+    end
   end
 
   def collected_ink_belongs_to_user

@@ -146,4 +146,37 @@ describe CurrentlyInked do
     end
   end
 
+  describe "nib" do
+
+    let(:ink) { collected_inks(:monis_marine) }
+    let(:pen) { collected_pens(:monis_pilot_custom_74) }
+
+    before(:each) do
+      subject.collected_pen = pen
+      subject.collected_ink = ink
+      subject.save!
+    end
+
+    it 'sets the nib if entry is archived' do
+      expect do
+        subject.update(archived_on: Date.today)
+      end.to change { subject.nib }.from("").to(pen.nib)
+    end
+
+    it 'does not change the nib when already archived' do
+      subject.update(archived_on: Date.today)
+      subject.update(nib: "other value")
+      expect(subject.nib).to eq("other value")
+      expect do
+        subject.update(comment: 'new comment')
+      end.to_not change { subject.reload; subject.nib }
+    end
+
+    it 'clears the nib when unarchiving' do
+      subject.update(archived_on: Date.today)
+      expect do
+        subject.update(archived_on: nil)
+      end.to change { subject.nib }.from(pen.nib).to("")
+    end
+  end
 end
