@@ -1,3 +1,5 @@
+require 'csv'
+
 class CollectedPen < ApplicationRecord
 
   include Archivable
@@ -13,6 +15,24 @@ class CollectedPen < ApplicationRecord
 
   def self.search(field, term)
     where("#{field} like ?", "%#{term}%").order(field).pluck(field).uniq
+  end
+
+  def self.to_csv
+    CSV.generate(col_sep: ";") do |csv|
+      csv << ["Brand", "Model", "Nib", "Color", "Comment", "Archived", "Archived On", "Usage"]
+      all.each do |cp|
+        csv << [
+          cp.brand,
+          cp.model,
+          cp.nib,
+          cp.color,
+          cp.comment,
+          cp.archived?,
+          cp.archived_on,
+          cp.currently_inkeds.length
+        ]
+      end
+    end
   end
 
   def name

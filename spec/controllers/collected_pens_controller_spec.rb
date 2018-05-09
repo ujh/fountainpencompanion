@@ -24,6 +24,27 @@ describe CollectedPensController do
         expect(response.body).to include(ws.brand)
         expect(response.body).to include(ws.model)
       end
+
+      it 'renders the csv export' do
+        get :index, format: "csv"
+        expect(response).to be_successful
+        csv = CSV.generate(col_sep: ";") do |csv|
+          csv << ["Brand", "Model", "Nib", "Color", "Comment", "Archived", "Archived On", "Usage"]
+          [collected_pens(:monis_pilot_custom_74), collected_pens(:monis_wing_sung)].each do |cp|
+            csv << [
+              cp.brand,
+              cp.model,
+              cp.nib,
+              cp.color,
+              cp.comment,
+              cp.archived?,
+              cp.archived_on,
+              cp.currently_inkeds.length
+            ]
+          end
+        end
+        expect(response.body).to eq(csv)
+      end
     end
   end
 
