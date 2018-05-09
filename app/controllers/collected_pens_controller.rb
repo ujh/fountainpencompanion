@@ -5,7 +5,13 @@ class CollectedPensController < ApplicationController
   before_action :retrieve_collected_pen, only: [:edit, :update, :destroy]
 
   def index
-    @collected_pen = CollectedPen.new
+    respond_to do |format|
+      format.html { @collected_pen = CollectedPen.new }
+      format.csv do
+        pens = current_user.collected_pens.includes(:currently_inkeds).order('brand, model, nib, color, comment')
+        send_data pens.to_csv, type: "text/csv", filename: "collected_pens.csv"
+      end
+    end
   end
 
   def edit

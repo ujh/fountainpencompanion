@@ -39,4 +39,70 @@ describe CollectedPen do
       expect(described_class.search(:brand, 'P')).to eq(["Pilot", "Platinum"])
     end
   end
+
+  describe '#to_csv' do
+    fixtures :collected_inks, :collected_pens, :users
+
+    let(:collected_pen) { collected_pens(:monis_pilot_custom_74) }
+    let(:csv) do
+      CSV.parse(described_class.where(id: [collected_pen.id]).to_csv, headers: true, col_sep: ";")
+    end
+    let(:entry) { csv.first }
+
+    it 'has a header row' do
+      expect(described_class.none.to_csv).to eq("Brand;Model;Nib;Color;Comment;Archived;Archived On;Usage\n")
+    end
+
+    it 'has the correct brand' do
+      expect(entry["Brand"]).to eq("Pilot")
+    end
+
+    it 'has the correct model' do
+      expect(entry["Model"]).to eq("Custom 74")
+    end
+
+    it 'has the correct Nib' do
+      expect(entry["Nib"]).to eq("M")
+    end
+
+    it 'has the correct Color' do
+      expect(entry["Color"]).to eq("orange")
+    end
+
+    it 'has the correct Comment' do
+      collected_pen.update(comment: 'comment')
+      expect(entry["Comment"]).to eq("comment")
+    end
+
+    it 'has the correct value when archived' do
+      collected_pen.update(archived_on: Date.today)
+      expect(entry["Archived"]).to eq("true")
+    end
+
+    it 'has the correct value when not archived' do
+      collected_pen.update(archived_on: nil)
+      expect(entry["Archived"]).to eq("false")
+    end
+
+    it 'has the correct value for archived on' do
+      date = Date.today
+      collected_pen.update(archived_on: date)
+      expect(entry["Archived On"]).to eq(date.to_s(:db))
+    end
+
+    it 'has the correct value for Usage' do
+      CurrentlyInked.create!(
+        collected_ink: collected_inks(:monis_marine),
+        collected_pen: collected_pen,
+        user: collected_pen.user
+      )
+      CurrentlyInked.create!(
+        collected_ink: collected_inks(:monis_fire_and_ice),
+        collected_pen: collected_pen,
+        user: collected_pen.user,
+        archived_on: Date.today
+      )
+      expect(entry['Usage']).to eq('2')
+    end
+  end
 end

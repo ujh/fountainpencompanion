@@ -1,5 +1,3 @@
-require 'csv'
-
 class CollectedInksController < ApplicationController
   before_action :authenticate_user!
   deserializable_resource :collected_ink, only: [:create, :update]
