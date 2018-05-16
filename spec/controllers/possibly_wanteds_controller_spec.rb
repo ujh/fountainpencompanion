@@ -1,12 +1,11 @@
 require 'rails_helper'
 
-describe PossiblyWantedsController do
-
-  fixtures :users
+RSpec.describe PossiblyWantedsController do
+  let(:user) { create(:user) }
 
   describe '#show' do
     it 'requires authentication' do
-      get :show, params: { user_id: users(:moni).id }
+      get :show, params: { user_id: user.id }
       expect(response).to redirect_to(new_user_session_path)
     end
   end

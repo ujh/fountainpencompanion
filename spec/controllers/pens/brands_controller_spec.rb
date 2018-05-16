@@ -1,7 +1,13 @@
 require 'rails_helper'
 
 describe Pens::BrandsController do
-  fixtures :collected_pens
+  let(:user) { create(:user) }
+  let(:wing_sung) { create(:collected_pen, user: user, brand: 'Wing Sung') }
+  let(:custom74) { create(:collected_pen, user: user, brand: 'Pilot', model: 'Custom 74', nib: 'M', color: 'Orange') }
+  let(:platinum) { create(:collected_pen, brand: 'Platinum', model: '3776 Chartres') }
+  let(:pens) { [wing_sung, custom74, platinum] }
+
+  before { pens }
 
   describe '#index' do
 

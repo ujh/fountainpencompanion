@@ -1,10 +1,12 @@
 require 'rails_helper'
 
 describe CollectedPensController do
-  fixtures :collected_pens, :users
   render_views
 
-  let(:user) { users(:moni) }
+  let(:user) { create(:user) }
+  let!(:wing_sung) { create(:collected_pen, user: user) }
+  let!(:custom74) { create(:collected_pen, user: user, brand: 'Pilot', model: 'Custom 74', nib: 'M', color: 'Orange') }
+  let!(:platinum) { create(:collected_pen, brand: 'Platinum', model: '3776 Chartres') }
 
   describe '#index' do
     it 'requires authentication' do
@@ -19,18 +21,17 @@ describe CollectedPensController do
 
       it 'renders the users pens' do
         get :index
-        ws = collected_pens(:monis_wing_sung)
         expect(response).to be_successful
-        expect(response.body).to include(ws.brand)
-        expect(response.body).to include(ws.model)
+        expect(response.body).to include(wing_sung.brand)
+        expect(response.body).to include(wing_sung.model)
       end
 
       it 'renders the csv export' do
         get :index, format: "csv"
         expect(response).to be_successful
-        csv = CSV.generate(col_sep: ";") do |csv|
+        expected_csv = CSV.generate(col_sep: ";") do |csv|
           csv << ["Brand", "Model", "Nib", "Color", "Comment", "Archived", "Archived On", "Usage"]
-          [collected_pens(:monis_pilot_custom_74), collected_pens(:monis_wing_sung)].each do |cp|
+          [custom74, wing_sung].each do |cp|
             csv << [
               cp.brand,
               cp.model,
@@ -43,7 +44,7 @@ describe CollectedPensController do
             ]
           end
         end
-        expect(response.body).to eq(csv)
+        expect(response.body).to eq(expected_csv)
       end
     end
   end
@@ -67,7 +68,6 @@ describe CollectedPensController do
             brand: 'Pelikan',
             model: 'M205'
           }}
-          collected_pen = CollectedPen.order(:id).last
           expect(response).to redirect_to(collected_pens_path(anchor: "add-form"))
         end.to change { user.collected_pens.count }.by(1)
         collected_pen = user.collected_pens.order(:id).last
@@ -81,7 +81,6 @@ describe CollectedPensController do
             brand: ' Pelikan ',
             model: ' M205 '
           }}
-          collected_pen = CollectedPen.order(:id).last
           expect(response).to redirect_to(collected_pens_path(anchor: "add-form"))
         end.to change { user.collected_pens.count }.by(1)
         collected_pen = user.collected_pens.order(:id).last
@@ -93,13 +92,11 @@ describe CollectedPensController do
 
   describe '#update' do
 
-    let(:collected_pen) { collected_pens(:monis_wing_sung) }
-
     it 'requires authentication' do
       expect do
-        put :update, params: { id: collected_pen.id, collected_pen: { brand: 'Not Wing Sung' } }
+        put :update, params: { id: wing_sung.id, collected_pen: { brand: 'Not Wing Sung' } }
         expect(response).to redirect_to(new_user_session_path)
-      end.to_not change { collected_pen.reload }
+      end.to_not change { wing_sung.reload }
     end
 
     context 'signed in' do
@@ -109,27 +106,25 @@ describe CollectedPensController do
 
       it 'updates the pen' do
         expect do
-          put :update, params: { id: collected_pen.id, collected_pen: { brand: 'Not Wing Sung' } }
-          expect(response).to redirect_to(collected_pens_path(anchor: collected_pen.id))
-        end.to change { collected_pen.reload.brand }.from('Wing Sung').to('Not Wing Sung')
+          put :update, params: { id: wing_sung.id, collected_pen: { brand: 'Not Wing Sung' } }
+          expect(response).to redirect_to(collected_pens_path(anchor: wing_sung.id))
+        end.to change { wing_sung.reload.brand }.from('Wing Sung').to('Not Wing Sung')
       end
 
       it 'strips out whitespace' do
         expect do
-          put :update, params: { id: collected_pen.id, collected_pen: { brand: ' Not Wing Sung ' } }
-          expect(response).to redirect_to(collected_pens_path(anchor: collected_pen.id))
-        end.to change { collected_pen.reload.brand }.from('Wing Sung').to('Not Wing Sung')
+          put :update, params: { id: wing_sung.id, collected_pen: { brand: ' Not Wing Sung ' } }
+          expect(response).to redirect_to(collected_pens_path(anchor: wing_sung.id))
+        end.to change { wing_sung.reload.brand }.from('Wing Sung').to('Not Wing Sung')
       end
     end
   end
 
   describe '#destroy' do
 
-    let(:collected_pen) { collected_pens(:monis_wing_sung) }
-
     it 'requires authentication' do
       expect do
-        delete :destroy, params: { id: collected_pen.id }
+        delete :destroy, params: { id: wing_sung.id }
         expect(response).to redirect_to(new_user_session_path)
       end.to_not change { CollectedPen.count }
     end
@@ -141,15 +136,14 @@ describe CollectedPensController do
 
       it 'deletes the collected pen' do
         expect do
-          delete :destroy, params: { id: collected_pen.id }
+          delete :destroy, params: { id: wing_sung.id }
           expect(response).to redirect_to(collected_pens_path)
         end.to change { CollectedPen.count }.by(-1)
       end
 
       it 'does not delete other users pens' do
-        collected_pen = collected_pens(:toms_platinum)
         expect do
-          delete :destroy, params: { id: collected_pen.id }
+          delete :destroy, params: { id: platinum.id }
           expect(response).to redirect_to(collected_pens_path)
         end.to_not change { CollectedPen.count }
       end

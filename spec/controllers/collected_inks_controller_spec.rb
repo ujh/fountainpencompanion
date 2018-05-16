@@ -2,10 +2,9 @@ require 'rails_helper'
 
 describe CollectedInksController do
 
-  fixtures :collected_inks, :users
   render_views
 
-  let(:user) { users(:moni) }
+  let(:user) { create(:user) }
 
   describe '#index' do
     it 'requires authentication' do
@@ -14,10 +13,25 @@ describe CollectedInksController do
     end
 
     context 'signed in' do
-      let(:ink) { collected_inks(:monis_marine) }
+      let(:user_inks) do
+        [
+          create(:collected_ink, user: user, ink_name: 'Marine'),
+          create(:collected_ink, user: user, ink_name: 'Syrah'),
+          create(:collected_ink, user: user, brand_name: 'Robert Oster', ink_name: 'Fire and Ice')
+        ]
+      end
+      let(:other_inks) do
+        [
+          create(:collected_ink, ink_name: 'Pumpkin'),
+          create(:collected_ink, ink_name: 'Twilight'),
+          create(:collected_ink, brand_name: 'Robert Oster', ink_name: 'Peppermint')
+        ]
+      end
 
-      before(:each) do
+      before do
         sign_in(user)
+        user_inks
+        other_inks
       end
 
       it 'renders the ink index page' do
@@ -28,7 +42,7 @@ describe CollectedInksController do
       it 'renders the CSV' do
         get :index, format: "csv"
         expect(response).to be_successful
-        csv = CSV.generate(col_sep: ";") do |csv|
+        expected_csv = CSV.generate(col_sep: ";") do |csv|
           csv << [
             "Brand",
             "Line",
@@ -41,8 +55,7 @@ describe CollectedInksController do
             "Archived",
             "Usage"
           ]
-          [:monis_marine, :monis_syrah, :monis_fire_and_ice].each do |k|
-            ci = collected_inks(k)
+          user_inks.each do |ci|
             csv << [
               ci.brand_name,
               ci.line_name,
@@ -57,14 +70,14 @@ describe CollectedInksController do
             ]
           end
         end
-        expect(response.body).to eq(csv)
+        expect(response.body).to eq(expected_csv)
       end
 
       it 'renders the JSON' do
         get :index, format: :jsonapi
         expect(response).to be_successful
-        expect(response.body).to include(ink.ink_name)
-        expect(response.body).to include(ink.brand_name)
+        expect(response.body).to include(user_inks.first.ink_name)
+        expect(response.body).to include(user_inks.first.brand_name)
       end
     end
   end
@@ -103,7 +116,6 @@ describe CollectedInksController do
         }}
         expect do
           post :create, params: { _jsonapi: payload }
-          collected_ink = CollectedInk.order(:id).last
           expect(response).to be_successful
         end.to change { user.collected_inks.count }.by(1)
         json = JSON.parse(response.body)
@@ -133,7 +145,6 @@ describe CollectedInksController do
         }}
         expect do
           post :create, params: { _jsonapi: payload }
-          collected_ink = CollectedInk.order(:id).last
           expect(response).to be_successful
         end.to change { user.collected_inks.count }.by(1)
         json = JSON.parse(response.body)
@@ -155,7 +166,7 @@ describe CollectedInksController do
 
   describe '#update' do
 
-    let(:collected_ink) { collected_inks(:monis_marine) }
+    let(:collected_ink) { create(:collected_ink, user: user) }
 
     it 'requires authentication' do
       expect do
@@ -166,7 +177,6 @@ describe CollectedInksController do
     end
 
     context 'signed in' do
-      let(:user) { users(:moni) }
 
       before(:each) do
         sign_in(user)
@@ -210,8 +220,9 @@ describe CollectedInksController do
   end
 
   describe '#destroy' do
+    let!(:collected_ink) { create(:collected_ink, user: user) }
+    let!(:other_users_ink) { create(:collected_ink) }
 
-    let(:collected_ink) { collected_inks(:monis_marine) }
     it 'requires authentication' do
       expect do
         delete :destroy, params: { id: collected_ink.id }
@@ -220,7 +231,6 @@ describe CollectedInksController do
     end
 
     describe 'signed in' do
-      let(:user) { users(:moni) }
 
       before(:each) do
         sign_in(user)
@@ -236,7 +246,7 @@ describe CollectedInksController do
       it 'does not delete other users inks' do
         expect do
           expect do
-            delete :destroy, params: { id: collected_inks(:toms_marine) }
+            delete :destroy, params: { id: other_users_ink.id }
           end.to raise_error(ActiveRecord::RecordNotFound)
         end.to_not change { CollectedInk.count }
       end

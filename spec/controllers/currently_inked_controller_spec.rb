@@ -4,13 +4,18 @@ describe CurrentlyInkedController do
 
   render_views
 
-  fixtures :collected_inks, :collected_pens, :users
-
-  let(:user) { users(:moni) }
-  let(:collected_pen) { collected_pens(:monis_wing_sung) }
-  let(:collected_ink) { collected_inks(:monis_marine) }
+  let(:user) { create(:user) }
+  let(:collected_pen) { create(:collected_pen, user: user) }
+  let(:collected_ink) { create(:collected_ink, user: user) }
 
   describe '#index' do
+
+    let!(:currently_inked) do
+      user.currently_inkeds.create!(
+        collected_ink: collected_ink,
+        collected_pen: collected_pen
+      )
+    end
 
     it 'requires authentication' do
       get :index
@@ -21,13 +26,6 @@ describe CurrentlyInkedController do
 
       before(:each) do
         sign_in(user)
-      end
-
-      let!(:currently_inked) do
-        user.currently_inkeds.create!(
-          collected_ink: collected_ink,
-          collected_pen: collected_pen
-        )
       end
 
       it 'renders the currently inkeds' do
@@ -71,9 +69,7 @@ describe CurrentlyInkedController do
         expect(currently_inked.collected_ink).to eq(collected_ink)
         expect(currently_inked.collected_pen).to eq(collected_pen)
       end
-
     end
-
   end
 
   describe '#update' do
@@ -84,12 +80,13 @@ describe CurrentlyInkedController do
         collected_pen: collected_pen
       )
     end
+    let(:new_collected_ink) { create(:collected_ink, brand_name: 'Robert Oster', ink_name: 'Fire and Ice', user: user) }
 
     it 'requires authentication' do
       expect do
         put :update, params: { id: currently_inked.id, currently_inked: {
-          collected_ink_id: collected_inks(:monis_fire_and_ice)
-        }}
+          collected_ink_id: new_collected_ink.id
+        } }
         expect(response).to redirect_to(new_user_session_path)
       end.to_not change { collected_pen.reload }
     end
@@ -100,7 +97,6 @@ describe CurrentlyInkedController do
         sign_in(user)
       end
 
-      let(:new_collected_ink) { collected_inks(:monis_fire_and_ice) }
       it 'updates the data' do
         expect do
           put :update, params: { id: currently_inked.id, currently_inked: {
@@ -162,12 +158,13 @@ describe CurrentlyInkedController do
       end
 
       it 'does not delete data from other users' do
-        currently_inked = users(:tom).currently_inkeds.create!(
-          collected_ink: collected_inks(:toms_marine),
-          collected_pen: collected_pens(:toms_platinum)
+        other_user = create(:user)
+        other_currently_inked = other_user.currently_inkeds.create!(
+            collected_ink: create(:collected_ink, user: other_user),
+            collected_pen: create(:collected_pen, user: other_user)
         )
         expect do
-          delete :destroy, params: { id: currently_inked.id }
+          delete :destroy, params: { id: other_currently_inked.id }
           expect(response).to redirect_to(currently_inked_index_path)
         end.to_not change { CurrentlyInked.count }
       end

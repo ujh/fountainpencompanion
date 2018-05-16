@@ -1,14 +1,14 @@
 require 'rails_helper'
 
 describe BrandsController do
-  fixtures :collected_inks
 
-  pending '#index' do
+  describe '#index' do
 
     before(:each) do
-      # Trigger simplification
-      CollectedInk.all.map(&:save)
-      sleep 1
+      create_list(:collected_ink, 7, brand_name: 'Diamine')
+      create_list(:collected_ink, 2, brand_name: 'Robert Oster')
+      create(:collected_ink, brand_name: 'ROBERTOSTER ')
+      create(:collected_ink, brand_name: 'diamine?!?')
     end
 
     it 'returns all brands by default' do
