@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/ujh/fountainpencompanion.svg?branch=develop)](https://travis-ci.org/ujh/fountainpencompanion)
+[![Build Status](https://travis-ci.org/ujh/fountainpencompanion.svg?branch=develop)](https://travis-ci.org/ujh/fountainpencompanion) [![Maintainability](https://api.codeclimate.com/v1/badges/8940cb0993d2dad94e13/maintainability)](https://codeclimate.com/github/ujh/fountainpencompanion/maintainability)
 
 # Goals
 
