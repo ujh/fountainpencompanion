@@ -22,3 +22,10 @@ div class="table-responsive"
     tfoot
       - if @currently_inked&.new_record?
         tr id="add-form"= render partial: "form", locals: { f: f , currently_inked: @currently_inked }
+      tr
+        th= "#{currently_inkeds.size} pens"
+        th
+        th= "#{currently_inkeds.map(&:ink_simplified_name).uniq.length} inks"
+        th
+        th
+        th
