@@ -122,6 +122,10 @@ class CollectedInk < ApplicationRecord
     currently_inkeds.empty?
   end
 
+  def simplified_name
+    "#{simplified_brand_name}#{simplified_ink_name}"
+  end
+
   private
 
   def unique_constraint
