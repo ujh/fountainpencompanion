@@ -1,3 +1,5 @@
+require 'csv'
+
 class CurrentlyInked < ApplicationRecord
 
   include Archivable
@@ -20,6 +22,21 @@ class CurrentlyInked < ApplicationRecord
 
   after_initialize :set_default_inked_on
   before_save :update_nib
+
+  def self.to_csv
+    CSV.generate(col_sep: ";") do |csv|
+      csv << ["Pen", "Ink", "Date Inked", "Date Cleaned", "Comment"]
+      all.each do |ci|
+        csv << [
+          ci.pen_name,
+          ci.ink_name,
+          ci.inked_on,
+          ci.archived_on,
+          ci.comment
+        ]
+      end
+    end
+  end
 
   def name
     "#{ink_name} - #{pen_name}"
