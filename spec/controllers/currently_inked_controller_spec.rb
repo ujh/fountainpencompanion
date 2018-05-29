@@ -37,6 +37,22 @@ describe CurrentlyInkedController do
         expect(response.body).to include(collected_ink.name)
       end
 
+      it 'exports the csv' do
+        get :index, format: :csv
+        expect(response).to be_successful
+        csv = CSV.generate(col_sep: ";") do |csv|
+          csv << ["Pen", "Ink", "Date Inked", "Date Cleaned", "Comment"]
+          csv << [
+            currently_inked.pen_name,
+            currently_inked.ink_name,
+            currently_inked.inked_on,
+            currently_inked.archived_on,
+            currently_inked.comment
+          ]
+        end
+        expect(response.body).to eq(csv)
+      end
+
     end
 
   end

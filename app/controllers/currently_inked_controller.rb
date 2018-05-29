@@ -6,6 +6,13 @@ class CurrentlyInkedController < ApplicationController
   def index
     @currently_inked = CurrentlyInked.new(user: current_user)
     @archival_currently_inked = CurrentlyInked.new(user: current_user, archived_on: Date.today)
+    respond_to do |format|
+      format.html
+      format.csv do
+        cis = current_user.currently_inkeds.includes(:collected_pen, :collected_ink)
+        send_data cis.to_csv, type: "text/csv", filename: "currently_inked.csv"
+      end
+    end
   end
 
   def edit
