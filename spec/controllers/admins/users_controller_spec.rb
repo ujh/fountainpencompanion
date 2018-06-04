@@ -2,10 +2,7 @@ require 'rails_helper'
 require 'csv'
 
 describe Admins::UsersController do
-
-  fixtures :admins
-
-  let(:admin) { admins(:urban) }
+  let(:admin) { create(:admin) }
 
   describe '#index' do
     it 'requires authentication' do
@@ -26,8 +23,6 @@ describe Admins::UsersController do
   end
 
   describe '#import' do
-    fixtures :users
-
     let(:csv) do
       name = Rails.root.join('tmp', 'import.csv')
       CSV.open(name, 'w') do |csv|
@@ -39,7 +34,7 @@ describe Admins::UsersController do
       name
     end
     let(:file_upload) { fixture_file_upload(csv) }
-    let(:user) { users(:moni) }
+    let(:user) { create(:user) }
 
     it 'requires authentication' do
       post :import, params: { id: user.id, file: file_upload }

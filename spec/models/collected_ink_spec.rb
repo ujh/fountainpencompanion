@@ -17,9 +17,7 @@ describe CollectedInk do
   end
 
   describe 'uniqueness' do
-    fixtures :collected_inks, :users
-
-    let(:existing_ink) { collected_inks(:monis_syrah) }
+    let(:existing_ink) { create(:collected_ink, ink_name: 'Syrah') }
 
     it 'is not allowed to create a duplicate collected ink for the same user' do
       new_ink = CollectedInk.new(
@@ -46,7 +44,7 @@ describe CollectedInk do
 
     it 'is allowed to create the same ink for another user' do
       new_ink = CollectedInk.new(
-        user_id: users(:tom).id,
+        user_id: create(:user).id,
         brand_name: existing_ink.brand_name,
         line_name: existing_ink.line_name,
         ink_name: existing_ink.ink_name
@@ -64,15 +62,12 @@ describe CollectedInk do
       )
       expect(new_ink).to_not be_valid
     end
-
   end
 
   context 'simplified fields' do
-
-    fixtures :users
     let(:collected_ink) do
       CollectedInk.create!(
-        user_id: users(:moni).id,
+        user_id: create(:user).id,
         brand_name: 'Sailor',
         line_name: 'Jentle',
         ink_name: 'Doyou'
@@ -95,10 +90,7 @@ describe CollectedInk do
   end
 
   describe '#brand_count' do
-
-    fixtures :users
-
-    let(:user) { User.first }
+    let(:user) { create(:user) }
 
     before(:each) do
       CollectedInk.delete_all
@@ -113,10 +105,7 @@ describe CollectedInk do
   end
 
   describe '#to_csv' do
-
-    fixtures :collected_inks, :collected_pens, :users
-
-    let(:collected_ink) { collected_inks(:monis_fire_and_ice) }
+    let(:collected_ink) { create(:collected_ink, brand_name: 'Robert Oster', line_name: 'Signature', ink_name: 'Fire & Ice', kind: 'bottle', color: '#cdcdcd') }
     let(:csv) do
       CSV.parse(CollectedInk.where(id: [collected_ink.id]).to_csv, headers: true, col_sep: ";")
     end
@@ -170,12 +159,12 @@ describe CollectedInk do
     it 'has the correct value for Usage' do
       CurrentlyInked.create!(
         collected_ink: collected_ink,
-        collected_pen: collected_pens(:monis_wing_sung),
+        collected_pen: create(:collected_pen, user: collected_ink.user),
         user: collected_ink.user
       )
       CurrentlyInked.create!(
         collected_ink: collected_ink,
-        collected_pen: collected_pens(:monis_pilot_custom_74),
+        collected_pen: create(:collected_pen, user: collected_ink.user),
         user: collected_ink.user,
         archived_on: Date.today
       )

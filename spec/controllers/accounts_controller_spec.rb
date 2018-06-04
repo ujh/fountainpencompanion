@@ -2,7 +2,6 @@ require 'rails_helper'
 
 describe AccountsController do
 
-  fixtures :users
   render_views
 
   describe '#show' do
@@ -14,7 +13,7 @@ describe AccountsController do
 
     context 'signed in' do
 
-      let(:user) { users(:moni) }
+      let(:user) { create(:user) }
 
       before(:each) do
         sign_in(user)

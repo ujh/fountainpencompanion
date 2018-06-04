@@ -33,17 +33,22 @@ describe CollectedPen do
   end
 
   describe '#search' do
-    fixtures :collected_pens
+    let(:pens) do
+      [
+        create(:collected_pen),
+        create(:collected_pen, brand: 'Platinum', model: '3776', nib: 'XF', color: 'pink'),
+        create(:collected_pen, brand: 'Pilot', model: 'Custom 74', nib: 'M', color: 'orange')
+      ]
+    end
 
+    before { pens }
     it 'finds matching entries by substring search' do
       expect(described_class.search(:brand, 'P')).to eq(["Pilot", "Platinum"])
     end
   end
 
   describe '#to_csv' do
-    fixtures :collected_inks, :collected_pens, :users
-
-    let(:collected_pen) { collected_pens(:monis_pilot_custom_74) }
+    let(:collected_pen) { create(:collected_pen, brand: 'Pilot', model: 'Custom 74', nib: 'M', color: 'orange') }
     let(:csv) do
       CSV.parse(described_class.where(id: [collected_pen.id]).to_csv, headers: true, col_sep: ";")
     end
@@ -92,12 +97,12 @@ describe CollectedPen do
 
     it 'has the correct value for Usage' do
       CurrentlyInked.create!(
-        collected_ink: collected_inks(:monis_marine),
+        collected_ink: create(:collected_ink, user: collected_pen.user, ink_name: 'Twilight'),
         collected_pen: collected_pen,
         user: collected_pen.user
       )
       CurrentlyInked.create!(
-        collected_ink: collected_inks(:monis_fire_and_ice),
+        collected_ink: create(:collected_ink, user: collected_pen.user, ink_name: 'Pumpkin'),
         collected_pen: collected_pen,
         user: collected_pen.user,
         archived_on: Date.today
