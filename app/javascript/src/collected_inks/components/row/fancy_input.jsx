@@ -179,7 +179,8 @@ class InputComponent extends React.Component {
 
   setupAutocomplete() {
     $(this.input).autocomplete({
-      source: this.props.suggestions
+      source: this.props.suggestions,
+      minLength: 4
     })
     $(this.input).on("autocompletechange", (e) => {
       // Otherwise clicking on an autocomplete entry won't work
