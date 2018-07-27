@@ -7,6 +7,7 @@ class SaveCollectedInk
 
   def perform
     res = collected_ink.update(collected_ink_params)
+    update_ink_brand!
     update_color_of_unset_twins!
     collected_ink.reload if res # to return the updated color
     res
@@ -16,6 +17,14 @@ class SaveCollectedInk
 
   attr_accessor :collected_ink
   attr_accessor :collected_ink_params
+
+  def update_ink_brand!
+    ink_brand = InkBrand.find_or_create_by(simplified_name: collected_ink.simplified_brand_name)
+    collected_ink.update(ink_brand: ink_brand)
+    ink_brand.update_popular_name!
+  rescue ActiveRecord::RecordNotUnique
+    retry
+  end
 
   def update_color_of_unset_twins!
     unset_twins.update_all(color: average_color) if twins_with_color.exists?

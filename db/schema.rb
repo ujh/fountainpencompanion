@@ -10,11 +10,9 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2018_05_07_063532) do
+ActiveRecord::Schema.define(version: 2018_07_26_061424) do
 
   # These are extensions that must be enabled in order to support this database
-  enable_extension "cube"
-  enable_extension "earthdistance"
   enable_extension "plpgsql"
 
   create_table "admins", force: :cascade do |t|
@@ -55,7 +53,9 @@ ActiveRecord::Schema.define(version: 2018_05_07_063532) do
     t.boolean "swabbed", default: false, null: false
     t.boolean "used", default: false, null: false
     t.date "archived_on"
+    t.bigint "ink_brand_id"
     t.index ["brand_name"], name: "index_collected_inks_on_brand_name"
+    t.index ["ink_brand_id"], name: "index_collected_inks_on_ink_brand_id"
     t.index ["ink_name"], name: "index_collected_inks_on_ink_name"
     t.index ["line_name"], name: "index_collected_inks_on_line_name"
     t.index ["simplified_ink_name"], name: "index_collected_inks_on_simplified_ink_name"
@@ -88,6 +88,14 @@ ActiveRecord::Schema.define(version: 2018_05_07_063532) do
     t.index ["user_id"], name: "index_currently_inked_on_user_id"
   end
 
+  create_table "ink_brands", force: :cascade do |t|
+    t.text "simplified_name"
+    t.text "popular_name"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["simplified_name"], name: "index_ink_brands_on_simplified_name", unique: true
+  end
+
   create_table "users", id: :serial, force: :cascade do |t|
     t.string "email", default: "", null: false
     t.string "encrypted_password", default: "", null: false
@@ -112,6 +120,7 @@ ActiveRecord::Schema.define(version: 2018_05_07_063532) do
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
 
+  add_foreign_key "collected_inks", "ink_brands"
   add_foreign_key "collected_inks", "users"
   add_foreign_key "collected_pens", "users"
   add_foreign_key "currently_inked", "collected_inks"
