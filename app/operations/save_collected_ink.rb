@@ -19,11 +19,7 @@ class SaveCollectedInk
   attr_accessor :collected_ink_params
 
   def update_ink_brand!
-    ink_brand = InkBrand.find_or_create_by(simplified_name: collected_ink.simplified_brand_name)
-    collected_ink.update(ink_brand: ink_brand)
-    ink_brand.update_popular_name!
-  rescue ActiveRecord::RecordNotUnique
-    retry
+    UpdateInkBrand.new(collected_ink).perform
   end
 
   def update_color_of_unset_twins!
