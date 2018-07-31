@@ -2,7 +2,7 @@ class InkBrand < ApplicationRecord
   has_many :collected_inks
 
   def self.public
-    joins(:collected_inks).where(collected_inks: {private: false}).distinct("ink_brands.id")
+    joins(:collected_inks).where(collected_inks: {private: false}).distinct("ink_brands.popular_name")
   end
 
   def update_popular_name!

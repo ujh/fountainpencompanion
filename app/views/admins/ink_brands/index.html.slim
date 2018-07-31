@@ -1,0 +1,8 @@
+table class="table table-striped"
+  tr
+    th Popular Name
+    th Names
+  - @ink_brands.each do |ink_brand|
+    tr
+      td= ink_brand.popular_name
+      td= ink_brand.collected_inks.map(&:brand_name).uniq.sort.join(", ")
