@@ -17,6 +17,6 @@ class UpdateInkBrand
   attr_accessor :collected_ink
 
   def simplified_name
-    collected_ink.simplified_brand_name
+    Simplifier.simplify(collected_ink.brand_name)
   end
 end
