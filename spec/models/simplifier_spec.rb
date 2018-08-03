@@ -43,6 +43,14 @@ describe Simplifier do
       expect(described_class.simplify("XX P.W. Akkerman")).to eq("xxpwakkerman")
     end
 
+    it "does not remove 3 or more initials" do
+      expect(described_class.simplify("P.W.X. Akkerman")).to eq("pwxakkerman")
+    end
+
+    it "does not remove 4 initals" do
+      expect(described_class.simplify("B.Y.O.B Pen Club")).to eq("byobpenclub")
+    end
+
     it "only keeps letters and numbers" do
       expect(described_class.simplify("Abc123,.;")).to eq("abc123")
     end
