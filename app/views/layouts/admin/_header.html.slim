@@ -11,5 +11,6 @@ nav class="navbar navbar-default navbar-fixed-top" id="header"
       ul class="nav navbar-nav"
         li= link_to "Dashboard", admins_dashboard_path
         li= link_to "Users", admins_users_path
+        li= link_to "InkBrands", admins_ink_brands_path
       ul class="nav navbar-nav navbar-right"
         li= link_to "Logout", destroy_admin_session_path, method: :delete
