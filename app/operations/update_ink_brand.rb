@@ -14,13 +14,22 @@ class UpdateInkBrand
 
   attr_accessor :collected_ink
 
+  THRESHOLD = 2
+
   def find_ink_brand
-    InkBrand.find_or_create_by(simplified_name: simplified_name)
+    ink_brand = InkBrand.where(
+      "levenshtein_less_equal(simplified_name, ?, ?) <= ?",
+      simplified_name,
+      THRESHOLD,
+      THRESHOLD
+    ).first
+    ink_brand ||= InkBrand.find_or_create_by(simplified_name: simplified_name)
+    ink_brand
   rescue ActiveRecord::RecordNotUnique
     retry
   end
 
   def simplified_name
-    Simplifier.simplify(collected_ink.brand_name)
+    @simplified_name ||= Simplifier.simplify(collected_ink.brand_name)
   end
 end

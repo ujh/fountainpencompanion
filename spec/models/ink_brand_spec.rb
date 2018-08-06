@@ -13,6 +13,7 @@ describe InkBrand do
       subject.update_popular_name!
       expect(subject.popular_name).to eq('Two')
     end
+
   end
 
   describe '#public' do
