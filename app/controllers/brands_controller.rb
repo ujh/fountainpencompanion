@@ -2,7 +2,7 @@ class BrandsController < ApplicationController
   def index
     respond_to do |format|
       format.jsonapi {
-        brands = Brand.search(params[:term])
+        brands = InkBrand.public.order(:popular_name)
         render jsonapi: brands
       }
       format.html {

@@ -6,7 +6,7 @@ class InkBrand < ApplicationRecord
   end
 
   def update_popular_name!
-    popular_name = collected_inks.group(:brand_name).order('count(id) DESC').limit(1).pluck(:brand_name).first
+    popular_name = collected_inks.group(:brand_name).order(Arel.sql('count(id) DESC')).limit(1).pluck(:brand_name).first
     update(popular_name: popular_name)
   end
 end
