@@ -28,7 +28,7 @@
     "karma-phantomjs-launcher": "^1.0.4",
     "karma-sinon": "^1.0.5",
     "karma-sourcemap-loader": "^0.3.7",
-    "karma-webpack": "^3.0.0",
+    "karma-webpack": "^3.0.2",
     "mocha": "^5.2.0",
     "sinon": "^5.1.1",
     "webpack-dev-server": "^3.1.5"
