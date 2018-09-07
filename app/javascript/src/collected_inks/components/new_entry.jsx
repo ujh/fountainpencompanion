@@ -12,6 +12,7 @@ import Color from "./row/color";
 import Swabbed from "./row/swabbed";
 import Used from "./row/used";
 import Comment from "./row/comment";
+import Maker from "./row/maker";
 
 class NewEntry extends React.Component {
 
@@ -32,6 +33,7 @@ class NewEntry extends React.Component {
       used: false,
       comment: '',
       archived: false,
+      maker: ''
     };
   }
 
@@ -85,6 +87,10 @@ class NewEntry extends React.Component {
     this.setState({comment: value})
   }
 
+  onChangeMaker = (value) => {
+    this.setState({maker: value})
+  }
+
   render() {
     const state = this.state;
     return <tr>
@@ -92,6 +98,7 @@ class NewEntry extends React.Component {
       <td className="new-entry"><Brand onlyEdit brand={state.brand_name} onChange={this.onChangeBrand}/></td>
       <td className="new-entry"><Line onlyEdit line={state.line_name} onChange={this.onChangeLine} /></td>
       <td className="new-entry"><Ink onlyEdit ink={state.ink_name} onChange={this.onChangeInk} /></td>
+      <td className="new-entry"><Maker onlyEdit maker={state.maker} onChange={this.onChangeMaker} /></td>
       <td><Kind kind={state.kind} onChange={this.onChangeKind}/></td>
       <td><Color color={state.color} onChange={this.onChangeColor}/></td>
       <td><Swabbed swabbed={state.swabbed} onClick={this.onToggleSwabbed}/></td>
