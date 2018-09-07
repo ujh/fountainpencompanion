@@ -169,6 +169,11 @@ export const updateComment = (id, value) => (dispatch, getState) => {
   dispatch(filterData());
 }
 
+export const updateMaker = (id, value) => (dispatch, getState) => {
+  dispatch(updateField(id, "maker", value));
+  dispatch(filterData());
+}
+
 export const updateInk = (id, value) => (dispatch, getState) => {
   dispatch(updateField(id, "ink_name", value));
   dispatch(updateSuggestions());

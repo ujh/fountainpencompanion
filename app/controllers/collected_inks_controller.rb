@@ -55,6 +55,7 @@ class CollectedInksController < ApplicationController
       :swabbed,
       :used,
       :comment,
+      :maker
     )
   end
 

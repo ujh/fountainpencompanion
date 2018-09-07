@@ -17,6 +17,7 @@ const Header = ({entries}) => <thead>
     <th>Brand</th>
     <th>Line</th>
     <th>Name</th>
+    <th>Maker</th>
     <th>Type</th>
     <th>Color</th>
     <th>Swabbed</th>
@@ -38,6 +39,7 @@ const Footer = ({brands, inks, bottles, samples, cartridges, newEntryForm}) => <
     <th>{brands} brands</th>
     <th></th>
     <th>{inks} inks</th>
+    <th></th>
     <th>
       {bottles}x bottle
       <br />

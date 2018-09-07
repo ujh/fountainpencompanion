@@ -14,6 +14,7 @@ class SerializableCollectedInk < JSONAPI::Serializable::Resource
   attribute :ink_name
   attribute :kind
   attribute :line_name
+  attribute :maker
   attribute :private
   attribute :simplified_brand_name
   attribute :simplified_ink_name
