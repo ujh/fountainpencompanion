@@ -24,3 +24,15 @@
 @import "public-inks";
 @import "collected_pens";
 @import "currently_inked";
+
+#patreon {
+    background-color: rgb(249, 104, 84);
+    margin-top: -10px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    text-align: center;
+    a {
+        color: white;
+        font-weight: bold;
+    }
+}
