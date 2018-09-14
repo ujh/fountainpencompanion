@@ -22,8 +22,11 @@ class UpdateNewInkName
       simplified_name,
       THRESHOLD,
       THRESHOLD
-    ).first
-    new_ink_name ||= NewInkName.find_or_create_by(simplified_name: simplified_name)
+    ).where(ink_brand_id: ink_brand_id).first
+    new_ink_name ||= NewInkName.find_or_create_by(
+      simplified_name: simplified_name,
+      ink_brand_id: ink_brand_id
+    )
     new_ink_name
   rescue ActiveRecord::RecordNotUnique
     retry
@@ -31,6 +34,10 @@ class UpdateNewInkName
 
   def simplified_name
     @simplified_name ||= Simplifier.brand(collected_ink.brand_name)
+  end
+
+  def ink_brand_id
+    @ink_brand_id ||= collected_ink.ink_brand_id
   end
 
 end
