@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2018_09_07_143946) do
+ActiveRecord::Schema.define(version: 2018_09_14_062442) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "fuzzystrmatch"
@@ -56,6 +56,7 @@ ActiveRecord::Schema.define(version: 2018_09_07_143946) do
     t.date "archived_on"
     t.bigint "ink_brand_id"
     t.text "maker", default: ""
+    t.integer "new_ink_name_id"
     t.index ["brand_name"], name: "index_collected_inks_on_brand_name"
     t.index ["ink_brand_id"], name: "index_collected_inks_on_ink_brand_id"
     t.index ["ink_name"], name: "index_collected_inks_on_ink_name"
@@ -98,6 +99,15 @@ ActiveRecord::Schema.define(version: 2018_09_07_143946) do
     t.index ["simplified_name"], name: "index_ink_brands_on_simplified_name", unique: true
   end
 
+  create_table "new_ink_names", force: :cascade do |t|
+    t.text "simplified_name", null: false
+    t.text "popular_name", null: false
+    t.integer "ink_brand_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["simplified_name"], name: "index_new_ink_names_on_simplified_name", unique: true
+  end
+
   create_table "users", id: :serial, force: :cascade do |t|
     t.string "email", default: "", null: false
     t.string "encrypted_password", default: "", null: false
@@ -123,11 +133,13 @@ ActiveRecord::Schema.define(version: 2018_09_07_143946) do
   end
 
   add_foreign_key "collected_inks", "ink_brands"
+  add_foreign_key "collected_inks", "new_ink_names"
   add_foreign_key "collected_inks", "users"
   add_foreign_key "collected_pens", "users"
   add_foreign_key "currently_inked", "collected_inks"
   add_foreign_key "currently_inked", "collected_pens"
   add_foreign_key "currently_inked", "users"
+  add_foreign_key "new_ink_names", "ink_brands"
 
   create_view "brands",  sql_definition: <<-SQL
       SELECT collected_inks.simplified_brand_name,
