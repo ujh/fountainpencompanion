@@ -7,4 +7,4 @@ table class="table table-striped"
     tr
       td= ink_brand.popular_name
       td= ink_brand.collected_inks.map(&:brand_name).uniq.sort.join(", ")
-      td= ink_brand.new_ink_names.size
+      td= ink_brand.new_ink_names.count
