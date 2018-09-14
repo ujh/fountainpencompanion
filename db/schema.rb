@@ -101,7 +101,7 @@ ActiveRecord::Schema.define(version: 2018_09_14_062442) do
 
   create_table "new_ink_names", force: :cascade do |t|
     t.text "simplified_name", null: false
-    t.text "popular_name", null: false
+    t.text "popular_name"
     t.integer "ink_brand_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
