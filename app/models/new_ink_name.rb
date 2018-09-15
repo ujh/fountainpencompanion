@@ -3,6 +3,10 @@ class NewInkName < ApplicationRecord
   belongs_to :ink_brand, counter_cache: true
   has_many :collected_inks
 
+  def self.public
+    joins(:collected_inks).where(collected_inks: {private: false}).distinct("new_ink_names.popular_name")
+  end
+
   def update_popular_names!
     update(
       popular_name: find_popular_ink_name,
