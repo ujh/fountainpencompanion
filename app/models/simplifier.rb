@@ -1,16 +1,21 @@
 class Simplifier
 
-  def self.simplify(name)
+  def self.simplify(name, too_short: false)
     without_brackets = name.gsub(/\(.*\)/, '')
-    without_hashtag_number = without_brackets.gsub(/^#?\d+/, '')
-    without_no_at_beginning = without_hashtag_number.gsub(/^no\s*\.\s*\d+/i, '')
-    without_initials = remove_initials(without_no_at_beginning)
+    without_no = without_brackets.gsub(/^no\s*\.\s*(\d+)/i, '\1')
+    without_no = without_no.gsub(/^#?\d+/, '') unless too_short
+    without_initials = remove_initials(without_no)
     without_ampersand = without_initials.gsub('&', 'and')
     without_non_english_letters = I18n.transliterate(without_ampersand)
     without_quotes_at_end = without_non_english_letters.gsub(/"([^"]*)"/, '')
     only_letters_and_numbers = without_quotes_at_end.gsub(/\W/, '')
     downcased = only_letters_and_numbers.downcase
-    downcased.present? ? downcased : name
+    return name unless downcased.present?
+    if !too_short && downcased.length < 5
+      simplify(name, too_short: true)
+    else
+      downcased
+    end
   end
 
   def self.remove_initials(name)
@@ -29,6 +34,10 @@ class Simplifier
     return "pilot" if name =~ /iroshizuku/i
     return "pilot" if name =~ /namiki/i
     return "kyototag" if name =~ /(^tag\s+)|(\s+tag$)|(^tag$)/i
+    self.simplify(name)
+  end
+
+  def self.ink_name(name)
     self.simplify(name)
   end
 

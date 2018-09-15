@@ -30,7 +30,7 @@ Rails.application.routes.draw do
 
   namespace :admins do
     resource :dashboard, only: [:show]
-    resources :ink_brands, only: [:index]
+    resources :ink_brands, only: [:index, :show]
     resources :users, only: [:index] do
       member do
         post 'become'

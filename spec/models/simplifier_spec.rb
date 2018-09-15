@@ -66,5 +66,20 @@ describe Simplifier do
     it "leaves an entry alone that has a number with a pound sign in front of it" do
       expect(described_class.simplify("#44")).to eq("#44")
     end
+
+    context "too short without numbers" do
+      it "leaves numbers if name too short" do
+        expect(described_class.simplify("23 - Guan")).to eq("23guan")
+      end
+
+      it "strips out the no." do
+        expect(described_class.simplify("no. 23 - Guan")).to eq("23guan")
+      end
+
+      it "strips out the hash mark" do
+        expect(described_class.simplify("#23 - Guan")).to eq("23guan")
+      end
+    end
+
   end
 end
