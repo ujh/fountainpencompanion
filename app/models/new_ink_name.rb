@@ -1,6 +1,6 @@
 class NewInkName < ApplicationRecord
 
-  belongs_to :ink_brand
+  belongs_to :ink_brand, counter_cache: true
   has_many :collected_inks
 
   def update_popular_name!
