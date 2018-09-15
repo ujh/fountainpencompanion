@@ -33,7 +33,7 @@ class UpdateNewInkName
   end
 
   def simplified_name
-    @simplified_name ||= Simplifier.brand(collected_ink.ink_name)
+    @simplified_name ||= Simplifier.ink_name(collected_ink.ink_name)
   end
 
   def ink_brand_id
