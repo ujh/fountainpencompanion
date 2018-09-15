@@ -7,7 +7,7 @@ class UpdateNewInkName
   def perform
     new_ink_name = find_new_ink_name
     collected_ink.update(new_ink_name: new_ink_name)
-    new_ink_name.update_popular_name!
+    new_ink_name.update_popular_names!
   end
 
   private
