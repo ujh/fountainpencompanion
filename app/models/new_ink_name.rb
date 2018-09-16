@@ -7,6 +7,10 @@ class NewInkName < ApplicationRecord
     joins(:collected_inks).where(collected_inks: {private: false}).distinct("new_ink_names.popular_name")
   end
 
+  def brand_name
+    ink_brand.popular_name
+  end
+
   def update_popular_names!
     update(
       popular_name: find_popular_ink_name,
