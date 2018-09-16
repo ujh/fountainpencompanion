@@ -6,13 +6,14 @@ class BrandsController < ApplicationController
         render jsonapi: brands
       }
       format.html {
-        @brands = Brand.order(:popular_name).where.not(simplified_brand_name: "")
+        @brands = InkBrand.public.order(:popular_name)
       }
     end
   end
 
   def show
-    @inks = Ink.where(simplified_brand_name: params[:id]).order("simplified_line_name, popular_ink_name")
+    @brand = InkBrand.find(params[:id])
+    @inks = @brand.new_ink_names.public.order("popular_line_name, popular_name")
   end
 
 end

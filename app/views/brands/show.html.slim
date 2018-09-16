@@ -1,4 +1,4 @@
-- content_for :title, "#{CollectedInk.unique_inks_per_brand(params[:id])} inks"
+- content_for :title, "#{@brand.new_ink_names.size} inks"
 
 div class="table-responsive"
   table class="table table-striped"
@@ -11,7 +11,7 @@ div class="table-responsive"
     tbody
       - @inks.each do |ink|
         tr
-          td= ink.count
-          td= ink.popular_brand_name
+          td= ink.collected_inks.size
+          td= ink.brand_name
           td= ink.popular_line_name
-          td= ink.popular_ink_name
+          td= ink.popular_name
