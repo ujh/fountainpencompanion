@@ -95,10 +95,7 @@ class CollectedInk < ApplicationRecord
   end
 
   def twins
-    self.class.where(
-      simplified_brand_name: simplified_brand_name,
-      simplified_ink_name: simplified_ink_name
-    )
+    self.class.where(new_ink_name_id: new_ink_name_id)
   end
 
   def name
