@@ -21,7 +21,7 @@ class UpdateColor
   end
 
   def average_color
-    Color.new([:red, :green, :blue].map {|f| average_for(colors_of_twins, f)}).html
+    Color::RGB.new(*[:red, :green, :blue].map {|f| average_for(colors_of_twins, f)}).html
   end
 
   def colors_of_twins
