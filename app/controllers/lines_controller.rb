@@ -1,6 +1,5 @@
 class LinesController < ApplicationController
   def index
-    lines = Line.search(params[:term]).pluck(:popular_line_name).reject(&:blank?)
-    render json: lines
+    render json: NewInkName.search_line_names(params[:term])
   end
 end

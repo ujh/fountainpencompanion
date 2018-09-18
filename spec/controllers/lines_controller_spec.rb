@@ -16,7 +16,7 @@ describe LinesController do
     end
 
     before(:each) do
-      inks # Load all the inks into the database
+      inks.each {|ci| SaveCollectedInk.new(ci, {}).perform }
     end
 
     it 'returns all lines by default' do

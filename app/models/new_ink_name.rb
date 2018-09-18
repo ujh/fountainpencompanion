@@ -7,6 +7,15 @@ class NewInkName < ApplicationRecord
     joins(:collected_inks).where(collected_inks: {private: false}).distinct("new_ink_names.popular_name")
   end
 
+  def self.search_line_names(term)
+    public.where("popular_line_name ILIKE ?", "%#{term}%").distinct("new_ink_names.popular_line_name").order(:popular_line_name).pluck(:popular_line_name).reject(&:blank?)
+  end
+
+  def self.search_names(term)
+    simplified_term = Simplifier.simplify(term.to_s)
+    public.where("simplified_name LIKE ?", "%#{simplified_term}%").order(:popular_name).pluck(:popular_name)
+  end
+
   def brand_name
     ink_brand.popular_name
   end

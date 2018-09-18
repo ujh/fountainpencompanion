@@ -34,14 +34,14 @@ describe BrandsController do
     it 'filters by term' do
       get :index, params: { term: 'Dia' }, format: :jsonapi
       expect(response).to be_successful
-      expect(JSON.parse(response.body)["data"]).to include(
+      expect(JSON.parse(response.body)["data"]).to match_array([
         include(
           "type" => "brands",
           "attributes" => {
             "popular_name"=>"Diamine"
           }
         )
-      )
+      ])
     end
   end
 end
