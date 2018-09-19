@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2018_09_18_051116) do
+ActiveRecord::Schema.define(version: 2018_09_19_200529) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "fuzzystrmatch"
@@ -145,53 +145,4 @@ ActiveRecord::Schema.define(version: 2018_09_18_051116) do
   add_foreign_key "currently_inked", "collected_pens"
   add_foreign_key "currently_inked", "users"
   add_foreign_key "new_ink_names", "ink_brands"
-
-  create_view "brands",  sql_definition: <<-SQL
-      SELECT collected_inks.simplified_brand_name,
-      ( SELECT ci.brand_name
-             FROM collected_inks ci
-            WHERE ((ci.simplified_brand_name)::text = (collected_inks.simplified_brand_name)::text)
-            GROUP BY ci.brand_name
-            ORDER BY (count(*)) DESC
-           LIMIT 1) AS popular_name
-     FROM collected_inks
-    WHERE (collected_inks.private = false)
-    GROUP BY collected_inks.simplified_brand_name;
-  SQL
-
-  create_view "inks",  sql_definition: <<-SQL
-      SELECT count(*) AS count,
-      collected_inks.simplified_brand_name,
-      ( SELECT ci.simplified_line_name
-             FROM collected_inks ci
-            WHERE (((ci.simplified_brand_name)::text = (collected_inks.simplified_brand_name)::text) AND ((ci.simplified_ink_name)::text = (collected_inks.simplified_ink_name)::text))
-            GROUP BY ci.simplified_line_name
-            ORDER BY (count(*)) DESC
-           LIMIT 1) AS simplified_line_name,
-      collected_inks.simplified_ink_name,
-      ( SELECT ci.ink_name
-             FROM collected_inks ci
-            WHERE (((ci.simplified_brand_name)::text = (collected_inks.simplified_brand_name)::text) AND ((ci.simplified_ink_name)::text = (collected_inks.simplified_ink_name)::text))
-            GROUP BY ci.ink_name
-            ORDER BY (count(*)) DESC
-           LIMIT 1) AS popular_ink_name
-     FROM collected_inks
-    WHERE (collected_inks.private = false)
-    GROUP BY collected_inks.simplified_brand_name, collected_inks.simplified_ink_name;
-  SQL
-
-  create_view "lines",  sql_definition: <<-SQL
-      SELECT collected_inks.simplified_brand_name,
-      collected_inks.simplified_line_name,
-      ( SELECT ci.line_name
-             FROM collected_inks ci
-            WHERE (((ci.simplified_brand_name)::text = (collected_inks.simplified_brand_name)::text) AND ((ci.simplified_line_name)::text = (collected_inks.simplified_line_name)::text))
-            GROUP BY ci.line_name
-            ORDER BY (count(*)) DESC
-           LIMIT 1) AS popular_line_name
-     FROM collected_inks
-    WHERE (collected_inks.private = false)
-    GROUP BY collected_inks.simplified_brand_name, collected_inks.simplified_line_name;
-  SQL
-
 end
