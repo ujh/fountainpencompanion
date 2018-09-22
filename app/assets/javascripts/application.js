@@ -20,3 +20,10 @@
 $(function () {
   $('[data-toggle="tooltip"]').tooltip()
 })
+
+$(function() {
+  $('#new-public-inks').each(function() {
+    renderPublicInks(this)
+  })
+
+})

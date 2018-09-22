@@ -25,6 +25,8 @@
 @import "collected_pens";
 @import "currently_inked";
 
+@import "../../../node_modules/react-table/react-table";
+
 #patreon {
     background-color: rgb(249, 104, 84);
     margin-top: -10px;

@@ -12,5 +12,4 @@ div id="account"
       div class="row"
         div class="col-xs-12 blurb"= Slodown::Formatter.new(@user.blurb).complete.to_s.html_safe
 
-div id="public-inks" class="col-xs-12"
-  = render partial: "ink_collection/table", locals: { ink_collection: @user.public_inks }
+div id="new-public-inks" class="col-xs-12"
