@@ -5,25 +5,33 @@ import Table from "./table";
 export default class App extends React.Component {
   constructor(props) {
     super(props);
-     this.state = { data: [] }
+     this.state = { userData: [] }
   }
 
   componentDidMount() {
-    getRequest(location.href).then(
-      response => response.json()
-    ).then(
-      json => this.processData(json)
-    )
+    getUserData(data => this.setState({userData: data}))
   }
 
-  processData(jsonResponse) {
-    let processedData = jsonResponse.included.filter(
-      e => e.type == 'collected_inks'
-    ).map(e => e.attributes);
-    this.setState({data: processedData})
+  tableData() {
+    return this.state.userData;
   }
 
   render() {
-    return <Table data={this.state.data} />
+    return <Table data={this.tableData()} />
   }
+}
+
+function getUserData(callback) {
+  getRequest(location.href).then(
+    response => response.json()
+  ).then(
+    json => callback(processData(json))
+  )
+}
+
+function processData(data) {
+  let processedData = data.included.filter(
+    e => e.type == 'collected_inks'
+  ).map(e => e.attributes);
+  return processedData;
 }
