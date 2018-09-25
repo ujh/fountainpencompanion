@@ -19,14 +19,34 @@ export default class App extends React.Component {
   tableData() {
     let ld = this.state.loggedInUserData;
     let ud = this.state.userData;
-    if (ld.user_id && ld.user_id != ud.user_id) {
-      console.log('additional data')
+    let additionalData = ld.user_id && ld.user_id != ud.user_id;
+    if (additionalData) {
+      let combined = [];
+      let userInks = new Set(ud.inks.map(i => i.ink_id))
+      let loggedInUserInks = new Set(ld.inks.map(i => i.ink_id))
+      ud.inks.forEach(ink => {
+        let comparison = this.calculateComparison(ink.ink_id, userInks, loggedInUserInks)
+        combined.push({...ink, ...comparison})
+      })
+      ld.inks.forEach(ink => {
+        let comparison = this.calculateComparison(ink.ink_id, userInks, loggedInUserInks)
+        combined.push({...ink, ...comparison})
+      })
+      return {data: combined, additionalData, logged_in_user_name: ld.name};
+    } else {
+      return {data: ud.inks, additionalData};
     }
-    return ud.inks;
+  }
+
+  calculateComparison(id, userInks, loggedInUserInks) {
+    return {
+      owned_by_user: userInks.has(id),
+      owned_by_logged_in_user: loggedInUserInks.has(id)
+    }
   }
 
   render() {
-    return <Table data={this.tableData()} />
+    return <Table {...this.tableData()} />
   }
 }
 
@@ -52,5 +72,5 @@ function processData(data) {
   let processedData = data.included.filter(
     e => e.type == 'collected_inks'
   ).map(e => e.attributes);
-  return { user_id: data.data.id, inks: processedData};
+  return { user_id: data.data.id, name: data.data.attributes.name, inks: processedData};
 }

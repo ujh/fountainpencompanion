@@ -23,6 +23,26 @@ export default class Table extends React.Component {
 
   columnConfig() {
     let config = [{
+      Header: "Compare",
+      accessor: "comparison",
+      show: this.props.additionalData,
+      minWidth: 30,
+      sortable: false,
+      filterMethod: (filter, row) => {
+        let od = row._original;
+        if (filter.value == "all") {
+          return od.owned_by_user;
+        }
+        if (filter.value == "you") {
+          return od.owned_by_logged_in_user && !od.owned_by_user
+        }
+        if (filter.value == "other") {
+          return !od.owned_by_logged_in_user && od.owned_by_user
+        }
+      },
+      Cell: (row) => <ComparisonCell {...row.original} name={this.props.logged_in_user_name}/>,
+      Filter: (props) => <ComparisonFilter {...props} name={this.props.logged_in_user_name} />
+    }, {
       Header: "Brand",
       accessor: 'brand_name',
       minWidth: 100,
@@ -90,12 +110,47 @@ export default class Table extends React.Component {
     return <ReactTable
     columns={this.columnConfig()}
     data={data}
-    filterable={true}
     defaultFilterMethod={(filter, row) => {
       let rowData = row[filter.id].replace(/\W/g, '')
       let searchData = filter.value.replace(/\W/g, '')
       return rowData.match(new RegExp(searchData, 'i'))
     }}
+    defaultSorted={[{id: "brand_name"}, {id: "line_name"}, {id: "ink_name"}]}
+    filterable={true}
   />
   }
+}
+
+class ComparisonFilter extends React.Component {
+
+  value() {
+    if (this.props.filter) return this.props.filter.value;
+    return "all"
+  }
+
+  componentDidMount() {
+    this.props.onChange(this.value())
+  }
+
+  render() {
+    return <select
+      onChange={event => this.props.onChange(event.target.value)}
+      style={{ width: "100%" }}
+      value={this.value()}
+    >
+      <option value="all">All of {this.props.name}'s inks</option>
+      <option value="you">Inks only you own</option>
+      <option value="other">Inks only {this.props.name} owns</option>
+    </select>
+  }
+}
+
+const ComparisonCell = ({name, owned_by_user, owned_by_logged_in_user}) => {
+  if (owned_by_user) {
+    if (owned_by_logged_in_user) {
+      return "both"
+    }
+    return name
+  }
+  return "you"
 }

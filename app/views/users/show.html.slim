@@ -2,11 +2,6 @@
 div id="account"
   div class="col-xs-12 col-sm-3 image"
     = profile_image_for(@user)
-    - if user_signed_in?
-      div class="row"
-        div class="col-xs-12"= link_to "Inks the user might be interested in", user_possibly_wanted_path(@user)
-      div class="row"
-        div class="col-xs-12"= link_to "Users's inks you might be interested in", user_possibly_interesting_path(@user)
   div class="col-xs-12 col-sm-9 data"
     - if @user.blurb.present?
       div class="row"

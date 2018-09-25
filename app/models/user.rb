@@ -72,14 +72,6 @@ class User < ApplicationRecord
     name.blank?
   end
 
-  def possibly_wanted_inks_from(other_user)
-    other_user.collected_inks_intersection(self.collected_inks)
-  end
-
-  def possibly_interesting_inks_for(other_user)
-    collected_inks_intersection(other_user.public_inks)
-  end
-
   def collected_inks_for_select
     collected_inks.order('brand_name, line_name, ink_name')
   end
@@ -100,13 +92,4 @@ class User < ApplicationRecord
     collected_inks.active
   end
 
-  protected
-
-  def collected_inks_intersection(other_user_rel)
-    # Join with select query?
-    on = %w(brand_name line_name ink_name).map do |column|
-      "LOWER(collected_inks.#{column}) = LOWER(ci2.#{column})"
-    end.join(" AND ")
-    other_user_rel.joins("LEFT OUTER JOIN (#{collected_inks.to_sql}) as ci2 ON #{on}").where("ci2.user_id IS NULL")
-  end
 end
