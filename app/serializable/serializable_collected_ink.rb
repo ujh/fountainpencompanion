@@ -24,5 +24,7 @@ class SerializableCollectedInk < JSONAPI::Serializable::Resource
     @object.currently_inkeds.length
   end
   attribute :used
-
+  attribute :ink_id do
+    @object.new_ink_name_id
+  end
 end

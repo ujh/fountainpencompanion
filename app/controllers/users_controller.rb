@@ -18,6 +18,7 @@ class UsersController < ApplicationController
             :kind,
             :color,
             :comment,
+            :ink_id,
           ]
         }
       }

@@ -2,6 +2,12 @@ class AccountsController < ApplicationController
   before_action :authenticate_user!
 
   def show
+    respond_to do |format|
+      format.html
+      format.jsonapi {
+        render jsonapi: current_user, include: :collected_inks
+      }
+    end
   end
 
   def update

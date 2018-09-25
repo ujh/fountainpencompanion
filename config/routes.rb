@@ -23,10 +23,7 @@ Rails.application.routes.draw do
   resources :inks, only: [:index]
   resource :account, only: [:show, :edit, :update]
 
-  resources :users, only: [:index, :show] do
-    resource :possibly_wanted, only: [:show]
-    resource :possibly_interesting, only: [:show]
-  end
+  resources :users, only: [:index, :show]
 
   namespace :admins do
     resource :dashboard, only: [:show]
