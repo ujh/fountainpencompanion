@@ -40,8 +40,8 @@ export default class Table extends React.Component {
           return !od.owned_by_logged_in_user && od.owned_by_user
         }
       },
-      Cell: (row) => <ComparisonCell {...row.original} name={this.props.logged_in_user_name}/>,
-      Filter: (props) => <ComparisonFilter {...props} name={this.props.logged_in_user_name} />
+      Cell: (row) => <ComparisonCell {...row.original} name={this.props.name}/>,
+      Filter: (props) => <ComparisonFilter {...props} name={this.props.name} />
     }, {
       Header: "Brand",
       accessor: 'brand_name',

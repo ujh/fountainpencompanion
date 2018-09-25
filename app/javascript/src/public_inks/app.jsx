@@ -32,7 +32,7 @@ export default class App extends React.Component {
         let comparison = this.calculateComparison(ink.ink_id, userInks, loggedInUserInks)
         combined.push({...ink, ...comparison})
       })
-      return {data: combined, additionalData, logged_in_user_name: ld.name};
+      return {data: combined, additionalData, name: ud.name};
     } else {
       return {data: ud.inks, additionalData};
     }
