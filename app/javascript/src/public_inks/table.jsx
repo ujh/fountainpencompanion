@@ -21,8 +21,21 @@ export default class Table extends React.Component {
     window.removeEventListener('resize', this.calculateWidth)
   }
 
-  columnConfig() {
-    let config = [{
+  hiddenColumns() {
+    let hidden = []
+    let width = this.state.width;
+    if (width <= 768) hidden.push("line_name");
+    if (width <= 992) hidden.push("maker");
+    if (width <= 1200) hidden.push("comment")
+    return hidden;
+  }
+
+  showColumn(column) {
+    return !this.hiddenColumns().includes(column);
+  }
+
+  comparisonConfig() {
+    return {
       Header: "Compare",
       accessor: "comparison",
       show: this.props.additionalData,
@@ -42,45 +55,52 @@ export default class Table extends React.Component {
       },
       Cell: (row) => <ComparisonCell {...row.original} name={this.props.name}/>,
       Filter: (props) => <ComparisonFilter {...props} name={this.props.name} />
-    }, {
-      Header: "Brand",
-      accessor: 'brand_name',
+    }
+  }
+
+  brandConfig() {
+    return {
+      ...this.defaultConfig("brand_name"),
       minWidth: 100,
-      Cell: ({value}) => <span title={value}>{value}</span>,
       Footer: ({data}) => {
         let count = _.uniq(data.map(e => e.brand_name)).length;
         let word = count == 1 ? 'brand' : 'brands';
         return <strong>{count} {word}</strong>
       }
-    }, {
-      Header: "Line",
-      accessor: "line_name",
+    }
+  }
+
+  lineConfig() {
+    return {
+      ...this.defaultConfig("line_name"),
       minWidth: 50,
-      Cell: ({value}) => <span title={value}>{value}</span>,
-      show: this.state.width > 768
-    }, {
-      Header: "Ink",
-      accessor: "ink_name",
+    }
+  }
+
+  inkConfig() {
+    return {
+      ...this.defaultConfig("ink_name"),
       minWidth: 100,
       Footer: ({data}) => {
         let count = data.length;
         let word = count == 1 ? 'ink' : 'inks';
         return <strong>{count} {word}</strong>
       },
-      Cell: ({value}) => <span title={value}>{value}</span>,
-    }, {
-      Header: "Maker",
-      accessor: "maker",
+    }
+  }
+
+  makerConfig() {
+    return {
+      ...this.defaultConfig("maker"),
       minWidth: 50,
-      className: 'maker',
-      Cell: ({value}) => <span title={value}>{value}</span>,
-      show: this.state.width > 992
-    }, {
-      Header: "Type",
-      accessor: "kind",
+    }
+  }
+
+  typeConfig() {
+    return {
+      ...this.defaultConfig("kind"),
       minWidth: 40,
       style: {textAlign: 'center'},
-      Cell: ({value}) => <span title={value}>{value}</span>,
       Footer: ({data}) => {
         let stats = _.groupBy(data.map(e => e.kind));
         if (Object.keys(stats).length > 1) {
@@ -88,37 +108,106 @@ export default class Table extends React.Component {
         }
         return <span></span>;
       }
-    }, {
+    }
+  }
+
+  colorConfig() {
+    return {
       accessor: "color",
       Cell: props => <div style={{backgroundColor: props.value, width: '100%', height: '100%'}} />,
       style: {padding: 0},
       width: 37,
       filterable: false,
       sortable: false,
-    }, {
-      Header: "Comment",
-      accessor: "comment",
-      minWidth: 50,
-      Cell: ({value}) => <span title={value}>{value}</span>,
-      show: this.state.width > 1200
-    }]
-    return config;
+    }
   }
 
-  render() {
-    let data = this.props.data;
-    return <ReactTable
-    columns={this.columnConfig()}
-    data={data}
-    defaultFilterMethod={(filter, row) => {
-      let rowData = row[filter.id].replace(/\W/g, '')
-      let searchData = filter.value.replace(/\W/g, '')
-      return rowData.match(new RegExp(searchData, 'i'))
-    }}
-    defaultSorted={[{id: "brand_name"}, {id: "line_name"}, {id: "ink_name"}]}
-    filterable={true}
-  />
+  commentConfig() {
+    return {
+      ...this.defaultConfig("comment"),
+      minWidth: 50,
+    }
   }
+
+  defaultConfig(accessor) {
+    return {
+      Header: columnDisplayName(accessor),
+      accessor,
+      Cell: ({value}) => <span title={value}>{value}</span>,
+      show: this.showColumn(accessor)
+    }
+  }
+
+  columnConfig() {
+    return [
+      this.comparisonConfig(),
+      this.brandConfig(),
+      this.lineConfig(),
+      this.inkConfig(),
+      this.makerConfig(),
+      this.typeConfig(),
+      this.colorConfig(),
+      this.commentConfig()
+    ]
+  }
+
+  tableProps() {
+    let props = {
+      columns: this.columnConfig(),
+      data: this.props.data,
+      defaultFilterMethod: (filter, row) => {
+        let rowData = row[filter.id].replace(/\W/g, '')
+        let searchData = filter.value.replace(/\W/g, '')
+        return rowData.match(new RegExp(searchData, 'i'))
+      },
+      defaultSorted: [{id: "brand_name"}, {id: "line_name"}, {id: "ink_name"}],
+      filterable: true
+    }
+    let hidden = this.hiddenColumns()
+    if (hidden.length) {
+      props.SubComponent = (row) => <RowSubComponent row={row} hidden={hidden} />
+    } else {
+      // Necessary to clear out the previous value on resize
+      props.SubComponent = null;
+    }
+    return props;
+  }
+  render() {
+    return <ReactTable {...this.tableProps()} />
+  }
+}
+
+const columnDisplayName = (accessor) => {
+  let data = {
+    "brand_name": "Brand",
+    "comment": "Comment",
+    "ink_name": "Ink",
+    "kind": "Type",
+    "line_name": "Line",
+    "maker": "Maker"
+  }
+  return data[accessor] || accessor;
+}
+
+const RowSubComponent = ({row, hidden}) => {
+  let data = hidden.sort().map(c => ({column: c, value: row.row[c]}))
+  return <div style={{padding: "20px"}}>
+    <ReactTable
+      columns={[{
+        Header: 'Column',
+        accessor: "column",
+        Cell: row => <strong>{columnDisplayName(row.value)}</strong>,
+        minWidth: 20
+      },{
+        Header: 'Value',
+        accessor: "value"
+      }]}
+      data={data}
+      defaultSorted={[{id: "column"}]}
+      minRows={data.length}
+      showPagination={false}
+    />
+  </div>
 }
 
 class ComparisonFilter extends React.Component {
