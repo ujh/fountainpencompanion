@@ -21,6 +21,19 @@ export default class Table extends React.Component {
     window.removeEventListener('resize', this.calculateWidth)
   }
 
+  hiddenColumns() {
+    let hidden = []
+    let width = this.state.width;
+    if (width <= 768) hidden.push("line_name");
+    if (width <= 992) hidden.push("maker");
+    if (width <= 1200) hidden.push("comment")
+    return hidden;
+  }
+
+  showColumn(column) {
+    return !this.hiddenColumns().includes(column);
+  }
+
   columnConfig() {
     let config = [{
       Header: "Compare",
@@ -57,7 +70,7 @@ export default class Table extends React.Component {
       accessor: "line_name",
       minWidth: 50,
       Cell: ({value}) => <span title={value}>{value}</span>,
-      show: this.state.width > 768
+      show: this.showColumn("line_name")
     }, {
       Header: "Ink",
       accessor: "ink_name",
@@ -74,7 +87,7 @@ export default class Table extends React.Component {
       minWidth: 50,
       className: 'maker',
       Cell: ({value}) => <span title={value}>{value}</span>,
-      show: this.state.width > 992
+      show: this.showColumn("maker")
     }, {
       Header: "Type",
       accessor: "kind",
@@ -100,7 +113,7 @@ export default class Table extends React.Component {
       accessor: "comment",
       minWidth: 50,
       Cell: ({value}) => <span title={value}>{value}</span>,
-      show: this.state.width > 1200
+      show: this.showColumn("comment")
     }]
     return config;
   }
