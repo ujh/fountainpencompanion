@@ -34,8 +34,8 @@ export default class Table extends React.Component {
     return !this.hiddenColumns().includes(column);
   }
 
-  columnConfig() {
-    let config = [{
+  comparisonConfig() {
+    return {
       Header: "Compare",
       accessor: "comparison",
       show: this.props.additionalData,
@@ -55,7 +55,11 @@ export default class Table extends React.Component {
       },
       Cell: (row) => <ComparisonCell {...row.original} name={this.props.name}/>,
       Filter: (props) => <ComparisonFilter {...props} name={this.props.name} />
-    }, {
+    }
+  }
+
+  brandConfig() {
+    return {
       Header: "Brand",
       accessor: 'brand_name',
       minWidth: 100,
@@ -65,13 +69,21 @@ export default class Table extends React.Component {
         let word = count == 1 ? 'brand' : 'brands';
         return <strong>{count} {word}</strong>
       }
-    }, {
+    }
+  }
+
+  lineConfig() {
+    return {
       Header: "Line",
       accessor: "line_name",
       minWidth: 50,
       Cell: ({value}) => <span title={value}>{value}</span>,
       show: this.showColumn("line_name")
-    }, {
+    }
+  }
+
+  inkConfig() {
+    return {
       Header: "Ink",
       accessor: "ink_name",
       minWidth: 100,
@@ -81,14 +93,22 @@ export default class Table extends React.Component {
         return <strong>{count} {word}</strong>
       },
       Cell: ({value}) => <span title={value}>{value}</span>,
-    }, {
+    }
+  }
+
+  makerConfig() {
+    return {
       Header: "Maker",
       accessor: "maker",
       minWidth: 50,
       className: 'maker',
       Cell: ({value}) => <span title={value}>{value}</span>,
       show: this.showColumn("maker")
-    }, {
+    }
+  }
+
+  typeConfig() {
+    return {
       Header: "Type",
       accessor: "kind",
       minWidth: 40,
@@ -101,21 +121,41 @@ export default class Table extends React.Component {
         }
         return <span></span>;
       }
-    }, {
+    }
+  }
+
+  colorConfig() {
+    return {
       accessor: "color",
       Cell: props => <div style={{backgroundColor: props.value, width: '100%', height: '100%'}} />,
       style: {padding: 0},
       width: 37,
       filterable: false,
       sortable: false,
-    }, {
+    }
+  }
+
+  commentConfig() {
+    return {
       Header: "Comment",
       accessor: "comment",
       minWidth: 50,
       Cell: ({value}) => <span title={value}>{value}</span>,
       show: this.showColumn("comment")
-    }]
-    return config;
+    }
+  }
+
+  columnConfig() {
+    return [
+      this.comparisonConfig(),
+      this.brandConfig(),
+      this.lineConfig(),
+      this.inkConfig(),
+      this.makerConfig(),
+      this.typeConfig(),
+      this.colorConfig(),
+      this.commentConfig()
+    ]
   }
 
   render() {
