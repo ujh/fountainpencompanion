@@ -21,7 +21,7 @@ class SerializableCollectedInk < JSONAPI::Serializable::Resource
   attribute :simplified_line_name
   attribute :swabbed
   attribute :usage do
-    @object.currently_inkeds.length
+    @object.currently_inked_count
   end
   attribute :used
   attribute :ink_id do
