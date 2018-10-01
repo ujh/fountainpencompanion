@@ -57,8 +57,8 @@ class CurrentlyInked < ApplicationRecord
     )
   end
 
-  def unarchivable?
-    !user.currently_inkeds.where(collected_pen_id: collected_pen_id, archived_on: nil).exists?
+  def unarchivable?(ids)
+    !ids.include?(collected_pen_id)
   end
 
   def collected_pens_for_active_select
