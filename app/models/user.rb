@@ -19,7 +19,7 @@ class User < ApplicationRecord
   end
 
   def public_inks
-    collected_inks.where(private: false).order("brand_name, line_name, ink_name")
+    collected_inks.where(private: false).active.order("brand_name, line_name, ink_name")
   end
 
   def public_count
