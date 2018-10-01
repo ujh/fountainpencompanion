@@ -30,7 +30,8 @@ export default class App extends React.Component {
       })
       ld.inks.forEach(ink => {
         let comparison = this.calculateComparison(ink.ink_id, userInks, loggedInUserInks)
-        combined.push({...ink, ...comparison})
+        // User already owns ink, no need to add it again
+        if (!comparison.owned_by_user) combined.push({...ink, ...comparison})
       })
       return {data: combined, additionalData, name: ud.name};
     } else {

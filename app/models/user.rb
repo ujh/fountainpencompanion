@@ -18,14 +18,8 @@ class User < ApplicationRecord
     false
   end
 
-  def to_param
-    value = "#{id}"
-    value << "-#{name.downcase.gsub(/\s/, '-')}" if name.present?
-    value
-  end
-
   def public_inks
-    collected_inks.where(private: false).order("brand_name, line_name, ink_name")
+    collected_inks.where(private: false).active.order("brand_name, line_name, ink_name")
   end
 
   def public_count
