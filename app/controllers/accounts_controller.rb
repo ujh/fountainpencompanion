@@ -5,7 +5,8 @@ class AccountsController < ApplicationController
     respond_to do |format|
       format.html
       format.jsonapi {
-        render jsonapi: current_user, include: :collected_inks
+        user = User.where(id: current_user.id).includes(:collected_inks).first
+        render jsonapi: user, include: :collected_inks
       }
     end
   end

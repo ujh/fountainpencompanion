@@ -118,7 +118,7 @@ class CollectedInk < ApplicationRecord
   end
 
   def deletable?
-    currently_inkeds.empty?
+    currently_inked_count == 0
   end
 
   def simplified_name

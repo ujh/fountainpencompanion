@@ -5,7 +5,7 @@ class CurrentlyInked < ApplicationRecord
   include Archivable
   include PenName
 
-  belongs_to :collected_ink
+  belongs_to :collected_ink, counter_cache: true
   belongs_to :collected_pen
   belongs_to :user
 
