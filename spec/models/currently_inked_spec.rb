@@ -66,37 +66,6 @@ describe CurrentlyInked do
     end
   end
 
-  describe '#unarchivable?' do
-    let(:pen) { create(:collected_pen, user: user) }
-    let(:twilight) { create(:collected_ink, user: user, ink_name: 'Twilight') }
-    let(:pumpkin) { create(:collected_ink, user: user, ink_name: 'Pumpkin') }
-
-    before do
-      subject.update!(
-        collected_pen: pen,
-        collected_ink: pumpkin,
-        archived_on: Date.today
-      )
-    end
-
-    it 'returns false if there is an active currently inked with that pen' do
-      user.currently_inkeds.create!(
-        collected_pen: pen,
-        collected_ink: twilight
-      )
-      expect(subject).to_not be_unarchivable
-    end
-
-    it 'returns true if there is an archived entry with that pen' do
-      user.currently_inkeds.create!(
-        collected_pen: pen,
-        collected_ink: twilight,
-        archived_on: Date.today
-      )
-      expect(subject).to be_unarchivable
-    end
-  end
-
   describe '#collected_pens_for_active_select' do
     let(:pen) { create(:collected_pen, user: user) }
     let(:all_pens) do
