@@ -1,16 +1,19 @@
-footer class="footer" id="footer"
+nav class="navbar navbar-default navbar-fixed-bottom" id="footer"
   div class="container"
-    p
-      = link_to "Impressum", page_path('legal')
-      |&nbsp;&nbsp;&nbsp;
-      = link_to "Cookies", page_path('cookies')
-      |&nbsp;&nbsp;&nbsp;
-      = link_to "Privacy Policy", page_path('privacy-policy')
-      |&nbsp;&nbsp;&nbsp;
-      = link_to "Guide", page_path('guide')
-      |&nbsp;&nbsp;&nbsp;
-      = link_to "FAQ", page_path('faq')
-      |&nbsp;&nbsp;&nbsp;
-      = link_to "Donate", page_path('donate')
-      |&nbsp;&nbsp;&nbsp;
-      a href="https://github.com/ujh/fountainpencompanion/" target="_blank" Code
+    div class="navbar-header"
+      button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#footer-menu"
+        span class="icon-bar"
+        span class="icon-bar"
+        span class="icon-bar"
+      a class="navbar-brand" href="#"
+
+    div class="collapse navbar-collapse" id="footer-menu"
+      ul class="nav navbar-nav"
+        li= link_to "Impressum", page_path('legal')
+        li= link_to "Cookies", page_path('cookies')
+        li= link_to "Privacy Policy", page_path('privacy-policy')
+        li= link_to "Guide", page_path('guide')
+        li= link_to "FAQ", page_path('faq')
+        li= link_to "Donate", page_path('donate')
+        li
+          a href="https://github.com/ujh/fountainpencompanion/" target="_blank" Code
