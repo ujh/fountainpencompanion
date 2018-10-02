@@ -16,7 +16,7 @@ div class="pen-collection"
       tbody
         - pen_collection.each do |cp|
           - if cp == @collected_pen
-            tr id="#{cp.id}" class="info"= render partial: "pen_collection/form", locals: { f: f , cp: cp}
+            tr id="#{cp.id}" class="info"= render partial: "form", locals: { f: f , cp: cp}
           - else
             tr id="#{cp.id}" data-name="entry"
               td data-name="brand"= cp.brand
@@ -40,7 +40,7 @@ div class="pen-collection"
                       = fa_icon("trash")
       tfoot
         - if @collected_pen&.new_record? && !archive
-          tr id="add-form"= render partial: "pen_collection/form", locals: { f: f , cp: @collected_pen }
+          tr id="add-form"= render partial: "form", locals: { f: f , cp: @collected_pen }
         tr
           th
           th= "#{pen_collection.count} pens"
