@@ -102,9 +102,11 @@ export default class Table extends React.Component {
       minWidth: 40,
       style: {textAlign: 'center'},
       Footer: ({data}) => {
-        let stats = _.groupBy(data.map(e => e.kind));
+        let stats = _.groupBy(data.map(e => e.kind || "unknown"));
         if (Object.keys(stats).length > 1) {
-          return Object.keys(stats).map(k => <div key={k}><strong>{stats[k].length}x {k}</strong></div>)
+          return Object.keys(stats).sort().map(
+            k => <div key={k}><strong>{stats[k].length}x {k}</strong></div>
+          )
         }
         return <span></span>;
       }
