@@ -7,11 +7,12 @@ div class="table-responsive"
         th Count
         th Brand
         th Line
-        th Ink
+        th colspan="2" Ink
     tbody
       - @inks.each do |ink|
         tr
           td= ink.collected_inks.size
           td= ink.brand_name
           td= ink.popular_line_name
+          td style="background-color:#{ink.color};width: 37px;"
           td= ink.popular_name
