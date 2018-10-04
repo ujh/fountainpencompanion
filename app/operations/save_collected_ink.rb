@@ -9,7 +9,7 @@ class SaveCollectedInk
     res = collected_ink.update(collected_ink_params)
     update_ink_brand!
     update_new_ink_name!
-    update_color_of_unset_twins!
+    update_color_of!
     collected_ink.reload if res # to return the updated color
     res
   end
@@ -27,7 +27,7 @@ class SaveCollectedInk
     UpdateNewInkName.new(collected_ink).perform
   end
 
-  def update_color_of_unset_twins!
+  def update_color!
     UpdateColor.new(collected_ink).perform
   end
 end
