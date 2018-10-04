@@ -9,7 +9,7 @@ class SaveCollectedInk
     res = collected_ink.update(collected_ink_params)
     update_ink_brand!
     update_new_ink_name!
-    update_color_of!
+    update_color!
     collected_ink.reload if res # to return the updated color
     res
   end
