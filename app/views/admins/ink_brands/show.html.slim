@@ -2,12 +2,14 @@ h1= @ink_brand.popular_name
 
 table class="table table-striped"
   tr
+    th
     th Popular Line Name
     th Popular Name
     th Names
     th Collected Inks
   - @new_ink_names.each do |new_ink_name|
     tr
+      td style="background-color:#{new_ink_name.color};width: 37px;"
       td= new_ink_name.popular_line_name
       td= new_ink_name.popular_name
       td= new_ink_name.collected_inks.map(&:ink_name).uniq.sort.join(", ")
