@@ -94,10 +94,6 @@ class CollectedInk < ApplicationRecord
     end
   end
 
-  def twins
-    self.class.where(new_ink_name_id: new_ink_name_id)
-  end
-
   def name
     n = [brand_name, line_name, ink_name].reject {|f| f.blank? }.join(' ')
     n = "#{n} - #{kind}" if kind.present?

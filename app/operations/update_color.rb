@@ -5,33 +5,35 @@ class UpdateColor
   end
 
   def perform
-    unset_twins.update_all(color: average_color) if twins_with_color.exists?
+    if collected_inks_with_color.exists?
+      new_ink_name.update(color: average_color)
+      collected_inks_without_color.update_all(color: average_color)
+    end
   end
 
   private
 
   attr_accessor :collected_ink
 
-  def unset_twins
-    twins.without_color
+  def new_ink_name
+    @new_ink_name ||= collected_ink.new_ink_name
   end
 
-  def twins
-    collected_ink.twins
+  def collected_inks_with_color
+    new_ink_name.collected_inks_with_color
   end
 
+  def collected_inks_without_color
+    new_ink_name.collected_inks_without_color
+  end
   def average_color
-    Color::RGB.new(*[:red, :green, :blue].map {|f| average_for(colors_of_twins, f)}).html
+    Color::RGB.new(*[:red, :green, :blue].map {|f| average_for(colors, f)}).html
   end
 
-  def colors_of_twins
-    @colors ||= twins_with_color.pluck(:color).map do |c|
+  def colors
+    @colors ||= collected_inks_with_color.pluck(:color).map do |c|
       Color::RGB.from_html(c)
     end
-  end
-
-  def twins_with_color
-    twins.with_color
   end
 
   def average_for(colors, field)
