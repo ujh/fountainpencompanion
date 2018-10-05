@@ -21,7 +21,7 @@ class NewInkName < ApplicationRecord
   end
 
   def collected_inks_without_color
-    collected_inks.with_color
+    collected_inks.without_color
   end
 
   def brand_name
