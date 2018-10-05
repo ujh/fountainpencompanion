@@ -101,6 +101,7 @@ export default class Table extends React.Component {
       ...this.defaultConfig("kind"),
       minWidth: 40,
       style: {textAlign: 'center'},
+      Filter: props => <TypeFilter {...props} />,
       Footer: ({data}) => {
         let stats = _.groupBy(data.map(e => e.kind || "unknown"));
         if (Object.keys(stats).length > 1) {
@@ -234,6 +235,29 @@ class ComparisonFilter extends React.Component {
       <option value="other">Inks only {this.props.name} owns</option>
     </select>
   }
+}
+
+class TypeFilter extends React.Component {
+
+  value() {
+    if (this.props.filter) return this.props.filter.value;
+    return "all"
+  }
+
+  render() {
+    return <select
+      onChange={event => this.props.onChange(event.target.value)}
+      style={{ width: "100%" }}
+      value={this.value()}
+    >
+      <option value="all">All</option>
+      <option value="bottle">bottle</option>
+      <option value="cartridge">cartridge</option>
+      <option value="sample">sample</option>
+      <option value="unknown">unknown</option>
+    </select>
+  }
+
 }
 
 const ComparisonCell = ({name, owned_by_user, owned_by_logged_in_user}) => {
