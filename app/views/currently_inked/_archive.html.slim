@@ -11,7 +11,7 @@ div class="table-responsive"
     tbody
       - if @archival_currently_inked&.new_record?
         tr id="archive-add-form" class="info"= render partial: "archive_form", locals: { f: f , currently_inked: @archival_currently_inked }
-      - pen_ids = currently_inkeds.map(&:collected_pen_id)
+      - pen_ids = @currently_inkeds.map(&:collected_pen_id)
       - currently_inkeds.each do |ci|
         - if ci == @archival_currently_inked
           tr id="#{ci.id}" class="info"= render partial: "archive_form", locals: { f: f , currently_inked: @archival_currently_inked }
