@@ -12,8 +12,9 @@ export default class App extends React.Component {
   }
 
   componentDidMount() {
-    getUserData(data => this.setState({userData: data}))
-    getloggedInUserData(data => this.setState({loggedInUserData: data}))
+    getUserData(data => this.setState({userData: data})).then(
+      () => getloggedInUserData(data => this.setState({loggedInUserData: data}))
+    )
   }
 
   tableData() {
@@ -52,7 +53,7 @@ export default class App extends React.Component {
 }
 
 function getloggedInUserData(callback) {
-  getRequest("/account").then(
+  return getRequest("/account").then(
     response => {
       if (response.ok) {
         response.json().then(json => callback(processData(json)))
@@ -62,7 +63,7 @@ function getloggedInUserData(callback) {
 }
 
 function getUserData(callback) {
-  getRequest(location.href).then(
+  return getRequest(location.href).then(
     response => response.json()
   ).then(
     json => callback(processData(json))
