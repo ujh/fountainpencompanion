@@ -9,7 +9,7 @@
     "prop-types": "^15.6.2",
     "react": "^16.5.2",
     "react-color": "^2.14.1",
-    "react-dom": "^16.4.1",
+    "react-dom": "^16.5.2",
     "react-redux": "^5.0.7",
     "react-table": "^6.8.6",
     "redux": "^4.0.0",
