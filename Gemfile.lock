@@ -221,7 +221,7 @@ GEM
     scenic (1.4.1)
       activerecord (>= 4.0.0)
       railties (>= 4.0.0)
-    simple_form (4.0.1)
+    simple_form (4.1.0)
       actionpack (>= 5.0)
       activemodel (>= 5.0)
     simplecov (0.16.1)
