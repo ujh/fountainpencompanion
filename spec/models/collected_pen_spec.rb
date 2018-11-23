@@ -55,7 +55,7 @@ describe CollectedPen do
     let(:entry) { csv.first }
 
     it 'has a header row' do
-      expect(described_class.none.to_csv).to eq("Brand;Model;Nib;Color;Comment;Archived;Archived On;Usage\n")
+      expect(described_class.none.to_csv).to eq("Brand;Model;Nib;Color;Comment;Archived;Archived On;Usage;Last Inked\n")
     end
 
     it 'has the correct brand' do
