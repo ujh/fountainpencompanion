@@ -4,22 +4,30 @@ div class="col-xs-12 col-sm-6 leaderboard"
   h6 Ranked by the number of inks in total
   ol
     - LeaderBoard.inks.each do |user|
-      li= link_to user.public_name, user_path(user)
+      li
+        = link_to user.public_name, user_path(user)
+        = " (#{user.counter})"
 div class="col-xs-12 col-sm-6 leaderboard"
   h4 Bottles
   h6 Ranked by the number of ink bottles
   ol
     - LeaderBoard.bottles.each do |user|
-      li= link_to user.public_name, user_path(user)
+      li
+        = link_to user.public_name, user_path(user)
+        = " (#{user.counter})"
 div class="col-xs-12 col-sm-6 leaderboard"
   h4 Samples
   h6 Ranked by the number of samples
   ol
     - LeaderBoard.samples.each do |user|
-      li= link_to user.public_name, user_path(user)
+      li
+        = link_to user.public_name, user_path(user)
+        = " (#{user.counter})"
 div class="col-xs-12 col-sm-6 leaderboard"
   h4 Brands
   h6 Ranked by the number of different brands
   ol
     - LeaderBoard.brands.each do |user|
-      li= link_to user.public_name, user_path(user)
+      li
+        = link_to user.public_name, user_path(user)
+        = " (#{user.counter})"
