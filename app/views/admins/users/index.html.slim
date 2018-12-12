@@ -16,9 +16,9 @@ table class="table table-striped"
         - unless user.confirmed?
           |  (unconfirmed)
       td= user.public_name
-      td= user.collected_inks.count
-      td= user.collected_pens.count
-      td= user.currently_inkeds.count
+      td= @ink_counts[user.id] || 0
+      td= @pen_counts[user.id] || 0
+      td= @ci_counts[user.id] || 0
       td= link_to "Login", become_admins_user_path(user), method: :post, target: "_blank"
       td= form_tag(import_admins_user_path(user), method: :post, multipart: true) do
           = file_field_tag "file"
