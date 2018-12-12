@@ -13,7 +13,7 @@ class LeaderBoard
 
   def self.brands
     build(
-      "(select sum(1) OVER () from collected_inks where collected_inks.user_id = users.id group by collected_inks.ink_brand_id limit 1) as counter"
+      "(select sum(1) OVER () from collected_inks where collected_inks.user_id = users.id group by collected_inks.brand_name limit 1) as counter"
     )
   end
 
