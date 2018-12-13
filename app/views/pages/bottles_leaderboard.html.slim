@@ -1,0 +1,7 @@
+- content_for :title, "Bottles Leaderboard"
+div class="leaderboard"
+  ol
+    - LeaderBoard.bottles.each do |user|
+      li
+        = link_to user.public_name, user_path(user)
+        = " (#{user.counter})"

@@ -1,14 +1,31 @@
 class LeaderBoard
+
+  def self.top_inks
+    inks.limit(10)
+  end
+
   def self.inks
     build
+  end
+
+  def self.top_bottles
+    bottles.limit(10)
   end
 
   def self.bottles
     build.where(collected_inks: {kind: "bottle"})
   end
 
+  def self.top_samples
+    samples.limit(10)
+  end
+
   def self.samples
     build.where(collected_inks: {kind: "sample"})
+  end
+
+  def self.top_brands
+    brands.limit(10)
   end
 
   def self.brands
@@ -25,6 +42,6 @@ class LeaderBoard
   def self.base_relation
     User.joins(:collected_inks).where(collected_inks: {
       archived_on: nil, private: false
-    }).group("users.id").order("counter DESC").limit(10)
+    }).group("users.id").order("counter DESC")
   end
 end
