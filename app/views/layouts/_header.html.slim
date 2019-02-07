@@ -16,7 +16,9 @@ nav class="navbar navbar-default navbar-fixed-top" id="header"
         li
           a href="http://podcast.fpc.ink" target="_blank"
             span Podcast
-            sup NEW
+        li
+          a href="https://community.fpc.ink" target="_blank"
+            span Community
       ul class="nav navbar-nav navbar-right"
         - if user_signed_in?
           li= link_to "Currently Inked", currently_inked_index_path
