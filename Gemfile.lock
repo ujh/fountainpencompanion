@@ -221,7 +221,7 @@ GEM
     sassc (2.0.0)
       ffi (~> 1.9.6)
       rake
-    scenic (1.5.0)
+    scenic (1.5.1)
       activerecord (>= 4.0.0)
       railties (>= 4.0.0)
     simple_form (4.1.0)
