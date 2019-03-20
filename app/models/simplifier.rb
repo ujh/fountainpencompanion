@@ -24,16 +24,11 @@ class Simplifier
   end
 
   def self.brand(name)
-    return "24solar" if name =~ /^24\s+solar/i
-    return "ancientsong" if name =~ /^ancient\s+song/i
-    return "banmi" if name =~ /^ban\s*mi/i
-    return "birminghampens" if name =~ /^birmingham/i
-    return "lartisanpastellier" if name =~ /callifolio/i
-    return "jherbin" if name =~ /jacques\s+herbin/i
-    return "kobe" if name =~ /^nagasawa/i
-    return "pilot" if name =~ /iroshizuku/i
-    return "pilot" if name =~ /namiki/i
-    return "kyototag" if name =~ /(^tag\s+)|(\s+tag$)|(^tag$)/i
+    # return "24solar" if name =~ /^24\s+solar/i
+    # return "ancientsong" if name =~ /^ancient\s+song/i
+    # return "banmi" if name =~ /^ban\s*mi/i
+    # return "kobe" if name =~ /^nagasawa/i
+    # return "kyototag" if name =~ /(^tag\s+)|(\s+tag$)|(^tag$)/i
     self.simplify(name)
   end
 
