@@ -111,4 +111,19 @@ describe SaveCollectedInk do
     expect(ci1.ink_brand).to eq(ci2.ink_brand)
     expect(ci1.new_ink_name).to eq(ci2.new_ink_name)
   end
+
+  it 'merges clusters' do
+    ci1 = add!(brand_name: 'Pilot', ink_name: 'Kon-Peki')
+    ci2 = add!(brand_name: 'Iroshizuku', ink_name: 'Kon-Peki')
+    expect(ci1.ink_brand).to_not eq(ci2.ink_brand)
+    expect(ci1.new_ink_name).to_not eq(ci2.new_ink_name)
+    # This will match both and link them together
+    ci3 = add!(brand_name: 'Pilot', line_name: 'Iroshizuku', ink_name: 'Kon-Peki')
+    ci1.reload
+    ci2.reload
+    expect(ci3.ink_brand).to eq(ci1.ink_brand)
+    expect(ci3.ink_brand).to eq(ci2.ink_brand)
+    expect(ci3.new_ink_name).to eq(ci1.new_ink_name)
+    expect(ci3.new_ink_name).to eq(ci2.new_ink_name)
+  end
 end
