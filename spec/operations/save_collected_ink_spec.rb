@@ -1,4 +1,49 @@
 require 'rails_helper'
 
 describe SaveCollectedInk do
+
+  def add!(params)
+    ci = CollectedInk.new
+    SaveCollectedInk.new(ci, params).perform
+    ci
+  end
+
+  def default!
+    add!(brand_name: 'Pilot', line_name: 'Iroshizuku', ink_name: 'Kon-Peki')
+  end
+
+  it 'clusters two inks with the same name' do
+    ci1 = default!
+    ci2 = default!
+    expect(ci1.ink_brand).to eq(ci2.ink_brand)
+    expect(ci1.new_ink_name).to eq(ci2.new_ink_name)
+  end
+
+  it 'clusters when line name is missing' do
+    ci1 = default!
+    ci2 = add!(brand_name: 'Pilot', ink_name: 'Kon-Peki')
+    expect(ci1.ink_brand).to eq(ci2.ink_brand)
+    expect(ci1.new_ink_name).to eq(ci2.new_ink_name)
+  end
+
+  it 'clusters if line name is different' do
+    ci1 = default!
+    ci2 = add!(brand_name: 'Pilot', line_name: 'completely different', ink_name: 'Kon-Peki')
+    expect(ci1.ink_brand).to eq(ci2.ink_brand)
+    expect(ci1.new_ink_name).to eq(ci2.new_ink_name)
+  end
+
+  it 'clusters if line name and brand name match' do
+    ci1 = default!
+    ci2 = add!(brand_name: 'Iroshizuku', ink_name: 'Kon-Peki')
+    expect(ci1.ink_brand).to eq(ci2.ink_brand)
+    expect(ci1.new_ink_name).to eq(ci2.new_ink_name)
+  end
+
+  it 'clusters if brand and line name are in the brands field' do
+    ci1 = default!
+    ci2 = add!(brand_name: 'Pilot Iroshizuku', ink_name: 'Kon-Peki')
+    expect(ci1.ink_brand).to eq(ci2.ink_brand)
+    expect(ci1.new_ink_name).to eq(ci2.new_ink_name)
+  end
 end
