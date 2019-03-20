@@ -21,9 +21,23 @@ describe SaveCollectedInk do
     expect(ci1.new_ink_name).to_not eq(ci2.new_ink_name)
   end
 
+  it 'uses same brand cluster for two distinct inks with similar brand name' do
+    ci1 = default!
+    ci2 = default!(brand_name: 'PilotX', ink_name: 'Shin-Kai')
+    expect(ci1.ink_brand).to eq(ci2.ink_brand)
+    expect(ci1.new_ink_name).to_not eq(ci2.new_ink_name)
+  end
+
   it 'clusters two inks with the same name' do
     ci1 = default!
     ci2 = default!
+    expect(ci1.ink_brand).to eq(ci2.ink_brand)
+    expect(ci1.new_ink_name).to eq(ci2.new_ink_name)
+  end
+
+  it 'clusters if brand names are similar' do
+    ci1 = default!
+    ci2 = default!(brand_name: 'PilotX')
     expect(ci1.ink_brand).to eq(ci2.ink_brand)
     expect(ci1.new_ink_name).to eq(ci2.new_ink_name)
   end
@@ -49,8 +63,22 @@ describe SaveCollectedInk do
     expect(ci1.new_ink_name).to eq(ci2.new_ink_name)
   end
 
+  it 'clusters if line name and brand name are similar' do
+    ci1 = default!
+    ci2 = add!(brand_name: 'IroshizukuX', ink_name: 'Kon-Peki')
+    expect(ci1.ink_brand).to eq(ci2.ink_brand)
+    expect(ci1.new_ink_name).to eq(ci2.new_ink_name)
+  end
+
   it 'clusters if line name and brand name match (switch order of addition)' do
     ci2 = add!(brand_name: 'Iroshizuku', ink_name: 'Kon-Peki')
+    ci1 = default!
+    expect(ci1.ink_brand).to eq(ci2.ink_brand)
+    expect(ci1.new_ink_name).to eq(ci2.new_ink_name)
+  end
+
+  it 'clusters if line name and brand name are similar (switch order of addition)' do
+    ci2 = add!(brand_name: 'IroshizukuX', ink_name: 'Kon-Peki')
     ci1 = default!
     expect(ci1.ink_brand).to eq(ci2.ink_brand)
     expect(ci1.new_ink_name).to eq(ci2.new_ink_name)
@@ -63,6 +91,13 @@ describe SaveCollectedInk do
     expect(ci1.new_ink_name).to eq(ci2.new_ink_name)
   end
 
+  it 'clusters if brand and line name are in the brands field and are similar' do
+    ci1 = default!
+    ci2 = add!(brand_name: 'Pilot IroshizukuX', ink_name: 'Kon-Peki')
+    expect(ci1.ink_brand).to eq(ci2.ink_brand)
+    expect(ci1.new_ink_name).to eq(ci2.new_ink_name)
+  end
+
   it 'clusters if brand and line name are in the brands field (switch order of addition)' do
     ci2 = add!(brand_name: 'Pilot Iroshizuku', ink_name: 'Kon-Peki')
     ci1 = default!
@@ -70,4 +105,10 @@ describe SaveCollectedInk do
     expect(ci1.new_ink_name).to eq(ci2.new_ink_name)
   end
 
+  it 'clusters if brand and line name are in the brands field and are similar (switch order of addition)' do
+    ci2 = add!(brand_name: 'Pilot IroshizukuX', ink_name: 'Kon-Peki')
+    ci1 = default!
+    expect(ci1.ink_brand).to eq(ci2.ink_brand)
+    expect(ci1.new_ink_name).to eq(ci2.new_ink_name)
+  end
 end
