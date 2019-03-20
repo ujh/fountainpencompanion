@@ -18,10 +18,10 @@ class UpdateClusters
 
   def find_similar
     cis = by_similarity(brand: simplified_brand_name, ink: simplified_ink_name)
-    cis << by_similarity(line: simplified_brand_name, ink: simplified_ink_name)
-    cis << by_similarity(brand: simplified_line_name, ink: simplified_ink_name)
-    cis << by_combined_similarity
-    cis.flatten.uniq
+    cis = cis.or(by_similarity(line: simplified_brand_name, ink: simplified_ink_name))
+    cis = cis.or(by_similarity(brand: simplified_line_name, ink: simplified_ink_name))
+    cis = cis.or(by_combined_similarity)
+    cis.distinct
   end
 
   def by_combined_similarity
@@ -29,7 +29,7 @@ class UpdateClusters
     CollectedInk.where(
       "levenshtein_less_equal(CONCAT(simplified_brand_name, simplified_line_name, simplified_ink_name), ?, ?) <= ?",
       value, THRESHOLD, THRESHOLD
-    ).to_a
+    )
   end
 
   def by_similarity(opts)
@@ -40,11 +40,11 @@ class UpdateClusters
         value, THRESHOLD, THRESHOLD
       )
     end
-    rel.to_a
+    rel
   end
 
   def update_brand_clusters(cis)
-    ink_brand_id = cis.map(&:ink_brand_id).compact.first
+    ink_brand_id = cis.pluck(:ink_brand_id).compact.first
     unless ink_brand_id
       ink_brand = InkBrand.where(
         "levenshtein_less_equal(simplified_name, ?, ?) <= ?",
@@ -53,19 +53,19 @@ class UpdateClusters
       ink_brand ||= InkBrand.find_or_create_by(simplified_name: simplified_brand_name)
       ink_brand_id = ink_brand.id
     end
-    cis.each {|ci| ci.update(ink_brand_id: ink_brand_id)}
+    cis.update_all(ink_brand_id: ink_brand_id)
     ink_brand_id
   end
 
   def update_ink_cluster(cis, brand_id)
-    new_ink_name_id = cis.map(&:new_ink_name_id).compact.first
+    new_ink_name_id = cis.pluck(:new_ink_name_id).compact.first
     unless new_ink_name_id
       new_ink_name_id = NewInkName.create!(
         simplified_name: simplified_ink_name,
         ink_brand_id: brand_id
       ).id
     end
-    cis.each {|ci| ci.update(new_ink_name_id: new_ink_name_id)}
+    cis.update_all(new_ink_name_id: new_ink_name_id)
   end
 
   def simplified_brand_name
