@@ -7,7 +7,6 @@ class UpdateInkBrand
   def perform
     ink_brand = find_ink_brand
     collected_ink.update(ink_brand: ink_brand)
-    ink_brand.update_popular_name!
   end
 
   private

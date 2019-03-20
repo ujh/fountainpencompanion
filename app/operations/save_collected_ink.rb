@@ -10,6 +10,7 @@ class SaveCollectedInk
     update_ink_brand!
     update_new_ink_name!
     update_color!
+    update_popular_names!
     collected_ink.reload if res # to return the updated color
     res
   end
@@ -29,5 +30,9 @@ class SaveCollectedInk
 
   def update_color!
     UpdateColor.new(collected_ink).perform
+  end
+
+  def update_popular_names!
+    UpdatePopularNames.new(collected_ink).perform
   end
 end
