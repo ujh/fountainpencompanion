@@ -124,6 +124,7 @@ class CollectedInk < ApplicationRecord
   private
 
   def unique_constraint
+    return unless changed.any? {|c| ['brand_name', 'line_name', 'ink_name'].include?(c)}
     rel = self.class.where(
       "LOWER(brand_name) = ? AND LOWER(line_name) = ? AND LOWER(ink_name) = ?",
       brand_name.to_s.downcase,
