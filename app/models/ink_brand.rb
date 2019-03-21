@@ -3,7 +3,10 @@ class InkBrand < ApplicationRecord
   has_many :new_ink_names
 
   def self.public
-    joins(:collected_inks).where(collected_inks: {private: false}).distinct("ink_brands.popular_name")
+    joins(:collected_inks)
+    .where("new_ink_names_count > 0")
+    .where(collected_inks: {private: false})
+    .distinct("ink_brands.popular_name")
   end
 
   def self.search(term)

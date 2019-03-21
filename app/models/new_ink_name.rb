@@ -4,7 +4,10 @@ class NewInkName < ApplicationRecord
   has_many :collected_inks
 
   def self.public
-    joins(:collected_inks).where(collected_inks: {private: false}).distinct("new_ink_names.popular_name")
+    joins(:collected_inks)
+    .where("collected_inks_count > 0")
+    .where(collected_inks: {private: false})
+    .distinct("new_ink_names.popular_name")
   end
 
   def self.search_line_names(term)

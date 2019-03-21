@@ -31,13 +31,15 @@ describe InkBrand do
     end
 
     it 'returns InkBrands with only public collected inks' do
-      create(:collected_ink, ink_brand: ink_brand, private: false)
+      ink_name = create(:new_ink_name, ink_brand: ink_brand)
+      create(:collected_ink, ink_brand: ink_brand, private: false, new_ink_name: ink_name)
       expect(InkBrand.public.count).to eq(1)
     end
 
     it 'returns InkBrands with collected inks of mixed privacy' do
-      create(:collected_ink, ink_brand: ink_brand, private: false)
-      create(:collected_ink, ink_brand: ink_brand, private: true)
+      ink_name = create(:new_ink_name, ink_brand: ink_brand)
+      create(:collected_ink, ink_brand: ink_brand, private: false, new_ink_name: ink_name)
+      create(:collected_ink, ink_brand: ink_brand, private: true, new_ink_name: ink_name)
       expect(InkBrand.public.count).to eq(1)
     end
   end
