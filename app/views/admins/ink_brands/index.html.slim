@@ -1,3 +1,5 @@
+= paginate @ink_brands
+
 table class="table table-striped"
   tr
     th Popular Name
@@ -10,3 +12,5 @@ table class="table table-striped"
       td= ink_brand.collected_inks.map(&:brand_name).uniq.sort.join(", ")
       td= ink_brand.new_ink_names.size
       td= link_to "Details", admins_ink_brand_path(ink_brand)
+
+= paginate @ink_brands

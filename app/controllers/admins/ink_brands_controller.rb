@@ -4,6 +4,7 @@ class Admins::InkBrandsController < Admins::BaseController
     @ink_brands = InkBrand.public.order("ink_brands.popular_name ASC")
       .where("new_ink_names_count > 0")
       .includes(:collected_inks)
+      .page(params[:page])
   end
 
   def show
