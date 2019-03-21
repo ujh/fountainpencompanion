@@ -13,6 +13,12 @@ table class="table table-striped"
       td Number of distinct inks
       td= NewInkName.public.count
     tr
+      td Number of distinct inks with color
+      td= NewInkName.with_color.count
+    tr
+      td Number of distinct inks without color
+      td= NewInkName.without_color.count
+    tr
       td Number of collected inks
       td= CollectedInk.count
     tr

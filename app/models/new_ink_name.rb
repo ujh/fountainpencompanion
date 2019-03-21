@@ -19,6 +19,14 @@ class NewInkName < ApplicationRecord
     public.where("simplified_name LIKE ?", "%#{simplified_term}%").order(:popular_name).pluck(:popular_name)
   end
 
+  def self.without_color
+    where(color: '')
+  end
+
+  def self.with_color
+    where.not(color: '')
+  end
+
   def collected_inks_with_color
     collected_inks.with_color
   end
