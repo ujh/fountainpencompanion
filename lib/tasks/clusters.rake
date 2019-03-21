@@ -6,5 +6,6 @@ namespace :clusters do
       SaveCollectedInk.new(ci, {}).perform
       progress.increment
     end
+    Rake::Task["clean_up:clusters"].execute
   end
 end
