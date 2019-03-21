@@ -59,7 +59,9 @@ class UpdateClusters
   end
 
   def update_ink_cluster(cis, brand_id)
-    new_ink_name_id = cis.where(ink_brand_id: brand_id).pluck(:new_ink_name_id).compact.first
+    new_ink_name_id = NewInkName.where(
+      ink_brand_id: brand_id, id: cis.pluck(:new_ink_name_id)
+    ).pluck(:id).compact.first
     unless new_ink_name_id
       new_ink_name_id = NewInkName.create!(
         simplified_name: simplified_ink_name,
