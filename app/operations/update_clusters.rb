@@ -63,7 +63,7 @@ class UpdateClusters
       ink_brand_id: brand_id, id: cis.pluck(:new_ink_name_id)
     ).pluck(:id).compact.first
     unless new_ink_name_id
-      new_ink_name_id = NewInkName.create!(
+      new_ink_name_id = NewInkName.find_or_create_by(
         simplified_name: simplified_ink_name,
         ink_brand_id: brand_id
       ).id
