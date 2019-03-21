@@ -44,21 +44,21 @@ class UpdateClusters
   end
 
   def update_brand_clusters(cis)
-    ink_brand_id = cis.pluck(:ink_brand_id).compact.first
-    unless ink_brand_id
-      ink_brand = InkBrand.where(
-        "levenshtein_less_equal(simplified_name, ?, ?) <= ?",
-        simplified_brand_name, THRESHOLD, THRESHOLD
-      ).first
-      ink_brand ||= InkBrand.find_or_create_by(simplified_name: simplified_brand_name)
-      ink_brand_id = ink_brand.id
-    end
+    popular_simplified_brand_name = cis.group(:simplified_brand_name).order(
+      Arel.sql('count(id) DESC')
+    ).select('simplified_brand_name, count(id)').limit(1).first&.simplified_brand_name
+    ink_brand = InkBrand.where(
+      "levenshtein_less_equal(simplified_name, ?, ?) <= ?",
+      popular_simplified_brand_name, THRESHOLD, THRESHOLD
+    ).first
+    ink_brand ||= InkBrand.find_or_create_by(simplified_name: popular_simplified_brand_name)
+    ink_brand_id = ink_brand.id
     cis.update_all(ink_brand_id: ink_brand_id)
     ink_brand_id
   end
 
   def update_ink_cluster(cis, brand_id)
-    new_ink_name_id = cis.pluck(:new_ink_name_id).compact.first
+    new_ink_name_id = cis.where(ink_brand_id: brand_id).pluck(:new_ink_name_id).compact.first
     unless new_ink_name_id
       new_ink_name_id = NewInkName.create!(
         simplified_name: simplified_ink_name,
