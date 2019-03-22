@@ -24,7 +24,7 @@ class Simplifier
     name.gsub(/^(\w\.\s*)+/, '')
   end
 
-  def self.brand(name)
+  def self.brand_name(name)
     return "24solar" if name =~ /^24\s+solar/i
     return "ancientsong" if name =~ /^ancient\s+song/i
     return "andersonpens" if name =~ /^anderson/i
@@ -42,6 +42,10 @@ class Simplifier
     self.simplify(name)
   end
 
+  def self.line_name(name)
+    self.brand_name(name)
+  end
+
   def self.ink_name(name)
     self.simplify(name)
   end
@@ -55,8 +59,8 @@ class Simplifier
   end
 
   def run
-    @collected_ink.simplified_brand_name = self.class.simplify(@collected_ink.brand_name)
-    @collected_ink.simplified_line_name = self.class.simplify(@collected_ink.line_name)
-    @collected_ink.simplified_ink_name = self.class.simplify(@collected_ink.ink_name)
+    @collected_ink.simplified_brand_name = self.class.brand_name(@collected_ink.brand_name)
+    @collected_ink.simplified_line_name = self.class.line_name(@collected_ink.line_name)
+    @collected_ink.simplified_ink_name = self.class.ink_name(@collected_ink.ink_name)
   end
 end
