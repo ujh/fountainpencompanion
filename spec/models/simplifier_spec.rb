@@ -15,6 +15,10 @@ describe Simplifier do
       expect(described_class.simplify("Rohrer & Klingner")).to eq("rohrerandklingner")
     end
 
+    it "replaces plus with and" do
+      expect(described_class.simplify("Pen + Message")).to eq("penandmessage")
+    end
+
     it "removes hashtags with numbers at the beginning" do
       expect(described_class.simplify("#8 Diep-Duinwaterblauw")).to eq("diepduinwaterblauw")
     end
