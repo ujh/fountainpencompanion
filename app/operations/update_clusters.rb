@@ -1,13 +1,18 @@
 class UpdateClusters
 
-  def initialize(collected_ink)
+  attr_accessor :excluded_ids
+
+  def initialize(collected_ink, excluded_ids)
     self.collected_ink = collected_ink
+    self.excluded_ids = excluded_ids
   end
 
   def perform
     similar = find_similar
     brand_id = update_brand_clusters(similar)
-    update_ink_cluster(similar, brand_id)
+    new_ink_name_id = update_ink_cluster(similar, brand_id)
+    self.excluded_ids += similar.pluck(:id)
+    clean_cluster(new_ink_name_id)
   end
 
   private
@@ -21,11 +26,13 @@ class UpdateClusters
     cis = cis.or(by_similarity(line: simplified_brand_name, ink: simplified_ink_name))
     cis = cis.or(by_similarity(brand: simplified_line_name, ink: simplified_ink_name))
     cis = cis.or(by_combined_similarity)
+    cis = cis.where.not(id: excluded_ids)
     cis.distinct
   end
 
   def by_combined_similarity
     value = [simplified_brand_name, simplified_line_name, simplified_ink_name].join
+    # TODO: Maybe double the distance here?
     CollectedInk.where(
       "levenshtein_less_equal(CONCAT(simplified_brand_name, simplified_line_name, simplified_ink_name), ?, ?) <= ?",
       value, THRESHOLD, THRESHOLD
@@ -70,6 +77,17 @@ class UpdateClusters
     end
     # Don't use update_all to keep the counter caches intact
     cis.each {|ci| ci.update(new_ink_name_id: new_ink_name_id) }
+    new_ink_name_id
+  end
+
+  def clean_cluster(new_ink_name_id)
+    extraneous_members = NewInkName.find(new_ink_name_id).collected_inks.where.not(id: excluded_ids)
+    extraneous_members.each do |ci|
+      ci.update(ink_brand: nil, new_ink_name: nil)
+    end
+    extraneous_members.each do |ci|
+      SaveCollectedInk.new(ci, {}, excluded_ids: excluded_ids).perform
+    end
   end
 
   def simplified_brand_name

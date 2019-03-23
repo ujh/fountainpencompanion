@@ -1,8 +1,9 @@
 class SaveCollectedInk
 
-  def initialize(collected_ink, collected_ink_params)
+  def initialize(collected_ink, collected_ink_params, excluded_ids: [])
     self.collected_ink = collected_ink
     self.collected_ink_params = collected_ink_params
+    self.excluded_ids = excluded_ids
   end
 
   def perform
@@ -21,9 +22,10 @@ class SaveCollectedInk
 
   attr_accessor :collected_ink
   attr_accessor :collected_ink_params
+  attr_accessor :excluded_ids
 
   def update_clusters!
-    UpdateClusters.new(collected_ink).perform
+    UpdateClusters.new(collected_ink, excluded_ids).perform
   end
 
   def update_color!

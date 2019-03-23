@@ -165,4 +165,24 @@ describe SaveCollectedInk do
       expect(ink_brand.simplified_name).to eq('iroshizuku')
     end.to change { InkBrand.count }.by(1)
   end
+
+  it 'splits clusters' do
+    ci1 = add!(brand_name: 'Diamine', ink_name: 'Coral')
+    ci2 = create(:collected_ink, {
+      brand_name: 'Levenger',
+      ink_name: 'Regal',
+      ink_brand: ci1.ink_brand,
+      new_ink_name: ci1.new_ink_name
+    })
+    ci3 = add!(brand_name: 'Diamine', ink_name: 'Coral') # Needs to remove ci2
+    [ci1, ci2, ci3].map(&:reload)
+    expect(ci1.ink_brand).to eq(ci3.ink_brand)
+    expect(ci1.new_ink_name).to eq(ci3.new_ink_name)
+    expect(ci1.ink_brand.popular_name).to eq('Diamine')
+    expect(ci1.new_ink_name.popular_name).to eq('Coral')
+    expect(ci2.ink_brand).to_not eq(ci1.ink_brand)
+    expect(ci2.new_ink_name).to_not eq(ci1.new_ink_name)
+    expect(ci2.ink_brand.popular_name).to eq('Levenger')
+    expect(ci2.new_ink_name.popular_name).to eq('Regal')
+  end
 end
