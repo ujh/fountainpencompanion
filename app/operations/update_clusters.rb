@@ -26,7 +26,7 @@ class UpdateClusters
   def find_similar
     cis = by_similarity(brand: simplified_brand_name, ink: simplified_ink_name)
     cis = cis.or(by_similarity(line: simplified_brand_name, ink: simplified_ink_name))
-    cis = cis.or(by_similarity(brand: simplified_line_name, ink: simplified_ink_name))
+    cis = cis.or(by_similarity(brand: simplified_line_name, ink: simplified_ink_name)) if simplified_line_name.present?
     cis = cis.or(by_combined_similarity)
     cis = cis.where.not(id: excluded_ids)
     cis.distinct
