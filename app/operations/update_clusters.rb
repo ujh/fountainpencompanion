@@ -46,7 +46,7 @@ class UpdateClusters
     opts.each do |field, value|
       t = THRESHOLD
       # For short ink names we have to be stricter to reduce the number of matches
-      if field == :ink && value.length <= 3
+      if field == :ink && value.length <= 4
         t = THRESHOLD / 2
       end
       rel = rel.where(
