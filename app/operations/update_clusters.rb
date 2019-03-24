@@ -2,9 +2,10 @@ class UpdateClusters
 
   attr_accessor :excluded_ids
 
-  def initialize(collected_ink, excluded_ids)
+  def initialize(collected_ink, excluded_ids, recursive)
     self.collected_ink = collected_ink
     self.excluded_ids = excluded_ids
+    self.recursive = recursive
   end
 
   def perform
@@ -20,6 +21,7 @@ class UpdateClusters
   THRESHOLD = 2
 
   attr_accessor :collected_ink
+  attr_accessor :recursive
 
   def find_similar
     cis = by_similarity(brand: simplified_brand_name, ink: simplified_ink_name)
@@ -81,12 +83,13 @@ class UpdateClusters
   end
 
   def clean_cluster(new_ink_name_id)
+    return if recursive # Only ever try assigning other members once
     extraneous_members = NewInkName.find(new_ink_name_id).collected_inks.where.not(id: excluded_ids)
     extraneous_members.each do |ci|
       ci.update(ink_brand: nil, new_ink_name: nil)
     end
     extraneous_members.each do |ci|
-      SaveCollectedInk.new(ci, {}, excluded_ids: excluded_ids).perform
+      SaveCollectedInk.new(ci, {}, excluded_ids: excluded_ids, recursive: true).perform
       self.excluded_ids << ci.id
     end
   end
