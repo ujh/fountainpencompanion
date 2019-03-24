@@ -87,6 +87,7 @@ class UpdateClusters
     end
     extraneous_members.each do |ci|
       SaveCollectedInk.new(ci, {}, excluded_ids: excluded_ids).perform
+      self.excluded_ids << ci.id
     end
   end
 
