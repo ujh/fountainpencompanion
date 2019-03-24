@@ -44,9 +44,14 @@ class UpdateClusters
   def by_similarity(opts)
     rel = CollectedInk
     opts.each do |field, value|
+      t = THRESHOLD
+      # For short ink names we have to be stricter to reduce the number of matches
+      if field == :ink && value.length <= 3
+        t = THRESHOLD / 2
+      end
       rel = rel.where(
         "levenshtein_less_equal(simplified_#{field}_name, ?, ?) <= ?",
-        value, THRESHOLD, THRESHOLD
+        value, t, t
       )
     end
     rel
