@@ -1,4 +1,8 @@
 namespace :clean_up do
+
+  desc "Run all clean up tasks"
+  task all: [:users, :clusters]
+  
   desc "Clean up empty ink and brand clusters"
   task clusters: :environment do
     NewInkName.empty.destroy_all
