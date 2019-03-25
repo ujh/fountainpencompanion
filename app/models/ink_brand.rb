@@ -4,9 +4,17 @@ class InkBrand < ApplicationRecord
 
   def self.public
     joins(:collected_inks)
-    .where("new_ink_names_count > 0")
     .where(collected_inks: {private: false})
-    .distinct("ink_brands.popular_name")
+    .select("ink_brands.*, count(distinct new_ink_names.id) as new_ink_names_count")
+    .group(:id)
+  end
+
+  def self.public_count
+    public.unscope(:select).count.count
+  end
+
+  def self.empty
+    left_joins(:new_ink_names).where(new_ink_names: {id: nil})
   end
 
   def self.search(term)

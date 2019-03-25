@@ -1,5 +1,5 @@
-- content_for :title, "#{InkBrand.public.count} brands"
+- content_for :title, "#{InkBrand.public_count} brands"
 - @brands.each_with_index do |brand, i|
   div class="col-xs-12 col-sm-6 col-md-4 col-lg-3"
     = "#{i+1}. "
-    = link_to "#{brand.popular_name} (#{brand.new_ink_names.size})", brand_path(brand)
+    = link_to "#{brand.popular_name} (#{brand.new_ink_names_count})", brand_path(brand)

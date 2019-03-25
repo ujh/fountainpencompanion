@@ -1,8 +1,7 @@
 class Admins::InkBrandsController < Admins::BaseController
 
   def index
-    @ink_brands = InkBrand.public.order("ink_brands.popular_name ASC")
-      .where("new_ink_names_count > 0")
+    @ink_brands = InkBrand.order("ink_brands.popular_name ASC")
       .includes(:collected_inks)
       .page(params[:page])
   end

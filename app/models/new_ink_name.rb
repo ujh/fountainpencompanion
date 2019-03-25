@@ -1,6 +1,6 @@
 class NewInkName < ApplicationRecord
 
-  belongs_to :ink_brand, counter_cache: true, inverse_of: :new_ink_names
+  belongs_to :ink_brand
   has_many :collected_inks
 
   def self.public
