@@ -152,18 +152,16 @@ describe SaveCollectedInk do
     expect(ci1.ink_brand.simplified_name).to eq('pilot')
     # Now add three with Iroshizuku. It should the change to use Iroshizuku as
     # the brand.
-    expect do
-      ci3 = add!(brand_name: 'Iroshizuku', ink_name: 'Kon-Peki')
-      ci4 = add!(brand_name: 'Iroshizuku', ink_name: 'Kon-Peki')
-      ci5 = add!(brand_name: 'Iroshizuku', ink_name: 'Kon-Peki')
-      inks = [ci1, ci2, ci3, ci4, ci5]
-      inks.map(&:reload)
-      ink_brand = ci3.ink_brand
-      new_ink_name = ci3.new_ink_name
-      expect(ink_brand.collected_inks).to match_array([ci1, ci2, ci3, ci4, ci5])
-      expect(new_ink_name.collected_inks).to match_array([ci1, ci2, ci3, ci4, ci5])
-      expect(ink_brand.simplified_name).to eq('iroshizuku')
-    end.to change { InkBrand.count }.by(1)
+    ci3 = add!(brand_name: 'Iroshizuku', ink_name: 'Kon-Peki')
+    ci4 = add!(brand_name: 'Iroshizuku', ink_name: 'Kon-Peki')
+    ci5 = add!(brand_name: 'Iroshizuku', ink_name: 'Kon-Peki')
+    inks = [ci1, ci2, ci3, ci4, ci5]
+    inks.map(&:reload)
+    ink_brand = ci3.ink_brand
+    new_ink_name = ci3.new_ink_name
+    expect(ink_brand.collected_inks).to match_array([ci1, ci2, ci3, ci4, ci5])
+    expect(new_ink_name.collected_inks).to match_array([ci1, ci2, ci3, ci4, ci5])
+    expect(ink_brand.simplified_name).to eq('iroshizuku')
   end
 
   it 'splits clusters' do
