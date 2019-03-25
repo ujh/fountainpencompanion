@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2018_10_04_061130) do
+ActiveRecord::Schema.define(version: 2019_03_25_074641) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "fuzzystrmatch"
@@ -107,7 +107,6 @@ ActiveRecord::Schema.define(version: 2018_10_04_061130) do
     t.integer "ink_brand_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.integer "collected_inks_count", default: 0
     t.text "popular_line_name", default: ""
     t.string "color", limit: 7, default: "", null: false
     t.index ["popular_line_name"], name: "index_new_ink_names_on_popular_line_name"
