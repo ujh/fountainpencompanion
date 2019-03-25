@@ -15,8 +15,8 @@ class CollectedInk < ApplicationRecord
 
   before_save :simplify
 
-  belongs_to :ink_brand, optional: true
   belongs_to :new_ink_name, optional: true
+  has_one :ink_brand, through: :new_ink_name
   belongs_to :user
   has_many :currently_inkeds
 

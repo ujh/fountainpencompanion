@@ -66,10 +66,7 @@ class UpdateClusters
       popular_simplified_brand_name, THRESHOLD, THRESHOLD
     ).first
     ink_brand ||= InkBrand.find_or_create_by(simplified_name: popular_simplified_brand_name)
-    ink_brand_id = ink_brand.id
-    # TODO: Why do we even need this?
-    cis.update_all(ink_brand_id: ink_brand_id)
-    ink_brand_id
+    ink_brand.id
   end
 
   def update_ink_cluster(cis, brand_id)
@@ -90,7 +87,7 @@ class UpdateClusters
     return if recursive # Only ever try assigning other members once
     extraneous_members = NewInkName.find(new_ink_name_id).collected_inks.where.not(id: excluded_ids)
     extraneous_members.each do |ci|
-      ci.update(ink_brand: nil, new_ink_name: nil)
+      ci.update(new_ink_name: nil)
     end
     extraneous_members.each do |ci|
       SaveCollectedInk.new(ci, {}, excluded_ids: excluded_ids, recursive: true).perform
