@@ -67,8 +67,8 @@ class UpdateClusters
     ).first
     ink_brand ||= InkBrand.find_or_create_by(simplified_name: popular_simplified_brand_name)
     ink_brand_id = ink_brand.id
-    # Don't use update_all to keep the counter caches intact
-    cis.each {|ci| ci.update(ink_brand_id: ink_brand_id) }
+    # TODO: Why do we even need this?
+    cis.update_all(ink_brand_id: ink_brand_id)
     ink_brand_id
   end
 
@@ -82,8 +82,7 @@ class UpdateClusters
         ink_brand_id: brand_id
       ).id
     end
-    # Don't use update_all to keep the counter caches intact
-    cis.each {|ci| ci.update(new_ink_name_id: new_ink_name_id) }
+    cis.update_all(new_ink_name_id: new_ink_name_id)
     new_ink_name_id
   end
 
