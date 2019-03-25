@@ -4,9 +4,9 @@ class User < ApplicationRecord
   devise :database_authenticatable, :registerable, :confirmable,
          :recoverable, :rememberable, :trackable, :validatable
 
-  has_many :collected_inks
-  has_many :collected_pens
-  has_many :currently_inkeds
+  has_many :currently_inkeds, dependent: :delete_all
+  has_many :collected_inks, dependent: :delete_all
+  has_many :collected_pens, dependent: :delete_all
 
   validates :name, length: { in: 1..100, allow_blank: true }
 
