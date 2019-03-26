@@ -183,4 +183,15 @@ describe SaveCollectedInk do
     expect(ci2.ink_brand.popular_name).to eq('Levenger')
     expect(ci2.new_ink_name.popular_name).to eq('Regal')
   end
+
+  it 'combines inks with three different names into one cluster' do
+    cis = []
+    cis << add!(brand_name: 'Pilot Iroshizuku', ink_name: 'Fuyu-Syogun')
+    cis << add!(brand_name: 'Pilot Iroshizuku', line_name: 'Iroshizuku', ink_name: 'Fuyu-Syogun')
+    cis << add!(brand_name: 'Pilot', line_name: 'Iroshizuku', ink_name: 'Fuyu-Syogun')
+    cis.map(&:reload)
+    expect(cis.map(&:ink_brand).uniq.length).to eq(1)
+    expect(cis.map(&:new_ink_name).uniq.length).to eq(1)
+  end
+
 end

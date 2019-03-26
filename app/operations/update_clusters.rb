@@ -38,10 +38,20 @@ class UpdateClusters
   def by_combined_similarity
     value = [simplified_brand_name, simplified_line_name, simplified_ink_name].join
     # TODO: Maybe double the distance here?
-    CollectedInk.where(
+    rel = CollectedInk.where(
       "levenshtein_less_equal(CONCAT(simplified_brand_name, simplified_line_name, simplified_ink_name), ?, ?) <= ?",
       value, THRESHOLD, THRESHOLD
     )
+    if simplified_line_name
+      # Covers the case where brand and line name have been put into the brand field
+      rel = rel.or(
+        CollectedInk.where(
+          "levenshtein_less_equal(CONCAT(simplified_brand_name, simplified_ink_name), ?, ?) <= ?",
+          value, THRESHOLD, THRESHOLD
+        )
+      )
+    end
+    rel
   end
 
   def by_similarity(opts)
