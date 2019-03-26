@@ -10,7 +10,8 @@ class Simplifier
     without_non_english_letters = I18n.transliterate(without_plus)
     without_quotes_at_end = without_non_english_letters.gsub(/"([^"]*)"/, '')
     only_letters_and_numbers = without_quotes_at_end.gsub(/\W/, '')
-    downcased = only_letters_and_numbers.downcase
+    without_year_at_end = only_letters_and_numbers.gsub(/\d\d\d\d$/, '')
+    downcased = without_year_at_end.downcase
     return name unless downcased.present?
     if !too_short && downcased.length < 5
       simplify(name, too_short: true)
@@ -26,7 +27,7 @@ class Simplifier
 
   def self.brand_name(name)
     return "24solar" if name =~ /^24\s+solar/i
-    return "ancientsong" if name =~ /^ancient\s+song/i
+    return "ancientsong" if name =~ /^ancient\s*(charm|song)/i
     return "andersonpens" if name =~ /^anderson/i
     return "athena" if name =~ /^athena\s*ink$/i
     return "banmi" if name =~ /^ban\s*mi/i
@@ -35,9 +36,11 @@ class Simplifier
     return "kobe" if name =~ /^nagasawa/i
     return "kwz" if name =~ /^kwz/i
     return "kyototag" if name =~ /(^tag\s+)|(\s+tag$)|(^tag$)/i
+    return "lamy" if name =~ /^lamy/i
     return "maruzen" if name =~ /^maruzen/i
     return "noodlers" if name =~ /^noodler/i
     return "robertoster" if name =~ /^robert\s*oster/i
+    return "sbre" if name =~ /^sbre\s*(brown)?$/i
     return "thorntons" if name =~ /^thornton/i
     self.simplify(name)
   end

@@ -71,6 +71,14 @@ describe Simplifier do
       expect(described_class.simplify("#44")).to eq("#44")
     end
 
+    it "removes four digit years at the end" do
+      expect(described_class.simplify("Olivine 2018")).to eq("olivine")
+    end
+
+    it "leaves four digits in the middle" do
+      expect(described_class.simplify("Oli 2018 vine")).to eq("oli2018vine")
+    end
+
     context "too short without numbers" do
       it "leaves numbers if name too short" do
         expect(described_class.simplify("23 - Guan")).to eq("23guan")
