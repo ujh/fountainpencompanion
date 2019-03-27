@@ -20,6 +20,10 @@ class CollectedInk < ApplicationRecord
   belongs_to :user
   has_many :currently_inkeds
 
+  def si
+    [simplified_brand_name, simplified_line_name, simplified_ink_name]
+  end
+
   def self.without_color
     where(color: '')
   end

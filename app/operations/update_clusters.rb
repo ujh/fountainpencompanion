@@ -2,18 +2,15 @@ class UpdateClusters
 
   attr_accessor :excluded_ids
 
-  def initialize(collected_ink, excluded_ids, recursive)
+  def initialize(collected_ink)
     self.collected_ink = collected_ink
-    self.excluded_ids = excluded_ids
-    self.recursive = recursive
   end
 
   def perform
     similar = find_similar
     brand_id = update_brand_clusters(similar)
     new_ink_name_id = update_ink_cluster(similar, brand_id)
-    self.excluded_ids += similar.pluck(:id)
-    clean_cluster(new_ink_name_id)
+    clean_clusters
   end
 
   private
@@ -21,8 +18,6 @@ class UpdateClusters
   THRESHOLD = 2
 
   attr_accessor :collected_ink
-  attr_accessor :ink_ids
-  attr_accessor :recursive
 
   def find_similar
     cis = by_similarity(brand: simplified_brand_name, ink: simplified_ink_name)
@@ -31,8 +26,48 @@ class UpdateClusters
     cis = cis.or(by_combined_similarity)
     cis = cis.where.not(id: excluded_ids)
     cis = cis.distinct
-    self.ink_ids = cis.pluck(:new_ink_name_id).uniq
-    cis
+    ink_ids = cis.pluck(:new_ink_name_id).uniq.compact
+    members = CollectedInk.where(id: collected_ink.id)
+    if ink_ids.present?
+      members = members.or(CollectedInk.where(new_ink_name_id: ink_ids))
+    end
+    cleaned = remove_blacklisted(members)
+    # members.to_a
+    CollectedInk.where(id: cleaned.map(&:id))
+  end
+
+  BLACKLIST = {
+    brand: [
+      ['banmi', 'colte'],
+      ['kobe', 'krone'],
+      ['sheaffer', 'scribo']
+    ],
+    ink: [
+      ['sepia', 'seiran', 'seiya']
+    ],
+  }
+
+  def blacklist_match(ci1, ci2)
+    BLACKLIST.each do |field, lists|
+      method = "simplified_#{field}_name"
+      lists.each do |values|
+        values.each do |value|
+          remaining = values - [value]
+          if ci1.send(method) == value && remaining.include?(ci2.send(method))
+            return true
+          elsif ci2.send(method) == value && remaining.include?(ci1.send(method))
+            return true
+          end
+        end
+      end
+    end
+    return false
+  end
+
+  def remove_blacklisted(cis)
+    cis.reject do |ci|
+      blacklist_match(collected_ink, ci)
+    end
   end
 
   def by_combined_similarity
@@ -74,10 +109,6 @@ class UpdateClusters
     popular_simplified_brand_name = cis.group(:simplified_brand_name).order(
       Arel.sql('count(id) DESC')
     ).select('simplified_brand_name, count(id)').limit(1).first&.simplified_brand_name
-    ink_brand = InkBrand.where(
-      "levenshtein_less_equal(simplified_name, ?, ?) <= ?",
-      popular_simplified_brand_name, THRESHOLD, THRESHOLD
-    ).first
     ink_brand ||= InkBrand.find_or_create_by(simplified_name: popular_simplified_brand_name)
     ink_brand.id
   end
@@ -96,19 +127,9 @@ class UpdateClusters
     new_ink_name_id
   end
 
-  def clean_cluster(new_ink_name_id)
-    brand_ids = NewInkName.where(id: ink_ids).empty.pluck(:ink_brand_id)
-    NewInkName.where(id: ink_ids).empty.delete_all
-    InkBrand.where(id: brand_ids).empty.delete_all
-    return if recursive # Only ever try assigning other members once
-    extraneous_members = NewInkName.find(new_ink_name_id).collected_inks.where.not(id: excluded_ids)
-    extraneous_members.each do |ci|
-      ci.update(new_ink_name: nil)
-    end
-    extraneous_members.each do |ci|
-      SaveCollectedInk.new(ci, {}, excluded_ids: excluded_ids, recursive: true).perform
-      self.excluded_ids << ci.id
-    end
+  def clean_clusters
+    NewInkName.empty.delete_all
+    InkBrand.empty.delete_all
   end
 
   def simplified_brand_name

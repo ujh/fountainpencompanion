@@ -22,14 +22,6 @@ describe SaveCollectedInk do
     expect(ci1.new_ink_name).to_not eq(ci2.new_ink_name)
   end
 
-  it 'uses same brand cluster for two distinct inks with similar brand name' do
-    ci1 = default!
-    ci2 = default!(brand_name: 'PilotX', ink_name: 'Shin-Kai')
-    [ci1, ci2].map(&:reload)
-    expect(ci1.ink_brand).to eq(ci2.ink_brand)
-    expect(ci1.new_ink_name).to_not eq(ci2.new_ink_name)
-  end
-
   it 'clusters two inks with the same name' do
     ci1 = default!
     ci2 = default!
@@ -164,7 +156,7 @@ describe SaveCollectedInk do
     expect(ink_brand.simplified_name).to eq('iroshizuku')
   end
 
-  it 'splits clusters' do
+  pending 'splits clusters' do
     ci1 = add!(brand_name: 'Diamine', ink_name: 'Coral')
     ci2 = create(:collected_ink, {
       brand_name: 'Levenger',
@@ -194,7 +186,7 @@ describe SaveCollectedInk do
     expect(cis.map(&:new_ink_name).uniq.length).to eq(1)
   end
 
-  pending 'combines inks with three different names into one cluster' do
+  it 'combines inks with three different names into one cluster' do
     cis = []
     cis << add!(brand_name: 'Pilot Iroshizuku', ink_name: 'Fuyu-Syogun')
     cis << add!(brand_name: 'Pilot Iroshizuku', line_name: 'Iroshizuku', ink_name: 'Fuyu-Syogun')
@@ -206,4 +198,40 @@ describe SaveCollectedInk do
     expect(cis.map(&:new_ink_name).uniq.length).to eq(1)
   end
 
+  it 'does not combine Ban Mi and Colte' do
+    cis = []
+    cis << add!(brand_name: 'Ban Mi', line_name: 'Color', ink_name: 'Black')
+    cis << add!(brand_name: 'Ban Mi Color', line_name: 'Glitter', ink_name: 'Black')
+    cis << add!(brand_name: 'Ban Mi', ink_name: 'Black')
+    cis << add!(brand_name: 'Colte', ink_name: 'Black')
+    cis << add!(brand_name: 'Ban Mi', ink_name: 'Black (Gorilla)')
+    cis.map(&:reload)
+    expect(cis.map(&:ink_brand).uniq.length).to eq(2)
+    expect(cis.map(&:new_ink_name).uniq.length).to eq(2)
+  end
+
+  it 'does not combine Kobe and Krone' do
+    ci1 = default!(brand_name: 'Kobe')
+    ci2 = default!(brand_name: 'Krone')
+    [ci1, ci2].map(&:reload)
+    expect(ci1.ink_brand).to_not eq(ci2.ink_brand)
+  end
+
+  it 'does not combine Sepia, Seiran, and, Seiya' do
+    cis = []
+    cis << default!(ink_name: 'Sepia')
+    cis << default!(ink_name: 'Seiran')
+    cis << default!(ink_name: 'Seiya')
+    cis.map(&:reload)
+    expect(cis.map(&:new_ink_name).uniq.length).to eq(3)
+  end
+
+  it 'does not combine Sheaffer Skrip and Scribo' do
+    cis = []
+    cis << add!(brand_name: 'Sheaffer', line_name: 'Skrip', ink_name: 'Red')
+    cis << add!(brand_name: 'Sheaffer', line_name: 'Scrip', ink_name: 'Red')
+    cis << add!(brand_name: 'Scribo', ink_name: 'Red')
+    cis.map(&:reload)
+    expect(cis.map(&:ink_brand).uniq.length).to eq(2)
+  end
 end
