@@ -40,7 +40,8 @@ class UpdateClusters
     brand: [
       ['banmi', 'colte'],
       ['kobe', 'krone'],
-      ['sheaffer', 'scribo']
+      ['sheaffer', 'scribo'],
+      ['omas', 'oaso'],
     ],
     ink: [
       ['sepia', 'seiran', 'seiya']

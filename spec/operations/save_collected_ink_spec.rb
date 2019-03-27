@@ -124,11 +124,11 @@ describe SaveCollectedInk do
 
   it 'merges clusters' do
     ci1 = add!(brand_name: 'Pilot', ink_name: 'Kon-Peki')
-    ci2 = add!(brand_name: 'Iroshizuku', ink_name: 'Kon-Peki')
+    ci2 = add!(brand_name: 'Line Name', ink_name: 'Kon-Peki')
     expect(ci1.ink_brand).to_not eq(ci2.ink_brand)
     expect(ci1.new_ink_name).to_not eq(ci2.new_ink_name)
     # This will match both and link them together
-    ci3 = add!(brand_name: 'Pilot', line_name: 'Iroshizuku', ink_name: 'Kon-Peki')
+    ci3 = add!(brand_name: 'Pilot', line_name: 'Line Name', ink_name: 'Kon-Peki')
     [ci1, ci2].map(&:reload)
     expect(ci3.ink_brand).to eq(ci1.ink_brand)
     expect(ci3.ink_brand).to eq(ci2.ink_brand)
@@ -153,27 +153,7 @@ describe SaveCollectedInk do
     new_ink_name = ci3.new_ink_name
     expect(ink_brand.collected_inks).to match_array([ci1, ci2, ci3, ci4, ci5])
     expect(new_ink_name.collected_inks).to match_array([ci1, ci2, ci3, ci4, ci5])
-    expect(ink_brand.simplified_name).to eq('iroshizuku')
-  end
-
-  pending 'splits clusters' do
-    ci1 = add!(brand_name: 'Diamine', ink_name: 'Coral')
-    ci2 = create(:collected_ink, {
-      brand_name: 'Levenger',
-      ink_name: 'Regal',
-      ink_brand: ci1.ink_brand,
-      new_ink_name: ci1.new_ink_name
-    })
-    ci3 = add!(brand_name: 'Diamine', ink_name: 'Coral') # Needs to remove ci2
-    [ci1, ci2, ci3].map(&:reload)
-    expect(ci1.ink_brand).to eq(ci3.ink_brand)
-    expect(ci1.new_ink_name).to eq(ci3.new_ink_name)
-    expect(ci1.ink_brand.popular_name).to eq('Diamine')
-    expect(ci1.new_ink_name.popular_name).to eq('Coral')
-    expect(ci2.ink_brand).to_not eq(ci1.ink_brand)
-    expect(ci2.new_ink_name).to_not eq(ci1.new_ink_name)
-    expect(ci2.ink_brand.popular_name).to eq('Levenger')
-    expect(ci2.new_ink_name.popular_name).to eq('Regal')
+    expect(ink_brand.popular_name).to eq('Iroshizuku')
   end
 
   it 'combines inks with three different names into one cluster' do
@@ -233,5 +213,12 @@ describe SaveCollectedInk do
     cis << add!(brand_name: 'Scribo', ink_name: 'Red')
     cis.map(&:reload)
     expect(cis.map(&:ink_brand).uniq.length).to eq(2)
+  end
+
+  it 'does not combine Oaso and Omas' do
+    ci1 = default!(brand_name: 'Oaso')
+    ci2 = default!(brand_name: 'Omas')
+    [ci1, ci2].map(&:reload)
+    expect(ci1.ink_brand).to_not eq(ci2.ink_brand)
   end
 end

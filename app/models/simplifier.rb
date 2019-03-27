@@ -32,6 +32,7 @@ class Simplifier
     return "athena" if name =~ /^athena\s*ink$/i
     return "banmi" if name =~ /^ban\s*mi/i
     return "birminghampens" if name =~ /^birmingham/i
+    return "bril" if name =~ /^bril/i
     return "herbin" if name =~/herbin/i
     return "kobe" if name =~ /^nagasawa/i
     return "kwz" if name =~ /^kwz/i
@@ -39,10 +40,14 @@ class Simplifier
     return "lamy" if name =~ /^lamy/i
     return "maruzen" if name =~ /^maruzen/i
     return "noodlers" if name =~ /^noodler/i
+    return "pilot" if name =~ /iroshizuku/i
     return "robertoster" if name =~ /^robert\s*oster/i
     return "sbre" if name =~ /^sbre\s*(brown)?$/i
     return "thorntons" if name =~ /^thornton/i
-    self.simplify(name)
+    simplified = self.simplify(name)
+    return "lecritoire" if simplified =~ /^lecritoire/
+    return "organicsstudio" if simplified =~ /^organics?studios?$/
+    simplified
   end
 
   def self.line_name(name)
