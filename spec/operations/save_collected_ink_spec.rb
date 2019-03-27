@@ -136,6 +136,22 @@ describe SaveCollectedInk do
     expect(ci3.new_ink_name).to eq(ci2.new_ink_name)
   end
 
+  it 'combines inks with similar brand names into one brand' do
+    ci1 = add!(brand_name: 'Bung Box', ink_name: 'first ink')
+    ci2 = add!(brand_name: 'Bungu Box', ink_name: 'second ink')
+    [ci1, ci2].map(&:reload)
+    expect(ci1.new_ink_name).to_not eq(ci2.new_ink_name)
+    expect(ci1.ink_brand).to eq(ci2.ink_brand)
+  end
+
+  it 'does not combine Pent and Pentel' do
+    ci1 = add!(brand_name: 'Pent', ink_name: 'first ink')
+    ci2 = add!(brand_name: 'Pentel', ink_name: 'second ink')
+    [ci1, ci2].map(&:reload)
+    expect(ci1.new_ink_name).to_not eq(ci2.new_ink_name)
+    expect(ci1.ink_brand).to_not eq(ci2.ink_brand)
+  end
+
   it 'picks the brand with the most members' do
     ci1 = default!
     ci2 = default!

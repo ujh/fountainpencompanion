@@ -110,6 +110,10 @@ class UpdateClusters
     popular_simplified_brand_name = cis.group(:simplified_brand_name).order(
       Arel.sql('count(id) DESC')
     ).select('simplified_brand_name, count(id)').limit(1).first&.simplified_brand_name
+    ink_brand = InkBrand.where(
+      "levenshtein_less_equal(simplified_name, ?, ?) <= ?",
+      popular_simplified_brand_name, 1, 1
+    ).first
     ink_brand ||= InkBrand.find_or_create_by(simplified_name: popular_simplified_brand_name)
     ink_brand.id
   end
