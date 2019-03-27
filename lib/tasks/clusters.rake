@@ -8,7 +8,6 @@ namespace :clusters do
       progress.increment
     end
     puts "Deleting existing clusters"
-    CollectedInk.update_all(new_ink_name_id: nil)
     NewInkName.delete_all
     InkBrand.delete_all
     puts "Recomputing the clusters"
