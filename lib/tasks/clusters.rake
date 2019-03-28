@@ -1,6 +1,7 @@
 namespace :clusters do
   desc 'Recompute all brand and ink clusters'
   task recompute: :environment do
+    Rails.logger.level = :warn
     puts "Recompute simplified_names and reset clusters"
     progress = ProgressBar.create(total: CollectedInk.count, format: "%a %e %P% Processed: %c from %C")
     CollectedInk.find_each do |ci|
