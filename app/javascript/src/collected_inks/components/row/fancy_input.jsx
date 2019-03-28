@@ -161,6 +161,7 @@ class InputComponent extends React.Component {
       defaultValue={this.props.value}
       onBlur={this.props.onBlur}
       onKeyDown={this.props.onKeyDown}
+      onChange={this.props.onChange}
     />
   }
 
@@ -184,12 +185,9 @@ class InputComponent extends React.Component {
       source: this.props.suggestions,
       minLength: 4
     })
-    $(this.input).on("autocompletechange", (e) => {
-      // Otherwise clicking on an autocomplete entry won't work
-      setTimeout(() => {
-        this.props.onChange(e)
-        this.props.onBlur(e)
-      }, 0)
+    $(this.input).on("autocompleteselect", (e, ui) => {
+      this.props.onChange({target: {value: ui.item.label}})
+      this.props.onBlur(e)
     })
     if (this.props.autoFocus) this.input.select()
   }
