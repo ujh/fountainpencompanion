@@ -42,6 +42,16 @@ class UpdateClusters
       ['kobe', 'krone'],
       ['sheaffer', 'scribo'],
       ['omas', 'oaso'],
+      ['duke', 'platinum'],
+      ['pentel', 'sailor'],
+      ['bic', 'mix'],
+      ['oaso', 'ohto'],
+      ['penbbs', 'penbox'],
+      ['pent', 'pentel'],
+      ['pengallery', 'pensalley'],
+      ['queen', 'ruwen'],
+      ['mimoink', 'miyaink'],
+      ['monami', 'noname'],
     ],
     ink: [
       ['sepia', 'seiran', 'seiya']
@@ -55,8 +65,6 @@ class UpdateClusters
         values.each do |value|
           remaining = values - [value]
           if ci1.send(method) == value && remaining.include?(ci2.send(method))
-            return true
-          elsif ci2.send(method) == value && remaining.include?(ci1.send(method))
             return true
           end
         end
@@ -111,9 +119,21 @@ class UpdateClusters
       Arel.sql('count(id) DESC')
     ).select('simplified_brand_name, count(id)').limit(1).first&.simplified_brand_name
     ink_brand = InkBrand.where(
-      "levenshtein_less_equal(simplified_name, ?, ?) <= ?",
-      popular_simplified_brand_name, 1, 1
+      "levenshtein_less_equal(simplified_name, ?, 2, 1, 1, 2) <= 2",
+      popular_simplified_brand_name
     ).first
+    if ink_brand
+      BLACKLIST[:brand].each do |list|
+        list.each do |value|
+          remaining = list - [value]
+          if popular_simplified_brand_name == value && remaining.include?(ink_brand.simplified_name)
+            ink_brand = nil
+          end
+          break unless ink_brand
+        end
+        break unless ink_brand
+      end
+    end
     ink_brand ||= InkBrand.find_or_create_by(simplified_name: popular_simplified_brand_name)
     ink_brand.id
   end

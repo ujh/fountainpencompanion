@@ -27,7 +27,7 @@ class Simplifier
 
   def self.brand_name(name)
     return "24solar" if name =~ /^24\s+solar/i
-    return "ancientsong" if name =~ /^ancient\s*(charm|song)/i
+    return "ancientsong" if name =~ /^(ancient\s*(charm|song))|(small\s*endowment)/i
     return "andersonpens" if name =~ /^anderson/i
     return "athena" if name =~ /^athena\s*ink$/i
     return "banmi" if name =~ /^ban\s*mi/i
@@ -47,6 +47,7 @@ class Simplifier
     simplified = self.simplify(name)
     return "lecritoire" if simplified =~ /^lecritoire/
     return "organicsstudio" if simplified =~ /^organics?studios?$/
+    return "pensalley" if simplified =~ /pensalley/
     simplified
   end
 

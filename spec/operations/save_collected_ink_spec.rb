@@ -152,6 +152,30 @@ describe SaveCollectedInk do
     expect(ci1.ink_brand).to_not eq(ci2.ink_brand)
   end
 
+  it 'combines Mitoukashi and Mitsukoshi' do
+    ci1 = add!(brand_name: 'Mitoukashi', ink_name: 'first ink')
+    ci2 = add!(brand_name: 'Mitsukoshi', ink_name: 'second ink')
+    [ci1, ci2].map(&:reload)
+    expect(ci1.new_ink_name).to_not eq(ci2.new_ink_name)
+    expect(ci1.ink_brand).to eq(ci2.ink_brand)
+  end
+
+  it "combines Fahrney's and Farhney's" do
+    ci1 = add!(brand_name: "Fahrney's", ink_name: 'first ink')
+    ci2 = add!(brand_name: "Farhney's", ink_name: 'second ink')
+    [ci1, ci2].map(&:reload)
+    expect(ci1.new_ink_name).to_not eq(ci2.new_ink_name)
+    expect(ci1.ink_brand).to eq(ci2.ink_brand)
+  end
+
+  it 'does not combine Queen and Ruwen' do
+    ci1 = add!(brand_name: 'Queen', ink_name: 'first ink')
+    ci2 = add!(brand_name: 'Ruwen', ink_name: 'second ink')
+    [ci1, ci2].map(&:reload)
+    expect(ci1.new_ink_name).to_not eq(ci2.new_ink_name)
+    expect(ci1.ink_brand).to_not eq(ci2.ink_brand)
+  end
+
   it 'picks the brand with the most members' do
     ci1 = default!
     ci2 = default!
