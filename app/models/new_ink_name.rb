@@ -1,10 +1,21 @@
 class NewInkName < ApplicationRecord
 
-  belongs_to :ink_brand, counter_cache: true
+  belongs_to :ink_brand
   has_many :collected_inks
 
   def self.public
-    joins(:collected_inks).where(collected_inks: {private: false}).distinct("new_ink_names.popular_name")
+    joins(:collected_inks)
+    .where(collected_inks: {private: false})
+    .select("new_ink_names.*, count(*) as collected_inks_count")
+    .group(:id)
+  end
+
+  def self.public_count
+    public.unscope(:select).count.count
+  end
+
+  def self.empty
+    left_joins(:collected_inks).where(collected_inks: {id: nil})
   end
 
   def self.search_line_names(term)
@@ -14,6 +25,14 @@ class NewInkName < ApplicationRecord
   def self.search_names(term)
     simplified_term = Simplifier.simplify(term.to_s)
     public.where("simplified_name LIKE ?", "%#{simplified_term}%").order(:popular_name).pluck(:popular_name)
+  end
+
+  def self.without_color
+    where(color: '')
+  end
+
+  def self.with_color
+    where.not(color: '')
   end
 
   def collected_inks_with_color

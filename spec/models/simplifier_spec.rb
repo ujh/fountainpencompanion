@@ -15,6 +15,10 @@ describe Simplifier do
       expect(described_class.simplify("Rohrer & Klingner")).to eq("rohrerandklingner")
     end
 
+    it "replaces plus with and" do
+      expect(described_class.simplify("Pen + Message")).to eq("penandmessage")
+    end
+
     it "removes hashtags with numbers at the beginning" do
       expect(described_class.simplify("#8 Diep-Duinwaterblauw")).to eq("diepduinwaterblauw")
     end
@@ -65,6 +69,14 @@ describe Simplifier do
 
     it "leaves an entry alone that has a number with a pound sign in front of it" do
       expect(described_class.simplify("#44")).to eq("#44")
+    end
+
+    it "removes four digit years at the end" do
+      expect(described_class.simplify("Olivine 2018")).to eq("olivine")
+    end
+
+    it "leaves four digits in the middle" do
+      expect(described_class.simplify("Oli 2018 vine")).to eq("oli2018vine")
     end
 
     context "too short without numbers" do

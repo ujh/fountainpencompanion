@@ -113,6 +113,18 @@ GEM
     jsonapi-renderer (0.2.0)
     jsonapi-serializable (0.3.0)
       jsonapi-renderer (~> 0.2.0)
+    kaminari (1.1.1)
+      activesupport (>= 4.1.0)
+      kaminari-actionview (= 1.1.1)
+      kaminari-activerecord (= 1.1.1)
+      kaminari-core (= 1.1.1)
+    kaminari-actionview (1.1.1)
+      actionview
+      kaminari-core (= 1.1.1)
+    kaminari-activerecord (1.1.1)
+      activerecord
+      kaminari-core (= 1.1.1)
+    kaminari-core (1.1.1)
     kramdown (1.16.2)
     launchy (2.4.3)
       addressable (~> 2.3)
@@ -294,6 +306,7 @@ DEPENDENCIES
   jquery-rails
   jquery-ui-rails
   jsonapi-rails
+  kaminari
   letter_opener
   listen
   newrelic_rpm
@@ -319,4 +332,4 @@ RUBY VERSION
    ruby 2.4.1p111
 
 BUNDLED WITH
-   1.16.1
+   1.16.6

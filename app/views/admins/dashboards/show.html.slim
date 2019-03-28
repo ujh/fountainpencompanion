@@ -8,19 +8,23 @@ table class="table table-striped"
       td= User.count
     tr
       td Number of ink brands
-      td= InkBrand.public.count
+      td= InkBrand.public_count
     tr
       td Number of distinct inks
-      td= NewInkName.public.count
+      td
+        = NewInkName.public_count
+        |  (
+        = "#{NewInkName.with_color.public_count}:#{NewInkName.without_color.public_count}"
+        = " #{(NewInkName.with_color.public_count.to_f/NewInkName.public_count*100).round(2)}%"
+        | )
     tr
       td Number of collected inks
-      td= CollectedInk.count
-    tr
-      td Number of collected inks with color
-      td= CollectedInk.with_color.count
-    tr
-      td Number of collected inks without color
-      td= CollectedInk.without_color.count
+      td
+        = CollectedInk.count
+        |  (
+        = "#{CollectedInk.with_color.count}:#{CollectedInk.without_color.count}"
+        = " #{(CollectedInk.with_color.count.to_f/CollectedInk.count*100).round(2)}%"
+        | )
     tr
       td Number of collected pens
       td= CollectedPen.count

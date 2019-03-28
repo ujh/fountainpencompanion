@@ -15,10 +15,14 @@ class CollectedInk < ApplicationRecord
 
   before_save :simplify
 
-  belongs_to :ink_brand, optional: true
-  belongs_to :new_ink_name, optional: true, counter_cache: true
+  belongs_to :new_ink_name, optional: true
+  has_one :ink_brand, through: :new_ink_name
   belongs_to :user
   has_many :currently_inkeds
+
+  def si
+    [simplified_brand_name, simplified_line_name, simplified_ink_name]
+  end
 
   def self.without_color
     where(color: '')
@@ -124,6 +128,7 @@ class CollectedInk < ApplicationRecord
   private
 
   def unique_constraint
+    return unless changed.any? {|c| ['brand_name', 'line_name', 'ink_name'].include?(c)}
     rel = self.class.where(
       "LOWER(brand_name) = ? AND LOWER(line_name) = ? AND LOWER(ink_name) = ?",
       brand_name.to_s.downcase,
