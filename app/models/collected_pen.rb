@@ -19,11 +19,16 @@ class CollectedPen < ApplicationRecord
 
   def self.to_csv
     CSV.generate(col_sep: ";") do |csv|
-      csv << ["Brand", "Model", "Nib", "Color", "Comment", "Archived", "Archived On", "Usage", "Last Inked"]
+      csv << ["Brand", "Model", "Nib", "Color", "Comment", "Archived", "Archived On", "Usage", "Last Inked", "Last Cleaned"]
       all.each do |cp|
         usage_count = cp.currently_inkeds.length
         last_inked = nil
-        last_inked = cp.currently_inkeds.map(&:created_at).max.to_date unless usage_count.zero?
+        last_cleaned = nil
+        if usage_count > 0
+          entry = cp.currently_inkeds.order(:inked_on).last
+          last_inked = entry.inked_on
+          last_cleaned = entry.archived_on
+        end
         csv << [
           cp.brand,
           cp.model,
@@ -33,7 +38,8 @@ class CollectedPen < ApplicationRecord
           cp.archived?,
           cp.archived_on,
           usage_count,
-          last_inked
+          last_inked,
+          last_cleaned,
         ]
       end
     end

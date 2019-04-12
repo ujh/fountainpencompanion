@@ -30,7 +30,7 @@ describe CollectedPensController do
         get :index, format: "csv"
         expect(response).to be_successful
         expected_csv = CSV.generate(col_sep: ";") do |csv|
-          csv << ["Brand", "Model", "Nib", "Color", "Comment", "Archived", "Archived On", "Usage", "Last Inked"]
+          csv << ["Brand", "Model", "Nib", "Color", "Comment", "Archived", "Archived On", "Usage", "Last Inked", "Last Cleaned"]
           [custom74, wing_sung].each do |cp|
             csv << [
               cp.brand,
@@ -41,6 +41,7 @@ describe CollectedPensController do
               cp.archived?,
               cp.archived_on,
               0,
+              nil,
               nil
             ]
           end
