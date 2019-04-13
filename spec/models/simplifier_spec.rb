@@ -68,7 +68,7 @@ describe Simplifier do
     end
 
     it "leaves an entry alone that has a number with a pound sign in front of it" do
-      expect(described_class.simplify("#44")).to eq("#44")
+      expect(described_class.simplify("#44")).to eq("44")
     end
 
     it "removes four digit years at the end" do

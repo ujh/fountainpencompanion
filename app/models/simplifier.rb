@@ -3,6 +3,7 @@ class Simplifier
   def self.simplify(name, too_short: false)
     without_brackets = name.gsub(/\(.*\)/, '')
     without_no = without_brackets.gsub(/^no\s*\.\s*(\d+)/i, '\1')
+    return $1 if without_no =~ /^#?(\d+)$/
     without_no = without_no.gsub(/^#?\d+/, '') unless too_short
     without_initials = remove_initials(without_no)
     without_ampersand = without_initials.gsub('&', 'and')

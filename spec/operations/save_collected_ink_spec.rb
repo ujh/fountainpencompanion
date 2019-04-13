@@ -261,4 +261,39 @@ describe SaveCollectedInk do
     [ci1, ci2].map(&:reload)
     expect(ci1.ink_brand).to_not eq(ci2.ink_brand)
   end
+
+  context 'ink names comprised of numbers' do
+
+    it 'does not cluster inks with similar numbers' do
+      cis = []
+      cis << add!(brand_name: 'Sailor', line_name: 'Ink Studio', ink_name: '123')
+      cis << add!(brand_name: 'Sailor', line_name: 'Ink Studio', ink_name: '124')
+      cis.map(&:reload)
+      expect(cis.map(&:new_ink_name).uniq.length).to eq(2)
+    end
+
+    it 'does not cluster by line if name is only numbers' do
+      cis = []
+      cis << add!(brand_name: 'Sailor', line_name: 'Ink Studio', ink_name: '123')
+      cis << add!(brand_name: 'Ink Studio', ink_name: '124')
+      cis.map(&:reload)
+      expect(cis.map(&:new_ink_name).uniq.length).to eq(2)
+    end
+
+    it 'does not cluster inks with pound sign and numbers' do
+      cis = []
+      cis << add!(brand_name: 'Kobe', ink_name: '#20')
+      cis << add!(brand_name: 'Kobe', ink_name: '#21')
+      cis.map(&:reload)
+      expect(cis.map(&:new_ink_name).uniq.length).to eq(2)
+    end
+
+    it 'clusters inks with one having a pound sign and the other having none' do
+      cis = []
+      cis << add!(brand_name: 'Kobe', ink_name: '#20')
+      cis << add!(brand_name: 'Kobe', ink_name: '20')
+      cis.map(&:reload)
+      expect(cis.map(&:new_ink_name).uniq.length).to eq(1)
+    end
+  end
 end

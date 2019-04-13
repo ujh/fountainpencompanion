@@ -86,14 +86,19 @@ class UpdateClusters
       "levenshtein_less_equal(CONCAT(simplified_brand_name, simplified_line_name, simplified_ink_name), ?, ?) <= ?",
       value, THRESHOLD, THRESHOLD
     )
+    if simplified_ink_name =~ /^\d+$/
+      rel = rel.where(simplified_ink_name: simplified_ink_name)
+    end
     if simplified_line_name
       # Covers the case where brand and line name have been put into the brand field
-      rel = rel.or(
-        CollectedInk.where(
-          "levenshtein_less_equal(CONCAT(simplified_brand_name, simplified_ink_name), ?, ?) <= ?",
-          value, THRESHOLD, THRESHOLD
-        )
+      or_rel = CollectedInk.where(
+        "levenshtein_less_equal(CONCAT(simplified_brand_name, simplified_ink_name), ?, ?) <= ?",
+        value, THRESHOLD, THRESHOLD
       )
+      if simplified_ink_name =~ /^\d+$/
+        or_rel = or_rel.where(simplified_ink_name: simplified_ink_name)
+      end
+      rel = rel.or(or_rel)
     end
     rel
   end
@@ -102,14 +107,19 @@ class UpdateClusters
     rel = CollectedInk
     opts.each do |field, value|
       t = THRESHOLD
-      # For short ink names we have to be stricter to reduce the number of matches
-      if field == :ink && value.length <= 4
-        t = THRESHOLD / 2
+      # Don't allow any deviation for ink names that are only comprised of numbers
+      if field == :ink && value =~ /^\d+$/
+        rel = rel.where("simplified_#{field}_name" => value)
+      else
+        # For short ink names we have to be stricter to reduce the number of matches
+        if field == :ink && value.length <= 4
+          t = THRESHOLD / 2
+        end
+        rel = rel.where(
+          "levenshtein_less_equal(simplified_#{field}_name, ?, ?) <= ?",
+          value, t, t
+        )
       end
-      rel = rel.where(
-        "levenshtein_less_equal(simplified_#{field}_name, ?, ?) <= ?",
-        value, t, t
-      )
     end
     rel
   end
