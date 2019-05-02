@@ -100,6 +100,7 @@ Rails.application.configure do
 
   config.middleware.use(
     ExceptionNotification::Rack,
+    ignore_exceptions: ["ActionController::InvalidAuthenticityToken"] + ExceptionNotifier.ignored_exceptions,
     email: {
       :email_prefix => "[FPC] ",
       :sender_address => %{"Exception Notifier" <exception-notifier@fountainpencompanion.com>},
