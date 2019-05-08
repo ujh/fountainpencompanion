@@ -176,7 +176,7 @@ GEM
       bundler (>= 1.3.0)
       railties (= 5.2.3)
       sprockets-rails (>= 2.0.0)
-    rails-assets-select2 (4.0.5)
+    rails-assets-select2 (4.0.7)
     rails-dom-testing (2.0.3)
       activesupport (>= 4.2.0)
       nokogiri (>= 1.6)
@@ -313,7 +313,7 @@ DEPENDENCIES
   pg
   puma
   rails (~> 5.2.3)
-  rails-assets-select2 (= 4.0.5)!
+  rails-assets-select2 (= 4.0.7)!
   rspec-rails
   ruby-progressbar
   sass-rails
