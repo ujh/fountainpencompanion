@@ -1,2 +1,11 @@
 <script>var clicky_site_ids = clicky_site_ids || []; clicky_site_ids.push(101182533);</script>
 <script async src="//static.getclicky.com/js"></script>
+
+<% if user_signed_in? %>
+<script type="text/javascript">
+  var clicky_custom = clicky_custom || {};
+  clicky_custom.visitor = {
+    username: '<%= current_user.id %>'
+  };
+</script>
+<% end %>
