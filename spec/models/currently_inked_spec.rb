@@ -155,4 +155,18 @@ describe CurrentlyInked do
       expect(subject.pen_name).to eq('Pilot Custom 74 my nib orange')
     end
   end
+
+  describe '#destroy' do
+
+    subject { create(:currently_inked) }
+
+    it 'deletes usage records' do
+      usage_record = create(:usage_record, currently_inked: subject)
+      expect do
+        expect do
+          subject.destroy
+        end.to change { CurrentlyInked.count }.from(1).to(0)
+      end.to change { UsageRecord.count }.from(1).to(0)
+    end
+  end
 end

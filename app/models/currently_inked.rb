@@ -9,7 +9,7 @@ class CurrentlyInked < ApplicationRecord
   belongs_to :collected_pen
   belongs_to :user
 
-  has_many :usage_records
+  has_many :usage_records, dependent: :destroy
 
   delegate :collected_inks_for_select, to: :user
   delegate :collected_pens_for_select, to: :user
