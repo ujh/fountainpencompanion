@@ -9,6 +9,8 @@ class CurrentlyInked < ApplicationRecord
   belongs_to :collected_pen
   belongs_to :user
 
+  has_many :usage_records
+
   delegate :collected_inks_for_select, to: :user
   delegate :collected_pens_for_select, to: :user
   delegate :name, to: :collected_ink, prefix: 'ink', allow_nil: true
