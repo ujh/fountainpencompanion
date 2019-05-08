@@ -12,7 +12,11 @@ Rails.application.routes.draw do
   end
   resources :currently_inked do
     resource :archive, only: [:create, :destroy]
+    resource :usage_record, only: [:create]
   end
+
+  resources :usage_records, only: [:index, :destroy, :edit, :update]
+
   resources :brands, only: [:index]
   namespace :pens do
     resources :brands, only: [:index]
