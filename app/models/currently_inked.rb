@@ -40,6 +40,10 @@ class CurrentlyInked < ApplicationRecord
     end
   end
 
+  def used_today?
+    usage_records.where(used_on: Date.today).exists?
+  end
+
   def name
     "#{ink_name} - #{pen_name}"
   end

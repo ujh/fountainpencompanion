@@ -169,4 +169,28 @@ describe CurrentlyInked do
       end.to change { UsageRecord.count }.from(1).to(0)
     end
   end
+
+  describe '#used_today?' do
+
+    subject { create(:currently_inked) }
+
+    it 'returns false if there is no UsageRecord' do
+      expect(subject).to_not be_used_today
+    end
+
+    it 'returns true when there is a UsageRecord for today' do
+      usage_record = create(:usage_record, currently_inked: subject)
+      expect(subject).to be_used_today
+    end
+
+    it 'returns false when there is a UsageRecord for yesterday' do
+      usage_record = create(:usage_record, currently_inked: subject, used_on: Date.yesterday)
+      expect(subject).to_not be_used_today
+    end
+
+    it 'returns false when there is a UsageRecord for another currently inked' do
+      usage_record = create(:usage_record)
+      expect(subject).to_not be_used_today
+    end
+  end
 end
