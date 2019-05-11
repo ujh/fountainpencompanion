@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_03_25_092019) do
+ActiveRecord::Schema.define(version: 2019_05_08_191145) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "fuzzystrmatch"
@@ -111,6 +111,15 @@ ActiveRecord::Schema.define(version: 2019_03_25_092019) do
     t.index ["simplified_name", "ink_brand_id"], name: "index_new_ink_names_on_simplified_name_and_ink_brand_id", unique: true
   end
 
+  create_table "usage_records", force: :cascade do |t|
+    t.bigint "currently_inked_id", null: false
+    t.date "used_on", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["currently_inked_id", "used_on"], name: "index_usage_records_on_currently_inked_id_and_used_on", unique: true
+    t.index ["currently_inked_id"], name: "index_usage_records_on_currently_inked_id"
+  end
+
   create_table "users", id: :serial, force: :cascade do |t|
     t.string "email", default: "", null: false
     t.string "encrypted_password", default: "", null: false
@@ -142,4 +151,5 @@ ActiveRecord::Schema.define(version: 2019_03_25_092019) do
   add_foreign_key "currently_inked", "collected_pens"
   add_foreign_key "currently_inked", "users"
   add_foreign_key "new_ink_names", "ink_brands"
+  add_foreign_key "usage_records", "currently_inked"
 end

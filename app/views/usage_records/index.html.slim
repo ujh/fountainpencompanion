@@ -1,0 +1,22 @@
+- content_for :title, "Usage Records"
+div id="usage-records"
+  div class="export"
+    = link_to "Export data", usage_records_path(format: 'csv'), class: "btn btn-primary"
+  table class="table table-striped"
+    thead
+      tr
+        th Date
+        th Pen
+        th Ink
+        th
+    tbody
+      - @usage_records.each do |ur|
+        tr
+          td= ur.used_on
+          td= ur.pen_name
+          td= ur.ink_name
+          td
+            span class="actions"
+              = link_to usage_record_path(ur), class: "btn btn-default", method: :delete, data: { confirm: "Really delet entry?"} do
+                = fa_icon("trash")
+  = paginate @usage_records
