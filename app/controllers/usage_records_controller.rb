@@ -14,6 +14,14 @@ class UsageRecordsController < ApplicationController
     head :created
   end
 
+  def destroy
+    @usage_record = current_user.usage_records.find(params[:id])
+    @usage_record.destroy
+    redirect_to usage_records_path
+  rescue ActiveRecord::RecordNotFound
+    head :not_found
+  end
+
   private
 
   def retrieve_currently_inked

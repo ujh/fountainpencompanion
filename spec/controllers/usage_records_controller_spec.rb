@@ -57,4 +57,38 @@ describe UsageRecordsController do
       end
     end
   end
+
+  describe '#destroy' do
+    let(:currently_inked) { create(:currently_inked, user: user) }
+    let!(:usage_record) { create(:usage_record, currently_inked: currently_inked)}
+
+    it 'requires authentication' do
+      delete :destroy, params: { id: usage_record.id }
+      expect(response).to redirect_to(new_user_session_path)
+    end
+
+    context 'signed in' do
+      before(:each) do
+        sign_in(user)
+      end
+
+      it 'destroys the entry' do
+        expect do
+          delete :destroy, params: { id: usage_record.id }
+        end.to change { UsageRecord.count }.by(-1)
+      end
+
+      it 'does not delete other users records' do
+        usage_record = create(:usage_record)
+        expect do
+          delete :destroy, params: { id: usage_record.id }
+        end.to_not change { UsageRecord.count }
+      end
+
+      it 'redirects back to the index page' do
+        delete :destroy, params: { id: usage_record.id }
+        expect(response).to redirect_to(usage_records_path)
+      end
+    end
+  end
 end

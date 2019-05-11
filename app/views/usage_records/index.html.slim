@@ -14,4 +14,7 @@ div id="usage-records"
           td= ur.pen_name
           td= ur.ink_name
           td
+            span class="actions"
+              = link_to usage_record_path(ur), class: "btn btn-default", method: :delete, data: { confirm: "Really delet entry?"} do
+                = fa_icon("trash")
   = paginate @usage_records
