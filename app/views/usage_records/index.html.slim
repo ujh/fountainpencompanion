@@ -1,5 +1,7 @@
 - content_for :title, "Usage Records"
 div id="usage-records"
+  div class="export"
+    = link_to "Export data", usage_records_path(format: 'csv'), class: "btn btn-primary"
   table class="table table-striped"
     thead
       tr

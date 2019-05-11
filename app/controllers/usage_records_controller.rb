@@ -4,7 +4,14 @@ class UsageRecordsController < ApplicationController
 
   def index
     @usage_records = current_user.usage_records.order('used_on DESC, currently_inked_id')
-    @usage_records = @usage_records.page(params[:page])
+    respond_to do |format|
+      format.html {
+        @usage_records = @usage_records.page(params[:page])
+      }
+      format.csv {
+        send_data @usage_records.to_csv, type: "text/csv", filename: "usage_records.csv"
+      }
+    end
   end
 
   def create
