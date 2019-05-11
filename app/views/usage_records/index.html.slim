@@ -1,0 +1,17 @@
+- content_for :title, "Usage Records"
+div id="usage-records"
+  table class="table table-striped"
+    thead
+      tr
+        th Date
+        th Pen
+        th Ink
+        th
+    tbody
+      - @usage_records.each do |ur|
+        tr
+          td= ur.used_on
+          td= ur.pen_name
+          td= ur.ink_name
+          td
+  = paginate @usage_records

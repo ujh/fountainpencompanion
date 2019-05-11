@@ -3,10 +3,10 @@ require 'rails_helper'
 describe UsageRecordsController do
   render_views
 
-  describe '#create' do
+  let(:user) { create(:user) }
 
-    let(:currently_inked) { create(:currently_inked) }
-    let(:user) { currently_inked.user }
+  describe '#create' do
+    let(:currently_inked) { create(:currently_inked, user: user) }
 
     it 'requires authentication' do
       post :create, params: { currently_inked_id: currently_inked.id }
@@ -35,6 +35,25 @@ describe UsageRecordsController do
           post :create, params: { currently_inked_id: currently_inked.id }
           expect(response).to have_http_status(:created)
         end.to change { UsageRecord.count }.from(0).to(1)
+      end
+    end
+  end
+
+  describe '#index' do
+
+    it 'requires authentication' do
+      get :index
+      expect(response).to redirect_to(new_user_session_path)
+    end
+
+    context 'signed in' do
+      before(:each) do
+        sign_in(user)
+      end
+
+      it 'renders the entries' do
+        get :index
+        expect(response).to be_successful
       end
     end
   end
