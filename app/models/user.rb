@@ -15,6 +15,10 @@ class User < ApplicationRecord
     where.not(confirmed_at: nil)
   end
 
+  def self.public
+    where.not(name: [nil, ""])
+  end
+
   def admin?
     false
   end

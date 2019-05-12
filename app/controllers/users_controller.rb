@@ -1,7 +1,7 @@
 class UsersController < ApplicationController
 
   def index
-    @users = User.active.order('lower(name), id')
+    @users = User.public.order('lower(name), id')
   end
 
   def show
