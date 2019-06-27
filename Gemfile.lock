@@ -146,7 +146,7 @@ GEM
     mini_portile2 (2.4.0)
     minitest (5.11.3)
     msgpack (1.2.10)
-    newrelic_rpm (6.4.0.356)
+    newrelic_rpm (6.5.0.357)
     nio4r (2.3.1)
     nokogiri (1.10.3)
       mini_portile2 (~> 2.4.0)
