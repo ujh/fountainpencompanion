@@ -1,25 +1,37 @@
 - content_for :title, "Home"
-div class="col-xs-12 col-sm-4 home"
-  = fa_icon("bar-chart")
-  div
-    = "Track your ink collection. "
-    = link_to "#{User.active.count} people", users_path
-    |  are already using this service to track
-    = " #{CollectedInk.count}"
-    |  inks of
-    = link_to " #{InkBrand.public_count} brands", brands_path
-    | .
-div class="col-xs-12 col-sm-4 home"
-  = fa_icon("eye")
-  div
-    | Compare your ink collection with other users to easily see which inks you own that the other
-    | user doesn't to facilitate ink sample trading.
-div class="col-xs-12 col-sm-4 home"
-  = fa_icon("lock")
-  div
-    | You have full control over your data. You are able to export at any time and
-    | leave the service at any time. You can also make your ink collection private if you don't want
-    | to share what you own with anyone.
-
-div class="col-xs-12 home"
-  = link_to "Sign Up Now!", new_user_registration_path, class: "btn btn-primary"
+div id="home"
+  div class="row"
+    div class="col-xs-12 col-sm-4 home"
+      = fa_icon("bar-chart")
+      h4 Tracking
+      p Track your inks, pens, currently inked, and daily usage.
+    div class="col-xs-12 col-sm-4 home"
+      = fa_icon("exchange")
+      h4 Facilitate sample sharing
+      p
+        | A public list of your inks (you control which inks are shown) and the ability to compare your
+        |  collection with that of other users to facilitate sharing samples.
+    div class="col-xs-12 col-sm-4 home"
+      = fa_icon("list")
+      h4 Brand index
+      p A list of all inks grouped by brand that have been added to the site.
+  div class="row"
+    div class="col-xs-12 col-sm-4 home"
+      = fa_icon("trophy")
+      h4 Leader boards
+      p Everyone's collections ranked by varying criteria
+    div class="col-xs-12 col-sm-4 home"
+      = fa_icon("group")
+      h4 Community project
+      p
+        | This is a free service from the community for the community. We are supported
+        |  through Patreon by our awesome community.
+    div class="col-xs-12 col-sm-4 home"
+      = fa_icon("lock")
+      div
+        | You have full control over your data. You are able to export at any time and
+        |  leave the service at any time. You can also make your ink collection private if you don't want
+        |  to share what you own with anyone.
+  div class="row"
+    div class="col-xs-12 home"
+      = link_to "Sign Up Now!", new_user_registration_path, class: "btn btn-primary"
