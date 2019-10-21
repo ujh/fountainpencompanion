@@ -2,6 +2,7 @@ Rails.application.routes.draw do
   devise_for :admins
   devise_for :users
 
+  resource :dashboard, only: [:show]
   resources :pages, only: [:show]
 
   resources :collected_inks do
