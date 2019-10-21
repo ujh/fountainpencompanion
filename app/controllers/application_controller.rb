@@ -11,7 +11,7 @@ class ApplicationController < ActionController::Base
     if resource.admin?
       admins_dashboard_path
     else
-      collected_inks_path
+      dashboard_path
     end
   end
 end
