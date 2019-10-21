@@ -1,0 +1,35 @@
+- content_for :title, "Dashboard"
+div id="dashboard"
+  div class="row"
+    div class="col-xs-12 col-sm-6 col-lg-4 widget"
+      h4= link_to 'Inks', collected_inks_path
+      p
+        'Your collection currently contains
+        b= current_user.collected_inks.active.count
+        |  inks.
+      p
+        'You have archived
+        b= current_user.collected_inks.archived.count
+        |  inks.
+    div class="col-xs-12 col-sm-6 col-lg-4 widget"
+      h4= link_to 'Pens', collected_pens_path
+      p
+        'Your collection currently contains
+        b= current_user.collected_pens.active.count
+        |  pens.
+      p
+        'You have archived
+        b= current_user.collected_pens.archived.count
+        |  pens.
+    div class="col-xs-12 col-sm-6 col-lg-4 widget"
+      h4= link_to 'Currently Inked', currently_inked_index_path
+      p
+        'Right how you have
+        b= current_user.currently_inkeds.active.count
+        |  inked pens.
+      p
+       'In total you have tracked
+       b= current_user.currently_inkeds.count
+       '  currently inked entries and
+       b= current_user.usage_records.count
+       |  usage records.
