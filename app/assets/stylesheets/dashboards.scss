@@ -5,7 +5,11 @@
   .row {
     box-shadow: none;
     .widget {
+      margin-top: 15px;
+      padding: 5px;
       text-align: center;
+      box-shadow: 0px 0px 5px rgba(0,0,0,0.1);
+      border-radius: 5px;
     }
   }
 }
