@@ -1,0 +1,8 @@
+li
+  - if current_user&.id == user_data[:id]
+    b
+      = link_to user_data[:public_name], user_path(user_data[:id])
+      = " (#{user_data[:counter]})"
+  - else
+    = link_to user_data[:public_name], user_path(user_data[:id])
+    = " (#{user_data[:counter]})"

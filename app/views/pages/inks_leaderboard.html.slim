@@ -1,7 +1,5 @@
 - content_for :title, "Inks Leaderboard"
 div class="leaderboard"
   ol
-    - LeaderBoard.inks.each do |user|
-      li
-        = link_to user.public_name, user_path(user)
-        = " (#{user.counter})"
+    - LeaderBoard.inks.each do |user_data|
+      = render partial: "leaderboard_row", locals: { user_data: user_data }

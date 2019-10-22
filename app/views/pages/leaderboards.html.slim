@@ -3,35 +3,27 @@ div class="col-xs-12 col-sm-6 leaderboard"
   h4 Inks
   h6 Ranked by the number of inks in total
   ol
-    - LeaderBoard.top_inks.each do |user|
-      li
-        = link_to user.public_name, user_path(user)
-        = " (#{user.counter})"
+    - LeaderBoard.top_inks.each do |user_data|
+      = render partial: "leaderboard_row", locals: { user_data: user_data }
   p= link_to "Show all", page_path("inks_leaderboard")
 div class="col-xs-12 col-sm-6 leaderboard"
   h4 Bottles
   h6 Ranked by the number of ink bottles
   ol
-    - LeaderBoard.top_bottles.each do |user|
-      li
-        = link_to user.public_name, user_path(user)
-        = " (#{user.counter})"
+    - LeaderBoard.top_bottles.each do |user_data|
+      = render partial: "leaderboard_row", locals: { user_data: user_data }
   p= link_to "Show all", page_path("bottles_leaderboard")
 div class="col-xs-12 col-sm-6 leaderboard"
   h4 Samples
   h6 Ranked by the number of samples
   ol
-    - LeaderBoard.top_samples.each do |user|
-      li
-        = link_to user.public_name, user_path(user)
-        = " (#{user.counter})"
+    - LeaderBoard.top_samples.each do |user_data|
+      = render partial: "leaderboard_row", locals: { user_data: user_data }
   p= link_to "Show all", page_path("samples_leaderboard")
 div class="col-xs-12 col-sm-6 leaderboard"
   h4 Brands
   h6 Ranked by the number of different brands
   ol
-    - LeaderBoard.top_brands.each do |user|
-      li
-        = link_to user.public_name, user_path(user)
-        = " (#{user.counter})"
+    - LeaderBoard.top_brands.each do |user_data|
+      = render partial: "leaderboard_row", locals: { user_data: user_data }
   p= link_to "Show all", page_path("brands_leaderboard")
