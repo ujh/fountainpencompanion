@@ -5,7 +5,9 @@ class LeaderBoard
   end
 
   def self.inks
-    extract(build)
+    Rails.cache.fetch("LeaderBoard#inks", expires_in: 1.hour) do
+      extract(build)
+    end
   end
 
   def self.top_bottles
@@ -13,7 +15,9 @@ class LeaderBoard
   end
 
   def self.bottles
-    extract(build.where(collected_inks: {kind: "bottle"}))
+    Rails.cache.fetch("LeaderBoard#bottles", expires_in: 1.hour) do
+      extract(build.where(collected_inks: {kind: "bottle"}))
+    end
   end
 
   def self.top_samples
@@ -21,7 +25,9 @@ class LeaderBoard
   end
 
   def self.samples
-    extract(build.where(collected_inks: {kind: "sample"}))
+    Rails.cache.fetch("LeaderBoard#samples", expires_in: 1.hour) do
+      extract(build.where(collected_inks: {kind: "sample"}))
+    end
   end
 
   def self.top_brands
@@ -29,9 +35,11 @@ class LeaderBoard
   end
 
   def self.brands
-    extract(build(
-      "(select sum(1) OVER () from collected_inks where collected_inks.user_id = users.id group by collected_inks.brand_name limit 1) as counter"
-    ))
+    Rails.cache.fetch("LeaderBoard#brands", expires_in: 1.hour) do
+      extract(build(
+        "(select sum(1) OVER () from collected_inks where collected_inks.user_id = users.id group by collected_inks.brand_name limit 1) as counter"
+      ))
+    end
   end
 
   def self.build(select = "count(*) as counter")
