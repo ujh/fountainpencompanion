@@ -66,6 +66,16 @@ describe CurrentlyInked do
     end
   end
 
+  it 'marks the attached ink as used after a save' do
+    user = create(:user)
+    subject.user = user
+    subject.collected_ink = create(:collected_ink, user: user)
+    subject.collected_pen = create(:collected_pen, user: user)
+    subject.inked_on = Date.today
+    subject.save!
+    expect(subject.collected_ink.reload.used).to be_truthy
+  end
+
   describe '#collected_pens_for_active_select' do
     let(:pen) { create(:collected_pen, user: user) }
     let(:all_pens) do

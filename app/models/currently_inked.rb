@@ -24,6 +24,7 @@ class CurrentlyInked < ApplicationRecord
 
   after_initialize :set_default_inked_on
   before_save :update_nib
+  after_save :mark_ink_used
 
   def self.to_csv
     CSV.generate(col_sep: ";") do |csv|
@@ -89,6 +90,10 @@ class CurrentlyInked < ApplicationRecord
     else
       self.nib = ""
     end
+  end
+
+  def mark_ink_used
+    collected_ink&.update(used: true)
   end
 
   def collected_ink_belongs_to_user
