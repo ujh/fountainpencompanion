@@ -1,0 +1,5 @@
+- content_for :title, "Currently Inked Archive"
+div id="currently-inked-archive"
+  - url = @currently_inked.persisted? ? currently_inked_archive_path(@currently_inked) : currently_inked_archive_index_path
+  = simple_form_for @currently_inked, url: url, html: { id: 'currently-inked-form'}, wrapper: :inline_form do |f|
+    = render partial: "archive", locals: { currently_inkeds: @currently_inkeds, f: f }

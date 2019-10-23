@@ -1,0 +1,31 @@
+div class="table-responsive"
+  table class="table table-striped"
+    thead
+      tr
+        th Pen
+        th colspan="2" Ink
+        th Date Inked
+        th Date Cleaned
+        th Comment
+        th Actions
+    tbody
+      - currently_inkeds.each do |ci|
+        - if ci == @currently_inked
+          tr id="#{ci.id}" class="info"= render partial: "form", locals: { f: f , currently_inked: @currently_inked }
+        - else
+          tr id="#{ci.id}"
+            td= ci.pen_name
+            td style="background-color:#{ci.ink_color};width:30px;"
+            td= ci.ink_name
+            td=l ci.inked_on
+            td=l ci.archived_on
+            td= ci.comment
+            td
+              span class="actions"
+                = link_to edit_currently_inked_archive_path(ci, anchor: ci.id), class: "btn btn-default", title: "Edit #{ci.name}" do
+                  = fa_icon("pencil")
+                - if ci.unarchivable?(@used_pen_ids)
+                  = link_to unarchive_currently_inked_archive_path(ci), class: "btn btn-default", method: :post, title: "Unarchive #{ci.name}" do
+                    = fa_icon("archive")
+                = link_to currently_inked_archive_path(ci), class: "btn btn-default", method: :delete, data: { confirm: "Really delete #{ci.name}" }, title: "Delete #{ci.name}"
+                  = fa_icon("trash")

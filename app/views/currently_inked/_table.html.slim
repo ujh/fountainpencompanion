@@ -12,7 +12,7 @@ div class="table-responsive"
         - if ci == @currently_inked
           tr id="#{ci.id}" class="info"= render partial: "form", locals: { f: f , currently_inked: @currently_inked }
         - else
-          tr
+          tr id="#{ci.id}"
             td= ci.pen_name
             td style="background-color:#{ci.ink_color};width:30px;"
             td= ci.ink_name
