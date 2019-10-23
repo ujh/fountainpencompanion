@@ -8,9 +8,9 @@ div class="table-responsive"
         th Comment
         th Actions
     tbody
-      - currently_inkeds.each do |ci|
-        - if ci == @currently_inked
-          tr id="#{ci.id}" class="info"= render partial: "form", locals: { f: f , currently_inked: @currently_inked }
+      - collection.each do |ci|
+        - if ci == @record
+          tr id="#{ci.id}" class="info"= render partial: "form", locals: { f: f , record: @record }
         - else
           tr id="#{ci.id}"
             td= ci.pen_name
@@ -20,12 +20,12 @@ div class="table-responsive"
             td= ci.comment
             td= render partial: "actions", locals: { ci: ci }
     tfoot
-      - if @currently_inked&.new_record?
-        tr id="add-form"= render partial: "form", locals: { f: f , currently_inked: @currently_inked }
+      - if @record&.new_record?
+        tr id="add-form"= render partial: "form", locals: { f: f , record: @record }
       tr
-        th= "#{currently_inkeds.size} pens"
+        th= "#{collection.size} pens"
         th
-        th= "#{currently_inkeds.map(&:ink_simplified_name).uniq.length} inks"
+        th= "#{collection.map(&:ink_simplified_name).uniq.length} inks"
         th
         th
         th

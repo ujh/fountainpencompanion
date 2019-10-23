@@ -180,8 +180,9 @@ describe CurrentlyInkedController do
             collected_pen: create(:collected_pen, user: other_user)
         )
         expect do
-          delete :destroy, params: { id: other_currently_inked.id }
-          expect(response).to redirect_to(currently_inked_index_path)
+          expect do
+            delete :destroy, params: { id: other_currently_inked.id }
+          end.to raise_error(ActiveRecord::RecordNotFound)
         end.to_not change { CurrentlyInked.count }
       end
 

@@ -1,5 +1,8 @@
 require 'rails_helper'
 
-RSpec.describe CurrentlyInkedArchiveController, type: :controller do
+describe CurrentlyInkedArchiveController do
+
+  render_views
+
 
 end

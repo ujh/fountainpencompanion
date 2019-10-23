@@ -9,9 +9,9 @@ div class="table-responsive"
         th Comment
         th Actions
     tbody
-      - currently_inkeds.each do |ci|
-        - if ci == @currently_inked
-          tr id="#{ci.id}" class="info"= render partial: "form", locals: { f: f , currently_inked: @currently_inked }
+      - collection.each do |ci|
+        - if ci == @record
+          tr id="#{ci.id}" class="info"= render partial: "form", locals: { f: f , record: @record }
         - else
           tr id="#{ci.id}"
             td= ci.pen_name
@@ -20,12 +20,4 @@ div class="table-responsive"
             td=l ci.inked_on
             td=l ci.archived_on
             td= ci.comment
-            td
-              span class="actions"
-                = link_to edit_currently_inked_archive_path(ci, anchor: ci.id), class: "btn btn-default", title: "Edit #{ci.name}" do
-                  = fa_icon("pencil")
-                - if ci.unarchivable?(@used_pen_ids)
-                  = link_to unarchive_currently_inked_archive_path(ci), class: "btn btn-default", method: :post, title: "Unarchive #{ci.name}" do
-                    = fa_icon("archive")
-                = link_to currently_inked_archive_path(ci), class: "btn btn-default", method: :delete, data: { confirm: "Really delete #{ci.name}" }, title: "Delete #{ci.name}"
-                  = fa_icon("trash")
+            td= render partial: "actions", locals: { ci: ci }

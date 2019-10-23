@@ -1,11 +1,11 @@
 class CurrentlyInkedArchiveController < ApplicationController
   before_action :authenticate_user!
-  before_action :retrieve_currently_inkeds, only: [:index, :edit, :create, :update]
-  before_action :retrieve_currently_inked, only: [:edit, :update, :destroy, :unarchive]
+  before_action :retrieve_collection, only: [:index, :edit, :create, :update]
+  before_action :retrieve_record, only: [:edit, :update, :destroy, :unarchive]
   before_action :set_used_pen_ids
 
   def index
-    @currently_inked = CurrentlyInked.new(user: current_user, archived_on: Date.today)
+    @record = CurrentlyInked.new(user: current_user, archived_on: Date.today)
   end
 
   def edit
@@ -13,14 +13,13 @@ class CurrentlyInkedArchiveController < ApplicationController
   end
 
   def unarchive
-    @currently_inked.update(archived_on: nil)
+    @record.unarchive!
     redirect_to currently_inked_archive_index_path
   end
 
   def update
-    if @currently_inked.update(currently_inked_params)
-      @currently_inked.collected_ink.update(used: true)
-      redirect_to currently_inked_archive_index_path(anchor: @currently_inked.id)
+    if @record.update(currently_inked_params)
+      redirect_to currently_inked_archive_index_path(anchor: @record.id)
     else
       @elementToScrollTo = "##{@currently_inked.id}"
       render :index
@@ -28,7 +27,7 @@ class CurrentlyInkedArchiveController < ApplicationController
   end
 
   def destroy
-    @currently_inked.destroy
+    @record.destroy
     redirect_to currently_inked_archive_index_path
   end
 
@@ -44,12 +43,14 @@ class CurrentlyInkedArchiveController < ApplicationController
     )
   end
 
-  def retrieve_currently_inkeds
-    @currently_inkeds = current_user.currently_inkeds.archived.includes(:collected_pen, :collected_ink).order('archived_on DESC, created_at DESC')
+  def retrieve_collection
+    @collection = current_user.currently_inkeds.archived.includes(
+      :collected_pen, :collected_ink
+    ).order('archived_on DESC, created_at DESC')
   end
 
-  def retrieve_currently_inked
-    @currently_inked = current_user.currently_inkeds.find(params[:id])
+  def retrieve_record
+    @record = current_user.currently_inkeds.find(params[:id])
   end
 
   def set_used_pen_ids
