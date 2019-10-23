@@ -12,8 +12,15 @@ Rails.application.routes.draw do
     resource :archive, only: [:create, :destroy]
   end
   resources :currently_inked do
-    resource :archive, only: [:create, :destroy]
+    member do
+      post 'archive'
+    end
     resource :usage_record, only: [:create]
+  end
+  resources :currently_inked_archive, only: [:index, :edit, :update, :destroy] do
+    member do
+      post 'unarchive'
+    end
   end
 
   resources :usage_records, only: [:index, :destroy, :edit, :update]

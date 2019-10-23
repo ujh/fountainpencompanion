@@ -21,4 +21,12 @@ module Archivable
   def archived?
     !active?
   end
+
+  def archive!
+    update!(archived_on: Date.today)
+  end
+
+  def unarchive!
+    update(archived_on: nil)
+  end
 end

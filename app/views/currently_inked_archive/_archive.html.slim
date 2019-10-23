@@ -5,6 +5,7 @@ div class="table-responsive"
         th Pen
         th colspan="2" Ink
         th Date Inked
+        th Date Cleaned
         th Comment
         th Actions
     tbody
@@ -17,18 +18,6 @@ div class="table-responsive"
             td style="background-color:#{ci.ink_color};width:30px;"
             td= ci.ink_name
             td=l ci.inked_on
+            td=l ci.archived_on
             td= ci.comment
             td= render partial: "actions", locals: { ci: ci }
-    tfoot
-      - if @record&.new_record?
-        tr id="add-form"= render partial: "form", locals: { f: f , record: @record }
-      tr
-        th= "#{collection.size} pens"
-        th
-        th= "#{collection.map(&:ink_simplified_name).uniq.length} inks"
-        th
-        th
-        th
-      tr
-        td colspan="5"
-        td= link_to "Usage Records", usage_records_path

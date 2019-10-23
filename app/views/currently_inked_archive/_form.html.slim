@@ -1,0 +1,10 @@
+td class="form"= f.association :collected_pen, collection: record.collected_pens_for_select, prompt: '(Pick a pen)'
+td colspan="2" class="form"= f.association :collected_ink, collection: record.collected_inks_for_select, prompt: '(Pick an ink)'
+td class="form"= f.input :inked_on, as: :string
+td class="form"= f.input :archived_on, as: :string
+td class="form"= f.input :comment, as: :string
+td class="form actions"
+  = f.button :button do
+    = fa_icon("check")
+  = link_to currently_inked_index_path, class: "btn btn-default" do
+    = fa_icon("close")

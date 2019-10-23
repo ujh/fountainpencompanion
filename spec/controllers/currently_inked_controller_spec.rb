@@ -85,6 +85,43 @@ describe CurrentlyInkedController do
         expect(currently_inked.collected_ink).to eq(collected_ink)
         expect(currently_inked.collected_pen).to eq(collected_pen)
       end
+
+      it 'renders the index when invalid' do
+        expect do
+          post :create, params: { currently_inked: {
+            collected_ink_id: collected_ink.id,
+          } }
+          expect(response).to be_successful
+          expect(response).to render_template(:index)
+        end.to_not change { user.currently_inkeds.count }
+      end
+    end
+  end
+
+  describe '#edit' do
+    let!(:currently_inked) do
+      user.currently_inkeds.create!(
+        collected_ink: collected_ink,
+        collected_pen: collected_pen
+      )
+    end
+
+    it 'requires authentication' do
+      get :edit, params: { id: currently_inked.id }
+      expect(response).to redirect_to(new_user_session_path)
+    end
+
+    context 'signed in' do
+
+      before(:each) do
+        sign_in(user)
+      end
+
+      it 'renders correctly' do
+        get :edit, params: { id: currently_inked.id }
+        expect(response).to be_successful
+        expect(response).to render_template(:index)
+      end
     end
   end
 
@@ -132,8 +169,44 @@ describe CurrentlyInkedController do
         end.to change { currently_inked.reload.collected_ink }.from(collected_ink).to(new_collected_ink)
       end
 
+      it 'renders the index when invalid' do
+        expect do
+          put :update, params: { id: currently_inked.id, currently_inked: {
+            collected_ink_id: -1
+          }}
+        end.to_not change { currently_inked.reload.collected_ink_id }
+        expect(response).to be_successful
+        expect(response).to render_template(:index)
+      end
     end
 
+  end
+
+  describe '#archive' do
+    let!(:currently_inked) do
+      user.currently_inkeds.create!(
+        collected_ink: collected_ink,
+        collected_pen: collected_pen
+      )
+    end
+
+    it 'requires authentication' do
+      post :archive, params: { id: currently_inked.id }
+      expect(response).to redirect_to(new_user_session_path)
+    end
+
+    context 'signed in' do
+
+      before(:each) do
+        sign_in(user)
+      end
+
+      it 'archives the ink' do
+        post :archive, params: { id: currently_inked.id }
+        expect(response).to redirect_to(currently_inked_index_path)
+        expect(currently_inked.reload).to be_archived
+      end
+    end
   end
 
   describe '#destroy' do
@@ -180,8 +253,9 @@ describe CurrentlyInkedController do
             collected_pen: create(:collected_pen, user: other_user)
         )
         expect do
-          delete :destroy, params: { id: other_currently_inked.id }
-          expect(response).to redirect_to(currently_inked_index_path)
+          expect do
+            delete :destroy, params: { id: other_currently_inked.id }
+          end.to raise_error(ActiveRecord::RecordNotFound)
         end.to_not change { CurrentlyInked.count }
       end
 
