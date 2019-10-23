@@ -1,6 +1,6 @@
 class CurrentlyInkedArchiveController < ApplicationController
   before_action :authenticate_user!
-  before_action :retrieve_collection, only: [:index, :edit, :create, :update]
+  before_action :retrieve_collection, only: [:index, :edit, :update]
   before_action :retrieve_record, only: [:edit, :update, :destroy, :unarchive]
   before_action :set_used_pen_ids
 
@@ -21,7 +21,7 @@ class CurrentlyInkedArchiveController < ApplicationController
     if @record.update(currently_inked_params)
       redirect_to currently_inked_archive_index_path(anchor: @record.id)
     else
-      @elementToScrollTo = "##{@currently_inked.id}"
+      @elementToScrollTo = "##{@record.id}"
       render :index
     end
   end
