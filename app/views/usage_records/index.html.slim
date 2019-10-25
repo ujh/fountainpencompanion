@@ -1,4 +1,16 @@
 - content_for :title, "Usage Records"
+- if @usage_records.count < 5
+  div class="col-xs-12"
+    div class="alert alert-success"
+      'By clicking on the
+      = fa_icon('bookmark')
+      ' button next to a
+      = link_to 'currently inked', currently_inked_index_path
+      '  entry you can generate a usage record entry for today. Right now these
+      ' records are only displayed here (and you can download them). In the future
+      ' you will be able to see some awesome statistics on the
+      = link_to 'dashboard', dashboard_path
+      | .
 div id="usage-records"
   div class="export"
     = link_to "Export data", usage_records_path(format: 'csv'), class: "btn btn-primary"
