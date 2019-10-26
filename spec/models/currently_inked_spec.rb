@@ -118,6 +118,29 @@ describe CurrentlyInked do
     end
   end
 
+  describe '#refill!' do
+    let(:ink) { create(:collected_ink, user: user) }
+    let(:pen) { create(:collected_pen, user: user) }
+
+    before do
+      subject.collected_pen = pen
+      subject.collected_ink = ink
+      subject.save!
+    end
+
+    it 'archives the entry and creates a new one' do
+      expect do
+        subject.refill!
+      end.to change { user.currently_inkeds.count }.by(1)
+      expect(subject).to be_archived
+      newest_ci = user.currently_inkeds.last
+      expect(newest_ci.collected_ink).to eq(ink)
+      expect(newest_ci.collected_pen).to eq(pen)
+      expect(newest_ci.inked_on).to eq(Date.today)
+      expect(newest_ci).to be_active
+    end
+  end
+
   describe "nib" do
     let(:ink) { create(:collected_ink, user: user) }
     let(:pen) { create(:collected_pen, user: user, brand: 'Pilot', model: 'Custom 74', nib: 'M') }

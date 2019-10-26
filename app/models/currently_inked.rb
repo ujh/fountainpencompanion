@@ -41,6 +41,16 @@ class CurrentlyInked < ApplicationRecord
     end
   end
 
+  def refill!
+    archive!
+    self.class.create!(
+      collected_ink: collected_ink,
+      collected_pen: collected_pen,
+      inked_on: Date.today,
+      user: user
+    )
+  end
+
   def used_today?
     usage_records.where(used_on: Date.today).exists?
   end

@@ -24,12 +24,7 @@ class CurrentlyInkedController < ApplicationController
   end
 
   def refill
-    @record.archive!
-    current_user.currently_inkeds.create!(
-      collected_ink: @record.collected_ink,
-      collected_pen: @record.collected_pen,
-      inked_on: Date.today
-    )
+    @record.refill!
     flash[:notice] = "Refilled your #{@record.pen_name} with #{@record.ink_name}."
     redirect_to currently_inked_index_path
   end
