@@ -1,4 +1,6 @@
 span class="actions"
+  = link_to refill_currently_inked_path(ci), class: "btn btn-default", method: :post, title: "Refill this pen"
+    = fa_icon("rotate-left")
   - if ci.used_today?
     div class="btn btn-default" title="Already recorded usage for today"
       = fa_icon("bookmark-o")

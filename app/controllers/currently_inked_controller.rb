@@ -30,6 +30,7 @@ class CurrentlyInkedController < ApplicationController
       collected_pen: @record.collected_pen,
       inked_on: Date.today
     )
+    flash[:notice] = "Refilled your #{@record.pen_name} with #{@record.ink_name}."
     redirect_to currently_inked_index_path
   end
 
