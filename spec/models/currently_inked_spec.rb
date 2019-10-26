@@ -139,6 +139,48 @@ describe CurrentlyInked do
       expect(newest_ci.inked_on).to eq(Date.today)
       expect(newest_ci).to be_active
     end
+
+    it 'raises an error if the ink is archived' do
+      ink.archive!
+      expect do
+        expect do
+          subject.refill!
+        end.to_not change { CurrentlyInked.count }
+      end.to raise_error(CurrentlyInked::NotRefillable)
+    end
+
+    it 'raises and error if the pen is archived' do
+      pen.archive!
+      expect do
+        expect do
+          subject.refill!
+        end.to_not change { CurrentlyInked.count }
+      end.to raise_error(CurrentlyInked::NotRefillable)
+    end
+  end
+
+  describe '#refillable?' do
+    let(:ink) { create(:collected_ink, user: user) }
+    let(:pen) { create(:collected_pen, user: user) }
+
+    before do
+      subject.collected_pen = pen
+      subject.collected_ink = ink
+    end
+
+    it 'returns true if both ink and pen are active' do
+      expect(subject).to be_refillable
+    end
+
+    it 'returns false if ink archived' do
+      ink.archive!
+      expect(subject).to_not be_refillable
+    end
+
+    it 'returns false if pen archived' do
+      pen.archive!
+      expect(subject).to_not be_refillable
+    end
   end
 
   describe "nib" do
