@@ -1,7 +1,7 @@
 class CurrentlyInkedController < ApplicationController
   before_action :authenticate_user!
   before_action :retrieve_collection, only: [:index, :edit, :create, :update]
-  before_action :retrieve_record, only: [:edit, :update, :destroy, :archive]
+  before_action :retrieve_record, only: [:edit, :update, :destroy, :archive, :refill]
 
   def index
     @record = CurrentlyInked.new(user: current_user)
@@ -20,6 +20,16 @@ class CurrentlyInkedController < ApplicationController
 
   def archive
     @record.archive!
+    redirect_to currently_inked_index_path
+  end
+
+  def refill
+    @record.archive!
+    current_user.currently_inkeds.create!(
+      collected_ink: @record.collected_ink,
+      collected_pen: @record.collected_pen,
+      inked_on: Date.today
+    )
     redirect_to currently_inked_index_path
   end
 
