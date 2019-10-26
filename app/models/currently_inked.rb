@@ -5,6 +5,8 @@ class CurrentlyInked < ApplicationRecord
   include Archivable
   include PenName
 
+  class NotRefillable < StandardError; end
+
   belongs_to :collected_ink, counter_cache: true
   belongs_to :collected_pen
   belongs_to :user
@@ -39,6 +41,21 @@ class CurrentlyInked < ApplicationRecord
         ]
       end
     end
+  end
+
+  def refill!
+    raise NotRefillable unless refillable?
+    archive!
+    self.class.create!(
+      collected_ink: collected_ink,
+      collected_pen: collected_pen,
+      inked_on: Date.today,
+      user: user
+    )
+  end
+
+  def refillable?
+    collected_ink.active? && collected_pen.active?
   end
 
   def used_today?

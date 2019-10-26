@@ -125,6 +125,42 @@ describe CurrentlyInkedController do
     end
   end
 
+  describe '#refill' do
+
+    let!(:currently_inked) do
+      user.currently_inkeds.create!(
+        collected_ink: collected_ink,
+        collected_pen: collected_pen
+      )
+    end
+
+    it 'requires authentication' do
+      expect do
+        post :refill, params: { id: currently_inked.id }
+        expect(response).to redirect_to(new_user_session_path)
+      end.to_not change { CurrentlyInked.count }
+    end
+
+    context 'signed in' do
+
+      before(:each) do
+        sign_in(user)
+      end
+
+      it 'creates a new entry and archives the old one' do
+        expect do
+          post :refill, params: { id: currently_inked.id }
+          expect(response).to redirect_to(currently_inked_index_path)
+        end.to change { CurrentlyInked.count }.by(1)
+        expect(currently_inked.reload).to be_archived
+        newest_ci = CurrentlyInked.last
+        expect(newest_ci.collected_ink).to eq(currently_inked.collected_ink)
+        expect(newest_ci.collected_pen).to eq(currently_inked.collected_pen)
+        expect(newest_ci.inked_on).to eq(Date.today)
+      end
+    end
+  end
+
   describe '#update' do
 
     let!(:currently_inked) do

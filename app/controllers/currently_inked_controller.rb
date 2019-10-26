@@ -1,7 +1,7 @@
 class CurrentlyInkedController < ApplicationController
   before_action :authenticate_user!
   before_action :retrieve_collection, only: [:index, :edit, :create, :update]
-  before_action :retrieve_record, only: [:edit, :update, :destroy, :archive]
+  before_action :retrieve_record, only: [:edit, :update, :destroy, :archive, :refill]
 
   def index
     @record = CurrentlyInked.new(user: current_user)
@@ -20,6 +20,12 @@ class CurrentlyInkedController < ApplicationController
 
   def archive
     @record.archive!
+    redirect_to currently_inked_index_path
+  end
+
+  def refill
+    @record.refill!
+    flash[:notice] = "Refilled your #{@record.pen_name} with #{@record.ink_name}."
     redirect_to currently_inked_index_path
   end
 

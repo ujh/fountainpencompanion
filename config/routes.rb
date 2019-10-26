@@ -14,6 +14,7 @@ Rails.application.routes.draw do
   resources :currently_inked do
     member do
       post 'archive'
+      post 'refill'
     end
     resource :usage_record, only: [:create]
   end
