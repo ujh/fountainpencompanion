@@ -1,9 +1,12 @@
-td class="form"= f.association :collected_pen, collection: record.collected_pens_for_active_select, prompt: '(Pick a pen)'
-td colspan="2" class="form"= f.association :collected_ink, collection: record.collected_inks_for_active_select, prompt: '(Pick an ink)'
-td class="form"= f.input :inked_on, as: :string
-td class="form"= f.input :comment, as: :string
-td class="form actions"
-  = f.button :button do
-    = fa_icon("check")
-  = link_to currently_inked_index_path, class: "btn btn-default" do
-    = fa_icon("close")
+= simple_form_for record do |f|
+  div class="row"
+    div class="col-sm-12 col-md-6"
+      = f.association :collected_pen, collection: record.collected_pens_for_active_select, prompt: '(Pick a pen)'
+      = f.association :collected_ink, collection: record.collected_inks_for_active_select, prompt: '(Pick an ink)'
+    div class="col-sm-12 col-md-6"
+      = f.input :inked_on, as: :string
+      = f.input :comment, as: :string
+  div class="row"
+    div class="col-sm-12 col-md-6"
+      = f.submit 'Save', class: "btn btn-default"
+      = link_to 'Cancel', currently_inked_index_path, class: "btn btn-default"

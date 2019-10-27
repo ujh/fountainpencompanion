@@ -2,7 +2,6 @@
 div id="currently-inked"
   div class="export"
     = link_to "Export data", currently_inked_index_path(format: 'csv'), class: "btn btn-primary"
-  = simple_form_for @record, html: { id: 'currently-inked-form'}, wrapper: :inline_form do |f|
-    = render partial: "table", locals: { collection: @collection, f: f }
+  = render partial: "table", locals: { collection: @collection }
 div id="currently-inked-archive"
   h1= link_to 'Archive', currently_inked_archive_index_path
