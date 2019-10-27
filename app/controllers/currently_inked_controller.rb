@@ -20,6 +20,7 @@ class CurrentlyInkedController < ApplicationController
 
   def update
     if @record.update(currently_inked_params)
+      flash[:notice] = "Successfully updated entry"
       redirect_to currently_inked_index_path
     else
       render :edit
@@ -44,6 +45,7 @@ class CurrentlyInkedController < ApplicationController
   def create
     @record = current_user.currently_inkeds.build(currently_inked_params)
     if @record.save
+      flash[:notice] = "Successfully created entry"
       redirect_to currently_inked_index_path
     else
       render :new
