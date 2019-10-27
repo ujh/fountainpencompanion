@@ -4,7 +4,7 @@
       = f.association :collected_pen, collection: record.collected_pens_for_active_select, prompt: '(Pick a pen)'
       = f.association :collected_ink, collection: record.collected_inks_for_active_select, prompt: '(Pick an ink)'
     div class="col-sm-12 col-md-6"
-      = f.input :inked_on, as: :string
+      = f.input :inked_on, as: :string, required: false
       = f.input :comment, as: :string
   div class="row"
     div class="col-sm-12 col-md-6"
