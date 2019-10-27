@@ -9,19 +9,17 @@ div class="table-responsive"
         th Actions
     tbody
       - collection.each do |ci|
-        - if ci == @record
-          tr id="#{ci.id}" class="info"= render partial: "form", locals: { f: f , record: @record }
-        - else
-          tr id="#{ci.id}"
-            td= ci.pen_name
-            td style="background-color:#{ci.ink_color};width:30px;"
-            td= ci.ink_name
-            td=l ci.inked_on
-            td= ci.comment
-            td= render partial: "actions", locals: { ci: ci }
+        tr id="#{ci.id}"
+          td= ci.pen_name
+          td style="background-color:#{ci.ink_color};width:30px;"
+          td= ci.ink_name
+          td=l ci.inked_on
+          td= ci.comment
+          td= render partial: "actions", locals: { ci: ci }
     tfoot
-      - if @record&.new_record?
-        tr id="add-form"= render partial: "form", locals: { f: f , record: @record }
+      tr
+        td colspan="5"
+        td= link_to "Add entry", new_currently_inked_path, class: "btn btn-default"
       tr
         th= "#{collection.size} pens"
         th

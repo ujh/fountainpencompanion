@@ -79,20 +79,20 @@ describe CurrentlyInkedController do
             collected_ink_id: collected_ink.id,
             collected_pen_id: collected_pen.id
           }}
-          expect(response).to redirect_to(currently_inked_index_path(anchor: "add-form"))
+          expect(response).to redirect_to(currently_inked_index_path)
         end.to change { user.currently_inkeds.count }.by(1)
         currently_inked = user.currently_inkeds.order(:id).last
         expect(currently_inked.collected_ink).to eq(collected_ink)
         expect(currently_inked.collected_pen).to eq(collected_pen)
       end
 
-      it 'renders the index when invalid' do
+      it 'renders the new page when invalid' do
         expect do
           post :create, params: { currently_inked: {
             collected_ink_id: collected_ink.id,
           } }
           expect(response).to be_successful
-          expect(response).to render_template(:index)
+          expect(response).to render_template(:new)
         end.to_not change { user.currently_inkeds.count }
       end
     end
@@ -120,7 +120,28 @@ describe CurrentlyInkedController do
       it 'renders correctly' do
         get :edit, params: { id: currently_inked.id }
         expect(response).to be_successful
-        expect(response).to render_template(:index)
+        expect(response).to render_template(:edit)
+      end
+    end
+  end
+
+  describe '#new' do
+
+    it 'requires authentication' do
+      get :new
+      expect(response).to redirect_to(new_user_session_path)
+    end
+
+    context 'signed in' do
+
+      before(:each) do
+        sign_in(user)
+      end
+
+      it 'renders correctly' do
+        get :new
+        expect(response).to be_successful
+        expect(response).to render_template(:new)
       end
     end
   end
@@ -191,7 +212,7 @@ describe CurrentlyInkedController do
           put :update, params: { id: currently_inked.id, currently_inked: {
             collected_ink_id: new_collected_ink.id
           }}
-          expect(response).to redirect_to(currently_inked_index_path(anchor: currently_inked.id))
+          expect(response).to redirect_to(currently_inked_index_path)
         end.to change { currently_inked.reload.collected_ink }.from(collected_ink).to(new_collected_ink)
       end
 
@@ -201,18 +222,18 @@ describe CurrentlyInkedController do
           put :update, params: { id: currently_inked.id, currently_inked: {
             collected_ink_id: new_collected_ink.id
           }}
-          expect(response).to redirect_to(currently_inked_index_path(anchor: currently_inked.id))
+          expect(response).to redirect_to(currently_inked_index_path)
         end.to change { currently_inked.reload.collected_ink }.from(collected_ink).to(new_collected_ink)
       end
 
-      it 'renders the index when invalid' do
+      it 'renders the edit page when invalid' do
         expect do
           put :update, params: { id: currently_inked.id, currently_inked: {
             collected_ink_id: -1
           }}
         end.to_not change { currently_inked.reload.collected_ink_id }
         expect(response).to be_successful
-        expect(response).to render_template(:index)
+        expect(response).to render_template(:edit)
       end
     end
 

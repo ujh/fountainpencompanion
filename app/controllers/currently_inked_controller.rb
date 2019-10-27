@@ -1,10 +1,11 @@
 class CurrentlyInkedController < ApplicationController
   before_action :authenticate_user!
-  before_action :retrieve_collection, only: [:index, :edit, :create, :update]
+  # TODO: In which actions is that even needed?
+  before_action :retrieve_collection, only: [:index]
+  # TODO: In which actions is that even needed?
   before_action :retrieve_record, only: [:edit, :update, :destroy, :archive, :refill]
 
   def index
-    @record = CurrentlyInked.new(user: current_user)
     respond_to do |format|
       format.html
       format.csv do
@@ -15,7 +16,15 @@ class CurrentlyInkedController < ApplicationController
   end
 
   def edit
-    render :index
+  end
+
+  def update
+    if @record.update(currently_inked_params)
+      flash[:notice] = "Successfully updated entry"
+      redirect_to currently_inked_index_path
+    else
+      render :edit
+    end
   end
 
   def archive
@@ -29,23 +38,17 @@ class CurrentlyInkedController < ApplicationController
     redirect_to currently_inked_index_path
   end
 
+  def new
+    @record = CurrentlyInked.new(inked_on: Date.today, user: current_user)
+  end
+
   def create
     @record = current_user.currently_inkeds.build(currently_inked_params)
     if @record.save
-      anchor = "add-form"
-      redirect_to currently_inked_index_path(anchor: anchor)
+      flash[:notice] = "Successfully created entry"
+      redirect_to currently_inked_index_path
     else
-      @elementToScrollTo = "#add-form"
-      render :index
-    end
-  end
-
-  def update
-    if @record.update(currently_inked_params)
-      redirect_to currently_inked_index_path(anchor: @record.id)
-    else
-      @elementToScrollTo = "##{@record.id}"
-      render :index
+      render :new
     end
   end
 

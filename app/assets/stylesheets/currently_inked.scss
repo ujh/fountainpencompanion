@@ -20,3 +20,16 @@
     margin: 0;
   }
 }
+
+form.edit_currently_inked, form.new_currently_inked {
+  .row {
+    box-shadow: none !important;
+  }
+  input[type=submit] {
+    margin-right: 15px;
+  }
+  .select2-container {
+    margin-top: 3px;
+    margin-bottom: 3px;
+  }
+}
