@@ -72,7 +72,7 @@ describe CurrentlyInkedArchiveController do
       it 'renders correctly' do
         get :edit, params: { id: currently_inked.id }
         expect(response).to be_successful
-        expect(response).to render_template(:index)
+        expect(response).to render_template(:edit)
       end
     end
   end
@@ -99,7 +99,7 @@ describe CurrentlyInkedArchiveController do
           put :update, params: { id: currently_inked.id, currently_inked: {
             collected_ink_id: new_collected_ink.id
           }}
-          expect(response).to redirect_to(currently_inked_archive_index_path(anchor: currently_inked.id))
+          expect(response).to redirect_to(currently_inked_archive_index_path)
         end.to change { currently_inked.reload.collected_ink }.from(collected_ink).to(new_collected_ink)
       end
 
@@ -110,7 +110,7 @@ describe CurrentlyInkedArchiveController do
           }}
         end.to_not change { currently_inked.reload.collected_ink_id }
         expect(response).to be_successful
-        expect(response).to render_template(:index)
+        expect(response).to render_template(:edit)
       end
     end
   end
