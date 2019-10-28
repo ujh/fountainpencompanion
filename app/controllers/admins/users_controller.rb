@@ -30,7 +30,7 @@ class Admins::UsersController < Admins::BaseController
       row["archived_on"] = row["archived"].present? ? Date.today : nil
       ci = @user.collected_inks.build
       ink_params = row.slice(
-        "brand_name", "line_name", "ink_name", "kind", "private", "comment", "used", "archived_on"
+        "brand_name", "line_name", "ink_name", "maker", "kind", "private", "comment", "used", "archived_on"
       )
       SaveCollectedInk.new(ci, ink_params).perform
       count +=1 if ci.persisted?
