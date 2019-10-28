@@ -15,11 +15,11 @@ div class="table-responsive"
           td= ci.ink_name
           td=l ci.inked_on
           td= ci.comment
-          td= render partial: "actions", locals: { ci: ci }
+          td class="actions"= render partial: "actions", locals: { ci: ci }
     tfoot
       tr
         td colspan="5"
-        td= link_to "Add entry", new_currently_inked_path, class: "btn btn-default"
+        td class="actions"= link_to "Add entry", new_currently_inked_path, class: "btn btn-default"
       tr
         th= "#{collection.size} pens"
         th

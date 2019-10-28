@@ -1,4 +1,4 @@
-span class="actions"
+span class="btn-group"
   - if ci.refillable?
     = link_to refill_currently_inked_path(ci), class: "btn btn-default", method: :post, title: "Refill this pen"
       = fa_icon("rotate-right")
