@@ -20,4 +20,4 @@ div class="table-responsive"
             td=l ci.inked_on
             td=l ci.archived_on
             td= ci.comment
-            td= render partial: "actions", locals: { ci: ci }
+            td class="actions"= render partial: "actions", locals: { ci: ci }
