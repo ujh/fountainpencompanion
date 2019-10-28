@@ -1,15 +1,13 @@
 class CurrentlyInkedArchiveController < ApplicationController
   before_action :authenticate_user!
-  before_action :retrieve_collection, only: [:index, :edit, :update]
+  before_action :retrieve_collection, only: [:index]
   before_action :retrieve_record, only: [:edit, :update, :destroy, :unarchive]
-  before_action :set_used_pen_ids
+  before_action :set_used_pen_ids, only: [:index]
 
   def index
-    @record = CurrentlyInked.new(user: current_user, archived_on: Date.today)
   end
 
   def edit
-    render :index
   end
 
   def unarchive
@@ -19,10 +17,10 @@ class CurrentlyInkedArchiveController < ApplicationController
 
   def update
     if @record.update(currently_inked_params)
-      redirect_to currently_inked_archive_index_path(anchor: @record.id)
+      flash[:notice] = "Successfully updated entry"
+      redirect_to currently_inked_archive_index_path
     else
-      @elementToScrollTo = "##{@record.id}"
-      render :index
+      render :edit
     end
   end
 
