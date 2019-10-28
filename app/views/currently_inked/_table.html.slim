@@ -26,7 +26,7 @@ div class="table-responsive"
         th= "#{collection.map(&:ink_simplified_name).uniq.length} inks"
         th
         th
-        th
+        th class="actions"= link_to 'Show Archived Entries', currently_inked_archive_index_path, class: "btn btn-default"
       tr
         td colspan="5"
-        td= link_to "Usage Records", usage_records_path
+        td class="actions"= link_to "Show Usage Records", usage_records_path, class: "btn btn-default"
