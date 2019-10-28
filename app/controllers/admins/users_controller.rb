@@ -28,6 +28,7 @@ class Admins::UsersController < Admins::BaseController
       row["private"] = !row["private"].blank?
       row["used"] = row["used"].present? ? (["true", "1"].include?(row["used"].downcase)) : false
       row["archived_on"] = row["archived"].present? ? Date.today : nil
+      row["kind"] = "bottle" unless row["kind"].present?
       ci = @user.collected_inks.build
       ink_params = row.slice(
         "brand_name", "line_name", "ink_name", "maker", "kind", "private", "comment", "used", "archived_on"
