@@ -1,6 +1,6 @@
 span
   - if ci.refillable?
-    = link_to refill_currently_inked_path(ci), class: "btn btn-default", method: :post, title: "Refill this pen"
+    = link_to refill_currently_inked_path(ci), class: "btn btn-default", method: :post, title: "Refill this pen", data: { confirm: "Really refill #{ci.name}?"}
       = fa_icon("rotate-right")
   - if ci.used_today?
     div class="btn btn-default" title="Already recorded usage for today"
@@ -12,5 +12,5 @@ span
     = fa_icon("pencil")
   = link_to archive_currently_inked_path(ci), class: "btn btn-default", method: :create, title: "Archive #{ci.name}" do
     = fa_icon("archive")
-  = link_to currently_inked_path(ci), class: "btn btn-default", method: :delete, data: { confirm: "Really delete #{ci.name}" }, title: "Delete #{ci.name}"
+  = link_to currently_inked_path(ci), class: "btn btn-default", method: :delete, data: { confirm: "Really delete #{ci.name}?" }, title: "Delete #{ci.name}"
     = fa_icon("trash")
