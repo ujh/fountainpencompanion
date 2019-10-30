@@ -1,0 +1,29 @@
+- content_for :title, "Currently Inked"
+div id="currently-inked-beta"
+  div class="export"
+    = link_to "Export data", currently_inked_index_path(format: 'csv'), class: "btn btn-primary"
+  div class="row stats"
+    div class="col-xs-3"
+      b= "#{@collection.size} pens"
+    div class="col-xs-3"
+      b= "#{@collection.map(&:ink_simplified_name).uniq.length} inks"
+  div class="row"
+    - @collection.each_with_index do |ci, index|
+      div class="col-xs-6 col-sm-4 col-md-3 col-lg-2"
+        div class="entry"
+          div= image_tag("swab", style: "width:100%;background-color:#{ci.ink_color};")
+          div class="actions"= render partial: "actions", locals: { ci: ci }
+          div= ci.ink_name
+          div= ci.pen_name
+          div=l ci.inked_on
+          div= ci.comment
+      - if (index+1) % 6 == 0
+        div class="clearfix visible-lg-block"
+      - if (index+1) % 4 == 0
+        div class="clearfix visible-md-block"
+      - if (index+1) % 3 == 0
+        div class="clearfix visible-sm-block"
+  div class="links row"
+    div class="col-xs-12"
+      = link_to 'Show Archived Entries', currently_inked_archive_index_path, class: "btn btn-default"
+      = link_to "Show Usage Records", usage_records_path, class: "btn btn-default"
