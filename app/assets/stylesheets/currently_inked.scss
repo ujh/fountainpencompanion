@@ -16,6 +16,32 @@
   }
 }
 
+#currently-inked-beta {
+  .export {
+    text-align: right;
+    margin-bottom: 20px;
+  }
+  font-size: 12px;
+  text-align: center;
+  .btn {
+    padding: 3px 6px;
+  }
+  i {
+    font-size: 16px;
+    margin: 0;
+  }
+  .entry {
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    padding-left: 5px;
+    padding-right: 5px;
+    margin-top: 15px;
+  }
+  .row {
+    box-shadow: none;
+  }
+}
+
 form.edit_currently_inked, form.new_currently_inked {
   .row {
     box-shadow: none !important;

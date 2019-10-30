@@ -1,7 +1,7 @@
 class CurrentlyInkedController < ApplicationController
   before_action :authenticate_user!
   # TODO: In which actions is that even needed?
-  before_action :retrieve_collection, only: [:index]
+  before_action :retrieve_collection, only: [:index, :beta]
   # TODO: In which actions is that even needed?
   before_action :retrieve_record, only: [:edit, :update, :destroy, :archive, :refill]
 
@@ -13,6 +13,9 @@ class CurrentlyInkedController < ApplicationController
         send_data cis.to_csv, type: "text/csv", filename: "currently_inked.csv"
       end
     end
+  end
+
+  def beta
   end
 
   def edit
