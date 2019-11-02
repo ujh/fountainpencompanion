@@ -42,6 +42,13 @@
     }
   }
   .swabs {
+    .links {
+      text-align: center;
+      .btn {
+        width: 100%;
+        margin-bottom: 7px;
+      }
+    }
     .entry {
       border: 1px solid #ccc;
       border-radius: 10px;

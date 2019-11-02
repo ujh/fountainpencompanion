@@ -25,6 +25,7 @@ div class="row"
         div style="clear:left;"
         div class="actions"= render partial: "actions", locals: { ci: ci }
 div class="links row"
-  div class="col-xs-12"
+  div class="col-xs-12 col-sm-6"
     = link_to 'Show Archived Entries', currently_inked_archive_index_path, class: "btn btn-default"
+  div class="col-xs-12 col-sm-6"
     = link_to "Show Usage Records", usage_records_path, class: "btn btn-default"
