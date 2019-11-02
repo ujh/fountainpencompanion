@@ -32,6 +32,9 @@
     margin-bottom: 20px;
   }
   .table {
+    .inked_on {
+      white-space: nowrap;
+    }
     .actions {
       white-space: nowrap;
       text-align: right;

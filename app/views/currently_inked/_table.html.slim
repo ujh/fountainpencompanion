@@ -13,7 +13,7 @@ div class="table-responsive"
           td= ci.pen_name
           td style="background-color:#{ci.ink_color};width:30px;"
           td= ci.ink_name
-          td=l ci.inked_on
+          td class="inked_on"=l ci.inked_on
           td= ci.comment
           td class="actions"= render partial: "actions", locals: { ci: ci }
     tfoot
