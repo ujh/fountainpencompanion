@@ -31,7 +31,7 @@ $grid-float-breakpoint: 1200px;
 
 #patreon {
     background-color: rgb(249, 104, 84);
-    margin-top: -10px;
+    margin-top: -20px;
     padding-top: 5px;
     padding-bottom: 5px;
     text-align: center;
@@ -39,4 +39,14 @@ $grid-float-breakpoint: 1200px;
         color: white;
         font-weight: bold;
     }
+}
+
+#wrapper {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+#footer {
+    margin-top: auto;
 }

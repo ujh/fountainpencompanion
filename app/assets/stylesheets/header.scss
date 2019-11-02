@@ -4,6 +4,7 @@
   }
   background: black;
   border-color: black;
+  border-radius: 0px;
   filter:none !important;
   font-family: Droid Serif, Georgia;
   font-size: 14px;
@@ -24,4 +25,8 @@
     width: 36px;
     border-radius: 2px;
   }
+}
+
+#footer {
+  margin-bottom: 0px;
 }
