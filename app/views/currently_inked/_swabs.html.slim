@@ -1,8 +1,10 @@
 div class="row stats"
-  div class="col-xs-3"
-    b= "#{collection.size} pens"
-  div class="col-xs-3"
+  div class="col-xs-12"
+    'You currently have
+    b= "#{collection.size} pens "
+    'inked with
     b= "#{collection.map(&:ink_simplified_name).uniq.length} inks"
+    |.
 div class="links row"
   div class="col-xs-12"
     = link_to "Add entry", new_currently_inked_path, class: "btn btn-default"
