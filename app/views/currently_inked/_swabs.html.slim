@@ -31,6 +31,8 @@ div class="row"
           div= ci.comment
         div style="clear:left;"
         div class="actions"= render partial: "actions", locals: { ci: ci }
+    - if (index+1) % 2 == 0
+      div class="clearfix visible-sm-block"
 div class="links row"
   div class="col-xs-12"
     = link_to "Add entry", new_currently_inked_path, class: "btn btn-default"
