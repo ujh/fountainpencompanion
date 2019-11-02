@@ -6,9 +6,8 @@ class CurrentlyInkedController < ApplicationController
   before_action :retrieve_record, only: [:edit, :update, :destroy, :archive, :refill]
 
   def index
-    cookies.delete :beta
     respond_to do |format|
-      format.html
+      format.html { cookies.delete :beta }
       format.csv do
         cis = current_user.currently_inkeds.includes(:collected_pen, :collected_ink)
         send_data cis.to_csv, type: "text/csv", filename: "currently_inked.csv"
@@ -63,6 +62,8 @@ class CurrentlyInkedController < ApplicationController
   end
 
   private
+
+  helper_method :the_index
 
   def the_index
     if cookies[:beta].present?
