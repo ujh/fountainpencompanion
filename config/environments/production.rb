@@ -60,14 +60,14 @@ Rails.application.configure do
   # config.active_job.queue_adapter     = :resque
   # config.active_job.queue_name_prefix = "fountainpencompanion_#{Rails.env}"
   config.action_mailer.perform_caching = false
-  config.action_mailer.smtp_settings = {
-    user_name: 'SMTP_Injection',
-    password: ENV['SPARKPOST_PWD'],
-    address: 'smtp.sparkpostmail.com',
-    port: 587,
-    enable_starttls_auto: true,
-    format: :html,
-    from: 'hello@fountainpencompanion.com'
+  ActionMailer::Base.smtp_settings = {
+    :user_name => ENV['SENDGRID_USERNAME'],
+    :password => ENV['SENDGRID_PASSWORD'],
+    :domain => 'fountainpencompanion.com',
+    :address => 'smtp.sendgrid.net',
+    :port => 587,
+    :authentication => :plain,
+    :enable_starttls_auto => true
   }
   config.action_mailer.default_url_options = { host: 'www.fountainpencompanion.com' }
 
