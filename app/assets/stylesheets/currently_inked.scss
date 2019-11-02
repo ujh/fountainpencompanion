@@ -17,32 +17,55 @@
 }
 
 #currently-inked-beta {
+  @media (min-width: 992px) {
+    .swabs {
+      display: none;
+    }
+  }
+  @media (max-width: 991px) {
+    .table {
+      display: none;
+    }
+  }
   .export {
     text-align: right;
     margin-bottom: 20px;
   }
-  font-size: 12px;
-  text-align: center;
-  .btn {
-    padding: 3px 6px;
-  }
-  i {
-    font-size: 16px;
-    margin: 0;
-  }
-  .entry {
-    border: 1px solid #ccc;
-    border-radius: 10px;
-    padding-left: 5px;
-    padding-right: 5px;
-    margin-top: 15px;
-    img {
-      width: 50%;
-      float: left;
+  .table {
+    .actions {
+      white-space: nowrap;
+      text-align: right;
+    }
+    i {
+      font-size: 18px;
+      margin: 0;
     }
   }
-  .row {
-    box-shadow: none;
+  .swabs {
+    .entry {
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      padding-left: 5px;
+      padding-right: 5px;
+      margin-top: 15px;
+      img {
+        width: 50%;
+        float: left;
+      }
+      .actions {
+        text-align: center;
+        .btn {
+          margin: 5px;
+        }
+        i {
+          font-size: 24px;
+          margin: 0;
+        }
+      }
+    }
+    .row {
+      box-shadow: none;
+    }
   }
 }
 

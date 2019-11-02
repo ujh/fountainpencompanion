@@ -99,10 +99,14 @@ class CollectedInk < ApplicationRecord
   end
 
   def name
-    n = [brand_name, line_name, ink_name].reject {|f| f.blank? }.join(' ')
+    n = short_name
     n = "#{n} - #{kind}" if kind.present?
     n = "#{n} (archived)" if archived?
     n
+  end
+
+  def short_name
+    [brand_name, line_name, ink_name].reject {|f| f.blank? }.join(' ')
   end
 
   def brand_name=(value)
