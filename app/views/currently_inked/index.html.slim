@@ -1,12 +1,8 @@
 - content_for :title, "Currently Inked"
 div id="currently-inked"
-  div class="alert alert-success"
-    'If you are viewing this on a mobile device and you have difficulties using
-    'this page because the table is too wide, please try out the new
-    b= link_to "MOBILE FRIENDLY BETA", beta_currently_inked_index_path
-    '  of this page! Please send your feedback (ideally with a screenshot) to
-    a href="mailto:hello@fountainpencompanion.com" hello@fountainpencompanion.com
-    '.
   div class="export"
     = link_to "Export data", currently_inked_index_path(format: 'csv'), class: "btn btn-primary"
-  = render partial: "table", locals: { collection: @collection }
+  div class="table"
+    = render partial: "table", locals: { collection: @collection }
+  div class="swabs"
+    = render partial: "swabs", locals: { collection: @collection }

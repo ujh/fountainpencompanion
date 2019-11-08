@@ -1,21 +1,17 @@
 class CurrentlyInkedController < ApplicationController
   before_action :authenticate_user!
-  before_action :retrieve_collection, only: [:index, :beta]
+  before_action :retrieve_collection, only: [:index]
   before_action :retrieve_record, only: [:edit, :update, :destroy, :archive, :refill]
-  before_action :set_empty_record, only: [:new, :index, :beta]
+  before_action :set_empty_record, only: [:new, :index]
 
   def index
     respond_to do |format|
-      format.html { cookies.delete :beta }
+      format.html
       format.csv do
         cis = current_user.currently_inkeds.includes(:collected_pen, :collected_ink)
         send_data cis.to_csv, type: "text/csv", filename: "currently_inked.csv"
       end
     end
-  end
-
-  def beta
-    cookies[:beta] = "it is ON!"
   end
 
   def edit
@@ -24,7 +20,7 @@ class CurrentlyInkedController < ApplicationController
   def update
     if @record.update(currently_inked_params)
       flash[:notice] = "Successfully updated entry"
-      redirect_to the_index
+      redirect_to currently_inked_index_path
     else
       render :edit
     end
@@ -32,13 +28,13 @@ class CurrentlyInkedController < ApplicationController
 
   def archive
     @record.archive!
-    redirect_to the_index
+    redirect_to currently_inked_index_path
   end
 
   def refill
     @record.refill!
     flash[:notice] = "Refilled your #{@record.pen_name} with #{@record.ink_name}."
-    redirect_to the_index
+    redirect_to currently_inked_index_path
   end
 
   def new
@@ -48,7 +44,7 @@ class CurrentlyInkedController < ApplicationController
     @record = current_user.currently_inkeds.build(currently_inked_params)
     if @record.save
       flash[:notice] = "Successfully created entry"
-      redirect_to the_index
+      redirect_to currently_inked_index_path
     else
       render :new
     end
@@ -56,20 +52,10 @@ class CurrentlyInkedController < ApplicationController
 
   def destroy
     @record.destroy
-    redirect_to the_index
+    redirect_to currently_inked_index_path
   end
 
   private
-
-  helper_method :the_index
-
-  def the_index
-    if cookies[:beta].present?
-      beta_currently_inked_index_path
-    else
-      currently_inked_index_path
-    end
-  end
 
   def currently_inked_params
     params.require(:currently_inked).permit(
