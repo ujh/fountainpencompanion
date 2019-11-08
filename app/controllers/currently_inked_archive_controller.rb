@@ -1,10 +1,12 @@
 class CurrentlyInkedArchiveController < ApplicationController
   before_action :authenticate_user!
-  before_action :retrieve_collection, only: [:index]
   before_action :retrieve_record, only: [:edit, :update, :destroy, :unarchive]
   before_action :set_used_pen_ids, only: [:index]
 
   def index
+    @collection = current_user.currently_inkeds.archived.includes(
+      :collected_pen, :collected_ink
+    ).order('archived_on DESC, created_at DESC').page(params[:page]).per(50)
   end
 
   def edit
@@ -39,12 +41,6 @@ class CurrentlyInkedArchiveController < ApplicationController
       :archived_on,
       :comment
     )
-  end
-
-  def retrieve_collection
-    @collection = current_user.currently_inkeds.archived.includes(
-      :collected_pen, :collected_ink
-    ).order('archived_on DESC, created_at DESC')
   end
 
   def retrieve_record
