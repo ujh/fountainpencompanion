@@ -1,11 +1,18 @@
 class LeaderBoard
 
+  def self.refresh!
+    inks(force: true)
+    bottles(force: true)
+    samples(force: true)
+    brands(force: true)
+  end
+
   def self.top_inks
     inks.take(10)
   end
 
-  def self.inks
-    Rails.cache.fetch("LeaderBoard#inks", expires_in: 1.hour) do
+  def self.inks(force: false)
+    Rails.cache.fetch("LeaderBoard#inks", force: force) do
       extract(build)
     end
   end
@@ -14,8 +21,8 @@ class LeaderBoard
     bottles.take(10)
   end
 
-  def self.bottles
-    Rails.cache.fetch("LeaderBoard#bottles", expires_in: 1.hour) do
+  def self.bottles(force: false)
+    Rails.cache.fetch("LeaderBoard#bottles", force: force) do
       extract(build.where(collected_inks: {kind: "bottle"}))
     end
   end
@@ -24,8 +31,8 @@ class LeaderBoard
     samples.take(10)
   end
 
-  def self.samples
-    Rails.cache.fetch("LeaderBoard#samples", expires_in: 1.hour) do
+  def self.samples(force: false)
+    Rails.cache.fetch("LeaderBoard#samples", force: force) do
       extract(build.where(collected_inks: {kind: "sample"}))
     end
   end
@@ -34,8 +41,8 @@ class LeaderBoard
     brands.take(10)
   end
 
-  def self.brands
-    Rails.cache.fetch("LeaderBoard#brands", expires_in: 1.hour) do
+  def self.brands(force: false)
+    Rails.cache.fetch("LeaderBoard#brands", force: force) do
       extract(build(
         "(select sum(1) OVER () from collected_inks where collected_inks.user_id = users.id group by collected_inks.brand_name limit 1) as counter"
       ))
