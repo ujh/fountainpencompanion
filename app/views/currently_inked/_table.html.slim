@@ -16,10 +16,16 @@ div class="table-responsive"
           td class="inked_on"=l ci.inked_on
           td= ci.comment
           td class="actions"= render partial: "actions", locals: { ci: ci }
+      = simple_form_for @record, wrapper: :inline_form do |f|
+        tr class="ci-form"
+          td=f.association :collected_pen, collection: @record.collected_pens_for_active_select, prompt: '(Pick a pen)'
+          td colspan="2"= f.association :collected_ink, collection: @record.collected_inks_for_active_select, prompt: '(Pick an ink)'
+          td= f.input :inked_on, as: :string
+          td= f.input :comment, as: :string
+          td class="actions"
+            = f.button :button do
+              = fa_icon("check")
     tfoot
-      tr
-        td colspan="5"
-        td class="actions"= link_to "Add entry", new_currently_inked_path, class: "btn btn-default"
       tr
         th= "#{collection.size} pens"
         th
