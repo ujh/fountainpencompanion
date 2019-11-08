@@ -16,9 +16,6 @@ Rails.application.routes.draw do
       post 'archive'
       post 'refill'
     end
-    collection do
-      get 'beta'
-    end
     resource :usage_record, only: [:create]
   end
   resources :currently_inked_archive, only: [:index, :edit, :update, :destroy] do
