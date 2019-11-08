@@ -1,9 +1,8 @@
 class CurrentlyInkedController < ApplicationController
   before_action :authenticate_user!
-  # TODO: In which actions is that even needed?
   before_action :retrieve_collection, only: [:index, :beta]
-  # TODO: In which actions is that even needed?
   before_action :retrieve_record, only: [:edit, :update, :destroy, :archive, :refill]
+  before_action :set_empty_record, only: [:new, :index, :beta]
 
   def index
     respond_to do |format|
@@ -43,7 +42,6 @@ class CurrentlyInkedController < ApplicationController
   end
 
   def new
-    @record = CurrentlyInked.new(inked_on: Date.today, user: current_user)
   end
 
   def create
@@ -90,5 +88,9 @@ class CurrentlyInkedController < ApplicationController
 
   def retrieve_record
     @record = current_user.currently_inkeds.find(params[:id])
+  end
+
+  def set_empty_record
+    @record = CurrentlyInked.new(inked_on: Date.today, user: current_user)
   end
 end

@@ -32,6 +32,9 @@
     margin-bottom: 20px;
   }
   .table {
+    .ci-form td {
+      vertical-align: middle;
+    }
     .inked_on {
       white-space: nowrap;
     }
