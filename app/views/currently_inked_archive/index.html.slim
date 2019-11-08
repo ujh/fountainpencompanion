@@ -1,5 +1,6 @@
 - content_for :title, "Currently Inked Archive"
 div id="currently-inked-archive"
+  = paginate @collection
   div class="table-responsive"
     table class="table table-striped"
       thead
@@ -20,3 +21,4 @@ div id="currently-inked-archive"
             td=l ci.archived_on
             td= ci.comment
             td class="actions"= render partial: "actions", locals: { ci: ci }
+  = paginate @collection
