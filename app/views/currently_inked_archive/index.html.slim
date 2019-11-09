@@ -1,24 +1,6 @@
 - content_for :title, "Currently Inked Archive"
 div id="currently-inked-archive"
-  = paginate @collection
-  div class="table-responsive"
-    table class="table table-striped"
-      thead
-        tr
-          th Pen
-          th colspan="2" Ink
-          th Date Inked
-          th Date Cleaned
-          th Comment
-          th Actions
-      tbody
-        - @collection.each do |ci|
-          tr id="#{ci.id}"
-            td= ci.pen_name
-            td style="background-color:#{ci.ink_color};width:30px;"
-            td= ci.ink_name
-            td=l ci.inked_on
-            td=l ci.archived_on
-            td= ci.comment
-            td class="actions"= render partial: "actions", locals: { ci: ci }
-  = paginate @collection
+  div class="table"
+    = render partial: "table", locals: { collection: @collection }
+  div class="swabs"
+    = render partial: "swabs", locals: { collection: @collection }

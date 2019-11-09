@@ -1,0 +1,29 @@
+div class="links row"
+  div class="col-xs-12"
+    = paginate collection
+div class="row"
+  - collection.each_with_index do |ci, index|
+    div class="col-xs-12 col-sm-6"
+      div class="entry"
+        div= image_tag("swab.png", style: "background-color:#{ci.ink_color};")
+        div
+          b
+            'Date inked:
+          = ci.inked_on
+        div
+          b
+            'Ink:
+          = ci.ink_short_name
+        div
+          b
+            'Pen:
+          = ci.pen_name
+        - if ci.comment.present?
+          div= ci.comment
+        div style="clear:left;"
+        div class="actions"= render partial: "actions", locals: { ci: ci }
+    - if (index+1) % 2 == 0
+      div class="clearfix visible-sm-block"
+div class="links row"
+  div class="col-xs-12"
+    = paginate collection
