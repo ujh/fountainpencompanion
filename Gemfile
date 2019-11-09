@@ -9,6 +9,7 @@ end
 
 gem 'rails', '~> 6.0.1'
 
+gem 'barnes'
 gem 'bcrypt'
 gem 'bootsnap'
 gem 'bootstrap-sass'
