@@ -30,6 +30,8 @@ div class="table-responsive"
           td= ink.comment
           td class="actions"
             span
+              = link_to unarchive_collected_inks_beta_archive_path(ink), class: "btn btn-default", method: :post, title: "Unarchive #{ink.name}"
+                = fa_icon("archive")
               - if ink.deletable?
                   = link_to collected_inks_beta_archive_path(ink),
                             class: "btn btn-default",
