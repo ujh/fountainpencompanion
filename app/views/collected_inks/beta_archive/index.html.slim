@@ -1,0 +1,4 @@
+- content_for :title, "Inks Archive"
+div id="collected-inks-beta"
+  div class="table"
+    = render partial: "table", locals: { collection: @collection }

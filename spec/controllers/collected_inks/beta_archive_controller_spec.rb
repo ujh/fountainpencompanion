@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe CollectedInks::BetaController do
+describe CollectedInks::BetaArchiveController do
   render_views
 
   let(:user) { create(:user) }
@@ -18,26 +18,17 @@ describe CollectedInks::BetaController do
     end
 
     it 'renders the ink index page' do
-      create(:collected_ink, user: user, brand_name: 'Diamine')
+      create(:collected_ink, user: user, brand_name: 'Diamine', archived_on: Date.today)
       get :index
       expect(response).to be_successful
       expect(response.body).to include('Diamine')
     end
 
-    it 'does not include archived entries' do
-      create(:collected_ink, user: user, brand_name: 'Diamine', archived_on: Date.today)
+    it 'does not include active entries' do
+      create(:collected_ink, user: user, brand_name: 'Diamine', archived_on: nil)
       get :index
       expect(response).to be_successful
       expect(response.body).to_not include('Diamine')
-    end
-
-    it 'renders the CSV' do
-      create(:collected_ink, user: user, brand_name: 'Diamine', ink_name: 'Meadow')
-      create(:collected_ink, user: user, brand_name: 'Diamine', ink_name: 'Oxford Blue', archived_on: Date.today)
-      get :index, format: 'csv'
-      expect(response).to be_successful
-      expect(response.body).to include('Meadow')
-      expect(response.body).to include('Oxford Blue')
     end
   end
 
@@ -57,7 +48,7 @@ describe CollectedInks::BetaController do
         ink = create(:collected_ink, user: user)
         expect do
           delete :destroy, params: { id: ink.id }
-          expect(response).to redirect_to(collected_inks_beta_path)
+          expect(response).to redirect_to(collected_inks_beta_archive_index_path)
         end.to change { user.collected_inks.count }.by(-1)
       end
 
@@ -65,7 +56,7 @@ describe CollectedInks::BetaController do
         ink = create(:collected_ink)
         expect do
           delete :destroy, params: { id: ink.id }
-          expect(response).to redirect_to(collected_inks_beta_path)
+          expect(response).to redirect_to(collected_inks_beta_archive_index_path)
         end.to_not change { user.collected_inks.count }
       end
 
@@ -73,16 +64,16 @@ describe CollectedInks::BetaController do
         ink = create(:collected_ink, user: user, currently_inked_count: 1)
         expect do
           delete :destroy, params: { id: ink.id }
-          expect(response).to redirect_to(collected_inks_beta_path)
+          expect(response).to redirect_to(collected_inks_beta_archive_index_path)
         end.to_not change { user.collected_inks.count }
       end
     end
   end
 
-  describe '#archive' do
+  describe '#unarchive' do
 
     it 'requires authentication' do
-      post :archive, params: { id: 1 }
+      post :unarchive, params: { id: 1 }
       expect(response).to redirect_to(new_user_session_path)
     end
 
@@ -91,22 +82,22 @@ describe CollectedInks::BetaController do
         sign_in(user)
       end
 
-      it 'archives the ink' do
-        ink = create(:collected_ink, user: user)
+      it 'unarchives the ink' do
+        ink = create(:collected_ink, user: user, archived_on: Date.today)
         expect do
-          post :archive, params: { id: ink.id }
-          expect(response).to redirect_to(collected_inks_beta_path)
-        end.to change { ink.reload.archived_on }.from(nil).to(Date.today)
+          post :unarchive, params: { id: ink.id }
+          expect(response).to redirect_to(collected_inks_beta_archive_index_path)
+        end.to change { ink.reload.archived_on }.from(Date.today).to(nil)
       end
 
       it 'does not archive other user inks' do
-        ink = create(:collected_ink)
+        ink = create(:collected_ink, archived_on: Date.today)
         expect do
-          post :archive, params: { id: ink.id }
-          expect(response).to redirect_to(collected_inks_beta_path)
+          post :unarchive, params: { id: ink.id }
+          expect(response).to redirect_to(collected_inks_beta_archive_index_path)
         end.to_not change { ink.reload.archived_on }
       end
     end
-  end
 
+  end
 end

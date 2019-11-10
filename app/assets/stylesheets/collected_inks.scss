@@ -3,7 +3,14 @@
     text-align: right;
     margin-bottom: 20px;
   }
+  .row {
+    box-shadow: none;
+  }
   .table {
+    .actions {
+      white-space: nowrap;
+      text-align: right;
+    }
     i {
       font-size: 18px;
       margin: 0;
