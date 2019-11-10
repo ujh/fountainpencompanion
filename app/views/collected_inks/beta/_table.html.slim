@@ -31,5 +31,13 @@ div class="table-responsive"
           td= ink.used ? fa_icon('check') : fa_icon('times')
           td= ink.currently_inked_count
           td= ink.comment
-          td
+          td class="actions"
+            span
+              - if ink.deletable?
+                  = link_to collected_inks_betum_path(ink),
+                            class: "btn btn-default",
+                            method: :delete,
+                            data: { confirm: "Really delete #{ink.name}?" },
+                            title: "Delete #{ink.name}"
+                    = fa_icon("trash")
     tfoot
