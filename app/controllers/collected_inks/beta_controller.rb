@@ -5,7 +5,7 @@ class CollectedInks::BetaController < ApplicationController
     inks = current_user.collected_inks.order("brand_name, line_name, ink_name")
     respond_to do |format|
       format.html do
-        @collection = inks
+        @collection = inks.active
       end
       format.csv do
         send_data inks.to_csv, type: "text/csv", filename: "collected_inks.csv"
