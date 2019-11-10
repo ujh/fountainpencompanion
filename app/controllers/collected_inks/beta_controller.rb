@@ -25,4 +25,11 @@ class CollectedInks::BetaController < ApplicationController
     end
     redirect_to collected_inks_beta_path
   end
+
+  def archive
+    ink = current_user.collected_inks.find_by(id: params[:id])
+    flash[:notice] = "Successfully archived '#{ink.name}'" if ink
+    ink&.archive!
+    redirect_to collected_inks_beta_path
+  end
 end

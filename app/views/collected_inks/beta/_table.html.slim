@@ -33,6 +33,8 @@ div class="table-responsive"
           td= ink.comment
           td class="actions"
             span
+              = link_to archive_collected_inks_betum_path(ink), class: "btn btn-default", method: :post, title: "Archive #{ink.name}"
+                = fa_icon("archive")
               - if ink.deletable?
                   = link_to collected_inks_betum_path(ink),
                             class: "btn btn-default",
