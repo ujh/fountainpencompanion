@@ -10,6 +10,7 @@ Rails.application.routes.draw do
   end
   namespace :collected_inks do
     resources :beta, only: [:index]
+    resources :beta_archive, only: [:index]
   end
 
   resources :collected_pens do
