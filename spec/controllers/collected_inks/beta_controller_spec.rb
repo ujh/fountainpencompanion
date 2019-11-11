@@ -74,7 +74,7 @@ describe CollectedInks::BetaController do
         ink = create(:collected_ink, user: user)
         expect do
           delete :destroy, params: { id: ink.id }
-          expect(response).to redirect_to(collected_inks_beta_path)
+          expect(response).to redirect_to(collected_inks_beta_index_path)
         end.to change { user.collected_inks.count }.by(-1)
       end
 
@@ -82,7 +82,7 @@ describe CollectedInks::BetaController do
         ink = create(:collected_ink)
         expect do
           delete :destroy, params: { id: ink.id }
-          expect(response).to redirect_to(collected_inks_beta_path)
+          expect(response).to redirect_to(collected_inks_beta_index_path)
         end.to_not change { user.collected_inks.count }
       end
 
@@ -90,7 +90,7 @@ describe CollectedInks::BetaController do
         ink = create(:collected_ink, user: user, currently_inked_count: 1)
         expect do
           delete :destroy, params: { id: ink.id }
-          expect(response).to redirect_to(collected_inks_beta_path)
+          expect(response).to redirect_to(collected_inks_beta_index_path)
         end.to_not change { user.collected_inks.count }
       end
     end
@@ -112,7 +112,7 @@ describe CollectedInks::BetaController do
         ink = create(:collected_ink, user: user)
         expect do
           post :archive, params: { id: ink.id }
-          expect(response).to redirect_to(collected_inks_beta_path)
+          expect(response).to redirect_to(collected_inks_beta_index_path)
         end.to change { ink.reload.archived_on }.from(nil).to(Date.today)
       end
 
@@ -120,7 +120,7 @@ describe CollectedInks::BetaController do
         ink = create(:collected_ink)
         expect do
           post :archive, params: { id: ink.id }
-          expect(response).to redirect_to(collected_inks_beta_path)
+          expect(response).to redirect_to(collected_inks_beta_index_path)
         end.to_not change { ink.reload.archived_on }
       end
     end
@@ -142,7 +142,7 @@ describe CollectedInks::BetaController do
         ink = create(:collected_ink, user: user, archived_on: Date.today)
         expect do
           post :unarchive, params: { id: ink.id }
-          expect(response).to redirect_to(collected_inks_beta_path)
+          expect(response).to redirect_to(collected_inks_beta_index_path)
         end.to change { ink.reload.archived_on }.from(Date.today).to(nil)
       end
 
@@ -150,7 +150,7 @@ describe CollectedInks::BetaController do
         ink = create(:collected_ink, archived_on: Date.today)
         expect do
           post :unarchive, params: { id: ink.id }
-          expect(response).to redirect_to(collected_inks_beta_path)
+          expect(response).to redirect_to(collected_inks_beta_index_path)
         end.to_not change { ink.reload.archived_on }
       end
     end
