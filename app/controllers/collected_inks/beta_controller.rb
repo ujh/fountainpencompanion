@@ -5,7 +5,7 @@ class CollectedInks::BetaController < ApplicationController
     inks = current_user.collected_inks.order("brand_name, line_name, ink_name")
     respond_to do |format|
       format.html do
-        @collection = inks.active
+        @collection = archive? ? inks.archived : inks.active
       end
       format.csv do
         send_data inks.to_csv, type: "text/csv", filename: "collected_inks.csv"
@@ -23,13 +23,27 @@ class CollectedInks::BetaController < ApplicationController
         flash[:alert] = "'#{ink.name}' has currently inked entries attached and can't be deleted."
       end
     end
-    redirect_to collected_inks_beta_path
+    redirect_to collected_inks_beta_index_path
   end
 
   def archive
     ink = current_user.collected_inks.find_by(id: params[:id])
     flash[:notice] = "Successfully archived '#{ink.name}'" if ink
     ink&.archive!
-    redirect_to collected_inks_beta_path
+    redirect_to collected_inks_beta_index_path
+  end
+
+  def unarchive
+    ink = current_user.collected_inks.find_by(id: params[:id])
+    flash[:notice] = "Successfully unarchived '#{ink.name}'" if ink
+    ink&.unarchive!
+    redirect_to collected_inks_beta_index_path
+  end
+
+  private
+
+  helper_method :archive?
+  def archive?
+    params.dig(:search, :archive) == 'true'
   end
 end

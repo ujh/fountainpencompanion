@@ -1,6 +1,7 @@
 div class="row"
   div class="col-xs-12"
-    = link_to "Archive", collected_inks_beta_archive_index_path, class: "btn btn-default"
+    - unless archive?
+      = link_to "Archive", collected_inks_beta_index_path(search: { archive: true }), class: "btn btn-default"
 div class="table-responsive"
   table class="table table-striped"
     thead
@@ -31,15 +32,5 @@ div class="table-responsive"
           td= ink.used ? fa_icon('check') : fa_icon('times')
           td= ink.currently_inked_count
           td= ink.comment
-          td class="actions"
-            span
-              = link_to archive_collected_inks_betum_path(ink), class: "btn btn-default", method: :post, title: "Archive #{ink.name}"
-                = fa_icon("archive")
-              - if ink.deletable?
-                  = link_to collected_inks_betum_path(ink),
-                            class: "btn btn-default",
-                            method: :delete,
-                            data: { confirm: "Really delete #{ink.name}?" },
-                            title: "Delete #{ink.name}"
-                    = fa_icon("trash")
+          td= render partial: 'actions', locals: { ink: ink }
     tfoot

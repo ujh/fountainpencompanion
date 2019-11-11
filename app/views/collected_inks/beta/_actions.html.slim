@@ -1,0 +1,15 @@
+td class="actions"
+  span
+    - if ink.active?
+      = link_to archive_collected_inks_beta_path(ink), class: "btn btn-default", method: :post, title: "Archive #{ink.name}"
+        = fa_icon("archive")
+    - if ink.archived?
+      = link_to unarchive_collected_inks_beta_path(ink), class: "btn btn-default", method: :post, title: "Unarchive #{ink.name}"
+        = fa_icon("archive")
+    - if ink.deletable?
+        = link_to collected_inks_beta_path(ink),
+                  class: "btn btn-default",
+                  method: :delete,
+                  data: { confirm: "Really delete #{ink.name}?" },
+                  title: "Delete #{ink.name}"
+          = fa_icon("trash")
