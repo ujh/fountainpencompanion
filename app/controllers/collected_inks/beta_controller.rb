@@ -1,5 +1,6 @@
 class CollectedInks::BetaController < ApplicationController
   before_action :authenticate_user!
+  before_action :find_ink, only: [:edit, :destroy, :archive, :unarchive]
 
   def index
     inks = current_user.collected_inks.order("brand_name, line_name, ink_name")
@@ -13,8 +14,10 @@ class CollectedInks::BetaController < ApplicationController
     end
   end
 
+  def edit
+  end
+
   def destroy
-    ink = current_user.collected_inks.find_by(id: params[:id])
     if ink
       if ink.deletable?
         ink.destroy
@@ -27,20 +30,24 @@ class CollectedInks::BetaController < ApplicationController
   end
 
   def archive
-    ink = current_user.collected_inks.find_by(id: params[:id])
     flash[:notice] = "Successfully archived '#{ink.name}'" if ink
     ink&.archive!
     redirect_to collected_inks_beta_index_path
   end
 
   def unarchive
-    ink = current_user.collected_inks.find_by(id: params[:id])
     flash[:notice] = "Successfully unarchived '#{ink.name}'" if ink
     ink&.unarchive!
     redirect_to collected_inks_beta_index_path
   end
 
   private
+
+  attr_accessor :ink
+
+  def find_ink
+    self.ink = current_user.collected_inks.find_by(id: params[:id])
+  end
 
   helper_method :archive?
   def archive?

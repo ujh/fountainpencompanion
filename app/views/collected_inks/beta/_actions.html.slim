@@ -1,5 +1,7 @@
 td class="actions"
   span
+    = link_to edit_collected_inks_beta_path(ink), class: "btn btn-default", title: "Edit #{ink.name}"
+      = fa_icon("pencil")
     - if ink.active?
       = link_to archive_collected_inks_beta_path(ink), class: "btn btn-default", method: :post, title: "Archive #{ink.name}"
         = fa_icon("archive")

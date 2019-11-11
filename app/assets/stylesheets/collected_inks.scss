@@ -27,6 +27,15 @@
   }
 }
 
+form.edit_collected_ink {
+  .row {
+    box-shadow: none !important;
+  }
+  input[type=submit] {
+    margin-right: 15px;
+  }
+}
+
 #collected-inks-app {
   .export {
     float: right;

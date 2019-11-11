@@ -156,4 +156,23 @@ describe CollectedInks::BetaController do
     end
   end
 
+  describe '#edit' do
+
+    it 'requires authentication' do
+      get :edit, params: { id: 1 }
+      expect(response).to redirect_to(new_user_session_path)
+    end
+
+    context 'signed in' do
+      before do
+        sign_in(user)
+      end
+
+      it 'renders the edit page' do
+        ink = create(:collected_ink, user: user)
+        get :edit, params: { id: ink.id }
+        expect(response).to be_successful
+      end
+    end
+  end
 end

@@ -9,7 +9,7 @@ Rails.application.routes.draw do
     resource :archive, only: [:create, :destroy]
   end
   namespace :collected_inks do
-    resources :beta, only: [:index, :destroy] do
+    resources :beta, only: [:index, :destroy, :edit, :update, :new, :create] do
       member do
         post 'archive'
         post 'unarchive'
