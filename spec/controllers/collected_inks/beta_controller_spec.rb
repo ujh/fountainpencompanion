@@ -31,6 +31,23 @@ describe CollectedInks::BetaController do
       expect(response.body).to_not include('Diamine')
     end
 
+    context 'only archived entries' do
+
+      it 'renders only archived entries' do
+        create(:collected_ink, user: user, brand_name: 'Diamine', archived_on: Date.today)
+        get :index, params: { search: { archive: 'true' } }
+        expect(response).to be_successful
+        expect(response.body).to include('Diamine')
+      end
+
+      it 'does not include active entries' do
+        create(:collected_ink, user: user, brand_name: 'Diamine')
+        get :index, params: { search: { archive: 'true' } }
+        expect(response).to be_successful
+        expect(response.body).to_not include('Diamine')
+      end
+    end
+
     it 'renders the CSV' do
       create(:collected_ink, user: user, brand_name: 'Diamine', ink_name: 'Meadow')
       create(:collected_ink, user: user, brand_name: 'Diamine', ink_name: 'Oxford Blue', archived_on: Date.today)
