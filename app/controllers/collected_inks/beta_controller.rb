@@ -32,4 +32,12 @@ class CollectedInks::BetaController < ApplicationController
     ink&.archive!
     redirect_to collected_inks_beta_path
   end
+
+  def unarchive
+    ink = current_user.collected_inks.find_by(id: params[:id])
+    flash[:notice] = "Successfully unarchived '#{ink.name}'" if ink
+    ink&.unarchive!
+    redirect_to collected_inks_beta_path
+  end
+
 end

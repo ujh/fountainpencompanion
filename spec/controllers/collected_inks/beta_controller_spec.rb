@@ -109,4 +109,34 @@ describe CollectedInks::BetaController do
     end
   end
 
+  describe '#unarchive' do
+
+    it 'requires authentication' do
+      post :unarchive, params: { id: 1 }
+      expect(response).to redirect_to(new_user_session_path)
+    end
+
+    context 'signed in' do
+      before do
+        sign_in(user)
+      end
+
+      it 'unarchives the ink' do
+        ink = create(:collected_ink, user: user, archived_on: Date.today)
+        expect do
+          post :unarchive, params: { id: ink.id }
+          expect(response).to redirect_to(collected_inks_beta_path)
+        end.to change { ink.reload.archived_on }.from(Date.today).to(nil)
+      end
+
+      it 'does not archive other user inks' do
+        ink = create(:collected_ink, archived_on: Date.today)
+        expect do
+          post :unarchive, params: { id: ink.id }
+          expect(response).to redirect_to(collected_inks_beta_path)
+        end.to_not change { ink.reload.archived_on }
+      end
+    end
+  end
+
 end

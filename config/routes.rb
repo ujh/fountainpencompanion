@@ -12,6 +12,7 @@ Rails.application.routes.draw do
     resources :beta, only: [:index, :destroy] do
       member do
         post 'archive'
+        post 'unarchive'
       end
     end
     resources :beta_archive, only: [:index, :destroy] do
