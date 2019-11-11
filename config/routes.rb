@@ -15,11 +15,6 @@ Rails.application.routes.draw do
         post 'unarchive'
       end
     end
-    resources :beta_archive, only: [:index, :destroy] do
-      member do
-        post 'unarchive'
-      end
-    end
   end
 
   resources :collected_pens do
