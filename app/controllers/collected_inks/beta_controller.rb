@@ -1,5 +1,6 @@
 class CollectedInks::BetaController < ApplicationController
   before_action :authenticate_user!
+  before_action :find_ink, only: [:edit, :update, :destroy, :archive, :unarchive]
 
   def index
     inks = current_user.collected_inks.order("brand_name, line_name, ink_name")
@@ -13,8 +14,33 @@ class CollectedInks::BetaController < ApplicationController
     end
   end
 
+  def new
+    self.ink = current_user.collected_inks.build
+  end
+
+  def create
+    self.ink = current_user.collected_inks.build(collected_ink_params)
+    if ink.save
+      flash[:notice] = 'Successfully created ink'
+      redirect_to collected_inks_beta_index_path
+    else
+      render :new
+    end
+  end
+
+  def edit
+  end
+
+  def update
+    if ink.update(collected_ink_params)
+      flash[:notice] = 'Successfully updated ink'
+      redirect_to collected_inks_beta_index_path
+    else
+      render :edit
+    end
+  end
+
   def destroy
-    ink = current_user.collected_inks.find_by(id: params[:id])
     if ink
       if ink.deletable?
         ink.destroy
@@ -27,14 +53,12 @@ class CollectedInks::BetaController < ApplicationController
   end
 
   def archive
-    ink = current_user.collected_inks.find_by(id: params[:id])
     flash[:notice] = "Successfully archived '#{ink.name}'" if ink
     ink&.archive!
     redirect_to collected_inks_beta_index_path
   end
 
   def unarchive
-    ink = current_user.collected_inks.find_by(id: params[:id])
     flash[:notice] = "Successfully unarchived '#{ink.name}'" if ink
     ink&.unarchive!
     redirect_to collected_inks_beta_index_path
@@ -42,8 +66,29 @@ class CollectedInks::BetaController < ApplicationController
 
   private
 
+  attr_accessor :ink
+
+  def find_ink
+    self.ink = current_user.collected_inks.find(params[:id])
+  end
+
   helper_method :archive?
   def archive?
     params.dig(:search, :archive) == 'true'
+  end
+
+  def collected_ink_params
+    params.require(:collected_ink).permit(
+      :brand_name,
+      :line_name,
+      :ink_name,
+      :maker,
+      :kind,
+      :swabbed,
+      :used,
+      :comment,
+      :color,
+      :private,
+    )
   end
 end
