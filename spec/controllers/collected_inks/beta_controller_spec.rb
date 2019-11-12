@@ -81,8 +81,9 @@ describe CollectedInks::BetaController do
       it 'does not delete inks from other users' do
         ink = create(:collected_ink)
         expect do
-          delete :destroy, params: { id: ink.id }
-          expect(response).to redirect_to(collected_inks_beta_index_path)
+          expect do
+            delete :destroy, params: { id: ink.id }
+          end.to raise_error(ActiveRecord::RecordNotFound)
         end.to_not change { user.collected_inks.count }
       end
 
@@ -119,8 +120,9 @@ describe CollectedInks::BetaController do
       it 'does not archive other user inks' do
         ink = create(:collected_ink)
         expect do
-          post :archive, params: { id: ink.id }
-          expect(response).to redirect_to(collected_inks_beta_index_path)
+          expect do
+            post :archive, params: { id: ink.id }
+          end.to raise_error(ActiveRecord::RecordNotFound)
         end.to_not change { ink.reload.archived_on }
       end
     end
@@ -149,8 +151,9 @@ describe CollectedInks::BetaController do
       it 'does not archive other user inks' do
         ink = create(:collected_ink, archived_on: Date.today)
         expect do
-          post :unarchive, params: { id: ink.id }
-          expect(response).to redirect_to(collected_inks_beta_index_path)
+          expect do
+            post :unarchive, params: { id: ink.id }
+          end.to raise_error(ActiveRecord::RecordNotFound)
         end.to_not change { ink.reload.archived_on }
       end
     end
