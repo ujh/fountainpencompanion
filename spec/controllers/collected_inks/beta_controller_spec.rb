@@ -178,4 +178,46 @@ describe CollectedInks::BetaController do
       end
     end
   end
+
+  describe '#update' do
+
+    it 'requires authentication' do
+      put :update, params: { id: 1 }
+      expect(response).to redirect_to(new_user_session_path)
+    end
+
+    context 'signed in' do
+      before do
+        sign_in(user)
+      end
+
+      it 'renders the edit page' do
+        ink = create(:collected_ink, user: user, swabbed: false, used: false)
+        put :update, params: { id: ink.id, collected_ink: {
+          brand_name: 'new brand name',
+          line_name: 'new line name',
+          ink_name: 'new ink name',
+          maker: 'new maker',
+          kind: 'sample',
+          swabbed: true,
+          used: true,
+          comment: 'new comment',
+          color: '#000000',
+          private: true,
+        } }
+        expect(response).to redirect_to(collected_inks_beta_index_path)
+        ink.reload
+        expect(ink.brand_name).to eq('new brand name')
+        expect(ink.line_name).to eq('new line name')
+        expect(ink.ink_name).to eq('new ink name')
+        expect(ink.maker).to eq('new maker')
+        expect(ink.kind).to eq('sample')
+        expect(ink.swabbed).to eq(true)
+        expect(ink.used).to eq(true)
+        expect(ink.comment).to eq('new comment')
+        expect(ink.color).to eq('#000000')
+        expect(ink).to be_private
+      end
+    end
+  end
 end

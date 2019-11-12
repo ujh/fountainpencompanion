@@ -18,6 +18,12 @@ class CollectedInks::BetaController < ApplicationController
   end
 
   def update
+    if ink.update(collected_ink_params)
+      flash[:notice] = 'Successfully updated ink'
+      redirect_to collected_inks_beta_index_path
+    else
+      render :edit
+    end
   end
 
   def destroy
@@ -55,5 +61,20 @@ class CollectedInks::BetaController < ApplicationController
   helper_method :archive?
   def archive?
     params.dig(:search, :archive) == 'true'
+  end
+
+  def collected_ink_params
+    params.require(:collected_ink).permit(
+      :brand_name,
+      :line_name,
+      :ink_name,
+      :maker,
+      :kind,
+      :swabbed,
+      :used,
+      :comment,
+      :color,
+      :private,
+    )
   end
 end

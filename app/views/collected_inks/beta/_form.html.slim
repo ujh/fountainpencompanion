@@ -6,10 +6,11 @@
       = f.input :ink_name
       = f.input :maker, as: :string
     div class="col-sm-12 col-md-6"
-      = f.input :kind, as: :select, collection: CollectedInk::KINDS
+      = f.input :kind, as: :select, collection: CollectedInk::KINDS, label: 'Type'
       = f.input :color
       = f.input :swabbed
       = f.input :used
+      = f.input :private
       = f.input :comment
   div class="row"
     div class="col-sm-12 col-md-6"
