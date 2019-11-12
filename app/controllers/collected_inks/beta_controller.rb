@@ -14,6 +14,20 @@ class CollectedInks::BetaController < ApplicationController
     end
   end
 
+  def new
+    self.ink = current_user.collected_inks.build
+  end
+
+  def create
+    self.ink = current_user.collected_inks.build(collected_ink_params)
+    if ink.save
+      flash[:notice] = 'Successfully created ink'
+      redirect_to collected_inks_beta_index_path
+    else
+      render :new
+    end
+  end
+
   def edit
   end
 

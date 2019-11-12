@@ -218,6 +218,58 @@ describe CollectedInks::BetaController do
         expect(ink.color).to eq('#000000')
         expect(ink).to be_private
       end
+
+      it 'renders edit on validation error' do
+        ink = create(:collected_ink, user: user)
+        put :update, params: { id: ink.id, collected_ink: { brand_name: ''} }
+        expect(response).to render_template(:edit)
+      end
+    end
+  end
+
+  describe '#new' do
+    it 'requires authentication' do
+      get :new
+      expect(response).to redirect_to(new_user_session_path)
+    end
+
+    context 'signed in' do
+      before do
+        sign_in(user)
+      end
+
+      it 'renders the edit page' do
+        get :new
+        expect(response).to be_successful
+      end
+    end
+  end
+
+  describe '#create' do
+
+    it 'requires authentication' do
+      post :create
+      expect(response).to redirect_to(new_user_session_path)
+    end
+
+    context 'signed in' do
+      before do
+        sign_in(user)
+      end
+
+      it 'creates a new entry' do
+        expect do
+          post :create, params: { collected_ink: { brand_name: 'brand', ink_name: 'ink'} }
+          expect(response).to redirect_to(collected_inks_beta_index_path)
+        end.to change { user.collected_inks.count }.by(1)
+      end
+
+      it 'renders new when validation error' do
+        expect do
+          post :create, params: { collected_ink: { brand_name: 'brand'} }
+          expect(response).to render_template(:new)
+        end.to_not change { user.collected_inks.count }
+      end
     end
   end
 end

@@ -1,7 +1,8 @@
 div class="row"
+  - unless archive?
   div class="col-xs-12"
-    - unless archive?
-      = link_to "Archive", collected_inks_beta_index_path(search: { archive: true }), class: "btn btn-default"
+    = link_to "Add ink", new_collected_inks_beta_path, class: "btn btn-default"
+    = link_to "Archive", collected_inks_beta_index_path(search: { archive: true }), class: "btn btn-default"
 div class="table-responsive"
   table class="table table-striped"
     thead
