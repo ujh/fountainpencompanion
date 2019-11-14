@@ -21,22 +21,10 @@ class Admins::UsersController < Admins::BaseController
     content = params[:file].read.force_encoding('UTF-8')
     CSV.parse(content, headers: true) do |row|
       row = row.to_hash
-      row.keys.each {|k|
-        row[k] = '' if row[k].nil?
-        row[k] = row[k].strip
-      }
-      row["private"] = !row["private"].blank?
-      row["used"] = row["used"].present? ? (["true", "1"].include?(row["used"].downcase)) : false
-      row["archived_on"] = row["archived"].present? ? Date.today : nil
-      row["kind"] = "bottle" unless row["kind"].present?
-      ci = @user.collected_inks.build
-      ink_params = row.slice(
-        "brand_name", "line_name", "ink_name", "maker", "kind", "private", "comment", "used", "archived_on"
-      )
-      SaveCollectedInk.new(ci, ink_params).perform
-      count +=1 if ci.persisted?
+      ImportCollectedInk.perform_async(@user.id, row)
+      count +=1
     end
-    flash[:notice] = "#{count} inks imported for #{@user.email}"
+    flash[:notice] = "#{count} inks scheduled for imported for #{@user.email}"
     redirect_to admins_users_path
   end
 
