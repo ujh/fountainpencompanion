@@ -83,4 +83,4 @@ production:
   database: fountainpencompanion_production
   username: fountainpencompanion
   password: <%= ENV['FOUNTAINPENCOMPANION_DATABASE_PASSWORD'] %>
-  pool: 17
+  pool: <%= ENV['RAILS_MAX_THREADS'] || 10 %>

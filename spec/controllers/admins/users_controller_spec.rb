@@ -49,6 +49,8 @@ describe Admins::UsersController do
       it 'processes the CSV file' do
         expect do
           post :import, params: { id: user.id, file: file_upload }
+          expect(ImportCollectedInk.jobs.size).to eq(3)
+          ImportCollectedInk.drain
         end.to change { user.collected_inks.count }.by(3)
         expect(user.collected_inks.find_by(ink_name: 'Purple Pazzazz')).to be_private
         expect(user.collected_inks.find_by(ink_name: 'Vert Olive')).to_not be_private

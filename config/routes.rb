@@ -1,3 +1,5 @@
+require 'sidekiq/web'
+
 Rails.application.routes.draw do
   devise_for :admins
   devise_for :users
@@ -56,6 +58,10 @@ Rails.application.routes.draw do
         post 'import'
       end
     end
+  end
+
+  authenticate :admin do
+    mount Sidekiq::Web => '/admins/sidekiq'
   end
 
   root "pages#show", id: "home"
