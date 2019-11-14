@@ -47,6 +47,11 @@ $grid-float-breakpoint: 1200px;
     min-height: 100vh;
 }
 
+#admin {
+    #wrap {
+        margin-top: 70px;
+    }
+}
 #footer {
     margin-top: auto;
 }
