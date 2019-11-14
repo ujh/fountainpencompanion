@@ -80,7 +80,4 @@ test:
 #
 production:
   <<: *default
-  database: fountainpencompanion_production
-  username: fountainpencompanion
-  password: <%= ENV['FOUNTAINPENCOMPANION_DATABASE_PASSWORD'] %>
-  pool: <%= ENV['RAILS_MAX_THREADS'] || 10 %>
+  url: <%= ENV['DATABASE_URL'] %>
