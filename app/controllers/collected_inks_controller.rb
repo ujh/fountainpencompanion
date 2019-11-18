@@ -4,7 +4,7 @@ class CollectedInksController < ApplicationController
 
   def index
     if current_user.collected_inks.empty?
-      flash.now[:notice] = "Your ink collection is empty. Check out the <a href='/pages/documentation'>documentation</a> on how to add some.".html_safe
+      flash.now[:notice] = "Your ink collection is empty. Check out the <a href='/pages/guide'>documentation</a> on how to add some.".html_safe
     end
     inks = current_user.collected_inks.includes(:currently_inkeds).order("brand_name, line_name, ink_name")
     respond_to do |format|
