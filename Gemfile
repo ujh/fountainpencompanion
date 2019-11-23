@@ -26,7 +26,7 @@ gem 'kaminari'
 gem 'newrelic_rpm'
 gem 'pg'
 gem 'puma'
-gem 'rails-assets-select2', '4.0.5', source: 'https://rails-assets.org' # Select2 4.0.6 breaks the currently inked page
+gem 'rails-assets-select2', '4.0.8', source: 'https://rails-assets.org' # Select2 4.0.6 breaks the currently inked page
 gem 'redis'
 gem 'ruby-progressbar'
 gem 'sass-rails'
