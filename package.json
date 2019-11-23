@@ -1,15 +1,17 @@
 {
   "license": "UNLICENSED",
   "dependencies": {
-    "@rails/webpacker": "^3.2.2",
+    "@babel/preset-react": "^7.7.4",
+    "@rails/webpacker": "^4.2.0",
+    "babel-plugin-transform-react-remove-prop-types": "^0.4.24",
     "babel-polyfill": "^6.26.0",
     "babel-preset-react": "^6.24.1",
     "coffeescript": "2.3.1",
     "promise-polyfill": "^8.1.0",
-    "prop-types": "^15.6.2",
-    "react": "^16.5.2",
+    "prop-types": "^15.7.2",
+    "react": "^16.12.0",
     "react-color": "^2.14.1",
-    "react-dom": "^16.5.2",
+    "react-dom": "^16.12.0",
     "react-redux": "^5.0.7",
     "react-table": "^6.8.6",
     "redux": "^4.0.0",
@@ -18,7 +20,7 @@
     "whatwg-fetch": "^2.0.4"
   },
   "devDependencies": {
-    "webpack-dev-server": "^3.1.5"
+    "webpack-dev-server": "^3.9.0"
   },
   "engines": {
     "node": "12.13.0",
