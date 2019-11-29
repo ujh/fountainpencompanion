@@ -23,6 +23,9 @@ Rails.application.routes.draw do
   end
 
   resources :collected_pens do
+    collection do
+      get 'import'
+    end
     resource :archive, only: [:create, :destroy]
   end
   resources :currently_inked do
