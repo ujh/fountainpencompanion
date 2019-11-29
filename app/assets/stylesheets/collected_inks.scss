@@ -43,6 +43,9 @@ form.edit_collected_ink, form.new_collected_ink {
   .export {
     float: right;
     margin-bottom: 20px;
+    .btn {
+      margin-left: 10px;
+    }
   }
   h1 {
     text-align: center;
