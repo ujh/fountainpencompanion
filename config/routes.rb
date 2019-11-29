@@ -56,6 +56,7 @@ Rails.application.routes.draw do
       member do
         post 'become'
         post 'ink_import'
+        post 'pen_import'
       end
     end
   end

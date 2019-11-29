@@ -8,6 +8,7 @@ table class="table table-striped"
     th CI
     th
     th Import Inks
+    th Import Pens
   - @users.each do |user|
     tr
       td= user.id
@@ -23,3 +24,6 @@ table class="table table-striped"
       td= form_tag(ink_import_admins_user_path(user), method: :post, multipart: true) do
           = file_field_tag "file"
           = submit_tag "Import Inks"
+      td= form_tag(pen_import_admins_user_path(user), method: :post, multipart: true) do
+          = file_field_tag "file"
+          = submit_tag "Import Pens"
