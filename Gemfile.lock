@@ -280,10 +280,6 @@ GEM
       rinku (>= 1.7.0)
       ruby-oembed (>= 0.9.0)
       sanitize (>= 2.0.0)
-    spring (2.1.0)
-    spring-watcher-listen (2.0.1)
-      listen (>= 2.7, < 4.0)
-      spring (>= 1.2, < 3.0)
     sprockets (4.0.0)
       concurrent-ruby (~> 1.0)
       rack (> 1, < 3)
@@ -355,8 +351,6 @@ DEPENDENCIES
   simplecov
   slim
   slodown
-  spring
-  spring-watcher-listen
   uglifier
   web-console
   webpacker
