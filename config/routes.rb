@@ -12,6 +12,9 @@ Rails.application.routes.draw do
   end
   namespace :collected_inks do
     resources :beta, only: [:index, :destroy, :edit, :update, :new, :create] do
+      collection do
+        get 'import'
+      end
       member do
         post 'archive'
         post 'unarchive'

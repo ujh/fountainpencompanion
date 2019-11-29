@@ -18,6 +18,9 @@ class CollectedInks::BetaController < ApplicationController
     self.ink = current_user.collected_inks.build
   end
 
+  def import
+  end
+
   def create
     self.ink = current_user.collected_inks.build(collected_ink_params)
     if ink.save
