@@ -48,8 +48,6 @@ end
 
 group :development do
   gem 'listen'
-  gem 'spring-watcher-listen'
-  gem 'spring'
   gem 'web-console'
 end
 
