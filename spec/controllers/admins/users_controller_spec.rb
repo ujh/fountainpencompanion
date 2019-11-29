@@ -22,7 +22,7 @@ describe Admins::UsersController do
     end
   end
 
-  describe '#import' do
+  describe '#ink_import' do
     let(:csv) do
       name = Rails.root.join('tmp', 'import.csv')
       CSV.open(name, 'w') do |csv|
@@ -37,7 +37,7 @@ describe Admins::UsersController do
     let(:user) { create(:user) }
 
     it 'requires authentication' do
-      post :import, params: { id: user.id, file: file_upload }
+      post :ink_import, params: { id: user.id, file: file_upload }
       expect(response).to redirect_to(new_admin_session_path)
     end
 
@@ -48,7 +48,7 @@ describe Admins::UsersController do
 
       it 'processes the CSV file' do
         expect do
-          post :import, params: { id: user.id, file: file_upload }
+          post :ink_import, params: { id: user.id, file: file_upload }
           expect(ImportCollectedInk.jobs.size).to eq(3)
           ImportCollectedInk.drain
         end.to change { user.collected_inks.count }.by(3)

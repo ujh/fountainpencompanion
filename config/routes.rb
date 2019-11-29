@@ -55,7 +55,7 @@ Rails.application.routes.draw do
     resources :users, only: [:index] do
       member do
         post 'become'
-        post 'import'
+        post 'ink_import'
       end
     end
   end

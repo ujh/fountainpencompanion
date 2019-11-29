@@ -2,7 +2,7 @@ require 'csv'
 
 class Admins::UsersController < Admins::BaseController
 
-  before_action :fetch_user, only: [:become, :import]
+  before_action :fetch_user, only: [:become, :ink_import]
 
   def index
     @users = User.order(:id)
@@ -16,7 +16,7 @@ class Admins::UsersController < Admins::BaseController
     redirect_to root_url
   end
 
-  def import
+  def ink_import
     count = 0
     content = params[:file].read.force_encoding('UTF-8')
     CSV.parse(content, headers: true) do |row|

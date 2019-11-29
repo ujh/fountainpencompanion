@@ -7,7 +7,7 @@ table class="table table-striped"
     th Pens
     th CI
     th
-    th
+    th Import Inks
   - @users.each do |user|
     tr
       td= user.id
@@ -20,6 +20,6 @@ table class="table table-striped"
       td= @pen_counts[user.id] || 0
       td= @ci_counts[user.id] || 0
       td= link_to "Login", become_admins_user_path(user), method: :post, target: "_blank"
-      td= form_tag(import_admins_user_path(user), method: :post, multipart: true) do
+      td= form_tag(ink_import_admins_user_path(user), method: :post, multipart: true) do
           = file_field_tag "file"
-          = submit_tag
+          = submit_tag "Import Inks"
