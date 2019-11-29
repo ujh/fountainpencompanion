@@ -1,6 +1,6 @@
 class CollectedPensController < ApplicationController
   before_action :authenticate_user!
-  before_action :set_flash
+  before_action :set_flash, except: [:import]
   before_action :retrieve_collected_pens, only: [:index, :edit, :create, :update]
   before_action :retrieve_collected_pen, only: [:edit, :update, :destroy]
 
@@ -16,6 +16,9 @@ class CollectedPensController < ApplicationController
 
   def edit
     render :index
+  end
+
+  def import
   end
 
   def create
