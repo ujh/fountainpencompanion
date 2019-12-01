@@ -22,8 +22,8 @@ class CollectedInks::BetaController < ApplicationController
   end
 
   def create
-    self.ink = current_user.collected_inks.build(collected_ink_params)
-    if ink.save
+    self.ink = collected_ink = current_user.collected_inks.build
+    if SaveCollectedInk.new(ink, collected_ink_params).perform
       flash[:notice] = 'Successfully created ink'
       redirect_to collected_inks_beta_index_path
     else
@@ -35,7 +35,7 @@ class CollectedInks::BetaController < ApplicationController
   end
 
   def update
-    if ink.update(collected_ink_params)
+    if SaveCollectedInk.new(ink, collected_ink_params).perform
       flash[:notice] = 'Successfully updated ink'
       redirect_to collected_inks_beta_index_path
     else
