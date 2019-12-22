@@ -7,7 +7,12 @@ div id="dashboard"
         p
           'Your collection currently contains
           b= current_user.collected_inks.active.count
-          |  inks.
+          '  inks.
+          'You have used
+          b= current_user.collected_inks.active.where(used: true).count
+          '  of them and you've swabbed
+          b= current_user.collected_inks.active.where(swabbed: true).count
+          '.
         p
           'You have archived
           b= current_user.collected_inks.archived.count
