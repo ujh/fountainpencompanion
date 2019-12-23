@@ -259,7 +259,7 @@ GEM
     scenic (1.5.1)
       activerecord (>= 4.0.0)
       railties (>= 4.0.0)
-    sidekiq (6.0.3)
+    sidekiq (6.0.4)
       connection_pool (>= 2.2.2)
       rack (>= 2.0.0)
       rack-protection (>= 2.0.0)
