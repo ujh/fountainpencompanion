@@ -61,7 +61,7 @@ GEM
       public_suffix (>= 2.0.2, < 4.0)
     autoprefixer-rails (9.4.7)
       execjs
-    barnes (0.0.7)
+    barnes (0.0.8)
       multi_json (~> 1)
       statsd-ruby (~> 1.1)
     bcrypt (3.1.13)
