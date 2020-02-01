@@ -11,6 +11,7 @@ class CollectedInk < ApplicationRecord
   validates :ink_name, length: { in: 1..100 }
   validates :line_name, length: { in: 1..100, allow_blank: true }
 
+  validate :color_valid
   validate :unique_constraint
 
   before_save :simplify
@@ -145,5 +146,13 @@ class CollectedInk < ApplicationRecord
 
   def simplify
     Simplifier.for_collected_ink(self).run
+  end
+
+  def color_valid
+    return if color.blank?
+
+    Color::RGB.from_html(color)
+  rescue ArgumentError
+    errors.add(:color, "Only valid HTML color codes are supported (e.g #fff or #efefef)")
   end
 end
