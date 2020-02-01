@@ -270,6 +270,13 @@ describe CollectedInks::BetaController do
           expect(response).to render_template(:new)
         end.to_not change { user.collected_inks.count }
       end
+
+      it 'renders a validation error when the colour has an invalid format' do
+        expect do
+          post :create, params: { collected_ink: { brand_name: 'brand', ink_name: 'ink', color: 'green'} }
+          expect(response).to render_template(:new)
+        end.to_not change { user.collected_inks.count }
+      end
     end
   end
 end
