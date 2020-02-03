@@ -20,7 +20,7 @@
     "whatwg-fetch": "^3.0.0"
   },
   "devDependencies": {
-    "webpack-dev-server": "^3.10.1"
+    "webpack-dev-server": "^3.10.2"
   },
   "engines": {
     "node": "12.13.0",
