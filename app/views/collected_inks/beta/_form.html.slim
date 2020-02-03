@@ -12,7 +12,8 @@
       = f.input :swabbed
       = f.input :used
       = f.input :private
-      = f.input :comment
+      = f.input :comment, hint: "Will be visible to everyone if the ink is public. Use the private comment field below for private data."
+      = f.input :private_comment, hint: "Will only be visible to you even if you've made the ink itself public."
   div class="row"
     div class="col-sm-12 col-md-6"
       = f.submit 'Save', class: "btn btn-default"

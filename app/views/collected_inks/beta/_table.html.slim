@@ -18,6 +18,7 @@ div class="table-responsive"
         th Used
         th Usage
         th Comment
+        th Private Comment
         th Actions
     tbody
       - collection.each do |ink|
@@ -33,6 +34,7 @@ div class="table-responsive"
           td= ink.used ? fa_icon('check') : fa_icon('times')
           td= ink.currently_inked_count
           td= ink.comment
+          td= ink.private_comment
           td= render partial: 'actions', locals: { ink: ink }
     tfoot
 div class="row"
