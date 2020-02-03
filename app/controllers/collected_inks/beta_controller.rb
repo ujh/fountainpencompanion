@@ -90,6 +90,7 @@ class CollectedInks::BetaController < ApplicationController
       :swabbed,
       :used,
       :comment,
+      :private_comment,
       :color,
       :private,
     )

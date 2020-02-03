@@ -52,6 +52,7 @@ describe CollectedInksController do
             "Swabbed",
             "Used",
             "Comment",
+            "Private Comment",
             "Archived",
             "Usage"
           ]
@@ -65,6 +66,7 @@ describe CollectedInksController do
               ci.swabbed,
               ci.used,
               ci.comment,
+              ci.private_comment,
               ci.archived?,
               ci.currently_inkeds.count
             ]
