@@ -81,7 +81,7 @@ GEM
       execjs
     coffee-script-source (1.12.2)
     color (1.8)
-    concurrent-ruby (1.1.5)
+    concurrent-ruby (1.1.6)
     connection_pool (2.2.2)
     crass (1.0.6)
     devise (4.7.1)
@@ -165,7 +165,7 @@ GEM
     multi_json (1.14.1)
     newrelic_rpm (6.8.0.360)
     nio4r (2.5.2)
-    nokogiri (1.10.7)
+    nokogiri (1.10.8)
       mini_portile2 (~> 2.4.0)
     nokogumbo (1.5.0)
       nokogiri
@@ -255,7 +255,7 @@ GEM
       sprockets (> 3.0)
       sprockets-rails
       tilt
-    scenic (1.5.1)
+    scenic (1.5.2)
       activerecord (>= 4.0.0)
       railties (>= 4.0.0)
     sidekiq (6.0.5)
