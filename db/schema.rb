@@ -97,7 +97,6 @@ ActiveRecord::Schema.define(version: 2020_03_14_133313) do
     t.boolean "approved", default: false
     t.datetime "created_at", precision: 6, null: false
     t.bigint "friend_id", null: false
-    t.boolean "pending", default: true
     t.bigint "sender_id", null: false
     t.datetime "updated_at", precision: 6, null: false
     t.index ["friend_id"], name: "index_friendships_on_friend_id"
