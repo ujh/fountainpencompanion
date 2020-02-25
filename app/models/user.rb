@@ -20,12 +20,14 @@ class User < ApplicationRecord
   end
 
   def friends
-    User.joins(
-      'LEFT JOIN friendships ON users.id = friendships.friend_id'
-    ).joins(
-      'LEFT JOIN friendships AS sf ON users.id = sf.sender_id'
-    ).where(
-      'users.id <> ? AND (friendships.approved = TRUE OR sf.approved = TRUE)', id
+    possible_and_approved_friends.where(
+      'friendships.approved = TRUE OR sf.approved = TRUE', id
+    )
+  end
+
+  def pending_friendships
+    possible_and_approved_friends.where(
+      'friendships.approved = FALSE OR sf.approved = FALSE', id
     )
   end
 
@@ -101,4 +103,13 @@ class User < ApplicationRecord
     collected_inks.active
   end
 
+  private
+
+  def possible_and_approved_friends
+    User.joins(
+      'LEFT JOIN friendships ON users.id = friendships.friend_id'
+    ).joins(
+      'LEFT JOIN friendships AS sf ON users.id = sf.sender_id'
+    ).where('users.id <> ?', id)
+  end
 end
