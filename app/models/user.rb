@@ -19,6 +19,16 @@ class User < ApplicationRecord
     where.not(name: [nil, ""])
   end
 
+  def friends
+    User.joins(
+      'LEFT JOIN friendships ON users.id = friendships.friend_id'
+    ).joins(
+      'LEFT JOIN friendships AS sf ON users.id = sf.sender_id'
+    ).where(
+      'users.id <> ? AND (friendships.approved = TRUE OR sf.approved = TRUE)', id
+    )
+  end
+
   def admin?
     false
   end

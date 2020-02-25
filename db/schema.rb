@@ -93,6 +93,17 @@ ActiveRecord::Schema.define(version: 2020_03_14_133313) do
     t.index ["user_id"], name: "index_currently_inked_on_user_id"
   end
 
+  create_table "friendships", force: :cascade do |t|
+    t.boolean "approved", default: false
+    t.datetime "created_at", precision: 6, null: false
+    t.bigint "friend_id", null: false
+    t.boolean "pending", default: true
+    t.bigint "sender_id", null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["friend_id"], name: "index_friendships_on_friend_id"
+    t.index ["sender_id"], name: "index_friendships_on_sender_id"
+  end
+
   create_table "ink_brands", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.text "popular_name"
@@ -175,6 +186,8 @@ ActiveRecord::Schema.define(version: 2020_03_14_133313) do
   add_foreign_key "currently_inked", "collected_inks"
   add_foreign_key "currently_inked", "collected_pens"
   add_foreign_key "currently_inked", "users"
+  add_foreign_key "friendships", "users", column: "friend_id"
+  add_foreign_key "friendships", "users", column: "sender_id"
   add_foreign_key "micro_clusters", "macro_clusters"
   add_foreign_key "new_ink_names", "ink_brands"
   add_foreign_key "usage_records", "currently_inked"
