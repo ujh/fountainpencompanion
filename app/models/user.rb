@@ -25,10 +25,18 @@ class User < ApplicationRecord
     )
   end
 
+  def friend?(user)
+    friends.where(id: user.id).exists?
+  end
+
   def pending_friendships
     possible_and_approved_friends.where(
       'friendships.approved = FALSE OR sf.approved = FALSE', id
     )
+  end
+
+  def pending_friendship?(user)
+    pending_friendships.where(id: user.id).exists?
   end
 
   def admin?
