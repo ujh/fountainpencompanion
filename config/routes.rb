@@ -40,6 +40,7 @@ Rails.application.routes.draw do
     end
   end
 
+  resources :friendships, only: [:create, :update, :destroy]
   resources :usage_records, only: [:index, :destroy, :edit, :update]
 
   resources :brands, only: [:index]
