@@ -53,8 +53,7 @@ describe FriendshipsController do
 
   describe '#update' do
     it 'requires authentication' do
-      friendship = create(:friendship, sender: user, friend: friend)
-      put :update, params: { id: friendship.id, approved: 'true' }
+      put :update, params: { id: friend.id, approved: 'true' }
       expect(response).to redirect_to(new_user_session_path)
     end
 
@@ -65,21 +64,21 @@ describe FriendshipsController do
 
       it 'approves the friend request received by other user' do
         friendship = create(:friendship, sender: friend, friend: user)
-        put :update, params: { id: friendship.id, approved: 'true' }
+        put :update, params: { id: friend.id, approved: 'true' }
         expect(response).to be_successful
         expect(friendship.reload).to be_approved
       end
 
       it 'does not approve friend request sent to other user' do
         friendship = create(:friendship, sender: user, friend: friend)
-        put :update, params: { id: friendship.id, approved: 'true' }
+        put :update, params: { id: friend.id, approved: 'true' }
         expect(response).to have_http_status(:bad_request)
         expect(friendship.reload).to_not be_approved
       end
 
       it 'does not approve other users friend requests' do
         friendship = create(:friendship)
-        put :update, params: { id: friendship.id, approved: 'true' }
+        put :update, params: { id: -1, approved: 'true' }
         expect(response).to have_http_status(:bad_request)
         expect(friendship.reload).to_not be_approved
       end

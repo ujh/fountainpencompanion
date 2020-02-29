@@ -50,20 +50,19 @@ class User < ApplicationRecord
   end
 
   def waiting_for_approval?(user)
-    Friendship.where(sender_id: id, approved: false, friend_id: user.id).exists?
+    friendship = friendship_with(user.id)
+    friendship && friendship.approved? == false && friendship.sender == self
+  end
+
+  def to_approve?(user)
+    friendship = friendship_with(user.id)
+    friendship && friendship.approved? == false && friendship.friend == self
   end
 
   def pending_friendship?(user)
     pending_friendships.where(id: user.id).exists?
   end
 
-  def to_approve?(user)
-    friendships_to_approve.where(id: user.id).exists?
-  end
-
-  def friendships_to_approve
-    Friendship.where(friend_id: id, approved: false)
-  end
 
   def admin?
     false
@@ -144,6 +143,6 @@ class User < ApplicationRecord
       'LEFT JOIN friendships ON users.id = friendships.friend_id'
     ).joins(
       'LEFT JOIN friendships AS sf ON users.id = sf.sender_id'
-    ).where('users.id <> ?', id)
+    ).where('friendships.sender_id = :id OR sf.friend_id = :id', id: id)
   end
 end

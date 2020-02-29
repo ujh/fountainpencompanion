@@ -11,8 +11,8 @@ class FriendshipsController < ApplicationController
   end
 
   def update
-    friendship = Friendship.find(params[:id])
-    if friendship.friend == current_user
+    friendship = current_user.friendship_with(params[:id])
+    if friendship and friendship.friend == current_user
       friendship.update(approved: true) if params[:approved].present?
       head :ok
     else

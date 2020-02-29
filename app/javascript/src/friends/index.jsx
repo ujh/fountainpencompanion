@@ -1,6 +1,6 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
-import { deleteRequest, postRequest } from "src/fetch";
+import { deleteRequest, postRequest, putRequest } from "src/fetch";
 
 
 export const renderFriendButton = (el) => {
@@ -52,6 +52,11 @@ class FriendButton extends React.Component {
   deleteFriendRequest() {
     deleteRequest(`/friendships/${this.props.id}`, {})
     this.setState({friendshipState: "no-friend"})
+  }
+
+  approveFriendRequest() {
+    putRequest(`/friendships/${this.props.id}?approved=true`, {})
+    this.setState({friendshipState: "friend"})
   }
 
   render() {

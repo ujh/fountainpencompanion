@@ -79,29 +79,4 @@ describe User do
       expect(subject.pending_friendship?(friend)).to eq(false)
     end
   end
-
-  describe '#friendships_to_approve' do
-    let(:friend) { create(:user) }
-    subject { create(:user) }
-
-    it 'includes unapproved frienship I received' do
-      fs = create(:friendship, sender: friend, friend: subject, approved: false)
-      expect(subject.friendships_to_approve).to eq([fs])
-    end
-
-    it 'does not include approved friendship I received' do
-      create(:friendship, sender: friend, friend: subject, approved: true)
-      expect(subject.friendships_to_approve).to eq([])
-    end
-
-    it 'does not include unapproved friendship I sent' do
-      fs = create(:friendship, sender: subject, friend: friend, approved: false)
-      expect(subject.friendships_to_approve).to eq([])
-    end
-
-    it 'does not include approved friendship I sent' do
-      fs = create(:friendship, sender: subject, friend: friend, approved: true)
-      expect(subject.friendships_to_approve).to eq([])
-    end
-  end
 end
