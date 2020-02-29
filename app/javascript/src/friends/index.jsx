@@ -60,6 +60,12 @@ class FriendButton extends React.Component {
   }
 
   render() {
+    if (this.state.friendshipState == "to-approve") {
+      return <div>
+        <a className="btn btn-default" onClick={() => this.deleteFriendRequest()}>Delete Friend Request</a>
+        <a className="btn btn-primary" onClick={() => this.onClick()}>{this.buttonText()}</a>
+      </div>
+    }
     return <div>
       <a className="btn btn-primary" onClick={() => this.onClick()}>{this.buttonText()}</a>
     </div>;
