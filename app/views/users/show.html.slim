@@ -2,6 +2,8 @@
 div id="account"
   div class="col-xs-12 col-sm-3 image"
     = profile_image_for(@user)
+    - if user_signed_in?
+      div class="friend-button" data-state=current_user.friendship_state_for(@user) data-id=@user.id
   div class="col-xs-12 col-sm-9 data"
     - if @user.blurb.present?
       div class="row"

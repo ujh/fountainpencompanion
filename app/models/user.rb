@@ -25,6 +25,13 @@ class User < ApplicationRecord
     )
   end
 
+  def friendship_state_for(user)
+    return "friend" if friend?(user)
+    return "to-approve" if to_approve?(user)
+    return "waiting-for-approval" if waiting_for_approval?(user)
+    "no-friend"
+  end
+
   def friend?(user)
     friends.where(id: user.id).exists?
   end
@@ -35,8 +42,16 @@ class User < ApplicationRecord
     )
   end
 
+  def waiting_for_approval?(user)
+    Friendship.where(sender_id: id, approved: false, friend_id: user.id).exists?
+  end
+
   def pending_friendship?(user)
     pending_friendships.where(id: user.id).exists?
+  end
+
+  def to_approve?(user)
+    friendships_to_approve.where(id: user.id).exists?
   end
 
   def friendships_to_approve

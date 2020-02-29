@@ -17,13 +17,18 @@
 //= require bootstrap-sprockets
 //= require_tree .
 
-$(function () {
-  $('[data-toggle="tooltip"]').tooltip()
-})
+$(function() {
+  $('[data-toggle="tooltip"]').tooltip();
+});
 
 $(function() {
-  $('#new-public-inks').each(function() {
-    renderPublicInks(this)
-  })
+  $("#new-public-inks").each(function() {
+    renderPublicInks(this);
+  });
+});
 
-})
+$(function() {
+  $(".friend-button").each(function() {
+    renderFriendButton(this);
+  });
+});
