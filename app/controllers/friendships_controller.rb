@@ -21,8 +21,8 @@ class FriendshipsController < ApplicationController
   end
 
   def destroy
-    friendship = Friendship.find(params[:id])
-    if [friendship.sender, friendship.friend].include?(current_user)
+    friendship = current_user.friendship_with(params[:id])
+    if friendship and [friendship.sender, friendship.friend].include?(current_user)
       friendship.destroy
       head :ok
     else

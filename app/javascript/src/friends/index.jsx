@@ -1,20 +1,28 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
+import { deleteRequest, postRequest } from "src/fetch";
+
 
 export const renderFriendButton = (el) => {
-  console.log(el)
   ReactDOM.render(
-    <FriendButton id={el.getAttribute('data-id')} state={el.getAttribute('data-state')}/>,
+    <FriendButton id={el.getAttribute('data-id')} friendshipState={el.getAttribute('data-state')}/>,
     el
   )
 }
 
 class FriendButton extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      friendshipState: props.friendshipState
+    }
+  }
+
   buttonText() {
-    switch (this.props.state) {
+    switch (this.state.friendshipState) {
       case "friend":
         return "Unfriend";
-      case "to-aprove":
+      case "to-approve":
         return "Approve Friend Request";
       case "waiting-for-approval":
         return "Delete Pending Friend Request";
@@ -23,9 +31,32 @@ class FriendButton extends React.Component {
     }
   }
 
+  onClick() {
+    switch (this.state.friendshipState) {
+      case "no-friend":
+        return this.sendFriendRequest();
+      case "to-approve":
+        return this.approveFriendRequest();
+      case "waiting-for-approval":
+        return this.deleteFriendRequest();
+      case "friend":
+        return this.deleteFriendRequest();
+    }
+  }
+
+  sendFriendRequest() {
+    postRequest(`/friendships?friend_id=${this.props.id}`, {})
+    this.setState({friendshipState: "waiting-for-approval"})
+  }
+
+  deleteFriendRequest() {
+    deleteRequest(`/friendships/${this.props.id}`, {})
+    this.setState({friendshipState: "no-friend"})
+  }
+
   render() {
     return <div>
-      <a className="btn btn-primary">{this.buttonText()}</a>
+      <a className="btn btn-primary" onClick={() => this.onClick()}>{this.buttonText()}</a>
     </div>;
   }
 }

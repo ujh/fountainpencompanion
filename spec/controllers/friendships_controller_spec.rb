@@ -88,8 +88,7 @@ describe FriendshipsController do
 
   describe '#destroy' do
     it 'requires authentication' do
-      friendship = create(:friendship, sender: user, friend: friend)
-      delete :destroy, params: { id: friendship.id }
+      delete :destroy, params: { id: friend.id }
       expect(response).to redirect_to(new_user_session_path)
     end
 
@@ -101,7 +100,7 @@ describe FriendshipsController do
       it 'destroys the friend request if sent' do
         friendship = create(:friendship, sender: user, friend: friend)
         expect do
-          delete :destroy, params: { id: friendship.id }
+          delete :destroy, params: { id: friend.id }
           expect(response).to be_successful
         end.to change { Friendship.count }.by(-1)
       end
@@ -109,7 +108,7 @@ describe FriendshipsController do
       it 'destroys the friend request if received' do
         friendship = create(:friendship, sender: friend, friend: user)
         expect do
-          delete :destroy, params: { id: friendship.id }
+          delete :destroy, params: { id: friend.id }
           expect(response).to be_successful
         end.to change { Friendship.count }.by(-1)
       end
@@ -117,7 +116,7 @@ describe FriendshipsController do
       it 'does not destroy other users friend requests' do
         friendship = create(:friendship)
         expect do
-          delete :destroy, params: { id: friendship.id }
+          delete :destroy, params: { id: -1 }
           expect(response).to have_http_status(:bad_request)
         end.to_not change { Friendship.count }
       end

@@ -21,8 +21,15 @@ class User < ApplicationRecord
 
   def friends
     possible_and_approved_friends.where(
-      'friendships.approved = TRUE OR sf.approved = TRUE', id
+      'friendships.approved = TRUE OR sf.approved = TRUE'
     )
+  end
+
+  def friendship_with(friend_id)
+    Friendship.where(
+      '(friend_id = :friend_id AND sender_id = :user_id) OR (friend_id = :user_id AND sender_id = :friend_id)',
+      friend_id: friend_id, user_id: id
+    ).first
   end
 
   def friendship_state_for(user)
@@ -38,7 +45,7 @@ class User < ApplicationRecord
 
   def pending_friendships
     possible_and_approved_friends.where(
-      'friendships.approved = FALSE OR sf.approved = FALSE', id
+      'friendships.approved = FALSE OR sf.approved = FALSE'
     )
   end
 
