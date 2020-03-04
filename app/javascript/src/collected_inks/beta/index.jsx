@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react";
 import * as ReactDOM from "react-dom";
-import { useTable } from "react-table";
+import { useTable, useSortBy } from "react-table";
 import { getRequest } from "src/fetch";
 
 export const renderCollectedInksBeta = el => {
@@ -70,7 +70,8 @@ const CollectedInksBetaTable = ({ data }) => {
       {
         Header: "Color",
         accessor: "attributes.color",
-        Cell: () => ""
+        Cell: () => "",
+        disableSortBy: true
       },
       {
         Header: "Swabbed",
@@ -81,7 +82,8 @@ const CollectedInksBetaTable = ({ data }) => {
           } else {
             return <i className="fa fa-times" />;
           }
-        }
+        },
+        sortType: booleanSort
       },
       {
         Header: "Used",
@@ -92,7 +94,8 @@ const CollectedInksBetaTable = ({ data }) => {
           } else {
             return <i className="fa fa-times" />;
           }
-        }
+        },
+        sortType: booleanSort
       },
       {
         Header: "Usage",
@@ -122,13 +125,16 @@ const CollectedInksBetaTable = ({ data }) => {
     headerGroups,
     rows,
     prepareRow
-  } = useTable({
-    columns,
-    data,
-    initialState: {
-      hiddenColumns
-    }
-  });
+  } = useTable(
+    {
+      columns,
+      data,
+      initialState: {
+        hiddenColumns
+      }
+    },
+    useSortBy
+  );
   return (
     <div className="table-responsive">
       <table {...getTableProps()} className="table table-striped">
@@ -136,7 +142,21 @@ const CollectedInksBetaTable = ({ data }) => {
           {headerGroups.map(headerGroup => (
             <tr {...headerGroup.getHeaderGroupProps()}>
               {headerGroup.headers.map(column => (
-                <th {...column.getHeaderProps()}>{column.render("Header")}</th>
+                <th {...column.getHeaderProps(column.getSortByToggleProps())}>
+                  {column.render("Header")}
+                  <span>
+                    &nbsp;
+                    {column.isSorted ? (
+                      <i
+                        className={`fa fa-arrow-${
+                          column.isSortedDesc ? "down" : "up"
+                        }`}
+                      />
+                    ) : (
+                      ""
+                    )}
+                  </span>
+                </th>
               ))}
               <th>Actions</th>
             </tr>
@@ -250,4 +270,10 @@ const ArchiveButton = ({ name, id, archived }) => {
       </span>
     );
   }
+};
+
+const booleanSort = (rowA, rowB, columnId) => {
+  if (rowA.values[columnId] == rowB.values[columnId]) return 0;
+  if (rowA.values[columnId] && !rowB.values[columnId]) return 1;
+  return -1;
 };
