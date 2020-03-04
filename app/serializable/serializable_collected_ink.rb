@@ -11,11 +11,15 @@ class SerializableCollectedInk < JSONAPI::Serializable::Resource
   attribute :deletable do
     @object.deletable?
   end
+  attribute :ink_id do
+    @object.new_ink_name_id
+  end
   attribute :ink_name
   attribute :kind
   attribute :line_name
   attribute :maker
   attribute :private
+  attribute :private_comment
   attribute :simplified_brand_name
   attribute :simplified_ink_name
   attribute :simplified_line_name
@@ -24,7 +28,4 @@ class SerializableCollectedInk < JSONAPI::Serializable::Resource
     @object.currently_inked_count
   end
   attribute :used
-  attribute :ink_id do
-    @object.new_ink_name_id
-  end
 end

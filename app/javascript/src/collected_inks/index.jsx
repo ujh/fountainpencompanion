@@ -5,11 +5,17 @@ import { Provider } from "react-redux";
 import { fetchData } from "./actions";
 import store from "./store";
 import App from "./app";
+import renderCollectedInksBeta from "./beta";
 
-export const renderCollectedInks = (el) => {
+export const renderCollectedInks = el => {
   const appStore = store();
-  ReactDOM.render(<Provider store={appStore}><App /></Provider>, el)
-  appStore.dispatch(fetchData())
+  ReactDOM.render(
+    <Provider store={appStore}>
+      <App />
+    </Provider>,
+    el
+  );
+  appStore.dispatch(fetchData());
 };
 
-export default renderCollectedInks;
+export { renderCollectedInksBeta };

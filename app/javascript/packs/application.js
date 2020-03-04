@@ -18,8 +18,12 @@ if (!window.Promise) {
 // fetch polyfill. https://github.com/github/fetch
 import "whatwg-fetch";
 
-import renderCollectedInks from "../src/collected_inks";
+import {
+  renderCollectedInks,
+  renderCollectedInksBeta
+} from "../src/collected_inks";
 import renderPublicInks from "../src/public_inks";
 
 window.renderCollectedInks = renderCollectedInks;
+window.renderCollectedInksBeta = renderCollectedInksBeta;
 window.renderPublicInks = renderPublicInks;
