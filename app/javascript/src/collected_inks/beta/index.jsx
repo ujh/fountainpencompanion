@@ -107,6 +107,13 @@ const CollectedInksBetaTable = ({ data }) => {
         accessor: "attributes.private_comment"
       }
     ],
+    [data]
+  );
+  const hiddenColumns = useMemo(
+    () =>
+      ["private_comment", "comment", "maker", "line_name", "kind"]
+        .filter(n => !data.some(e => e.attributes[n]))
+        .map(n => `attributes.${n}`),
     []
   );
   const {
@@ -117,7 +124,10 @@ const CollectedInksBetaTable = ({ data }) => {
     prepareRow
   } = useTable({
     columns,
-    data
+    data,
+    initialState: {
+      hiddenColumns
+    }
   });
   return (
     <div className="table-responsive">
