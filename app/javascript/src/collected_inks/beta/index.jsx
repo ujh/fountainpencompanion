@@ -26,7 +26,11 @@ const CollectedInksBeta = ({ archive }) => {
   if (inks) {
     return <CollectedInksBetaTable data={nonArchived} />;
   } else {
-    return <div>Loading ...</div>;
+    return (
+      <div className="loader">
+        <i className="fa fa-spin fa-refresh" />
+      </div>
+    );
   }
 };
 
