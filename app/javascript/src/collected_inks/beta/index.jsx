@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react";
 import * as ReactDOM from "react-dom";
-import { useTable, useSortBy } from "react-table";
+import { useTable, useSortBy, useGlobalFilter } from "react-table";
 import convert from "color-convert";
 import { getRequest } from "src/fetch";
 
@@ -125,7 +125,10 @@ const CollectedInksBetaTable = ({ data, archive }) => {
     getTableBodyProps,
     headerGroups,
     rows,
-    prepareRow
+    prepareRow,
+    state,
+    preGlobalFilteredRows,
+    setGlobalFilter
   } = useTable(
     {
       columns,
@@ -134,11 +137,17 @@ const CollectedInksBetaTable = ({ data, archive }) => {
         hiddenColumns
       }
     },
+    useGlobalFilter,
     useSortBy
   );
   return (
     <div>
-      <Buttons archive={archive} />
+      <Buttons
+        archive={archive}
+        preGlobalFilteredRows={preGlobalFilteredRows}
+        globalFilter={state.globalFilter}
+        setGlobalFilter={setGlobalFilter}
+      />
       <Table
         getTableProps={getTableProps}
         headerGroups={headerGroups}
@@ -146,7 +155,12 @@ const CollectedInksBetaTable = ({ data, archive }) => {
         rows={rows}
         prepareRow={prepareRow}
       />
-      <Buttons archive={archive} />
+      <Buttons
+        archive={archive}
+        preGlobalFilteredRows={preGlobalFilteredRows}
+        globalFilter={state.globalFilter}
+        setGlobalFilter={setGlobalFilter}
+      />
     </div>
   );
 };
@@ -211,20 +225,41 @@ const Table = ({
   </div>
 );
 
-const Buttons = ({ archive }) => {
-  if (archive) return null;
+const Buttons = ({
+  archive,
+  preGlobalFilteredRows,
+  setGlobalFilter,
+  globalFilter
+}) => {
   return (
     <div className="row buttons">
-      <div className="col-xs-12">
-        <a className="btn btn-default" href="/collected_inks/beta/new">
-          Add ink
-        </a>
-        <a
-          className="btn btn-default"
-          href="/collected_inks/beta?search[archive]=true"
-        >
-          Archive
-        </a>
+      {!archive && (
+        <div className="col-xs-6 col-sm-2 col-md-1">
+          <a className="btn btn-default" href="/collected_inks/beta/new">
+            Add ink
+          </a>
+        </div>
+      )}
+      {!archive && (
+        <div className="col-xs-6 col-sm-2 col-md-1">
+          <a
+            className="btn btn-default"
+            href="/collected_inks/beta?search[archive]=true"
+          >
+            Archive
+          </a>
+        </div>
+      )}
+      <div className="col-xs-12 col-sm-8 col-md-10">
+        <div className="search">
+          <input
+            value={globalFilter || ""}
+            onChange={e => {
+              setGlobalFilter(e.target.value || undefined); // Set undefined to remove the filter entirely
+            }}
+            placeholder={`Type to search in ${preGlobalFilteredRows.length} inks`}
+          />
+        </div>
       </div>
     </div>
   );
