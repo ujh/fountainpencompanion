@@ -139,64 +139,77 @@ const CollectedInksBetaTable = ({ data, archive }) => {
   return (
     <div>
       <Buttons archive={archive} />
-      <div className="table-responsive">
-        <table {...getTableProps()} className="table table-striped">
-          <thead>
-            {headerGroups.map(headerGroup => (
-              <tr {...headerGroup.getHeaderGroupProps()}>
-                {headerGroup.headers.map(column => (
-                  <th {...column.getHeaderProps(column.getSortByToggleProps())}>
-                    {column.render("Header")}
-                    <span>
-                      &nbsp;
-                      {column.isSorted ? (
-                        <i
-                          className={`fa fa-arrow-${
-                            column.isSortedDesc ? "down" : "up"
-                          }`}
-                        />
-                      ) : (
-                        ""
-                      )}
-                    </span>
-                  </th>
-                ))}
-                <th>Actions</th>
-              </tr>
-            ))}
-          </thead>
-          <tbody {...getTableBodyProps()}>
-            {rows.map((row, i) => {
-              prepareRow(row);
-              return (
-                <tr {...row.getRowProps()}>
-                  {row.cells.map(cell => {
-                    let additionalProps = {};
-                    if (cell.column.id == "attributes.color" && cell.value) {
-                      additionalProps = {
-                        style: { backgroundColor: cell.value, width: "30px" }
-                      };
-                    }
-                    return (
-                      <td {...cell.getCellProps()} {...additionalProps}>
-                        {cell.render("Cell")}
-                      </td>
-                    );
-                  })}
-                  <ActionsCell
-                    {...row.original.attributes}
-                    id={row.original.id}
-                  />
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
+      <Table
+        getTableProps={getTableProps}
+        headerGroups={headerGroups}
+        getTableBodyProps={getTableBodyProps}
+        rows={rows}
+        prepareRow={prepareRow}
+      />
       <Buttons archive={archive} />
     </div>
   );
 };
+
+const Table = ({
+  getTableProps,
+  headerGroups,
+  getTableBodyProps,
+  rows,
+  prepareRow
+}) => (
+  <div className="table-responsive">
+    <table {...getTableProps()} className="table table-striped">
+      <thead>
+        {headerGroups.map(headerGroup => (
+          <tr {...headerGroup.getHeaderGroupProps()}>
+            {headerGroup.headers.map(column => (
+              <th {...column.getHeaderProps(column.getSortByToggleProps())}>
+                {column.render("Header")}
+                <span>
+                  &nbsp;
+                  {column.isSorted ? (
+                    <i
+                      className={`fa fa-arrow-${
+                        column.isSortedDesc ? "down" : "up"
+                      }`}
+                    />
+                  ) : (
+                    ""
+                  )}
+                </span>
+              </th>
+            ))}
+            <th>Actions</th>
+          </tr>
+        ))}
+      </thead>
+      <tbody {...getTableBodyProps()}>
+        {rows.map((row, i) => {
+          prepareRow(row);
+          return (
+            <tr {...row.getRowProps()}>
+              {row.cells.map(cell => {
+                let additionalProps = {};
+                if (cell.column.id == "attributes.color" && cell.value) {
+                  additionalProps = {
+                    style: { backgroundColor: cell.value, width: "30px" }
+                  };
+                }
+                return (
+                  <td {...cell.getCellProps()} {...additionalProps}>
+                    {cell.render("Cell")}
+                  </td>
+                );
+              })}
+              <ActionsCell {...row.original.attributes} id={row.original.id} />
+            </tr>
+          );
+        })}
+      </tbody>
+    </table>
+  </div>
+);
 
 const Buttons = ({ archive }) => {
   if (archive) return null;
