@@ -7,4 +7,4 @@ div id="collected-inks-beta"
     = link_to "Import data", import_collected_inks_beta_index_path, class: "btn btn-default"
     = link_to "Export data", collected_inks_beta_index_path(format: 'csv'), class: "btn btn-primary"
   div class="table"
-    = render partial: "table", locals: { collection: @collection }
+    div class="app" data-archive="#{archive?}"

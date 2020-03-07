@@ -25,7 +25,7 @@ const CollectedInksBeta = ({ archive }) => {
     [inks]
   );
   if (inks) {
-    return <CollectedInksBetaTable data={nonArchived} />;
+    return <CollectedInksBetaTable data={nonArchived} archive={archive} />;
   } else {
     return (
       <div className="loader">
@@ -35,7 +35,7 @@ const CollectedInksBeta = ({ archive }) => {
   }
 };
 
-const CollectedInksBetaTable = ({ data }) => {
+const CollectedInksBetaTable = ({ data, archive }) => {
   const columns = useMemo(
     () => [
       {
@@ -137,59 +137,82 @@ const CollectedInksBetaTable = ({ data }) => {
     useSortBy
   );
   return (
-    <div className="table-responsive">
-      <table {...getTableProps()} className="table table-striped">
-        <thead>
-          {headerGroups.map(headerGroup => (
-            <tr {...headerGroup.getHeaderGroupProps()}>
-              {headerGroup.headers.map(column => (
-                <th {...column.getHeaderProps(column.getSortByToggleProps())}>
-                  {column.render("Header")}
-                  <span>
-                    &nbsp;
-                    {column.isSorted ? (
-                      <i
-                        className={`fa fa-arrow-${
-                          column.isSortedDesc ? "down" : "up"
-                        }`}
-                      />
-                    ) : (
-                      ""
-                    )}
-                  </span>
-                </th>
-              ))}
-              <th>Actions</th>
-            </tr>
-          ))}
-        </thead>
-        <tbody {...getTableBodyProps()}>
-          {rows.map((row, i) => {
-            prepareRow(row);
-            return (
-              <tr {...row.getRowProps()}>
-                {row.cells.map(cell => {
-                  let additionalProps = {};
-                  if (cell.column.id == "attributes.color" && cell.value) {
-                    additionalProps = {
-                      style: { backgroundColor: cell.value, width: "30px" }
-                    };
-                  }
-                  return (
-                    <td {...cell.getCellProps()} {...additionalProps}>
-                      {cell.render("Cell")}
-                    </td>
-                  );
-                })}
-                <ActionsCell
-                  {...row.original.attributes}
-                  id={row.original.id}
-                />
+    <div>
+      <Buttons archive={archive} />
+      <div className="table-responsive">
+        <table {...getTableProps()} className="table table-striped">
+          <thead>
+            {headerGroups.map(headerGroup => (
+              <tr {...headerGroup.getHeaderGroupProps()}>
+                {headerGroup.headers.map(column => (
+                  <th {...column.getHeaderProps(column.getSortByToggleProps())}>
+                    {column.render("Header")}
+                    <span>
+                      &nbsp;
+                      {column.isSorted ? (
+                        <i
+                          className={`fa fa-arrow-${
+                            column.isSortedDesc ? "down" : "up"
+                          }`}
+                        />
+                      ) : (
+                        ""
+                      )}
+                    </span>
+                  </th>
+                ))}
+                <th>Actions</th>
               </tr>
-            );
-          })}
-        </tbody>
-      </table>
+            ))}
+          </thead>
+          <tbody {...getTableBodyProps()}>
+            {rows.map((row, i) => {
+              prepareRow(row);
+              return (
+                <tr {...row.getRowProps()}>
+                  {row.cells.map(cell => {
+                    let additionalProps = {};
+                    if (cell.column.id == "attributes.color" && cell.value) {
+                      additionalProps = {
+                        style: { backgroundColor: cell.value, width: "30px" }
+                      };
+                    }
+                    return (
+                      <td {...cell.getCellProps()} {...additionalProps}>
+                        {cell.render("Cell")}
+                      </td>
+                    );
+                  })}
+                  <ActionsCell
+                    {...row.original.attributes}
+                    id={row.original.id}
+                  />
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+      <Buttons archive={archive} />
+    </div>
+  );
+};
+
+const Buttons = ({ archive }) => {
+  if (archive) return null;
+  return (
+    <div className="row buttons">
+      <div className="col-xs-12">
+        <a className="btn btn-default" href="/collected_inks/beta/new">
+          Add ink
+        </a>
+        <a
+          className="btn btn-default"
+          href="/collected_inks/beta?search[archive]=true"
+        >
+          Archive
+        </a>
+      </div>
     </div>
   );
 };
