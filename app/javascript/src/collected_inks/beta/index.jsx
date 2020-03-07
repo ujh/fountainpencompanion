@@ -397,7 +397,7 @@ function fuzzyTextFilterFn(rows, id, filterValue) {
     "attributes.comment",
     "attributes.private_comment"
   ];
-  return matchSorter(rows, filterValue, {
+  return matchSorter(rows, filterValue.replace(/\s+/gi, ""), {
     keys: [row => attrs.map(a => row.values[a]).join("")]
   });
 }
