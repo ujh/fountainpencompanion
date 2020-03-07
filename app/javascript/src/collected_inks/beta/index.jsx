@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from "react";
 import * as ReactDOM from "react-dom";
 import { useTable, useSortBy, useGlobalFilter } from "react-table";
 import convert from "color-convert";
+import matchSorter from "match-sorter";
 import { getRequest } from "src/fetch";
 
 export const renderCollectedInksBeta = el => {
@@ -135,7 +136,11 @@ const CollectedInksBetaTable = ({ data, archive }) => {
       data,
       initialState: {
         hiddenColumns
-      }
+      },
+      filterTypes: {
+        fuzzyText: fuzzyTextFilterFn
+      },
+      globalFilter: "fuzzyText"
     },
     useGlobalFilter,
     useSortBy
@@ -382,3 +387,17 @@ const hexToSortArray = hex => {
   }
   return [h2, lum2, v2];
 };
+
+function fuzzyTextFilterFn(rows, id, filterValue) {
+  const attrs = [
+    "attributes.brand_name",
+    "attributes.line_name",
+    "attributes.ink_name",
+    "attributes.maker",
+    "attributes.comment",
+    "attributes.private_comment"
+  ];
+  return matchSorter(rows, filterValue, {
+    keys: [row => attrs.map(a => row.values[a]).join("")]
+  });
+}
