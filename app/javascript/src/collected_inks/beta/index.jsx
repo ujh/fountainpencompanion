@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react";
 import * as ReactDOM from "react-dom";
-import { useTable, useSortBy } from "react-table";
+import { useTable, useSortBy, useGlobalFilter } from "react-table";
 import convert from "color-convert";
 import { getRequest } from "src/fetch";
 
@@ -25,7 +25,7 @@ const CollectedInksBeta = ({ archive }) => {
     [inks]
   );
   if (inks) {
-    return <CollectedInksBetaTable data={nonArchived} />;
+    return <CollectedInksBetaTable data={nonArchived} archive={archive} />;
   } else {
     return (
       <div className="loader">
@@ -35,7 +35,7 @@ const CollectedInksBeta = ({ archive }) => {
   }
 };
 
-const CollectedInksBetaTable = ({ data }) => {
+const CollectedInksBetaTable = ({ data, archive }) => {
   const columns = useMemo(
     () => [
       {
@@ -125,7 +125,10 @@ const CollectedInksBetaTable = ({ data }) => {
     getTableBodyProps,
     headerGroups,
     rows,
-    prepareRow
+    prepareRow,
+    state,
+    preGlobalFilteredRows,
+    setGlobalFilter
   } = useTable(
     {
       columns,
@@ -134,62 +137,130 @@ const CollectedInksBetaTable = ({ data }) => {
         hiddenColumns
       }
     },
+    useGlobalFilter,
     useSortBy
   );
   return (
-    <div className="table-responsive">
-      <table {...getTableProps()} className="table table-striped">
-        <thead>
-          {headerGroups.map(headerGroup => (
-            <tr {...headerGroup.getHeaderGroupProps()}>
-              {headerGroup.headers.map(column => (
-                <th {...column.getHeaderProps(column.getSortByToggleProps())}>
-                  {column.render("Header")}
-                  <span>
-                    &nbsp;
-                    {column.isSorted ? (
-                      <i
-                        className={`fa fa-arrow-${
-                          column.isSortedDesc ? "down" : "up"
-                        }`}
-                      />
-                    ) : (
-                      ""
-                    )}
-                  </span>
-                </th>
-              ))}
-              <th>Actions</th>
+    <div>
+      <Buttons
+        archive={archive}
+        preGlobalFilteredRows={preGlobalFilteredRows}
+        globalFilter={state.globalFilter}
+        setGlobalFilter={setGlobalFilter}
+      />
+      <Table
+        getTableProps={getTableProps}
+        headerGroups={headerGroups}
+        getTableBodyProps={getTableBodyProps}
+        rows={rows}
+        prepareRow={prepareRow}
+      />
+      <Buttons
+        archive={archive}
+        preGlobalFilteredRows={preGlobalFilteredRows}
+        globalFilter={state.globalFilter}
+        setGlobalFilter={setGlobalFilter}
+      />
+    </div>
+  );
+};
+
+const Table = ({
+  getTableProps,
+  headerGroups,
+  getTableBodyProps,
+  rows,
+  prepareRow
+}) => (
+  <div className="table-responsive">
+    <table {...getTableProps()} className="table table-striped">
+      <thead>
+        {headerGroups.map(headerGroup => (
+          <tr {...headerGroup.getHeaderGroupProps()}>
+            {headerGroup.headers.map(column => (
+              <th {...column.getHeaderProps(column.getSortByToggleProps())}>
+                {column.render("Header")}
+                <span>
+                  &nbsp;
+                  {column.isSorted ? (
+                    <i
+                      className={`fa fa-arrow-${
+                        column.isSortedDesc ? "down" : "up"
+                      }`}
+                    />
+                  ) : (
+                    ""
+                  )}
+                </span>
+              </th>
+            ))}
+            <th>Actions</th>
+          </tr>
+        ))}
+      </thead>
+      <tbody {...getTableBodyProps()}>
+        {rows.map((row, i) => {
+          prepareRow(row);
+          return (
+            <tr {...row.getRowProps()}>
+              {row.cells.map(cell => {
+                let additionalProps = {};
+                if (cell.column.id == "attributes.color" && cell.value) {
+                  additionalProps = {
+                    style: { backgroundColor: cell.value, width: "30px" }
+                  };
+                }
+                return (
+                  <td {...cell.getCellProps()} {...additionalProps}>
+                    {cell.render("Cell")}
+                  </td>
+                );
+              })}
+              <ActionsCell {...row.original.attributes} id={row.original.id} />
             </tr>
-          ))}
-        </thead>
-        <tbody {...getTableBodyProps()}>
-          {rows.map((row, i) => {
-            prepareRow(row);
-            return (
-              <tr {...row.getRowProps()}>
-                {row.cells.map(cell => {
-                  let additionalProps = {};
-                  if (cell.column.id == "attributes.color" && cell.value) {
-                    additionalProps = {
-                      style: { backgroundColor: cell.value, width: "30px" }
-                    };
-                  }
-                  return (
-                    <td {...cell.getCellProps()} {...additionalProps}>
-                      {cell.render("Cell")}
-                    </td>
-                  );
-                })}
-                <ActionsCell
-                  {...row.original.attributes}
-                  id={row.original.id}
-                />
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
+          );
+        })}
+      </tbody>
+    </table>
+  </div>
+);
+
+const Buttons = ({
+  archive,
+  preGlobalFilteredRows,
+  setGlobalFilter,
+  globalFilter
+}) => {
+  return (
+    <div className="row buttons">
+      {!archive && (
+        <div className="col-xs-6 col-sm-2 col-md-1">
+          <a className="btn btn-default" href="/collected_inks/beta/new">
+            Add ink
+          </a>
+        </div>
+      )}
+      {!archive && (
+        <div className="col-xs-6 col-sm-2 col-md-1">
+          <a
+            className="btn btn-default"
+            href="/collected_inks/beta?search[archive]=true"
+          >
+            Archive
+          </a>
+        </div>
+      )}
+      <div className="col-xs-12 col-sm-8 col-md-10">
+        <div className="search">
+          <input
+            value={globalFilter || ""}
+            onChange={e => {
+              setGlobalFilter(e.target.value || undefined); // Set undefined to remove the filter entirely
+            }}
+            placeholder={`Type to search in ${preGlobalFilteredRows.length} inks`}
+          />
+        </div>
+      </div>
     </div>
   );
 };
