@@ -8,6 +8,7 @@
     "babel-preset-react": "^6.24.1",
     "coffeescript": "2.5.1",
     "color-convert": "^2.0.1",
+    "lodash": "^4.17.15",
     "match-sorter": "^4.0.2",
     "promise-polyfill": "^8.1.0",
     "prop-types": "^15.7.2",

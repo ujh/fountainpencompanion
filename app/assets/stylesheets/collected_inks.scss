@@ -57,6 +57,12 @@
     th {
       vertical-align: middle !important;
     }
+    tfoot {
+      font-weight: bold;
+      .counter {
+        white-space: nowrap;
+      }
+    }
   }
 }
 
