@@ -3,6 +3,7 @@ import * as ReactDOM from "react-dom";
 import { useTable, useSortBy, useGlobalFilter } from "react-table";
 import convert from "color-convert";
 import matchSorter from "match-sorter";
+import _ from "lodash";
 import { getRequest } from "src/fetch";
 
 export const renderCollectedInksBeta = el => {
@@ -51,7 +52,16 @@ const CollectedInksBetaTable = ({ data, archive }) => {
       },
       {
         Header: "Brand",
-        accessor: "attributes.brand_name"
+        accessor: "attributes.brand_name",
+        Footer: info => {
+          const count = useMemo(() => {
+            return _.uniqBy(
+              info.rows,
+              row => row.values["attributes.brand_name"]
+            ).length;
+          }, [info.rows]);
+          return <span>{count} brands</span>;
+        }
       },
       {
         Header: "Line",
@@ -59,7 +69,10 @@ const CollectedInksBetaTable = ({ data, archive }) => {
       },
       {
         Header: "Name",
-        accessor: "attributes.ink_name"
+        accessor: "attributes.ink_name",
+        Footer: info => {
+          return <span>{info.rows.length} inks</span>;
+        }
       },
       {
         Header: "Maker",
@@ -67,7 +80,23 @@ const CollectedInksBetaTable = ({ data, archive }) => {
       },
       {
         Header: "Type",
-        accessor: "attributes.kind"
+        accessor: "attributes.kind",
+        Footer: info => {
+          const counters = useMemo(() => {
+            return _.countBy(info.rows, row => row.values["attributes.kind"]);
+          });
+          return (
+            <span>
+              <span className="counter">{counters.bottle || 0}x bottle</span>
+              <br />
+              <span className="counter">{counters.sample || 0}x sample</span>
+              <br />
+              <span className="counter">
+                {counters.cartridge || 0}x cartridge
+              </span>
+            </span>
+          );
+        }
       },
       {
         Header: "Color",
@@ -125,6 +154,7 @@ const CollectedInksBetaTable = ({ data, archive }) => {
     getTableProps,
     getTableBodyProps,
     headerGroups,
+    footerGroups,
     rows,
     prepareRow,
     state,
@@ -159,6 +189,7 @@ const CollectedInksBetaTable = ({ data, archive }) => {
         getTableBodyProps={getTableBodyProps}
         rows={rows}
         prepareRow={prepareRow}
+        footerGroups={footerGroups}
       />
       <Buttons
         archive={archive}
@@ -173,6 +204,7 @@ const CollectedInksBetaTable = ({ data, archive }) => {
 const Table = ({
   getTableProps,
   headerGroups,
+  footerGroups,
   getTableBodyProps,
   rows,
   prepareRow
@@ -226,6 +258,16 @@ const Table = ({
           );
         })}
       </tbody>
+      <tfoot>
+        {footerGroups.map(group => (
+          <tr {...group.getFooterGroupProps()}>
+            {group.headers.map(column => (
+              <td {...column.getFooterProps()}>{column.render("Footer")}</td>
+            ))}
+            <td></td>
+          </tr>
+        ))}
+      </tfoot>
     </table>
   </div>
 );
