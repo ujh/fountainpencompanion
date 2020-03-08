@@ -47,6 +47,11 @@
     }
     th {
       white-space: nowrap;
+      &[role="columnheader"] {
+        &:hover {
+          background-color: #ddd;
+        }
+      }
     }
     td,
     th {
