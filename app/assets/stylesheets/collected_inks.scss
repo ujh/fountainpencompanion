@@ -74,8 +74,12 @@ form.new_collected_ink {
   input[type="submit"] {
     margin-right: 15px;
   }
+  .boolean .help-block {
+    margin-top: -10px;
+  }
   .help-block {
     font-size: smaller;
+    line-height: 15px;
   }
 }
 
