@@ -177,6 +177,9 @@ const CollectedInksBetaTable = ({ data, archive }) => {
   );
   return (
     <div>
+      <a className="add-button" href="/collected_inks/beta/new">
+        <i className="fa fa-plus" />
+      </a>
       <Buttons
         archive={archive}
         preGlobalFilteredRows={preGlobalFilteredRows}

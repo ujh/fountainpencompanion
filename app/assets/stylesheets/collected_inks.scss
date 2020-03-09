@@ -7,6 +7,22 @@
     margin-bottom: 20px;
     margin-top: 20px;
   }
+  .add-button {
+    position: fixed;
+    bottom: 10px;
+    right: 10px;
+    font-size: 30px;
+    text-decoration: none;
+    border: 1px solid #adadad;
+    border-radius: 5px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    padding-left: 10px;
+    padding-right: 9px;
+    &:hover {
+      background-color: #e6e6e6;
+    }
+  }
   .buttons {
     .search {
       input {
