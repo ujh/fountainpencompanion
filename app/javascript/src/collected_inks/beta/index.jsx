@@ -286,7 +286,7 @@ const Buttons = ({
   return (
     <div className="row buttons">
       {!archive && (
-        <div className="col-xs-12 col-sm-2 col-md-1">
+        <div className="col-xs-12 col-sm-2 col-md-2">
           <a
             className="btn btn-default"
             href="/collected_inks/beta?search[archive]=true"
@@ -295,7 +295,7 @@ const Buttons = ({
           </a>
         </div>
       )}
-      <div className={archive ? "col-xs-12" : "col-xs-12 col-sm-10 col-md-11"}>
+      <div className={archive ? "col-xs-12" : "col-xs-12 col-sm-10 col-md-10"}>
         <div className="search">
           <input
             value={globalFilter || ""}
