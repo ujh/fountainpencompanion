@@ -177,9 +177,11 @@ const CollectedInksBetaTable = ({ data, archive }) => {
   );
   return (
     <div>
-      <a className="add-button" href="/collected_inks/beta/new">
-        <i className="fa fa-plus" />
-      </a>
+      {!archive && (
+        <a className="add-button" href="/collected_inks/beta/new">
+          <i className="fa fa-plus" />
+        </a>
+      )}
       <Buttons
         archive={archive}
         preGlobalFilteredRows={preGlobalFilteredRows}
@@ -284,14 +286,7 @@ const Buttons = ({
   return (
     <div className="row buttons">
       {!archive && (
-        <div className="col-xs-6 col-sm-2 col-md-1">
-          <a className="btn btn-default" href="/collected_inks/beta/new">
-            Add ink
-          </a>
-        </div>
-      )}
-      {!archive && (
-        <div className="col-xs-6 col-sm-2 col-md-1">
+        <div className="col-xs-12 col-sm-2 col-md-1">
           <a
             className="btn btn-default"
             href="/collected_inks/beta?search[archive]=true"
@@ -300,7 +295,7 @@ const Buttons = ({
           </a>
         </div>
       )}
-      <div className="col-xs-12 col-sm-8 col-md-10">
+      <div className={archive ? "col-xs-12" : "col-xs-12 col-sm-10 col-md-11"}>
         <div className="search">
           <input
             value={globalFilter || ""}

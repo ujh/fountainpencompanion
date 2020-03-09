@@ -21,6 +21,7 @@
     padding-right: 9px;
     background-image: image-url("bg-btn.png") !important;
     background-repeat: repeat;
+    z-index: 1000;
     &:hover {
       background-color: #e6e6e6;
     }
