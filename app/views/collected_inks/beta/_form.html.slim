@@ -9,6 +9,7 @@
     div class="col-sm-12 col-md-6"
       = f.input :kind, as: :select, collection: CollectedInk::KINDS, label: 'Type'
       = f.input :color, hint: "HTML hex code, or leave blank and have the system fill it in for you"
+      div class="color-picker" data-input="collected_ink_color"
       = f.input :swabbed, hint: "Check this box if you made a swab card of the ink"
       = f.input :used, hint: "Check this box if you've used this ink. Also gets set automatically when you create a currently inked entry with this ink"
       = f.input :private, hint: "Check this box if do not want to share this ink on your public profile."
