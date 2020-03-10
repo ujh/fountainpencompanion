@@ -18,6 +18,7 @@ if (!window.Promise) {
 // fetch polyfill. https://github.com/github/fetch
 import "whatwg-fetch";
 
+import "../src/color-picker";
 import {
   renderCollectedInks,
   renderCollectedInksBeta
