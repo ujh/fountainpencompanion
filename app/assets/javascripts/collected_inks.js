@@ -1,8 +1,4 @@
 $(function() {
-  $("#collected-inks-app").each(function() {
-    renderCollectedInks(this);
-  });
-
   $("#collected-inks-beta .app").each(function() {
     renderCollectedInksBeta(this);
   });
