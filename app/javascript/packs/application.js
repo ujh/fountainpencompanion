@@ -12,8 +12,7 @@ import "regenerator-runtime/runtime";
 import "whatwg-fetch";
 
 import "../src/color-picker";
-import { renderCollectedInksBeta } from "../src/collected_inks";
+import "../src/collected_inks";
 import renderPublicInks from "../src/public_inks";
 
-window.renderCollectedInksBeta = renderCollectedInksBeta;
 window.renderPublicInks = renderPublicInks;

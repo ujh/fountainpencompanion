@@ -1,8 +1,4 @@
 $(function() {
-  $("#collected-inks-beta .app").each(function() {
-    renderCollectedInksBeta(this);
-  });
-
   $("#collected_ink_brand_name").autocomplete({
     source: function(request, response) {
       fetch("/brands?term=" + request.term)
