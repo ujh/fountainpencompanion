@@ -1,6 +1,7 @@
 class CollectedInksController < ApplicationController
   before_action :authenticate_user!
-  deserializable_resource :collected_ink, only: [:create, :update]
+  before_action :find_ink, only: [:edit, :update, :destroy, :archive, :unarchive]
+
 
   def index
     if current_user.collected_inks.empty?
@@ -17,45 +18,85 @@ class CollectedInksController < ApplicationController
     end
   end
 
+  def new
+    self.ink = current_user.collected_inks.build
+  end
+
+  def import
+  end
+
   def create
-    collected_ink = current_user.collected_inks.build
-    if SaveCollectedInk.new(collected_ink, collected_ink_params).perform
-      render jsonapi: collected_ink
+    self.ink = collected_ink = current_user.collected_inks.build
+    if SaveCollectedInk.new(ink, collected_ink_params).perform
+      flash[:notice] = 'Successfully created ink'
+      redirect_to collected_inks_beta_index_path
     else
-      render jsonapi_errors: collected_ink.errors
+      render :new
     end
   end
 
+  def edit
+  end
+
   def update
-    collected_ink = current_user.collected_inks.find(params[:id])
-    if SaveCollectedInk.new(collected_ink, collected_ink_params).perform
-      render jsonapi: collected_ink
+    if SaveCollectedInk.new(ink, collected_ink_params).perform
+      flash[:notice] = 'Successfully updated ink'
+      redirect_to collected_inks_beta_index_path
     else
-      render jsonapi_errors: collected_ink.errors
+      render :edit
     end
   end
 
   def destroy
-    collected_ink = current_user.collected_inks.find(params[:id])
-    collected_ink.destroy
-    render jsonapi: collected_ink
+    if ink
+      if ink.deletable?
+        ink.destroy
+        flash[:notice] = "Ink successfully deleted"
+      else
+        flash[:alert] = "'#{ink.name}' has currently inked entries attached and can't be deleted."
+      end
+    end
+    redirect_to collected_inks_beta_index_path
+  end
+
+  def archive
+    flash[:notice] = "Successfully archived '#{ink.name}'" if ink
+    ink&.archive!
+    redirect_to collected_inks_beta_index_path
+  end
+
+  def unarchive
+    flash[:notice] = "Successfully unarchived '#{ink.name}'" if ink
+    ink&.unarchive!
+    redirect_to collected_inks_beta_index_path
   end
 
   private
 
+  attr_accessor :ink
+
+  def find_ink
+    self.ink = current_user.collected_inks.find(params[:id])
+  end
+
+  helper_method :archive?
+  def archive?
+    params.dig(:search, :archive) == 'true'
+  end
+
   def collected_ink_params
     params.require(:collected_ink).permit(
-      :private,
-      :ink_name,
-      :line_name,
       :brand_name,
+      :line_name,
+      :ink_name,
+      :maker,
       :kind,
-      :color,
       :swabbed,
       :used,
       :comment,
-      :maker
+      :private_comment,
+      :color,
+      :private,
     )
   end
-
 end

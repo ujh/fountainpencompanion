@@ -1,4 +1,4 @@
-#collected-inks-beta {
+#collected-inks {
   .loader {
     text-align: center;
     i {
@@ -102,36 +102,6 @@ form.new_collected_ink {
   .help-block {
     font-size: smaller;
     line-height: 15px;
-  }
-}
-
-#collected-inks-app {
-  .export {
-    float: right;
-    margin-bottom: 20px;
-    .btn {
-      margin-left: 10px;
-    }
-  }
-  h1 {
-    text-align: center;
-  }
-  .editable {
-    border-radius: 5px;
-    padding: 5px;
-    width: 100%;
-    &:hover {
-      border: 1px dotted grey;
-      padding: 4px;
-    }
-  }
-  td .form-group {
-    margin-bottom: -8px;
-    .help-block {
-      font-size: 10px;
-      margin-bottom: 0px;
-      margin-top: 0px;
-    }
   }
 }
 

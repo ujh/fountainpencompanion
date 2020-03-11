@@ -84,173 +84,224 @@ describe CollectedInksController do
     end
   end
 
-  describe '#create' do
+  describe '#destroy' do
+
     it 'requires authentication' do
-      expect do
-        payload = { data: {
-          type: 'collected_ink',
-          attributes: {
-            ink_name: 'Ink',
-            line_name: 'Line',
-            brand_name: 'Brand',
-            kind: 'bottle'
-          }
-        }}
-        post :create, params: { _jsonapi: payload }
-        expect(response).to redirect_to(new_user_session_path)
-      end.to_not change { CollectedInk.count }
+      delete :destroy, params: { id: 1 }
+      expect(response).to redirect_to(new_user_session_path)
     end
 
     context 'signed in' do
-      before(:each) do
+      before do
         sign_in(user)
       end
 
-      it 'creates the data' do
-        payload = { data: {
-          type: 'collected_ink',
-          attributes: {
-            ink_name: 'Ink',
-            line_name: 'Line',
-            brand_name: 'Brand',
-            kind: 'bottle'
-          }
-        }}
+      it 'deletes the collected ink' do
+        ink = create(:collected_ink, user: user)
         expect do
-          post :create, params: { _jsonapi: payload }
-          expect(response).to be_successful
-        end.to change { user.collected_inks.count }.by(1)
-        json = JSON.parse(response.body)
-        collected_ink = user.collected_inks.last
-        expect(json["data"]).to include("id" => collected_ink.id.to_s)
-        expect(json["data"]["attributes"]).to include(
-          "brand_name" => "Brand",
-          "line_name" => "Line",
-          "ink_name" => "Ink",
-          "kind" => "bottle"
-        )
-        expect(collected_ink.brand_name).to eq('Brand')
-        expect(collected_ink.line_name).to eq('Line')
-        expect(collected_ink.ink_name).to eq('Ink')
-        expect(collected_ink.kind).to eq('bottle')
+          delete :destroy, params: { id: ink.id }
+          expect(response).to redirect_to(collected_inks_beta_index_path)
+        end.to change { user.collected_inks.count }.by(-1)
       end
 
-      it 'strips out extraneous whitespace' do
-        payload = { data: {
-          type: 'collected_ink',
-          attributes: {
-            ink_name: ' Ink ',
-            line_name: ' Line ',
-            brand_name: ' Brand ',
-            kind: 'bottle'
-          }
-        }}
+      it 'does not delete inks from other users' do
+        ink = create(:collected_ink)
         expect do
-          post :create, params: { _jsonapi: payload }
-          expect(response).to be_successful
-        end.to change { user.collected_inks.count }.by(1)
-        json = JSON.parse(response.body)
-        collected_ink = user.collected_inks.last
-        expect(json["data"]).to include("id" => collected_ink.id.to_s)
-        expect(json["data"]["attributes"]).to include(
-          "brand_name" => "Brand",
-          "line_name" => "Line",
-          "ink_name" => "Ink",
-          "kind" => "bottle"
-        )
-        expect(collected_ink.brand_name).to eq('Brand')
-        expect(collected_ink.line_name).to eq('Line')
-        expect(collected_ink.ink_name).to eq('Ink')
-        expect(collected_ink.kind).to eq('bottle')
+          expect do
+            delete :destroy, params: { id: ink.id }
+          end.to raise_error(ActiveRecord::RecordNotFound)
+        end.to_not change { user.collected_inks.count }
+      end
+
+      it 'does not delete inks that have currently inkeds' do
+        ink = create(:collected_ink, user: user, currently_inked_count: 1)
+        expect do
+          delete :destroy, params: { id: ink.id }
+          expect(response).to redirect_to(collected_inks_beta_index_path)
+        end.to_not change { user.collected_inks.count }
+      end
+    end
+  end
+
+  describe '#archive' do
+
+    it 'requires authentication' do
+      post :archive, params: { id: 1 }
+      expect(response).to redirect_to(new_user_session_path)
+    end
+
+    context 'signed in' do
+      before do
+        sign_in(user)
+      end
+
+      it 'archives the ink' do
+        ink = create(:collected_ink, user: user)
+        expect do
+          post :archive, params: { id: ink.id }
+          expect(response).to redirect_to(collected_inks_beta_index_path)
+        end.to change { ink.reload.archived_on }.from(nil).to(Date.today)
+      end
+
+      it 'does not archive other user inks' do
+        ink = create(:collected_ink)
+        expect do
+          expect do
+            post :archive, params: { id: ink.id }
+          end.to raise_error(ActiveRecord::RecordNotFound)
+        end.to_not change { ink.reload.archived_on }
+      end
+    end
+  end
+
+  describe '#unarchive' do
+
+    it 'requires authentication' do
+      post :unarchive, params: { id: 1 }
+      expect(response).to redirect_to(new_user_session_path)
+    end
+
+    context 'signed in' do
+      before do
+        sign_in(user)
+      end
+
+      it 'unarchives the ink' do
+        ink = create(:collected_ink, user: user, archived_on: Date.today)
+        expect do
+          post :unarchive, params: { id: ink.id }
+          expect(response).to redirect_to(collected_inks_beta_index_path)
+        end.to change { ink.reload.archived_on }.from(Date.today).to(nil)
+      end
+
+      it 'does not archive other user inks' do
+        ink = create(:collected_ink, archived_on: Date.today)
+        expect do
+          expect do
+            post :unarchive, params: { id: ink.id }
+          end.to raise_error(ActiveRecord::RecordNotFound)
+        end.to_not change { ink.reload.archived_on }
+      end
+    end
+  end
+
+  describe '#edit' do
+
+    it 'requires authentication' do
+      get :edit, params: { id: 1 }
+      expect(response).to redirect_to(new_user_session_path)
+    end
+
+    context 'signed in' do
+      before do
+        sign_in(user)
+      end
+
+      it 'renders the edit page' do
+        ink = create(:collected_ink, user: user)
+        get :edit, params: { id: ink.id }
+        expect(response).to be_successful
       end
     end
   end
 
   describe '#update' do
 
-    let(:collected_ink) { create(:collected_ink, user: user) }
-
     it 'requires authentication' do
-      expect do
-        payload = { data: { type: 'collected_ink', attributes: { ink_name: 'Not Marine' } } }
-        put :update, params: { id: collected_ink.id, _jsonapi: payload}
-        expect(response).to redirect_to(new_user_session_path)
-      end.to_not change { collected_ink.reload }
+      put :update, params: { id: 1 }
+      expect(response).to redirect_to(new_user_session_path)
     end
 
     context 'signed in' do
-
-      before(:each) do
+      before do
         sign_in(user)
       end
 
-      it 'updates the ink' do
-        payload = { data: { type: 'collected_ink', attributes: { ink_name: 'Not Marine' } } }
-        put :update, params: { id: collected_ink.id, _jsonapi: payload}
-        expect(response).to be_successful
-        json = JSON.parse(response.body)
-        expect(json["data"]).to include("id" => collected_ink.id.to_s)
-        expect(json["data"]["attributes"]).to include("ink_name" => "Not Marine")
-        collected_ink.reload
-        expect(collected_ink.ink_name).to eq('Not Marine')
+      it 'renders the edit page' do
+        ink = create(:collected_ink, user: user, swabbed: false, used: false)
+        put :update, params: { id: ink.id, collected_ink: {
+          brand_name: 'new brand name',
+          line_name: 'new line name',
+          ink_name: 'new ink name',
+          maker: 'new maker',
+          kind: 'sample',
+          swabbed: true,
+          used: true,
+          comment: 'new comment',
+          color: '#000000',
+          private: true,
+        } }
+        expect(response).to redirect_to(collected_inks_beta_index_path)
+        ink.reload
+        expect(ink.brand_name).to eq('new brand name')
+        expect(ink.line_name).to eq('new line name')
+        expect(ink.ink_name).to eq('new ink name')
+        expect(ink.maker).to eq('new maker')
+        expect(ink.kind).to eq('sample')
+        expect(ink.swabbed).to eq(true)
+        expect(ink.used).to eq(true)
+        expect(ink.comment).to eq('new comment')
+        expect(ink.color).to eq('#000000')
+        expect(ink).to be_private
       end
 
-      it 'strips out whitespace' do
-        payload = { data: {
-          type: 'collected_ink',
-          attributes: {
-            ink_name: ' Not Marine ',
-            line_name: ' Not 1670 ',
-            brand_name: ' Not Diamine ',
-          }
-        }}
-        put :update, params: { id: collected_ink.id, _jsonapi: payload}
-        expect(response).to be_successful
-        json = JSON.parse(response.body)
-        expect(json["data"]).to include("id" => collected_ink.id.to_s)
-        expect(json["data"]["attributes"]).to include(
-          "ink_name" => "Not Marine",
-          "line_name" => "Not 1670",
-          "brand_name" => "Not Diamine"
-        )
-        collected_ink.reload
-        expect(collected_ink.ink_name).to eq('Not Marine')
-        expect(collected_ink.line_name).to eq('Not 1670')
-        expect(collected_ink.brand_name).to eq('Not Diamine')
+      it 'renders edit on validation error' do
+        ink = create(:collected_ink, user: user)
+        put :update, params: { id: ink.id, collected_ink: { brand_name: ''} }
+        expect(response).to render_template(:edit)
       end
     end
   end
 
-  describe '#destroy' do
-    let!(:collected_ink) { create(:collected_ink, user: user) }
-    let!(:other_users_ink) { create(:collected_ink) }
-
+  describe '#new' do
     it 'requires authentication' do
-      expect do
-        delete :destroy, params: { id: collected_ink.id }
-        expect(response).to redirect_to(new_user_session_path)
-      end.to_not change { CollectedInk.count }
+      get :new
+      expect(response).to redirect_to(new_user_session_path)
     end
 
-    describe 'signed in' do
-
-      before(:each) do
+    context 'signed in' do
+      before do
         sign_in(user)
       end
 
-      it 'deletes the collected ink' do
-        expect do
-          delete :destroy, params: { id: collected_ink.id }
-          expect(response).to be_successful
-        end.to change { user.collected_inks.count }.by(-1)
+      it 'renders the edit page' do
+        get :new
+        expect(response).to be_successful
+      end
+    end
+  end
+
+  describe '#create' do
+
+    it 'requires authentication' do
+      post :create
+      expect(response).to redirect_to(new_user_session_path)
+    end
+
+    context 'signed in' do
+      before do
+        sign_in(user)
       end
 
-      it 'does not delete other users inks' do
+      it 'creates a new entry' do
         expect do
-          expect do
-            delete :destroy, params: { id: other_users_ink.id }
-          end.to raise_error(ActiveRecord::RecordNotFound)
-        end.to_not change { CollectedInk.count }
+          post :create, params: { collected_ink: { brand_name: 'brand', ink_name: 'ink'} }
+          expect(response).to redirect_to(collected_inks_beta_index_path)
+        end.to change { user.collected_inks.count }.by(1)
+      end
+
+      it 'renders new when validation error' do
+        expect do
+          post :create, params: { collected_ink: { brand_name: 'brand'} }
+          expect(response).to render_template(:new)
+        end.to_not change { user.collected_inks.count }
+      end
+
+      it 'renders a validation error when the colour has an invalid format' do
+        expect do
+          post :create, params: { collected_ink: { brand_name: 'brand', ink_name: 'ink', color: 'green'} }
+          expect(response).to render_template(:new)
+        end.to_not change { user.collected_inks.count }
       end
     end
   end
