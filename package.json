@@ -4,7 +4,6 @@
     "@babel/preset-react": "^7.8.3",
     "@rails/webpacker": "^4.2.2",
     "babel-plugin-transform-react-remove-prop-types": "^0.4.24",
-    "babel-preset-react": "^6.24.1",
     "color-convert": "^2.0.1",
     "core-js": "^3.6.4",
     "lodash": "^4.17.15",
