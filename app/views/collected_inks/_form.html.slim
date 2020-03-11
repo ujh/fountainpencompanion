@@ -1,5 +1,4 @@
-- url = ink.persisted? ? collected_inks_beta_path(ink) : collected_inks_beta_index_path
-= simple_form_for ink, url: url do |f|
+= simple_form_for ink do |f|
   div class="row"
     div class="col-sm-12 col-md-6"
       = f.input :brand_name, required: true, hint: "e.g. Pilot, Parker, Waterman"

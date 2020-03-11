@@ -7,19 +7,18 @@ Rails.application.routes.draw do
   resource :dashboard, only: [:show]
   resources :pages, only: [:show]
 
-  resources :collected_inks, only: [:index, :create, :update, :destroy] do
-    resource :archive, only: [:create, :destroy]
-  end
-  namespace :collected_inks do
-    resources :beta, only: [:index, :destroy, :edit, :update, :new, :create] do
-      collection do
-        get 'import'
-      end
-      member do
-        post 'archive'
-        post 'unarchive'
-      end
+  resources :collected_inks, only: [:index, :destroy, :edit, :update, :new, :create] do
+    collection do
+      get 'import'
     end
+    member do
+      post 'archive'
+      post 'unarchive'
+    end
+  end
+
+  namespace :collected_inks do
+    resources :beta, only: [:index, :edit, :new]
   end
 
   resources :collected_pens do

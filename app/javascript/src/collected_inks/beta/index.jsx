@@ -178,7 +178,7 @@ const CollectedInksBetaTable = ({ data, archive }) => {
   return (
     <div>
       {!archive && (
-        <a className="add-button" href="/collected_inks/beta/new">
+        <a className="add-button" href="/collected_inks/new">
           <i className="fa fa-plus" />
         </a>
       )}
@@ -289,7 +289,7 @@ const Buttons = ({
         <div className="col-xs-12 col-sm-2 col-md-2">
           <a
             className="btn btn-default"
-            href="/collected_inks/beta?search[archive]=true"
+            href="/collected_inks?search[archive]=true"
           >
             Archive
           </a>
@@ -334,7 +334,7 @@ const EditButton = ({ name, id }) => (
   <span>
     <a
       className="btn btn-default"
-      href={`/collected_inks/beta/${id}/edit`}
+      href={`/collected_inks/${id}/edit`}
       title={`Edit ${name}`}
     >
       <i className="fa fa-pencil" />
@@ -351,7 +351,7 @@ const DeleteButton = ({ name, id, deletable }) => {
         data-confirm={`Really delete ${name}?`}
         title={`Delete ${name}`}
         data-method="delete"
-        href={`/collected_inks/beta/${id}`}
+        href={`/collected_inks/${id}`}
       >
         <i className="fa fa-trash" />
       </a>
@@ -366,7 +366,7 @@ const ArchiveButton = ({ name, id, archived }) => {
         <a
           className="btn btn-default"
           title={`Unarchive ${name}`}
-          href={`/collected_inks/beta/${id}/unarchive`}
+          href={`/collected_inks/${id}/unarchive`}
           data-method="post"
         >
           <i className="fa fa-archive" />
@@ -379,7 +379,7 @@ const ArchiveButton = ({ name, id, archived }) => {
         <a
           className="btn btn-default"
           title={`Archive ${name}`}
-          href={`/collected_inks/beta/${id}/archive`}
+          href={`/collected_inks/${id}/archive`}
           data-method="post"
         >
           <i className="fa fa-archive" />
