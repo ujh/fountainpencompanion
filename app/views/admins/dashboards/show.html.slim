@@ -39,6 +39,9 @@ table class="table table-striped"
               = @stats.inks_without_color_count
               |  inks without color)
     tr
+      td Number of micro clusters
+      td= @stats.micro_cluster_count
+    tr
       td Number of collected inks
       td
         table
