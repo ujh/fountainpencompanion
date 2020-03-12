@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_03_12_201035) do
+ActiveRecord::Schema.define(version: 2020_03_12_201442) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "fuzzystrmatch"
@@ -48,6 +48,7 @@ ActiveRecord::Schema.define(version: 2020_03_12_201035) do
     t.string "kind"
     t.string "line_name", limit: 100, default: "", null: false
     t.text "maker", default: ""
+    t.bigint "micro_cluster_id"
     t.integer "new_ink_name_id"
     t.boolean "private", default: false
     t.text "private_comment"
@@ -61,6 +62,7 @@ ActiveRecord::Schema.define(version: 2020_03_12_201035) do
     t.index ["brand_name"], name: "index_collected_inks_on_brand_name"
     t.index ["ink_name"], name: "index_collected_inks_on_ink_name"
     t.index ["line_name"], name: "index_collected_inks_on_line_name"
+    t.index ["micro_cluster_id"], name: "index_collected_inks_on_micro_cluster_id"
     t.index ["simplified_ink_name"], name: "index_collected_inks_on_simplified_ink_name"
   end
 
@@ -154,6 +156,7 @@ ActiveRecord::Schema.define(version: 2020_03_12_201035) do
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
 
+  add_foreign_key "collected_inks", "micro_clusters"
   add_foreign_key "collected_inks", "new_ink_names"
   add_foreign_key "collected_inks", "users"
   add_foreign_key "collected_pens", "users"
