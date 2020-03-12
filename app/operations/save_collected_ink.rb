@@ -13,6 +13,7 @@ class SaveCollectedInk
       update_color!
       update_popular_names!
       collected_ink.reload
+      AssignMicroCluster.perform_async(collected_ink.id)
     end
     updated
   end

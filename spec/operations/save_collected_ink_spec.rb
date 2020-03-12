@@ -14,6 +14,12 @@ describe SaveCollectedInk do
     }.merge(params))
   end
 
+  it 'schedules a AssignMicroCluster job' do
+    expect do
+      default!
+    end.to change { AssignMicroCluster.jobs.size }.by(1)
+  end
+
   it 'works with two distinct inks from the same manufacturer' do
     ci1 = default!
     ci2 = default!(ink_name: 'Shin-Kai')
