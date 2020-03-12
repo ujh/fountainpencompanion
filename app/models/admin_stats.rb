@@ -1,4 +1,9 @@
 class AdminStats
+
+  def micro_cluster_count
+    MicroCluster.count
+  end
+
   def user_count
     @user_count ||= User.count
   end
