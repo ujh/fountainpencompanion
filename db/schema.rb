@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_02_03_072140) do
+ActiveRecord::Schema.define(version: 2020_03_12_201035) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "fuzzystrmatch"
@@ -97,6 +97,15 @@ ActiveRecord::Schema.define(version: 2020_02_03_072140) do
     t.text "simplified_name"
     t.datetime "updated_at", null: false
     t.index ["simplified_name"], name: "index_ink_brands_on_simplified_name", unique: true
+  end
+
+  create_table "micro_clusters", force: :cascade do |t|
+    t.datetime "created_at", precision: 6, null: false
+    t.text "simplified_brand_name", null: false
+    t.text "simplified_ink_name", null: false
+    t.text "simplified_line_name", default: ""
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["simplified_brand_name", "simplified_line_name", "simplified_ink_name"], name: "unique_micro_clusters", unique: true
   end
 
   create_table "new_ink_names", force: :cascade do |t|

@@ -1,0 +1,2 @@
+class MicroCluster < ApplicationRecord
+end
