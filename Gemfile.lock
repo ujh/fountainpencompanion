@@ -286,6 +286,8 @@ GEM
       activesupport (>= 4.0)
       sprockets (>= 3.0.0)
     statsd-ruby (1.4.0)
+    strong_migrations (0.6.2)
+      activerecord (>= 5)
     temple (0.8.2)
     thor (1.0.1)
     thread_safe (0.3.6)
@@ -349,6 +351,7 @@ DEPENDENCIES
   simplecov
   slim
   slodown
+  strong_migrations
   uglifier
   web-console
   webpacker

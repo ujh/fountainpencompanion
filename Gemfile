@@ -35,6 +35,7 @@ gem 'sidekiq'
 gem 'simple_form'
 gem 'slim'
 gem 'slodown'
+gem 'strong_migrations'
 gem 'uglifier'
 gem 'webpacker'
 
