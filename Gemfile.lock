@@ -1,3 +1,10 @@
+GIT
+  remote: https://github.com/fast-jsonapi/fast_jsonapi
+  revision: 990c0acd18137c96d0c3e4a3168cc71fd3b912c2
+  specs:
+    fast_jsonapi (1.6.0)
+      activesupport (>= 4.2)
+
 GEM
   remote: https://rubygems.org/
   remote: https://rails-assets.org/
@@ -327,6 +334,7 @@ DEPENDENCIES
   dotenv
   exception_notification
   factory_bot_rails
+  fast_jsonapi!
   font-awesome-rails
   jbuilder
   jquery-rails
