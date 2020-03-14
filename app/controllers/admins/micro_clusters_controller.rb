@@ -6,11 +6,17 @@ class Admins::MicroClustersController < Admins::BaseController
     render json: MicroClusterSerializer.new(clusters, options(clusters)).serializable_hash.to_json
   end
 
+  def update
+    cluster = MicroCluster.find(params[:id])
+    cluster.update!(params.require(:data).require(:attributes).permit(:macro_cluster_id))
+    render json: MicroClusterSerializer.new(cluster, include: [:collected_inks]).serializable_hash.to_json
+  end
+
   private
 
   def options(rel)
     {
-      include: [ :collected_inks ],
+      include: [:collected_inks],
       meta: { pagination: pagination(rel) },
     }
   end

@@ -84,4 +84,33 @@ describe Admins::MicroClustersController do
       end
     end
   end
+
+  describe '#update' do
+    let(:micro_cluster) { create(:micro_cluster) }
+
+    it 'requires authentication' do
+      put "/admins/micro_clusters/#{micro_cluster.id}"
+      expect(response).to redirect_to(new_admin_session_path)
+    end
+
+    context 'signed in' do
+      before(:each) do
+        sign_in(admin)
+      end
+
+      it 'updates the macro cluster id' do
+        expect(micro_cluster.macro_cluster).to be(nil)
+        macro_cluster = create(:macro_cluster)
+        put "/admins/micro_clusters/#{micro_cluster.id}", params: {
+          'data' => {
+            'id' => micro_cluster.id.to_s,
+            'type' => 'micro_cluster',
+            'attributes' => { 'macro_cluster_id' => macro_cluster.id }
+          }
+        }
+        expect(response).to be_successful
+        expect(micro_cluster.reload.macro_cluster).to eq(macro_cluster)
+      end
+    end
+  end
 end
