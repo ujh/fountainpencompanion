@@ -6,7 +6,7 @@ describe Admins::UsersController do
 
   describe '#index' do
     it 'requires authentication' do
-      get :index
+      get '/admins/users'
       expect(response).to redirect_to(new_admin_session_path)
     end
 
@@ -15,8 +15,8 @@ describe Admins::UsersController do
         sign_in(admin)
       end
 
-      pending 'renders' do
-        get :index
+      it 'renders' do
+        get '/admins/users'
         expect(response).to be_successful
       end
     end
@@ -37,7 +37,7 @@ describe Admins::UsersController do
     let(:user) { create(:user) }
 
     it 'requires authentication' do
-      post :ink_import, params: { id: user.id, file: file_upload }
+      post "/admins/users/#{user.id}/ink_import", params: { file: file_upload }
       expect(response).to redirect_to(new_admin_session_path)
     end
 
@@ -48,7 +48,7 @@ describe Admins::UsersController do
 
       it 'processes the CSV file' do
         expect do
-          post :ink_import, params: { id: user.id, file: file_upload }
+          post "/admins/users/#{user.id}/ink_import", params: { file: file_upload }
           expect(ImportCollectedInk.jobs.size).to eq(3)
           ImportCollectedInk.drain
         end.to change { user.collected_inks.count }.by(3)
@@ -73,7 +73,7 @@ describe Admins::UsersController do
     let(:user) { create(:user) }
 
     it 'requires authentication' do
-      post :pen_import, params: { id: user.id, file: file_upload }
+      post "/admins/users/#{user.id}/pen_import", params: { file: file_upload }
       expect(response).to redirect_to(new_admin_session_path)
     end
 
@@ -84,7 +84,7 @@ describe Admins::UsersController do
 
       it 'processes the CSV file' do
         expect do
-          post :pen_import, params: { id: user.id, file: file_upload }
+          post "/admins/users/#{user.id}/pen_import", params: { file: file_upload }
           expect(ImportCollectedPen.jobs.size).to eq(1)
           ImportCollectedPen.drain
         end.to change { user.collected_pens.count }.by(1)
