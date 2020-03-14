@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_03_12_201442) do
+ActiveRecord::Schema.define(version: 2020_03_14_133313) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "fuzzystrmatch"
@@ -101,12 +101,24 @@ ActiveRecord::Schema.define(version: 2020_03_12_201442) do
     t.index ["simplified_name"], name: "index_ink_brands_on_simplified_name", unique: true
   end
 
+  create_table "macro_clusters", force: :cascade do |t|
+    t.string "brand_name", default: ""
+    t.string "color", limit: 7, default: "", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.string "ink_name", default: ""
+    t.string "line_name", default: ""
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["brand_name", "line_name", "ink_name"], name: "index_macro_clusters_on_brand_name_and_line_name_and_ink_name", unique: true
+  end
+
   create_table "micro_clusters", force: :cascade do |t|
     t.datetime "created_at", precision: 6, null: false
+    t.bigint "macro_cluster_id"
     t.text "simplified_brand_name", null: false
     t.text "simplified_ink_name", null: false
     t.text "simplified_line_name", default: ""
     t.datetime "updated_at", precision: 6, null: false
+    t.index ["macro_cluster_id"], name: "index_micro_clusters_on_macro_cluster_id"
     t.index ["simplified_brand_name", "simplified_line_name", "simplified_ink_name"], name: "unique_micro_clusters", unique: true
   end
 
@@ -163,6 +175,7 @@ ActiveRecord::Schema.define(version: 2020_03_12_201442) do
   add_foreign_key "currently_inked", "collected_inks"
   add_foreign_key "currently_inked", "collected_pens"
   add_foreign_key "currently_inked", "users"
+  add_foreign_key "micro_clusters", "macro_clusters"
   add_foreign_key "new_ink_names", "ink_brands"
   add_foreign_key "usage_records", "currently_inked"
 end
