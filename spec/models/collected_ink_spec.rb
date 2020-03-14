@@ -31,7 +31,7 @@ describe CollectedInk do
     end
 
     it 'is allowed to have the same ink with a different kind' do
-      existing_ink.update_attributes!(kind: 'bottle')
+      existing_ink.update!(kind: 'bottle')
       new_ink = CollectedInk.new(
         user_id: existing_ink.user_id,
         brand_name: existing_ink.brand_name,
