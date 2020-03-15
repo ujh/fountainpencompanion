@@ -13,6 +13,8 @@ import "whatwg-fetch";
 
 import "../src/color-picker";
 import "../src/collected_inks";
+import { renderFriendButton } from "../src/friends";
 import renderPublicInks from "../src/public_inks";
 
 window.renderPublicInks = renderPublicInks;
+window.renderFriendButton = renderFriendButton;

@@ -19,6 +19,51 @@ class User < ApplicationRecord
     where.not(name: [nil, ""])
   end
 
+  def friends
+    possible_and_approved_friends.where(
+      'friendships.approved = TRUE OR sf.approved = TRUE'
+    )
+  end
+
+  def friendship_with(friend_id)
+    Friendship.where(
+      '(friend_id = :friend_id AND sender_id = :user_id) OR (friend_id = :user_id AND sender_id = :friend_id)',
+      friend_id: friend_id, user_id: id
+    ).first
+  end
+
+  def friendship_state_for(user)
+    return "friend" if friend?(user)
+    return "to-approve" if to_approve?(user)
+    return "waiting-for-approval" if waiting_for_approval?(user)
+    "no-friend"
+  end
+
+  def friend?(user)
+    friends.where(id: user.id).exists?
+  end
+
+  def pending_friendships
+    possible_and_approved_friends.where(
+      'friendships.approved = FALSE OR sf.approved = FALSE'
+    )
+  end
+
+  def waiting_for_approval?(user)
+    friendship = friendship_with(user.id)
+    friendship && friendship.approved? == false && friendship.sender == self
+  end
+
+  def to_approve?(user)
+    friendship = friendship_with(user.id)
+    friendship && friendship.approved? == false && friendship.friend == self
+  end
+
+  def pending_friendship?(user)
+    pending_friendships.where(id: user.id).exists?
+  end
+
+
   def admin?
     false
   end
@@ -91,4 +136,13 @@ class User < ApplicationRecord
     collected_inks.active
   end
 
+  private
+
+  def possible_and_approved_friends
+    User.joins(
+      'LEFT JOIN friendships ON users.id = friendships.friend_id'
+    ).joins(
+      'LEFT JOIN friendships AS sf ON users.id = sf.sender_id'
+    ).where('friendships.sender_id = :id OR sf.friend_id = :id', id: id)
+  end
 end
