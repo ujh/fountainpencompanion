@@ -27,8 +27,8 @@ $(function() {
   });
 });
 
-$(function() {
-  $(".friend-button").each(function() {
-    renderFriendButton(this);
-  });
-});
+// $(function() {
+//   $(".friend-button").each(function() {
+//     renderFriendButton(this);
+//   });
+// });
