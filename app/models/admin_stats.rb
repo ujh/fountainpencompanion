@@ -4,6 +4,14 @@ class AdminStats
     MicroCluster.count
   end
 
+  def assigned_micro_cluster_count
+    MicroCluster.where.not(macro_cluster_id: nil).count
+  end
+
+  def macro_cluster_count
+    MacroCluster.count
+  end
+
   def user_count
     @user_count ||= User.count
   end
