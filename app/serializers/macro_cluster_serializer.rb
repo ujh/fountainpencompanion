@@ -1,6 +1,10 @@
 class MacroClusterSerializer
   include FastJsonapi::ObjectSerializer
-  attributes
 
   has_many :micro_clusters
+
+  attribute :brand_name
+  attribute :line_name
+  attribute :ink_name
+  attribute :color
 end
