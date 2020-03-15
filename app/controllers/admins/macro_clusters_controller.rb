@@ -5,6 +5,12 @@ class Admins::MacroClustersController < Admins::BaseController
     render json: MacroClusterSerializer.new(cluster).serializable_hash.to_json
   end
 
+  def update
+    cluster = MacroCluster.find(params[:id])
+    cluster.update!(cluster_params)
+    render json: MacroClusterSerializer.new(cluster).serializable_hash.to_json
+  end
+
   def destroy
     cluster = MacroCluster.find(params[:id])
     cluster.destroy!
