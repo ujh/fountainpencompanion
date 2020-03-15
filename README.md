@@ -10,7 +10,7 @@ It is important to keep in mind that these two goals are in conflict at times. A
 
 # Technology
 
-Most parts of the app are written in Ruby on Rails. The inks part is written using React & Redux with a JSON API (the spec) backend.
+Most parts of the app are written in Ruby on Rails. The inks part is written using React with a JSON API (the spec) backend.
 
 # The current state
 
