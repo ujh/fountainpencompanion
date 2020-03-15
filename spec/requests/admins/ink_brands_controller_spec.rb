@@ -5,7 +5,7 @@ describe Admins::InkBrandsController do
 
   describe '#index' do
     it 'requires authentication' do
-      get :index
+      get '/admins/ink_brands'
       expect(response).to redirect_to(new_admin_session_path)
     end
 
@@ -14,8 +14,8 @@ describe Admins::InkBrandsController do
         sign_in(admin)
       end
 
-      pending 'renders' do
-        get :index
+      it 'renders' do
+        get '/admins/ink_brands'
         expect(response).to be_successful
       end
     end

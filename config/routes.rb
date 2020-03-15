@@ -64,6 +64,8 @@ Rails.application.routes.draw do
         post 'pen_import'
       end
     end
+    resources :macro_clusters, only: [:index, :create, :update, :destroy]
+    resources :micro_clusters, only: [:index, :update]
   end
 
   authenticate :admin do
