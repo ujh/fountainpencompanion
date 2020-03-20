@@ -1,9 +1,14 @@
 class Admins::MicroClustersController < Admins::BaseController
   def index
-    clusters = MicroCluster.includes(:collected_inks).order(
-      :simplified_brand_name, :simplified_line_name, :simplified_ink_name
-    ).page(params[:page])
-    render json: MicroClusterSerializer.new(clusters, options(clusters)).serializable_hash.to_json
+    respond_to do |format|
+      format.json {
+        clusters = MicroCluster.includes(:collected_inks).order(
+          :simplified_brand_name, :simplified_line_name, :simplified_ink_name
+        ).page(params[:page])
+        render json: MicroClusterSerializer.new(clusters, options(clusters)).serializable_hash.to_json
+      }
+      format.html
+    end
   end
 
   def update
