@@ -37,21 +37,42 @@ const extractMicroClusterData = (data, index) => {
   return cluster;
 };
 
+const useNavigation = max => {
+  const [index, setIndex] = useState(0);
+  const prev = () => {
+    if (index > 0) setIndex(index - 1);
+  };
+  const next = () => {
+    if (index < max) setIndex(index + 1);
+  };
+  useEffect(() => {
+    const listener = e => {
+      if (e.keyCode == 39) next();
+      if (e.keyCode == 37) prev();
+    };
+    document.addEventListener("keydown", listener);
+    return () => {
+      document.removeEventListener("keydown", listener);
+    };
+  }, [index]);
+  return { index, prev, next };
+};
+
 const DisplayMicroClusters = ({ data }) => {
-  const index = 0;
+  const { index, prev, next } = useNavigation(data.data.length);
   const selectedClusterData = useMemo(
     () => extractMicroClusterData(data, index),
     [index]
   );
   return (
     <div className="app">
-      <div className="nav">
+      <div className="nav" onClick={prev}>
         <i className="fa fa-angle-left"></i>
       </div>
       <div className="main">
         <DisplayMicroCluster data={selectedClusterData} />
       </div>
-      <div className="nav">
+      <div className="nav" onClick={next}>
         <i className="fa fa-angle-right"></i>
       </div>
     </div>
@@ -59,7 +80,6 @@ const DisplayMicroClusters = ({ data }) => {
 };
 
 const DisplayMicroCluster = ({ data }) => {
-  console.log(data);
   return (
     <div>
       <table className="table table-striped">
@@ -68,6 +88,7 @@ const DisplayMicroCluster = ({ data }) => {
             <th>{data.attributes.simplified_brand_name}</th>
             <th>{data.attributes.simplified_line_name}</th>
             <th>{data.attributes.simplified_ink_name}</th>
+            <th></th>
             <th></th>
           </tr>
         </thead>
@@ -78,6 +99,9 @@ const DisplayMicroCluster = ({ data }) => {
               <td>{ci.attributes.line_name}</td>
               <td>{ci.attributes.ink_name}</td>
               <td>{ci.attributes.maker}</td>
+              <td
+                style={{ backgroundColor: ci.attributes.color, width: "30px" }}
+              ></td>
             </tr>
           ))}
         </tbody>
