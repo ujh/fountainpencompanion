@@ -34,9 +34,11 @@ const useNavigation = max => {
   const [index, setIndex] = useState(0);
   const prev = () => {
     if (index > 0) setIndex(index - 1);
+    if (index == 0) setIndex(max - 1);
   };
   const next = () => {
-    if (index < max) setIndex(index + 1);
+    if (index < max - 1) setIndex(index + 1);
+    if (index == max - 1) setIndex(0);
   };
   useEffect(() => {
     const listener = e => {
