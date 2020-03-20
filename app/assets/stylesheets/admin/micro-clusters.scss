@@ -1,11 +1,12 @@
 #micro-clusters-app {
+  .loader {
+    font-size: 100px;
+    text-align: center;
+  }
   .app {
     display: flex;
     .main {
       margin: auto;
-      .loader {
-        font-size: 100px;
-      }
     }
     .nav {
       &:hover {
