@@ -6,7 +6,7 @@ import { DisplayMicroClusters } from "./DisplayMicroClusters";
 export const App = () => {
   const microClusters = loadMicroClusters();
   if (microClusters) {
-    return <DisplayMicroClusters data={microClusters} />;
+    return <DisplayMicroClusters microClusters={microClusters} />;
   } else {
     return <Spinner />;
   }
@@ -19,9 +19,9 @@ const loadMicroClusters = () => {
     function run(page = 1) {
       loadMicroClusterPage(page).then(json => {
         const next_page = json.meta.pagination.next_page;
+        data.data = [...data.data, ...json.data];
+        data.included = [...data.included, ...json.included];
         if (next_page) {
-          data.data = [...data.data, ...json.data];
-          data.included = [...data.included, ...json.included];
           run(next_page);
         } else {
           setMicroClusters(data);
@@ -34,7 +34,7 @@ const loadMicroClusters = () => {
 };
 
 const loadMicroClusterPage = page => {
-  return getRequest(`/admins/micro_clusters.json?page=${page}`).then(response =>
-    response.json()
-  );
+  return getRequest(
+    `/admins/micro_clusters.json?unassigned=true&page=${page}`
+  ).then(response => response.json());
 };

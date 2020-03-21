@@ -6,7 +6,18 @@
   .app {
     display: flex;
     .main {
-      margin: auto;
+      margin-left: auto;
+      margin-right: auto;
+      input {
+        width: 100%;
+      }
+      .distance {
+        color: #ccc;
+      }
+    }
+    td,
+    th {
+      vertical-align: middle;
     }
     .nav {
       &:hover {
@@ -19,6 +30,9 @@
       display: flex;
       justify-content: center;
       flex-direction: column;
+    }
+    .macro-cluster-collected-inks {
+      font-size: 10px;
     }
   }
 }

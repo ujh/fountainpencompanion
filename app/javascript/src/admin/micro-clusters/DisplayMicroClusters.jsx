@@ -1,19 +1,34 @@
 import React, { useState, useEffect, useMemo } from "react";
+import { getRequest } from "src/fetch";
 import { DisplayMicroCluster } from "./DisplayMicroCluster";
+import { DisplayMacroClusters } from "./DisplayMacroClusters";
+import { Spinner } from "./Spinner";
 
-export const DisplayMicroClusters = ({ data }) => {
-  const { index, prev, next } = useNavigation(data.data.length);
-  const selectedClusterData = useMemo(
-    () => extractMicroClusterData(data, index),
-    [index]
-  );
+export const DisplayMicroClusters = ({ microClusters }) => {
+  const { index, prev, next } = useNavigation(microClusters.data.length);
+  const selectedMicroCluster = extractMicroClusterData(microClusters, index);
+  const macroClusters = loadMacroClusters(index);
+  const afterAssign = newClusterData => {
+    microClusters.data[index] = newClusterData;
+    next();
+  };
   return (
     <div className="app">
       <div className="nav" onClick={prev}>
         <i className="fa fa-angle-left"></i>
       </div>
       <div className="main">
-        <DisplayMicroCluster data={selectedClusterData} />
+        {macroClusters ? (
+          <DisplayMicroCluster data={selectedMicroCluster}>
+            <DisplayMacroClusters
+              data={macroClusters}
+              microCluster={selectedMicroCluster}
+              afterAssign={afterAssign}
+            />
+          </DisplayMicroCluster>
+        ) : (
+          <Spinner />
+        )}
       </div>
       <div className="nav" onClick={next}>
         <i className="fa fa-angle-right"></i>
@@ -51,4 +66,31 @@ const useNavigation = max => {
     };
   }, [index]);
   return { index, prev, next };
+};
+
+const loadMacroClusters = index => {
+  const [macroClusters, setMacroClusters] = useState(null);
+  useEffect(() => {
+    const data = { data: [], included: [] };
+    function run(page = 1) {
+      loadMacroClusterPage(page).then(json => {
+        const next_page = json.meta.pagination.next_page;
+        data.data = [...data.data, ...json.data];
+        data.included = [...data.included, ...json.included];
+        if (next_page) {
+          run(next_page);
+        } else {
+          setMacroClusters(data);
+        }
+      });
+    }
+    run();
+  }, [index]);
+  return macroClusters;
+};
+
+const loadMacroClusterPage = page => {
+  return getRequest(`/admins/macro_clusters.json?page=${page}`).then(response =>
+    response.json()
+  );
 };

@@ -5,5 +5,5 @@ import { App } from "./App";
 
 document.addEventListener("DOMContentLoaded", () => {
   const el = document.getElementById("micro-clusters-app");
-  ReactDOM.render(<App />, el);
+  if (el) ReactDOM.render(<App />, el);
 });

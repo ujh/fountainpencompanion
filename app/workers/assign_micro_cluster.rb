@@ -9,5 +9,6 @@ class AssignMicroCluster
       simplified_ink_name: collected_ink.simplified_ink_name
     )
     collected_ink.update!(micro_cluster: cluster)
+    UpdateMicroCluster.perform_async(cluster.id)
   end
 end

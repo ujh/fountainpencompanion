@@ -27,7 +27,7 @@ class Admins::MacroClustersController < Admins::BaseController
   private
 
   def cluster_params
-    params.require(:data).require(:attributes).permit(
+    (params['_jsonapi'] || params).require(:data).require(:attributes).permit(
       :brand_name, :line_name, :ink_name, :color
     )
   end
