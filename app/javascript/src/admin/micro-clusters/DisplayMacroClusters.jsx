@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import _ from "lodash";
 import { postRequest, putRequest } from "../../fetch";
 
-export const DisplayMacroClusters = ({ data, microCluster }) => {
+export const DisplayMacroClusters = ({ data, microCluster, afterAssign }) => {
   return (
     <div>
       <table className="table table-striped">
@@ -16,7 +16,11 @@ export const DisplayMacroClusters = ({ data, microCluster }) => {
           <AssignedMacroClusterRow data={data} microCluster={microCluster} />
         </thead>
         <tbody>
-          <CreateRow key={microCluster.id} microCluster={microCluster} />
+          <CreateRow
+            key={microCluster.id}
+            microCluster={microCluster}
+            afterCreate={afterAssign}
+          />
           <MacroClustersRows data={data} microCluster={microCluster} />
         </tbody>
       </table>
@@ -61,7 +65,7 @@ const AssignedMacroClusterRow = ({ data, microCluster }) => {
     return null;
   }
 };
-const CreateRow = ({ microCluster }) => {
+const CreateRow = ({ microCluster, afterCreate }) => {
   const grouped = _.groupBy(microCluster.collected_inks, ci =>
     ["brand_name", "line_name", "ink_name"].map(n => ci.attributes[n]).join("")
   );
@@ -111,7 +115,12 @@ const CreateRow = ({ microCluster }) => {
           disabled={loading}
           value={loading ? "Creating ..." : "Create"}
           onClick={() => {
-            createMacroClusterAndAssign(values, microCluster.id, setLoading);
+            createMacroClusterAndAssign(
+              values,
+              microCluster.id,
+              setLoading,
+              afterCreate
+            );
           }}
         />
       </td>
@@ -119,7 +128,12 @@ const CreateRow = ({ microCluster }) => {
   );
 };
 
-const createMacroClusterAndAssign = (values, microClusterId, setLoading) => {
+const createMacroClusterAndAssign = (
+  values,
+  microClusterId,
+  setLoading,
+  afterCreate
+) => {
   setLoading(true);
   postRequest("/admins/macro_clusters.json", {
     data: {
@@ -137,6 +151,11 @@ const createMacroClusterAndAssign = (values, microClusterId, setLoading) => {
           type: "micro_cluster",
           attributes: { macro_cluster_id: json.data.id }
         }
-      }).then(() => setLoading(false))
+      })
+        .then(response => response.json())
+        .then(json => {
+          setLoading(false);
+          afterCreate(json.data);
+        })
     );
 };

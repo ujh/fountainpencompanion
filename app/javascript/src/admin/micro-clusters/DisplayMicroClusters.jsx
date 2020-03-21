@@ -6,11 +6,12 @@ import { Spinner } from "./Spinner";
 
 export const DisplayMicroClusters = ({ microClusters }) => {
   const { index, prev, next } = useNavigation(microClusters.data.length);
-  const selectedMicroCluster = useMemo(
-    () => extractMicroClusterData(microClusters, index),
-    [index]
-  );
+  const selectedMicroCluster = extractMicroClusterData(microClusters, index);
   const macroClusters = loadMacroClusters(index);
+  const afterAssign = newClusterData => {
+    microClusters.data[index] = newClusterData;
+    next();
+  };
   return (
     <div className="app">
       <div className="nav" onClick={prev}>
@@ -24,6 +25,7 @@ export const DisplayMicroClusters = ({ microClusters }) => {
           <DisplayMacroClusters
             data={macroClusters}
             microCluster={selectedMicroCluster}
+            afterAssign={afterAssign}
           />
         ) : (
           <Spinner />
