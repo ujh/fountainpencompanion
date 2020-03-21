@@ -18,20 +18,18 @@ export const DisplayMicroClusters = ({ microClusters }) => {
         <i className="fa fa-angle-left"></i>
       </div>
       <div className="main">
-        {macroClusters ? (
-          <DisplayMicroCluster
-            data={selectedMicroCluster}
-            afterCreate={afterAssign}
-          >
+        <DisplayMicroCluster
+          data={selectedMicroCluster}
+          afterCreate={afterAssign}
+        >
+          {macroClusters && (
             <DisplayMacroClusters
               data={macroClusters}
               microCluster={selectedMicroCluster}
               afterAssign={afterAssign}
             />
-          </DisplayMicroCluster>
-        ) : (
-          <Spinner />
-        )}
+          )}
+        </DisplayMicroCluster>
       </div>
       <div className="nav" onClick={next}>
         <i className="fa fa-angle-right"></i>
@@ -74,6 +72,7 @@ const useNavigation = max => {
 const loadMacroClusters = index => {
   const [macroClusters, setMacroClusters] = useState(null);
   useEffect(() => {
+    setMacroClusters(null);
     const data = { data: [], included: [] };
     function run(page = 1) {
       loadMacroClusterPage(page).then(json => {
