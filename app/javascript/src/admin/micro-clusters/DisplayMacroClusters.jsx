@@ -50,13 +50,19 @@ const dist = (cluster1, cluster2) => {
 
 const MacroClusterRow = ({ mc, microCluster, afterAssign }) => {
   const [loading, setLoading] = useState(false);
+  const [showInks, setShowInks] = useState(false);
   return (
     <>
-      <tr>
+      <tr
+        onClick={() => {
+          setShowInks(!showInks);
+        }}
+      >
         <td className="distance">{mc.distance}</td>
         <td>{mc.attributes.brand_name}</td>
         <td>{mc.attributes.line_name}</td>
         <td>{mc.attributes.ink_name}</td>
+        <td></td>
         <td
           style={{
             backgroundColor: mc.attributes.color,
@@ -70,7 +76,8 @@ const MacroClusterRow = ({ mc, microCluster, afterAssign }) => {
             type="submit"
             disabled={loading}
             value={loading ? "Assigning..." : "Assign"}
-            onClick={() => {
+            onClick={e => {
+              e.stopPropagation();
               assignCluster(microCluster.id, mc.id, data => {
                 setLoading(false);
                 afterAssign(data);
@@ -79,15 +86,17 @@ const MacroClusterRow = ({ mc, microCluster, afterAssign }) => {
           />
         </td>
       </tr>
-      <tr>
-        <td colSpan="7">
-          <table className="table macro-cluster-collected-inks">
-            <tbody>
-              <CollectedInksList collectedInks={mc.collected_inks} />
-            </tbody>
-          </table>
-        </td>
-      </tr>
+      {showInks && (
+        <tr>
+          <td colSpan="7">
+            <table className="table macro-cluster-collected-inks">
+              <tbody>
+                <CollectedInksList collectedInks={mc.collected_inks} />
+              </tbody>
+            </table>
+          </td>
+        </tr>
+      )}
     </>
   );
 };
@@ -117,7 +126,9 @@ const CreateRow = ({ microCluster, afterCreate }) => {
       <th>{values.brand_name}</th>
       <th>{values.line_name}</th>
       <th>{values.ink_name}</th>
-      <td colSpan="3">
+      <td></td>
+      <td></td>
+      <td>
         <input
           className="btn btn-default"
           type="submit"
