@@ -72,7 +72,6 @@ const useNavigation = max => {
 const loadMacroClusters = index => {
   const [macroClusters, setMacroClusters] = useState(null);
   useEffect(() => {
-    setMacroClusters(null);
     const data = { data: [], included: [] };
     function run(page = 1) {
       loadMacroClusterPage(page).then(json => {
