@@ -1,29 +1,28 @@
 import React from "react";
 import _ from "lodash";
 
-export const DisplayMicroCluster = ({ data }) => {
+export const DisplayMicroCluster = ({ data, children }) => {
   return (
-    <div>
-      <table className="table table-striped">
-        <thead>
-          <tr className="header">
-            <th colSpan="6">Micro Cluster</th>
-          </tr>
-          <tr>
-            <th></th>
-            <th>{data.attributes.simplified_brand_name}</th>
-            <th>{data.attributes.simplified_line_name}</th>
-            <th>{data.attributes.simplified_ink_name}</th>
-            <th></th>
-            <th></th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody>
-          <CollectedInksList collectedInks={data.collected_inks} />
-        </tbody>
-      </table>
-    </div>
+    <table className="table">
+      <thead>
+        <tr className="header">
+          <th colSpan="6">Micro Cluster</th>
+        </tr>
+        <tr>
+          <th></th>
+          <th>{data.attributes.simplified_brand_name}</th>
+          <th>{data.attributes.simplified_line_name}</th>
+          <th>{data.attributes.simplified_ink_name}</th>
+          <th></th>
+          <th></th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <CollectedInksList collectedInks={data.collected_inks} />
+        {children}
+      </tbody>
+    </table>
   );
 };
 

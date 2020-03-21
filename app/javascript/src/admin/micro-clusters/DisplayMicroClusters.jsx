@@ -18,15 +18,14 @@ export const DisplayMicroClusters = ({ microClusters }) => {
         <i className="fa fa-angle-left"></i>
       </div>
       <div className="main">
-        <DisplayMicroCluster data={selectedMicroCluster} />
-      </div>
-      <div className="main">
         {macroClusters ? (
-          <DisplayMacroClusters
-            data={macroClusters}
-            microCluster={selectedMicroCluster}
-            afterAssign={afterAssign}
-          />
+          <DisplayMicroCluster data={selectedMicroCluster}>
+            <DisplayMacroClusters
+              data={macroClusters}
+              microCluster={selectedMicroCluster}
+              afterAssign={afterAssign}
+            />
+          </DisplayMicroCluster>
         ) : (
           <Spinner />
         )}

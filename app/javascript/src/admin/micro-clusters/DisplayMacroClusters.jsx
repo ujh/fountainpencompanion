@@ -6,31 +6,28 @@ import { CollectedInksList } from "./DisplayMicroCluster";
 
 export const DisplayMacroClusters = ({ data, microCluster, afterAssign }) => {
   return (
-    <div>
-      <table className="table">
-        <thead>
-          <tr>
-            <th>Brand</th>
-            <th>Line</th>
-            <th>Ink</th>
-            <th></th>
-          </tr>
-          <AssignedMacroClusterRow data={data} microCluster={microCluster} />
-        </thead>
-        <tbody>
-          <CreateRow
-            key={microCluster.id}
-            microCluster={microCluster}
-            afterCreate={afterAssign}
-          />
-          <MacroClustersRows
-            data={data}
-            microCluster={microCluster}
-            afterAssign={afterAssign}
-          />
-        </tbody>
-      </table>
-    </div>
+    <>
+      <tr>
+        <th></th>
+        <th>Brand</th>
+        <th>Line</th>
+        <th>Ink</th>
+        <th></th>
+        <th></th>
+        <th></th>
+      </tr>
+      <AssignedMacroClusterRow data={data} microCluster={microCluster} />
+      <CreateRow
+        key={microCluster.id}
+        microCluster={microCluster}
+        afterCreate={afterAssign}
+      />
+      <MacroClustersRows
+        data={data}
+        microCluster={microCluster}
+        afterAssign={afterAssign}
+      />
+    </>
   );
 };
 
@@ -69,10 +66,11 @@ const MacroClusterRow = ({ mc, microCluster, afterAssign }) => {
   return (
     <>
       <tr>
+        <td></td>
         <td>{mc.attributes.brand_name}</td>
         <td>{mc.attributes.line_name}</td>
         <td>{mc.attributes.ink_name}</td>
-        <td>
+        <td colSpan="3">
           <input
             className="btn btn-default"
             type="submit"
@@ -88,7 +86,7 @@ const MacroClusterRow = ({ mc, microCluster, afterAssign }) => {
         </td>
       </tr>
       <tr>
-        <td colSpan="4">
+        <td colSpan="7">
           <table className="table macro-cluster-collected-inks">
             <tbody>
               <CollectedInksList collectedInks={mc.collected_inks} />
@@ -142,6 +140,7 @@ const CreateRow = ({ microCluster, afterCreate }) => {
   const [loading, setLoading] = useState(false);
   return (
     <tr>
+      <td></td>
       <td>
         <input
           type="text"
@@ -172,7 +171,7 @@ const CreateRow = ({ microCluster, afterCreate }) => {
           }}
         />
       </td>
-      <td>
+      <td colSpan="3">
         <input
           className="btn btn-default"
           type="submit"
