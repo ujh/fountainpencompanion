@@ -2,13 +2,6 @@ import React from "react";
 import _ from "lodash";
 
 export const DisplayMicroCluster = ({ data }) => {
-  const grouped = _.groupBy(data.collected_inks, ci =>
-    ["brand_name", "line_name", "ink_name"].map(n => ci.attributes[n]).join("")
-  );
-  const sorted = _.reverse(_.sortBy(_.values(grouped), "length")).map(a => ({
-    count: a.length,
-    ci: a[0]
-  }));
   return (
     <div>
       <table className="table table-striped">
@@ -27,30 +20,41 @@ export const DisplayMicroCluster = ({ data }) => {
           </tr>
         </thead>
         <tbody>
-          {sorted.map(({ count, ci }) => {
-            return (
-              <tr key={ci.id}>
-                <td>{count}</td>
-                <td>{ci.attributes.brand_name}</td>
-                <td>{ci.attributes.line_name}</td>
-                <td>{ci.attributes.ink_name}</td>
-                <td>{ci.attributes.maker}</td>
-                <td
-                  style={{
-                    backgroundColor: ci.attributes.color,
-                    width: "30px"
-                  }}
-                ></td>
-                <td>
-                  <SearchLink ci={ci} />
-                </td>
-              </tr>
-            );
-          })}
+          <CollectedInksList collectedInks={data.collected_inks} />
         </tbody>
       </table>
     </div>
   );
+};
+
+export const CollectedInksList = ({ collectedInks }) => {
+  const grouped = _.groupBy(collectedInks, ci =>
+    ["brand_name", "line_name", "ink_name"].map(n => ci.attributes[n]).join("")
+  );
+  const sorted = _.reverse(_.sortBy(_.values(grouped), "length")).map(a => ({
+    count: a.length,
+    ci: a[0]
+  }));
+  return sorted.map(({ count, ci }) => {
+    return (
+      <tr key={ci.id}>
+        <td>{count}</td>
+        <td>{ci.attributes.brand_name}</td>
+        <td>{ci.attributes.line_name}</td>
+        <td>{ci.attributes.ink_name}</td>
+        <td>{ci.attributes.maker}</td>
+        <td
+          style={{
+            backgroundColor: ci.attributes.color,
+            width: "30px"
+          }}
+        ></td>
+        <td>
+          <SearchLink ci={ci} />
+        </td>
+      </tr>
+    );
+  });
 };
 
 const SearchLink = ({ ci }) => {

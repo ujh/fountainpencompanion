@@ -1,11 +1,12 @@
 import React, { useState } from "react";
 import _ from "lodash";
 import { postRequest, putRequest } from "../../fetch";
+import { CollectedInksList } from "./DisplayMicroCluster";
 
 export const DisplayMacroClusters = ({ data, microCluster, afterAssign }) => {
   return (
     <div>
-      <table className="table table-striped">
+      <table className="table">
         <thead>
           <tr>
             <th>Brand</th>
@@ -44,33 +45,54 @@ const MacroClustersRows = ({ data, microCluster, afterAssign }) => {
       mc={mc}
       microCluster={microCluster}
       afterAssign={afterAssign}
+      included={data.included}
     />
   ));
 };
 
-const MacroClusterRow = ({ mc, microCluster, afterAssign }) => {
+const MacroClusterRow = ({ mc, microCluster, afterAssign, included }) => {
   const [loading, setLoading] = useState(false);
+  const collectedInks = collectedInksForMacroCluster(mc, included);
   return (
-    <tr>
-      <td>{mc.attributes.brand_name}</td>
-      <td>{mc.attributes.line_name}</td>
-      <td>{mc.attributes.ink_name}</td>
-      <td>
-        <input
-          className="btn btn-default"
-          type="submit"
-          disabled={loading}
-          value={loading ? "Assigning..." : "Assign"}
-          onClick={() => {
-            assignCluster(microCluster.id, mc.id, data => {
-              setLoading(false);
-              afterAssign(data);
-            });
-          }}
-        />
-      </td>
-    </tr>
+    <>
+      <tr>
+        <td>{mc.attributes.brand_name}</td>
+        <td>{mc.attributes.line_name}</td>
+        <td>{mc.attributes.ink_name}</td>
+        <td>
+          <input
+            className="btn btn-default"
+            type="submit"
+            disabled={loading}
+            value={loading ? "Assigning..." : "Assign"}
+            onClick={() => {
+              assignCluster(microCluster.id, mc.id, data => {
+                setLoading(false);
+                afterAssign(data);
+              });
+            }}
+          />
+        </td>
+      </tr>
+      <tr>
+        <td colSpan="4">
+          <table className="table macro-cluster-collected-inks">
+            <tbody>
+              <CollectedInksList collectedInks={collectedInks} />
+            </tbody>
+          </table>
+        </td>
+      </tr>
+    </>
   );
+};
+
+const collectedInksForMacroCluster = (mc, included) => {
+  return mc.relationships.micro_clusters.data
+    .map(mi => included.find(i => i.id == mi.id && i.type == mi.type))
+    .map(mi => mi.relationships.collected_inks.data)
+    .flat()
+    .map(ci => included.find(i => i.id == ci.id && i.type == ci.type));
 };
 
 const getAssignedMacroCluster = (data, microCluster) => {
