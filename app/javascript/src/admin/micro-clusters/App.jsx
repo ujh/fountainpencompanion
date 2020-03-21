@@ -34,7 +34,7 @@ const loadMicroClusters = () => {
 };
 
 const loadMicroClusterPage = page => {
-  return getRequest(`/admins/micro_clusters.json?page=${page}`).then(response =>
-    response.json()
-  );
+  return getRequest(
+    `/admins/micro_clusters.json?unassigned=true&page=${page}`
+  ).then(response => response.json());
 };
