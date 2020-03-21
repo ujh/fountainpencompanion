@@ -40,7 +40,8 @@ const MacroClustersRows = ({ data, microCluster, afterAssign }) => {
   if (assignedCluster) {
     clusters = clusters.filter(mc => mc.id != assignedCluster.id);
   }
-  return _.sortBy(clusters, c => dist(c, microCluster)).map(mc => (
+  clusters.forEach(c => (c.distance = dist(c, microCluster)));
+  return _.sortBy(clusters, "distance").map(mc => (
     <MacroClusterRow
       key={mc.id}
       mc={mc}
@@ -66,7 +67,7 @@ const MacroClusterRow = ({ mc, microCluster, afterAssign }) => {
   return (
     <>
       <tr>
-        <td></td>
+        <td>{mc.distance}</td>
         <td>{mc.attributes.brand_name}</td>
         <td>{mc.attributes.line_name}</td>
         <td>{mc.attributes.ink_name}</td>
