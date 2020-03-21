@@ -21,11 +21,11 @@ const loadMicroClusters = () => {
         const next_page = json.meta.pagination.next_page;
         data.data = [...data.data, ...json.data];
         data.included = [...data.included, ...json.included];
-        // if (next_page) {
-        //   run(next_page);
-        // } else {
-        setMicroClusters(data);
-        // }
+        if (next_page) {
+          run(next_page);
+        } else {
+          setMicroClusters(data);
+        }
       });
     }
     run();
