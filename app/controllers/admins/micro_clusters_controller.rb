@@ -15,6 +15,7 @@ class Admins::MicroClustersController < Admins::BaseController
   def update
     cluster = MicroCluster.find(params[:id])
     cluster.update!(update_params)
+    UpdateMicroCluster.perform_async(cluster.id)
     render json: MicroClusterSerializer.new(cluster, include: [:collected_inks]).serializable_hash.to_json
   end
 

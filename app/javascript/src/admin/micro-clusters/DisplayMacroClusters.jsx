@@ -70,7 +70,14 @@ const MacroClusterRow = ({ mc, microCluster, afterAssign }) => {
         <td>{mc.attributes.brand_name}</td>
         <td>{mc.attributes.line_name}</td>
         <td>{mc.attributes.ink_name}</td>
-        <td colSpan="3">
+        <td
+          style={{
+            backgroundColor: mc.attributes.color,
+            width: "30px"
+          }}
+        ></td>
+
+        <td colSpan="2">
           <input
             className="btn btn-default"
             type="submit"
