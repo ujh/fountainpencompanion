@@ -7,16 +7,6 @@ import { CollectedInksList } from "./DisplayMicroCluster";
 export const DisplayMacroClusters = ({ data, microCluster, afterAssign }) => {
   return (
     <>
-      <tr>
-        <th></th>
-        <th>Brand</th>
-        <th>Line</th>
-        <th>Ink</th>
-        <th></th>
-        <th></th>
-        <th></th>
-      </tr>
-      <AssignedMacroClusterRow data={data} microCluster={microCluster} />
       <CreateRow
         key={microCluster.id}
         microCluster={microCluster}
@@ -36,10 +26,6 @@ const MacroClustersRows = ({ data, microCluster, afterAssign }) => {
   clusters.forEach(
     mc => (mc.collected_inks = collectedInksForMacroCluster(mc, data.included))
   );
-  const assignedCluster = getAssignedMacroCluster(data, microCluster);
-  if (assignedCluster) {
-    clusters = clusters.filter(mc => mc.id != assignedCluster.id);
-  }
   clusters.forEach(c => (c.distance = dist(c, microCluster)));
   return _.sortBy(clusters, "distance").map(mc => (
     <MacroClusterRow
@@ -67,7 +53,7 @@ const MacroClusterRow = ({ mc, microCluster, afterAssign }) => {
   return (
     <>
       <tr>
-        <td>{mc.distance}</td>
+        <td className="distance">{mc.distance}</td>
         <td>{mc.attributes.brand_name}</td>
         <td>{mc.attributes.line_name}</td>
         <td>{mc.attributes.ink_name}</td>
@@ -114,71 +100,23 @@ const collectedInksForMacroCluster = (mc, included) => {
     .map(ci => included.find(i => i.id == ci.id && i.type == ci.type));
 };
 
-const getAssignedMacroCluster = (data, microCluster) => {
-  const macroClusterRel = microCluster.relationships.macro_cluster.data;
-  if (macroClusterRel) {
-    return data.data.find(mc => mc.id == macroClusterRel.id);
-  }
-};
-
-const AssignedMacroClusterRow = ({ data, microCluster }) => {
-  const macroClusterRow = getAssignedMacroCluster(data, microCluster);
-  if (macroClusterRow) {
-    return (
-      <tr>
-        <th>{macroClusterRow.attributes.brand_name}</th>
-        <th>{macroClusterRow.attributes.line_name}</th>
-        <th>{macroClusterRow.attributes.ink_name}</th>
-      </tr>
-    );
-  } else {
-    return null;
-  }
-};
 const CreateRow = ({ microCluster, afterCreate }) => {
   const grouped = _.groupBy(microCluster.collected_inks, ci =>
     ["brand_name", "line_name", "ink_name"].map(n => ci.attributes[n]).join("")
   );
   const ci = _.maxBy(_.values(grouped), array => array.length)[0];
-  const [values, setValues] = useState({
+  const values = {
     brand_name: ci.attributes.brand_name,
     line_name: ci.attributes.line_name,
     ink_name: ci.attributes.ink_name
-  });
+  };
   const [loading, setLoading] = useState(false);
   return (
     <tr>
       <td></td>
-      <td>
-        <input
-          type="text"
-          name="brand_name"
-          value={values.brand_name}
-          onChange={event => {
-            setValues({ ...values, brand_name: event.target.value });
-          }}
-        />
-      </td>
-      <td>
-        <input
-          type="text"
-          name="line_name"
-          value={values.line_name}
-          onChange={event => {
-            setValues({ ...values, line_name: event.target.value });
-          }}
-        />
-      </td>
-      <td>
-        <input
-          type="text"
-          name="ink_name"
-          value={values.ink_name}
-          onChange={event => {
-            setValues({ ...values, ink_name: event.target.value });
-          }}
-        />
-      </td>
+      <th>{values.brand_name}</th>
+      <th>{values.line_name}</th>
+      <th>{values.ink_name}</th>
       <td colSpan="3">
         <input
           className="btn btn-default"

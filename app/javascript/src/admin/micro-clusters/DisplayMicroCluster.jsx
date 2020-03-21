@@ -5,9 +5,6 @@ export const DisplayMicroCluster = ({ data, children }) => {
   return (
     <table className="table">
       <thead>
-        <tr className="header">
-          <th colSpan="6">Micro Cluster</th>
-        </tr>
         <tr>
           <th></th>
           <th>{data.attributes.simplified_brand_name}</th>
