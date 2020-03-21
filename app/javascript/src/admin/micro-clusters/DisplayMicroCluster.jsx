@@ -5,10 +5,17 @@ export const DisplayMicroCluster = ({ data }) => {
   const grouped = _.groupBy(data.collected_inks, ci =>
     ["brand_name", "line_name", "ink_name"].map(n => ci.attributes[n]).join("")
   );
+  const sorted = _.reverse(_.sortBy(_.values(grouped), "length")).map(a => ({
+    count: a.length,
+    ci: a[0]
+  }));
   return (
     <div>
       <table className="table table-striped">
         <thead>
+          <tr className="header">
+            <th colSpan="6">Micro Cluster</th>
+          </tr>
           <tr>
             <th></th>
             <th>{data.attributes.simplified_brand_name}</th>
@@ -16,12 +23,11 @@ export const DisplayMicroCluster = ({ data }) => {
             <th>{data.attributes.simplified_ink_name}</th>
             <th></th>
             <th></th>
+            <th></th>
           </tr>
         </thead>
         <tbody>
-          {_.values(grouped).map(cis => {
-            const ci = cis[0];
-            const count = cis.length;
+          {sorted.map(({ count, ci }) => {
             return (
               <tr key={ci.id}>
                 <td>{count}</td>
@@ -35,11 +41,28 @@ export const DisplayMicroCluster = ({ data }) => {
                     width: "30px"
                   }}
                 ></td>
+                <td>
+                  <SearchLink ci={ci} />
+                </td>
               </tr>
             );
           })}
         </tbody>
       </table>
     </div>
+  );
+};
+
+const SearchLink = ({ ci }) => {
+  const fullName = ["brand_name", "line_name", "ink_name"]
+    .map(a => ci.attributes[a])
+    .join(" ");
+  return (
+    <a
+      href={`https://google.com/search?q=${encodeURIComponent(fullName)}`}
+      target="_blank"
+    >
+      <i className="fa fa-external-link"></i>
+    </a>
   );
 };

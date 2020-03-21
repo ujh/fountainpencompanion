@@ -6,7 +6,11 @@
   .app {
     display: flex;
     .main {
-      margin: auto;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    tr.header th {
+      text-align: center;
     }
     .nav {
       &:hover {

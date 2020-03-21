@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { DisplayMicroCluster } from "./DisplayMicroCluster";
+import { DisplayMacroClusters } from "./DisplayMacroClusters";
 
-export const DisplayMicroClusters = ({ data }) => {
-  const { index, prev, next } = useNavigation(data.data.length);
-  const selectedClusterData = useMemo(
-    () => extractMicroClusterData(data, index),
+export const DisplayMicroClusters = ({ microClusters, macroClusters }) => {
+  const { index, prev, next } = useNavigation(microClusters.data.length);
+  const selectedMicroCluster = useMemo(
+    () => extractMicroClusterData(microClusters, index),
     [index]
   );
   return (
@@ -13,7 +14,13 @@ export const DisplayMicroClusters = ({ data }) => {
         <i className="fa fa-angle-left"></i>
       </div>
       <div className="main">
-        <DisplayMicroCluster data={selectedClusterData} />
+        <DisplayMicroCluster data={selectedMicroCluster} />
+      </div>
+      <div className="main">
+        <DisplayMacroClusters
+          data={macroClusters}
+          microCluster={selectedMicroCluster}
+        />
       </div>
       <div className="nav" onClick={next}>
         <i className="fa fa-angle-right"></i>
