@@ -21,27 +21,56 @@ export const DisplayMacroClusters = ({ data, microCluster, afterAssign }) => {
             microCluster={microCluster}
             afterCreate={afterAssign}
           />
-          <MacroClustersRows data={data} microCluster={microCluster} />
+          <MacroClustersRows
+            data={data}
+            microCluster={microCluster}
+            afterAssign={afterAssign}
+          />
         </tbody>
       </table>
     </div>
   );
 };
 
-const MacroClustersRows = ({ data, microCluster }) => {
+const MacroClustersRows = ({ data, microCluster, afterAssign }) => {
   let clusters = data.data;
   const assignedCluster = getAssignedMacroCluster(data, microCluster);
   if (assignedCluster) {
     clusters = clusters.filter(mc => mc.id != assignedCluster.id);
   }
   return clusters.map(mc => (
-    <tr key={mc.id}>
+    <MacroClusterRow
+      key={mc.id}
+      mc={mc}
+      microCluster={microCluster}
+      afterAssign={afterAssign}
+    />
+  ));
+};
+
+const MacroClusterRow = ({ mc, microCluster, afterAssign }) => {
+  const [loading, setLoading] = useState(false);
+  return (
+    <tr>
       <td>{mc.attributes.brand_name}</td>
       <td>{mc.attributes.line_name}</td>
       <td>{mc.attributes.ink_name}</td>
-      <td></td>
+      <td>
+        <input
+          className="btn btn-default"
+          type="submit"
+          disabled={loading}
+          value={loading ? "Assigning..." : "Assign"}
+          onClick={() => {
+            assignCluster(microCluster.id, mc.id, data => {
+              setLoading(false);
+              afterAssign(data);
+            });
+          }}
+        />
+      </td>
     </tr>
-  ));
+  );
 };
 
 const getAssignedMacroCluster = (data, microCluster) => {
@@ -145,17 +174,22 @@ const createMacroClusterAndAssign = (
   })
     .then(response => response.json())
     .then(json =>
-      putRequest(`/admins/micro_clusters/${microClusterId}.json`, {
-        data: {
-          id: microClusterId,
-          type: "micro_cluster",
-          attributes: { macro_cluster_id: json.data.id }
-        }
+      assignCluster(microClusterId, json.data.id, data => {
+        setLoading(false);
+        afterCreate(data);
       })
-        .then(response => response.json())
-        .then(json => {
-          setLoading(false);
-          afterCreate(json.data);
-        })
     );
 };
+
+const assignCluster = (microClusterId, macroClusterId, afterCreate) =>
+  putRequest(`/admins/micro_clusters/${microClusterId}.json`, {
+    data: {
+      id: microClusterId,
+      type: "micro_cluster",
+      attributes: { macro_cluster_id: macroClusterId }
+    }
+  })
+    .then(response => response.json())
+    .then(json => {
+      afterCreate(json.data);
+    });
