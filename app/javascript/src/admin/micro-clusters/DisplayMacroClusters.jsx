@@ -2,22 +2,19 @@ import React, { useState } from "react";
 import _ from "lodash";
 import levenshtein from "fast-levenshtein";
 import { postRequest, putRequest } from "../../fetch";
-import { CollectedInksList } from "./DisplayMicroCluster";
+import {
+  CollectedInksList,
+  SearchLink,
+  assignCluster
+} from "./DisplayMicroCluster";
 
 export const DisplayMacroClusters = ({ data, microCluster, afterAssign }) => {
   return (
-    <>
-      <CreateRow
-        key={microCluster.id}
-        microCluster={microCluster}
-        afterCreate={afterAssign}
-      />
-      <MacroClustersRows
-        data={data}
-        microCluster={microCluster}
-        afterAssign={afterAssign}
-      />
-    </>
+    <MacroClustersRows
+      data={data}
+      microCluster={microCluster}
+      afterAssign={afterAssign}
+    />
   );
 };
 
@@ -69,8 +66,10 @@ const MacroClusterRow = ({ mc, microCluster, afterAssign }) => {
             width: "30px"
           }}
         ></td>
-
-        <td colSpan="2">
+        <td>
+          <SearchLink ci={mc} />
+        </td>
+        <td>
           <input
             className="btn btn-default"
             type="submit"
@@ -108,79 +107,3 @@ const collectedInksForMacroCluster = (mc, included) => {
     .flat()
     .map(ci => included.find(i => i.id == ci.id && i.type == ci.type));
 };
-
-const CreateRow = ({ microCluster, afterCreate }) => {
-  const grouped = _.groupBy(microCluster.collected_inks, ci =>
-    ["brand_name", "line_name", "ink_name"].map(n => ci.attributes[n]).join("")
-  );
-  const ci = _.maxBy(_.values(grouped), array => array.length)[0];
-  const values = {
-    brand_name: ci.attributes.brand_name,
-    line_name: ci.attributes.line_name,
-    ink_name: ci.attributes.ink_name
-  };
-  const [loading, setLoading] = useState(false);
-  return (
-    <tr>
-      <td></td>
-      <th>{values.brand_name}</th>
-      <th>{values.line_name}</th>
-      <th>{values.ink_name}</th>
-      <td></td>
-      <td></td>
-      <td>
-        <input
-          className="btn btn-default"
-          type="submit"
-          disabled={loading}
-          value={loading ? "Creating ..." : "Create"}
-          onClick={() => {
-            createMacroClusterAndAssign(
-              values,
-              microCluster.id,
-              setLoading,
-              afterCreate
-            );
-          }}
-        />
-      </td>
-    </tr>
-  );
-};
-
-const createMacroClusterAndAssign = (
-  values,
-  microClusterId,
-  setLoading,
-  afterCreate
-) => {
-  setLoading(true);
-  postRequest("/admins/macro_clusters.json", {
-    data: {
-      type: "macro_cluster",
-      attributes: {
-        ...values
-      }
-    }
-  })
-    .then(response => response.json())
-    .then(json =>
-      assignCluster(microClusterId, json.data.id, data => {
-        setLoading(false);
-        afterCreate(data);
-      })
-    );
-};
-
-const assignCluster = (microClusterId, macroClusterId, afterCreate) =>
-  putRequest(`/admins/micro_clusters/${microClusterId}.json`, {
-    data: {
-      id: microClusterId,
-      type: "micro_cluster",
-      attributes: { macro_cluster_id: macroClusterId }
-    }
-  })
-    .then(response => response.json())
-    .then(json => {
-      afterCreate(json.data);
-    });

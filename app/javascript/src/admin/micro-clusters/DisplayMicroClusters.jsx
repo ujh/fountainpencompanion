@@ -19,7 +19,10 @@ export const DisplayMicroClusters = ({ microClusters }) => {
       </div>
       <div className="main">
         {macroClusters ? (
-          <DisplayMicroCluster data={selectedMicroCluster}>
+          <DisplayMicroCluster
+            data={selectedMicroCluster}
+            afterCreate={afterAssign}
+          >
             <DisplayMacroClusters
               data={macroClusters}
               microCluster={selectedMicroCluster}
