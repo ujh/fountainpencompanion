@@ -5,6 +5,7 @@
     "@rails/webpacker": "^4.2.2",
     "babel-plugin-transform-react-remove-prop-types": "^0.4.24",
     "color-convert": "^2.0.1",
+    "fast-levenshtein": "^2.0.6",
     "lodash": "^4.17.15",
     "match-sorter": "^4.0.2",
     "prop-types": "^15.7.2",

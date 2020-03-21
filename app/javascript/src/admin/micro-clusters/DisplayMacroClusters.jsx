@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import _ from "lodash";
+import levenshtein from "fast-levenshtein";
 import { postRequest, putRequest } from "../../fetch";
 import { CollectedInksList } from "./DisplayMicroCluster";
 
@@ -35,24 +36,36 @@ export const DisplayMacroClusters = ({ data, microCluster, afterAssign }) => {
 
 const MacroClustersRows = ({ data, microCluster, afterAssign }) => {
   let clusters = data.data;
+  clusters.forEach(
+    mc => (mc.collected_inks = collectedInksForMacroCluster(mc, data.included))
+  );
   const assignedCluster = getAssignedMacroCluster(data, microCluster);
   if (assignedCluster) {
     clusters = clusters.filter(mc => mc.id != assignedCluster.id);
   }
-  return clusters.map(mc => (
+  return _.sortBy(clusters, c => dist(c, microCluster)).map(mc => (
     <MacroClusterRow
       key={mc.id}
       mc={mc}
       microCluster={microCluster}
       afterAssign={afterAssign}
-      included={data.included}
     />
   ));
 };
 
-const MacroClusterRow = ({ mc, microCluster, afterAssign, included }) => {
+const dist = (cluster1, cluster2) => {
+  const str = c =>
+    ["brand_name", "line_name", "ink_name"].map(a => c.attributes[a]).join("");
+  const distances = cluster1.collected_inks
+    .map(ci1 =>
+      cluster2.collected_inks.map(ci2 => levenshtein.get(str(ci1), str(ci2)))
+    )
+    .flat();
+  return Math.min(...distances);
+};
+
+const MacroClusterRow = ({ mc, microCluster, afterAssign }) => {
   const [loading, setLoading] = useState(false);
-  const collectedInks = collectedInksForMacroCluster(mc, included);
   return (
     <>
       <tr>
@@ -78,7 +91,7 @@ const MacroClusterRow = ({ mc, microCluster, afterAssign, included }) => {
         <td colSpan="4">
           <table className="table macro-cluster-collected-inks">
             <tbody>
-              <CollectedInksList collectedInks={collectedInks} />
+              <CollectedInksList collectedInks={mc.collected_inks} />
             </tbody>
           </table>
         </td>
