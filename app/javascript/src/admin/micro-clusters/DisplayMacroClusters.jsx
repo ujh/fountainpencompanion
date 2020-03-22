@@ -42,12 +42,29 @@ const MacroClustersRows = ({ data, microCluster, afterAssign, loading }) => {
 };
 
 const dist = (cluster1, cluster2) => {
-  const calc = (c1, c2) =>
+  const calc1 = (c1, c2) =>
     levenshtein.get(c1.attributes.brand_name, c2.attributes.brand_name) +
     0.5 * levenshtein.get(c1.attributes.line_name, c2.attributes.line_name) +
     levenshtein.get(c1.attributes.ink_name, c2.attributes.ink_name);
+  const calc2 = (c1, c2) =>
+    levenshtein.get(
+      [
+        c1.attributes.brand_name,
+        c1.attributes.line_name,
+        c1.attributes.ink_name
+      ].join(""),
+      [
+        c2.attributes.brand_name,
+        c2.attributes.line_name,
+        c2.attributes.ink_name
+      ].join("")
+    );
   const distances = cluster1.collected_inks
-    .map(ci1 => cluster2.collected_inks.map(ci2 => calc(ci1, ci2)))
+    .map(ci1 =>
+      cluster2.collected_inks
+        .map(ci2 => [calc1(ci1, ci2), calc2(ci1, ci2)])
+        .flat()
+    )
     .flat();
   return Math.min(...distances);
 };
