@@ -5,13 +5,18 @@ import { DisplayMacroClusters } from "./DisplayMacroClusters";
 import { Spinner } from "./Spinner";
 
 export const DisplayMicroClusters = ({ microClusters }) => {
-  const { index, prev, next } = useNavigation(microClusters.data.length);
+  const { index, prev, next, direction } = useNavigation(
+    microClusters.data.length
+  );
   const selectedMicroCluster = extractMicroClusterData(microClusters, index);
   const macroClusters = loadMacroClusters(index);
   const afterAssign = newClusterData => {
     microClusters.data[index] = newClusterData;
     next();
   };
+  if (microClusters.data[index].relationships.macro_cluster.data) {
+    direction == "next" ? next() : prev();
+  }
   return (
     <div className="app">
       <div className="nav" onClick={prev}>
@@ -48,11 +53,14 @@ const extractMicroClusterData = (data, index) => {
 
 const useNavigation = max => {
   const [index, setIndex] = useState(0);
+  const [direction, setDirection] = useState("next");
   const prev = () => {
+    setDirection("prev");
     if (index > 0) setIndex(index - 1);
     if (index == 0) setIndex(max - 1);
   };
   const next = () => {
+    setDirection("next");
     if (index < max - 1) setIndex(index + 1);
     if (index == max - 1) setIndex(0);
   };
@@ -66,7 +74,7 @@ const useNavigation = max => {
       document.removeEventListener("keydown", listener);
     };
   }, [index]);
-  return { index, prev, next };
+  return { index, prev, next, direction };
 };
 
 const loadMacroClusters = index => {
