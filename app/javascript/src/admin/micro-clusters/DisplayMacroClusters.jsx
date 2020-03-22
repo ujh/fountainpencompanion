@@ -14,11 +14,12 @@ export const DisplayMacroClusters = ({ data, microCluster, afterAssign }) => {
       data={data}
       microCluster={microCluster}
       afterAssign={afterAssign}
+      loading={data.loading}
     />
   );
 };
 
-const MacroClustersRows = ({ data, microCluster, afterAssign }) => {
+const MacroClustersRows = ({ data, microCluster, afterAssign, loading }) => {
   let clusters = data.data;
   clusters.forEach(
     mc => (mc.collected_inks = collectedInksForMacroCluster(mc, data.included))
@@ -30,6 +31,7 @@ const MacroClustersRows = ({ data, microCluster, afterAssign }) => {
       mc={mc}
       microCluster={microCluster}
       afterAssign={afterAssign}
+      dataLoading={loading}
     />
   ));
 };
@@ -45,7 +47,7 @@ const dist = (cluster1, cluster2) => {
   return Math.min(...distances);
 };
 
-const MacroClusterRow = ({ mc, microCluster, afterAssign }) => {
+const MacroClusterRow = ({ mc, microCluster, afterAssign, dataLoading }) => {
   const [loading, setLoading] = useState(false);
   const [showInks, setShowInks] = useState(false);
   return (
@@ -73,10 +75,11 @@ const MacroClusterRow = ({ mc, microCluster, afterAssign }) => {
           <input
             className="btn btn-default"
             type="submit"
-            disabled={loading}
+            disabled={loading || dataLoading}
             value={loading ? "Assigning..." : "Assign"}
             onClick={e => {
               e.stopPropagation();
+              if (dataLoading) return;
               assignCluster(microCluster.id, mc.id, data => {
                 setLoading(false);
                 afterAssign(data);

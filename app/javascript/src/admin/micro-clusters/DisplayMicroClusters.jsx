@@ -80,9 +80,14 @@ const useNavigation = microClusters => {
 };
 
 const loadMacroClusters = index => {
-  const [macroClusters, setMacroClusters] = useState(null);
+  const [macroClusters, setMacroClusters] = useState({
+    data: [],
+    included: [],
+    loading: true
+  });
   useEffect(() => {
-    const data = { data: [], included: [] };
+    setMacroClusters({ ...macroClusters, loading: true });
+    const data = { data: [], included: [], loading: false };
     function run(page = 1) {
       loadMacroClusterPage(page).then(json => {
         const next_page = json.meta.pagination.next_page;
