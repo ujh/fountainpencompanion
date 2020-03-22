@@ -23,8 +23,9 @@ describe Simplifier do
       expect(described_class.simplify("#8 Diep-Duinwaterblauw")).to eq("diepduinwaterblauw")
     end
 
-    it "removes numbers at the beginning" do
-      expect(described_class.simplify("05 Shocking Blue")).to eq("shockingblue")
+    it "keeps numbers at the beginning" do
+      expect(described_class.simplify("05 Shocking Blue")).to eq("05shockingblue")
+      expect(described_class.simplify("1864 blue black")).to eq("1864blueblack")
     end
 
     it "removes stuff in quotes at the end" do
@@ -36,7 +37,7 @@ describe Simplifier do
     end
 
     it "removes no. N at the beginning" do
-      expect(described_class.simplify("No. 5 Shocking Blue")).to eq("shockingblue")
+      expect(described_class.simplify("No. 5 Shocking Blue")).to eq("5shockingblue")
     end
 
     it "removes initials" do
