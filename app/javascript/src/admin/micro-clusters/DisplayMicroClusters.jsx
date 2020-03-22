@@ -5,9 +5,7 @@ import { DisplayMacroClusters } from "./DisplayMacroClusters";
 import { Spinner } from "./Spinner";
 
 export const DisplayMicroClusters = ({ microClusters }) => {
-  const { index, prev, next, direction } = useNavigation(
-    microClusters.data.length
-  );
+  const { index, prev, next, direction } = useNavigation(microClusters);
   const selectedMicroCluster = extractMicroClusterData(microClusters, index);
   const macroClusters = loadMacroClusters(index);
   const afterAssign = newClusterData => {
@@ -51,8 +49,12 @@ const extractMicroClusterData = (data, index) => {
   return cluster;
 };
 
-const useNavigation = max => {
+const useNavigation = microClusters => {
   const [index, setIndex] = useState(0);
+  const [max, setMax] = useState(microClusters.data.length);
+  useEffect(() => {
+    setMax(microClusters.data.length);
+  }, [microClusters]);
   const [direction, setDirection] = useState("next");
   const prev = () => {
     setDirection("prev");
