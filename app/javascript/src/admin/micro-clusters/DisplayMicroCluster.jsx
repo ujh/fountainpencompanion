@@ -21,7 +21,7 @@ export const DisplayMicroCluster = ({ data, children, afterCreate }) => {
 
 const CreateRow = ({ microCluster, afterCreate }) => {
   const grouped = _.groupBy(microCluster.collected_inks, ci =>
-    ["brand_name", "line_name", "ink_name"].map(n => ci.attributes[n]).join("")
+    ["brand_name", "line_name", "ink_name"].map(n => ci.attributes[n]).join(",")
   );
   const ci = _.maxBy(_.values(grouped), array => array.length)[0];
   const values = {
@@ -98,7 +98,7 @@ export const assignCluster = (microClusterId, macroClusterId, afterCreate) =>
 
 export const CollectedInksList = ({ collectedInks }) => {
   const grouped = _.groupBy(collectedInks, ci =>
-    ["brand_name", "line_name", "ink_name"].map(n => ci.attributes[n]).join("")
+    ["brand_name", "line_name", "ink_name"].map(n => ci.attributes[n]).join(",")
   );
   const sorted = _.reverse(_.sortBy(_.values(grouped), "length")).map(a => ({
     count: a.length,
