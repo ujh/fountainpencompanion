@@ -13,11 +13,13 @@ export const App = () => {
   );
   useEffect(() => {
     if (!microClusters) return;
-    if (selectedBrands.length) {
+    if (selectedBrands && selectedBrands.length) {
       setSelectedMicroClusters({
         included: microClusters.included,
         data: microClusters.data.filter(c =>
-          selectedBrands.includes(c.attributes.simplified_brand_name)
+          selectedBrands
+            .map(s => s.value)
+            .includes(c.attributes.simplified_brand_name)
         )
       });
     } else {
@@ -30,6 +32,7 @@ export const App = () => {
         <BrandSelector
           microClusters={microClusters}
           onChange={setSelectedBrands}
+          selectedBrands={selectedBrands}
         />
         <DisplayMicroClusters
           microClusters={selectedMicroClusters}
@@ -44,7 +47,7 @@ export const App = () => {
   }
 };
 
-const BrandSelector = ({ microClusters, onChange }) => {
+const BrandSelector = ({ microClusters, onChange, selectedBrands }) => {
   const values = _.countBy(
     microClusters.data.map(c => c.attributes.simplified_brand_name)
   );
@@ -56,8 +59,11 @@ const BrandSelector = ({ microClusters, onChange }) => {
     <div>
       <Select
         options={options}
-        onChange={selected => onChange((selected || []).map(s => s.value))}
+        onChange={selected => {
+          onChange(selected);
+        }}
         isMulti
+        value={selectedBrands}
       />
     </div>
   );
