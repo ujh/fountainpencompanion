@@ -54,7 +54,7 @@ const CreateRow = ({ microCluster, afterCreate, loading, setLoading }) => {
           className="btn btn-default"
           type="submit"
           disabled={loading}
-          value={loading ? "Creating ..." : "Create"}
+          value="Create"
           onClick={() => {
             createMacroClusterAndAssign(
               values,
