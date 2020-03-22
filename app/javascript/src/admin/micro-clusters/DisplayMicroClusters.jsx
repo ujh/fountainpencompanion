@@ -6,8 +6,9 @@ import { Spinner } from "./Spinner";
 
 export const DisplayMicroClusters = ({ microClusters }) => {
   const { index, prev, next, direction } = useNavigation(microClusters);
+  const [loading, setLoading] = useState(false);
   const selectedMicroCluster = extractMicroClusterData(microClusters, index);
-  const macroClusters = loadMacroClusters(index);
+  const macroClusters = loadMacroClusters(index, setLoading);
   const afterAssign = newClusterData => {
     microClusters.data[index] = newClusterData;
     next();
@@ -24,12 +25,15 @@ export const DisplayMicroClusters = ({ microClusters }) => {
         <DisplayMicroCluster
           data={selectedMicroCluster}
           afterCreate={afterAssign}
+          loading={loading}
+          setLoading={setLoading}
         >
           {macroClusters && (
             <DisplayMacroClusters
               data={macroClusters}
               microCluster={selectedMicroCluster}
               afterAssign={afterAssign}
+              loading={loading}
             />
           )}
         </DisplayMicroCluster>
@@ -79,15 +83,15 @@ const useNavigation = microClusters => {
   return { index, prev, next, direction };
 };
 
-const loadMacroClusters = index => {
+const loadMacroClusters = (index, setLoading) => {
   const [macroClusters, setMacroClusters] = useState({
     data: [],
-    included: [],
-    loading: true
+    included: []
   });
   useEffect(() => {
-    setMacroClusters({ ...macroClusters, loading: true });
-    const data = { data: [], included: [], loading: false };
+    setLoading(true);
+    setMacroClusters({ ...macroClusters });
+    const data = { data: [], included: [] };
     function run(page = 1) {
       loadMacroClusterPage(page).then(json => {
         const next_page = json.meta.pagination.next_page;
@@ -97,6 +101,7 @@ const loadMacroClusters = index => {
           run(next_page);
         } else {
           setMacroClusters(data);
+          setLoading(false);
         }
       });
     }

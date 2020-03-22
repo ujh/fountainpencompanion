@@ -8,13 +8,18 @@ import {
   assignCluster
 } from "./DisplayMicroCluster";
 
-export const DisplayMacroClusters = ({ data, microCluster, afterAssign }) => {
+export const DisplayMacroClusters = ({
+  data,
+  microCluster,
+  afterAssign,
+  loading
+}) => {
   return (
     <MacroClustersRows
       data={data}
       microCluster={microCluster}
       afterAssign={afterAssign}
-      loading={data.loading}
+      loading={loading}
     />
   );
 };

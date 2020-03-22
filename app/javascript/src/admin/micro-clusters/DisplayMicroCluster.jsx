@@ -2,11 +2,22 @@ import React, { useState } from "react";
 import _ from "lodash";
 import { postRequest, putRequest } from "src/fetch";
 
-export const DisplayMicroCluster = ({ data, children, afterCreate }) => {
+export const DisplayMicroCluster = ({
+  data,
+  children,
+  afterCreate,
+  loading,
+  setLoading
+}) => {
   return (
     <table className="table">
       <thead>
-        <CreateRow microCluster={data} afterCreate={afterCreate} />
+        <CreateRow
+          microCluster={data}
+          afterCreate={afterCreate}
+          loading={loading}
+          setLoading={setLoading}
+        />
       </thead>
       <tbody>
         <CollectedInksList collectedInks={data.collected_inks} />
@@ -19,7 +30,7 @@ export const DisplayMicroCluster = ({ data, children, afterCreate }) => {
   );
 };
 
-const CreateRow = ({ microCluster, afterCreate }) => {
+const CreateRow = ({ microCluster, afterCreate, loading, setLoading }) => {
   const grouped = _.groupBy(microCluster.collected_inks, ci =>
     ["brand_name", "line_name", "ink_name"].map(n => ci.attributes[n]).join(",")
   );
@@ -29,7 +40,6 @@ const CreateRow = ({ microCluster, afterCreate }) => {
     line_name: ci.attributes.line_name,
     ink_name: ci.attributes.ink_name
   };
-  const [loading, setLoading] = useState(false);
   return (
     <tr>
       <th></th>
