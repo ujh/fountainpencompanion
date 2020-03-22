@@ -4,7 +4,7 @@ import { DisplayMicroCluster } from "./DisplayMicroCluster";
 import { DisplayMacroClusters } from "./DisplayMacroClusters";
 import { Spinner } from "./Spinner";
 
-export const DisplayMicroClusters = ({ microClusters }) => {
+export const DisplayMicroClusters = ({ microClusters, onDone }) => {
   const { index, prev, next, direction } = useNavigation(microClusters);
   const [loading, setLoading] = useState(false);
   const selectedMicroCluster = extractMicroClusterData(microClusters, index);
@@ -13,11 +13,17 @@ export const DisplayMicroClusters = ({ microClusters }) => {
     microClusters.data[index] = newClusterData;
     next();
   };
-  if (microClusters.data[index].relationships.macro_cluster.data) {
-    if (microClusters.data.every(c => c.relationships.macro_cluster.data))
-      return;
-    direction == "next" ? next() : prev();
-  }
+  useEffect(() => {
+    if (microClusters) {
+      if (microClusters.data[index].relationships.macro_cluster.data) {
+        if (microClusters.data.every(c => c.relationships.macro_cluster.data)) {
+          onDone();
+          return;
+        }
+        direction == "next" ? next() : prev();
+      }
+    }
+  });
   return (
     <div className="app">
       <div className="nav" onClick={prev}>

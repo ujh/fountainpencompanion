@@ -31,7 +31,12 @@ export const App = () => {
           microClusters={microClusters}
           onChange={setSelectedBrands}
         />
-        <DisplayMicroClusters microClusters={selectedMicroClusters} />
+        <DisplayMicroClusters
+          microClusters={selectedMicroClusters}
+          onDone={() => {
+            setSelectedBrands([]);
+          }}
+        />
       </div>
     );
   } else {
