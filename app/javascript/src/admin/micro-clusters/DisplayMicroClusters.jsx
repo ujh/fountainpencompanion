@@ -47,7 +47,7 @@ const extractMicroClusterData = (data, index) => {
 };
 
 const useNavigation = max => {
-  const [index, setIndex] = useState(Math.floor(Math.random() * max));
+  const [index, setIndex] = useState(0);
   const prev = () => {
     if (index > 0) setIndex(index - 1);
     if (index == 0) setIndex(max - 1);
