@@ -14,6 +14,8 @@ export const DisplayMicroClusters = ({ microClusters }) => {
     next();
   };
   if (microClusters.data[index].relationships.macro_cluster.data) {
+    if (microClusters.data.every(c => c.relationships.macro_cluster.data))
+      return;
     direction == "next" ? next() : prev();
   }
   return (
