@@ -59,10 +59,13 @@ const dist = (cluster1, cluster2) => {
         c2.attributes.ink_name
       ].join("")
     );
+  const calc3 = (c1, c2) =>
+    levenshtein.get(c1.attributes.brand_name, c2.attributes.brand_name) +
+    levenshtein.get(c1.attributes.ink_name, c2.attributes.ink_name);
   const distances = cluster1.collected_inks
     .map(ci1 =>
       cluster2.collected_inks
-        .map(ci2 => [calc1(ci1, ci2), calc2(ci1, ci2)])
+        .map(ci2 => [calc1(ci1, ci2), calc2(ci1, ci2), calc3(ci1, ci2)])
         .flat()
     )
     .flat();
