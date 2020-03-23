@@ -1,0 +1,18 @@
+= paginate @clusters
+table class="table"
+  thead
+    tr
+      th Brand
+      th Line
+      th Ink
+      th
+      th
+  tbody
+    - @clusters.each do |cluster|
+      tr
+        td= cluster.brand_name
+        td= cluster.line_name
+        td= cluster.ink_name
+        td style="background-color: #{cluster.color}; width: 30px;"
+        td
+= paginate @clusters

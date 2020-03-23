@@ -1,10 +1,15 @@
 class Admins::MacroClustersController < Admins::BaseController
 
   def index
-    clusters = MacroCluster.includes(micro_clusters: :collected_inks).order(
+    @clusters = MacroCluster.includes(micro_clusters: :collected_inks).order(
       :brand_name, :line_name, :ink_name
-    ).page(params[:page])
-    render json: MacroClusterSerializer.new(clusters, options(clusters)).serializable_hash.to_json
+    ).page(params[:page]).per(params[:per_page])
+    respond_to do |format|
+      format.json do
+        render json: MacroClusterSerializer.new(@clusters, options(@clusters)).serializable_hash.to_json
+      end
+      format.html
+    end
   end
 
   def create

@@ -18,7 +18,7 @@ describe Admins::MacroClustersController do
         macro_cluster = create(:macro_cluster)
         micro_cluster = create(:micro_cluster, macro_cluster: macro_cluster)
         collected_ink = create(:collected_ink, micro_cluster: micro_cluster)
-        get '/admins/macro_clusters'
+        get '/admins/macro_clusters.json'
         expect(response).to be_successful
         expect(JSON.parse(response.body)).to match({
           'data' => [{
