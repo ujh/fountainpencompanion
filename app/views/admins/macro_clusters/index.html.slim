@@ -2,6 +2,7 @@
 table class="table"
   thead
     tr
+      th
       th Brand
       th Line
       th Ink
@@ -9,10 +10,17 @@ table class="table"
       th
   tbody
     - @clusters.each do |cluster|
-      tr
+      tr class="admin-macro-cluster-row"
+        td= cluster.micro_clusters.size
         td= cluster.brand_name
         td= cluster.line_name
         td= cluster.ink_name
         td style="background-color: #{cluster.color}; width: 30px;"
         td
+          = link_to "Delete",
+                    admins_macro_cluster_path(cluster),
+                    class: "btn btn-default",
+                    method: :delete,
+                    confirm: "Really delete?",
+                    remote: true
 = paginate @clusters

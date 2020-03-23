@@ -32,3 +32,9 @@ $(function() {
 //     renderFriendButton(this);
 //   });
 // });
+
+$(function() {
+  $(".admin-macro-cluster-row").on("ajax:success", function() {
+    location.href = location.href;
+  });
+});
