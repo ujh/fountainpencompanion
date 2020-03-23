@@ -47,7 +47,11 @@ table class="table table-striped"
         |  assigned to macro cluster)
     tr
       td Number of macro clusters
-      td= @stats.macro_cluster_count
+      td
+        = @stats.macro_cluster_count
+        |   (
+        = number_to_percentage(@stats.macro_clusters_with_color_percentage, precision: 2)
+        |   clusters with color)
     tr
       td Number of collected inks
       td

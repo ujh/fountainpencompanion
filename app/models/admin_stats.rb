@@ -9,7 +9,11 @@ class AdminStats
   end
 
   def macro_cluster_count
-    MacroCluster.count
+    @macro_cluster_count ||= MacroCluster.count
+  end
+
+  def macro_clusters_with_color_percentage
+    MacroCluster.where.not(color: '').count*100.0/macro_cluster_count
   end
 
   def user_count
