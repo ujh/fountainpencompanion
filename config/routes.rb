@@ -67,7 +67,11 @@ Rails.application.routes.draw do
       end
     end
     resources :macro_clusters, only: [:index, :create, :update, :destroy]
-    resources :micro_clusters, only: [:index, :update]
+    resources :micro_clusters, only: [:index, :update] do
+      member do
+        delete 'unassign'
+      end
+    end
   end
 
   authenticate :admin do

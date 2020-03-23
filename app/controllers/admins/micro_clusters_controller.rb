@@ -19,6 +19,12 @@ class Admins::MicroClustersController < Admins::BaseController
     render json: MicroClusterSerializer.new(cluster, include: [:collected_inks]).serializable_hash.to_json
   end
 
+  def unassign
+    cluster = MicroCluster.find(params[:id])
+    cluster.update!(macro_cluster_id: nil)
+    head :ok
+  end
+
   private
 
   def update_params

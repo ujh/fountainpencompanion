@@ -23,4 +23,23 @@ table class="table"
                     method: :delete,
                     confirm: "Really delete?",
                     remote: true
+      - if cluster.micro_clusters.size > 1
+        tr
+          td
+          td colspan="4"
+            table class="table"
+              - cluster.micro_clusters.each do |mc|
+                tr class="admin-micro-cluster-row"
+                  td= mc.simplified_brand_name
+                  td= mc.simplified_line_name
+                  td= mc.simplified_ink_name
+                  td
+                    = link_to "Remove",
+                              unassign_admins_micro_cluster_path(mc),
+                              class: "btn btn-default",
+                              method: :delete,
+                              confirm: "Really unassign?",
+                              remote: true
+          td
+
 = paginate @clusters

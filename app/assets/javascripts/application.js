@@ -34,7 +34,10 @@ $(function() {
 // });
 
 $(function() {
-  $(".admin-macro-cluster-row").on("ajax:success", function() {
-    location.href = location.href;
-  });
+  $(".admin-macro-cluster-row, .admin-micro-cluster-row").on(
+    "ajax:success",
+    function() {
+      location.href = location.href;
+    }
+  );
 });
