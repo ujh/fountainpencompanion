@@ -75,23 +75,25 @@ const dist = (cluster1, cluster2) => {
 const MacroClusterRow = ({ mc, microCluster, afterAssign, dataLoading }) => {
   const [loading, setLoading] = useState(false);
   const [showInks, setShowInks] = useState(false);
+  const onClick = () => {
+    setShowInks(!showInks);
+  };
   return (
     <>
-      <tr
-        onClick={() => {
-          setShowInks(!showInks);
-        }}
-      >
-        <td className="distance">{mc.distance}</td>
-        <td>{mc.attributes.brand_name}</td>
-        <td>{mc.attributes.line_name}</td>
-        <td>{mc.attributes.ink_name}</td>
-        <td></td>
+      <tr>
+        <td className="distance" onClick={onClick}>
+          {mc.distance}
+        </td>
+        <td onClick={onClick}>{mc.attributes.brand_name}</td>
+        <td onClick={onClick}>{mc.attributes.line_name}</td>
+        <td onClick={onClick}>{mc.attributes.ink_name}</td>
+        <td onClick={onClick}></td>
         <td
           style={{
             backgroundColor: mc.attributes.color,
             width: "30px"
           }}
+          onClick={onClick}
         ></td>
         <td>
           <SearchLink ci={mc} />
@@ -103,7 +105,6 @@ const MacroClusterRow = ({ mc, microCluster, afterAssign, dataLoading }) => {
             disabled={loading || dataLoading}
             value={loading ? "Assigning..." : "Assign"}
             onClick={e => {
-              e.stopPropagation();
               if (dataLoading) return;
               assignCluster(microCluster.id, mc.id, data => {
                 setLoading(false);
