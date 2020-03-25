@@ -1,8 +1,7 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { getRequest } from "src/fetch";
 import { DisplayMicroCluster } from "./DisplayMicroCluster";
 import { DisplayMacroClusters } from "./DisplayMacroClusters";
-import { Spinner } from "./Spinner";
 
 export const DisplayMicroClusters = ({ microClusters, onDone }) => {
   const { index, prev, next, direction } = useNavigation(microClusters);

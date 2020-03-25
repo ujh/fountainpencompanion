@@ -1,23 +1,28 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useReducer, useContext } from "react";
 import Select from "react-select";
 import _ from "lodash";
 import { getRequest } from "src/fetch";
 import { Spinner } from "./Spinner";
 import { DisplayMicroClusters } from "./DisplayMicroClusters";
+import { reducer, initalState } from "./reducer";
+import { UPDATE_SELECTED_BRANDS } from "./actions";
+
+export const StateContext = React.createContext();
+export const DispatchContext = React.createContext();
 
 export const App = () => {
+  const [state, dispatch] = useReducer(reducer, initalState);
   const microClusters = loadMicroClusters();
-  const [selectedBrands, setSelectedBrands] = useState([]);
   const [selectedMicroClusters, setSelectedMicroClusters] = useState(
     microClusters
   );
   useEffect(() => {
     if (!microClusters) return;
-    if (selectedBrands && selectedBrands.length) {
+    if (state.selectedBrands.length) {
       setSelectedMicroClusters({
         included: microClusters.included,
         data: microClusters.data.filter(c =>
-          selectedBrands
+          state.selectedBrands
             .map(s => s.value)
             .includes(c.attributes.simplified_brand_name)
         )
@@ -25,29 +30,31 @@ export const App = () => {
     } else {
       setSelectedMicroClusters(microClusters);
     }
-  }, [selectedBrands, microClusters]);
+  }, [state.selectedBrands, microClusters]);
   if (selectedMicroClusters) {
     return (
-      <div>
-        <BrandSelector
-          microClusters={microClusters}
-          onChange={setSelectedBrands}
-          selectedBrands={selectedBrands}
-        />
-        <DisplayMicroClusters
-          microClusters={selectedMicroClusters}
-          onDone={() => {
-            setSelectedBrands([]);
-          }}
-        />
-      </div>
+      <DispatchContext.Provider value={dispatch}>
+        <StateContext.Provider value={state}>
+          <div>
+            <BrandSelector microClusters={microClusters} />
+            <DisplayMicroClusters
+              microClusters={selectedMicroClusters}
+              onDone={() => {
+                dispatch({ type: UPDATE_SELECTED_BRANDS, payload: [] });
+              }}
+            />
+          </div>
+        </StateContext.Provider>
+      </DispatchContext.Provider>
     );
   } else {
     return <Spinner />;
   }
 };
 
-const BrandSelector = ({ microClusters, onChange, selectedBrands }) => {
+const BrandSelector = ({ microClusters }) => {
+  const dispatch = useContext(DispatchContext);
+  const state = useContext(StateContext);
   const values = _.countBy(
     microClusters.data.map(c => c.attributes.simplified_brand_name)
   );
@@ -60,10 +67,10 @@ const BrandSelector = ({ microClusters, onChange, selectedBrands }) => {
       <Select
         options={options}
         onChange={selected => {
-          onChange(selected);
+          dispatch({ type: UPDATE_SELECTED_BRANDS, payload: selected });
         }}
         isMulti
-        value={selectedBrands}
+        value={state.selectedBrands}
       />
     </div>
   );
