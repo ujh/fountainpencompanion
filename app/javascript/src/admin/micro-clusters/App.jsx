@@ -5,40 +5,22 @@ import { getRequest } from "src/fetch";
 import { Spinner } from "./Spinner";
 import { DisplayMicroClusters } from "./DisplayMicroClusters";
 import { reducer, initalState } from "./reducer";
-import { UPDATE_SELECTED_BRANDS } from "./actions";
+import { SET_MICRO_CLUSTERS, UPDATE_SELECTED_BRANDS } from "./actions";
 
 export const StateContext = React.createContext();
 export const DispatchContext = React.createContext();
 
 export const App = () => {
   const [state, dispatch] = useReducer(reducer, initalState);
-  const microClusters = loadMicroClusters();
-  const [selectedMicroClusters, setSelectedMicroClusters] = useState(
-    microClusters
-  );
-  useEffect(() => {
-    if (!microClusters) return;
-    if (state.selectedBrands.length) {
-      setSelectedMicroClusters({
-        included: microClusters.included,
-        data: microClusters.data.filter(c =>
-          state.selectedBrands
-            .map(s => s.value)
-            .includes(c.attributes.simplified_brand_name)
-        )
-      });
-    } else {
-      setSelectedMicroClusters(microClusters);
-    }
-  }, [state.selectedBrands, microClusters]);
-  if (selectedMicroClusters) {
+  const { selectedMicroClusters } = state;
+  loadMicroClusters(dispatch);
+  if (selectedMicroClusters.data.length) {
     return (
       <DispatchContext.Provider value={dispatch}>
         <StateContext.Provider value={state}>
           <div>
-            <BrandSelector microClusters={microClusters} />
+            <BrandSelector />
             <DisplayMicroClusters
-              microClusters={selectedMicroClusters}
               onDone={() => {
                 dispatch({ type: UPDATE_SELECTED_BRANDS, payload: [] });
               }}
@@ -52,9 +34,9 @@ export const App = () => {
   }
 };
 
-const BrandSelector = ({ microClusters }) => {
+const BrandSelector = () => {
   const dispatch = useContext(DispatchContext);
-  const state = useContext(StateContext);
+  const { microClusters, selectedBrands } = useContext(StateContext);
   const values = _.countBy(
     microClusters.data.map(c => c.attributes.simplified_brand_name)
   );
@@ -70,13 +52,12 @@ const BrandSelector = ({ microClusters }) => {
           dispatch({ type: UPDATE_SELECTED_BRANDS, payload: selected });
         }}
         isMulti
-        value={state.selectedBrands}
+        value={selectedBrands}
       />
     </div>
   );
 };
-const loadMicroClusters = () => {
-  const [microClusters, setMicroClusters] = useState(null);
+const loadMicroClusters = dispatch => {
   useEffect(() => {
     const data = { data: [], included: [] };
     function run(page = 1) {
@@ -87,13 +68,12 @@ const loadMicroClusters = () => {
         if (next_page) {
           run(next_page);
         } else {
-          setMicroClusters(data);
+          dispatch({ type: SET_MICRO_CLUSTERS, payload: data });
         }
       });
     }
     run();
   }, []);
-  return microClusters;
 };
 
 const loadMicroClusterPage = page => {

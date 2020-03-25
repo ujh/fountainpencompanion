@@ -2,20 +2,29 @@ import React, { useState, useEffect, useContext } from "react";
 import { getRequest } from "src/fetch";
 import { DisplayMicroCluster } from "./DisplayMicroCluster";
 import { DisplayMacroClusters } from "./DisplayMacroClusters";
+import { StateContext } from "./App";
 
-export const DisplayMicroClusters = ({ microClusters, onDone }) => {
-  const { index, prev, next, direction } = useNavigation(microClusters);
+export const DisplayMicroClusters = ({ onDone }) => {
+  const { selectedMicroClusters } = useContext(StateContext);
+  const { index, prev, next, direction } = useNavigation(selectedMicroClusters);
   const [loading, setLoading] = useState(false);
-  const selectedMicroCluster = extractMicroClusterData(microClusters, index);
+  const selectedMicroCluster = extractMicroClusterData(
+    selectedMicroClusters,
+    index
+  );
   const macroClusters = loadMacroClusters(index, setLoading);
   const afterAssign = newClusterData => {
     microClusters.data[index] = newClusterData;
     next();
   };
   useEffect(() => {
-    if (microClusters) {
-      if (microClusters.data[index].relationships.macro_cluster.data) {
-        if (microClusters.data.every(c => c.relationships.macro_cluster.data)) {
+    if (selectedMicroClusters) {
+      if (selectedMicroClusters.data[index].relationships.macro_cluster.data) {
+        if (
+          selectedMicroClusters.data.every(
+            c => c.relationships.macro_cluster.data
+          )
+        ) {
           onDone();
           return;
         }
