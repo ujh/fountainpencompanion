@@ -2,7 +2,8 @@ import {
   NEXT,
   PREVIOUS,
   SET_MICRO_CLUSTERS,
-  UPDATE_SELECTED_BRANDS
+  UPDATE_SELECTED_BRANDS,
+  REMOVE_MICRO_CLUSTER
 } from "./actions";
 
 export const initalState = {
@@ -20,7 +21,6 @@ export const initalState = {
 };
 
 export const reducer = (state, { type, payload }) => {
-  console.log(state, type);
   let max;
   switch (type) {
     case NEXT:
@@ -36,6 +36,15 @@ export const reducer = (state, { type, payload }) => {
         ...state,
         direction: "prev",
         index: state.index > 0 ? state.index - 1 : max - 1
+      };
+    case REMOVE_MICRO_CLUSTER:
+      return {
+        ...state,
+        microClusters: withoutElement(payload, state.microClusters),
+        selectedMicroClusters: withoutElement(
+          payload,
+          state.selectedMicroClusters
+        )
       };
     case SET_MICRO_CLUSTERS:
       return {
@@ -59,6 +68,15 @@ export const reducer = (state, { type, payload }) => {
     default:
       return state;
   }
+};
+
+const withoutElement = (element, clusters) => {
+  return {
+    ...clusters,
+    data: clusters.data.filter(
+      c => !(c.id == element.id && c.type == element.type)
+    )
+  };
 };
 
 const selectMicroClusters = (selectedBrands, microClusters) => {

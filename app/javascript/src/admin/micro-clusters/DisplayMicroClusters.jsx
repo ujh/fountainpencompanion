@@ -3,7 +3,7 @@ import { getRequest } from "src/fetch";
 import { DisplayMicroCluster } from "./DisplayMicroCluster";
 import { DisplayMacroClusters } from "./DisplayMacroClusters";
 import { StateContext, DispatchContext } from "./App";
-import { PREVIOUS, NEXT } from "./actions";
+import { PREVIOUS, NEXT, REMOVE_MICRO_CLUSTER } from "./actions";
 
 export const DisplayMicroClusters = ({ onDone }) => {
   const { selectedMicroClusters, index, direction } = useContext(StateContext);
@@ -16,8 +16,7 @@ export const DisplayMicroClusters = ({ onDone }) => {
   );
   const macroClusters = loadMacroClusters(index, setLoading);
   const afterAssign = newClusterData => {
-    microClusters.data[index] = newClusterData;
-    next();
+    dispatch({ type: REMOVE_MICRO_CLUSTER, payload: newClusterData });
   };
   useEffect(() => {
     if (selectedMicroClusters) {
