@@ -2,11 +2,13 @@ import React, { useState, useEffect, useContext } from "react";
 import { getRequest } from "src/fetch";
 import { DisplayMicroCluster } from "./DisplayMicroCluster";
 import { DisplayMacroClusters } from "./DisplayMacroClusters";
-import { StateContext } from "./App";
+import { StateContext, DispatchContext } from "./App";
+import { PREVIOUS, NEXT } from "./actions";
 
 export const DisplayMicroClusters = ({ onDone }) => {
-  const { selectedMicroClusters } = useContext(StateContext);
-  const { index, prev, next, direction } = useNavigation(selectedMicroClusters);
+  const { selectedMicroClusters, index, direction } = useContext(StateContext);
+  const dispatch = useContext(DispatchContext);
+  const { prev, next } = useNavigation(dispatch);
   const [loading, setLoading] = useState(false);
   const selectedMicroCluster = extractMicroClusterData(
     selectedMicroClusters,
@@ -69,23 +71,9 @@ const extractMicroClusterData = (data, index) => {
   return cluster;
 };
 
-const useNavigation = microClusters => {
-  const [index, setIndex] = useState(0);
-  const [max, setMax] = useState(microClusters.data.length);
-  useEffect(() => {
-    setMax(microClusters.data.length);
-  }, [microClusters]);
-  const [direction, setDirection] = useState("next");
-  const prev = () => {
-    setDirection("prev");
-    if (index > 0) setIndex(index - 1);
-    if (index == 0) setIndex(max - 1);
-  };
-  const next = () => {
-    setDirection("next");
-    if (index < max - 1) setIndex(index + 1);
-    if (index == max - 1) setIndex(0);
-  };
+const useNavigation = dispatch => {
+  const next = () => dispatch({ type: NEXT });
+  const prev = () => dispatch({ type: PREVIOUS });
   useEffect(() => {
     const listener = e => {
       if (e.keyCode == 39) next();
@@ -95,8 +83,8 @@ const useNavigation = microClusters => {
     return () => {
       document.removeEventListener("keydown", listener);
     };
-  }, [index]);
-  return { index, prev, next, direction };
+  }, []);
+  return { prev, next };
 };
 
 const loadMacroClusters = (index, setLoading) => {

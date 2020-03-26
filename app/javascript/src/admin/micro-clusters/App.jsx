@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useReducer, useContext } from "react";
+import React, { useEffect, useReducer, useContext } from "react";
 import Select from "react-select";
 import _ from "lodash";
 import { getRequest } from "src/fetch";
