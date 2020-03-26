@@ -5,8 +5,8 @@ import { DisplayMacroClusters } from "./DisplayMacroClusters";
 import { StateContext, DispatchContext } from "./App";
 import { PREVIOUS, NEXT, REMOVE_MICRO_CLUSTER } from "./actions";
 
-export const DisplayMicroClusters = ({ onDone }) => {
-  const { selectedMicroClusters, index, direction } = useContext(StateContext);
+export const DisplayMicroClusters = () => {
+  const { selectedMicroClusters, index } = useContext(StateContext);
   const dispatch = useContext(DispatchContext);
   const { prev, next } = useNavigation(dispatch);
   const [loading, setLoading] = useState(false);
@@ -14,25 +14,10 @@ export const DisplayMicroClusters = ({ onDone }) => {
     selectedMicroClusters,
     index
   );
-  const macroClusters = loadMacroClusters(index, setLoading);
+  const macroClusters = loadMacroClusters(selectedMicroCluster.id, setLoading);
   const afterAssign = newClusterData => {
     dispatch({ type: REMOVE_MICRO_CLUSTER, payload: newClusterData });
   };
-  useEffect(() => {
-    if (selectedMicroClusters) {
-      if (selectedMicroClusters.data[index].relationships.macro_cluster.data) {
-        if (
-          selectedMicroClusters.data.every(
-            c => c.relationships.macro_cluster.data
-          )
-        ) {
-          onDone();
-          return;
-        }
-        direction == "next" ? next() : prev();
-      }
-    }
-  });
   return (
     <div className="app">
       <div className="nav" onClick={prev}>
@@ -86,7 +71,7 @@ const useNavigation = dispatch => {
   return { prev, next };
 };
 
-const loadMacroClusters = (index, setLoading) => {
+const loadMacroClusters = (id, setLoading) => {
   const [macroClusters, setMacroClusters] = useState({
     data: [],
     included: []
@@ -109,7 +94,7 @@ const loadMacroClusters = (index, setLoading) => {
       });
     }
     run();
-  }, [index]);
+  }, [id]);
   return macroClusters;
 };
 

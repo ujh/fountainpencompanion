@@ -12,19 +12,15 @@ export const DispatchContext = React.createContext();
 
 export const App = () => {
   const [state, dispatch] = useReducer(reducer, initalState);
-  const { selectedMicroClusters } = state;
+  const { microClusters } = state;
   loadMicroClusters(dispatch);
-  if (selectedMicroClusters.data.length) {
+  if (microClusters.data.length) {
     return (
       <DispatchContext.Provider value={dispatch}>
         <StateContext.Provider value={state}>
           <div>
             <BrandSelector />
-            <DisplayMicroClusters
-              onDone={() => {
-                dispatch({ type: UPDATE_SELECTED_BRANDS, payload: [] });
-              }}
-            />
+            <DisplayMicroClusters />
           </div>
         </StateContext.Provider>
       </DispatchContext.Provider>
