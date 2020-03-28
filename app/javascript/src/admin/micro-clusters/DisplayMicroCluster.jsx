@@ -5,8 +5,9 @@ import Jsona from "jsona";
 import { postRequest, putRequest } from "src/fetch";
 import { StateContext, DispatchContext } from "./App";
 import { UPDATING, ADD_MACRO_CLUSTER } from "./actions";
+import { DisplayMacroClusters } from "./DisplayMacroClusters";
 
-export const DisplayMicroCluster = ({ children, afterCreate }) => {
+export const DisplayMicroCluster = ({ afterCreate }) => {
   const { activeCluster } = useContext(StateContext);
   return (
     <table className="table">
@@ -18,7 +19,7 @@ export const DisplayMicroCluster = ({ children, afterCreate }) => {
         <tr>
           <td colSpan="8" style={{ backgroundColor: "black" }}></td>
         </tr>
-        {children}
+        <DisplayMacroClusters afterAssign={afterCreate} />
       </tbody>
     </table>
   );

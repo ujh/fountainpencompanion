@@ -3,7 +3,6 @@ import Jsona from "jsona";
 
 import { getRequest } from "src/fetch";
 import { DisplayMicroCluster } from "./DisplayMicroCluster";
-import { DisplayMacroClusters } from "./DisplayMacroClusters";
 import { DispatchContext } from "./App";
 import {
   PREVIOUS,
@@ -18,17 +17,7 @@ export const DisplayMicroClusters = () => {
   const afterAssign = newClusterData => {
     dispatch({ type: REMOVE_MICRO_CLUSTER, payload: newClusterData });
     const id = newClusterData.macro_cluster.id;
-    setTimeout(() => {
-      getRequest(`/admins/macro_clusters/${id}.json`)
-        .then(response => response.json())
-        .then(json => {
-          const formatter = new Jsona();
-          return formatter.deserialize(json);
-        })
-        .then(macroCluster =>
-          dispatch({ type: UPDATE_MACRO_CLUSTER, payload: macroCluster })
-        );
-    }, 500);
+    updateMacroCluster(id, dispatch);
   };
   return (
     <div className="app">
@@ -36,15 +25,27 @@ export const DisplayMicroClusters = () => {
         <i className="fa fa-angle-left"></i>
       </div>
       <div className="main">
-        <DisplayMicroCluster afterCreate={afterAssign}>
-          <DisplayMacroClusters afterAssign={afterAssign} />
-        </DisplayMicroCluster>
+        <DisplayMicroCluster afterCreate={afterAssign}></DisplayMicroCluster>
       </div>
       <div className="nav" onClick={next}>
         <i className="fa fa-angle-right"></i>
       </div>
     </div>
   );
+};
+
+const updateMacroCluster = (id, dispatch) => {
+  setTimeout(() => {
+    getRequest(`/admins/macro_clusters/${id}.json`)
+      .then(response => response.json())
+      .then(json => {
+        const formatter = new Jsona();
+        return formatter.deserialize(json);
+      })
+      .then(macroCluster =>
+        dispatch({ type: UPDATE_MACRO_CLUSTER, payload: macroCluster })
+      );
+  }, 500);
 };
 
 const useNavigation = dispatch => {
