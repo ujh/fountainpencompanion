@@ -32,13 +32,13 @@ export const DisplayMicroCluster = ({
 
 const CreateRow = ({ microCluster, afterCreate, loading, setLoading }) => {
   const grouped = _.groupBy(microCluster.collected_inks, ci =>
-    ["brand_name", "line_name", "ink_name"].map(n => ci.attributes[n]).join(",")
+    ["brand_name", "line_name", "ink_name"].map(n => ci[n]).join(",")
   );
   const ci = _.maxBy(_.values(grouped), array => array.length)[0];
   const values = {
-    brand_name: ci.attributes.brand_name,
-    line_name: ci.attributes.line_name,
-    ink_name: ci.attributes.ink_name
+    brand_name: ci.brand_name,
+    line_name: ci.line_name,
+    ink_name: ci.ink_name
   };
   return (
     <tr>
@@ -108,7 +108,7 @@ export const assignCluster = (microClusterId, macroClusterId, afterCreate) =>
 
 export const CollectedInksList = ({ collectedInks }) => {
   const grouped = _.groupBy(collectedInks, ci =>
-    ["brand_name", "line_name", "ink_name"].map(n => ci.attributes[n]).join(",")
+    ["brand_name", "line_name", "ink_name"].map(n => ci[n]).join(",")
   );
   const sorted = _.reverse(_.sortBy(_.values(grouped), "length")).map(a => ({
     count: a.length,
@@ -118,13 +118,13 @@ export const CollectedInksList = ({ collectedInks }) => {
     return (
       <tr key={ci.id}>
         <td>{count}</td>
-        <td>{ci.attributes.brand_name}</td>
-        <td>{ci.attributes.line_name}</td>
-        <td>{ci.attributes.ink_name}</td>
-        <td>{ci.attributes.maker}</td>
+        <td>{ci.brand_name}</td>
+        <td>{ci.line_name}</td>
+        <td>{ci.ink_name}</td>
+        <td>{ci.maker}</td>
         <td
           style={{
-            backgroundColor: ci.attributes.color,
+            backgroundColor: ci.color,
             width: "30px"
           }}
         ></td>
@@ -139,7 +139,7 @@ export const CollectedInksList = ({ collectedInks }) => {
 
 export const SearchLink = ({ ci }) => {
   const fullName = ["brand_name", "line_name", "ink_name"]
-    .map(a => ci.attributes[a])
+    .map(a => ci[a])
     .join(" ");
   return (
     <a

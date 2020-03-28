@@ -25,10 +25,7 @@ export const DisplayMacroClusters = ({
 };
 
 const MacroClustersRows = ({ data, microCluster, afterAssign, loading }) => {
-  let clusters = data.data;
-  clusters.forEach(
-    mc => (mc.collected_inks = collectedInksForMacroCluster(mc, data.included))
-  );
+  let clusters = data;
   clusters.forEach(c => (c.distance = dist(c, microCluster)));
   return _.sortBy(clusters, "distance").map(mc => (
     <MacroClusterRow
@@ -41,30 +38,24 @@ const MacroClustersRows = ({ data, microCluster, afterAssign, loading }) => {
   ));
 };
 
-const dist = (cluster1, cluster2) => {
+const dist = (macroCluster, microCluster) => {
   const calc1 = (c1, c2) =>
-    levenshtein.get(c1.attributes.brand_name, c2.attributes.brand_name) +
-    0.5 * levenshtein.get(c1.attributes.line_name, c2.attributes.line_name) +
-    levenshtein.get(c1.attributes.ink_name, c2.attributes.ink_name);
+    levenshtein.get(c1.brand_name, c2.brand_name) +
+    0.5 * levenshtein.get(c1.line_name, c2.line_name) +
+    levenshtein.get(c1.ink_name, c2.ink_name);
   const calc2 = (c1, c2) =>
     levenshtein.get(
-      [
-        c1.attributes.brand_name,
-        c1.attributes.line_name,
-        c1.attributes.ink_name
-      ].join(""),
-      [
-        c2.attributes.brand_name,
-        c2.attributes.line_name,
-        c2.attributes.ink_name
-      ].join("")
+      [c1.brand_name, c1.line_name, c1.ink_name].join(""),
+      [c2.brand_name, c2.line_name, c2.ink_name].join("")
     );
   const calc3 = (c1, c2) =>
-    levenshtein.get(c1.attributes.brand_name, c2.attributes.brand_name) +
-    levenshtein.get(c1.attributes.ink_name, c2.attributes.ink_name);
-  const distances = cluster1.collected_inks
+    levenshtein.get(c1.brand_name, c2.brand_name) +
+    levenshtein.get(c1.ink_name, c2.ink_name);
+  const distances = macroCluster.micro_clusters
+    .map(mi => mi.collected_inks)
+    .flat()
     .map(ci1 =>
-      cluster2.collected_inks
+      microCluster.collected_inks
         .map(ci2 => [calc1(ci1, ci2), calc2(ci1, ci2), calc3(ci1, ci2)])
         .flat()
     )
@@ -84,13 +75,13 @@ const MacroClusterRow = ({ mc, microCluster, afterAssign, dataLoading }) => {
         <td className="distance" onClick={onClick}>
           {mc.distance}
         </td>
-        <td onClick={onClick}>{mc.attributes.brand_name}</td>
-        <td onClick={onClick}>{mc.attributes.line_name}</td>
-        <td onClick={onClick}>{mc.attributes.ink_name}</td>
+        <td onClick={onClick}>{mc.brand_name}</td>
+        <td onClick={onClick}>{mc.line_name}</td>
+        <td onClick={onClick}>{mc.ink_name}</td>
         <td onClick={onClick}></td>
         <td
           style={{
-            backgroundColor: mc.attributes.color,
+            backgroundColor: mc.color,
             width: "30px"
           }}
           onClick={onClick}
@@ -127,12 +118,4 @@ const MacroClusterRow = ({ mc, microCluster, afterAssign, dataLoading }) => {
       )}
     </>
   );
-};
-
-const collectedInksForMacroCluster = (mc, included) => {
-  return mc.relationships.micro_clusters.data
-    .map(mi => included.find(i => i.id == mi.id && i.type == mi.type))
-    .map(mi => mi.relationships.collected_inks.data)
-    .flat()
-    .map(ci => included.find(i => i.id == ci.id && i.type == ci.type));
 };
