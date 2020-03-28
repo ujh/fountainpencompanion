@@ -61,11 +61,11 @@ const loadMicroClusters = dispatch => {
       loadMicroClusterPage(page).then(json => {
         const next_page = json.meta.pagination.next_page;
         data = [...data, ...formatter.deserialize(json)];
-        // if (next_page) {
-        //   run(next_page);
-        // } else {
-        dispatch({ type: SET_MICRO_CLUSTERS, payload: data });
-        // }
+        if (next_page) {
+          run(next_page);
+        } else {
+          dispatch({ type: SET_MICRO_CLUSTERS, payload: data });
+        }
       });
     }
     run();

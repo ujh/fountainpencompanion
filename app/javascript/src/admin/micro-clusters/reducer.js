@@ -14,20 +14,12 @@ export const initalState = {
 };
 
 export const reducer = (state, { type, payload }) => {
-  let max, selectedBrands;
+  let selectedBrands;
   switch (type) {
     case NEXT:
-      max = state.selectedMicroClusters.length;
-      return {
-        ...state,
-        index: state.index < max - 1 ? state.index + 1 : 0
-      };
+      return changeIndex(state, state.index + 1);
     case PREVIOUS:
-      max = state.selectedMicroClusters.length;
-      return {
-        ...state,
-        index: state.index > 0 ? state.index - 1 : max - 1
-      };
+      return changeIndex(state, state.index - 1);
     case REMOVE_MICRO_CLUSTER:
       const microClusters = withoutElement(payload, state.microClusters);
       let selectedMicroClusters = withoutElement(
@@ -69,6 +61,11 @@ export const reducer = (state, { type, payload }) => {
       return state;
   }
 };
+
+const changeIndex = (state, newIndex) => ({
+  ...state,
+  index: newIndex % state.selectedMicroClusters.length
+});
 
 const withoutElement = (element, clusters) => {
   return clusters.filter(c => !(c.id == element.id && c.type == element.type));
