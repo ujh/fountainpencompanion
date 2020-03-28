@@ -14,30 +14,13 @@ export const initalState = {
 };
 
 export const reducer = (state, { type, payload }) => {
-  let selectedBrands;
   switch (type) {
     case NEXT:
       return changeIndex(state, state.index + 1);
     case PREVIOUS:
       return changeIndex(state, state.index - 1);
     case REMOVE_MICRO_CLUSTER:
-      const microClusters = withoutElement(payload, state.microClusters);
-      let selectedMicroClusters = withoutElement(
-        payload,
-        state.selectedMicroClusters
-      );
-      if (selectedMicroClusters.length > 0) {
-        selectedBrands = selectedBrands;
-      } else {
-        selectedBrands = [];
-        selectedMicroClusters = microClusters;
-      }
-      return {
-        ...state,
-        microClusters,
-        selectedMicroClusters,
-        selectedBrands
-      };
+      return removeMicroCluster(state, payload);
     case SET_MICRO_CLUSTERS:
       return {
         ...state,
@@ -52,6 +35,27 @@ export const reducer = (state, { type, payload }) => {
     default:
       return state;
   }
+};
+
+const removeMicroCluster = (state, payload) => {
+  let selectedBrands;
+  const microClusters = withoutElement(payload, state.microClusters);
+  let selectedMicroClusters = withoutElement(
+    payload,
+    state.selectedMicroClusters
+  );
+  if (selectedMicroClusters.length > 0) {
+    selectedBrands = selectedBrands;
+  } else {
+    selectedBrands = [];
+    selectedMicroClusters = microClusters;
+  }
+  return {
+    ...state,
+    microClusters,
+    selectedMicroClusters,
+    selectedBrands
+  };
 };
 
 const updateSelectedBrands = (state, newSelectedBrands) => {
