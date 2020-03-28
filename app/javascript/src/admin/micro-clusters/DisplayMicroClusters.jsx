@@ -8,12 +8,13 @@ import { StateContext, DispatchContext } from "./App";
 import { PREVIOUS, NEXT, REMOVE_MICRO_CLUSTER } from "./actions";
 
 export const DisplayMicroClusters = () => {
-  const { selectedMicroClusters, index } = useContext(StateContext);
+  const { selectedMicroClusters, index, activeCluster } = useContext(
+    StateContext
+  );
   const dispatch = useContext(DispatchContext);
   const { prev, next } = useNavigation(dispatch);
   const [loading, setLoading] = useState(false);
-  const selectedMicroCluster = selectedMicroClusters[index];
-  const macroClusters = loadMacroClusters(selectedMicroCluster.id, setLoading);
+  const macroClusters = loadMacroClusters(activeCluster.id, setLoading);
   const afterAssign = newClusterData => {
     dispatch({ type: REMOVE_MICRO_CLUSTER, payload: newClusterData });
   };
@@ -24,7 +25,7 @@ export const DisplayMicroClusters = () => {
       </div>
       <div className="main">
         <DisplayMicroCluster
-          data={selectedMicroCluster}
+          data={activeCluster}
           afterCreate={afterAssign}
           loading={loading}
           setLoading={setLoading}
@@ -32,7 +33,7 @@ export const DisplayMicroClusters = () => {
           {macroClusters && (
             <DisplayMacroClusters
               data={macroClusters}
-              microCluster={selectedMicroCluster}
+              microCluster={activeCluster}
               afterAssign={afterAssign}
               loading={loading}
             />

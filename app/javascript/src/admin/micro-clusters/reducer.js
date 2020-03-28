@@ -7,13 +7,17 @@ import {
 } from "./actions";
 
 export const initalState = {
-  selectedBrands: [],
+  activeCluster: null,
+  index: 0,
   microClusters: [],
-  selectedMicroClusters: [],
-  index: 0
+  selectedBrands: [],
+  selectedMicroClusters: []
 };
 
-export const reducer = (state, { type, payload }) => {
+export const reducer = (state, action) =>
+  updateActiveCluster(actualReducer(state, action));
+
+const actualReducer = (state, { type, payload }) => {
   switch (type) {
     case NEXT:
       return changeIndex(state, state.index + 1);
@@ -36,6 +40,11 @@ export const reducer = (state, { type, payload }) => {
       return state;
   }
 };
+
+const updateActiveCluster = state => ({
+  ...state,
+  activeCluster: state.selectedMicroClusters[state.index]
+});
 
 const removeMicroCluster = (state, payload) => {
   let selectedBrands;
