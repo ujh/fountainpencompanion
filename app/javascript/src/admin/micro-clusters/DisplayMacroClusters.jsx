@@ -86,7 +86,7 @@ const MacroClusterRow = ({ macroCluster, afterAssign }) => {
             className="btn btn-default"
             type="submit"
             disabled={updating}
-            value={updating ? "Assigning..." : "Assign"}
+            value="Assign"
             onClick={e => {
               assignCluster(activeCluster.id, macroCluster.id).then(
                 microCluster => {
