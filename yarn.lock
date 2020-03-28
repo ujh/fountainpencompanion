@@ -4273,6 +4273,11 @@ json5@^2.1.2:
   dependencies:
     minimist "^1.2.5"
 
+jsona@^1.5.1:
+  version "1.5.1"
+  resolved "https://registry.yarnpkg.com/jsona/-/jsona-1.5.1.tgz#914e844419cd0dcb2a9312ee35d0e8eaa3ca7a76"
+  integrity sha512-bfNP5h89ePJ5dEv9EZasGWuUsNie7zRZ6TXC4mZY3b6BtfnQDF3Y4q/YdPNMZsUJPcJxOpQXxhsk955cfp0MjA==
+
 jsprim@^1.2.2:
   version "1.4.1"
   resolved "https://registry.yarnpkg.com/jsprim/-/jsprim-1.4.1.tgz#313e66bc1e5cc06e438bc1b7499c2e5c56acb6a2"
