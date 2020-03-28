@@ -1,6 +1,8 @@
 import React, { useEffect, useReducer, useContext } from "react";
 import Select from "react-select";
 import _ from "lodash";
+import Jsona from "jsona";
+
 import { getRequest } from "src/fetch";
 import { Spinner } from "./Spinner";
 import { DisplayMicroClusters } from "./DisplayMicroClusters";
@@ -14,7 +16,7 @@ export const App = () => {
   const [state, dispatch] = useReducer(reducer, initalState);
   const { microClusters } = state;
   loadMicroClusters(dispatch);
-  if (microClusters.data.length) {
+  if (microClusters.length) {
     return (
       <DispatchContext.Provider value={dispatch}>
         <StateContext.Provider value={state}>
@@ -33,9 +35,7 @@ export const App = () => {
 const BrandSelector = () => {
   const dispatch = useContext(DispatchContext);
   const { microClusters, selectedBrands } = useContext(StateContext);
-  const values = _.countBy(
-    microClusters.data.map(c => c.attributes.simplified_brand_name)
-  );
+  const values = _.countBy(microClusters.map(c => c.simplified_brand_name));
   const options = _.map(values, (value, key) => ({
     value: key,
     label: `${key} (${value})`
@@ -55,17 +55,17 @@ const BrandSelector = () => {
 };
 const loadMicroClusters = dispatch => {
   useEffect(() => {
-    const data = { data: [], included: [] };
+    const formatter = new Jsona();
+    let data = [];
     function run(page = 1) {
       loadMicroClusterPage(page).then(json => {
         const next_page = json.meta.pagination.next_page;
-        data.data = [...data.data, ...json.data];
-        data.included = [...data.included, ...json.included];
-        if (next_page) {
-          run(next_page);
-        } else {
-          dispatch({ type: SET_MICRO_CLUSTERS, payload: data });
-        }
+        data = [...data, ...formatter.deserialize(json)];
+        // if (next_page) {
+        //   run(next_page);
+        // } else {
+        dispatch({ type: SET_MICRO_CLUSTERS, payload: data });
+        // }
       });
     }
     run();

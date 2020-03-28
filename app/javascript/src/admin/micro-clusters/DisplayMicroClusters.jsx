@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useContext } from "react";
+import Jsona from "jsona";
+
 import { getRequest } from "src/fetch";
 import { DisplayMicroCluster } from "./DisplayMicroCluster";
 import { DisplayMacroClusters } from "./DisplayMacroClusters";
@@ -10,10 +12,7 @@ export const DisplayMicroClusters = () => {
   const dispatch = useContext(DispatchContext);
   const { prev, next } = useNavigation(dispatch);
   const [loading, setLoading] = useState(false);
-  const selectedMicroCluster = extractMicroClusterData(
-    selectedMicroClusters,
-    index
-  );
+  const selectedMicroCluster = selectedMicroClusters[index];
   const macroClusters = loadMacroClusters(selectedMicroCluster.id, setLoading);
   const afterAssign = newClusterData => {
     dispatch({ type: REMOVE_MICRO_CLUSTER, payload: newClusterData });
@@ -47,14 +46,6 @@ export const DisplayMicroClusters = () => {
   );
 };
 
-const extractMicroClusterData = (data, index) => {
-  const cluster = data.data[index];
-  cluster.collected_inks = cluster.relationships.collected_inks.data.map(rc =>
-    data.included.find(i => i.id == rc.id && i.type == rc.type)
-  );
-  return cluster;
-};
-
 const useNavigation = dispatch => {
   const next = () => dispatch({ type: NEXT });
   const prev = () => dispatch({ type: PREVIOUS });
@@ -72,19 +63,15 @@ const useNavigation = dispatch => {
 };
 
 const loadMacroClusters = (id, setLoading) => {
-  const [macroClusters, setMacroClusters] = useState({
-    data: [],
-    included: []
-  });
+  const [macroClusters, setMacroClusters] = useState([]);
   useEffect(() => {
     setLoading(true);
-    setMacroClusters({ ...macroClusters });
-    const data = { data: [], included: [] };
+    let data = [];
+    const formatter = new Jsona();
     function run(page = 1) {
       loadMacroClusterPage(page).then(json => {
         const next_page = json.meta.pagination.next_page;
-        data.data = [...data.data, ...json.data];
-        data.included = [...data.included, ...json.included];
+        data = [...data, ...formatter.deserialize(json)];
         if (next_page) {
           run(next_page);
         } else {
