@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import _ from "lodash";
 import levenshtein from "fast-levenshtein";
-import { postRequest, putRequest } from "../../fetch";
+
 import {
   CollectedInksList,
   SearchLink,
@@ -25,12 +25,14 @@ export const DisplayMacroClusters = ({
 };
 
 const MacroClustersRows = ({ data, microCluster, afterAssign, loading }) => {
-  let clusters = data;
-  clusters.forEach(c => (c.distance = dist(c, microCluster)));
-  return _.sortBy(clusters, "distance").map(mc => (
+  const withDistance = data.map(c => ({
+    ...c,
+    distance: dist(c, microCluster)
+  }));
+  return _.sortBy(withDistance, "distance").map(macroCluster => (
     <MacroClusterRow
-      key={mc.id}
-      mc={mc}
+      key={macroCluster.id}
+      mc={macroCluster}
       microCluster={microCluster}
       afterAssign={afterAssign}
       dataLoading={loading}
