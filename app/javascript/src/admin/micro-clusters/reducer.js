@@ -1,21 +1,27 @@
 import {
-  LOADING,
+  ADD_MACRO_CLUSTER,
+  ASSIGN_TO_MACRO_CLUSTER,
   NEXT,
   PREVIOUS,
   REMOVE_MICRO_CLUSTER,
   SET_MACRO_CLUSTERS,
   SET_MICRO_CLUSTERS,
-  UPDATE_SELECTED_BRANDS
+  UPDATE_SELECTED_BRANDS,
+  UPDATING,
+  UPDATE_MACRO_CLUSTER
 } from "./actions";
 
 export const initalState = {
   activeCluster: null,
   index: 0,
-  loadingMacroClusters: false,
+  loadingMacroClusters: true,
+  loadingMicroClusters: true,
   macroClusters: [],
   microClusters: [],
   selectedBrands: [],
-  selectedMicroClusters: []
+  selectedMicroClusters: [],
+  updateCounter: 0,
+  updating: false
 };
 
 export const reducer = (state, action) =>
@@ -23,16 +29,37 @@ export const reducer = (state, action) =>
 
 const actualReducer = (state, { type, payload }) => {
   switch (type) {
-    case LOADING:
-      return { ...state, loadingMacroClusters: true };
-    case SET_MACRO_CLUSTERS:
-      return { ...state, macroClusters: payload, loadingMacroClusters: false };
+    case ADD_MACRO_CLUSTER:
+      return {
+        ...state,
+        macroClusters: [...state.macroClusters, payload],
+        updateCounter: state.updateCounter + 1,
+        updating: false
+      };
+    case ASSIGN_TO_MACRO_CLUSTER:
+      return {
+        ...state,
+        macroClusters: state.macroClusters.map(mc => {
+          if (mc.id == payload.macro_cluster.id) {
+            return {
+              ...mc,
+              micro_clusters: [...mc.micro_clusters, payload]
+            };
+          } else {
+            return mc;
+          }
+        }),
+        updateCounter: state.updateCounter + 1,
+        updating: false
+      };
     case NEXT:
       return changeIndex(state, state.index + 1);
     case PREVIOUS:
       return changeIndex(state, state.index - 1);
     case REMOVE_MICRO_CLUSTER:
       return removeMicroCluster(state, payload);
+    case SET_MACRO_CLUSTERS:
+      return { ...state, macroClusters: payload, loadingMacroClusters: false };
     case SET_MICRO_CLUSTERS:
       return {
         ...state,
@@ -40,10 +67,21 @@ const actualReducer = (state, { type, payload }) => {
         selectedMicroClusters: selectMicroClusters(
           state.selectedBrands,
           payload
-        )
+        ),
+        loadingMicroClusters: false
+      };
+    case UPDATE_MACRO_CLUSTER:
+      return {
+        ...state,
+        macroClusters: state.macroClusters.map(c => {
+          if (c.id == payload.id) return payload;
+          return c;
+        })
       };
     case UPDATE_SELECTED_BRANDS:
       return updateSelectedBrands(state, payload);
+    case UPDATING:
+      return { ...state, updating: true };
     default:
       return state;
   }

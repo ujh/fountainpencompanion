@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import _ from "lodash";
 import levenshtein from "fast-levenshtein";
 
@@ -7,35 +7,24 @@ import {
   SearchLink,
   assignCluster
 } from "./DisplayMicroCluster";
+import { StateContext, DispatchContext } from "./App";
+import { ASSIGN_TO_MACRO_CLUSTER } from "./actions";
 
-export const DisplayMacroClusters = ({
-  data,
-  microCluster,
-  afterAssign,
-  loading
-}) => {
-  return (
-    <MacroClustersRows
-      data={data}
-      microCluster={microCluster}
-      afterAssign={afterAssign}
-      loading={loading}
-    />
-  );
+export const DisplayMacroClusters = ({ afterAssign }) => {
+  return <MacroClustersRows afterAssign={afterAssign} />;
 };
 
-const MacroClustersRows = ({ data, microCluster, afterAssign, loading }) => {
-  const withDistance = data.map(c => ({
+const MacroClustersRows = ({ afterAssign }) => {
+  const { macroClusters, activeCluster } = useContext(StateContext);
+  const withDistance = macroClusters.map(c => ({
     ...c,
-    distance: dist(c, microCluster)
+    distance: dist(c, activeCluster)
   }));
   return _.sortBy(withDistance, "distance").map(macroCluster => (
     <MacroClusterRow
       key={macroCluster.id}
-      mc={macroCluster}
-      microCluster={microCluster}
+      macroCluster={macroCluster}
       afterAssign={afterAssign}
-      dataLoading={loading}
     />
   ));
 };
@@ -65,8 +54,9 @@ const dist = (macroCluster, microCluster) => {
   return Math.min(...distances);
 };
 
-const MacroClusterRow = ({ mc, microCluster, afterAssign, dataLoading }) => {
-  const [loading, setLoading] = useState(false);
+const MacroClusterRow = ({ macroCluster, afterAssign }) => {
+  const { activeCluster, updating } = useContext(StateContext);
+  const dispatch = useContext(DispatchContext);
   const [showInks, setShowInks] = useState(false);
   const onClick = () => {
     setShowInks(!showInks);
@@ -75,34 +65,38 @@ const MacroClusterRow = ({ mc, microCluster, afterAssign, dataLoading }) => {
     <>
       <tr>
         <td className="distance" onClick={onClick}>
-          {mc.distance}
+          {macroCluster.distance}
         </td>
-        <td onClick={onClick}>{mc.brand_name}</td>
-        <td onClick={onClick}>{mc.line_name}</td>
-        <td onClick={onClick}>{mc.ink_name}</td>
+        <td onClick={onClick}>{macroCluster.brand_name}</td>
+        <td onClick={onClick}>{macroCluster.line_name}</td>
+        <td onClick={onClick}>{macroCluster.ink_name}</td>
         <td onClick={onClick}></td>
         <td
           style={{
-            backgroundColor: mc.color,
+            backgroundColor: macroCluster.color,
             width: "30px"
           }}
           onClick={onClick}
         ></td>
         <td>
-          <SearchLink ci={mc} />
+          <SearchLink ci={macroCluster} />
         </td>
         <td>
           <input
             className="btn btn-default"
             type="submit"
-            disabled={loading || dataLoading}
-            value={loading ? "Assigning..." : "Assign"}
+            disabled={updating}
+            value={updating ? "Assigning..." : "Assign"}
             onClick={e => {
-              if (dataLoading) return;
-              assignCluster(microCluster.id, mc.id, data => {
-                setLoading(false);
-                afterAssign(data);
-              });
+              assignCluster(activeCluster.id, macroCluster.id).then(
+                microCluster => {
+                  dispatch({
+                    type: ASSIGN_TO_MACRO_CLUSTER,
+                    payload: microCluster
+                  });
+                  afterAssign(microCluster);
+                }
+              );
             }}
           />
         </td>
@@ -112,7 +106,11 @@ const MacroClusterRow = ({ mc, microCluster, afterAssign, dataLoading }) => {
           <td colSpan="7">
             <table className="table macro-cluster-collected-inks">
               <tbody>
-                <CollectedInksList collectedInks={mc.collected_inks} />
+                <CollectedInksList
+                  collectedInks={macroCluster.micro_clusters
+                    .map(c => c.collected_inks)
+                    .flat()}
+                />
               </tbody>
             </table>
           </td>

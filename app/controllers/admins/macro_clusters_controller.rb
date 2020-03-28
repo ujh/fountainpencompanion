@@ -12,6 +12,14 @@ class Admins::MacroClustersController < Admins::BaseController
     end
   end
 
+  def show
+    cluster = MacroCluster.find(params[:id])
+    render json: MacroClusterSerializer.new(
+      cluster,
+      include: [:micro_clusters, :'micro_clusters.collected_inks']
+    ).serializable_hash.to_json
+  end
+
   def create
     cluster = MacroCluster.create!(cluster_params)
     render json: MacroClusterSerializer.new(cluster).serializable_hash.to_json

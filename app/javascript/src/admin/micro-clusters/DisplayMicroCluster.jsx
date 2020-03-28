@@ -1,18 +1,20 @@
 import React, { useContext } from "react";
 import _ from "lodash";
+import Jsona from "jsona";
 
 import { postRequest, putRequest } from "src/fetch";
 import { StateContext, DispatchContext } from "./App";
-import { LOADING } from "./actions";
+import { UPDATING, ADD_MACRO_CLUSTER } from "./actions";
 
-export const DisplayMicroCluster = ({ data, children, afterCreate }) => {
+export const DisplayMicroCluster = ({ children, afterCreate }) => {
+  const { activeCluster } = useContext(StateContext);
   return (
     <table className="table">
       <thead>
-        <CreateRow microCluster={data} afterCreate={afterCreate} />
+        <CreateRow afterCreate={afterCreate} />
       </thead>
       <tbody>
-        <CollectedInksList collectedInks={data.collected_inks} />
+        <CollectedInksList collectedInks={activeCluster.collected_inks} />
         <tr>
           <td colSpan="8" style={{ backgroundColor: "black" }}></td>
         </tr>
@@ -22,10 +24,10 @@ export const DisplayMicroCluster = ({ data, children, afterCreate }) => {
   );
 };
 
-const CreateRow = ({ microCluster, afterCreate }) => {
-  const { loadingMacroClusters } = useContext(StateContext);
+const CreateRow = ({ afterCreate }) => {
+  const { updating, activeCluster } = useContext(StateContext);
   const dispatch = useContext(DispatchContext);
-  const grouped = _.groupBy(microCluster.collected_inks, ci =>
+  const grouped = _.groupBy(activeCluster.collected_inks, ci =>
     ["brand_name", "line_name", "ink_name"].map(n => ci[n]).join(",")
   );
   const ci = _.maxBy(_.values(grouped), array => array.length)[0];
@@ -47,12 +49,12 @@ const CreateRow = ({ microCluster, afterCreate }) => {
         <input
           className="btn btn-default"
           type="submit"
-          disabled={loadingMacroClusters}
+          disabled={updating}
           value="Create"
           onClick={() => {
             createMacroClusterAndAssign(
               values,
-              microCluster.id,
+              activeCluster.id,
               dispatch,
               afterCreate
             );
@@ -69,7 +71,7 @@ const createMacroClusterAndAssign = (
   dispatch,
   afterCreate
 ) => {
-  dispatch({ type: LOADING });
+  dispatch({ type: UPDATING });
   postRequest("/admins/macro_clusters.json", {
     data: {
       type: "macro_cluster",
@@ -80,13 +82,17 @@ const createMacroClusterAndAssign = (
   })
     .then(response => response.json())
     .then(json =>
-      assignCluster(microClusterId, json.data.id, data => {
-        afterCreate(data);
+      assignCluster(microClusterId, json.data.id).then(microCluster => {
+        dispatch({
+          type: ADD_MACRO_CLUSTER,
+          payload: microCluster.macro_cluster
+        });
+        afterCreate(microCluster);
       })
     );
 };
 
-export const assignCluster = (microClusterId, macroClusterId, afterCreate) =>
+export const assignCluster = (microClusterId, macroClusterId) =>
   putRequest(`/admins/micro_clusters/${microClusterId}.json`, {
     data: {
       id: microClusterId,
@@ -96,7 +102,8 @@ export const assignCluster = (microClusterId, macroClusterId, afterCreate) =>
   })
     .then(response => response.json())
     .then(json => {
-      afterCreate(json.data);
+      const formatter = new Jsona();
+      return formatter.deserialize(json);
     });
 
 export const CollectedInksList = ({ collectedInks }) => {

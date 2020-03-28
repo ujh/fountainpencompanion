@@ -7,16 +7,21 @@ import { getRequest } from "src/fetch";
 import { Spinner } from "./Spinner";
 import { DisplayMicroClusters } from "./DisplayMicroClusters";
 import { reducer, initalState } from "./reducer";
-import { SET_MICRO_CLUSTERS, UPDATE_SELECTED_BRANDS } from "./actions";
+import {
+  SET_MACRO_CLUSTERS,
+  SET_MICRO_CLUSTERS,
+  UPDATE_SELECTED_BRANDS
+} from "./actions";
 
 export const StateContext = React.createContext();
 export const DispatchContext = React.createContext();
 
 export const App = () => {
   const [state, dispatch] = useReducer(reducer, initalState);
-  const { microClusters } = state;
+  const { loadingMacroClusters, loadingMicroClusters } = state;
   loadMicroClusters(dispatch);
-  if (microClusters.length) {
+  loadMacroClusters(dispatch);
+  if (!loadingMicroClusters && !loadingMacroClusters) {
     return (
       <DispatchContext.Provider value={dispatch}>
         <StateContext.Provider value={state}>
@@ -76,4 +81,29 @@ const loadMicroClusterPage = page => {
   return getRequest(
     `/admins/micro_clusters.json?unassigned=true&page=${page}`
   ).then(response => response.json());
+};
+
+const loadMacroClusters = dispatch => {
+  useEffect(() => {
+    let data = [];
+    const formatter = new Jsona();
+    function run(page = 1) {
+      loadMacroClusterPage(page).then(json => {
+        const next_page = json.meta.pagination.next_page;
+        data = [...data, ...formatter.deserialize(json)];
+        if (next_page) {
+          run(next_page);
+        } else {
+          dispatch({ type: SET_MACRO_CLUSTERS, payload: data });
+        }
+      });
+    }
+    run();
+  }, []);
+};
+
+const loadMacroClusterPage = page => {
+  return getRequest(`/admins/macro_clusters.json?page=${page}`).then(response =>
+    response.json()
+  );
 };

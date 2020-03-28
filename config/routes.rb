@@ -66,7 +66,7 @@ Rails.application.routes.draw do
         post 'pen_import'
       end
     end
-    resources :macro_clusters, only: [:index, :create, :update, :destroy]
+    resources :macro_clusters, only: [:index, :create, :update, :destroy, :show]
     resources :micro_clusters, only: [:index, :update] do
       member do
         delete 'unassign'

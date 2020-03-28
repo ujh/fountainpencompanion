@@ -4,22 +4,31 @@ import Jsona from "jsona";
 import { getRequest } from "src/fetch";
 import { DisplayMicroCluster } from "./DisplayMicroCluster";
 import { DisplayMacroClusters } from "./DisplayMacroClusters";
-import { StateContext, DispatchContext } from "./App";
+import { DispatchContext } from "./App";
 import {
   PREVIOUS,
   NEXT,
   REMOVE_MICRO_CLUSTER,
-  LOADING,
-  SET_MACRO_CLUSTERS
+  UPDATE_MACRO_CLUSTER
 } from "./actions";
 
 export const DisplayMicroClusters = () => {
-  const { activeCluster, loadingMacroClusters } = useContext(StateContext);
   const dispatch = useContext(DispatchContext);
   const { prev, next } = useNavigation(dispatch);
-  const macroClusters = loadMacroClusters(activeCluster.id, dispatch);
   const afterAssign = newClusterData => {
     dispatch({ type: REMOVE_MICRO_CLUSTER, payload: newClusterData });
+    const id = newClusterData.macro_cluster.id;
+    setTimeout(() => {
+      getRequest(`/admins/macro_clusters/${id}.json`)
+        .then(response => response.json())
+        .then(json => {
+          const formatter = new Jsona();
+          return formatter.deserialize(json);
+        })
+        .then(macroCluster =>
+          dispatch({ type: UPDATE_MACRO_CLUSTER, payload: macroCluster })
+        );
+    }, 500);
   };
   return (
     <div className="app">
@@ -27,15 +36,8 @@ export const DisplayMicroClusters = () => {
         <i className="fa fa-angle-left"></i>
       </div>
       <div className="main">
-        <DisplayMicroCluster data={activeCluster} afterCreate={afterAssign}>
-          {macroClusters && (
-            <DisplayMacroClusters
-              data={macroClusters}
-              microCluster={activeCluster}
-              afterAssign={afterAssign}
-              loading={loadingMacroClusters}
-            />
-          )}
+        <DisplayMicroCluster afterCreate={afterAssign}>
+          <DisplayMacroClusters afterAssign={afterAssign} />
         </DisplayMicroCluster>
       </div>
       <div className="nav" onClick={next}>
@@ -59,33 +61,4 @@ const useNavigation = dispatch => {
     };
   }, []);
   return { prev, next };
-};
-
-const loadMacroClusters = (id, dispatch) => {
-  const [macroClusters, setMacroClusters] = useState([]);
-  useEffect(() => {
-    dispatch({ type: LOADING });
-    let data = [];
-    const formatter = new Jsona();
-    function run(page = 1) {
-      loadMacroClusterPage(page).then(json => {
-        const next_page = json.meta.pagination.next_page;
-        data = [...data, ...formatter.deserialize(json)];
-        if (next_page) {
-          run(next_page);
-        } else {
-          setMacroClusters(data);
-          dispatch({ type: SET_MACRO_CLUSTERS, payload: data });
-        }
-      });
-    }
-    run();
-  }, [id]);
-  return macroClusters;
-};
-
-const loadMacroClusterPage = page => {
-  return getRequest(`/admins/macro_clusters.json?page=${page}`).then(response =>
-    response.json()
-  );
 };
