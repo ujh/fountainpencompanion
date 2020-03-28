@@ -48,18 +48,22 @@ export const reducer = (state, { type, payload }) => {
         )
       };
     case UPDATE_SELECTED_BRANDS:
-      selectedBrands = payload || [];
-      return {
-        ...state,
-        selectedBrands,
-        selectedMicroClusters: selectMicroClusters(
-          selectedBrands,
-          state.microClusters
-        )
-      };
+      return updateSelectedBrands(state, payload);
     default:
       return state;
   }
+};
+
+const updateSelectedBrands = (state, newSelectedBrands) => {
+  const selectedBrands = newSelectedBrands || [];
+  return {
+    ...state,
+    selectedBrands,
+    selectedMicroClusters: selectMicroClusters(
+      selectedBrands,
+      state.microClusters
+    )
+  };
 };
 
 const changeIndex = (state, newIndex) => ({
