@@ -1,23 +1,15 @@
-import React, { useState } from "react";
+import React, { useContext } from "react";
 import _ from "lodash";
-import { postRequest, putRequest } from "src/fetch";
 
-export const DisplayMicroCluster = ({
-  data,
-  children,
-  afterCreate,
-  loading,
-  setLoading
-}) => {
+import { postRequest, putRequest } from "src/fetch";
+import { StateContext, DispatchContext } from "./App";
+import { LOADING } from "./actions";
+
+export const DisplayMicroCluster = ({ data, children, afterCreate }) => {
   return (
     <table className="table">
       <thead>
-        <CreateRow
-          microCluster={data}
-          afterCreate={afterCreate}
-          loading={loading}
-          setLoading={setLoading}
-        />
+        <CreateRow microCluster={data} afterCreate={afterCreate} />
       </thead>
       <tbody>
         <CollectedInksList collectedInks={data.collected_inks} />
@@ -30,7 +22,9 @@ export const DisplayMicroCluster = ({
   );
 };
 
-const CreateRow = ({ microCluster, afterCreate, loading, setLoading }) => {
+const CreateRow = ({ microCluster, afterCreate }) => {
+  const { loadingMacroClusters } = useContext(StateContext);
+  const dispatch = useContext(DispatchContext);
   const grouped = _.groupBy(microCluster.collected_inks, ci =>
     ["brand_name", "line_name", "ink_name"].map(n => ci[n]).join(",")
   );
@@ -53,13 +47,13 @@ const CreateRow = ({ microCluster, afterCreate, loading, setLoading }) => {
         <input
           className="btn btn-default"
           type="submit"
-          disabled={loading}
+          disabled={loadingMacroClusters}
           value="Create"
           onClick={() => {
             createMacroClusterAndAssign(
               values,
               microCluster.id,
-              setLoading,
+              dispatch,
               afterCreate
             );
           }}
@@ -72,10 +66,10 @@ const CreateRow = ({ microCluster, afterCreate, loading, setLoading }) => {
 const createMacroClusterAndAssign = (
   values,
   microClusterId,
-  setLoading,
+  dispatch,
   afterCreate
 ) => {
-  setLoading(true);
+  dispatch({ type: LOADING });
   postRequest("/admins/macro_clusters.json", {
     data: {
       type: "macro_cluster",
@@ -87,7 +81,6 @@ const createMacroClusterAndAssign = (
     .then(response => response.json())
     .then(json =>
       assignCluster(microClusterId, json.data.id, data => {
-        setLoading(false);
         afterCreate(data);
       })
     );

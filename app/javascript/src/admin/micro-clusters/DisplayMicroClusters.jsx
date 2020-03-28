@@ -5,16 +5,19 @@ import { getRequest } from "src/fetch";
 import { DisplayMicroCluster } from "./DisplayMicroCluster";
 import { DisplayMacroClusters } from "./DisplayMacroClusters";
 import { StateContext, DispatchContext } from "./App";
-import { PREVIOUS, NEXT, REMOVE_MICRO_CLUSTER } from "./actions";
+import {
+  PREVIOUS,
+  NEXT,
+  REMOVE_MICRO_CLUSTER,
+  LOADING,
+  SET_MACRO_CLUSTERS
+} from "./actions";
 
 export const DisplayMicroClusters = () => {
-  const { selectedMicroClusters, index, activeCluster } = useContext(
-    StateContext
-  );
+  const { activeCluster, loadingMacroClusters } = useContext(StateContext);
   const dispatch = useContext(DispatchContext);
   const { prev, next } = useNavigation(dispatch);
-  const [loading, setLoading] = useState(false);
-  const macroClusters = loadMacroClusters(activeCluster.id, setLoading);
+  const macroClusters = loadMacroClusters(activeCluster.id, dispatch);
   const afterAssign = newClusterData => {
     dispatch({ type: REMOVE_MICRO_CLUSTER, payload: newClusterData });
   };
@@ -24,18 +27,13 @@ export const DisplayMicroClusters = () => {
         <i className="fa fa-angle-left"></i>
       </div>
       <div className="main">
-        <DisplayMicroCluster
-          data={activeCluster}
-          afterCreate={afterAssign}
-          loading={loading}
-          setLoading={setLoading}
-        >
+        <DisplayMicroCluster data={activeCluster} afterCreate={afterAssign}>
           {macroClusters && (
             <DisplayMacroClusters
               data={macroClusters}
               microCluster={activeCluster}
               afterAssign={afterAssign}
-              loading={loading}
+              loading={loadingMacroClusters}
             />
           )}
         </DisplayMicroCluster>
@@ -63,10 +61,10 @@ const useNavigation = dispatch => {
   return { prev, next };
 };
 
-const loadMacroClusters = (id, setLoading) => {
+const loadMacroClusters = (id, dispatch) => {
   const [macroClusters, setMacroClusters] = useState([]);
   useEffect(() => {
-    setLoading(true);
+    dispatch({ type: LOADING });
     let data = [];
     const formatter = new Jsona();
     function run(page = 1) {
@@ -77,7 +75,7 @@ const loadMacroClusters = (id, setLoading) => {
           run(next_page);
         } else {
           setMacroClusters(data);
-          setLoading(false);
+          dispatch({ type: SET_MACRO_CLUSTERS, payload: data });
         }
       });
     }

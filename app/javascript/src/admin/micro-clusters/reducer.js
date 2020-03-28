@@ -1,14 +1,18 @@
 import {
+  LOADING,
   NEXT,
   PREVIOUS,
+  REMOVE_MICRO_CLUSTER,
+  SET_MACRO_CLUSTERS,
   SET_MICRO_CLUSTERS,
-  UPDATE_SELECTED_BRANDS,
-  REMOVE_MICRO_CLUSTER
+  UPDATE_SELECTED_BRANDS
 } from "./actions";
 
 export const initalState = {
   activeCluster: null,
   index: 0,
+  loadingMacroClusters: false,
+  macroClusters: [],
   microClusters: [],
   selectedBrands: [],
   selectedMicroClusters: []
@@ -19,6 +23,10 @@ export const reducer = (state, action) =>
 
 const actualReducer = (state, { type, payload }) => {
   switch (type) {
+    case LOADING:
+      return { ...state, loadingMacroClusters: true };
+    case SET_MACRO_CLUSTERS:
+      return { ...state, macroClusters: payload, loadingMacroClusters: false };
     case NEXT:
       return changeIndex(state, state.index + 1);
     case PREVIOUS:
