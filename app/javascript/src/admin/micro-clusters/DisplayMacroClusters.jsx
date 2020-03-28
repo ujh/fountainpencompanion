@@ -16,11 +16,10 @@ export const DisplayMacroClusters = ({ afterAssign }) => {
 
 const MacroClustersRows = ({ afterAssign }) => {
   const { macroClusters, activeCluster } = useContext(StateContext);
-  const withDistance = macroClusters.map(c => ({
-    ...c,
-    distance: dist(c, activeCluster)
-  }));
-  return _.sortBy(withDistance, "distance").map(macroCluster => (
+  return _.sortBy(
+    withDistance(macroClusters, activeCluster),
+    "distance"
+  ).map(macroCluster => (
     <MacroClusterRow
       key={macroCluster.id}
       macroCluster={macroCluster}
@@ -29,7 +28,20 @@ const MacroClustersRows = ({ afterAssign }) => {
   ));
 };
 
-const dist = (macroCluster, microCluster) => {
+// This is the most expensive computation in this app. Group inks by name first
+// and only compare between those that are really different.
+const withDistance = (macroClusters, activeCluster) => {
+  const activeGroupedInks = groupedInks(activeCluster.collected_inks);
+  return macroClusters.map(c => ({
+    ...c,
+    distance: dist(
+      groupedInks(c.micro_clusters.map(c => c.collected_inks).flat()),
+      activeGroupedInks
+    )
+  }));
+};
+
+const dist = (macroClusterInks, microClusterInks) => {
   const calc1 = (c1, c2) =>
     levenshtein.get(c1.brand_name, c2.brand_name) +
     0.5 * levenshtein.get(c1.line_name, c2.line_name) +
@@ -42,17 +54,27 @@ const dist = (macroCluster, microCluster) => {
   const calc3 = (c1, c2) =>
     levenshtein.get(c1.brand_name, c2.brand_name) +
     levenshtein.get(c1.ink_name, c2.ink_name);
-  const distances = macroCluster.micro_clusters
-    .map(mi => mi.collected_inks)
-    .flat()
-    .map(ci1 =>
-      microCluster.collected_inks
-        .map(ci2 => [calc1(ci1, ci2), calc2(ci1, ci2), calc3(ci1, ci2)])
-        .flat()
-    )
-    .flat();
-  return Math.min(...distances);
+  let minDistance = Number.MAX_SAFE_INTEGER;
+  macroClusterInks.forEach(ci1 => {
+    microClusterInks.forEach(ci2 => {
+      const dist = Math.min(
+        ...[calc1(ci1, ci2), calc2(ci1, ci2), calc3(ci1, ci2)]
+      );
+      if (dist < minDistance) minDistance = dist;
+    });
+  });
+  return minDistance;
 };
+
+const groupedInks = collectedInks =>
+  _.values(
+    _.mapValues(
+      _.groupBy(collectedInks, ci =>
+        ["brand_name", "line_name", "ink_name"].map(n => ci[n]).join(",")
+      ),
+      cis => cis[0]
+    )
+  );
 
 const MacroClusterRow = ({ macroCluster, afterAssign }) => {
   const { activeCluster, updating } = useContext(StateContext);

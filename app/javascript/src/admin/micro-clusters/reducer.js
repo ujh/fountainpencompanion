@@ -24,8 +24,11 @@ export const initalState = {
   updating: false
 };
 
-export const reducer = (state, action) =>
-  updateActiveCluster(actualReducer(state, action));
+export const reducer = (state, action) => {
+  const newState = updateActiveCluster(actualReducer(state, action));
+  // console.log(action, state, newState);
+  return newState;
+};
 
 const actualReducer = (state, { type, payload }) => {
   switch (type) {
