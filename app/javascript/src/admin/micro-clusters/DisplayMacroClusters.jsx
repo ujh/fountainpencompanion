@@ -119,7 +119,7 @@ const MacroClusterRow = ({ macroCluster, afterAssign, selected }) => {
     return () => {
       document.removeEventListener("keydown", listener);
     };
-  }, [macroCluster.id, selected]);
+  }, [macroCluster.id, activeCluster.id, selected]);
   return (
     <>
       <tr className={selected ? "selected" : ""}>
