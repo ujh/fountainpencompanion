@@ -1,6 +1,7 @@
 import React, { useState, useContext, useEffect } from "react";
 import _ from "lodash";
 import levenshtein from "fast-levenshtein";
+import ScrollIntoViewIfNeeded from "react-scroll-into-view-if-needed";
 
 import { assignCluster } from "./assignCluster";
 import { CollectedInksList } from "./CollectedInksList";
@@ -105,7 +106,9 @@ const MacroClusterRow = ({ macroCluster, afterAssign, selected }) => {
     <>
       <tr className={selected ? "selected" : ""}>
         <td className="distance" onClick={onClick}>
-          {macroCluster.distance}
+          <ScrollIntoViewIfNeeded active={selected}>
+            {macroCluster.distance}
+          </ScrollIntoViewIfNeeded>
         </td>
         <td onClick={onClick}>{macroCluster.brand_name}</td>
         <td onClick={onClick}>{macroCluster.line_name}</td>
