@@ -2,11 +2,8 @@ import React, { useState, useContext } from "react";
 import _ from "lodash";
 import levenshtein from "fast-levenshtein";
 
-import {
-  CollectedInksList,
-  SearchLink,
-  assignCluster
-} from "./DisplayMicroCluster";
+import { CollectedInksList, assignCluster } from "./DisplayMicroCluster";
+import { SearchLink } from "./SearchLink";
 import { StateContext, DispatchContext } from "./App";
 import { ASSIGN_TO_MACRO_CLUSTER } from "./actions";
 

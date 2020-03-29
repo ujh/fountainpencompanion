@@ -6,6 +6,7 @@ import { postRequest, putRequest } from "src/fetch";
 import { StateContext, DispatchContext } from "./App";
 import { UPDATING, ADD_MACRO_CLUSTER } from "./actions";
 import { DisplayMacroClusters } from "./DisplayMacroClusters";
+import { SearchLink } from "./SearchLink";
 
 export const DisplayMicroCluster = ({ afterCreate }) => {
   const { activeCluster } = useContext(StateContext);
@@ -136,18 +137,4 @@ export const CollectedInksList = ({ collectedInks }) => {
       </tr>
     );
   });
-};
-
-export const SearchLink = ({ ci }) => {
-  const fullName = ["brand_name", "line_name", "ink_name"]
-    .map(a => ci[a])
-    .join(" ");
-  return (
-    <a
-      href={`https://google.com/search?q=${encodeURIComponent(fullName)}`}
-      target="_blank"
-    >
-      <i className="fa fa-external-link"></i>
-    </a>
-  );
 };
