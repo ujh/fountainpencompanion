@@ -99,9 +99,7 @@ const MacroClusterRow = ({ macroCluster, afterAssign, selected }) => {
   const { activeCluster, updating } = useContext(StateContext);
   const dispatch = useContext(DispatchContext);
   const [showInks, setShowInks] = useState(false);
-  const onClick = () => {
-    setShowInks(!showInks);
-  };
+  const onClick = () => setShowInks(!showInks);
   return (
     <>
       <tr className={selected ? "selected" : ""}>
@@ -144,7 +142,7 @@ const MacroClusterRow = ({ macroCluster, afterAssign, selected }) => {
           />
         </td>
       </tr>
-      {showInks && (
+      {(showInks || selected) && (
         <tr>
           <td colSpan="7">
             <table className="table macro-cluster-collected-inks">
