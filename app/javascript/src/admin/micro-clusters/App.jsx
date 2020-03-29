@@ -65,6 +65,12 @@ const BrandSelector = () => {
         }}
         isMulti
         value={selectedBrands}
+        onFocus={() => {
+          window.inBrandSelector = true;
+        }}
+        onBlur={() => {
+          window.inBrandSelector = false;
+        }}
       />
     </div>
   );

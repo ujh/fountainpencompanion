@@ -17,6 +17,8 @@ export const DisplayMacroClusters = ({ afterAssign }) => {
   const dispatch = useContext(DispatchContext);
   useEffect(() => {
     const listener = ({ keyCode }) => {
+      if (window.inBrandSelector) return;
+
       if (keyCode == 74) dispatch({ type: NEXT_MACRO_CLUSTER });
       if (keyCode == 75) dispatch({ type: PREVIOUS_MACRO_CLUSTER });
     };
@@ -113,6 +115,8 @@ const MacroClusterRow = ({ macroCluster, afterAssign, selected }) => {
     if (!selected) return;
 
     const listener = ({ keyCode }) => {
+      if (window.inBrandSelector) return;
+
       if (keyCode == 65) assign();
     };
     document.addEventListener("keydown", listener);

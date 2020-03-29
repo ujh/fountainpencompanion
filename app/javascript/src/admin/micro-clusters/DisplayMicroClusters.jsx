@@ -53,6 +53,8 @@ const useNavigation = dispatch => {
   const prev = () => dispatch({ type: PREVIOUS });
   useEffect(() => {
     const listener = e => {
+      if (window.inBrandSelector) return;
+
       if (e.keyCode == 39) next();
       if (e.keyCode == 37) prev();
     };

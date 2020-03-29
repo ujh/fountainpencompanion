@@ -19,6 +19,8 @@ export const CreateRow = ({ afterCreate }) => {
   };
   useEffect(() => {
     const listener = ({ keyCode }) => {
+      if (window.inBrandSelector) return;
+
       if (keyCode == 67) create();
       if (keyCode == 79) {
         const fullName = ["brand_name", "line_name", "ink_name"]
