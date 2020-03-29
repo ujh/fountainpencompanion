@@ -12,20 +12,15 @@ import {
   NEXT_MACRO_CLUSTER,
   PREVIOUS_MACRO_CLUSTER
 } from "./actions";
+import { keyDownListener } from "./keyDownListener";
 
 export const DisplayMacroClusters = ({ afterAssign }) => {
   const dispatch = useContext(DispatchContext);
   useEffect(() => {
-    const listener = ({ keyCode }) => {
-      if (window.inBrandSelector) return;
-
+    return keyDownListener(({ keyCode }) => {
       if (keyCode == 74) dispatch({ type: NEXT_MACRO_CLUSTER });
       if (keyCode == 75) dispatch({ type: PREVIOUS_MACRO_CLUSTER });
-    };
-    document.addEventListener("keydown", listener);
-    return () => {
-      document.removeEventListener("keydown", listener);
-    };
+    });
   }, []);
   return <MacroClusterRows afterAssign={afterAssign} />;
 };
@@ -114,15 +109,9 @@ const MacroClusterRow = ({ macroCluster, afterAssign, selected }) => {
   useEffect(() => {
     if (!selected) return;
 
-    const listener = ({ keyCode }) => {
-      if (window.inBrandSelector) return;
-
+    return keyDownListener(({ keyCode }) => {
       if (keyCode == 65) assign();
-    };
-    document.addEventListener("keydown", listener);
-    return () => {
-      document.removeEventListener("keydown", listener);
-    };
+    });
   }, [macroCluster.id, activeCluster.id, selected]);
   return (
     <>

@@ -12,6 +12,7 @@ import {
   SET_MICRO_CLUSTERS,
   UPDATE_SELECTED_BRANDS
 } from "./actions";
+import { setInBrandSelector } from "./keyDownListener";
 
 export const StateContext = React.createContext();
 export const DispatchContext = React.createContext();
@@ -66,10 +67,10 @@ const BrandSelector = () => {
         isMulti
         value={selectedBrands}
         onFocus={() => {
-          window.inBrandSelector = true;
+          setInBrandSelector(true);
         }}
         onBlur={() => {
-          window.inBrandSelector = false;
+          setInBrandSelector(false);
         }}
       />
     </div>

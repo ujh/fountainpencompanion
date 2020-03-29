@@ -4,6 +4,7 @@ import { postRequest } from "src/fetch";
 import { StateContext, DispatchContext } from "./App";
 import { UPDATING, ADD_MACRO_CLUSTER } from "./actions";
 import { assignCluster } from "./assignCluster";
+import { keyDownListener } from "./keyDownListener";
 
 export const CreateRow = ({ afterCreate }) => {
   const { updating, activeCluster } = useContext(StateContext);
@@ -18,9 +19,7 @@ export const CreateRow = ({ afterCreate }) => {
     );
   };
   useEffect(() => {
-    const listener = ({ keyCode }) => {
-      if (window.inBrandSelector) return;
-
+    return keyDownListener(({ keyCode }) => {
       if (keyCode == 67) create();
       if (keyCode == 79) {
         const fullName = ["brand_name", "line_name", "ink_name"]
@@ -31,11 +30,7 @@ export const CreateRow = ({ afterCreate }) => {
         )}`;
         window.open(url, "_blank");
       }
-    };
-    document.addEventListener("keydown", listener);
-    return () => {
-      document.removeEventListener("keydown", listener);
-    };
+    });
   }, [activeCluster.id]);
   return (
     <tr>

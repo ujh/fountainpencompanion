@@ -10,6 +10,7 @@ import {
   REMOVE_MICRO_CLUSTER,
   UPDATE_MACRO_CLUSTER
 } from "./actions";
+import { keyDownListener } from "./keyDownListener";
 
 export const DisplayMicroClusters = () => {
   const dispatch = useContext(DispatchContext);
@@ -52,16 +53,10 @@ const useNavigation = dispatch => {
   const next = () => dispatch({ type: NEXT });
   const prev = () => dispatch({ type: PREVIOUS });
   useEffect(() => {
-    const listener = e => {
-      if (window.inBrandSelector) return;
-
+    return keyDownListener(e => {
       if (e.keyCode == 39) next();
       if (e.keyCode == 37) prev();
-    };
-    document.addEventListener("keydown", listener);
-    return () => {
-      document.removeEventListener("keydown", listener);
-    };
+    });
   }, []);
   return { prev, next };
 };
