@@ -128,10 +128,13 @@ const updateSelectedBrands = (state, newSelectedBrands) => {
   };
 };
 
-const changeIndex = (state, newIndex) => ({
-  ...state,
-  index: newIndex % state.selectedMicroClusters.length
-});
+const changeIndex = (state, newIndex) => {
+  const length = state.selectedMicroClusters.length;
+  if (newIndex < 0) {
+    return { ...state, index: length + newIndex };
+  }
+  return { ...state, index: newIndex % length };
+};
 
 const withoutElement = (element, clusters) => {
   return clusters.filter(c => !(c.id == element.id && c.type == element.type));
