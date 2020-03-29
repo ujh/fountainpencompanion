@@ -26,7 +26,7 @@ export const initalState = {
 
 export const reducer = (state, action) => {
   const newState = updateActiveCluster(actualReducer(state, action));
-  // console.log(action, state, newState);
+  console.log(action.type, { action, state, newState });
   return newState;
 };
 
