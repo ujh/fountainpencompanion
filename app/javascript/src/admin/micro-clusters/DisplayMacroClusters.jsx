@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import _ from "lodash";
 import levenshtein from "fast-levenshtein";
 
@@ -6,22 +6,42 @@ import { assignCluster } from "./assignCluster";
 import { CollectedInksList } from "./CollectedInksList";
 import { SearchLink } from "./SearchLink";
 import { StateContext, DispatchContext } from "./App";
-import { ASSIGN_TO_MACRO_CLUSTER } from "./actions";
+import {
+  ASSIGN_TO_MACRO_CLUSTER,
+  NEXT_MACRO_CLUSTER,
+  PREVIOUS_MACRO_CLUSTER
+} from "./actions";
 
 export const DisplayMacroClusters = ({ afterAssign }) => {
+  const dispatch = useContext(DispatchContext);
+  useEffect(() => {
+    const listener = ({ keyCode }) => {
+      if (keyCode == 74) dispatch({ type: NEXT_MACRO_CLUSTER });
+      if (keyCode == 75) dispatch({ type: PREVIOUS_MACRO_CLUSTER });
+    };
+    document.addEventListener("keydown", listener);
+    return () => {
+      document.removeEventListener("keydown", listener);
+    };
+  }, []);
   return <MacroClusterRows afterAssign={afterAssign} />;
 };
 
 const MacroClusterRows = ({ afterAssign }) => {
-  const { macroClusters, activeCluster } = useContext(StateContext);
+  const {
+    macroClusters,
+    activeCluster,
+    selectedMacroClusterIndex
+  } = useContext(StateContext);
   return _.sortBy(
     withDistance(macroClusters, activeCluster),
     "distance"
-  ).map(macroCluster => (
+  ).map((macroCluster, index) => (
     <MacroClusterRow
       key={macroCluster.id}
       macroCluster={macroCluster}
       afterAssign={afterAssign}
+      selected={index == selectedMacroClusterIndex}
     />
   ));
 };
@@ -74,7 +94,7 @@ const groupedInks = collectedInks =>
     )
   );
 
-const MacroClusterRow = ({ macroCluster, afterAssign }) => {
+const MacroClusterRow = ({ macroCluster, afterAssign, selected }) => {
   const { activeCluster, updating } = useContext(StateContext);
   const dispatch = useContext(DispatchContext);
   const [showInks, setShowInks] = useState(false);
@@ -83,7 +103,7 @@ const MacroClusterRow = ({ macroCluster, afterAssign }) => {
   };
   return (
     <>
-      <tr>
+      <tr className={selected ? "selected" : ""}>
         <td className="distance" onClick={onClick}>
           {macroCluster.distance}
         </td>

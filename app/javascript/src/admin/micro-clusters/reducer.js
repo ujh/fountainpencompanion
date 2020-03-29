@@ -8,7 +8,9 @@ import {
   SET_MICRO_CLUSTERS,
   UPDATE_SELECTED_BRANDS,
   UPDATING,
-  UPDATE_MACRO_CLUSTER
+  UPDATE_MACRO_CLUSTER,
+  NEXT_MACRO_CLUSTER,
+  PREVIOUS_MACRO_CLUSTER
 } from "./actions";
 
 export const initalState = {
@@ -19,6 +21,7 @@ export const initalState = {
   macroClusters: [],
   microClusters: [],
   selectedBrands: [],
+  selectedMacroClusterIndex: 0,
   selectedMicroClusters: [],
   updateCounter: 0,
   updating: false
@@ -57,8 +60,18 @@ const actualReducer = (state, { type, payload }) => {
       };
     case NEXT:
       return changeIndex(state, state.index + 1);
+    case NEXT_MACRO_CLUSTER:
+      return changeSelectedMacroClusterIndex(
+        state,
+        state.selectedMacroClusterIndex + 1
+      );
     case PREVIOUS:
       return changeIndex(state, state.index - 1);
+    case PREVIOUS_MACRO_CLUSTER:
+      return changeSelectedMacroClusterIndex(
+        state,
+        state.selectedMacroClusterIndex - 1
+      );
     case REMOVE_MICRO_CLUSTER:
       return removeMicroCluster(state, payload);
     case SET_MACRO_CLUSTERS:
@@ -90,10 +103,21 @@ const actualReducer = (state, { type, payload }) => {
   }
 };
 
+const changeSelectedMacroClusterIndex = (state, newIndex) => {
+  if (newIndex < 0 || newIndex >= state.macroClusters.length) return state;
+  return { ...state, selectedMacroClusterIndex: newIndex };
+};
+
 const updateActiveCluster = state => {
   let index = state.index;
   if (index >= state.selectedMicroClusters.length) index = 0;
-  return { ...state, index, activeCluster: state.selectedMicroClusters[index] };
+  const activeCluster = state.selectedMicroClusters[index];
+  let selectedMacroClusterIndex = state.selectedMacroClusterIndex;
+  if (activeCluster && state.activeCluster) {
+    if (activeCluster.id != state.activeCluster.id)
+      selectedMacroClusterIndex = 0;
+  }
+  return { ...state, index, activeCluster, selectedMacroClusterIndex };
 };
 
 const removeMicroCluster = (state, payload) => {

@@ -24,6 +24,9 @@
     th {
       vertical-align: middle;
     }
+    tr.selected td {
+      background-color: #f5f5dc;
+    }
     .nav {
       &:hover {
         background-color: #ccc;
