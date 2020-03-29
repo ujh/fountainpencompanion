@@ -90,10 +90,11 @@ const actualReducer = (state, { type, payload }) => {
   }
 };
 
-const updateActiveCluster = state => ({
-  ...state,
-  activeCluster: state.selectedMicroClusters[state.index]
-});
+const updateActiveCluster = state => {
+  let index = state.index;
+  if (index >= state.selectedMicroClusters.length) index = 0;
+  return { ...state, index, activeCluster: state.selectedMicroClusters[index] };
+};
 
 const removeMicroCluster = (state, payload) => {
   let selectedBrands;
