@@ -1,12 +1,12 @@
 import React, { useContext } from "react";
 import _ from "lodash";
-import Jsona from "jsona";
 
-import { postRequest, putRequest } from "src/fetch";
+import { postRequest } from "src/fetch";
 import { StateContext, DispatchContext } from "./App";
 import { UPDATING, ADD_MACRO_CLUSTER } from "./actions";
 import { DisplayMacroClusters } from "./DisplayMacroClusters";
 import { CollectedInksList } from "./CollectedInksList";
+import { assignCluster } from "./assignCluster";
 
 export const DisplayMicroCluster = ({ afterCreate }) => {
   const { activeCluster } = useContext(StateContext);
@@ -93,17 +93,3 @@ const createMacroClusterAndAssign = (
       })
     );
 };
-
-export const assignCluster = (microClusterId, macroClusterId) =>
-  putRequest(`/admins/micro_clusters/${microClusterId}.json`, {
-    data: {
-      id: microClusterId,
-      type: "micro_cluster",
-      attributes: { macro_cluster_id: macroClusterId }
-    }
-  })
-    .then(response => response.json())
-    .then(json => {
-      const formatter = new Jsona();
-      return formatter.deserialize(json);
-    });
