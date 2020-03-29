@@ -100,6 +100,26 @@ const MacroClusterRow = ({ macroCluster, afterAssign, selected }) => {
   const dispatch = useContext(DispatchContext);
   const [showInks, setShowInks] = useState(false);
   const onClick = () => setShowInks(!showInks);
+  const assign = () => {
+    assignCluster(activeCluster.id, macroCluster.id).then(microCluster => {
+      dispatch({
+        type: ASSIGN_TO_MACRO_CLUSTER,
+        payload: microCluster
+      });
+      afterAssign(microCluster);
+    });
+  };
+  useEffect(() => {
+    if (!selected) return;
+
+    const listener = ({ keyCode }) => {
+      if (keyCode == 65) assign();
+    };
+    document.addEventListener("keydown", listener);
+    return () => {
+      document.removeEventListener("keydown", listener);
+    };
+  }, [macroCluster.id, selected]);
   return (
     <>
       <tr className={selected ? "selected" : ""}>
@@ -128,17 +148,7 @@ const MacroClusterRow = ({ macroCluster, afterAssign, selected }) => {
             type="submit"
             disabled={updating}
             value="Assign"
-            onClick={e => {
-              assignCluster(activeCluster.id, macroCluster.id).then(
-                microCluster => {
-                  dispatch({
-                    type: ASSIGN_TO_MACRO_CLUSTER,
-                    payload: microCluster
-                  });
-                  afterAssign(microCluster);
-                }
-              );
-            }}
+            onClick={assign}
           />
         </td>
       </tr>
