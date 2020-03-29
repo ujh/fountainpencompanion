@@ -20,6 +20,15 @@ export const CreateRow = ({ afterCreate }) => {
   useEffect(() => {
     const listener = ({ keyCode }) => {
       if (keyCode == 67) create();
+      if (keyCode == 79) {
+        const fullName = ["brand_name", "line_name", "ink_name"]
+          .map(a => values[a])
+          .join(" ");
+        const url = `https://google.com/search?q=${encodeURIComponent(
+          fullName
+        )}`;
+        window.open(url, "_blank");
+      }
     };
     document.addEventListener("keydown", listener);
     return () => {
