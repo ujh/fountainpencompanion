@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect } from "react";
 import _ from "lodash";
 import { postRequest } from "src/fetch";
 import { StateContext, DispatchContext } from "./App";
@@ -8,15 +8,24 @@ import { assignCluster } from "./assignCluster";
 export const CreateRow = ({ afterCreate }) => {
   const { updating, activeCluster } = useContext(StateContext);
   const dispatch = useContext(DispatchContext);
-  const grouped = _.groupBy(activeCluster.collected_inks, ci =>
-    ["brand_name", "line_name", "ink_name"].map(n => ci[n]).join(",")
-  );
-  const ci = _.maxBy(_.values(grouped), array => array.length)[0];
-  const values = {
-    brand_name: ci.brand_name,
-    line_name: ci.line_name,
-    ink_name: ci.ink_name
+  const values = computeValues(activeCluster);
+  const create = () => {
+    createMacroClusterAndAssign(
+      values,
+      activeCluster.id,
+      dispatch,
+      afterCreate
+    );
   };
+  useEffect(() => {
+    const listener = ({ keyCode }) => {
+      if (keyCode == 67) create();
+    };
+    document.addEventListener("keydown", listener);
+    return () => {
+      document.removeEventListener("keydown", listener);
+    };
+  }, [activeCluster.id]);
   return (
     <tr>
       <th></th>
@@ -32,19 +41,25 @@ export const CreateRow = ({ afterCreate }) => {
           type="submit"
           disabled={updating}
           value="Create"
-          onClick={() => {
-            createMacroClusterAndAssign(
-              values,
-              activeCluster.id,
-              dispatch,
-              afterCreate
-            );
-          }}
+          onClick={create}
         />
       </th>
     </tr>
   );
 };
+
+const computeValues = activeCluster => {
+  const grouped = _.groupBy(activeCluster.collected_inks, ci =>
+    ["brand_name", "line_name", "ink_name"].map(n => ci[n]).join(",")
+  );
+  const ci = _.maxBy(_.values(grouped), array => array.length)[0];
+  return {
+    brand_name: ci.brand_name,
+    line_name: ci.line_name,
+    ink_name: ci.ink_name
+  };
+};
+
 const createMacroClusterAndAssign = (
   values,
   microClusterId,
