@@ -9,10 +9,10 @@ import { StateContext, DispatchContext } from "./App";
 import { ASSIGN_TO_MACRO_CLUSTER } from "./actions";
 
 export const DisplayMacroClusters = ({ afterAssign }) => {
-  return <MacroClustersRows afterAssign={afterAssign} />;
+  return <MacroClusterRows afterAssign={afterAssign} />;
 };
 
-const MacroClustersRows = ({ afterAssign }) => {
+const MacroClusterRows = ({ afterAssign }) => {
   const { macroClusters, activeCluster } = useContext(StateContext);
   return _.sortBy(
     withDistance(macroClusters, activeCluster),
