@@ -59,17 +59,16 @@ const withDistance = (macroClusters, activeCluster) => {
 
 const dist = (macroClusterInks, microClusterInks) => {
   const calc1 = (c1, c2) =>
-    levenshtein.get(c1.brand_name, c2.brand_name) +
-    0.5 * levenshtein.get(c1.line_name, c2.line_name) +
-    levenshtein.get(c1.ink_name, c2.ink_name);
+    minLev(c1.brand_name, c2.brand_name) +
+    0.5 * minLev(c1.line_name, c2.line_name) +
+    minLev(c1.ink_name, c2.ink_name);
   const calc2 = (c1, c2) =>
-    levenshtein.get(
+    minLev(
       [c1.brand_name, c1.line_name, c1.ink_name].join(""),
       [c2.brand_name, c2.line_name, c2.ink_name].join("")
     );
   const calc3 = (c1, c2) =>
-    levenshtein.get(c1.brand_name, c2.brand_name) +
-    levenshtein.get(c1.ink_name, c2.ink_name);
+    minLev(c1.brand_name, c2.brand_name) + minLev(c1.ink_name, c2.ink_name);
   let minDistance = Number.MAX_SAFE_INTEGER;
   macroClusterInks.forEach(ci1 => {
     microClusterInks.forEach(ci2 => {
@@ -80,6 +79,20 @@ const dist = (macroClusterInks, microClusterInks) => {
     });
   });
   return minDistance;
+};
+
+const minLev = (str1, str2) => {
+  return Math.min(
+    levenshtein.get(str1, str2),
+    levenshtein.get(stripped(str1), stripped(str2))
+  );
+};
+
+const stripped = str => {
+  return str
+    .replace(/-/i, "")
+    .replace(/(\([^)]*\))/i, "")
+    .replace(/\s+/i, "");
 };
 
 const groupedInks = collectedInks =>
