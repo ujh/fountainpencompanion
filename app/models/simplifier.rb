@@ -11,8 +11,7 @@ class Simplifier
     without_non_english_letters = I18n.transliterate(without_plus)
     without_quotes_at_end = without_non_english_letters.gsub(/"([^"]*)"/, '')
     only_letters_and_numbers = without_quotes_at_end.gsub(/\W/, '')
-    without_year_at_end = only_letters_and_numbers.gsub(/\d\d\d\d$/, '')
-    downcased = without_year_at_end.downcase
+    downcased = only_letters_and_numbers.downcase
     return name unless downcased.present?
     if !too_short && downcased.length < 5
       simplify(name, too_short: true)
