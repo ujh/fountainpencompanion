@@ -83,7 +83,11 @@ const loadMicroClusters = dispatch => {
     function run(page = 1) {
       loadMicroClusterPage(page).then(json => {
         const next_page = json.meta.pagination.next_page;
-        data = [...data, ...formatter.deserialize(json)];
+        // Remove clusters without collected inks
+        const filteredPageData = formatter
+          .deserialize(json)
+          .filter(c => c.collected_inks.length > 0);
+        data = [...data, ...filteredPageData];
         if (next_page) {
           run(next_page);
         } else {
