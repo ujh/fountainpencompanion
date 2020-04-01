@@ -111,6 +111,7 @@ const MacroClusterRow = ({ macroCluster, afterAssign, selected }) => {
   const [showInks, setShowInks] = useState(false);
   const onClick = () => setShowInks(!showInks);
   const assign = () => {
+    dispatch({ type: UPDATING });
     assignCluster(activeCluster.id, macroCluster.id).then(microCluster => {
       dispatch({
         type: ASSIGN_TO_MACRO_CLUSTER,
