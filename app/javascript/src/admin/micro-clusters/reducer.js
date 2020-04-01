@@ -1,3 +1,5 @@
+import _ from "lodash";
+
 import {
   ADD_MACRO_CLUSTER,
   ASSIGN_TO_MACRO_CLUSTER,
@@ -167,8 +169,13 @@ const withoutElement = (element, clusters) => {
 
 const selectMicroClusters = (selectedBrands, microClusters) => {
   if (selectedBrands.length) {
-    const filtered = microClusters.filter(c =>
-      selectedBrands.map(s => s.value).includes(c.simplified_brand_name)
+    const filtered = _.reverse(
+      _.sortBy(
+        microClusters.filter(c =>
+          selectedBrands.map(s => s.value).includes(c.simplified_brand_name)
+        ),
+        "collected_inks.length"
+      )
     );
     return filtered.length ? filtered : microClusters;
   } else {
