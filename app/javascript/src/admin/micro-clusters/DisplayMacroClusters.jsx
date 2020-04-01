@@ -10,7 +10,8 @@ import { StateContext, DispatchContext } from "./App";
 import {
   ASSIGN_TO_MACRO_CLUSTER,
   NEXT_MACRO_CLUSTER,
-  PREVIOUS_MACRO_CLUSTER
+  PREVIOUS_MACRO_CLUSTER,
+  UPDATING
 } from "./actions";
 import { keyDownListener } from "./keyDownListener";
 
