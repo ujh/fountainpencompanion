@@ -16,6 +16,14 @@ class AdminStats
     MacroCluster.where.not(color: '').count*100.0/macro_cluster_count
   end
 
+  def collected_inks_with_macro_cluster
+    CollectedInk.joins(micro_cluster: :macro_cluster).count
+  end
+
+  def collected_inks_with_macro_cluster_percentage
+    collected_inks_with_macro_cluster*100.0/collected_inks_count
+  end
+
   def user_count
     @user_count ||= User.count
   end

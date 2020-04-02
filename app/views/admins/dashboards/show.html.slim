@@ -74,6 +74,13 @@ table class="table table-striped"
               |  (
               = @stats.collected_inks_without_color_count
               |  collected inks without color)
+          tr
+            td
+            td
+              |  (
+              = number_to_percentage(@stats.collected_inks_with_macro_cluster_percentage, precision: 2)
+              |  collected inks assigned to macro cluster)
+
     tr
       td Number of collected pens
       td
