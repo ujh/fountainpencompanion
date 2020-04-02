@@ -78,16 +78,20 @@ const actualReducer = (state, { type, payload }) => {
       return removeMicroCluster(state, payload);
     case SET_MACRO_CLUSTERS:
       return { ...state, macroClusters: payload, loadingMacroClusters: false };
-    case SET_MICRO_CLUSTERS:
+    case SET_MICRO_CLUSTERS: {
+      const microClusters = _.reverse(
+        _.sortBy(payload, "collected_inks.length")
+      );
       return {
         ...state,
-        microClusters: payload,
+        microClusters,
         selectedMicroClusters: selectMicroClusters(
           state.selectedBrands,
-          payload
+          microClusters
         ),
         loadingMicroClusters: false
       };
+    }
     case UPDATE_MACRO_CLUSTER:
       return {
         ...state,
