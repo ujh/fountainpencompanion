@@ -49,6 +49,7 @@ group :development, :test do
 end
 
 group :development do
+  gem 'derailed'
   gem 'listen'
   gem 'web-console'
 end
