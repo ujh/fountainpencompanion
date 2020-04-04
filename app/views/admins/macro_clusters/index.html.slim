@@ -1,4 +1,7 @@
 = paginate @clusters
+div class="search-form"
+  = form_tag admins_macro_clusters_path, method: :get do
+    = text_field_tag :q, params[:q]
 table class="table"
   thead
     tr

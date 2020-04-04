@@ -1,14 +1,14 @@
 class Admins::MacroClustersController < Admins::BaseController
 
   def index
-    @clusters = MacroCluster.includes(micro_clusters: :collected_inks).order(
-      :brand_name, :line_name, :ink_name
-    ).page(params[:page]).per(params[:per_page])
     respond_to do |format|
       format.json do
-        render json: MacroClusterSerializer.new(@clusters, options(@clusters)).serializable_hash.to_json
+        clusters = index_query.includes(micro_clusters: :collected_inks)
+        render json: MacroClusterSerializer.new(clusters, options(clusters)).serializable_hash.to_json
       end
-      format.html
+      format.html do
+        @clusters = index_query
+      end
     end
   end
 
@@ -38,6 +38,12 @@ class Admins::MacroClustersController < Admins::BaseController
   end
 
   private
+
+  def index_query
+    MacroCluster.order(
+      :brand_name, :line_name, :ink_name
+    ).search(params[:q]).page(params[:page]).per(params[:per_page])
+  end
 
   def cluster_params
     (params['_jsonapi'] || params).require(:data).require(:attributes).permit(
