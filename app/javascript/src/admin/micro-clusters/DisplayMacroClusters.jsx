@@ -11,7 +11,7 @@ import {
   ASSIGN_TO_MACRO_CLUSTER,
   NEXT_MACRO_CLUSTER,
   PREVIOUS_MACRO_CLUSTER,
-  UPDATING
+  UPDATING,
 } from "./actions";
 import { keyDownListener } from "./keyDownListener";
 
@@ -30,7 +30,7 @@ const MacroClusterRows = ({ afterAssign }) => {
   const {
     macroClusters,
     activeCluster,
-    selectedMacroClusterIndex
+    selectedMacroClusterIndex,
   } = useContext(StateContext);
   return _.sortBy(
     withDistance(macroClusters, activeCluster),
@@ -49,12 +49,12 @@ const MacroClusterRows = ({ afterAssign }) => {
 // and only compare between those that are really different.
 const withDistance = (macroClusters, activeCluster) => {
   const activeGroupedInks = groupedInks(activeCluster.collected_inks);
-  return macroClusters.map(c => ({
+  return macroClusters.map((c) => ({
     ...c,
     distance: dist(
-      groupedInks(c.micro_clusters.map(c => c.collected_inks).flat()),
+      groupedInks(c.micro_clusters.map((c) => c.collected_inks).flat()),
       activeGroupedInks
-    )
+    ),
   }));
 };
 
@@ -70,11 +70,25 @@ const dist = (macroClusterInks, microClusterInks) => {
     );
   const calc3 = (c1, c2) =>
     minLev(c1.brand_name, c2.brand_name) + minLev(c1.ink_name, c2.ink_name);
+  const calc4 = (c1, c2) => {
+    if (!c1.line_name && !c2.line_name) return Number.MAX_SAFE_INTEGER;
+    return Math.min(
+      minLev(
+        [c1.brand_name, c1.ink_name].join(""),
+        [c2.line_name, c2.ink_name].join("")
+      ),
+      minLev(
+        [c2.brand_name, c2.ink_name].join(""),
+        [c1.line_name, c1.ink_name].join("")
+      )
+    );
+  };
+
   let minDistance = Number.MAX_SAFE_INTEGER;
-  macroClusterInks.forEach(ci1 => {
-    microClusterInks.forEach(ci2 => {
+  macroClusterInks.forEach((ci1) => {
+    microClusterInks.forEach((ci2) => {
       const dist = Math.min(
-        ...[calc1(ci1, ci2), calc2(ci1, ci2), calc3(ci1, ci2)]
+        ...[calc1(ci1, ci2), calc2(ci1, ci2), calc3(ci1, ci2), calc4(ci1, ci2)]
       );
       if (dist < minDistance) minDistance = dist;
     });
@@ -89,20 +103,20 @@ const minLev = (str1, str2) => {
   );
 };
 
-const stripped = str => {
+const stripped = (str) => {
   return str
     .replace(/-/i, "")
     .replace(/(\([^)]*\))/i, "")
     .replace(/\s+/i, "");
 };
 
-const groupedInks = collectedInks =>
+const groupedInks = (collectedInks) =>
   _.values(
     _.mapValues(
-      _.groupBy(collectedInks, ci =>
-        ["brand_name", "line_name", "ink_name"].map(n => ci[n]).join(",")
+      _.groupBy(collectedInks, (ci) =>
+        ["brand_name", "line_name", "ink_name"].map((n) => ci[n]).join(",")
       ),
-      cis => cis[0]
+      (cis) => cis[0]
     )
   );
 
@@ -113,10 +127,10 @@ const MacroClusterRow = ({ macroCluster, afterAssign, selected }) => {
   const onClick = () => setShowInks(!showInks);
   const assign = () => {
     dispatch({ type: UPDATING });
-    assignCluster(activeCluster.id, macroCluster.id).then(microCluster => {
+    assignCluster(activeCluster.id, macroCluster.id).then((microCluster) => {
       dispatch({
         type: ASSIGN_TO_MACRO_CLUSTER,
-        payload: microCluster
+        payload: microCluster,
       });
       afterAssign(microCluster);
     });
@@ -143,7 +157,7 @@ const MacroClusterRow = ({ macroCluster, afterAssign, selected }) => {
         <td
           style={{
             backgroundColor: macroCluster.color,
-            width: "30px"
+            width: "30px",
           }}
           onClick={onClick}
         ></td>
@@ -167,7 +181,7 @@ const MacroClusterRow = ({ macroCluster, afterAssign, selected }) => {
               <tbody>
                 <CollectedInksList
                   collectedInks={macroCluster.micro_clusters
-                    .map(c => c.collected_inks)
+                    .map((c) => c.collected_inks)
                     .flat()}
                 />
               </tbody>
