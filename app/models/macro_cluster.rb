@@ -12,6 +12,6 @@ class MacroCluster < ApplicationRecord
       CONCAT(collected_inks.brand_name, collected_inks.line_name, collected_inks.ink_name)
       ILIKE ?
     SQL
-    "%#{query}%")
+    "%#{query}%").group('macro_clusters.id')
   end
 end
