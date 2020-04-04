@@ -14,5 +14,7 @@ div id="wrap"
     - if flash[:alert]
       div class="alert alert-danger"= flash[:alert]
     h1 class="page-title"= content_for :title
+    - if content_for?(:subtitle)
+      div class="page-subtitle"= content_for :subtitle
     div class="row content"
       = yield

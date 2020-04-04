@@ -7,6 +7,22 @@ class LeaderBoard
     brands(force: true)
   end
 
+  # Always request new data for now
+  def self.inks_by_popularity(force: true)
+    Rails.cache.fetch("LeaderBoard#inks_by_popularity", force: force) do
+      MacroCluster.joins(micro_clusters: :collected_inks).where(
+        collected_inks: { private: false }
+      ).group("macro_clusters.id").select(
+        "macro_clusters.*, count(macro_clusters.id) as count"
+      ).order("count desc").map do |c|
+        {
+          count: c.count,
+          name: [c.brand_name, c.line_name, c.ink_name].filter(&:present?).join(" ")
+        }
+      end
+    end
+  end
+
   def self.top_inks
     inks.take(10)
   end
