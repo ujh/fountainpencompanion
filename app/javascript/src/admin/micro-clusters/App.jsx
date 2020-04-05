@@ -10,7 +10,7 @@ import { reducer, initalState } from "./reducer";
 import {
   SET_MACRO_CLUSTERS,
   SET_MICRO_CLUSTERS,
-  UPDATE_SELECTED_BRANDS
+  UPDATE_SELECTED_BRANDS,
 } from "./actions";
 import { setInBrandSelector } from "./keyDownListener";
 
@@ -50,7 +50,7 @@ const LoadingOverlay = () => {
     height: "100%",
     width: "100%",
     zIndex: 10,
-    backgroundColor: "rgba(0,0,0,0.5)"
+    backgroundColor: "rgba(0,0,0,0.5)",
   };
   return <div style={style}></div>;
 };
@@ -68,16 +68,16 @@ const Summary = () => {
 const BrandSelector = () => {
   const dispatch = useContext(DispatchContext);
   const { microClusters, selectedBrands } = useContext(StateContext);
-  const values = _.countBy(microClusters.map(c => c.simplified_brand_name));
+  const values = _.countBy(microClusters.map((c) => c.simplified_brand_name));
   const options = _.map(values, (value, key) => ({
     value: key,
-    label: `${key} (${value})`
+    label: `${key} (${value})`,
   }));
   return (
     <div>
       <Select
         options={options}
-        onChange={selected => {
+        onChange={(selected) => {
           dispatch({ type: UPDATE_SELECTED_BRANDS, payload: selected });
         }}
         isMulti
@@ -92,18 +92,23 @@ const BrandSelector = () => {
     </div>
   );
 };
-const loadMicroClusters = dispatch => {
+const loadMicroClusters = (dispatch) => {
   useEffect(() => {
     const formatter = new Jsona();
     let data = [];
     function run(page = 1) {
-      loadMicroClusterPage(page).then(json => {
+      loadMicroClusterPage(page).then((json) => {
         const next_page = json.meta.pagination.next_page;
         // Remove clusters without collected inks
-        const filteredPageData = formatter
+        // Group collected inks
+        const pageData = formatter
           .deserialize(json)
-          .filter(c => c.collected_inks.length > 0);
-        data = [...data, ...filteredPageData];
+          .filter((c) => c.collected_inks.length > 0)
+          .map((c) => {
+            const grouped_collected_inks = groupedInks(c.collected_inks);
+            return { ...c, grouped_collected_inks };
+          });
+        data = [...data, ...pageData];
         if (next_page) {
           run(next_page);
         } else {
@@ -115,20 +120,26 @@ const loadMicroClusters = dispatch => {
   }, []);
 };
 
-const loadMicroClusterPage = page => {
+const loadMicroClusterPage = (page) => {
   return getRequest(
     `/admins/micro_clusters.json?unassigned=true&page=${page}`
-  ).then(response => response.json());
+  ).then((response) => response.json());
 };
 
-const loadMacroClusters = dispatch => {
+const loadMacroClusters = (dispatch) => {
   useEffect(() => {
     let data = [];
     const formatter = new Jsona();
     function run(page = 1) {
-      loadMacroClusterPage(page).then(json => {
+      loadMacroClusterPage(page).then((json) => {
         const next_page = json.meta.pagination.next_page;
-        data = [...data, ...formatter.deserialize(json)];
+        const pageData = formatter.deserialize(json).map((c) => {
+          const grouped_collected_inks = groupedInks(
+            c.micro_clusters.map((c) => c.collected_inks).flat()
+          );
+          return { ...c, grouped_collected_inks };
+        });
+        data = [...data, ...pageData];
         if (next_page) {
           run(next_page);
         } else {
@@ -140,8 +151,18 @@ const loadMacroClusters = dispatch => {
   }, []);
 };
 
-const loadMacroClusterPage = page => {
-  return getRequest(`/admins/macro_clusters.json?page=${page}`).then(response =>
-    response.json()
-  );
+const loadMacroClusterPage = (page) => {
+  return getRequest(
+    `/admins/macro_clusters.json?page=${page}`
+  ).then((response) => response.json());
 };
+
+const groupedInks = (collectedInks) =>
+  _.values(
+    _.mapValues(
+      _.groupBy(collectedInks, (ci) =>
+        ["brand_name", "line_name", "ink_name"].map((n) => ci[n]).join(",")
+      ),
+      (cis) => cis[0]
+    )
+  );

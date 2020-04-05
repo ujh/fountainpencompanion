@@ -48,13 +48,10 @@ const MacroClusterRows = ({ afterAssign }) => {
 // This is the most expensive computation in this app. Group inks by name first
 // and only compare between those that are really different.
 const withDistance = (macroClusters, activeCluster) => {
-  const activeGroupedInks = groupedInks(activeCluster.collected_inks);
+  const activeGroupedInks = activeCluster.grouped_collected_inks;
   return macroClusters.map((c) => ({
     ...c,
-    distance: dist(
-      groupedInks(c.micro_clusters.map((c) => c.collected_inks).flat()),
-      activeGroupedInks
-    ),
+    distance: dist(c.grouped_collected_inks, activeGroupedInks),
   }));
 };
 
@@ -109,16 +106,6 @@ const stripped = (str) => {
     .replace(/(\([^)]*\))/i, "")
     .replace(/\s+/i, "");
 };
-
-const groupedInks = (collectedInks) =>
-  _.values(
-    _.mapValues(
-      _.groupBy(collectedInks, (ci) =>
-        ["brand_name", "line_name", "ink_name"].map((n) => ci[n]).join(",")
-      ),
-      (cis) => cis[0]
-    )
-  );
 
 const MacroClusterRow = ({ macroCluster, afterAssign, selected }) => {
   const { activeCluster, updating } = useContext(StateContext);
