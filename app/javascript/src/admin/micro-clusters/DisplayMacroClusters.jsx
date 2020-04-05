@@ -80,7 +80,6 @@ const MacroClusterRows = ({ afterAssign }) => {
           onFocus={() => setInBrandSelector(true)}
           onBlur={() => {
             setInBrandSelector(false);
-            setSearch("");
           }}
         ></input>
       </td>
