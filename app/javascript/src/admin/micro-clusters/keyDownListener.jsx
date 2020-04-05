@@ -4,7 +4,7 @@ export const keyDownListener = (f) => {
   const listener = (e) => {
     if (inBrandSelector) return;
     if (e.ctrlKey || e.shiftKey || e.altKey || e.metaKey) return;
-    console.log("listener", e);
+
     f(e);
   };
   document.addEventListener("keydown", listener);
