@@ -46,6 +46,10 @@ const MacroClusterRows = ({ afterAssign }) => {
       setComputing(false);
     }, 0);
   }, [activeCluster.id, updateCounter]);
+  // Reset search for each new cluster
+  useEffect(() => {
+    setSearch("");
+  }, [activeCluster.id]);
   if (computing)
     return (
       <tr className="loading">
@@ -68,7 +72,7 @@ const MacroClusterRows = ({ afterAssign }) => {
       />
     ));
   const inputRow = (
-    <tr key={activeCluster.id}>
+    <tr key="search-box">
       <td colSpan="8">
         <input
           type="text"
