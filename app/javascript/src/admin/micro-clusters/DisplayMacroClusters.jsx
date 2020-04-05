@@ -68,7 +68,7 @@ const MacroClusterRows = ({ afterAssign }) => {
       />
     ));
   const inputRow = (
-    <tr key="input-row">
+    <tr key={activeCluster.id}>
       <td colSpan="8">
         <input
           type="text"
