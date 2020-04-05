@@ -2,6 +2,7 @@ import React, { useState, useContext, useEffect, useMemo } from "react";
 import _ from "lodash";
 import levenshtein from "fast-levenshtein";
 import ScrollIntoViewIfNeeded from "react-scroll-into-view-if-needed";
+import matchSorter from "match-sorter";
 
 import { assignCluster } from "./assignCluster";
 import { CollectedInksList } from "./CollectedInksList";
@@ -13,7 +14,7 @@ import {
   PREVIOUS_MACRO_CLUSTER,
   UPDATING,
 } from "./actions";
-import { keyDownListener } from "./keyDownListener";
+import { keyDownListener, setInBrandSelector } from "./keyDownListener";
 
 export const DisplayMacroClusters = ({ afterAssign }) => {
   const dispatch = useContext(DispatchContext);
@@ -33,12 +34,13 @@ const MacroClusterRows = ({ afterAssign }) => {
     selectedMacroClusterIndex,
     updateCounter,
   } = useContext(StateContext);
-  const [clustersToRender, setClustersToRender] = useState([]);
+  const [clustersWithDistance, setClustersWithDistance] = useState([]);
   const [computing, setComputing] = useState(true);
+  const [search, setSearch] = useState("");
   useEffect(() => {
     setComputing(true);
     setTimeout(() => {
-      setClustersToRender(
+      setClustersWithDistance(
         _.sortBy(withDistance(macroClusters, activeCluster), "distance")
       );
       setComputing(false);
@@ -50,18 +52,41 @@ const MacroClusterRows = ({ afterAssign }) => {
         <td colSpan="8">Computing ...</td>
       </tr>
     );
-  return (
-    clustersToRender
-      //.slice(0, 10) // Shaves of > 1s when rerendering
-      .map((macroCluster, index) => (
-        <MacroClusterRow
-          key={macroCluster.id}
-          macroCluster={macroCluster}
-          afterAssign={afterAssign}
-          selected={index == selectedMacroClusterIndex}
-        />
-      ))
+  const clustersToRender = search
+    ? matchSorter(clustersWithDistance, search, {
+        keys: ["brand_name", "line_name", "ink_name"],
+      })
+    : clustersWithDistance;
+  const rows = clustersToRender
+    .slice(0, 100) // Shaves of > 1s when rerendering
+    .map((macroCluster, index) => (
+      <MacroClusterRow
+        key={macroCluster.id}
+        macroCluster={macroCluster}
+        afterAssign={afterAssign}
+        selected={index == selectedMacroClusterIndex}
+      />
+    ));
+  const inputRow = (
+    <tr key="input-row">
+      <td colSpan="8">
+        <input
+          type="text"
+          value={search}
+          onChange={(e) => {
+            e.stopPropagation();
+            setSearch(e.target.value);
+          }}
+          onFocus={() => setInBrandSelector(true)}
+          onBlur={() => {
+            setInBrandSelector(false);
+            setSearch("");
+          }}
+        ></input>
+      </td>
+    </tr>
   );
+  return [inputRow, ...rows];
 };
 
 // This is the most expensive computation in this app. Group inks by name first

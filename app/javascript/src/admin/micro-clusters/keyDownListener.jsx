@@ -1,9 +1,10 @@
 let inBrandSelector = false;
 
-export const keyDownListener = f => {
-  const listener = e => {
+export const keyDownListener = (f) => {
+  const listener = (e) => {
     if (inBrandSelector) return;
-
+    if (e.ctrlKey || e.shiftKey || e.altKey || e.metaKey) return;
+    console.log("listener", e);
     f(e);
   };
   document.addEventListener("keydown", listener);
@@ -11,6 +12,6 @@ export const keyDownListener = f => {
     document.removeEventListener("keydown", listener);
   };
 };
-export const setInBrandSelector = value => {
+export const setInBrandSelector = (value) => {
   inBrandSelector = value;
 };
