@@ -32,17 +32,18 @@ const MacroClusterRows = ({ afterAssign }) => {
     activeCluster,
     selectedMacroClusterIndex,
   } = useContext(StateContext);
-  return _.sortBy(
-    withDistance(macroClusters, activeCluster),
-    "distance"
-  ).map((macroCluster, index) => (
-    <MacroClusterRow
-      key={macroCluster.id}
-      macroCluster={macroCluster}
-      afterAssign={afterAssign}
-      selected={index == selectedMacroClusterIndex}
-    />
-  ));
+  return (
+    _.sortBy(withDistance(macroClusters, activeCluster), "distance")
+      // .slice(0, 10) // Shaves of > 1s when rerendering
+      .map((macroCluster, index) => (
+        <MacroClusterRow
+          key={macroCluster.id}
+          macroCluster={macroCluster}
+          afterAssign={afterAssign}
+          selected={index == selectedMacroClusterIndex}
+        />
+      ))
+  );
 };
 
 // This is the most expensive computation in this app. Group inks by name first
