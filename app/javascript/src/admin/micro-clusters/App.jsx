@@ -157,7 +157,7 @@ const loadMacroClusterPage = (page) => {
   ).then((response) => response.json());
 };
 
-const groupedInks = (collectedInks) =>
+export const groupedInks = (collectedInks) =>
   _.values(
     _.mapValues(
       _.groupBy(collectedInks, (ci) =>

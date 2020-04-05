@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect } from "react";
+import React, { useState, useContext, useEffect, useMemo } from "react";
 import _ from "lodash";
 import levenshtein from "fast-levenshtein";
 import ScrollIntoViewIfNeeded from "react-scroll-into-view-if-needed";
@@ -31,10 +31,28 @@ const MacroClusterRows = ({ afterAssign }) => {
     macroClusters,
     activeCluster,
     selectedMacroClusterIndex,
+    updateCounter,
   } = useContext(StateContext);
+  const [clustersToRender, setClustersToRender] = useState([]);
+  const [computing, setComputing] = useState(true);
+  useEffect(() => {
+    setComputing(true);
+    setTimeout(() => {
+      setClustersToRender(
+        _.sortBy(withDistance(macroClusters, activeCluster), "distance")
+      );
+      setComputing(false);
+    }, 0);
+  }, [activeCluster.id, updateCounter]);
+  if (computing)
+    return (
+      <tr className="loading">
+        <td colSpan="8">Computing ...</td>
+      </tr>
+    );
   return (
-    _.sortBy(withDistance(macroClusters, activeCluster), "distance")
-      // .slice(0, 10) // Shaves of > 1s when rerendering
+    clustersToRender
+      //.slice(0, 10) // Shaves of > 1s when rerendering
       .map((macroCluster, index) => (
         <MacroClusterRow
           key={macroCluster.id}
@@ -50,10 +68,12 @@ const MacroClusterRows = ({ afterAssign }) => {
 // and only compare between those that are really different.
 const withDistance = (macroClusters, activeCluster) => {
   const activeGroupedInks = activeCluster.grouped_collected_inks;
-  return macroClusters.map((c) => ({
-    ...c,
-    distance: dist(c.grouped_collected_inks, activeGroupedInks),
-  }));
+  return macroClusters.map((c) => {
+    return {
+      ...c,
+      distance: dist(c.grouped_collected_inks, activeGroupedInks),
+    };
+  });
 };
 
 const dist = (macroClusterInks, microClusterInks) => {
@@ -115,13 +135,15 @@ const MacroClusterRow = ({ macroCluster, afterAssign, selected }) => {
   const onClick = () => setShowInks(!showInks);
   const assign = () => {
     dispatch({ type: UPDATING });
-    assignCluster(activeCluster.id, macroCluster.id).then((microCluster) => {
-      dispatch({
-        type: ASSIGN_TO_MACRO_CLUSTER,
-        payload: microCluster,
+    setTimeout(() => {
+      assignCluster(activeCluster.id, macroCluster.id).then((microCluster) => {
+        dispatch({
+          type: ASSIGN_TO_MACRO_CLUSTER,
+          payload: microCluster,
+        });
+        afterAssign(microCluster);
       });
-      afterAssign(microCluster);
-    });
+    }, 10);
   };
   useEffect(() => {
     if (!selected) return;
