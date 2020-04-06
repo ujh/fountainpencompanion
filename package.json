@@ -15,7 +15,7 @@
     "react-dom": "^16.13.1",
     "react-scroll-into-view-if-needed": "^2.1.7",
     "react-select": "^3.1.0",
-    "react-table": "^7.0.0-rc.16",
+    "react-table": "^7.0.4",
     "react-table-6": "^6.11.0",
     "whatwg-fetch": "^3.0.0"
   },
