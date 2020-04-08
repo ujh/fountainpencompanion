@@ -125,7 +125,7 @@ const loadMicroClusters = (dispatch) => {
 
 const loadMicroClusterPage = (page) => {
   return getRequest(
-    `/admins/micro_clusters.json?unassigned=true&page=${page}`
+    `/admins/micro_clusters.json?unassigned=true&without_ignored=true&page=${page}`
   ).then((response) => response.json());
 };
 

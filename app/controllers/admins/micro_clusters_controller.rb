@@ -6,6 +6,7 @@ class Admins::MicroClustersController < Admins::BaseController
           :simplified_brand_name, :simplified_line_name, :simplified_ink_name
         ).page(params[:page])
         clusters = clusters.unassigned if params[:unassigned]
+        clusters = clusters.without_ignored if params[:without_ignored]
         render json: MicroClusterSerializer.new(clusters, options(clusters)).serializable_hash.to_json
       }
       format.html

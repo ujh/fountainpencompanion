@@ -5,4 +5,5 @@ class MicroCluster < ApplicationRecord
   paginates_per 100
 
   scope :unassigned, -> { where(macro_cluster_id: nil) }
+  scope :without_ignored, -> { where(ignored: false) }
 end
