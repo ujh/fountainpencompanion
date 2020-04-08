@@ -1,8 +1,8 @@
 import React, { useContext, useEffect } from "react";
 import _ from "lodash";
-import { postRequest } from "src/fetch";
+import { postRequest, putRequest } from "src/fetch";
 import { StateContext, DispatchContext, groupedInks } from "./App";
-import { UPDATING, ADD_MACRO_CLUSTER } from "./actions";
+import { UPDATING, ADD_MACRO_CLUSTER, REMOVE_MICRO_CLUSTER } from "./actions";
 import { assignCluster } from "./assignCluster";
 import { keyDownListener } from "./keyDownListener";
 
@@ -16,6 +16,11 @@ export const CreateRow = ({ afterCreate }) => {
       activeCluster.id,
       dispatch,
       afterCreate
+    );
+  };
+  const ignore = () => {
+    ignoreCluster(activeCluster).then(
+      dispatch({ type: REMOVE_MICRO_CLUSTER, payload: activeCluster })
     );
   };
   useEffect(() => {
@@ -48,6 +53,13 @@ export const CreateRow = ({ afterCreate }) => {
           disabled={updating}
           value="Create"
           onClick={create}
+        />
+        <input
+          className="btn btn-default"
+          type="submit"
+          disabled={updating}
+          value="Ignore"
+          onClick={ignore}
         />
       </th>
     </tr>
@@ -98,3 +110,11 @@ const createMacroClusterAndAssign = (
       );
   }, 10);
 };
+
+const ignoreCluster = ({ id }) =>
+  putRequest(`/admins/micro_clusters/${id}.json`, {
+    data: {
+      type: "micro_cluster",
+      attributes: { ignored: true },
+    },
+  });
