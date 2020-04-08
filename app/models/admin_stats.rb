@@ -24,6 +24,10 @@ class AdminStats
     collected_inks_with_macro_cluster*100.0/collected_inks_count
   end
 
+  def ignored_micro_cluster_count
+    MicroCluster.ignored.count
+  end
+
   def user_count
     @user_count ||= User.count
   end

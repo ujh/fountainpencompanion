@@ -6,4 +6,5 @@ class MicroCluster < ApplicationRecord
 
   scope :unassigned, -> { where(macro_cluster_id: nil) }
   scope :without_ignored, -> { where(ignored: false) }
+  scope :ignored, -> { where(ignored: true) }
 end

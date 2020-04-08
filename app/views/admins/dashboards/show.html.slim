@@ -41,10 +41,19 @@ table class="table table-striped"
     tr
       td Number of micro clusters
       td
-        = @stats.micro_cluster_count
-        |   (
-        = @stats.assigned_micro_cluster_count
-        |  assigned to macro cluster)
+        table
+          tr
+            td= @stats.micro_cluster_count
+            td
+              |   (
+              = @stats.assigned_micro_cluster_count
+              |  assigned to macro cluster)
+          tr
+            td
+            td
+              |   (
+              = @stats.ignored_micro_cluster_count
+              |  ignored)
     tr
       td Number of macro clusters
       td
