@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_03_14_133313) do
+ActiveRecord::Schema.define(version: 2020_04_08_173146) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "fuzzystrmatch"
@@ -123,6 +123,7 @@ ActiveRecord::Schema.define(version: 2020_03_14_133313) do
 
   create_table "micro_clusters", force: :cascade do |t|
     t.datetime "created_at", precision: 6, null: false
+    t.boolean "ignored", default: false
     t.bigint "macro_cluster_id"
     t.text "simplified_brand_name", null: false
     t.text "simplified_ink_name", null: false
