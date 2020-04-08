@@ -69,10 +69,13 @@ const BrandSelector = () => {
   const dispatch = useContext(DispatchContext);
   const { microClusters, selectedBrands } = useContext(StateContext);
   const values = _.countBy(microClusters.map((c) => c.simplified_brand_name));
-  const options = _.map(values, (value, key) => ({
-    value: key,
-    label: `${key} (${value})`,
-  }));
+  const options = _.sortBy(
+    _.map(values, (value, key) => ({
+      value: key,
+      label: `${key} (${value})`,
+    })),
+    "label"
+  );
   return (
     <div>
       <Select
