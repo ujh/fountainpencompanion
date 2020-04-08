@@ -29,7 +29,9 @@ class Admins::MicroClustersController < Admins::BaseController
   private
 
   def update_params
-    (params['_jsonapi'] || params).require(:data).require(:attributes).permit(:macro_cluster_id)
+    (params['_jsonapi'] || params).require(:data).require(:attributes).permit(
+      :macro_cluster_id, :ignored
+    )
   end
 
   def options(rel)
