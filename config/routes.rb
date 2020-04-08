@@ -68,6 +68,9 @@ Rails.application.routes.draw do
     end
     resources :macro_clusters, only: [:index, :create, :update, :destroy, :show]
     resources :micro_clusters, only: [:index, :update] do
+      collection do
+        get 'ignored'
+      end
       member do
         delete 'unassign'
       end

@@ -1,0 +1,14 @@
+table class="table table-striped"
+  thead
+    tr
+      th ID
+      th Brand
+      th Line
+      th Name
+  tbody
+    - @clusters.each do |cluster|
+      tr
+        td= cluster.id
+        td= cluster.simplified_brand_name
+        td= cluster.simplified_line_name
+        td= cluster.simplified_ink_name

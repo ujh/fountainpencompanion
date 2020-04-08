@@ -13,6 +13,12 @@ class Admins::MicroClustersController < Admins::BaseController
     end
   end
 
+  def ignored
+    @clusters = MicroCluster.ignored.order(
+      :simplified_brand_name, :simplified_line_name, :simplified_ink_name
+    )
+  end
+
   def update
     cluster = MicroCluster.find(params[:id])
     cluster.update!(update_params)
