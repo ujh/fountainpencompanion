@@ -2,23 +2,29 @@ class UpdateMacroCluster
   include Sidekiq::Worker
 
   def perform(id)
-    cluster = MacroCluster.find(id)
-    update_color(cluster)
-    update_names(cluster)
+    self.cluster = MacroCluster.find(id)
+    update_color
+    update_names
     cluster.save
   end
 
   private
 
-  def update_names(cluster)
-    grouped = cluster.collected_inks.group_by {|ci| ci.short_name }
-    popular = grouped.values.max_by {|cis| cis.length }.first
-    cluster.brand_name = popular.brand_name
-    cluster.line_name = popular.line_name
-    cluster.ink_name = popular.ink_name
+  attr_accessor :cluster
+
+  def update_names
+    cluster.brand_name = popular(:brand_name)
+    cluster.line_name = popular(:line_name)
+    cluster.ink_name = popular(:ink_name)
   end
 
-  def update_color(cluster)
+  def popular(field)
+    grouped = cluster.collected_inks.group_by {|ci| ci.send(field) }
+    popular = grouped.values.max_by {|cis| cis.length }.first
+    popular.send(field)
+  end
+
+  def update_color
     colors = cluster.collected_inks.with_color.pluck(:color).map do |c|
       Color::RGB.from_html(c)
     end
