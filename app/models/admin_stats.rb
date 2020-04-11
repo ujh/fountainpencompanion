@@ -8,6 +8,14 @@ class AdminStats
     MicroCluster.where.not(macro_cluster_id: nil).count
   end
 
+  def ignored_micro_cluster_count
+    MicroCluster.ignored.count
+  end
+
+  def micro_clusters_to_assign_count
+    micro_cluster_count - (assigned_micro_cluster_count + ignored_micro_cluster_count)
+  end
+
   def macro_cluster_count
     @macro_cluster_count ||= MacroCluster.count
   end
@@ -24,9 +32,6 @@ class AdminStats
     collected_inks_with_macro_cluster*100.0/collected_inks_count
   end
 
-  def ignored_micro_cluster_count
-    MicroCluster.ignored.count
-  end
 
   def user_count
     @user_count ||= User.count

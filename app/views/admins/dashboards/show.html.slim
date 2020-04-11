@@ -54,6 +54,12 @@ table class="table table-striped"
               |   (
               = @stats.ignored_micro_cluster_count
               |  ignored)
+          tr
+            td
+            td
+              |   (
+              = @stats.micro_clusters_to_assign_count
+              |  waiting to be assigned)
     tr
       td Number of macro clusters
       td
