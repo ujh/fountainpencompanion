@@ -79,7 +79,9 @@ class AdminStats
   end
 
   def collected_inks_with_color_count
-    @collected_inks_with_color_count ||= CollectedInk.with_color.count
+    @collected_inks_with_color_count ||= CollectedInk.where.not(color: '').or(
+      CollectedInk.where.not(cluster_color: '')
+    ).count
   end
 
   def collected_inks_with_color_percentage
@@ -87,7 +89,9 @@ class AdminStats
   end
 
   def collected_inks_without_color_count
-    @collected_inks_without_color_count ||= CollectedInk.without_color.count
+    @collected_inks_without_color_count ||= CollectedInk.where(color: '').or(
+      CollectedInk.where(cluster_color: '')
+    ).count
   end
 
   def ink_count
