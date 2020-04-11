@@ -100,7 +100,7 @@ describe CollectedInksController do
         ink = create(:collected_ink, user: user)
         expect do
           delete :destroy, params: { id: ink.id }
-          expect(response).to redirect_to(collected_inks_beta_index_path)
+          expect(response).to redirect_to(collected_inks_path)
         end.to change { user.collected_inks.count }.by(-1)
       end
 
@@ -117,7 +117,7 @@ describe CollectedInksController do
         ink = create(:collected_ink, user: user, currently_inked_count: 1)
         expect do
           delete :destroy, params: { id: ink.id }
-          expect(response).to redirect_to(collected_inks_beta_index_path)
+          expect(response).to redirect_to(collected_inks_path)
         end.to_not change { user.collected_inks.count }
       end
     end
@@ -139,7 +139,7 @@ describe CollectedInksController do
         ink = create(:collected_ink, user: user)
         expect do
           post :archive, params: { id: ink.id }
-          expect(response).to redirect_to(collected_inks_beta_index_path)
+          expect(response).to redirect_to(collected_inks_path)
         end.to change { ink.reload.archived_on }.from(nil).to(Date.today)
       end
 
@@ -170,7 +170,7 @@ describe CollectedInksController do
         ink = create(:collected_ink, user: user, archived_on: Date.today)
         expect do
           post :unarchive, params: { id: ink.id }
-          expect(response).to redirect_to(collected_inks_beta_index_path)
+          expect(response).to redirect_to(collected_inks_path(search: { archive: true }))
         end.to change { ink.reload.archived_on }.from(Date.today).to(nil)
       end
 
@@ -231,7 +231,7 @@ describe CollectedInksController do
           color: '#000000',
           private: true,
         } }
-        expect(response).to redirect_to(collected_inks_beta_index_path)
+        expect(response).to redirect_to(collected_inks_path)
         ink.reload
         expect(ink.brand_name).to eq('new brand name')
         expect(ink.line_name).to eq('new line name')
@@ -286,7 +286,7 @@ describe CollectedInksController do
       it 'creates a new entry' do
         expect do
           post :create, params: { collected_ink: { brand_name: 'brand', ink_name: 'ink'} }
-          expect(response).to redirect_to(collected_inks_beta_index_path)
+          expect(response).to redirect_to(collected_inks_path)
         end.to change { user.collected_inks.count }.by(1)
       end
 
