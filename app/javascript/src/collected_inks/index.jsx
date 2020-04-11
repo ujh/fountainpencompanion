@@ -8,7 +8,7 @@ import { getRequest } from "src/fetch";
 
 document.addEventListener("DOMContentLoaded", () => {
   const elements = document.querySelectorAll("#collected-inks .app");
-  Array.from(elements).forEach(el => {
+  Array.from(elements).forEach((el) => {
     ReactDOM.render(
       <CollectedInks archive={el.getAttribute("data-archive") == "true"} />,
       el
@@ -20,11 +20,11 @@ const CollectedInks = ({ archive }) => {
   const [inks, setInks] = useState();
   useEffect(() => {
     getRequest("/collected_inks.json")
-      .then(response => response.json())
-      .then(json => setInks(json.data));
+      .then((response) => response.json())
+      .then((json) => setInks(json.data));
   }, []);
   const nonArchived = useMemo(
-    () => (inks || []).filter(i => i.attributes.archived == archive),
+    () => (inks || []).filter((i) => i.attributes.archived == archive),
     [inks]
   );
   if (inks) {
@@ -49,42 +49,42 @@ const CollectedInksBetaTable = ({ data, archive }) => {
           } else {
             return <i className="fa fa-unlock" />;
           }
-        }
+        },
       },
       {
         Header: "Brand",
         accessor: "attributes.brand_name",
-        Footer: info => {
+        Footer: (info) => {
           const count = useMemo(() => {
             return _.uniqBy(
               info.rows,
-              row => row.values["attributes.brand_name"]
+              (row) => row.values["attributes.brand_name"]
             ).length;
           }, [info.rows]);
           return <span>{count} brands</span>;
-        }
+        },
       },
       {
         Header: "Line",
-        accessor: "attributes.line_name"
+        accessor: "attributes.line_name",
       },
       {
         Header: "Name",
         accessor: "attributes.ink_name",
-        Footer: info => {
+        Footer: (info) => {
           return <span>{info.rows.length} inks</span>;
-        }
+        },
       },
       {
         Header: "Maker",
-        accessor: "attributes.maker"
+        accessor: "attributes.maker",
       },
       {
         Header: "Type",
         accessor: "attributes.kind",
-        Footer: info => {
+        Footer: (info) => {
           const counters = useMemo(() => {
-            return _.countBy(info.rows, row => row.values["attributes.kind"]);
+            return _.countBy(info.rows, (row) => row.values["attributes.kind"]);
           });
           return (
             <span>
@@ -97,13 +97,13 @@ const CollectedInksBetaTable = ({ data, archive }) => {
               </span>
             </span>
           );
-        }
+        },
       },
       {
         Header: "Color",
         accessor: "attributes.color",
         Cell: () => "",
-        sortType: colorSort
+        sortType: colorSort,
       },
       {
         Header: "Swabbed",
@@ -115,7 +115,7 @@ const CollectedInksBetaTable = ({ data, archive }) => {
             return <i className="fa fa-times" />;
           }
         },
-        sortType: booleanSort
+        sortType: booleanSort,
       },
       {
         Header: "Used",
@@ -127,28 +127,28 @@ const CollectedInksBetaTable = ({ data, archive }) => {
             return <i className="fa fa-times" />;
           }
         },
-        sortType: booleanSort
+        sortType: booleanSort,
       },
       {
         Header: "Usage",
-        accessor: "attributes.usage"
+        accessor: "attributes.usage",
       },
       {
         Header: "Comment",
-        accessor: "attributes.comment"
+        accessor: "attributes.comment",
       },
       {
         Header: "Private Comment",
-        accessor: "attributes.private_comment"
-      }
+        accessor: "attributes.private_comment",
+      },
     ],
     [data]
   );
   const hiddenColumns = useMemo(
     () =>
       ["private_comment", "comment", "maker", "line_name", "kind"]
-        .filter(n => !data.some(e => e.attributes[n]))
-        .map(n => `attributes.${n}`),
+        .filter((n) => !data.some((e) => e.attributes[n]))
+        .map((n) => `attributes.${n}`),
     []
   );
   const {
@@ -160,18 +160,18 @@ const CollectedInksBetaTable = ({ data, archive }) => {
     prepareRow,
     state,
     preGlobalFilteredRows,
-    setGlobalFilter
+    setGlobalFilter,
   } = useTable(
     {
       columns,
       data,
       initialState: {
-        hiddenColumns
+        hiddenColumns,
       },
       filterTypes: {
-        fuzzyText: fuzzyTextFilterFn
+        fuzzyText: fuzzyTextFilterFn,
       },
-      globalFilter: "fuzzyText"
+      globalFilter: "fuzzyText",
     },
     useGlobalFilter,
     useSortBy
@@ -213,14 +213,14 @@ const Table = ({
   footerGroups,
   getTableBodyProps,
   rows,
-  prepareRow
+  prepareRow,
 }) => (
   <div className="table-responsive">
     <table {...getTableProps()} className="table table-striped">
       <thead>
-        {headerGroups.map(headerGroup => (
+        {headerGroups.map((headerGroup) => (
           <tr {...headerGroup.getHeaderGroupProps()}>
-            {headerGroup.headers.map(column => (
+            {headerGroup.headers.map((column) => (
               <th {...column.getHeaderProps(column.getSortByToggleProps())}>
                 {column.render("Header")}
                 <span>
@@ -246,11 +246,11 @@ const Table = ({
           prepareRow(row);
           return (
             <tr {...row.getRowProps()}>
-              {row.cells.map(cell => {
+              {row.cells.map((cell) => {
                 let additionalProps = {};
                 if (cell.column.id == "attributes.color" && cell.value) {
                   additionalProps = {
-                    style: { backgroundColor: cell.value, width: "30px" }
+                    style: { backgroundColor: cell.value, width: "30px" },
                   };
                 }
                 return (
@@ -265,9 +265,9 @@ const Table = ({
         })}
       </tbody>
       <tfoot>
-        {footerGroups.map(group => (
+        {footerGroups.map((group) => (
           <tr {...group.getFooterGroupProps()}>
-            {group.headers.map(column => (
+            {group.headers.map((column) => (
               <td {...column.getFooterProps()}>{column.render("Footer")}</td>
             ))}
             <td></td>
@@ -282,7 +282,7 @@ const Buttons = ({
   archive,
   preGlobalFilteredRows,
   setGlobalFilter,
-  globalFilter
+  globalFilter,
 }) => {
   return (
     <div className="row buttons">
@@ -300,7 +300,7 @@ const Buttons = ({
         <div className="search">
           <input
             value={globalFilter || ""}
-            onChange={e => {
+            onChange={(e) => {
               setGlobalFilter(e.target.value || undefined); // Set undefined to remove the filter entirely
             }}
             placeholder={`Type to search in ${preGlobalFilteredRows.length} inks`}
@@ -318,32 +318,39 @@ const ActionsCell = ({
   brand_name,
   line_name,
   ink_name,
-  kind
+  kind,
 }) => {
-  let inkName = [brand_name, line_name, ink_name].filter(c => c).join(" ");
+  let inkName = [brand_name, line_name, ink_name].filter((c) => c).join(" ");
   if (kind) inkName += ` - ${kind}`;
   return (
     <td className="actions">
-      <EditButton name={inkName} id={id} />
+      <EditButton name={inkName} id={id} archived={archived} />
       <ArchiveButton name={inkName} id={id} archived={archived} />
-      <DeleteButton name={inkName} id={id} deletable={deletable} />
+      <DeleteButton
+        name={inkName}
+        id={id}
+        deletable={deletable}
+        archived={archived}
+      />
     </td>
   );
 };
 
-const EditButton = ({ name, id }) => (
-  <span>
-    <a
-      className="btn btn-default"
-      href={`/collected_inks/${id}/edit`}
-      title={`Edit ${name}`}
-    >
-      <i className="fa fa-pencil" />
-    </a>
-  </span>
-);
+const EditButton = ({ name, id, archived }) => {
+  let href = `/collected_inks/${id}/edit`;
+  if (archived) href += "?search[archive]=true";
+  return (
+    <span>
+      <a className="btn btn-default" href={href} title={`Edit ${name}`}>
+        <i className="fa fa-pencil" />
+      </a>
+    </span>
+  );
+};
 
-const DeleteButton = ({ name, id, deletable }) => {
+const DeleteButton = ({ name, id, deletable, archived }) => {
+  let href = `/collected_inks/${id}`;
+  if (archived) href += "?search[archive]=true";
   if (!deletable) return null;
   return (
     <span>
@@ -352,7 +359,7 @@ const DeleteButton = ({ name, id, deletable }) => {
         data-confirm={`Really delete ${name}?`}
         title={`Delete ${name}`}
         data-method="delete"
-        href={`/collected_inks/${id}`}
+        href={href}
       >
         <i className="fa fa-trash" />
       </a>
@@ -414,7 +421,7 @@ const sortByElement = (arrayA, arrayB, i) => {
 };
 
 // See https://www.alanzucconi.com/2015/09/30/colour-sorting/
-const hexToSortArray = hex => {
+const hexToSortArray = (hex) => {
   const repetitions = 8;
   const [r, g, b] = convert.hex.rgb(hex);
   const lum = Math.sqrt(0.241 * r + 0.691 * g + 0.068 * b);
@@ -436,9 +443,9 @@ function fuzzyTextFilterFn(rows, id, filterValue) {
     "attributes.ink_name",
     "attributes.maker",
     "attributes.comment",
-    "attributes.private_comment"
+    "attributes.private_comment",
   ];
   return matchSorter(rows, filterValue.replace(/\s+/gi, ""), {
-    keys: [row => attrs.map(a => row.values[a]).join("")]
+    keys: [(row) => attrs.map((a) => row.values[a]).join("")],
   });
 }

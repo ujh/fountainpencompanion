@@ -29,7 +29,7 @@ class CollectedInksController < ApplicationController
     self.ink = collected_ink = current_user.collected_inks.build
     if SaveCollectedInk.new(ink, collected_ink_params).perform
       flash[:notice] = 'Successfully created ink'
-      redirect_to collected_inks_beta_index_path
+      redirect_to collected_inks_path
     else
       render :new
     end
@@ -41,7 +41,11 @@ class CollectedInksController < ApplicationController
   def update
     if SaveCollectedInk.new(ink, collected_ink_params).perform
       flash[:notice] = 'Successfully updated ink'
-      redirect_to collected_inks_beta_index_path
+      if archive?
+        redirect_to collected_inks_path(search: { archive: true })
+      else
+        redirect_to collected_inks_path
+      end
     else
       render :edit
     end
@@ -56,19 +60,23 @@ class CollectedInksController < ApplicationController
         flash[:alert] = "'#{ink.name}' has currently inked entries attached and can't be deleted."
       end
     end
-    redirect_to collected_inks_beta_index_path
+    if archive?
+      redirect_to collected_inks_path(search: { archive: true })
+    else
+      redirect_to collected_inks_path
+    end
   end
 
   def archive
     flash[:notice] = "Successfully archived '#{ink.name}'" if ink
     ink&.archive!
-    redirect_to collected_inks_beta_index_path
+    redirect_to collected_inks_path
   end
 
   def unarchive
     flash[:notice] = "Successfully unarchived '#{ink.name}'" if ink
     ink&.unarchive!
-    redirect_to collected_inks_beta_index_path
+    redirect_to collected_inks_path(search: { archive: true })
   end
 
   private
@@ -81,7 +89,7 @@ class CollectedInksController < ApplicationController
 
   helper_method :archive?
   def archive?
-    params.dig(:search, :archive) == 'true'
+    params.dig(:search, :archive) == 'true' || params[:archive]
   end
 
   def collected_ink_params

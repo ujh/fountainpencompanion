@@ -1,4 +1,6 @@
 = simple_form_for ink do |f|
+  - if archive?
+    = hidden_field_tag :archive, 'true'
   div class="row"
     div class="col-sm-12 col-md-6"
       = f.input :brand_name, required: true, hint: "e.g. Pilot, Parker, Waterman"
