@@ -29,7 +29,12 @@ class CollectedInksController < ApplicationController
     self.ink = collected_ink = current_user.collected_inks.build
     if SaveCollectedInk.new(ink, collected_ink_params).perform
       flash[:notice] = 'Successfully created ink'
-      redirect_to collected_inks_path
+      if params[:redo]
+        self.ink = collected_ink = current_user.collected_inks.build
+        render :new
+      else
+        redirect_to collected_inks_path
+      end
     else
       render :new
     end
