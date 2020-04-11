@@ -101,6 +101,10 @@ class CollectedInk < ApplicationRecord
     end
   end
 
+  def color
+    read_attribute(:color).presence || cluster_color
+  end
+
   def name
     n = short_name
     n = "#{n} - #{kind}" if kind.present?

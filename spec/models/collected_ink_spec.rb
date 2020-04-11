@@ -171,4 +171,18 @@ describe CollectedInk do
       expect(entry['Usage']).to eq('2')
     end
   end
+
+  describe '#color' do
+    it 'returns color if it is set even if cluster_color also set' do
+      subject.color = '#aaa'
+      subject.cluster_color = '#bbb'
+      expect(subject.color).to eq('#aaa')
+    end
+
+    it 'returns cluster color if color not set' do
+      subject.color = ''
+      subject.cluster_color = '#bbb'
+      expect(subject.color).to eq('#bbb')
+    end
+  end
 end
