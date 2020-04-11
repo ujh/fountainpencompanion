@@ -89,9 +89,7 @@ class AdminStats
   end
 
   def collected_inks_without_color_count
-    @collected_inks_without_color_count ||= CollectedInk.where(color: '').or(
-      CollectedInk.where(cluster_color: '')
-    ).count
+    @collected_inks_without_color_count ||= CollectedInk.where(color: '', cluster_color: '').count
   end
 
   def ink_count
