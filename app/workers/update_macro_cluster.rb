@@ -6,6 +6,7 @@ class UpdateMacroCluster
     update_color
     update_names
     cluster.save
+    cluster.collected_inks.update_all(cluster_color: cluster.color)
   end
 
   private
