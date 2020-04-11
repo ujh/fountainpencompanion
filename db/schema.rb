@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_04_10_182613) do
+ActiveRecord::Schema.define(version: 2020_04_11_110348) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "fuzzystrmatch"
@@ -40,6 +40,7 @@ ActiveRecord::Schema.define(version: 2020_04_10_182613) do
   create_table "collected_inks", id: :serial, force: :cascade do |t|
     t.date "archived_on"
     t.string "brand_name", limit: 100, null: false
+    t.string "cluster_color", limit: 7, default: ""
     t.string "color", limit: 7, default: "", null: false
     t.text "comment", default: ""
     t.datetime "created_at", null: false
