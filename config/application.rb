@@ -30,5 +30,6 @@ module Fountainpencompanion
     # the framework and any gems in your application.
 
     config.middleware.insert_before(Rack::Sendfile, Rack::Deflater)
+    config.active_job.queue_adapter = :sidekiq
   end
 end
