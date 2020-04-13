@@ -59,7 +59,7 @@ Rails.application.routes.draw do
   namespace :admins do
     resource :dashboard, only: [:show]
     resources :ink_brands, only: [:index, :show]
-    resources :users, only: [:index] do
+    resources :users, only: [:index, :show, :update] do
       member do
         post 'become'
         post 'ink_import'

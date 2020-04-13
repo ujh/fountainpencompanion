@@ -19,6 +19,9 @@ table class="table table-striped"
               |  (
               = number_to_percentage(@stats.active_user_percentage, precision: 2)
               |  active, i.e. with at least one ink or pen)
+          tr
+            td
+            td= "(#{@stats.patron_count} Patrons)"
     tr
       td Number of ink brands
       td= InkBrand.public_count

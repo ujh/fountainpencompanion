@@ -58,6 +58,10 @@ class AdminStats
     active_user_count*100.0/user_count
   end
 
+  def patron_count
+    User.where(patron: true).count
+  end
+
   def users_using_collected_pens_count
     @users_using_collected_pens_count ||= User.joins(:collected_pens).group('users.id').count.count
   end

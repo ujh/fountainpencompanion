@@ -2,13 +2,24 @@ require 'csv'
 
 class Admins::UsersController < Admins::BaseController
 
-  before_action :fetch_user, only: [:become, :ink_import, :pen_import]
+  before_action :fetch_user, only: [:become, :ink_import, :pen_import, :show, :update]
 
   def index
     @users = User.order(:id)
     @ink_counts = CollectedInk.group(:user_id).select("user_id, count(id)").reduce({}) {|acc, el| acc[el.user_id] = el.count; acc }
     @pen_counts = CollectedPen.group(:user_id).select("user_id, count(id)").reduce({}) {|acc, el| acc[el.user_id] = el.count; acc }
     @ci_counts = CurrentlyInked.group(:user_id).select("user_id, max(inked_on) as inked_on, count(id)").reduce({}) {|acc, el| acc[el.user_id] = el.count; acc }
+  end
+
+  def show
+  end
+
+  def update
+    if @user.update(params.require(:user).permit(:patron))
+      redirect_to admins_user_path(@user)
+    else
+      render :show
+    end
   end
 
   def become

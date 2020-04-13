@@ -1,4 +1,4 @@
-table class="table table-striped"
+table class="table table-striped" id="users-table"
   tr
     th ID
     th Email
@@ -6,11 +6,10 @@ table class="table table-striped"
     th Inks
     th Pens
     th CI
+    th Last Login
     th
-    th Import Inks
-    th Import Pens
   - @users.each do |user|
-    tr
+    tr class="#{user.patron? ? 'patron' : ''}"
       td= user.id
       td
         = user.email
@@ -20,10 +19,5 @@ table class="table table-striped"
       td= @ink_counts[user.id] || 0
       td= @pen_counts[user.id] || 0
       td= @ci_counts[user.id] || 0
-      td= link_to "Login", become_admins_user_path(user), method: :post, target: "_blank"
-      td= form_tag(ink_import_admins_user_path(user), method: :post, multipart: true) do
-          = file_field_tag "file"
-          = submit_tag "Import Inks"
-      td= form_tag(pen_import_admins_user_path(user), method: :post, multipart: true) do
-          = file_field_tag "file"
-          = submit_tag "Import Pens"
+      td= user.current_sign_in_at ? l(user.current_sign_in_at, format: :short) : ''
+      td= link_to "Details", admins_user_path(user)

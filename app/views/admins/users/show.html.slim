@@ -1,0 +1,18 @@
+- content_for :title, "#{@user.public_name} (#{@user.email})"
+
+div class="col-sm-12 col-md-6"
+  = simple_form_for [:admins, @user] do |f|
+    = f.input :patron
+    = f.submit class: 'btn btn-default'
+div class="col-sm-12 col-md-6"
+  div class="section"
+    = link_to "Login As User", become_admins_user_path(@user),
+               method: :post, target: "_blank", class: 'btn btn-default'
+  div class="section"
+    = form_tag(ink_import_admins_user_path(@user), method: :post, multipart: true) do
+      = file_field_tag "file"
+      = submit_tag "Import Inks", class: 'btn btn-default'
+  div class="section"
+    = form_tag(pen_import_admins_user_path(@user), method: :post, multipart: true) do
+      = file_field_tag "file"
+      = submit_tag "Import Pens", class: 'btn btn-default'
