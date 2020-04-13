@@ -13,7 +13,10 @@ class AdminStats
   end
 
   def micro_clusters_to_assign_count
-    micro_cluster_count - (assigned_micro_cluster_count + ignored_micro_cluster_count)
+    # The JOIN is there to remove clusters without inks
+    MicroCluster.where(
+      macro_cluster_id: nil, ignored: false
+    ).joins(:collected_inks).group('micro_clusters.id').count.count
   end
 
   def macro_cluster_count
