@@ -19,5 +19,5 @@ table class="table table-striped" id="users-table"
       td= @ink_counts[user.id] || 0
       td= @pen_counts[user.id] || 0
       td= @ci_counts[user.id] || 0
-      td= user.current_sign_in_at ? l(user.current_sign_in_at, format: :short) : ''
+      td= user.current_sign_in_at ? l(user.current_sign_in_at, format: :long) : ''
       td= link_to "Details", admins_user_path(user)
