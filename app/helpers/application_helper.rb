@@ -5,4 +5,14 @@ module ApplicationHelper
     end
     return index.succ if index
   end
+
+  def patron_tiny(user)
+    title = "Supports this site with a montly subscription through Patreon."
+    image_tag("patreon.png", class: 'patron-tiny', title: title) if user.patron?
+  end
+
+  def leaderboard_patron_tiny(data)
+    title = "Supports this site with a montly subscription through Patreon."
+    image_tag("patreon.png", class: 'patron-tiny', title: title) if data[:patron]
+  end
 end

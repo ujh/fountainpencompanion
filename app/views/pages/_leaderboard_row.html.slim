@@ -3,6 +3,8 @@ li
     b
       = link_to user_data[:public_name], user_path(user_data[:id])
       = " (#{user_data[:counter]})"
+      = leaderboard_patron_tiny(user_data)
   - else
     = link_to user_data[:public_name], user_path(user_data[:id])
     = " (#{user_data[:counter]})"
+    = leaderboard_patron_tiny(user_data)

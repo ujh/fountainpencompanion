@@ -78,7 +78,7 @@ class LeaderBoard
 
   def self.extract(relation)
     relation.map do |i|
-      { id: i.id, public_name: i.public_name, counter: i.counter }
+      { id: i.id, public_name: i.public_name, counter: i.counter, patron: i.patron }
     end
   end
 end

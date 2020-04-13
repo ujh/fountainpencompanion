@@ -1,4 +1,6 @@
-- content_for :title, @user.public_name
+- content_for :title do
+  = @user.public_name
+  = patron_tiny(@user)
 div id="account"
   div class="col-xs-12 col-sm-3 image"
     = profile_image_for(@user)
