@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_04_11_111714) do
+ActiveRecord::Schema.define(version: 2020_04_13_140510) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "fuzzystrmatch"
@@ -169,6 +169,7 @@ ActiveRecord::Schema.define(version: 2020_04_11_111714) do
     t.datetime "last_sign_in_at"
     t.inet "last_sign_in_ip"
     t.string "name", limit: 100
+    t.boolean "patron", default: false
     t.datetime "remember_created_at"
     t.datetime "reset_password_sent_at"
     t.string "reset_password_token"
