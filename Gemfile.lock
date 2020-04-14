@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/fast-jsonapi/fast_jsonapi
-  revision: 990c0acd18137c96d0c3e4a3168cc71fd3b912c2
+  revision: 0edebd99e663832bf4d279376d54b18bc34e0c4f
   specs:
     fast_jsonapi (1.6.0)
       activesupport (>= 4.2)
@@ -317,7 +317,7 @@ GEM
     thor (1.0.1)
     thread_safe (0.3.6)
     tilt (2.0.10)
-    tzinfo (1.2.6)
+    tzinfo (1.2.7)
       thread_safe (~> 0.1)
     uglifier (4.2.0)
       execjs (>= 0.3.0, < 3)
