@@ -15,4 +15,9 @@ module ApplicationHelper
     title = "Supports this site with a montly subscription through Patreon."
     image_tag("patreon.png", class: 'patron-tiny', title: title) if data[:patron]
   end
+
+  def show_fundraiser?
+    # Only for signed in users, every 6 months
+    user_signed_in? && !current_user.patron? && [17, 43].include?(Date.today.cweek)
+  end
 end

@@ -1,6 +1,4 @@
 div id="wrap"
-  div id="patreon"
-    a href="https://www.patreon.com/bePatron?u=6900241" Become a Patron!
   div class="container" id="main"
     - unless cookies['cookie-alert']
       div id="cookie-alert" class="alert alert-info alert-dismissible"
@@ -13,6 +11,19 @@ div id="wrap"
       div class="alert alert-success"= flash[:notice]
     - if flash[:alert]
       div class="alert alert-danger"= flash[:alert]
+    - if show_fundraiser?
+      div class="alert alert-warning"
+        p
+          ' Thank you for using Fountain Pen Companion! I hope that you are enjoying the service.
+          ' If you have the means, please consider becoming a
+          a href="https://www.patreon.com/bePatron?u=6900241"
+            b Patreon supporter
+          ' . This will ensure that I will have the means to keep this site running independently
+          ' of any third party. Feel free to
+          a href="mailto:hello@fountainpencompanion.com" reach out to me
+          '  if you have any questions.
+        p
+          a href="/users/1" Your friendly FPC software developer.
     h1 class="page-title"= content_for :title
     - if content_for?(:subtitle)
       div class="page-subtitle"= content_for :subtitle
