@@ -11,10 +11,12 @@
     position: fixed;
     bottom: 15px;
     right: 15px;
-    font-size: 30px;
+    font-size: 36px;
     text-decoration: none;
-    border: 1px solid #adadad;
+    border: 2px solid #2e6da4;
     border-radius: 5px;
+    color: #fff;
+    background-color: #337ab7;
     padding-top: 5px;
     padding-bottom: 5px;
     padding-left: 10px;
@@ -23,7 +25,8 @@
     background-repeat: repeat;
     z-index: 1000;
     &:hover {
-      background-color: #e6e6e6;
+      background-color: #286090;
+      border-color: #204d74;
     }
   }
   .buttons {
