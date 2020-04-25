@@ -233,7 +233,7 @@ describe SaveCollectedInk do
     cis << add!(brand_name: 'Ban Mi', ink_name: 'Black (Gorilla)')
     cis.map(&:reload)
     expect(cis.map(&:ink_brand).uniq.length).to eq(2)
-    expect(cis.map(&:new_ink_name).uniq.length).to eq(2)
+    expect(cis.map(&:new_ink_name).uniq.length).to eq(3)
   end
 
   it 'does not combine Kobe and Krone' do

@@ -1,16 +1,14 @@
 class Simplifier
 
   def self.simplify(name, too_short: false)
-    without_brackets = name.gsub(/\(.*\)/, '')
-    without_no = without_brackets.gsub(/^no\s*\.\s*(\d+)/i, '\1')
+    without_no = name.gsub(/^no\s*\.\s*(\d+)/i, '\1')
     return $1 if without_no =~ /^#?(\d+)$/
     without_no = without_no.gsub(/^#\d+/, '') unless too_short
     without_initials = remove_initials(without_no)
     without_ampersand = without_initials.gsub('&', 'and')
     without_plus = without_ampersand.gsub('+', 'and')
     without_non_english_letters = I18n.transliterate(without_plus)
-    without_quotes_at_end = without_non_english_letters.gsub(/"([^"]*)"/, '')
-    only_letters_and_numbers = without_quotes_at_end.gsub(/\W/, '')
+    only_letters_and_numbers = without_non_english_letters.gsub(/\W/, '')
     downcased = only_letters_and_numbers.downcase
     return name unless downcased.present?
     if !too_short && downcased.length < 5

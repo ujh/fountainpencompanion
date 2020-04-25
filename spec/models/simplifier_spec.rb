@@ -7,8 +7,8 @@ describe Simplifier do
       expect(described_class.simplify("ä")).to eq("a")
     end
 
-    it "removes stuff in brackets" do
-      expect(described_class.simplify("some (thing)")).to eq("some")
+    it "does not remove stuff in brackets" do
+      expect(described_class.simplify("some (thing)")).to eq("something")
     end
 
     it "replaces ampersand with and" do
@@ -28,12 +28,12 @@ describe Simplifier do
       expect(described_class.simplify("1864 blue black")).to eq("1864blueblack")
     end
 
-    it "removes stuff in quotes at the end" do
-      expect(described_class.simplify('something "bla"')).to eq("something")
+    it "does not remove stuff in quotes at the end" do
+      expect(described_class.simplify('something "bla"')).to eq("somethingbla")
     end
 
-    it "remove stuff in quotes in the middle" do
-      expect(described_class.simplify('something "bla" else')).to eq("somethingelse")
+    it "does not remove stuff in quotes in the middle" do
+      expect(described_class.simplify('something "bla" else')).to eq("somethingblaelse")
     end
 
     it "removes no. N at the beginning" do
