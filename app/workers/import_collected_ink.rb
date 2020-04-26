@@ -3,13 +3,17 @@ class ImportCollectedInk
 
   def perform(user_id, row)
     SaveCollectedInk.new(
-      collected_ink(user_id),
+      collected_ink(user_id, row),
       params(row)
     ).perform
   end
 
-  def collected_ink(user_id)
-    User.find(user_id).collected_inks.build
+  def collected_ink(user_id, row)
+    User.find(user_id).collected_inks.find_or_initialize_by(
+      brand_name: row['brand_name'].to_s,
+      line_name: row['line_name'].to_s,
+      ink_name: row['ink_name'].to_s
+    )
   end
 
   def params(row)
@@ -22,7 +26,8 @@ class ImportCollectedInk
     row["archived_on"] = row["archived"].present? ? Date.today : nil
     row["kind"] = "bottle" unless row["kind"].present?
     row.slice(
-      "brand_name", "line_name", "ink_name", "maker", "kind", "private", "comment", "used", "archived_on"
+      "brand_name", "line_name", "ink_name", "maker", "kind", "private", "comment", "used",
+      "archived_on", "private_comment"
     )
   end
 end
