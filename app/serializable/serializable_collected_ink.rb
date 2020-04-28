@@ -27,5 +27,8 @@ class SerializableCollectedInk < JSONAPI::Serializable::Resource
   attribute :usage do
     @object.currently_inked_count
   end
+  attribute :daily_usage do
+    @object.usage_records.size
+  end
   attribute :used
 end

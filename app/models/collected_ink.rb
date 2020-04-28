@@ -20,6 +20,7 @@ class CollectedInk < ApplicationRecord
   has_one :ink_brand, through: :new_ink_name
   belongs_to :user
   has_many :currently_inkeds
+  has_many :usage_records, through: :currently_inkeds
   belongs_to :micro_cluster, optional: true
 
   def si

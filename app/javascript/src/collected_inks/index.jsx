@@ -132,6 +132,12 @@ const CollectedInksBetaTable = ({ data, archive }) => {
       {
         Header: "Usage",
         accessor: "attributes.usage",
+        sortDescFirst: true,
+      },
+      {
+        Header: "Daily Usage",
+        accessor: "attributes.daily_usage",
+        sortDescFirst: true,
       },
       {
         Header: "Comment",
@@ -146,7 +152,14 @@ const CollectedInksBetaTable = ({ data, archive }) => {
   );
   const hiddenColumns = useMemo(
     () =>
-      ["private_comment", "comment", "maker", "line_name", "kind"]
+      [
+        "private_comment",
+        "comment",
+        "maker",
+        "line_name",
+        "kind",
+        "daily_usage",
+      ]
         .filter((n) => !data.some((e) => e.attributes[n]))
         .map((n) => `attributes.${n}`),
     []
