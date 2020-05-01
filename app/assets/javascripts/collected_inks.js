@@ -7,7 +7,7 @@ $(function () {
         })
         .then(function (r) {
           var names = $.map(r.data, function (e) {
-            return e.attributes.brand_name;
+            return e.attributes.name;
           });
           response(names);
         });

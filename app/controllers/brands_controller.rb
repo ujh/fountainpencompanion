@@ -2,10 +2,8 @@ class BrandsController < ApplicationController
   def index
     respond_to do |format|
       format.json {
-        clusters = MacroCluster.autocomplete_search(params[:term], :brand_name)
-        serializer = MacroClusterSerializer.new(
-          clusters, fields: { macro_cluster: [:brand_name]}
-        )
+        clusters = BrandCluster.autocomplete_search(params[:term])
+        serializer = BrandClusterSerializer.new(clusters)
         render json: serializer.serializable_hash.to_json
       }
       format.html {
