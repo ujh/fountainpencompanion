@@ -26,21 +26,12 @@ table class="table table-striped"
       td Number of ink brands
       td= InkBrand.public_count
     tr
-      td Number of distinct inks
+      td Number of macro clusters
       td
-        table
-          tr
-            td= @stats.ink_count
-            td
-              | (
-              = number_to_percentage(@stats.inks_with_color_percentage, precision: 2)
-              |  inks with color)
-          tr
-            td
-            td
-              | (
-              = @stats.inks_without_color_count
-              |  inks without color)
+        = @stats.macro_cluster_count
+        |   (
+        = number_to_percentage(@stats.macro_clusters_with_color_percentage, precision: 2)
+        |   clusters with color)
     tr
       td Number of micro clusters
       td
@@ -63,13 +54,6 @@ table class="table table-striped"
               |   (
               = @stats.micro_clusters_to_assign_count
               |  waiting to be assigned)
-    tr
-      td Number of macro clusters
-      td
-        = @stats.macro_cluster_count
-        |   (
-        = number_to_percentage(@stats.macro_clusters_with_color_percentage, precision: 2)
-        |   clusters with color)
     tr
       td Number of collected inks
       td

@@ -104,22 +104,6 @@ class AdminStats
     @collected_inks_without_color_count ||= CollectedInk.where(color: '', cluster_color: '').count
   end
 
-  def ink_count
-    @ink_count ||= NewInkName.public_count
-  end
-
-  def inks_with_color_count
-    @inks_with_color_count ||= NewInkName.with_color.public_count
-  end
-
-  def inks_with_color_percentage
-    inks_with_color_count*100.0/ink_count
-  end
-
-  def inks_without_color_count
-    @inks_without_color_count ||= NewInkName.without_color.public_count
-  end
-
   def users_using_usage_records_count
     @users_using_usage_records_count ||= User.joins(currently_inkeds: :usage_records).group('users.id').count.count
   end
