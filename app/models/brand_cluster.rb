@@ -1,0 +1,2 @@
+class BrandCluster < ApplicationRecord
+end
