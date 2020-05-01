@@ -1,0 +1,15 @@
+table class="table"
+  tbody
+    - @brand_clusters.each do |brand_cluster|
+      tr
+        td= brand_cluster.id
+        td= brand_cluster.name
+        td
+          table class="table"
+            tbody
+              - brand_cluster.macro_clusters.order(:brand_name, :line_name, :ink_name).each do |macro_cluster|
+                tr
+                  td= macro_cluster.id
+                  td= macro_cluster.brand_name
+                  td= macro_cluster.line_name
+                  td= macro_cluster.ink_name

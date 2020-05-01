@@ -17,6 +17,11 @@ nav class="navbar navbar-default" id="header"
             li= link_to "Clustering App", admins_micro_clusters_path
             li= link_to "Clusters", admins_macro_clusters_path
             li= link_to "Ignored", ignored_admins_micro_clusters_path
+        li class="dropdown"
+          a href="#" class="dropdown-toggle" data-toggle="dropdown" Brand Clusters
+          ul class="dropdown-menu"
+            li= link_to "Clustering App", new_admins_brand_cluster_path
+            li= link_to "Clusters", admins_brand_clusters_path
         li= link_to "Sidekiq", sidekiq_web_path
       ul class="nav navbar-nav navbar-right"
         li= link_to "Logout", destroy_admin_session_path, method: :delete

@@ -24,14 +24,23 @@ table class="table table-striped"
             td= "(#{@stats.patron_count} Patrons)"
     tr
       td Number of ink brands
-      td= InkBrand.public_count
+      td= BrandCluster.public_count
     tr
       td Number of macro clusters
       td
-        = @stats.macro_cluster_count
-        |   (
-        = number_to_percentage(@stats.macro_clusters_with_color_percentage, precision: 2)
-        |   clusters with color)
+        table
+          tr
+            td= @stats.macro_cluster_count
+            td
+              |  (
+              = number_to_percentage(@stats.macro_clusters_with_color_percentage, precision: 2)
+              |  clusters with color)
+          tr
+            td
+            td
+              | (
+              = @stats.unassigned_macro_cluster_count
+              |  unassigned macro clusters)
     tr
       td Number of micro clusters
       td

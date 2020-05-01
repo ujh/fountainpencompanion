@@ -111,4 +111,8 @@ class AdminStats
   def users_using_usage_records_percentage
     users_using_usage_records_count*100.0/active_user_count
   end
+
+  def unassigned_macro_cluster_count
+    MacroCluster.unassigned.count
+  end
 end

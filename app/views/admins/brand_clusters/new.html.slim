@@ -1,0 +1,35 @@
+- content_for :title, "#{MacroCluster.unassigned.count} clusters to assign"
+
+table class="table"
+  thead
+    tr
+      th Brand
+      th Line
+      th Ink
+      th
+  tbody
+    tr
+      td= @macro_cluster.brand_name
+      td= @macro_cluster.line_name
+      td= @macro_cluster.ink_name
+      td= link_to "Create",
+                  admins_brand_clusters_path(macro_cluster_id: @macro_cluster.id),
+                  method: :post,
+                  class: "btn btn-default"
+
+h2 Existing clusters
+table class="table table-striped"
+  thead
+    tr
+      th Name
+      th Count
+      th
+  tbody
+    - @brand_clusters.each do |brand_cluster|
+      tr
+        td= brand_cluster.name
+        td= brand_cluster.macro_clusters.count
+        td= link_to "Assign",
+                    admins_brand_cluster_path(@macro_cluster, brand_cluster_id: brand_cluster.id),
+                    method: :put,
+                    class: "btn btn-default"

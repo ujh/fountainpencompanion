@@ -5,6 +5,8 @@ class MacroCluster < ApplicationRecord
 
   paginates_per 100
 
+  scope :unassigned, -> { where(brand_cluster_id: nil) }
+
   def self.search(query)
     return self if query.blank?
 

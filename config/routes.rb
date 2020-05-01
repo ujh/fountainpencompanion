@@ -65,6 +65,7 @@ Rails.application.routes.draw do
         post 'pen_import'
       end
     end
+    resources :brand_clusters, only: [:index, :new, :create, :update]
     resources :macro_clusters, only: [:index, :create, :update, :destroy, :show]
     resources :micro_clusters, only: [:index, :update] do
       collection do
