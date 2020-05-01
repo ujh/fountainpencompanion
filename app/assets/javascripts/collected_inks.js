@@ -1,24 +1,24 @@
-$(function() {
+$(function () {
   $("#collected_ink_brand_name").autocomplete({
-    source: function(request, response) {
+    source: function (request, response) {
       fetch("/brands?term=" + request.term)
-        .then(function(r) {
+        .then(function (r) {
           return r.json();
         })
-        .then(function(r) {
-          var names = $.map(r.data, function(e) {
-            return e.attributes.popular_name;
+        .then(function (r) {
+          var names = $.map(r.data, function (e) {
+            return e.attributes.brand_name;
           });
           response(names);
         });
-    }
+    },
   });
 
   $("#collected_ink_line_name").autocomplete({
-    source: "/lines"
+    source: "/lines",
   });
 
   $("#collected_ink_ink_name").autocomplete({
-    source: "/inks"
+    source: "/inks",
   });
 });

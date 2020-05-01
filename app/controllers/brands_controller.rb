@@ -1,8 +1,12 @@
 class BrandsController < ApplicationController
   def index
     respond_to do |format|
-      format.jsonapi {
-        render jsonapi: InkBrand.search(params[:term])
+      format.json {
+        clusters = MacroCluster.brand_search(params[:term])
+        serializer = MacroClusterSerializer.new(
+          clusters, fields: { macro_cluster: [:brand_name]}
+        )
+        render json: serializer.serializable_hash.to_json
       }
       format.html {
         @brands = InkBrand.public.order(:popular_name)
