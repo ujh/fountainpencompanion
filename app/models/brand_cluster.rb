@@ -12,4 +12,8 @@ class BrandCluster < ApplicationRecord
       name: macro_clusters.group(:brand_name).order(Arel.sql 'count(*) desc').pluck(:brand_name).first
     )
   end
+
+  def synonyms
+    macro_clusters.pluck(:brand_name).uniq.sort - [name]
+  end
 end
