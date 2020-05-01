@@ -8,8 +8,11 @@ class BrandCluster < ApplicationRecord
   end
 
   def update_name!
+    grouped = macro_clusters.pluck(:brand_name).map do |n|
+      n.gsub('’',"'").gsub(/\(.*\)/, '').strip
+    end.group_by(&:itself).transform_values(&:count)
     update!(
-      name: macro_clusters.group(:brand_name).order(Arel.sql 'count(*) desc').pluck(:brand_name).first
+      name: grouped.max_by(&:last).first
     )
   end
 
