@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_05_01_083855) do
+ActiveRecord::Schema.define(version: 2020_05_01_084459) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "fuzzystrmatch"
@@ -119,12 +119,14 @@ ActiveRecord::Schema.define(version: 2020_05_01_083855) do
   end
 
   create_table "macro_clusters", force: :cascade do |t|
+    t.bigint "brand_cluster_id"
     t.string "brand_name", default: ""
     t.string "color", limit: 7, default: "", null: false
     t.datetime "created_at", precision: 6, null: false
     t.string "ink_name", default: ""
     t.string "line_name", default: ""
     t.datetime "updated_at", precision: 6, null: false
+    t.index ["brand_cluster_id"], name: "index_macro_clusters_on_brand_cluster_id"
     t.index ["brand_name", "line_name", "ink_name"], name: "index_macro_clusters_on_brand_name_and_line_name_and_ink_name", unique: true
   end
 
@@ -196,6 +198,7 @@ ActiveRecord::Schema.define(version: 2020_05_01_083855) do
   add_foreign_key "currently_inked", "users"
   add_foreign_key "friendships", "users", column: "friend_id"
   add_foreign_key "friendships", "users", column: "sender_id"
+  add_foreign_key "macro_clusters", "brand_clusters"
   add_foreign_key "micro_clusters", "macro_clusters"
   add_foreign_key "new_ink_names", "ink_brands"
   add_foreign_key "usage_records", "currently_inked"
