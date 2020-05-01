@@ -6,7 +6,7 @@ class Admins::BrandClustersController < Admins::BaseController
 
   def new
     @brand_clusters = BrandCluster.order(:name)
-    @macro_cluster = MacroCluster.unassigned.first
+    @macro_cluster = MacroCluster.unassigned.order(:brand_name).first
     redirect_to admins_dashboard_path if @macro_cluster.blank?
   end
 
