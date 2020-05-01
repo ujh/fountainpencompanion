@@ -15,12 +15,14 @@ class MacroCluster < ApplicationRecord
     "%#{query}%").group('macro_clusters.id')
   end
 
-  def self.brand_search(term)
-    simplified_term = Simplifier.simplify(term.to_s)
+  def self.autocomplete_search(term, field)
+    simplified_term = Simplifier.send(field, term.to_s)
     joins(micro_clusters: :collected_inks).where(collected_inks: {private: false}).where(
-      "collected_inks.simplified_brand_name LIKE ?", "%#{simplified_term}%"
-    ).group("macro_clusters.brand_name").order(:brand_name).select(
-      "min(macro_clusters.id) as id, macro_clusters.brand_name"
+      "collected_inks.simplified_#{field} LIKE ?", "%#{simplified_term}%"
+    ).where.not(
+      macro_clusters: { field => ''}
+    ).group("macro_clusters.#{field}").order("macro_clusters.#{field}").select(
+      "min(macro_clusters.id) as id, macro_clusters.#{field}"
     ).having("count(collected_inks.id) > 2")
   end
 end
