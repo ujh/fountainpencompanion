@@ -8,14 +8,7 @@ class BrandCluster < ApplicationRecord
   end
 
   def self.autocomplete_search(term)
-    simplified_term = Simplifier.brand_name(term.to_s)
-    joins(macro_clusters: {micro_clusters: :collected_inks}).where(
-      collected_inks: {private: false}
-    ).where(
-      "collected_inks.simplified_brand_name LIKE ?", "%#{simplified_term}%"
-    ).group("brand_clusters.name").order("brand_clusters.name").select(
-      "min(brand_clusters.id) as id, brand_clusters.name"
-    ).having("count(collected_inks.id) > 2")
+    where("name ilike ?", "%#{term}%")
   end
 
   def update_name!
