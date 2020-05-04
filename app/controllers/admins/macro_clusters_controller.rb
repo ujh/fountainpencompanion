@@ -22,6 +22,7 @@ class Admins::MacroClustersController < Admins::BaseController
 
   def create
     cluster = MacroCluster.create!(cluster_params)
+    AssignMacroCluster.perform_async(cluster.id)
     render json: MacroClusterSerializer.new(cluster).serializable_hash.to_json
   end
 
