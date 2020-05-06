@@ -303,6 +303,20 @@ describe CollectedInksController do
           expect(response).to render_template(:new)
         end.to_not change { user.collected_inks.count }
       end
+
+      it 'strips out spaces from colour field' do
+        expect do
+          post :create, params: { collected_ink: { brand_name: 'brand', ink_name: 'ink', color: '#000000 '} }
+          expect(response).to redirect_to(collected_inks_path)
+        end.to change { user.collected_inks.count }.by(1)
+      end
+
+      it 'renders a validation error when colour too long' do
+        expect do
+          post :create, params: { collected_ink: { brand_name: 'brand', ink_name: 'ink', color: 'blue black'} }
+          expect(response).to render_template(:new)
+        end.to_not change { user.collected_inks.count }
+      end
     end
   end
 end
