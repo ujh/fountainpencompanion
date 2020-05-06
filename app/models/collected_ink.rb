@@ -10,7 +10,6 @@ class CollectedInk < ApplicationRecord
   validates :brand_name, length: { in: 1..100 }
   validates :ink_name, length: { in: 1..100 }
   validates :line_name, length: { in: 1..100, allow_blank: true }
-  validates :color, length: { in: 1..7, allow_blank: true }
 
   validate :color_valid
   validate :unique_constraint
@@ -162,6 +161,10 @@ class CollectedInk < ApplicationRecord
 
   def color_valid
     return if read_attribute(:color).blank?
+    if read_attribute(:color) !~ /#[0-9a-f]{3}([0-9a-f][3])?/i
+      errors.add(:color, "Only valid HTML color codes are supported (e.g #fff or #efefef)")
+      return
+    end
 
     Color::RGB.from_html(read_attribute(:color))
   rescue ArgumentError
