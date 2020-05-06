@@ -313,7 +313,7 @@ describe CollectedInksController do
 
       it 'renders a validation error when colour too long' do
         expect do
-          post :create, params: { collected_ink: { brand_name: 'brand', ink_name: 'ink', color: 'blue black'} }
+          post :create, params: { collected_ink: { brand_name: 'brand', ink_name: 'ink', color: 'turquoise blue'} }
           expect(response).to render_template(:new)
         end.to_not change { user.collected_inks.count }
       end

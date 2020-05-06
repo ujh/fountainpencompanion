@@ -161,9 +161,9 @@ class CollectedInk < ApplicationRecord
   end
 
   def color_valid
-    return if color.blank?
+    return if read_attribute(:color).blank?
 
-    Color::RGB.from_html(color)
+    Color::RGB.from_html(read_attribute(:color))
   rescue ArgumentError
     errors.add(:color, "Only valid HTML color codes are supported (e.g #fff or #efefef)")
   end
