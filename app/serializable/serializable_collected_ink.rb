@@ -12,7 +12,7 @@ class SerializableCollectedInk < JSONAPI::Serializable::Resource
     @object.deletable?
   end
   attribute :ink_id do
-    @object.micro_cluster.macro_cluster_id
+    @object.micro_cluster&.macro_cluster_id
   end
   attribute :ink_name
   attribute :kind
