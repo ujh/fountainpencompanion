@@ -97,9 +97,10 @@ const MacroClusterRows = ({ afterAssign }) => {
 const withDistance = (macroClusters, activeCluster) => {
   const activeGroupedInks = activeCluster.grouped_collected_inks;
   return macroClusters.map((c) => {
+    const macroClusterInks = c.grouped_collected_inks.concat(c);
     return {
       ...c,
-      distance: dist(c.grouped_collected_inks, activeGroupedInks),
+      distance: dist(macroClusterInks, activeGroupedInks),
     };
   });
 };
