@@ -1,4 +1,4 @@
-- content_for :title, "#{@brand.new_ink_names.size} inks"
+- content_for :title, "#{@brand.name} - #{@brand.macro_clusters.public.count.count} inks"
 
 div class="table-responsive"
   table class="table table-striped"
@@ -13,6 +13,6 @@ div class="table-responsive"
         tr
           td= ink.collected_inks_count
           td= ink.brand_name
-          td= ink.popular_line_name
+          td= ink.line_name
           td style="background-color:#{ink.color};width: 37px;"
-          td= ink.popular_name
+          td= ink.ink_name

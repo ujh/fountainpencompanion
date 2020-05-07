@@ -28,4 +28,10 @@ class MacroCluster < ApplicationRecord
       "min(macro_clusters.id) as id, macro_clusters.#{field}"
     ).having("count(collected_inks.id) > 2")
   end
+
+  def self.public
+    joins(micro_clusters: :collected_inks).where(
+      collected_inks: { private: false }
+    ).group("macro_clusters.id")
+  end
 end

@@ -7,14 +7,16 @@ class BrandsController < ApplicationController
         render json: serializer.serializable_hash.to_json
       }
       format.html {
-        @brands = InkBrand.public.order(:popular_name)
+        @brands = BrandCluster.public.order(:name)
       }
     end
   end
 
   def show
-    @brand = InkBrand.find(params[:id])
-    @inks = @brand.new_ink_names.public.order("popular_line_name, popular_name")
+    @brand = BrandCluster.find(params[:id])
+    @inks = @brand.macro_clusters.public.order(
+      "line_name, ink_name"
+    ).select("macro_clusters.*, count(*) as collected_inks_count")
   end
 
 end

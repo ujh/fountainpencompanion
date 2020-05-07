@@ -1,14 +1,22 @@
 class BrandCluster < ApplicationRecord
   has_many :macro_clusters, dependent: :nullify
 
-  def self.public_count
+  def self.public
     joins(macro_clusters: { micro_clusters: :collected_inks }).where(
       collected_inks: { private: false }
-    ).group("brand_clusters.id").count.count
+    ).group("brand_clusters.id")
+  end
+
+  def self.public_count
+    public.count.count
   end
 
   def self.autocomplete_search(term)
     where("name ilike ?", "%#{term}%")
+  end
+
+  def to_param
+    "#{id}-#{name.parameterize}"
   end
 
   def update_name!
