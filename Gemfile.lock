@@ -1,8 +1,8 @@
 GIT
   remote: https://github.com/fast-jsonapi/fast_jsonapi
-  revision: c533634293c17ef1d638e7add5edd3f2ac6f4b45
+  revision: ac34aa22f7882f54cb7cab352489930c012e1e1b
   specs:
-    fast_jsonapi (1.7.0)
+    fast_jsonapi (1.7.1)
       activesupport (>= 4.2)
 
 GEM
