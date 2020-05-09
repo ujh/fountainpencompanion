@@ -20,8 +20,24 @@ export const DispatchContext = React.createContext();
 export const App = () => {
   const [state, dispatch] = useReducer(reducer, initalState);
   const { loadingMacroClusters, loadingMicroClusters } = state;
-  loadMicroClusters(dispatch);
+  useEffect(() => {
+    loadMicroClusters(dispatch);
+  }, []);
   loadMacroClusters(dispatch);
+  useEffect(() => {
+    if (
+      loadingMicroClusters ||
+      loadingMacroClusters ||
+      state.microClusters.length > 0
+    )
+      return;
+    const intervalId = setInterval(() => {
+      loadMicroClusters(dispatch);
+    }, 30 * 1000);
+    return () => {
+      clearInterval(intervalId);
+    };
+  }, [loadingMicroClusters, loadingMacroClusters, state.microClusters.length]);
   if (!loadingMicroClusters && !loadingMacroClusters) {
     return (
       <DispatchContext.Provider value={dispatch}>
@@ -96,31 +112,29 @@ const BrandSelector = () => {
   );
 };
 const loadMicroClusters = (dispatch) => {
-  useEffect(() => {
-    const formatter = new Jsona();
-    let data = [];
-    function run(page = 1) {
-      loadMicroClusterPage(page).then((json) => {
-        const next_page = json.meta.pagination.next_page;
-        // Remove clusters without collected inks
-        // Group collected inks
-        const pageData = formatter
-          .deserialize(json)
-          .filter((c) => c.collected_inks.length > 0)
-          .map((c) => {
-            const grouped_collected_inks = groupedInks(c.collected_inks);
-            return { ...c, grouped_collected_inks };
-          });
-        data = [...data, ...pageData];
-        if (next_page) {
-          run(next_page);
-        } else {
-          dispatch({ type: SET_MICRO_CLUSTERS, payload: data });
-        }
-      });
-    }
-    run();
-  }, []);
+  const formatter = new Jsona();
+  let data = [];
+  function run(page = 1) {
+    loadMicroClusterPage(page).then((json) => {
+      const next_page = json.meta.pagination.next_page;
+      // Remove clusters without collected inks
+      // Group collected inks
+      const pageData = formatter
+        .deserialize(json)
+        .filter((c) => c.collected_inks.length > 0)
+        .map((c) => {
+          const grouped_collected_inks = groupedInks(c.collected_inks);
+          return { ...c, grouped_collected_inks };
+        });
+      data = [...data, ...pageData];
+      if (next_page) {
+        run(next_page);
+      } else {
+        dispatch({ type: SET_MICRO_CLUSTERS, payload: data });
+      }
+    });
+  }
+  run();
 };
 
 const loadMicroClusterPage = (page) => {

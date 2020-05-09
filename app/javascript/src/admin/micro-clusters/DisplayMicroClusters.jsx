@@ -3,7 +3,7 @@ import Jsona from "jsona";
 
 import { getRequest } from "src/fetch";
 import { DisplayMicroCluster } from "./DisplayMicroCluster";
-import { DispatchContext, groupedInks } from "./App";
+import { DispatchContext, groupedInks, StateContext } from "./App";
 import {
   PREVIOUS,
   NEXT,
@@ -14,25 +14,30 @@ import { keyDownListener } from "./keyDownListener";
 
 export const DisplayMicroClusters = () => {
   const dispatch = useContext(DispatchContext);
+  const { activeCluster } = useContext(StateContext);
   const { prev, next } = useNavigation(dispatch);
   const afterAssign = (newClusterData) => {
     dispatch({ type: REMOVE_MICRO_CLUSTER, payload: newClusterData });
     const id = newClusterData.macro_cluster.id;
     updateMacroCluster(id, dispatch);
   };
-  return (
-    <div className="app">
-      <div className="nav" onClick={prev}>
-        <i className="fa fa-angle-left"></i>
+  if (activeCluster) {
+    return (
+      <div className="app">
+        <div className="nav" onClick={prev}>
+          <i className="fa fa-angle-left"></i>
+        </div>
+        <div className="main">
+          <DisplayMicroCluster afterCreate={afterAssign}></DisplayMicroCluster>
+        </div>
+        <div className="nav" onClick={next}>
+          <i className="fa fa-angle-right"></i>
+        </div>
       </div>
-      <div className="main">
-        <DisplayMicroCluster afterCreate={afterAssign}></DisplayMicroCluster>
-      </div>
-      <div className="nav" onClick={next}>
-        <i className="fa fa-angle-right"></i>
-      </div>
-    </div>
-  );
+    );
+  } else {
+    return <div>No clusters to assign.</div>;
+  }
 };
 
 const updateMacroCluster = (id, dispatch) => {
