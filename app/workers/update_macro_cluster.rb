@@ -3,6 +3,8 @@ class UpdateMacroCluster
 
   def perform(id)
     self.cluster = MacroCluster.find(id)
+    return if cluster.collected_inks.empty?
+
     update_color
     update_names
     cluster.save
