@@ -23,11 +23,12 @@ class ImportCollectedInk
     }
     row["private"] = !row["private"].blank?
     row["used"] = row["used"].present? ? (["true", "1"].include?(row["used"].downcase)) : false
+    row["swabbed"] = row["swabbed"].present? ? (["true", "1"].include?(row["swabbed"].downcase)) : false
     row["archived_on"] = row["archived"].present? ? Date.today : nil
     row["kind"] = "bottle" unless row["kind"].present?
     row.slice(
       "brand_name", "line_name", "ink_name", "maker", "kind", "private", "comment", "used",
-      "archived_on", "private_comment"
+      "archived_on", "private_comment", 'swabbed'
     )
   end
 end
