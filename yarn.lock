@@ -4273,10 +4273,10 @@ json5@^2.1.2:
   dependencies:
     minimist "^1.2.5"
 
-jsona@^1.5.1:
-  version "1.5.1"
-  resolved "https://registry.yarnpkg.com/jsona/-/jsona-1.5.1.tgz#914e844419cd0dcb2a9312ee35d0e8eaa3ca7a76"
-  integrity sha512-bfNP5h89ePJ5dEv9EZasGWuUsNie7zRZ6TXC4mZY3b6BtfnQDF3Y4q/YdPNMZsUJPcJxOpQXxhsk955cfp0MjA==
+jsona@^1.6.0:
+  version "1.6.0"
+  resolved "https://registry.yarnpkg.com/jsona/-/jsona-1.6.0.tgz#6e1c69ff56ed8360d92df85d9bdb4979bdf8204c"
+  integrity sha512-x/EEaAI4FGOxGr1cN4MAblNTiBr9SvcRfT2fU5pbedgOlf5sFp2KnACvUtiAsag1qvj6RgQIjddoLL4peRKpzw==
 
 jsprim@^1.2.2:
   version "1.4.1"
