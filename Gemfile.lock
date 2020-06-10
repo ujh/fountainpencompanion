@@ -1,8 +1,8 @@
 GIT
   remote: https://github.com/fast-jsonapi/fast_jsonapi
-  revision: ac34aa22f7882f54cb7cab352489930c012e1e1b
+  revision: 3ff69ccce1a75fb0210874dba1b77f05a79ec8f2
   specs:
-    fast_jsonapi (1.7.1)
+    fast_jsonapi (2.0.0)
       activesupport (>= 4.2)
 
 GEM
@@ -126,7 +126,7 @@ GEM
     globalid (0.4.2)
       activesupport (>= 4.2.0)
     heapy (0.1.4)
-    i18n (1.8.2)
+    i18n (1.8.3)
       concurrent-ruby (~> 1.0)
     jbuilder (2.10.0)
       activesupport (>= 5.0.0)
