@@ -3,8 +3,7 @@ import { putRequest } from "./fetch";
 
 export default function setTimeZone() {
   const tz = findTimeZone();
-  const cleanTz = tz.replace(/^.*\//, "");
-  putRequest("/account.json", { user: { time_zone: cleanTz } });
+  putRequest("/account.json", { user: { time_zone: tz } });
 }
 
 function findTimeZone() {

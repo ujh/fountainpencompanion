@@ -19,10 +19,10 @@ class ApplicationController < ActionController::Base
   private
 
   def set_time_zone
-    # if current_user && current_user.time_zone.present?
-    #   Time.use_zone(current_user.time_zone) { yield }
-    # else
-    #   yield
-    # end
+    if current_user && current_user.time_zone.present?
+      Time.use_zone(current_user.time_zone) { yield }
+    else
+      yield
+    end
   end
 end
