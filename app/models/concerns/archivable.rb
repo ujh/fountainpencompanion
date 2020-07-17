@@ -23,7 +23,7 @@ module Archivable
   end
 
   def archive!
-    update!(archived_on: Date.today)
+    update!(archived_on: Date.current)
   end
 
   def unarchive!

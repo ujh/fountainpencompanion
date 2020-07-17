@@ -16,7 +16,7 @@ class UsageRecordsController < ApplicationController
 
   def create
     if @currently_inked
-      @currently_inked.usage_records.find_or_create_by(used_on: Date.today)
+      @currently_inked.usage_records.find_or_create_by(used_on: Date.current)
     end
     head :created
   end

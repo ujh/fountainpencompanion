@@ -3,7 +3,7 @@ class ArchivesController < ApplicationController
   before_action :retrieve_record
 
   def create
-    @record&.update(archived_on: Date.today)
+    @record&.update(archived_on: Date.current)
     respond_to do |format|
       format.html { redirect_to route }
       format.json { render jsonapi: @record }

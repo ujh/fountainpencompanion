@@ -49,7 +49,7 @@ class CurrentlyInked < ApplicationRecord
     self.class.create!(
       collected_ink: collected_ink,
       collected_pen: collected_pen,
-      inked_on: Date.today,
+      inked_on: Date.current,
       user: user
     )
   end
@@ -59,7 +59,7 @@ class CurrentlyInked < ApplicationRecord
   end
 
   def used_today?
-    usage_records.where(used_on: Date.today).exists?
+    usage_records.where(used_on: Date.current).exists?
   end
 
   def name
@@ -97,7 +97,7 @@ class CurrentlyInked < ApplicationRecord
   private
 
   def set_default_inked_on
-    self.inked_on ||= Date.today
+    self.inked_on ||= Date.current
   end
 
   def update_nib
