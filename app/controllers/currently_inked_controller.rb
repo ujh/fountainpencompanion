@@ -77,6 +77,6 @@ class CurrentlyInkedController < ApplicationController
   end
 
   def set_empty_record
-    @record = CurrentlyInked.new(inked_on: Date.today, user: current_user)
+    @record = CurrentlyInked.new(inked_on: Date.current, user: current_user)
   end
 end
