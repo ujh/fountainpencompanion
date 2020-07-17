@@ -15,6 +15,8 @@ import "../src/color-picker";
 import "../src/collected_inks";
 import { renderFriendButton } from "../src/friends";
 import renderPublicInks from "../src/public_inks";
+import setTimeZone from "../src/setTimeZone";
 
 window.renderPublicInks = renderPublicInks;
 window.renderFriendButton = renderFriendButton;
+window.setTimeZone = setTimeZone;
