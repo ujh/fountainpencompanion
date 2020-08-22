@@ -44,7 +44,9 @@ Rails.application.routes.draw do
   resources :friendships, only: [:create, :update, :destroy]
   resources :usage_records, only: [:index, :destroy, :edit, :update]
 
-  resources :brands, only: [:index]
+  resources :brands, only: [:index] do
+    resources :inks, only: [:show]
+  end
   namespace :pens do
     resources :brands, only: [:index]
     resources :models, only: [:index]

@@ -1,0 +1,49 @@
+- content_for :title, "#{@ink.name}"
+
+h2 Details
+
+div class="row details"
+  div class="col-xs-12 col-sm-6"
+    div class="table-responsive"
+      table class="table"
+        tbody
+          tr
+            td Brand
+            td= link_to @ink.brand_name, brand_path(@ink.brand_cluster)
+          tr
+            td Line
+            td= @ink.line_name
+          tr
+            td Name
+            td= @ink.ink_name
+          tr
+            td Owner count
+            td= @ink.collected_inks.count
+          tr
+            td Average Color
+            td style="background-color:#{@ink.color};"
+
+  div class="col-xs-12 col-sm-6"
+    h4 Colors for this ink
+    div class="color-tiles"
+      - @ink.collected_inks.pluck(:color).uniq.each do |c|
+        - next if c.blank?
+        div class="color-tile" style="background-color:#{c}"
+
+h2 Names for this ink
+
+div class="table-responsive"
+  table class="table table-striped"
+    thead
+      tr
+        th Count
+        th Brand
+        th Line
+        th
+    tbody
+      - @ink.all_names.each do |ink|
+        tr
+          td= ink.collected_inks_count
+          td= ink.brand_name
+          td= ink.line_name
+          td= ink.ink_name

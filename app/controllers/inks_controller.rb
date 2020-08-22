@@ -5,5 +5,9 @@ class InksController < ApplicationController
       clusters, fields: { macro_cluster: [:ink_name]}
     )
     render json: serializer.serializable_hash.to_json
-end
+  end
+
+  def show
+    @ink = MacroCluster.find(params[:id])
+  end
 end
