@@ -35,6 +35,14 @@ class MacroCluster < ApplicationRecord
     ).group("macro_clusters.id")
   end
 
+  def all_names
+    collected_inks.where(private: false).group(
+      "collected_inks.brand_name, collected_inks.line_name, collected_inks.ink_name"
+    ).select(
+      "min(collected_inks.id), collected_inks.brand_name, collected_inks.line_name, collected_inks.ink_name, count(*) as collected_inks_count"
+    ).order("collected_inks_count desc")
+  end
+
   def to_param
     "#{id}-#{name.parameterize}"
   end
