@@ -8,6 +8,7 @@ div class="table-responsive"
         th Brand
         th Line
         th colspan="2" Ink
+        th
     tbody
       - @inks.each do |ink|
         tr
@@ -16,3 +17,4 @@ div class="table-responsive"
           td= ink.line_name
           td style="background-color:#{ink.color};width: 37px;"
           td= ink.ink_name
+          td= link_to "Details", brand_ink_path(@brand, ink)

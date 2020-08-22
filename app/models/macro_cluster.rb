@@ -34,4 +34,12 @@ class MacroCluster < ApplicationRecord
       collected_inks: { private: false }
     ).group("macro_clusters.id")
   end
+
+  def to_param
+    "#{id}-#{name.parameterize}"
+  end
+
+  def name
+    [brand_name, line_name, ink_name].reject(&:blank?).join(' ')
+  end
 end
