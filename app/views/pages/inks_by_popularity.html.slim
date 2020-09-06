@@ -5,7 +5,10 @@
   |  percent of the data.
 div class="leaderboard"
   ol
-    - LeaderBoard.inks_by_popularity.each do |row|
+    - LeaderBoard.inks_by_popularity.each do |macro_cluster|
       li
-        = row[:name]
-        = " (#{row[:count]})"
+        - if macro_cluster.brand_cluster
+          = link_to macro_cluster.name, brand_ink_path(macro_cluster.brand_cluster, macro_cluster)
+        - else
+          = macro_cluster.name
+        = " (#{macro_cluster.ci_count})"
