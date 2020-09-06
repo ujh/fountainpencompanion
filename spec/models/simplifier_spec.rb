@@ -19,8 +19,8 @@ describe Simplifier do
       expect(described_class.simplify("Pen + Message")).to eq("penandmessage")
     end
 
-    it "removes hashtags with numbers at the beginning" do
-      expect(described_class.simplify("#8 Diep-Duinwaterblauw")).to eq("diepduinwaterblauw")
+    it "keeps numbers from hashtags with numbers at the beginning" do
+      expect(described_class.simplify("#8 Diep-Duinwaterblauw")).to eq("8diepduinwaterblauw")
     end
 
     it "keeps numbers at the beginning" do
