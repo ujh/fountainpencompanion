@@ -18,6 +18,10 @@ class LeaderBoard
     end
   end
 
+  def self.top_inks_by_popularity
+    inks_by_popularity.take(10)
+  end
+
   def self.top_inks
     inks.take(10)
   end
