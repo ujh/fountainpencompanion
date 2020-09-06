@@ -38,6 +38,30 @@ const CollectedInks = ({ archive }) => {
   }
 };
 
+const renderInkWithLink = ({
+  cell: {
+    value,
+    row: {
+      original: {
+        attributes: { ink_id },
+      },
+    },
+  },
+}) => {
+  if (ink_id) {
+    return (
+      <>
+        {value}
+        <a href={`/inks/${ink_id}`}>
+          &nbsp;
+          <i className="fa fa-external-link" />
+        </a>
+      </>
+    );
+  }
+  return value;
+};
+
 const CollectedInksBetaTable = ({ data, archive }) => {
   const columns = useMemo(
     () => [
@@ -71,6 +95,7 @@ const CollectedInksBetaTable = ({ data, archive }) => {
       {
         Header: "Name",
         accessor: "attributes.ink_name",
+        Cell: renderInkWithLink,
         Footer: (info) => {
           return <span>{info.rows.length} inks</span>;
         },
