@@ -9,5 +9,6 @@ class InksController < ApplicationController
 
   def show
     @ink = MacroCluster.find(params[:id])
+    redirect_to brand_ink_path(@ink.brand_cluster, @ink) unless params[:brand_id]
   end
 end

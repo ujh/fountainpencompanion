@@ -47,6 +47,7 @@ Rails.application.routes.draw do
   resources :brands, only: [:index] do
     resources :inks, only: [:show]
   end
+  resources :inks, only: [:show]
   namespace :pens do
     resources :brands, only: [:index]
     resources :models, only: [:index]
