@@ -1,9 +1,8 @@
 - content_for :title, "#{@ink.name}"
 
-h2 Details
-
 div class="row details"
   div class="col-xs-12 col-sm-6"
+    h4 Details
     div class="table-responsive"
       table class="table"
         tbody
@@ -29,6 +28,16 @@ div class="row details"
       - @ink.collected_inks.pluck(:color).uniq.each do |c|
         - next if c.blank?
         div class="color-tile" style="background-color:#{c}"
+    div style="clear: both;"
+    div class="error-reporting"
+      h4 Errors
+      p
+        | If there are any inks that don't belong here or if there is anything
+        | else that is wrong, feel free to report this using the button below.
+        | We will try to fix it as soon as possible.
+      = link_to "Report an error",
+                "mailto:clustering-error@fountainpencompanion.com?subject=#{@ink.name}",
+                class: "btn btn-default"
 
 h2 Names for this ink
 
