@@ -31,7 +31,12 @@ $(function () {
 
   $("#collected_ink_ink_name").autocomplete({
     source: function (request, response) {
-      fetch("/inks?term=" + request.term)
+      const brandName = encodeURIComponent(
+        $("#collected_ink_brand_name").val()
+      );
+      const term = encodeURIComponent(request.term);
+      const url = `/inks?term=${term}&brand_name=${brandName}`;
+      fetch(url)
         .then(function (r) {
           return r.json();
         })

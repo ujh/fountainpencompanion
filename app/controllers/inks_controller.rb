@@ -1,6 +1,6 @@
 class InksController < ApplicationController
   def index
-    clusters = MacroCluster.autocomplete_search(params[:term], :ink_name)
+    clusters = MacroCluster.autocomplete_ink_search(params[:term], params[:brand_name])
     serializer = MacroClusterSerializer.new(
       clusters, fields: { macro_cluster: [:ink_name]}
     )
