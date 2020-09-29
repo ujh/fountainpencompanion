@@ -1,7 +1,7 @@
 $(function () {
   $("#collected_ink_brand_name").autocomplete({
     source: function (request, response) {
-      fetch("/brands?term=" + request.term)
+      fetch("/brands?term=" + encodeURIComponent(request.term))
         .then(function (r) {
           return r.json();
         })
@@ -16,7 +16,7 @@ $(function () {
 
   $("#collected_ink_line_name").autocomplete({
     source: function (request, response) {
-      fetch("/lines?term=" + request.term)
+      fetch("/lines?term=" + encodeURIComponent(request.term))
         .then(function (r) {
           return r.json();
         })
