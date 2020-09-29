@@ -1,4 +1,5 @@
 require 'sidekiq/web'
+require 'sidekiq-scheduler/web'
 Sidekiq::Web.set :sessions, false
 
 Rails.application.routes.draw do

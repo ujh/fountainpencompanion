@@ -3,6 +3,7 @@ class CheckBrandCluster
 
   def perform(id)
     self.cluster = MacroCluster.find(id)
+    return if brand_cluster.blank?
     return if cluster.brand_name == brand_cluster.name
 
     new_brand_cluster = BrandCluster.where.not(

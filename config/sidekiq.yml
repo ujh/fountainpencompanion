@@ -1,4 +1,8 @@
 :queues:
   - default
   - mailers
+:schedule:
+  check_brand_clusters:
+    every: "1h"
+    class: CheckBrandClusters
 :timeout: 25
