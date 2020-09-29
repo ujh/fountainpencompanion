@@ -9,6 +9,7 @@ class UpdateMacroCluster
     update_names
     cluster.save
     cluster.collected_inks.update_all(cluster_color: cluster.color)
+    CheckBrandCluster.perform_async(id)
   end
 
   private
