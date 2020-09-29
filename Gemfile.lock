@@ -109,7 +109,7 @@ GEM
     dotenv (2.7.5)
     enumerable-statistics (2.0.1)
     erubi (1.9.0)
-    exception_notification (4.4.0)
+    exception_notification (4.4.3)
       actionmailer (>= 4.0, < 7)
       activesupport (>= 4.0, < 7)
     execjs (2.7.0)
