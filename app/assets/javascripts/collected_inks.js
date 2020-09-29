@@ -31,11 +31,9 @@ $(function () {
 
   $("#collected_ink_ink_name").autocomplete({
     source: function (request, response) {
-      const brandName = encodeURIComponent(
-        $("#collected_ink_brand_name").val()
-      );
-      const term = encodeURIComponent(request.term);
-      const url = `/inks?term=${term}&brand_name=${brandName}`;
+      var brandName = encodeURIComponent($("#collected_ink_brand_name").val());
+      var term = encodeURIComponent(request.term);
+      var url = `/inks?term=${term}&brand_name=${brandName}`;
       fetch(url)
         .then(function (r) {
           return r.json();
