@@ -142,6 +142,7 @@ CREATE TABLE public.collected_inks (
     private_comment text,
     micro_cluster_id bigint,
     cluster_color character varying(7) DEFAULT ''::character varying,
+    tsv tsvector,
     CONSTRAINT collected_inks_cluster_color_null CHECK ((cluster_color IS NOT NULL))
 );
 
@@ -751,6 +752,13 @@ CREATE INDEX index_collected_inks_on_simplified_ink_name ON public.collected_ink
 
 
 --
+-- Name: index_collected_inks_on_tsv; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_collected_inks_on_tsv ON public.collected_inks USING gin (tsv);
+
+
+--
 -- Name: index_currently_inked_on_collected_ink_id; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -874,6 +882,13 @@ CREATE UNIQUE INDEX index_users_on_reset_password_token ON public.users USING bt
 --
 
 CREATE UNIQUE INDEX unique_micro_clusters ON public.micro_clusters USING btree (simplified_brand_name, simplified_line_name, simplified_ink_name);
+
+
+--
+-- Name: collected_inks tsvectorupdate_ci; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER tsvectorupdate_ci BEFORE INSERT OR UPDATE ON public.collected_inks FOR EACH ROW EXECUTE FUNCTION tsvector_update_trigger('tsv', 'pg_catalog.english', 'brand_name', 'line_name', 'ink_name');
 
 
 --
@@ -1078,6 +1093,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20200501084410'),
 ('20200501084459'),
 ('20200501112723'),
-('20200717152302');
+('20200717152302'),
+('20200930122807');
 
 
