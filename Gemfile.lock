@@ -71,7 +71,7 @@ GEM
     barnes (0.0.8)
       multi_json (~> 1)
       statsd-ruby (~> 1.1)
-    bcrypt (3.1.13)
+    bcrypt (3.1.16)
     benchmark-ips (2.7.2)
     bindex (0.8.1)
     bootsnap (1.4.8)
