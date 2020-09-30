@@ -1,0 +1,20 @@
+- content_for :title, "Search results for '#{params[:q]}'"
+
+= render partial: 'inks/search'
+
+div class="table-responsive"
+  table class="table table-striped"
+    thead
+      tr
+        th Brand
+        th Line
+        th colspan="2" Ink
+        th
+    tbody
+      - @clusters.each do |ink|
+        tr
+          td= ink.brand_name
+          td= ink.line_name
+          td style="background-color:#{ink.color};width: 37px;"
+          td= ink.ink_name
+          td= link_to "Details", brand_ink_path(ink.brand_cluster, ink)
