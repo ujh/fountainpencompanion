@@ -31,5 +31,7 @@ module Fountainpencompanion
 
     config.middleware.insert_before(Rack::Sendfile, Rack::Deflater)
     config.active_job.queue_adapter = :sidekiq
+
+    config.active_record.schema_format = :sql
   end
 end
