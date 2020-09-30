@@ -21,3 +21,6 @@ script:
 
 services:
   - postgresql
+
+addons:
+  postgresql: "10.14"
