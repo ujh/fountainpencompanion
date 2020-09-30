@@ -3,6 +3,7 @@ require 'csv'
 class CollectedInk < ApplicationRecord
 
   include Archivable
+  include PgSearch::Model
 
   KINDS = %w(bottle sample cartridge)
 
@@ -20,6 +21,22 @@ class CollectedInk < ApplicationRecord
   has_many :currently_inkeds
   has_many :usage_records, through: :currently_inkeds
   belongs_to :micro_cluster, optional: true
+
+  pg_search_scope(
+    :search,
+    against: %i(
+      brand_name
+      line_name
+      ink_name
+    ),
+    using: {
+      tsearch: {
+        dictionary: "english",
+        tsvector_column: "tsv",
+      },
+      trigram: {},
+    }
+  )
 
   def si
     [simplified_brand_name, simplified_line_name, simplified_ink_name]
