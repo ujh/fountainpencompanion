@@ -197,6 +197,9 @@ GEM
       nokogiri (~> 1.8, >= 1.8.4)
     orm_adapter (0.5.0)
     pg (1.2.3)
+    pg_search (2.3.3)
+      activerecord (>= 5.2)
+      activesupport (>= 5.2)
     public_suffix (3.0.3)
     puma (5.0.2)
       nio4r (~> 2.0)
@@ -378,6 +381,7 @@ DEPENDENCIES
   letter_opener
   listen
   pg
+  pg_search
   puma
   rails (~> 6.0.3)
   rails-assets-select2 (= 4.0.8)!

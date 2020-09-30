@@ -24,6 +24,7 @@ gem 'jquery-ui-rails'
 gem 'jsonapi-rails'
 gem 'kaminari'
 gem 'pg'
+gem 'pg_search'
 gem 'puma'
 gem 'rails-assets-select2', '4.0.8', source: 'https://rails-assets.org' # Select2 4.0.6 breaks the currently inked page
 gem 'redis'
