@@ -23,4 +23,4 @@ services:
   - postgresql
 
 addons:
-  postgresql: "10.14"
+  postgresql: "10"
