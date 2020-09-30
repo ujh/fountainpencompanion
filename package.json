@@ -6,7 +6,7 @@
     "babel-plugin-transform-react-remove-prop-types": "^0.4.24",
     "color-convert": "^2.0.1",
     "fast-levenshtein": "^3.0.0",
-    "jsona": "^1.5.1",
+    "jsona": "^1.8.0",
     "jstz": "^2.1.1",
     "lodash": "^4.17.20",
     "match-sorter": "^4.2.1",
