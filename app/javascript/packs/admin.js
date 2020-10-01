@@ -3,3 +3,4 @@ import "regenerator-runtime/runtime";
 import "whatwg-fetch";
 
 import "../src/admin/micro-clusters";
+import "../src/admin/graphs";
