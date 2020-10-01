@@ -18,6 +18,8 @@ class CurrentlyInked < ApplicationRecord
   delegate :name, :short_name, to: :collected_ink, prefix: 'ink', allow_nil: true
   delegate :simplified_name, to: :collected_ink, prefix: 'ink'
   delegate :color, to: :collected_ink, prefix: 'ink'
+  delegate :micro_cluster, to: :collected_ink, allow_nil: true
+  delegate :macro_cluster, to: :micro_cluster, allow_nil: true
 
   validate :collected_ink_belongs_to_user
   validate :collected_pen_belongs_to_user
@@ -59,7 +61,7 @@ class CurrentlyInked < ApplicationRecord
   end
 
   def used_today?
-    usage_records.where(used_on: Date.current).exists?
+    @used_today||= usage_records.where(used_on: Date.current).exists?
   end
 
   def last_used_on

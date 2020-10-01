@@ -13,7 +13,11 @@ div class="table-responsive"
         tr id="#{ci.id}"
           td= ci.pen_name
           td style="background-color:#{ci.ink_color};width:30px;"
-          td= ci.ink_name
+          td
+            = ci.ink_name
+            | &nbsp;
+            - if ci.macro_cluster
+              = link_to fa_icon("external-link"), ink_path(ci.macro_cluster)
           td class="inked_on"=l ci.inked_on
           td
             - if ci.used_today?

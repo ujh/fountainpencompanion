@@ -19,16 +19,24 @@ div class="row"
         div= image_tag("swab.png", style: "background-color:#{ci.ink_color};")
         div
           b
-            'Date inked:
-          = ci.inked_on
+            'Pen:
+          = ci.pen_name
         div
           b
             'Ink:
           = ci.ink_short_name
+          | &nbsp;
+          - if ci.macro_cluster
+            = link_to fa_icon("external-link"), ink_path(ci.macro_cluster)
         div
           b
-            'Pen:
-          = ci.pen_name
+            'Date inked:
+          =l ci.inked_on
+        - if ci.last_used_on
+          div
+            b
+              'Last used:
+            =l ci.last_used_on
         - if ci.comment.present?
           div= ci.comment
         div style="clear:left;"

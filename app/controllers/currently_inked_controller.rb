@@ -68,7 +68,7 @@ class CurrentlyInkedController < ApplicationController
 
   def retrieve_collection
     @collection = current_user.currently_inkeds.active.includes(
-      :collected_pen, :collected_ink
+      :collected_pen, collected_ink: { micro_cluster: :macro_cluster }
     ).sort_by {|ci| "#{ci.pen_name} #{ci.ink_name}"}
   end
 
