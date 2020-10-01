@@ -5,6 +5,7 @@ div class="table-responsive"
         th Pen
         th colspan="2" Ink
         th Date Inked
+        th Last Used
         th Comment
         th Actions
     tbody
@@ -14,6 +15,12 @@ div class="table-responsive"
           td style="background-color:#{ci.ink_color};width:30px;"
           td= ci.ink_name
           td class="inked_on"=l ci.inked_on
+          td
+            - if ci.used_today?
+              | today
+            - elsif ci.last_used_on
+              span data-toggle="tooltip" title="#{l ci.last_used_on}" style="white-space:nowrap;"
+                ="#{distance_of_time_in_words(ci.last_used_on, Date.today)} ago"
           td= ci.comment
           td class="actions"= render partial: "actions", locals: { ci: ci }
       = simple_form_for @record, wrapper: :inline_form do |f|
@@ -21,6 +28,7 @@ div class="table-responsive"
           td=f.association :collected_pen, collection: @record.collected_pens_for_active_select, prompt: '(Pick a pen)'
           td colspan="2"= f.association :collected_ink, collection: @record.collected_inks_for_active_select, prompt: '(Pick an ink)'
           td= f.input :inked_on, as: :string
+          td
           td= f.input :comment, as: :string
           td class="actions"
             = f.button :button do
@@ -32,7 +40,8 @@ div class="table-responsive"
         th= "#{collection.map(&:ink_simplified_name).uniq.length} inks"
         th
         th
+        th
         th class="actions"= link_to 'Show Archived Entries', currently_inked_archive_index_path, class: "btn btn-default"
       tr
-        td colspan="5"
+        td colspan="6"
         td class="actions"= link_to "Show Usage Records", usage_records_path, class: "btn btn-default"

@@ -62,6 +62,10 @@ class CurrentlyInked < ApplicationRecord
     usage_records.where(used_on: Date.current).exists?
   end
 
+  def last_used_on
+    @last_used_on ||= usage_records.order('used_on desc').limit(1).pluck(:used_on)&.first
+  end
+
   def name
     "#{ink_name} - #{pen_name}"
   end
