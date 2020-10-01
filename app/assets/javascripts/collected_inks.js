@@ -1,7 +1,7 @@
 $(function () {
   $("#collected_ink_brand_name").autocomplete({
     source: function (request, response) {
-      fetch("/brands?term=" + encodeURIComponent(request.term))
+      fetch("/brands.json?term=" + encodeURIComponent(request.term))
         .then(function (r) {
           return r.json();
         })
@@ -16,7 +16,7 @@ $(function () {
 
   $("#collected_ink_line_name").autocomplete({
     source: function (request, response) {
-      fetch("/lines?term=" + encodeURIComponent(request.term))
+      fetch("/lines.json?term=" + encodeURIComponent(request.term))
         .then(function (r) {
           return r.json();
         })
@@ -33,7 +33,7 @@ $(function () {
     source: function (request, response) {
       var brandName = encodeURIComponent($("#collected_ink_brand_name").val());
       var term = encodeURIComponent(request.term);
-      var url = "/inks?term=" + term + "&brand_name=" + brandName;
+      var url = "/inks.json?term=" + term + "&brand_name=" + brandName;
       fetch(url)
         .then(function (r) {
           return r.json();
