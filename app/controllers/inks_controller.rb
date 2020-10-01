@@ -8,20 +8,25 @@ class InksController < ApplicationController
         )
         render json: serializer.serializable_hash.to_json
       }
-      format.html {
-        # These are ordered by rank!
-        mc_ids = CollectedInk.search(params[:q]).where(private: false).joins(
-          micro_cluster: :macro_cluster
-        ).pluck('macro_clusters.id').uniq
-        @clusters = MacroCluster.where(id: mc_ids).sort_by do |mc|
-          mc_ids.index(mc.id)
-        end
-      }
+      format.html { @clusters = full_text_cluster_search }
+      format.all { @clusters = full_text_cluster_search }
     end
   end
 
   def show
     @ink = MacroCluster.find(params[:id])
     redirect_to brand_ink_path(@ink.brand_cluster, @ink) unless params[:brand_id]
+  end
+
+  private
+
+  def full_text_cluster_search
+    # These are ordered by rank!
+    mc_ids = CollectedInk.search(params[:q]).where(private: false).joins(
+      micro_cluster: :macro_cluster
+    ).pluck('macro_clusters.id').uniq
+    MacroCluster.where(id: mc_ids).sort_by do |mc|
+      mc_ids.index(mc.id)
+    end
   end
 end
