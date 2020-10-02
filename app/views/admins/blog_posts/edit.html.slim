@@ -1,0 +1,3 @@
+- content_for :title, "Edit '#{@blog_post.title}'"
+
+= render partial: 'form', locals: { blog_post: @blog_post }

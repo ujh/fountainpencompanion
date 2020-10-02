@@ -98,6 +98,39 @@ CREATE TABLE public.ar_internal_metadata (
 
 
 --
+-- Name: blog_posts; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.blog_posts (
+    id bigint NOT NULL,
+    title text,
+    body text,
+    published_at timestamp without time zone,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
+);
+
+
+--
+-- Name: blog_posts_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.blog_posts_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: blog_posts_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.blog_posts_id_seq OWNED BY public.blog_posts.id;
+
+
+--
 -- Name: brand_clusters; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -521,6 +554,13 @@ ALTER TABLE ONLY public.admins ALTER COLUMN id SET DEFAULT nextval('public.admin
 
 
 --
+-- Name: blog_posts id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.blog_posts ALTER COLUMN id SET DEFAULT nextval('public.blog_posts_id_seq'::regclass);
+
+
+--
 -- Name: brand_clusters id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -611,6 +651,14 @@ ALTER TABLE ONLY public.admins
 
 ALTER TABLE ONLY public.ar_internal_metadata
     ADD CONSTRAINT ar_internal_metadata_pkey PRIMARY KEY (key);
+
+
+--
+-- Name: blog_posts blog_posts_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.blog_posts
+    ADD CONSTRAINT blog_posts_pkey PRIMARY KEY (id);
 
 
 --
@@ -1109,6 +1157,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20200501112723'),
 ('20200717152302'),
 ('20200930122807'),
-('20200930124526');
+('20200930124526'),
+('20201002133409');
 
 
