@@ -80,6 +80,11 @@ Rails.application.routes.draw do
         delete 'unassign'
       end
     end
+    resources :blog_posts do
+      member do
+        put 'publish'
+      end
+    end
   end
 
   authenticate :admin do
