@@ -22,7 +22,7 @@ describe CollectedPen do
       subject.model = 'model'
       subject.nib = 'nib'
       subject.color = 'color'
-      expect(subject.name).to eq('brand model nib color')
+      expect(subject.name).to eq('brand model, color, nib')
     end
 
     it 'leaves out empty fields' do
