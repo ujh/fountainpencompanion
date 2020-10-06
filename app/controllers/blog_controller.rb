@@ -8,7 +8,7 @@ class BlogController < ApplicationController
   end
 
   def feed
-    @posts = BlogPost.order('published_at desc')
+    @posts = BlogPost.published.order('published_at desc')
     render layout: false
   end
 end
