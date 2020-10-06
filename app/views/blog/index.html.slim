@@ -1,0 +1,10 @@
+- content_for :title, 'Blog'
+
+- @posts.each do |post|
+  div.post
+    h2.title= link_to post.title, blog_path(post)
+    div.published-at=l post.published_at, format: :long
+    p.body
+      = Slodown::Formatter.new( \
+          truncate(post.body, length: 500, separator: ' ') { link_to 'more', blog_path(post) } \
+        ).complete.to_s.html_safe

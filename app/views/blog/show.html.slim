@@ -1,0 +1,6 @@
+- content_for :title, @post.title
+
+div.post
+  h2.title= @post.title
+  div.published-at=l @post.published_at, format: :long
+  p.body= @post.html_body
