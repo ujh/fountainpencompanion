@@ -8,7 +8,11 @@ Rails.application.routes.draw do
 
   resource :dashboard, only: [:show]
   resources :pages, only: [:show]
-  resources :blog, only: [:index, :show]
+  resources :blog, only: [:index, :show] do
+    collection do
+      get 'feed', defaults: { format: 'rss' }
+    end
+  end
 
   resources :collected_inks, only: [:index, :destroy, :edit, :update, :new, :create] do
     collection do
