@@ -253,8 +253,8 @@ const Table = ({
   rows,
   prepareRow,
 }) => (
-  <div className="table-responsive">
-    <table {...getTableProps()} className="table table-striped">
+  <div className="table-wrapper">
+    <table {...getTableProps()} className="table table-striped table-condensed">
       <thead>
         {headerGroups.map((headerGroup) => (
           <tr {...headerGroup.getHeaderGroupProps()}>

@@ -19,13 +19,11 @@
   label {
     margin-right: 5px;
   }
-  .table-responsive {
-    width: 100%;
-  }
   .actions {
     white-space: nowrap;
   }
-  .swabbed, .used {
+  .swabbed,
+  .used {
     text-align: center;
     &.true {
       color: green;
