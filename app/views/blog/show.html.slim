@@ -4,3 +4,16 @@ div.post
   h2.title= @post.title
   div.published-at=l @post.published_at, format: :long
   p.body= @post.html_body
+
+  - unless current_user&.patron?
+    div.fundraiser
+      p
+        ' Thank you for reading this article. If you are using this service and
+        ' enjoy it please consider becoming a
+        a href="https://www.patreon.com/bePatron?u=6900241"
+          b Patreon supporter
+        ' . This will ensure that I will have the means to keep this site running independently
+        ' of any third party. Feel free to
+        a href="mailto:hello@fountainpencompanion.com" reach out to me
+        '  if you have any questions.
+        a href="/users/1" Your friendly FPC software developer.
