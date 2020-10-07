@@ -22,6 +22,14 @@ $grid-float-breakpoint: 1200px;
   }
 }
 
-.notification_stats {
-  font-size: small;
+#posts {
+  .notification_stats {
+    font-size: small;
+  }
+
+  figure img {
+    width: 100%;
+    margin-top: 20px;
+    margin-bottom: 20px;
+  }
 }
