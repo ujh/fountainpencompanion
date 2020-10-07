@@ -10,6 +10,7 @@ $grid-float-breakpoint: 1200px;
 @import "admin/micro-clusters";
 @import "admin/macro-clusters";
 @import "admin/graphs";
+@import "admin/blog";
 
 .section {
   padding-bottom: 20px;
@@ -19,17 +20,5 @@ $grid-float-breakpoint: 1200px;
   tr.patron {
     color: #7fffd4;
     font-weight: bold;
-  }
-}
-
-#posts {
-  .notification_stats {
-    font-size: small;
-  }
-
-  figure img {
-    width: 100%;
-    margin-top: 20px;
-    margin-bottom: 20px;
   }
 }
