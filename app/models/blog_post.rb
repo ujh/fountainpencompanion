@@ -19,4 +19,8 @@ class BlogPost < ApplicationRecord
     body =~ /!\[.*\]\((.*)\)/
     $1
   end
+
+  def to_param
+    "#{id}-#{title.parameterize}"
+  end
 end
