@@ -42,6 +42,7 @@ class Admins::BlogPostsController < Admins::BaseController
   def publish
     @blog_post = BlogPost.find(params[:id])
     @blog_post.touch(:published_at)
+    AfterBlogPostPublished.perform_async(@blog_post.id)
     flash[:notice] = "Blog post successfully published"
     redirect_to admins_blog_posts_path
   end

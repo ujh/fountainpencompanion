@@ -458,6 +458,40 @@ ALTER SEQUENCE public.new_ink_names_id_seq OWNED BY public.new_ink_names.id;
 
 
 --
+-- Name: reading_statuses; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.reading_statuses (
+    id bigint NOT NULL,
+    user_id bigint NOT NULL,
+    blog_post_id bigint NOT NULL,
+    read boolean DEFAULT false NOT NULL,
+    dismissed boolean DEFAULT false NOT NULL,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
+);
+
+
+--
+-- Name: reading_statuses_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.reading_statuses_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: reading_statuses_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.reading_statuses_id_seq OWNED BY public.reading_statuses.id;
+
+
+--
 -- Name: schema_migrations; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -624,6 +658,13 @@ ALTER TABLE ONLY public.new_ink_names ALTER COLUMN id SET DEFAULT nextval('publi
 
 
 --
+-- Name: reading_statuses id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.reading_statuses ALTER COLUMN id SET DEFAULT nextval('public.reading_statuses_id_seq'::regclass);
+
+
+--
 -- Name: usage_records id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -731,6 +772,14 @@ ALTER TABLE ONLY public.micro_clusters
 
 ALTER TABLE ONLY public.new_ink_names
     ADD CONSTRAINT new_ink_names_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: reading_statuses reading_statuses_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.reading_statuses
+    ADD CONSTRAINT reading_statuses_pkey PRIMARY KEY (id);
 
 
 --
@@ -905,6 +954,20 @@ CREATE UNIQUE INDEX index_new_ink_names_on_simplified_name_and_ink_brand_id ON p
 
 
 --
+-- Name: index_reading_statuses_on_blog_post_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_reading_statuses_on_blog_post_id ON public.reading_statuses USING btree (blog_post_id);
+
+
+--
+-- Name: index_reading_statuses_on_user_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_reading_statuses_on_user_id ON public.reading_statuses USING btree (user_id);
+
+
+--
 -- Name: index_usage_records_on_currently_inked_id; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -970,6 +1033,14 @@ ALTER TABLE ONLY public.currently_inked
 
 
 --
+-- Name: reading_statuses fk_rails_17ee7cb2c4; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.reading_statuses
+    ADD CONSTRAINT fk_rails_17ee7cb2c4 FOREIGN KEY (user_id) REFERENCES public.users(id);
+
+
+--
 -- Name: friendships fk_rails_19981bd36e; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1023,6 +1094,14 @@ ALTER TABLE ONLY public.currently_inked
 
 ALTER TABLE ONLY public.new_ink_names
     ADD CONSTRAINT fk_rails_abf549b471 FOREIGN KEY (ink_brand_id) REFERENCES public.ink_brands(id);
+
+
+--
+-- Name: reading_statuses fk_rails_ac96400e2d; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.reading_statuses
+    ADD CONSTRAINT fk_rails_ac96400e2d FOREIGN KEY (blog_post_id) REFERENCES public.blog_posts(id);
 
 
 --
@@ -1158,6 +1237,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20200717152302'),
 ('20200930122807'),
 ('20200930124526'),
-('20201002133409');
+('20201002133409'),
+('20201007070202');
 
 
