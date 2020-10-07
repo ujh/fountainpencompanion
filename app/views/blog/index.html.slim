@@ -8,3 +8,5 @@
       = Slodown::Formatter.new( \
           truncate(post.body, length: 500, separator: ' ') { link_to 'more', blog_path(post) } \
         ).complete.to_s.html_safe
+
+= paginate @posts
