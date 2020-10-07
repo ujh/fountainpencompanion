@@ -6,6 +6,12 @@
       hr
       h2= post.title
       h4= post.published_at or 'unpublished'
+      - if post.published?
+        div.notification_stats
+          div= "#{post.reading_statuses.count} users notified"
+          div= "#{post.reading_statuses.unread.count} unread"
+          div= "#{post.reading_statuses.read.count} read"
+          div= "#{post.reading_statuses.dismissed.count} dismissed"
       p= post.html_body
       div
         = link_to "Edit", edit_admins_blog_post_path(post), class: 'btn btn-default'

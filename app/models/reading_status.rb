@@ -2,7 +2,7 @@ class ReadingStatus < ApplicationRecord
   belongs_to :user
   belongs_to :blog_post
 
-  def self.unread
-    where(read: false, dismissed: false)
-  end
+  scope :unread, -> { where(read: false, dismissed: false) }
+  scope :read, -> { where(read: true) }
+  scope :dismissed, -> { where(dismissed: true) }
 end
