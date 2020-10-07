@@ -20,6 +20,10 @@ class User < ApplicationRecord
     where.not(name: [nil, ""])
   end
 
+  def unread
+    reading_statuses.unread.includes(:blog_post)
+  end
+
   def friends
     possible_and_approved_friends.where(
       'friendships.approved = TRUE OR sf.approved = TRUE'

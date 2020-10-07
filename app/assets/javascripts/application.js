@@ -17,12 +17,12 @@
 //= require bootstrap-sprockets
 //= require_tree .
 
-$(function() {
+$(function () {
   $('[data-toggle="tooltip"]').tooltip();
 });
 
-$(function() {
-  $("#new-public-inks").each(function() {
+$(function () {
+  $("#new-public-inks").each(function () {
     renderPublicInks(this);
   });
 });
@@ -33,11 +33,24 @@ $(function() {
 //   });
 // });
 
-$(function() {
+$(function () {
   $(".admin-macro-cluster-row, .admin-micro-cluster-row").on(
     "ajax:success",
-    function() {
+    function () {
       location.href = location.href;
     }
   );
+});
+
+$(function () {
+  $(".blog-alert").on("closed.bs.alert", function () {
+    console.log(this);
+    var url = "/reading_statuses/" + $(this).data("id");
+    console.log(url);
+    function csrfToken() {
+      var tokenElement = document.querySelector("meta[name='csrf-token']");
+      return tokenElement ? tokenElement.getAttribute("content") : null;
+    }
+    fetch(url, { method: "PUT", headers: { "X-CSRF-Token": csrfToken() } });
+  });
 });

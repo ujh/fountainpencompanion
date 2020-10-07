@@ -14,6 +14,7 @@ Rails.application.routes.draw do
     end
   end
 
+  resources :reading_statuses, only: [:update]
   resources :collected_inks, only: [:index, :destroy, :edit, :update, :new, :create] do
     collection do
       get 'import'

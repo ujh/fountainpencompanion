@@ -5,6 +5,9 @@ class BlogController < ApplicationController
 
   def show
     @post = BlogPost.published.find(params[:id])
+    if user_signed_in?
+      @post.reading_statuses.find_by(user: current_user)&.update(read: true)
+    end
   end
 
   def feed

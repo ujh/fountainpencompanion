@@ -24,6 +24,13 @@ div id="wrap"
           '  if you have any questions.
         p
           a href="/users/1" Your friendly FPC software developer.
+    - if user_signed_in?
+      - current_user.unread.each do |reading_status|
+        div class="alert alert-warning alert-dismissible blog-alert" data-id=reading_status.id
+          button type="button" class="close" data-dismiss="alert"
+            span &times;
+          b= reading_status.blog_post.title
+          p= truncate(reading_status.blog_post.body, length: 100) { link_to " continue reading", blog_path(reading_status.blog_post)}
     h1 class="page-title"= content_for :title
     - if content_for?(:subtitle)
       div class="page-subtitle"= content_for :subtitle
