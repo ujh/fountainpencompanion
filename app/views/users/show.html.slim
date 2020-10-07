@@ -4,7 +4,7 @@
 - content_for :head
   meta property="og:title" content=@user.public_name
   meta property="og:url" content=user_url(@user)
-  meta property="og:description" content=@user.blurb
+  meta property="og:description" content=truncate(@user.blurb, length: 200, separator: ' ')
   meta property="og:image" content=profile_image_url(@user, size: 500)
 
 
