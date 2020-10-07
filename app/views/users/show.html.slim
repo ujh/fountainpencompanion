@@ -1,6 +1,13 @@
 - content_for :title do
   = @user.public_name
   = patron_tiny(@user)
+- content_for :head
+  meta property="og:title" content=@user.public_name
+  meta property="og:url" content=user_url(@user)
+  meta property="og:description" content=@user.blurb
+  meta property="og:image" content=profile_image_url(@user, size: 500)
+
+
 div id="account"
   div class="col-xs-12 col-sm-3 image"
     = profile_image_for(@user)
