@@ -14,4 +14,9 @@ class BlogPost < ApplicationRecord
   def html_body
     Slodown::Formatter.new(body).complete.to_s.html_safe
   end
+
+  def first_image
+    body =~ /!\[.*\]\((.*)\)/
+    $1
+  end
 end

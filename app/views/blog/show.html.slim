@@ -1,4 +1,10 @@
 - content_for :title, @post.title
+- content_for :head
+  meta property="og:title" content=@post.title
+  meta property="og:url" content=blog_url(@post)
+  meta property="og:type" content="article"
+  meta property="og:description" content=truncate(@post.body, length: 200, separator: ' ')
+  meta property="og:image" content=@post.first_image
 
 div.post
   h2.title= @post.title
