@@ -25,10 +25,6 @@ Rails.application.routes.draw do
     end
   end
 
-  namespace :collected_inks do
-    resources :beta, only: [:index, :edit, :new]
-  end
-
   resources :collected_pens do
     collection do
       get 'import'
