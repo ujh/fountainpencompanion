@@ -17,4 +17,56 @@ describe UsersController do
       expect(response.body).to_not include("/users/#{user.id}")
     end
   end
+
+  describe '#show' do
+    it 'returns the user data' do
+      user = create(:user, name: 'the name')
+      get "/users/#{user.id}.jsonapi"
+      expect(response).to be_successful
+      json = JSON.parse(response.body)
+      expect(json).to eq(
+        "data" => {
+          "id" => user.id.to_s,
+          "type" => "user",
+          "attributes" => {"name" => "the name"},
+          "relationships" => {"collected_inks" => {"data" => []}}
+        },
+        "jsonapi" => {"version" => "1.0"}
+      )
+    end
+
+    it 'returns public inks' do
+      ink = create(:collected_ink)
+      user = ink.user
+      get "/users/#{user.id}.jsonapi"
+      expect(response).to be_successful
+      json = JSON.parse(response.body)
+      expect(json['data']['relationships']['collected_inks']['data']).to eq([{
+        'type' => 'collected_inks', 'id' => ink.id.to_s
+      }])
+      expect(json['included']).to eq([{
+        'id' => ink.id.to_s,
+        'type' => 'collected_inks',
+        'attributes' => {
+          'brand_name' => ink.brand_name,
+          'color' => ink.color,
+          'comment' => ink.comment,
+          'ink_id' => nil,
+          'ink_name' => ink.ink_name,
+          'kind' => ink.kind,
+          'line_name' => ink.line_name,
+          'maker' => ink.maker,
+        }
+      }])
+    end
+
+    it 'does not return private inks' do
+      ink = create(:collected_ink, private: true)
+      user = ink.user
+      get "/users/#{user.id}.jsonapi"
+      expect(response).to be_successful
+      json = JSON.parse(response.body)
+      expect(json['data']['relationships']['collected_inks']['data']).to eq([])
+    end
+  end
 end
