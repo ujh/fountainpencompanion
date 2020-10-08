@@ -1,5 +1,5 @@
 class MicroClusterSerializer
-  include FastJsonapi::ObjectSerializer
+  include JSONAPI::Serializer
 
   belongs_to :macro_cluster
   has_many :collected_inks

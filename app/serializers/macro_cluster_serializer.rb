@@ -1,5 +1,5 @@
 class MacroClusterSerializer
-  include FastJsonapi::ObjectSerializer
+  include JSONAPI::Serializer
 
   has_many :micro_clusters
 

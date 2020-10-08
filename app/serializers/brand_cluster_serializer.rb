@@ -1,5 +1,5 @@
 class BrandClusterSerializer
-  include FastJsonapi::ObjectSerializer
+  include JSONAPI::Serializer
 
   attribute :name
 end
