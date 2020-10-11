@@ -3,7 +3,7 @@ FactoryBot.define do
     user
     brand_name { 'Diamine' }
     line_name { '' }
-    ink_name { 'Marine' }
+    sequence(:ink_name) { |n| "Marine #{n}" }
     kind { 'bottle' }
     swabbed { true }
     sequence(:comment) { |n| "Dry time: #{n}" }

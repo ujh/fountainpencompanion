@@ -36,7 +36,51 @@ describe LeaderBoard do
   end
 
   describe '#inks' do
+    it 'orders users by their collected inks' do
+      user1 = create(:user)
+      create_list(:collected_ink, 3, user: user1)
+      user2 = create(:user)
+      create_list(:collected_ink, 2, user: user2)
 
+      expect(described_class.inks.map {|e| [e[:id], e[:counter]]}).to eq([
+        [user1.id, 3], [user2.id, 2]
+      ])
+    end
+
+    it 'returns the user name' do
+      user = create(:user, name: 'the name')
+      create(:collected_ink, user: user)
+      expect(described_class.inks.first).to include(public_name: 'the name')
+    end
+
+    it 'does not include users without inks' do
+      user = create(:user)
+      expect(described_class.inks).to be_empty
+    end
+
+    it 'does not include users with only private inks' do
+      user = create(:user)
+      create(:collected_ink, user: user, private: true)
+      expect(described_class.inks).to be_empty
+    end
+
+    it 'does not count private inks' do
+      user1 = create(:user)
+      create_list(:collected_ink, 3, user: user1, private: true)
+      create(:collected_ink, user: user1)
+      user2 = create(:user)
+      create_list(:collected_ink, 2, user: user2)
+
+      expect(described_class.inks.map {|e| [e[:id], e[:counter]]}).to eq([
+        [user2.id, 2], [user1.id, 1]
+      ])
+    end
+
+    it 'returns the patreon status' do
+      user = create(:user, patron: true)
+      create(:collected_ink, user: user)
+      expect(described_class.inks.first).to include(patron: true)
+    end
   end
 
   describe '#top_inks' do
