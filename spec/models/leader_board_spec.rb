@@ -91,7 +91,28 @@ describe LeaderBoard do
   end
 
   describe '#bottles' do
+    it 'orders users by their collected inks' do
+      user1 = create(:user)
+      create_list(:collected_ink, 3, user: user1, kind: 'bottle')
+      user2 = create(:user)
+      create_list(:collected_ink, 2, user: user2, kind: 'bottle')
 
+      expect(described_class.bottles.map {|e| [e[:id], e[:counter]]}).to eq([
+        [user1.id, 3], [user2.id, 2]
+      ])
+    end
+
+    it 'does not count inks that are not bottles' do
+      user1 = create(:user)
+      create_list(:collected_ink, 1, user: user1, kind: 'bottle')
+      create_list(:collected_ink, 3, user: user1, kind: 'sample')
+      user2 = create(:user)
+      create_list(:collected_ink, 2, user: user2, kind: 'bottle')
+
+      expect(described_class.bottles.map {|e| [e[:id], e[:counter]]}).to eq([
+        [user2.id, 2], [user1.id, 1]
+      ])
+    end
   end
 
   describe '#top_bottles' do
