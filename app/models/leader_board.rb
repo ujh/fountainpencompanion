@@ -22,18 +22,14 @@ class LeaderBoard
     inks_by_popularity.take(10)
   end
 
-  def self.top_inks
-    inks.take(10)
-  end
-
   def self.inks(force: false)
     Rails.cache.fetch("LeaderBoard#inks", force: force) do
       extract(build)
     end
   end
 
-  def self.top_bottles
-    bottles.take(10)
+  def self.top_inks
+    inks.take(10)
   end
 
   def self.bottles(force: false)
@@ -42,8 +38,8 @@ class LeaderBoard
     end
   end
 
-  def self.top_samples
-    samples.take(10)
+  def self.top_bottles
+    bottles.take(10)
   end
 
   def self.samples(force: false)
@@ -52,8 +48,8 @@ class LeaderBoard
     end
   end
 
-  def self.top_brands
-    brands.take(10)
+  def self.top_samples
+    samples.take(10)
   end
 
   def self.brands(force: false)
@@ -62,6 +58,10 @@ class LeaderBoard
         "(select sum(1) OVER () from collected_inks where collected_inks.user_id = users.id group by collected_inks.brand_name limit 1) as counter"
       ))
     end
+  end
+
+  def self.top_brands
+    brands.take(10)
   end
 
   def self.build(select = "count(*) as counter")
