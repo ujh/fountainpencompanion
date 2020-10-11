@@ -157,7 +157,19 @@ describe LeaderBoard do
   end
 
   describe '#brands' do
+    it 'orders users by their number of different brands' do
+      user1 = create(:user)
+      create(:collected_ink, user: user1, brand_name: 'brand 1')
+      create(:collected_ink, user: user1, brand_name: 'brand 2')
+      create(:collected_ink, user: user1, brand_name: 'brand 3')
+      user2 = create(:user)
+      create(:collected_ink, user: user2, brand_name: 'brand 1')
+      create(:collected_ink, user: user2, brand_name: 'brand 2')
 
+      expect(described_class.brands.map {|e| [e[:id], e[:counter]]}).to eq([
+        [user1.id, 3], [user2.id, 2]
+      ])
+    end
   end
 
   describe '#top_brands' do
