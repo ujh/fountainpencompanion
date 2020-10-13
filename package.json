@@ -11,7 +11,7 @@
     "jsona": "^1.8.0",
     "jstz": "^2.1.1",
     "lodash": "^4.17.20",
-    "match-sorter": "^4.2.1",
+    "match-sorter": "^5.0.0",
     "prop-types": "^15.7.2",
     "react": "^16.13.1",
     "react-color": "^2.18.1",
@@ -27,6 +27,6 @@
   },
   "engines": {
     "node": "12.13.0",
-    "yarn": "1.22.5"
+    "yarn": "1.22.10"
   }
 }
