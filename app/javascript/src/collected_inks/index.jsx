@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from "react";
 import * as ReactDOM from "react-dom";
 import { useTable, useSortBy, useGlobalFilter } from "react-table";
 import convert from "color-convert";
-import matchSorter from "match-sorter";
+import { matchSorter } from "match-sorter";
 import _ from "lodash";
 import { getRequest } from "src/fetch";
 

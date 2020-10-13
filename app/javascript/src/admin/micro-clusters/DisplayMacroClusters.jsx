@@ -2,7 +2,7 @@ import React, { useState, useContext, useEffect, useMemo } from "react";
 import _ from "lodash";
 import levenshtein from "fast-levenshtein";
 import ScrollIntoViewIfNeeded from "react-scroll-into-view-if-needed";
-import matchSorter from "match-sorter";
+import { matchSorter } from "match-sorter";
 
 import { assignCluster } from "./assignCluster";
 import { CollectedInksList } from "./CollectedInksList";
