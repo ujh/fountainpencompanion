@@ -39,7 +39,7 @@ class Admins::GraphsController < Admins::BaseController
     ).where(
       'created_at < ?', Date.today
     ).group("date_trunc('day', created_at)").order("day asc").pluck(
-      "date_trunc('day', created_at) as day, count(*) as day_count"
+      Arel.sql "date_trunc('day', created_at) as day, count(*) as day_count"
     ).map do |d|
       [d.first.to_i*1000, d.last]
     end
