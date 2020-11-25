@@ -325,7 +325,7 @@ GEM
       activesupport (>= 4.0)
       sprockets (>= 3.0.0)
     statsd-ruby (1.4.0)
-    strong_migrations (0.7.1)
+    strong_migrations (0.7.3)
       activerecord (>= 5)
     sync (0.5.0)
     temple (0.8.2)
@@ -338,7 +338,7 @@ GEM
     tilt (2.0.10)
     tins (1.26.0)
       sync
-    tzinfo (1.2.7)
+    tzinfo (1.2.8)
       thread_safe (~> 0.1)
     uglifier (4.2.0)
       execjs (>= 0.3.0, < 3)
@@ -359,7 +359,7 @@ GEM
     websocket-driver (0.7.3)
       websocket-extensions (>= 0.1.0)
     websocket-extensions (0.1.5)
-    zeitwerk (2.4.0)
+    zeitwerk (2.4.1)
 
 PLATFORMS
   ruby
