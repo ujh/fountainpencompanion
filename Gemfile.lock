@@ -190,6 +190,7 @@ GEM
     minitest (5.14.2)
     msgpack (1.3.3)
     multi_json (1.14.1)
+    newrelic_rpm (6.14.0)
     nio4r (2.5.4)
     nokogiri (1.10.10)
       mini_portile2 (~> 2.4.0)
@@ -386,6 +387,7 @@ DEPENDENCIES
   kaminari
   letter_opener
   listen
+  newrelic_rpm
   pg
   pg_search
   puma
