@@ -364,6 +364,7 @@ GEM
 
 PLATFORMS
   ruby
+  x86_64-darwin-19
 
 DEPENDENCIES
   barnes
@@ -411,7 +412,7 @@ DEPENDENCIES
   webpacker
 
 RUBY VERSION
-   ruby 2.6.5p114
+   ruby 2.7.2p137
 
 BUNDLED WITH
-   1.17.3
+   2.2.1
