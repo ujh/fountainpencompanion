@@ -23,6 +23,8 @@ describe Admins::UsersController do
   end
 
   describe '#ink_import' do
+    include ActionDispatch::TestProcess
+
     let(:csv) do
       name = Rails.root.join('tmp', 'import.csv')
       CSV.open(name, 'w') do |csv|
@@ -61,6 +63,8 @@ describe Admins::UsersController do
   end
 
   describe '#pen_import' do
+    include ActionDispatch::TestProcess
+
     let(:csv) do
       name = Rails.root.join('tmp', 'import.csv')
       CSV.open(name, 'w') do |csv|
