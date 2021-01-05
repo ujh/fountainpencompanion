@@ -26,7 +26,35 @@ div class="table-wrapper"
               span data-toggle="tooltip" title="#{l ci.last_used_on}" style="white-space:nowrap;"
                 ="#{distance_of_time_in_words(ci.last_used_on, Date.today)} ago"
           td= ci.comment
-          td class="actions"= render partial: "actions", locals: { ci: ci }
+          td class="actions"
+            span
+              - if ci.refillable?
+                = link_to refill_currently_inked_path(ci),
+                          class: "btn btn-default",
+                          method: :post,
+                          title: "Refill this pen",
+                          data: { confirm: "Really refill #{ci.name}?"}
+                  = fa_icon("rotate-right")
+              - if ci.used_today?
+                div class="btn btn-default" title="Already recorded usage for today"
+                  = fa_icon("bookmark-o")
+              - else
+                = link_to currently_inked_usage_record_path(ci),
+                          class: "usage btn btn-default",
+                          method: :post,
+                          remote: true,
+                          title: "Record usage for today"
+                  = fa_icon("bookmark")
+              = link_to edit_currently_inked_path(ci), class: "btn btn-default", title: "Edit #{ci.name}"
+                = fa_icon("pencil")
+              = link_to archive_currently_inked_path(ci), class: "btn btn-default", method: :post, title: "Archive #{ci.name}"
+                = fa_icon("archive")
+              = link_to currently_inked_path(ci),
+                        class: "btn btn-default",
+                        method: :delete,
+                        data: { confirm: "Really delete #{ci.name}?" },
+                        title: "Delete #{ci.name}"
+                = fa_icon("trash")
       = simple_form_for @record, wrapper: :inline_form do |f|
         tr class="ci-form"
           td=f.association :collected_pen, collection: @record.collected_pens_for_active_select, prompt: '(Pick a pen)'
