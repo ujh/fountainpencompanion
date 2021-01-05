@@ -12,6 +12,7 @@ class CurrentlyInked < ApplicationRecord
   belongs_to :user
 
   has_many :usage_records, dependent: :destroy
+  has_one :last_usage, -> { order('used_on desc') }, class_name: 'UsageRecord'
 
   delegate :collected_inks_for_select, to: :user
   delegate :collected_pens_for_select, to: :user
@@ -61,11 +62,11 @@ class CurrentlyInked < ApplicationRecord
   end
 
   def used_today?
-    @used_today||= usage_records.where(used_on: Date.current).exists?
+    last_used_on == Date.today
   end
 
   def last_used_on
-    @last_used_on ||= usage_records.order('used_on desc').limit(1).pluck(:used_on)&.first
+    last_usage&.used_on
   end
 
   def name
