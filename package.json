@@ -10,7 +10,7 @@
     "highcharts-react-official": "^3.0.0",
     "jsona": "^1.8.0",
     "jstz": "^2.1.1",
-    "lodash": "^4.17.20",
+    "lodash": "^4.17.21",
     "match-sorter": "^6.1.0",
     "prop-types": "^15.7.2",
     "react": "^16.14.0",
