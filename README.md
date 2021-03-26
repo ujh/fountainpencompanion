@@ -1,7 +1,4 @@
-[![Build Status](https://travis-ci.org/ujh/fountainpencompanion.svg?branch=develop)](https://travis-ci.org/ujh/fountainpencompanion)
-[![Maintainability](https://api.codeclimate.com/v1/badges/8940cb0993d2dad94e13/maintainability)](https://codeclimate.com/github/ujh/fountainpencompanion/maintainability)
 [![Coverage Status](https://coveralls.io/repos/github/ujh/fountainpencompanion/badge.svg?branch=master)](https://coveralls.io/github/ujh/fountainpencompanion?branch=master)
-
 # Goals
 
 There's two things that FPC wants to do. First of all it should be a place where users can manage their inks & pens.
