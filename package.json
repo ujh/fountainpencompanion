@@ -31,6 +31,8 @@
     "yarn": "1.22.10"
   },
   "jest": {
+    "collectCoverage": true,
+    "coverageReporters": ["html", "lcov", "text-summary"],
     "modulePaths": [
       "<rootDir>/app/javascript/src"
     ],
