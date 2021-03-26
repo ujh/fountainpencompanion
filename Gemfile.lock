@@ -81,7 +81,7 @@ GEM
     color (1.8)
     concurrent-ruby (1.1.8)
     connection_pool (2.2.3)
-    coveralls_reborn (0.20.0)
+    coveralls_reborn (0.21.0)
       simplecov (>= 0.18.1, < 0.22.0)
       term-ansicolor (~> 1.6)
       thor (>= 0.20.3, < 2.0)
@@ -353,7 +353,7 @@ GEM
     thwait (0.2.0)
       e2mmap
     tilt (2.0.10)
-    tins (1.26.0)
+    tins (1.28.0)
       sync
     tzinfo (2.0.4)
       concurrent-ruby (~> 1.0)
