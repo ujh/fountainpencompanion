@@ -30,6 +30,16 @@ jobs:
         postgresql db: fountainpencompanion_test
         postgresql user: test
         postgresql password: test
+        
+    - name: Wait / Sleep
+      uses: jakejarvis/wait-action@v0.1.0
+      with:
+        time: '10s'
+    - name: Collect Docker Logs
+      uses: jwalton/gh-docker-logs@v1.0.0
+    - name: Check running containers
+      run: docker ps -a
+      
     - name: Set up Ruby
     # To automatically get bug fixes and new Ruby versions for ruby/setup-ruby,
     # change this to (see https://github.com/ruby/setup-ruby#versioning):
