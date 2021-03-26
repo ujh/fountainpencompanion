@@ -19,9 +19,6 @@ jobs:
       DATABASE_URL: postgres://test:test@localhost/fountainpencompanion_test
 
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        ruby-version: ['2.7']
 
     steps:
     - uses: actions/checkout@v2
