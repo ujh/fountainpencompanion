@@ -15,7 +15,9 @@ on:
 
 jobs:
   test:
-
+    env:
+      DATABASE_URL: postgres://test:test@localhost/fountainpencompanion_test
+      
     runs-on: ubuntu-latest
     strategy:
       matrix:

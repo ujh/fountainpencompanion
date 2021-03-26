@@ -58,8 +58,12 @@ development:
 # Do not set this db to the same as development or production.
 test:
   <<: *default
+  <% if ENV['DATABASE_URL'] %>
+  url: <%= ENV['DATABASE_URL'] %>
+  <% else %>
   database: fountainpencompanion_test
   port: <%= ENV['DB_PORT'] || 5432 %>
+  <% end %>
 
 
 # As with config/secrets.yml, you never want to store sensitive information,
