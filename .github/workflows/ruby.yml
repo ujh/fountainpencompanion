@@ -39,6 +39,8 @@ jobs:
       uses: jwalton/gh-docker-logs@v1.0.0
     - name: Check running containers
       run: docker ps -a
+    - name: Try connecting to Postgres
+      run: PGPASSWORD=test psql -U test -d fountainpencompanion_test -h localhost -c "SELECT version()"
       
     - name: Set up Ruby
     # To automatically get bug fixes and new Ruby versions for ruby/setup-ruby,
