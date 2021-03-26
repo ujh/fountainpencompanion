@@ -81,11 +81,6 @@ GEM
     color (1.8)
     concurrent-ruby (1.1.8)
     connection_pool (2.2.3)
-    coveralls_reborn (0.21.0)
-      simplecov (>= 0.18.1, < 0.22.0)
-      term-ansicolor (~> 1.6)
-      thor (>= 0.20.3, < 2.0)
-      tins (~> 1.16)
     crass (1.0.6)
     derailed (0.1.0)
       derailed_benchmarks
@@ -326,6 +321,7 @@ GEM
       simplecov-html (~> 0.11)
       simplecov_json_formatter (~> 0.1)
     simplecov-html (0.12.3)
+    simplecov-lcov (0.8.0)
     simplecov_json_formatter (0.1.2)
     slim (4.1.0)
       temple (>= 0.7.6, < 0.9)
@@ -345,16 +341,11 @@ GEM
     statsd-ruby (1.5.0)
     strong_migrations (0.7.6)
       activerecord (>= 5)
-    sync (0.5.0)
     temple (0.8.2)
-    term-ansicolor (1.7.1)
-      tins (~> 1.0)
     thor (1.1.0)
     thwait (0.2.0)
       e2mmap
     tilt (2.0.10)
-    tins (1.28.0)
-      sync
     tzinfo (2.0.4)
       concurrent-ruby (~> 1.0)
     uglifier (4.2.0)
@@ -389,7 +380,6 @@ DEPENDENCIES
   bootstrap-sass
   byebug
   color
-  coveralls_reborn
   derailed
   devise
   dotenv-rails
@@ -421,6 +411,7 @@ DEPENDENCIES
   sidekiq-scheduler
   simple_form
   simplecov
+  simplecov-lcov
   slim
   slodown
   strong_migrations
