@@ -44,8 +44,19 @@ jobs:
       run: yarn install
     - name: Run tests
       run: bundle exec rake
-    - name: Report to Coveralls
+    - name: Report to Coveralls (parallel)
       uses: coverallsapp/github-action@master
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         path-to-lcov: ./coverage/lcov/fountainpencompanion.lcov
+        parallel: true
+        flag-name: rspec
+  finish:
+    needs: rspec
+    runs-on: ubuntu-latest
+    steps:
+    - name: Coveralls Finished
+      uses: coverallsapp/github-action@master
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        parallel-finished: true
