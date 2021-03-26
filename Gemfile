@@ -44,7 +44,6 @@ gem 'webpacker'
 
 group :development, :test do
   gem 'byebug', platform: :mri
-  gem 'coveralls_reborn', require: false
   gem 'dotenv-rails'
   gem 'letter_opener'
   gem 'rspec-rails'
@@ -60,4 +59,5 @@ end
 group :test do
   gem 'rails-controller-testing'
   gem 'simplecov', require: false
+  gem 'simplecov-lcov', require: false
 end
