@@ -51,8 +51,30 @@ jobs:
         path-to-lcov: ./coverage/lcov/fountainpencompanion.lcov
         parallel: true
         flag-name: rspec
+  jest:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Install correct Node version
+      uses: actions/setup-node@v2
+      with:
+        node-version: '12.13.0'
+    - name: Install correct Yarn version
+      run: npm install yarn@1.22.10 -g
+    - name: Install JS dependencies
+      run: yarn install
+    - name: Run tests
+      run: yarn jest
+    - name: Report to Coveralls (parallel)
+      uses: coverallsapp/github-action@master
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        path-to-lcov: ./coverage/lcov.info
+        parallel: true
+        flag-name: jest
+
   finish:
-    needs: rspec
+    needs: [rspec, jest]
     runs-on: ubuntu-latest
     steps:
     - name: Coveralls Finished
