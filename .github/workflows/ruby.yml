@@ -14,7 +14,7 @@ on:
     branches: [ master ]
 
 jobs:
-  test:
+  rspec:
     env:
       DATABASE_URL: postgres://test:test@localhost/fountainpencompanion_test
 
