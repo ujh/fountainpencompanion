@@ -24,7 +24,7 @@ default: &default
 development:
   <<: *default
   database: fountainpencompanion_development
-  port: 5433
+  port: <%= ENV['DB_PORT'] || 5432 %>
 
   # The specified database role being used to connect to postgres.
   # To create additional roles in postgres see `$ createuser --help`.
@@ -59,7 +59,7 @@ development:
 test:
   <<: *default
   database: fountainpencompanion_test
-  port: 5433
+  port: <%= ENV['DB_PORT'] || 5432 %>
 
 
 # As with config/secrets.yml, you never want to store sensitive information,

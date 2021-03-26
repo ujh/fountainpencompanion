@@ -29,3 +29,7 @@ js-coverage/
 /yarn-error.log
 yarn-debug.log*
 .yarn-integrity
+
+.env.local
+.env.development.local
+.env.test.local

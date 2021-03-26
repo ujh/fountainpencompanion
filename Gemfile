@@ -45,7 +45,7 @@ gem 'webpacker'
 group :development, :test do
   gem 'byebug', platform: :mri
   gem 'coveralls_reborn', require: false
-  gem 'dotenv'
+  gem 'dotenv-rails'
   gem 'letter_opener'
   gem 'rspec-rails'
   gem 'factory_bot_rails'
