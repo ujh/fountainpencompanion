@@ -12,6 +12,8 @@
     "jstz": "^2.1.1",
     "lodash": "^4.17.21",
     "match-sorter": "^6.3.0",
+    "postcss-preset-env": "^6.7.0",
+    "postcss-smart-import": "^0.7.6",
     "prop-types": "^15.7.2",
     "react": "^16.14.0",
     "react-color": "^2.19.3",
@@ -35,7 +37,11 @@
     "collectCoverageFrom": [
       "app/javascript/**/*.{js,jsx}"
     ],
-    "coverageReporters": ["html", "lcov", "text-summary"],
+    "coverageReporters": [
+      "html",
+      "lcov",
+      "text-summary"
+    ],
     "modulePaths": [
       "<rootDir>/app/javascript/src"
     ],

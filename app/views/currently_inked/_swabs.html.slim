@@ -16,7 +16,7 @@ div class="row"
   - collection.each_with_index do |ci, index|
     div class="col-xs-12 col-sm-6"
       div class="entry"
-        div= image_tag("swab.png", style: "background-color:#{ci.ink_color};")
+        div= image_pack_tag("swab.png", style: "background-color:#{ci.ink_color};")
         div
           b
             'Pen:
