@@ -32,6 +32,9 @@
   },
   "jest": {
     "collectCoverage": true,
+    "collectCoverageFrom": [
+      "app/javascript/**/*.{js,jsx}"
+    ],
     "coverageReporters": ["html", "lcov", "text-summary"],
     "modulePaths": [
       "<rootDir>/app/javascript/src"
