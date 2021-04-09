@@ -26,15 +26,13 @@ jobs:
       uses: actions/setup-node@v2
       with:
         node-version: '12.13.0'
-    - name: Install correct Yarn version
-      run: npm install yarn@1.22.10 -g
     - name: Set up Postgres
       uses: harmon758/postgresql-action@v1
       with:
-        postgresql version: '12' 
+        postgresql version: '12'
         postgresql db: fountainpencompanion_test
         postgresql user: test
-        postgresql password: test      
+        postgresql password: test
     - name: Set up Ruby
       uses: ruby/setup-ruby@v1
       with:
@@ -59,8 +57,6 @@ jobs:
       uses: actions/setup-node@v2
       with:
         node-version: '12.13.0'
-    - name: Install correct Yarn version
-      run: npm install yarn@1.22.10 -g
     - name: Install JS dependencies
       run: yarn install
     - name: Run tests
