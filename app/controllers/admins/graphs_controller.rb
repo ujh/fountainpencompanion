@@ -14,7 +14,13 @@ class Admins::GraphsController < Admins::BaseController
   private
 
   def signups
-    build User.active
+    [{
+      data: build(User.active),
+      name: "Confirmed signups"
+    }, {
+      data: build(User),
+      name: "All signups"
+    }]
   end
 
   def collected_inks

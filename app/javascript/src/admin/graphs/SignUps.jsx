@@ -14,8 +14,8 @@ export const SignUps = () => {
   if (data) {
     const options = {
       chart: { type: "spline" },
-      legend: { enabled: false },
-      series: [{ data, name: "Signups" }],
+      legend: { enabled: true },
+      series: data,
       title: { text: "Signups per day" },
       xAxis: {
         type: "datetime",
