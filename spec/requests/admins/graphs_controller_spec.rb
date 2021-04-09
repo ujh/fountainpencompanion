@@ -17,13 +17,23 @@ describe Admins::GraphsController do
       it 'returns the signups data' do
         create(:user, created_at: 2.days.ago)
         create(:user, created_at: 1.day.ago)
+        create(:user, created_at: 2.days.ago, confirmed_at: nil)
         get '/admins/graphs/signups'
         expect(response).to be_successful
-        json = JSON.parse(response.body)
-        expect(json).to eq([
-          [2.days.ago.at_beginning_of_day.to_i*1000, 1],
-          [1.day.ago.at_beginning_of_day.to_i*1000, 1]
-        ])
+        json = JSON.parse(response.body, symbolize_names: true)
+        expect(json).to eq([{
+          data: [
+            [2.days.ago.at_beginning_of_day.to_i*1000, 1],
+            [1.day.ago.at_beginning_of_day.to_i*1000, 1]
+          ],
+          name: 'Confirmed signups'
+        }, {
+          data: [
+            [2.days.ago.at_beginning_of_day.to_i*1000, 2],
+            [1.day.ago.at_beginning_of_day.to_i*1000, 1]
+          ],
+          name: 'All signups'
+        }])
       end
 
       it 'returns the collected inks data' do
