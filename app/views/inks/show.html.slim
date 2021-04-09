@@ -1,4 +1,8 @@
 - content_for :title, "#{@ink.name}"
+- content_for :head
+  meta property="og:title" content=@ink.name
+  meta property="og:url" content=ink_url(@ink)
+  meta property="og:description" content="This ink is owned by #{@ink.public_collected_inks_count} users"
 
 div class="row details"
   div class="col-xs-12 col-sm-6"
@@ -8,7 +12,7 @@ div class="row details"
         tbody
           tr
             td Brand
-            td= link_to @ink.brand_name, brand_path(@ink.brand_cluster)
+            td= link_to @ink.brand_name, brand_url(@ink.brand_cluster)
           tr
             td Line
             td= @ink.line_name
@@ -17,7 +21,7 @@ div class="row details"
             td= @ink.ink_name
           tr
             td Owner count
-            td= @ink.collected_inks.count
+            td= @ink.public_collected_inks_count
           tr
             td Average Color
             td style="background-color:#{@ink.color};"
