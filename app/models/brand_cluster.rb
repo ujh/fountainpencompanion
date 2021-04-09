@@ -16,6 +16,14 @@ class BrandCluster < ApplicationRecord
     where("name ilike ?", "%#{term}%")
   end
 
+  def public_ink_count
+    macro_clusters.public.count.count
+  end
+
+  def public_collected_inks_count
+    collected_inks.where(private: false).count
+  end
+
   def to_param
     "#{id}-#{name.parameterize}"
   end

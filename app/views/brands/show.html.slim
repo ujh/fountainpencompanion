@@ -1,8 +1,8 @@
-- content_for :title, "#{@brand.name} - #{@brand.macro_clusters.public.count.count} inks"
+- content_for :title, "#{@brand.name} - #{@brand.public_ink_count} inks"
 - content_for :head
   meta property="og:title" content=@brand.name
   meta property="og:url" content=brand_url(@brand)
-  meta property="og:description" content="#{@brand.macro_clusters.public.count.count} distinct inks. #{@brand.collected_inks.where(private: false).count} entries in total."
+  meta property="og:description" content="#{@brand.public_ink_count} distinct inks. #{@brand.public_collected_inks_count} entries in total."
 
 div class="table-wrapper"
   table class="table table-striped table-condensed"
@@ -21,4 +21,4 @@ div class="table-wrapper"
           td= ink.line_name
           td style="background-color:#{ink.color};width: 37px;"
           td= ink.ink_name
-          td= link_to "Details", brand_ink_path(@brand, ink)
+          td= link_to "Details", brand_ink_url(@brand, ink)
