@@ -1,5 +1,6 @@
 class BrandCluster < ApplicationRecord
   has_many :macro_clusters, dependent: :nullify
+  has_many :collected_inks, through: :macro_clusters
 
   def self.public
     joins(macro_clusters: { micro_clusters: :collected_inks }).where(

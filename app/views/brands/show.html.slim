@@ -1,4 +1,8 @@
 - content_for :title, "#{@brand.name} - #{@brand.macro_clusters.public.count.count} inks"
+- content_for :head
+  meta property="og:title" content=@brand.name
+  meta property="og:url" content=brand_url(@brand)
+  meta property="og:description" content="#{@brand.macro_clusters.public.count.count} distinct inks. #{@brand.collected_inks.where(private: false).count} entries in total."
 
 div class="table-wrapper"
   table class="table table-striped table-condensed"
