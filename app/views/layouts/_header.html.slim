@@ -13,12 +13,7 @@ nav class="navbar navbar-default" id="header"
         li= link_to "Users", users_path
         li= link_to "Brands", brands_path
         li= link_to "Leaderboards", page_path("leaderboards")
-        li
-          a href="http://podcast.fpc.ink" target="_blank"
-            span Podcast
-        li
-          a href="https://community.fpc.ink" target="_blank"
-            span Community
+        li= link_to "Blog", blog_index_path
       ul class="nav navbar-nav navbar-right"
         - if user_signed_in?
           li= link_to "Currently Inked", currently_inked_index_path
