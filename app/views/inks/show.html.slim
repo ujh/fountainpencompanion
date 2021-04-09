@@ -1,4 +1,8 @@
 - content_for :title, "#{@ink.name}"
+- content_for :head
+  meta property="og:title" content=@ink.name
+  meta property="og:url" content=ink_url(@ink)
+  meta property="og:description" content="This ink is owned by #{@ink.collected_inks.count} users"
 
 div class="row details"
   div class="col-xs-12 col-sm-6"
