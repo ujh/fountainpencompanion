@@ -1,6 +1,22 @@
 require 'rails_helper'
 
 describe User do
+  describe '#bot_field' do
+    it 'ensures that the user is valid if the field is not set' do
+      user = build(:user)
+      user.bot_field = ''
+      expect(user).to be_valid
+      user.bot_field = nil
+      expect(user).to be_valid
+    end
+
+    it 'ensures that the user is invalid if the field is set' do
+      user = build(:user)
+      user.bot_field = 'some value'
+      expect(user).to be_invalid
+    end
+  end
+
   describe '#friends' do
     let(:friend) { create(:user) }
     subject { create(:user) }

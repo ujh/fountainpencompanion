@@ -12,6 +12,9 @@ class User < ApplicationRecord
 
   validates :name, length: { in: 1..100, allow_blank: true }
 
+  attr_accessor :bot_field
+  validates :bot_field, absence: true
+
   def self.active
     where.not(confirmed_at: nil)
   end
