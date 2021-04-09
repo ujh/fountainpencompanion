@@ -24,7 +24,7 @@ vespercreative.com
 /* #Global Styles
 -------------------------------------------------- */
 body {
-  background: #fff image-url("bg-body.png") fixed repeat;
+  background: #fff url(../images/bg-body.png) fixed repeat;
   line-height: 22px;
 	font-family: Arial, Helvetica, sans-serif;
 }
@@ -112,7 +112,7 @@ margin-left: 30px;
 }
 
 .btn {
-	background-image: image-url("bg-btn.png") !important;
+	background-image: url(../images/bg-btn.png) !important;
 	background-repeat: repeat;
 }
 
@@ -155,7 +155,7 @@ margin-left: 30px;
 	border-top-color: white;
 }
 .page-subtitle {
-    background: transparent url(bg-subtitle.png) repeat-x top;
+    background: transparent url(../images/bg-subtitle.png) repeat-x top;
     text-align: center;
     font: 20px/36px Droid Serif, Georgia, serif;
     line-height: 24px;
@@ -163,7 +163,7 @@ margin-left: 30px;
     color: #757575;
 }
 #wrap .container {
-    background: transparent image-url("bg-page.png") repeat;
+    background: transparent url(../images/bg-page.png) repeat;
     border-radius: 10px;
     display: block;
     padding: 10px;
@@ -493,7 +493,7 @@ margin-right: 20px;
         float: left;
         margin-left: 10px;
     }
-	.navbar-fixed-top .navbar-inner { background: #222 url(bg-header2.png) repeat !important; height: auto; filter:none !important;}
+	.navbar-fixed-top .navbar-inner { background: #222 url(../images/bg-header2.png) repeat !important; height: auto; filter:none !important;}
     .container,
     .navbar-fixed-top .container,
     .navbar-fixed-bottom .container { width: 724px }
@@ -534,7 +534,7 @@ margin-right: 20px;
 	.topnav  .social a{
 		padding: 8px 10px !important;
 	}
-	.navbar-fixed-top .navbar-inner { background: #222 url(bg-header2.png) repeat !important; height: auto; filter:none !important;}
+	.navbar-fixed-top .navbar-inner { background: #222 url(../images/bg-header2.png) repeat !important; height: auto; filter:none !important;}
 	#wrap .container {
 		padding-bottom: 100px !important;
 	}
@@ -549,7 +549,7 @@ margin-right: 20px;
 	width: auto;
 	margin-left: 0px;
 	}
-	.navbar-fixed-top .navbar-inner { background: #222 url(bg-header2.png) repeat !important; height: auto; filter:none !important;}
+	.navbar-fixed-top .navbar-inner { background: #222 url(../images/bg-header2.png) repeat !important; height: auto; filter:none !important;}
 	#wrap .container {
 		padding-bottom: 100px !important;
 	}
