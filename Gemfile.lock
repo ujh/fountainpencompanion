@@ -182,7 +182,7 @@ GEM
       nokogiri (>= 1.5.9)
     mail (2.7.1)
       mini_mime (>= 0.1.1)
-    marcel (1.0.0)
+    marcel (1.0.1)
     memory_profiler (0.9.14)
     method_source (1.0.0)
     mini_histogram (0.3.1)
