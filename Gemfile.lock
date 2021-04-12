@@ -108,7 +108,7 @@ GEM
       dotenv (= 2.7.6)
       railties (>= 3.2)
     e2mmap (0.1.0)
-    enumerable-statistics (2.0.1)
+    enumerable-statistics (2.0.3)
     erubi (1.10.0)
     et-orbi (1.2.4)
       tzinfo
@@ -346,7 +346,7 @@ GEM
       concurrent-ruby (~> 1.0)
     uglifier (4.2.0)
       execjs (>= 0.3.0, < 3)
-    unicode_plot (0.0.4)
+    unicode_plot (0.0.5)
       enumerable-statistics (>= 2.0.1)
     warden (1.2.9)
       rack (>= 2.0.9)
