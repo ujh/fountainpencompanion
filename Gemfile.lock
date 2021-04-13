@@ -134,7 +134,7 @@ GEM
       activesupport (>= 4.2.0)
     heapy (0.2.0)
       thor
-    i18n (1.8.9)
+    i18n (1.8.10)
       concurrent-ruby (~> 1.0)
     jbuilder (2.11.2)
       activesupport (>= 5.0.0)
