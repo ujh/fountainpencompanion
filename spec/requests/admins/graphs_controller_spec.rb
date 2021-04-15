@@ -18,6 +18,7 @@ describe Admins::GraphsController do
         create(:user, created_at: 2.days.ago)
         create(:user, created_at: 1.day.ago)
         create(:user, created_at: 2.days.ago, confirmed_at: nil)
+        create(:user, created_at: 1.day.ago, confirmed_at: nil, bot: true)
         get '/admins/graphs/signups'
         expect(response).to be_successful
         json = JSON.parse(response.body, symbolize_names: true)
@@ -33,6 +34,11 @@ describe Admins::GraphsController do
             [1.day.ago.at_beginning_of_day.to_i*1000, 1]
           ],
           name: 'All signups'
+        }, {
+          data: [
+            [1.day.ago.at_beginning_of_day.to_i*1000, 1]
+          ],
+          name: 'Bot signups'
         }])
       end
 

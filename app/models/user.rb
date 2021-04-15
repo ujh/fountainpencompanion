@@ -23,6 +23,10 @@ class User < ApplicationRecord
     where.not(name: [nil, ""])
   end
 
+  def self.bots
+    where(bot: true)
+  end
+
   def unread
     reading_statuses.unread.includes(:blog_post)
   end
