@@ -8,11 +8,7 @@ table class="table table-striped"
       td
         table
           tr
-            td= @stats.user_count
-            td
-              |  (
-              = number_to_percentage(@stats.confirmed_user_percentage, precision: 2)
-              |  confirmed)
+            td= "#{@stats.user_count} confirmed users"
           tr
             td
             td

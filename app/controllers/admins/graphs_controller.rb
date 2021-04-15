@@ -20,6 +20,9 @@ class Admins::GraphsController < Admins::BaseController
     }, {
       data: build(User),
       name: "All signups"
+    }, {
+      data: build(User.bots),
+      name: "Bot signups"
     }]
   end
 

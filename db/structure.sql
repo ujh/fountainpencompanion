@@ -557,7 +557,8 @@ CREATE TABLE public.users (
     unconfirmed_email character varying,
     blurb text DEFAULT ''::text,
     patron boolean DEFAULT false,
-    time_zone character varying
+    time_zone character varying,
+    bot boolean DEFAULT false
 );
 
 
@@ -1238,6 +1239,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20200930122807'),
 ('20200930124526'),
 ('20201002133409'),
-('20201007070202');
+('20201007070202'),
+('20210415062021');
 
 

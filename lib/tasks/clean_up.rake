@@ -10,6 +10,6 @@ namespace :clean_up do
 
   desc "Remove users that haven't confirmed their email in 4 weeks"
   task unconfirmed_accounts: :environment do
-    User.where(confirmed_at: nil).where('created_at < ?', 4.weeks.ago).destroy_all
+    User.where(confirmed_at: nil).where('created_at < ?', 40.weeks.ago).destroy_all
   end
 end
