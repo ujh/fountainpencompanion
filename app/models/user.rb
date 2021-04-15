@@ -31,6 +31,10 @@ class User < ApplicationRecord
     skip_confirmation_notification! if bot?
   end
 
+  def active_for_authentication?
+    super && !bot
+  end
+
   def unread
     reading_statuses.unread.includes(:blog_post)
   end

@@ -30,6 +30,18 @@ describe User do
     end
   end
 
+  describe '#active_for_authentication?' do
+    it 'returns true for confirmed users' do
+      user = create(:user)
+      expect(user).to be_active_for_authentication
+    end
+
+    it 'returns fals for bots' do
+      user = create(:user, bot: true)
+      expect(user).not_to be_active_for_authentication
+    end
+  end
+
   describe '#friends' do
     let(:friend) { create(:user) }
     subject { create(:user) }
