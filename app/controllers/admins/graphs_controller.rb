@@ -45,8 +45,6 @@ class Admins::GraphsController < Admins::BaseController
   def build(base_relation)
     base_relation.where(
       'created_at > ?', 1.year.ago
-    ).where(
-      'created_at < ?', Date.today
     ).group("date_trunc('day', created_at)").order("day asc").pluck(
       Arel.sql "date_trunc('day', created_at) as day, count(*) as day_count"
     ).map do |d|
