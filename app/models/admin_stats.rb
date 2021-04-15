@@ -37,15 +37,7 @@ class AdminStats
 
 
   def user_count
-    @user_count ||= User.count
-  end
-
-  def confirmed_user_count
-    @confirmed_user_count ||= User.active.count
-  end
-
-  def confirmed_user_percentage
-    confirmed_user_count*100.0/user_count
+    @user_count ||= User.active.count
   end
 
   def active_user_count
