@@ -12,9 +12,6 @@ class User < ApplicationRecord
 
   validates :name, length: { in: 1..100, allow_blank: true }
 
-  attr_accessor :bot_field
-  validates :bot_field, absence: true
-
   def self.active
     where.not(confirmed_at: nil)
   end
@@ -25,6 +22,13 @@ class User < ApplicationRecord
 
   def self.bots
     where(bot: true)
+  end
+
+  attr_reader :bot_field
+
+  def bot_field=(value)
+    self.bot = value.present?
+    skip_confirmation_notification! if bot?
   end
 
   def unread

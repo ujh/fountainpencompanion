@@ -2,18 +2,31 @@ require 'rails_helper'
 
 describe User do
   describe '#bot_field' do
-    it 'ensures that the user is valid if the field is not set' do
-      user = build(:user)
-      user.bot_field = ''
-      expect(user).to be_valid
-      user.bot_field = nil
+    it 'sets the bot flag to true when this is set' do
+      user = build(:user, bot_field: 'some value')
+      expect(user).to be_bot
+    end
+
+    it 'sets the bot flag to false when field is blank' do
+      user = build(:user, bot_field: '')
+      expect(user).to_not be_bot
+    end
+
+    it 'does not result in a validation error when the field is set' do
+      user = build(:user, bot_field: 'some value')
       expect(user).to be_valid
     end
 
-    it 'ensures that the user is invalid if the field is set' do
-      user = build(:user)
-      user.bot_field = 'some value'
-      expect(user).to be_invalid
+    it 'does not send a confirmation email when field is set' do
+      expect do
+        create(:user, confirmed_at: nil, bot_field: 'some value')
+      end.to_not change { ActionMailer::Base.deliveries.count }
+    end
+
+    it 'sends a confirmation email when field is not set' do
+      expect do
+        create(:user, confirmed_at: nil, bot_field: '')
+      end.to change { ActionMailer::Base.deliveries.count }.by(1)
     end
   end
 
