@@ -31,7 +31,7 @@ describe Admins::GraphsController do
         }, {
           data: [
             [2.days.ago.at_beginning_of_day.to_i*1000, 2],
-            [1.day.ago.at_beginning_of_day.to_i*1000, 1]
+            [1.day.ago.at_beginning_of_day.to_i*1000, 2]
           ],
           name: 'All signups'
         }, {
