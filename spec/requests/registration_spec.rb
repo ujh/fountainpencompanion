@@ -1,0 +1,38 @@
+require 'rails_helper'
+
+describe 'sign up' do
+  context 'normal user' do
+    let(:user_params) { { email: 'user@example.com', password: 'password', password_confirmation: 'password' } }
+    it 'creates a user' do
+      expect do
+        post "/users", params: { user: user_params }
+        expect(response).to be_redirect
+      end.to change { User.where(bot: false).count }.by(1)
+    end
+
+    it 'sends the confirmation email' do
+      expect do
+        post "/users", params: { user: user_params }
+        expect(response).to be_redirect
+      end.to change { ActionMailer::Base.deliveries.count }.by(1)
+    end
+  end
+
+  context 'bot user' do
+    let(:user_params) { { email: 'user@example.com', password: 'password', password_confirmation: 'password', bot_field: '1' } }
+
+    it 'creates a bot user' do
+      expect do
+        post "/users", params: { user: user_params }
+        expect(response).to be_redirect
+      end.to change { User.where(bot: true).count }.by(1)
+    end
+
+    it 'does not send an email' do
+      expect do
+        post "/users", params: { user: user_params }
+        expect(response).to be_redirect
+      end.to_not change { ActionMailer::Base.deliveries.count }
+    end
+  end
+end
