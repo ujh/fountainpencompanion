@@ -4,7 +4,9 @@ Sidekiq::Web.set :sessions, false
 
 Rails.application.routes.draw do
   devise_for :admins
-  devise_for :users
+  devise_for :users, controllers: {
+    registrations: 'users/registrations'
+  }
 
   resource :dashboard, only: [:show]
   resources :pages, only: [:show]

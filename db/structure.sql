@@ -558,7 +558,8 @@ CREATE TABLE public.users (
     blurb text DEFAULT ''::text,
     patron boolean DEFAULT false,
     time_zone character varying,
-    bot boolean DEFAULT false
+    bot boolean DEFAULT false,
+    sign_up_user_agent text
 );
 
 
@@ -1240,6 +1241,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20200930124526'),
 ('20201002133409'),
 ('20201007070202'),
-('20210415062021');
+('20210415062021'),
+('20210419191331');
 
 
