@@ -16,8 +16,8 @@ describe Admins::GraphsController do
 
       it 'returns the signups data' do
         create(:user, created_at: 2.days.ago)
-        create(:user, created_at: 1.day.ago)
         create(:user, created_at: 2.days.ago, confirmed_at: nil)
+        create(:user, created_at: 1.day.ago)
         create(:user, created_at: 1.day.ago, confirmed_at: nil, bot: true)
         get '/admins/graphs/signups'
         expect(response).to be_successful
@@ -30,10 +30,9 @@ describe Admins::GraphsController do
           name: 'Confirmed signups'
         }, {
           data: [
-            [2.days.ago.at_beginning_of_day.to_i*1000, 2],
-            [1.day.ago.at_beginning_of_day.to_i*1000, 2]
+            [2.days.ago.at_beginning_of_day.to_i*1000, 1],
           ],
-          name: 'All signups'
+          name: 'Unconfirmed & not bot'
         }, {
           data: [
             [1.day.ago.at_beginning_of_day.to_i*1000, 1]

@@ -18,8 +18,8 @@ class Admins::GraphsController < Admins::BaseController
       data: build(User.active),
       name: "Confirmed signups"
     }, {
-      data: build(User),
-      name: "All signups"
+      data: build(User.where(confirmed_at: nil, bot: false)),
+      name: "Unconfirmed & not bot"
     }, {
       data: build(User.bots),
       name: "Bot signups"
