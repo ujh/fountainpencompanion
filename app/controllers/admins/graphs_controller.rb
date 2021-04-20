@@ -15,13 +15,13 @@ class Admins::GraphsController < Admins::BaseController
 
   def signups
     [{
-      data: build(User.active),
+      data: build(User.active, range: 2.months),
       name: "Confirmed signups"
     }, {
-      data: build(User.where(confirmed_at: nil, bot: false)),
+      data: build(User.where(confirmed_at: nil, bot: false), range: 2.months),
       name: "Unconfirmed & not bot"
     }, {
-      data: build(User.bots),
+      data: build(User.bots, range: 2.months),
       name: "Bot signups"
     }]
   end
@@ -42,9 +42,9 @@ class Admins::GraphsController < Admins::BaseController
     build UsageRecord
   end
 
-  def build(base_relation)
+  def build(base_relation, range: 1.year)
     base_relation.where(
-      'created_at > ?', 1.year.ago
+      'created_at > ?', range.ago
     ).group("date_trunc('day', created_at)").order("day asc").pluck(
       Arel.sql "date_trunc('day', created_at) as day, count(*) as day_count"
     ).map do |d|
