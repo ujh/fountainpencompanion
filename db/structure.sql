@@ -559,7 +559,8 @@ CREATE TABLE public.users (
     patron boolean DEFAULT false,
     time_zone character varying,
     bot boolean DEFAULT false,
-    sign_up_user_agent text
+    sign_up_user_agent text,
+    sign_up_ip character varying
 );
 
 
@@ -1242,6 +1243,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20201002133409'),
 ('20201007070202'),
 ('20210415062021'),
-('20210419191331');
+('20210419191331'),
+('20210420100740');
 
 
