@@ -3,11 +3,9 @@ namespace :clean_up do
   desc "Run all clean up tasks"
   task all: [:unused_accounts, :unconfirmed_accounts]
 
-  desc "Remove users that haven't logged in for over two years"
+  desc "Remove users that haven't never logged in in two years"
   task unused_accounts: :environment do
-    cutoff = 2.years.ago
-    User.where('current_sign_in_at < ?', cutoff).destroy_all
-    User.where(current_sign_in_at: nil).where('created_at < ?', cutoff).destroy_all
+    User.where(current_sign_in_at: nil).where('created_at < ?', 2.years.ago).destroy_all
   end
 
   desc "Remove users that haven't confirmed their email in 2 months"
