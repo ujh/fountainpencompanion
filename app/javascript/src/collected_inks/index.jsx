@@ -28,7 +28,7 @@ const CollectedInks = ({ archive }) => {
     [inks]
   );
   if (inks) {
-    return <CollectedInksBetaTable data={visibleInks} archive={archive} />;
+    return <CollectedInksTable data={visibleInks} archive={archive} />;
   } else {
     return (
       <div className="loader">
@@ -62,7 +62,7 @@ const renderInkWithLink = ({
   return value;
 };
 
-const CollectedInksBetaTable = ({ data, archive }) => {
+const CollectedInksTable = ({ data, archive }) => {
   const columns = useMemo(
     () => [
       {
