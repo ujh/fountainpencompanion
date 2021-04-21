@@ -23,12 +23,12 @@ const CollectedInks = ({ archive }) => {
       .then((response) => response.json())
       .then((json) => setInks(json.data));
   }, []);
-  const nonArchived = useMemo(
+  const visibleInks = useMemo(
     () => (inks || []).filter((i) => i.attributes.archived == archive),
     [inks]
   );
   if (inks) {
-    return <CollectedInksBetaTable data={nonArchived} archive={archive} />;
+    return <CollectedInksTable data={visibleInks} archive={archive} />;
   } else {
     return (
       <div className="loader">
@@ -62,7 +62,7 @@ const renderInkWithLink = ({
   return value;
 };
 
-const CollectedInksBetaTable = ({ data, archive }) => {
+const CollectedInksTable = ({ data, archive }) => {
   const columns = useMemo(
     () => [
       {

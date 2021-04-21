@@ -27,7 +27,7 @@ class User < ApplicationRecord
   attr_reader :bot_field
 
   def bot_field=(value)
-    self.bot = value.present?
+    self.bot = value.present? && value != '0'
     skip_confirmation_notification! if bot?
   end
 
