@@ -7,6 +7,11 @@ describe User do
       expect(user).to be_bot
     end
 
+    it 'sets the bot flag to false when this is set to 0' do
+      user = build(:user, bot_field: '0')
+      expect(user).not_to be_bot
+    end
+
     it 'sets the bot flag to false when field is blank' do
       user = build(:user, bot_field: '')
       expect(user).to_not be_bot
