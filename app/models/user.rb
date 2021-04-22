@@ -1,4 +1,6 @@
 class User < ApplicationRecord
+
+  BLACKLIST = ['51.91.67.153']
   # Include default devise modules. Others available are:
   # :confirmable, :lockable, :timeoutable and :omniauthable
   devise :database_authenticatable, :registerable, :confirmable,
@@ -29,6 +31,11 @@ class User < ApplicationRecord
   def bot_field=(value)
     self.bot = value.present? && value != '0'
     skip_confirmation_notification! if bot?
+  end
+
+  def sign_up_ip=(value)
+    self.bot = true if BLACKLIST.include?(value)
+    super
   end
 
   def active_for_authentication?

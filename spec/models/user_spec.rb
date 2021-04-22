@@ -35,6 +35,26 @@ describe User do
     end
   end
 
+  describe '#sign_up_ip=' do
+    it 'sets the ip field' do
+      user = build(:user)
+      user.sign_up_ip = '127.0.0.1'
+      expect(user.sign_up_ip).to eq('127.0.0.1')
+    end
+
+    it 'does not set the bot field' do
+      user = build(:user)
+      user.sign_up_ip = '127.0.0.1'
+      expect(user.bot).to be false
+    end
+
+    it 'sets the bot field if value in the blacklist' do
+      user = build(:user)
+      user.sign_up_ip = User::BLACKLIST.first
+      expect(user.bot).to be true
+    end
+  end
+
   describe '#active_for_authentication?' do
     it 'returns true for confirmed users' do
       user = create(:user)
