@@ -1,3 +1,5 @@
+import { interpolateRainbow } from "d3-scale-chromatic";
+
 // Assumes that the entries are already sorted
 export const dataWithOtherEntry = ({ data, nameKey }) => {
   const globalCount = data.reduce((acc, { count }) => acc + count, 0);
@@ -25,11 +27,11 @@ export const dataWithOtherEntry = ({ data, nameKey }) => {
   return dataWithOther;
 };
 
-export const getRandomColor = () => {
-  var letters = "0123456789ABCDEF";
-  var color = "#";
-  for (var i = 0; i < 6; i++) {
-    color += letters[Math.floor(Math.random() * 16)];
+export const generateColors = (amount) => {
+  const step = 1.0 / amount;
+  let colors = [];
+  for (let i = 0; i < amount; i++) {
+    colors.push(interpolateRainbow(i * step));
   }
-  return color;
+  return colors;
 };
