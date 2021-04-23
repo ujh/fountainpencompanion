@@ -26,6 +26,29 @@ describe WidgetsController do
       let(:url) { "/dashboard/widgets/inks_grouped_by_brand.json" }
 
       include_examples "authentication"
+
+      it "returns the required data when logged in" do
+        user = create(:user)
+        sign_in(user)
+        2.times { create(:collected_ink, brand_name: 'Herbin', user: user) }
+        3.times { create(:collected_ink, brand_name: 'Diamine', user: user) }
+        create(:collected_ink, brand_name: 'Sailor', user: user)
+        get url
+        expect(response).to be_successful
+        expect(JSON.parse(response.body)).to eq({
+          'data' => {
+            'type' => 'widget',
+            'id' => 'inks_grouped_by_brand',
+            'attributes' => {
+              'brands' => [
+                {'brand_name' => 'Diamine', 'count' => 3},
+                {'brand_name' => 'Herbin', 'count' => 2},
+                {'brand_name' => 'Sailor', 'count' => 1},
+              ]
+            }
+          }
+        })
+      end
     end
   end
 end

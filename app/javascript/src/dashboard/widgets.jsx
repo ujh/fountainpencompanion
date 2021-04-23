@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from "react";
+import ResizeObserver from "rc-resize-observer";
 import { getRequest } from "../fetch";
 
 export const WidgetDataContext = React.createContext();
+export const WidgetWidthContext = React.createContext();
 
 export const Widget = ({ header, children, path }) => {
   const [data, setData] = useState(null);
@@ -13,11 +15,14 @@ export const Widget = ({ header, children, path }) => {
     }
     fetchData();
   }, []);
+  const [elementWidth, setElementWidth] = useState(0);
   let content = <Loader />;
   if (data) {
     content = (
       <WidgetDataContext.Provider value={data}>
-        {children}
+        <WidgetWidthContext.Provider value={elementWidth}>
+          {children}
+        </WidgetWidthContext.Provider>
       </WidgetDataContext.Provider>
     );
   }
@@ -25,7 +30,9 @@ export const Widget = ({ header, children, path }) => {
     <div className="col-sm-12 col-md-6">
       <div className="widget">
         <h4>{header}</h4>
-        <div>{content}</div>
+        <ResizeObserver onResize={({ width }) => setElementWidth(width)}>
+          <div>{content}</div>
+        </ResizeObserver>
       </div>
     </div>
   );
