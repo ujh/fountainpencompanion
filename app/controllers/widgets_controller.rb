@@ -13,6 +13,8 @@ class WidgetsController < ApplicationController
       render json: leaderboard_ranking_data
     when 'inks_grouped_by_brand'
       render json: inks_grouped_by_brand_data
+    when 'pens_grouped_by_brand'
+      render json: pens_grouped_by_brand_data
     else
       head :unprocessable_entity
     end
@@ -66,6 +68,15 @@ class WidgetsController < ApplicationController
     as_json_api('inks_grouped_by_brand') do
       {
         brands: brands.map {|ci| {brand_name: ci.brand_name, count: ci.count }}
+      }
+    end
+  end
+
+  def pens_grouped_by_brand_data
+    brands = current_user.collected_pens.active.group(:brand).select("brand, count(*) as count").order("count desc")
+    as_json_api('pens_grouped_by_brand') do
+      {
+        brands: brands.map {|ci| {brand_name: ci.brand, count: ci.count }}
       }
     end
   end

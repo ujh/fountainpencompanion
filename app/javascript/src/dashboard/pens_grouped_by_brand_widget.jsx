@@ -4,16 +4,16 @@ import { Pie, PieChart, Tooltip, Cell } from "recharts";
 import { Widget, WidgetDataContext, WidgetWidthContext } from "./widgets";
 import { getRandomColor, dataWithOtherEntry } from "./charting";
 
-export const InksGroupedByBrandWidget = () => (
+export const PensGroupedByBrandWidget = () => (
   <Widget
-    header={<a href="/collected_inks">Inks</a>}
-    path="/dashboard/widgets/inks_grouped_by_brand.json"
+    header={<a href="/collected_inks">Pens</a>}
+    path="/dashboard/widgets/pens_grouped_by_brand.json"
   >
-    <InksGroupedByBrandWidgetContent />
+    <PensGroupedByBrandWidgetContent />
   </Widget>
 );
 
-const InksGroupedByBrandWidgetContent = () => {
+const PensGroupedByBrandWidgetContent = () => {
   const { data } = useContext(WidgetDataContext);
   const width = useContext(WidgetWidthContext);
   const brands = data.attributes.brands;

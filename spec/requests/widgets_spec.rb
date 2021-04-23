@@ -50,5 +50,34 @@ describe WidgetsController do
         })
       end
     end
+
+    context 'pens_grouped_by_brand' do
+      let(:url) { "/dashboard/widgets/pens_grouped_by_brand.json" }
+
+      include_examples "authentication"
+
+      it "returns the required data when logged in" do
+        user = create(:user)
+        sign_in(user)
+        2.times { create(:collected_pen, brand: 'Sailor', user: user) }
+        create(:collected_pen, brand: 'Pelikan', user: user)
+        3.times { create(:collected_pen, brand: 'Platinum', user: user) }
+        get url
+        expect(response).to be_successful
+        expect(JSON.parse(response.body)).to eq({
+          'data' => {
+            'type' => 'widget',
+            'id' => 'pens_grouped_by_brand',
+            'attributes' => {
+              'brands' => [
+                {'brand_name' => 'Platinum', 'count' => 3},
+                {'brand_name' => 'Sailor', 'count' => 2},
+                {'brand_name' => 'Pelikan', 'count' => 1}
+              ]
+            }
+          }
+        })
+      end
+    end
   end
 end
