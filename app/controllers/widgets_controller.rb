@@ -5,6 +5,8 @@ class WidgetsController < ApplicationController
     case params[:id]
     when 'inks_summary'
       render json: inks_summary_data
+    when 'pens_summary'
+      render json: pens_summary_data
     else
       head :unprocessable
     end
@@ -24,4 +26,16 @@ class WidgetsController < ApplicationController
       }
     }}
   end
+
+  def pens_summary_data
+    { data: {
+      type: 'widget',
+      id: 'ipens_summary',
+      attributes: {
+        count: current_user.collected_pens.active.count,
+        archived: current_user.collected_pens.archived.count
+      }
+    }}
+  end
+
 end
