@@ -16,6 +16,7 @@ import "whatwg-fetch";
 
 import "../src/color-picker";
 import "../src/collected_inks";
+import "../src/dashboard";
 import { renderFriendButton } from "../src/friends";
 import renderPublicInks from "../src/public_inks";
 import setTimeZone from "../src/setTimeZone";

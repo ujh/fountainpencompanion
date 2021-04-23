@@ -1,51 +1,35 @@
 - content_for :title, "Dashboard"
 div id="dashboard"
-  div class="row"
-    div class="col-sm-12 col-md-6"
-      div class="widget"
-        h4= link_to 'Inks', collected_inks_path
-        p
-          'Your collection currently contains
-          b= current_user.collected_inks.active.count
-          '  inks.
-          'You have used
-          b= current_user.collected_inks.active.where(used: true).count
-          '  of them and you've swabbed
-          b= current_user.collected_inks.active.where(swabbed: true).count
-          '.
-        p
-          'You have archived
-          b= current_user.collected_inks.archived.count
-          |  inks.
-    div class="col-sm-12 col-md-6"
-      div class="widget"
-        h4= link_to 'Pens', collected_pens_path
-        p
-          'Your collection currently contains
-          b= current_user.collected_pens.active.count
-          |  pens.
-        p
-          'You have archived
-          b= current_user.collected_pens.archived.count
-          |  pens.
-    div class="col-sm-12 col-md-6"
-      div class="widget"
-        h4= link_to 'Currently Inked', currently_inked_index_path
-        p
-          'Right now you have
-          b= current_user.currently_inkeds.active.count
-          |  inked pens.
-        p
-        'In total you have
-        b= current_user.currently_inkeds.count
-        '  currently inked entries and
-        b= current_user.usage_records.count
-        '
-        = link_to 'usage records.', usage_records_path
-    div class="col-sm-12 col-md-6"
-      div class="widget"
-        h4= link_to "Leaderboards", page_path("leaderboards")
-        = render partial: "leaderboard_entry", locals: { type: :inks }
-        = render partial: "leaderboard_entry", locals: { type: :bottles }
-        = render partial: "leaderboard_entry", locals: { type: :samples }
-        = render partial: "leaderboard_entry", locals: { type: :brands }
+  / div class="row"
+  /   div class="col-sm-12 col-md-6"
+  /     div class="widget"
+  /       h4= link_to 'Pens', collected_pens_path
+  /       p
+  /         'Your collection currently contains
+  /         b= current_user.collected_pens.active.count
+  /         |  pens.
+  /       p
+  /         'You have archived
+  /         b= current_user.collected_pens.archived.count
+  /         |  pens.
+  /   div class="col-sm-12 col-md-6"
+  /     div class="widget"
+  /       h4= link_to 'Currently Inked', currently_inked_index_path
+  /       p
+  /         'Right now you have
+  /         b= current_user.currently_inkeds.active.count
+  /         |  inked pens.
+  /       p
+  /       'In total you have
+  /       b= current_user.currently_inkeds.count
+  /       '  currently inked entries and
+  /       b= current_user.usage_records.count
+  /       '
+  /       = link_to 'usage records.', usage_records_path
+  /   div class="col-sm-12 col-md-6"
+  /     div class="widget"
+  /       h4= link_to "Leaderboards", page_path("leaderboards")
+  /       = render partial: "leaderboard_entry", locals: { type: :inks }
+  /       = render partial: "leaderboard_entry", locals: { type: :bottles }
+  /       = render partial: "leaderboard_entry", locals: { type: :samples }
+  /       = render partial: "leaderboard_entry", locals: { type: :brands }
