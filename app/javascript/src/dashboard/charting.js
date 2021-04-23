@@ -31,7 +31,7 @@ export const generateColors = (amount) => {
   const step = 1.0 / amount;
   let colors = [];
   for (let i = 0; i < amount; i++) {
-    colors.push(interpolateBlues(i * step));
+    colors.push(interpolateBlues(1 - i * step));
   }
   return colors;
 };
