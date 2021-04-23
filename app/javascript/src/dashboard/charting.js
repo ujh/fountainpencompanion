@@ -14,7 +14,7 @@ export const dataWithOtherEntry = ({ data, nameKey }) => {
       currentCount += entry.count;
     }
   });
-  if (otherEntries.count < 2) {
+  if (otherEntries.length < 2) {
     dataWithOther = dataWithOther.concat(otherEntries);
   } else {
     dataWithOther.push({
