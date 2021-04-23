@@ -9,6 +9,8 @@ class WidgetsController < ApplicationController
       render json: pens_summary_data
     when 'currently_inked_summary'
       render json: currently_inked_summary_data
+    when 'leaderboard_ranking'
+      render json: leaderboard_ranking_data
     else
       head :unprocessable
     end
@@ -46,6 +48,17 @@ class WidgetsController < ApplicationController
     end
   end
 
+  def leaderboard_ranking_data
+    as_json_api('leaderboard_ranking') do
+      {
+        inks: leaderboard_index(:inks),
+        bottles: leaderboard_index(:bottles),
+        samples: leaderboard_index(:samples),
+        brands: leaderboard_index(:brands)
+      }
+    end
+  end
+
   def as_json_api(name)
     {
       data: {
@@ -54,5 +67,12 @@ class WidgetsController < ApplicationController
         attributes: yield
       }
     }
+  end
+
+  def leaderboard_index(method)
+    index = LeaderBoard.send(method).find_index do |entry|
+      entry[:id] == current_user.id
+    end
+    return index.succ if index
   end
 end
