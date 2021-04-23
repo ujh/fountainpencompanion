@@ -13,7 +13,7 @@ export const Widget = ({ header, children, path }) => {
     }
     fetchData();
   }, []);
-  let content = <div>Loading...</div>;
+  let content = <Loader />;
   if (data) {
     content = (
       <WidgetDataContext.Provider value={data}>
@@ -30,3 +30,9 @@ export const Widget = ({ header, children, path }) => {
     </div>
   );
 };
+
+const Loader = () => (
+  <div className="loader">
+    <i className="fa fa-spin fa-refresh" />
+  </div>
+);
