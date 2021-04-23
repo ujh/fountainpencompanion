@@ -15,27 +15,32 @@ class WidgetsController < ApplicationController
   private
 
   def inks_summary_data
-    { data: {
-      type: 'widget',
-      id: 'inks_summary',
-      attributes: {
+    as_json_api('inks_summary') do
+      {
         count: current_user.collected_inks.active.count,
         used: current_user.collected_inks.active.where(used: true).count,
         swabbed: current_user.collected_inks.active.where(swabbed: true).count,
         archived: current_user.collected_inks.archived.count
       }
-    }}
+    end
   end
 
   def pens_summary_data
-    { data: {
-      type: 'widget',
-      id: 'ipens_summary',
-      attributes: {
+    as_json_api('pens_summary') do
+      {
         count: current_user.collected_pens.active.count,
         archived: current_user.collected_pens.archived.count
       }
-    }}
+    end
   end
 
+  def as_json_api(name)
+    {
+      data: {
+        type: 'widget',
+        id: name,
+        attributes: yield
+      }
+    }
+  end
 end
