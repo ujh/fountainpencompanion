@@ -21,7 +21,7 @@ const PensGroupedByBrandWidgetContent = () => {
   const colors = generateColors(chartData.length);
   return (
     <>
-      <p>Your inks grouped by brand</p>
+      <p>Your pens grouped by brand</p>
       <PieChart width={width} height={width}>
         <Pie data={chartData} dataKey="count" nameKey="brand_name">
           {brands.map((entry, index) => (
