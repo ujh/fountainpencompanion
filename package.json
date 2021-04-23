@@ -5,6 +5,7 @@
     "@rails/webpacker": "^5.2.1",
     "babel-plugin-transform-react-remove-prop-types": "^0.4.24",
     "color-convert": "^2.0.1",
+    "d3-scale-chromatic": "^2.0.0",
     "fast-levenshtein": "^3.0.0",
     "highcharts": "^9.0.1",
     "highcharts-react-official": "^3.0.0",
@@ -15,6 +16,7 @@
     "postcss-preset-env": "^6.7.0",
     "postcss-smart-import": "^0.7.6",
     "prop-types": "^15.7.2",
+    "rc-resize-observer": "^1.0.0",
     "react": "^16.14.0",
     "react-color": "^2.19.3",
     "react-dom": "^16.14.0",
@@ -23,6 +25,7 @@
     "react-select": "^4.3.0",
     "react-table": "^7.6.3",
     "react-table-6": "^6.11.0",
+    "recharts": "^2.0.9",
     "whatwg-fetch": "^3.6.2"
   },
   "devDependencies": {
