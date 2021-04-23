@@ -7,6 +7,8 @@ class WidgetsController < ApplicationController
       render json: inks_summary_data
     when 'pens_summary'
       render json: pens_summary_data
+    when 'currently_inked_summary'
+      render json: currently_inked_summary_data
     else
       head :unprocessable
     end
@@ -30,6 +32,16 @@ class WidgetsController < ApplicationController
       {
         count: current_user.collected_pens.active.count,
         archived: current_user.collected_pens.archived.count
+      }
+    end
+  end
+
+  def currently_inked_summary_data
+    as_json_api('currently_inked_summary') do
+      {
+        active: current_user.currently_inkeds.active.count,
+        total: current_user.currently_inkeds.count,
+        usage_records: current_user.usage_records.count
       }
     end
   end
