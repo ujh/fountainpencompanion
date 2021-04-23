@@ -8,7 +8,9 @@ Rails.application.routes.draw do
     registrations: 'users/registrations'
   }
 
-  resource :dashboard, only: [:show]
+  resource :dashboard, only: [:show] do
+    resources :widgets, only: [:show]
+  end
   resources :pages, only: [:show]
   resources :blog, only: [:index, :show] do
     collection do
