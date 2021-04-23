@@ -21,6 +21,7 @@
     "react-color": "^2.19.3",
     "react-dom": "^16.14.0",
     "react-modal": "^3.13.1",
+    "react-on-screen": "^2.1.1",
     "react-scroll-into-view-if-needed": "^2.1.7",
     "react-select": "^4.3.0",
     "react-table": "^7.6.3",

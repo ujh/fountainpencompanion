@@ -8467,6 +8467,15 @@ react-modal@^3.13.1:
     react-lifecycles-compat "^3.0.0"
     warning "^4.0.3"
 
+react-on-screen@^2.1.1:
+  version "2.1.1"
+  resolved "https://registry.yarnpkg.com/react-on-screen/-/react-on-screen-2.1.1.tgz#c66d78a8187457262d57f71766d1733f875e727a"
+  integrity sha512-mV2Ntd61ncJ9nBsXF/p5Y6lMDGTTwXTGvHaal4b7O1eX3GwSwDXKAe7KKXTf/4Oc1BuYc7j5Sy0XdT89w/MjDA==
+  dependencies:
+    lodash.throttle "^4.1.1"
+    prop-types "^15.6.0"
+    shallowequal "^1.0.2"
+
 react-resize-detector@^6.6.3:
   version "6.6.5"
   resolved "https://registry.yarnpkg.com/react-resize-detector/-/react-resize-detector-6.6.5.tgz#adde70db9c76da09892134b8f6c4dfd351cdd93c"
@@ -9231,7 +9240,7 @@ shallow-clone@^3.0.0:
   dependencies:
     kind-of "^6.0.2"
 
-shallowequal@^1.1.0:
+shallowequal@^1.0.2, shallowequal@^1.1.0:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/shallowequal/-/shallowequal-1.1.0.tgz#188d521de95b9087404fd4dcb68b13df0ae4e7f8"
   integrity sha512-y0m1JoUZSlPAjXVtPPW70aZWfIL/dSP7AFkRnniLCrK/8MDKog3TySTBmckD+RObVxH0v4Tox67+F14PdED2oQ==
