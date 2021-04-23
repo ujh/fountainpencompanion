@@ -13,7 +13,6 @@ describe WidgetsController do
         sign_in(user)
         get "/dashboard/widgets/inks_summary.json"
         expect(response).to be_successful
-        p JSON.parse(response.body)
       end
     end
   end
