@@ -1,4 +1,4 @@
-import { interpolateRainbow } from "d3-scale-chromatic";
+import { interpolateBlues } from "d3-scale-chromatic";
 
 // Assumes that the entries are already sorted
 export const dataWithOtherEntry = ({ data, nameKey }) => {
@@ -31,7 +31,7 @@ export const generateColors = (amount) => {
   const step = 1.0 / amount;
   let colors = [];
   for (let i = 0; i < amount; i++) {
-    colors.push(interpolateRainbow(i * step));
+    colors.push(interpolateBlues(i * step));
   }
   return colors;
 };

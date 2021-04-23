@@ -1,11 +1,24 @@
 import React, { useEffect, useState } from "react";
 import ResizeObserver from "rc-resize-observer";
+import TrackVisibility from "react-on-screen";
 import { getRequest } from "../fetch";
 
 export const WidgetDataContext = React.createContext();
 export const WidgetWidthContext = React.createContext();
 
-export const Widget = ({ header, children, path }) => {
+export const Widget = (props) => {
+  return (
+    <div className="col-sm-12 col-md-6">
+      <div className="widget">
+        <TrackVisibility once>
+          {({ isVisible }) => isVisible && <WidgetContent {...props} />}
+        </TrackVisibility>
+      </div>
+    </div>
+  );
+};
+
+const WidgetContent = ({ header, children, path }) => {
   const [data, setData] = useState(null);
   useEffect(() => {
     async function fetchData() {
@@ -27,14 +40,12 @@ export const Widget = ({ header, children, path }) => {
     );
   }
   return (
-    <div className="col-sm-12 col-md-6">
-      <div className="widget">
-        <h4>{header}</h4>
-        <ResizeObserver onResize={({ width }) => setElementWidth(width)}>
-          <div>{content}</div>
-        </ResizeObserver>
-      </div>
-    </div>
+    <>
+      <h4>{header}</h4>
+      <ResizeObserver onResize={({ width }) => setElementWidth(width)}>
+        <div>{content}</div>
+      </ResizeObserver>
+    </>
   );
 };
 
