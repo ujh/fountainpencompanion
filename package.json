@@ -24,7 +24,7 @@
     "react-on-screen": "^2.1.1",
     "react-scroll-into-view-if-needed": "^2.1.7",
     "react-select": "^4.3.0",
-    "react-table": "^7.6.3",
+    "react-table": "^7.7.0",
     "react-table-6": "^6.11.0",
     "recharts": "^2.0.9",
     "whatwg-fetch": "^3.6.2"
