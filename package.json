@@ -9,7 +9,7 @@
     "fast-levenshtein": "^3.0.0",
     "highcharts": "^9.0.1",
     "highcharts-react-official": "^3.0.0",
-    "jsona": "^1.8.0",
+    "jsona": "^1.9.2",
     "jstz": "^2.1.1",
     "lodash": "^4.17.21",
     "match-sorter": "^6.3.0",
