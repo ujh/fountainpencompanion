@@ -156,9 +156,7 @@ const loadMacroClusters = (dispatch) => {
       function processPage(page = 1, cb) {
         loadMacroClusterPage(page).then((json) => {
           const pageData = json.data.map((c) => {
-            const grouped_collected_inks = groupedInks(
-              c.micro_clusters.map((c) => c.collected_inks).flat()
-            );
+            const grouped_collected_inks = groupedInks(c.collected_inks);
             return { ...c, grouped_collected_inks };
           });
           data = [...data, ...pageData];

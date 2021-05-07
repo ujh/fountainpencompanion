@@ -60,39 +60,33 @@ class Admins::MacroClustersController < Admins::BaseController
   end
 
   def index_query_for_json_request
-    index_query.select(<<~SQL)
-      id,
-      brand_name,
-      line_name,
-      ink_name,
-      color,
+    index_query.left_joins(
+      micro_clusters: :collected_inks
+    ).group(
+      'macro_clusters.id'
+    ).select(<<~SQL)
+      macro_clusters.id,
+      macro_clusters.brand_name,
+      macro_clusters.line_name,
+      macro_clusters.ink_name,
+      macro_clusters.color,
       (
-        SELECT COALESCE(array_to_json(array_agg(row_to_json(mi))), '[]')
-        FROM (
-          SELECT
-            id,
-            simplified_brand_name,
-            simplified_line_name,
-            simplified_ink_name,
-            (
-              SELECT COALESCE(array_to_json(array_agg(row_to_json(ci))), '[]')
-              FROM (
-                SELECT
-                  MIN(id) AS id,
-                  MIN(brand_name) AS brand_name,
-                  MIN(line_name) AS line_name,
-                  MIN(ink_name) AS ink_name,
-                  MIN(maker) AS maker,
-                  MIN(color) AS color
-                FROM collected_inks
-                WHERE collected_inks.micro_cluster_id = micro_clusters.id
-                GROUP BY CONCAT(brand_name, line_name, ink_name)
-              ) ci
-            ) AS collected_inks
-          FROM micro_clusters
-          WHERE micro_clusters.macro_cluster_id = macro_clusters.id
-        ) mi
-      ) AS micro_clusters
+        array_remove(
+          array_agg(
+            CASE WHEN collected_inks.id IS NOT NULL
+            THEN jsonb_build_object(
+              'id', collected_inks.id,
+              'brand_name', collected_inks.brand_name,
+              'line_name', collected_inks.line_name,
+              'ink_name', collected_inks.ink_name,
+              'maker', collected_inks.maker,
+              'color', collected_inks.color
+            )
+            ELSE NULL END
+          ),
+          NULL
+        )
+      ) AS collected_inks
     SQL
   end
 
