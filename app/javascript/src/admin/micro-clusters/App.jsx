@@ -2,6 +2,7 @@ import React, { useEffect, useReducer, useContext } from "react";
 import Select from "react-select";
 import _ from "lodash";
 import Jsona from "jsona";
+import queue from "queue";
 
 import { getRequest } from "src/fetch";
 import { Spinner } from "./Spinner";
@@ -145,28 +146,36 @@ const loadMicroClusterPage = (page) => {
 
 const loadMacroClusters = (dispatch) => {
   useEffect(() => {
-    let data = [];
-    function run(page = 1) {
-      loadMacroClusterPage(page).then((json) => {
-        const next_page = json.meta.pagination.next_page;
-        console.log(json);
-        const pageData = json.data.map((c) => {
-          const grouped_collected_inks = groupedInks(
-            c.micro_clusters.map((c) => c.collected_inks).flat()
-          );
-          return { ...c, grouped_collected_inks };
+    async function fetchData() {
+      let data = [];
+      const {
+        meta: {
+          pagination: { total_pages },
+        },
+      } = await loadMacroClusterPage(1);
+      function processPage(page = 1, cb) {
+        loadMacroClusterPage(page).then((json) => {
+          const pageData = json.data.map((c) => {
+            const grouped_collected_inks = groupedInks(
+              c.micro_clusters.map((c) => c.collected_inks).flat()
+            );
+            return { ...c, grouped_collected_inks };
+          });
+          data = [...data, ...pageData];
+          cb();
         });
-        console.log(pageData);
-        data = [...data, ...pageData];
-        if (next_page) {
-          run(next_page);
-        } else {
-          console.log(data);
-          dispatch({ type: SET_MACRO_CLUSTERS, payload: data });
-        }
+      }
+      const q = queue({ concurrency: 2 });
+      for (let i = 1; i <= total_pages; i++) {
+        q.push((cb) => {
+          processPage(i, cb);
+        });
+      }
+      q.start(() => {
+        dispatch({ type: SET_MACRO_CLUSTERS, payload: data });
       });
     }
-    run();
+    fetchData();
   }, []);
 };
 
