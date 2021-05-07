@@ -146,20 +146,22 @@ const loadMicroClusterPage = (page) => {
 const loadMacroClusters = (dispatch) => {
   useEffect(() => {
     let data = [];
-    const formatter = new Jsona();
     function run(page = 1) {
       loadMacroClusterPage(page).then((json) => {
         const next_page = json.meta.pagination.next_page;
-        const pageData = formatter.deserialize(json).map((c) => {
+        console.log(json);
+        const pageData = json.data.map((c) => {
           const grouped_collected_inks = groupedInks(
             c.micro_clusters.map((c) => c.collected_inks).flat()
           );
           return { ...c, grouped_collected_inks };
         });
+        console.log(pageData);
         data = [...data, ...pageData];
         if (next_page) {
           run(next_page);
         } else {
+          console.log(data);
           dispatch({ type: SET_MACRO_CLUSTERS, payload: data });
         }
       });
