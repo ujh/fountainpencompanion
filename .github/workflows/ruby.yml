@@ -23,7 +23,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Install correct Node version
-      uses: actions/setup-node@v2
+      uses: actions/setup-node@v2.1.5
       with:
         node-version: '12.13.0'
     - name: Set up Postgres
@@ -54,7 +54,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Install correct Node version
-      uses: actions/setup-node@v2
+      uses: actions/setup-node@v2.1.5
       with:
         node-version: '12.13.0'
     - name: Install JS dependencies
