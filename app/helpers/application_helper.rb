@@ -10,7 +10,7 @@ module ApplicationHelper
   end
 
   def show_fundraiser?
-    # Only for signed in users, every 6 months
-    user_signed_in? && !current_user.patron? && [17, 43].include?(Date.current.cweek)
+    # Only for signed in users, roughly every 8 weeks
+    user_signed_in? && !current_user.patron? && (Date.current.cweek % 8).zero?
   end
 end
