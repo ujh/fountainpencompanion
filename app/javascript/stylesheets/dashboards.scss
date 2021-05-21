@@ -18,6 +18,11 @@
       box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.1);
       border-radius: 5px;
       min-height: 200px;
+
+      .inks-visualization {
+        display: flex;
+        flex-direction: column;
+      }
     }
   }
 }
