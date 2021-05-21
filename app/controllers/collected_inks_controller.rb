@@ -14,8 +14,7 @@ class CollectedInksController < ApplicationController
     )
     respond_to do |format|
       format.html
-      format.jsonapi { render jsonapi: inks }
-      format.json { render jsonapi: inks }
+      format.json { render json: CollectedInkSerializer.new(inks).serializable_hash.to_json }
       format.csv do
         send_data inks.to_csv, type: "text/csv", filename: "collected_inks.csv"
       end

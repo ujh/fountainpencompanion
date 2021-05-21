@@ -76,7 +76,7 @@ describe CollectedInksController do
       end
 
       it 'renders the JSON' do
-        get :index, format: :jsonapi
+        get :index, format: :json
         expect(response).to be_successful
         expect(response.body).to include(user_inks.first.ink_name)
         expect(response.body).to include(user_inks.first.brand_name)

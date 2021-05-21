@@ -7,7 +7,7 @@ class Admins::MicroClustersController < Admins::BaseController
         ).page(params[:page])
         clusters = clusters.unassigned if params[:unassigned]
         clusters = clusters.without_ignored if params[:without_ignored]
-        render json: MicroClusterSerializer.new(clusters, options(clusters)).serializable_hash.to_json
+        render json: MicroClusterSerializer.new(clusters, index_options(clusters)).serializable_hash.to_json
       }
       format.html
     end
@@ -23,7 +23,7 @@ class Admins::MicroClustersController < Admins::BaseController
     cluster = MicroCluster.find(params[:id])
     cluster.update!(update_params)
     UpdateMicroCluster.perform_async(cluster.id)
-    render json: MicroClusterSerializer.new(cluster, include: [:collected_inks, :macro_cluster]).serializable_hash.to_json
+    render json: MicroClusterSerializer.new(cluster, update_options).serializable_hash.to_json
   end
 
   def unassign
@@ -41,10 +41,18 @@ class Admins::MicroClustersController < Admins::BaseController
     )
   end
 
-  def options(rel)
+  def index_options(rel)
     {
       include: [:collected_inks],
+      fields: { collected_ink: [:brand_name, :line_name, :ink_name, :maker, :color, :micro_cluster] },
       meta: { pagination: pagination(rel) },
+    }
+  end
+
+  def update_options
+    {
+      include: [:collected_inks, :macro_cluster],
+      fields: { collected_ink: [:brand_name, :line_name, :ink_name, :maker, :color, :micro_cluster] },
     }
   end
 
