@@ -33,6 +33,11 @@ describe User do
         create(:user, confirmed_at: nil, bot_field: '')
       end.to change { ActionMailer::Base.deliveries.count }.by(1)
     end
+
+    it 'correctly sets bot_reason when marking as a bot via this method' do
+      user = build(:user, bot_field: 'some value')
+      expect(user.bot_reason).to eq('bot_field')
+    end
   end
 
   describe '#sign_up_ip=' do
@@ -52,6 +57,23 @@ describe User do
       user = build(:user)
       user.sign_up_ip = User::BLACKLIST.first
       expect(user.bot).to be true
+    end
+
+    it 'does not send a confirmation email when blacklisted' do
+      expect do
+        create(:user, confirmed_at: nil, sign_up_ip: User::BLACKLIST.first)
+      end.to_not change { ActionMailer::Base.deliveries.count }
+    end
+
+    it 'marks as a bot when blacklisted, but not triggering the bot_field' do
+      user = build(:user, sign_up_ip: User::BLACKLIST.first)
+      user.bot_field = ''
+      expect(user.bot).to be true
+    end
+
+    it 'correctly sets the bot_reason when marking as a bot via this method' do
+      user = build(:user, sign_up_ip: User::BLACKLIST.first)
+      expect(user.bot_reason).to eq('sign_up_ip_blacklist')
     end
   end
 

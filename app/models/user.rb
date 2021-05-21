@@ -14,6 +14,8 @@ class User < ApplicationRecord
 
   validates :name, length: { in: 1..100, allow_blank: true }
 
+  before_create :check_if_we_should_skip_confirmation
+
   def self.active
     where.not(confirmed_at: nil)
   end
@@ -29,12 +31,17 @@ class User < ApplicationRecord
   attr_reader :bot_field
 
   def bot_field=(value)
-    self.bot = value.present? && value != '0'
-    skip_confirmation_notification! if bot?
+    if value.present? && value != '0'
+      self.bot = true
+      self.bot_reason = 'bot_field'
+    end
   end
 
   def sign_up_ip=(value)
-    self.bot = true if BLACKLIST.include?(value)
+    if BLACKLIST.include?(value)
+      self.bot = true
+      self.bot_reason = 'sign_up_ip_blacklist'
+    end
     super
   end
 
@@ -171,5 +178,9 @@ class User < ApplicationRecord
     ).joins(
       'LEFT JOIN friendships AS sf ON users.id = sf.sender_id'
     ).where('friendships.sender_id = :id OR sf.friend_id = :id', id: id)
+  end
+
+  def check_if_we_should_skip_confirmation
+    skip_confirmation_notification! if bot?
   end
 end
