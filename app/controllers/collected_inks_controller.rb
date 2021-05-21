@@ -14,7 +14,7 @@ class CollectedInksController < ApplicationController
     )
     respond_to do |format|
       format.html
-      format.json { render json: CollectedInkSerializer.new(inks).serializable_hash.to_json }
+      format.json { render json: CollectedInkSerializer.new(inks, index_options).serializable_hash.to_json }
       format.csv do
         send_data inks.to_csv, type: "text/csv", filename: "collected_inks.csv"
       end
@@ -114,5 +114,13 @@ class CollectedInksController < ApplicationController
       :color,
       :private,
     )
+  end
+
+  def index_options
+    options = {}
+    if params.dig(:fields, :collected_ink)
+      options[:fields] = { collected_ink: params.dig(:fields, :collected_ink).split(/\s*,\s*/)}
+    end
+    options
   end
 end

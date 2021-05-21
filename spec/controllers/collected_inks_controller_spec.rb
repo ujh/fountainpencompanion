@@ -81,6 +81,14 @@ describe CollectedInksController do
         expect(response.body).to include(user_inks.first.ink_name)
         expect(response.body).to include(user_inks.first.brand_name)
       end
+
+      it 'supports sparse fieldsets' do
+        get :index, params: { fields: { collected_ink: "brand_name,line_name" } }, format: :json
+        expect(response).to be_successful
+        json = JSON.parse(response.body)
+        first_ink = json['data'].first
+        expect(first_ink['attributes'].keys).to match_array(["brand_name", "line_name"])
+      end
     end
   end
 
