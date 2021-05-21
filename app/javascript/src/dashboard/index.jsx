@@ -6,10 +6,11 @@ import { InksSummaryWidget } from "./inks_summary_widget";
 import { LeaderboardRankingWidget } from "./leaderboard_ranking_widget";
 import { PensGroupedByBrandWidget } from "./pens_grouped_by_brand_widget";
 import { PensSummaryWidget } from "./pens_summary_widget";
+import { InksVisualizationWidget } from "./inks_visualization_widget";
 
 document.addEventListener("DOMContentLoaded", () => {
   const el = document.getElementById("dashboard");
-  ReactDOM.render(<Dashboard />, el);
+  if (el) ReactDOM.render(<Dashboard />, el);
 });
 
 const Dashboard = () => (
@@ -20,5 +21,6 @@ const Dashboard = () => (
     <LeaderboardRankingWidget />
     <InksGroupedByBrandWidget />
     <PensGroupedByBrandWidget />
+    <InksVisualizationWidget />
   </div>
 );

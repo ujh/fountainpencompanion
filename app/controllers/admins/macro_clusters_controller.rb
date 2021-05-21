@@ -4,7 +4,7 @@ class Admins::MacroClustersController < Admins::BaseController
     respond_to do |format|
       format.json do
         clusters = index_query.includes(micro_clusters: :collected_inks)
-        render json: MacroClusterSerializer.new(clusters, options(clusters)).serializable_hash.to_json
+        render json: MacroClusterSerializer.new(clusters, index_options(clusters)).serializable_hash.to_json
       end
       format.html do
         @clusters = index_query
@@ -16,7 +16,7 @@ class Admins::MacroClustersController < Admins::BaseController
     cluster = MacroCluster.find(params[:id])
     render json: MacroClusterSerializer.new(
       cluster,
-      include: [:micro_clusters, :'micro_clusters.collected_inks']
+      show_options
     ).serializable_hash.to_json
   end
 
@@ -52,10 +52,18 @@ class Admins::MacroClustersController < Admins::BaseController
     )
   end
 
-  def options(rel)
+  def index_options(rel)
     {
       include: [:micro_clusters, :'micro_clusters.collected_inks'],
+      fields: { collected_ink: [:brand_name, :line_name, :ink_name, :maker, :color, :micro_cluster] },
       meta: { pagination: pagination(rel) },
+    }
+  end
+
+  def show_options
+    {
+      include: [:micro_clusters, :'micro_clusters.collected_inks'],
+      fields: { collected_ink: [:brand_name, :line_name, :ink_name, :maker, :color, :micro_cluster] },
     }
   end
 
