@@ -9,7 +9,7 @@ import { PensSummaryWidget } from "./pens_summary_widget";
 
 document.addEventListener("DOMContentLoaded", () => {
   const el = document.getElementById("dashboard");
-  ReactDOM.render(<Dashboard />, el);
+  if (el) ReactDOM.render(<Dashboard />, el);
 });
 
 const Dashboard = () => (
