@@ -20,12 +20,15 @@ const InksVisualizationWidgetContent = () => {
     <>
       <div className="form-group">
         <div className="checkbox">
-          <label for="include-archived">
+          <label
+            htmlFor="include-archived"
+            onClick={() => setIncludeArchived(!includeArchived)}
+          >
             <input
               name="include-archived"
               type="checkbox"
-              value={includeArchived}
-              onChange={(event) => setIncludeArchived(event.target.checked)}
+              checked={includeArchived}
+              onChange={() => {}}
             />
             Include archived inks
           </label>
