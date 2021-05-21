@@ -22,8 +22,8 @@ class ImportCollectedInk
       row[k] = row[k].strip
     }
     row["private"] = !row["private"].blank?
-    row["used"] = row["used"].present? ? (["true", "1"].include?(row["used"].downcase)) : false
-    row["swabbed"] = row["swabbed"].present? ? (["true", "1"].include?(row["swabbed"].downcase)) : false
+    row["used"] = row["used"].present?
+    row["swabbed"] = row["swabbed"].present?
     row["archived_on"] = row["archived"].present? ? Date.current : nil
     row["kind"] = "bottle" unless row["kind"].present?
     row.slice(
