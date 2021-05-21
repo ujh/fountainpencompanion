@@ -73,6 +73,7 @@ Rails.application.routes.draw do
         post 'become'
         post 'ink_import'
         post 'pen_import'
+        post 'currently_inked_import'
       end
     end
     resources :graphs, only: [:show]

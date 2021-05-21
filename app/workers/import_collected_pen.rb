@@ -11,6 +11,7 @@ class ImportCollectedPen
       row[k] = '' if row[k].nil?
       row[k] = row[k].strip
     }
-    row.slice('brand', 'model', 'comment', 'nib', 'color')
+    row["archived_on"] = row["archived"].present? ? Date.current : nil
+    row.slice('brand', 'model', 'comment', 'nib', 'color', 'archived_on')
   end
 end

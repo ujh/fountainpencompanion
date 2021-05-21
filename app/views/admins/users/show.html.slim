@@ -16,3 +16,7 @@ div class="col-sm-12 col-md-6"
     = form_tag(pen_import_admins_user_path(@user), method: :post, multipart: true) do
       = file_field_tag "file"
       = submit_tag "Import Pens", class: 'btn btn-default'
+  div class="section"
+    = form_tag(currently_inked_import_admins_user_path(@user), method: :post, multipart: true) do
+      = file_field_tag "file"
+      = submit_tag "Import Currently Inked", class: 'btn btn-default'
