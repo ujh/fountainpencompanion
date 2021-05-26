@@ -22,6 +22,12 @@ describe User do
       expect(user).to be_valid
     end
 
+    it 'does nothing when user has already been persisted' do
+      user = create(:user)
+      user.bot_field = 'some value'
+      expect(user.bot).to_not be true
+    end
+
     it 'does not send a confirmation email when field is set' do
       expect do
         create(:user, confirmed_at: nil, bot_field: 'some value')

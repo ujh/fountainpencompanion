@@ -31,6 +31,8 @@ class User < ApplicationRecord
   attr_reader :bot_field
 
   def bot_field=(value)
+    return if persisted?
+
     if value.present? && value != '0'
       self.bot = true
       self.bot_reason = 'bot_field'
