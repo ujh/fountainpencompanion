@@ -1,0 +1,5 @@
+- content_for :title, "Pens By Popularity"
+div class="leaderboard"
+  ol
+    - LeaderBoard.pens_by_popularity.each do |pen|
+      li="#{pen.brand} #{pen.model} (#{pen.count})"

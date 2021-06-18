@@ -1,6 +1,54 @@
 require 'rails_helper'
 
 describe LeaderBoard do
+  describe '#pens_by_popularity' do
+    it 'orders the pens by popularity' do
+      user1 = create(:user)
+      create(:collected_pen, user: user1, brand: 'Brand1', model: 'Model1')
+      create(:collected_pen, user: user1, brand: 'Brand1', model: 'Model2')
+      user2 = create(:user)
+      create(:collected_pen, user: user2, brand: 'Brand1', model: 'Model1')
+      create(:collected_pen, user: user2, brand: 'Brand1', model: 'Model2')
+      user3 = create(:user)
+      create(:collected_pen, user: user3, brand: 'Brand1', model: 'Model1')
+
+      expect(described_class.pens_by_popularity.map {|pen| [pen.brand, pen.model, pen.count]}).to eq([
+        ['Brand1', 'Model1', 3], ['Brand1', 'Model2', 2]
+      ])
+    end
+
+    it 'does not count pens that only appear once' do
+      user = create(:user)
+      create(:collected_pen, user: user, brand: 'Brand1', model: 'Model1')
+
+      expect(described_class.pens_by_popularity).to be_empty
+    end
+
+    it 'does not count pens that only one user has (but multiple)' do
+      user = create(:user)
+      create(:collected_pen, user: user, brand: 'Brand1', model: 'Model1')
+      create(:collected_pen, user: user, brand: 'Brand1', model: 'Model1')
+
+      expect(described_class.pens_by_popularity).to be_empty
+    end
+
+    it 'does not include archived entries' do
+      user1 = create(:user)
+      create(:collected_pen, user: user1, brand: 'Brand1', model: 'Model1', archived_on: Date.today)
+      user2 = create(:user)
+      create(:collected_pen, user: user2, brand: 'Brand1', model: 'Model1', archived_on: Date.today)
+
+      expect(described_class.pens_by_popularity).to be_empty
+    end
+  end
+
+  describe '#top_pens_by_popularity' do
+    it 'returns the first 10 entries' do
+      allow(described_class).to receive(:pens_by_popularity).and_return((1..20).to_a)
+      expect(described_class.top_pens_by_popularity).to eq((1..10).to_a)
+    end
+  end
+
   describe '#usage_records' do
     it 'orders users by usage record entries' do
       user1 = create(:user)
