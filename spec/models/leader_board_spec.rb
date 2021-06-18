@@ -1,6 +1,32 @@
 require 'rails_helper'
 
 describe LeaderBoard do
+  describe '#usage_records' do
+    it 'orders users by usage record entries' do
+      user1 = create(:user)
+      currently_inked1 = create(:currently_inked, user: user1)
+      create_list(:usage_record, 2, currently_inked: currently_inked1)
+      currently_inked2 = create(:currently_inked, user: user1)
+      create_list(:usage_record, 2, currently_inked: currently_inked2)
+
+      user2 = create(:user)
+      currently_inked3 = create(:currently_inked, user: user2)
+      create_list(:usage_record, 1, currently_inked: currently_inked3)
+      currently_inked4 = create(:currently_inked, user: user2)
+      create_list(:usage_record, 2, currently_inked: currently_inked4)
+
+      expect(described_class.usage_records.map {|e| [e[:id], e[:counter]]}).to eq([
+        [user1.id, 4], [user2.id, 3]
+      ])
+    end
+  end
+
+  describe '#top_usage_records' do
+    it 'returns the first 10 entries' do
+      allow(described_class).to receive(:usage_records).and_return((1..20).to_a)
+      expect(described_class.top_usage_records).to eq((1..10).to_a)
+    end
+  end
 
   describe '#currently_inked' do
     it 'orders users by their currently inked entries' do
@@ -21,6 +47,7 @@ describe LeaderBoard do
       expect(described_class.top_currently_inked).to eq((1..10).to_a)
     end
   end
+
   describe '#inks_by_popularity' do
     it 'orders by number of collected inks assigned to a macro cluster' do
       # One micro cluster that has three collected inks
