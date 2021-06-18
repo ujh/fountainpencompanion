@@ -81,6 +81,18 @@ describe User do
       user = build(:user, sign_up_ip: User::BLACKLIST.first)
       expect(user.bot_reason).to eq('sign_up_ip_blacklist')
     end
+
+    it 'marks as bot when too many signups by that IP in the last 24h' do
+      create_list(:user, User::MAX_SAME_IP_24H, sign_up_ip: '123')
+      user = build(:user, sign_up_ip: '123')
+      expect(user.bot).to be true
+    end
+
+    it 'correctly sets the bot reason when too many signups in 24h' do
+      create_list(:user, User::MAX_SAME_IP_24H, sign_up_ip: '123')
+      user = build(:user, sign_up_ip: '123')
+      expect(user.bot_reason).to eq('sign_up_ip_24h_timeframe')
+    end
   end
 
   describe '#active_for_authentication?' do

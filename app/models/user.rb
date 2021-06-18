@@ -1,6 +1,7 @@
 class User < ApplicationRecord
 
   BLACKLIST = ['51.91.67.153']
+  MAX_SAME_IP_24H = 3
   # Include default devise modules. Others available are:
   # :confirmable, :lockable, :timeoutable and :omniauthable
   devise :database_authenticatable, :registerable, :confirmable,
@@ -43,6 +44,11 @@ class User < ApplicationRecord
     if BLACKLIST.include?(value)
       self.bot = true
       self.bot_reason = 'sign_up_ip_blacklist'
+    end
+    ip_count = self.class.where('created_at > ?', 24.hours.ago).where(sign_up_ip: value).count
+    if ip_count >= MAX_SAME_IP_24H
+      self.bot = true
+      self.bot_reason = 'sign_up_ip_24h_timeframe'
     end
     super
   end
