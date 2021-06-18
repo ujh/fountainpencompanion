@@ -98,9 +98,13 @@ Rails.application.configure do
   # Do not dump schema after migrations.
   config.active_record.dump_schema_after_migration = false
 
+  ignore_list = [
+    "ActionController::InvalidAuthenticityToken",
+    "ActionDispatch::Http::MimeNegotiation::InvalidType"
+  ]
   config.middleware.use(
     ExceptionNotification::Rack,
-    ignore_exceptions: ["ActionController::InvalidAuthenticityToken"] + ExceptionNotifier.ignored_exceptions,
+    ignore_exceptions: ignore_list + ExceptionNotifier.ignored_exceptions,
     email: {
       :email_prefix => "[FPC] ",
       :sender_address => %{"Exception Notifier" <exception-notifier@fountainpencompanion.com>},
