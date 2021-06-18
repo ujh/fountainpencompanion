@@ -6,6 +6,7 @@ class LeaderBoard
     samples(force: true)
     brands(force: true)
     inks_by_popularity(force: true)
+    currently_inked(force: true)
   end
 
   def self.currently_inked(force: false)
