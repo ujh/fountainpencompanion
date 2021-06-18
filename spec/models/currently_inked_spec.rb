@@ -254,7 +254,7 @@ describe CurrentlyInked do
     end
 
     it 'returns true when there is a UsageRecord for today' do
-      usage_record = create(:usage_record, currently_inked: subject)
+      usage_record = create(:usage_record, currently_inked: subject, used_on: Date.today)
       expect(subject).to be_used_today
     end
 

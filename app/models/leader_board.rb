@@ -7,6 +7,20 @@ class LeaderBoard
     brands(force: true)
     inks_by_popularity(force: true)
     currently_inked(force: true)
+    usage_records(force: true)
+  end
+
+  def self.usage_records(force: false)
+    Rails.cache.fetch("LeaderBoard#usage_records", force: force) do
+      relation = User.joins(currently_inkeds: :usage_records)
+        .select("users.*, count(*) as counter")
+        .group("users.id").order("counter DESC")
+      extract(relation)
+    end
+  end
+
+  def self.top_usage_records
+    usage_records.take(10)
   end
 
   def self.currently_inked(force: false)
