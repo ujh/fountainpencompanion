@@ -8,6 +8,21 @@ class LeaderBoard
     inks_by_popularity(force: true)
     currently_inked(force: true)
     usage_records(force: true)
+    pens_by_popularity(force: true)
+  end
+
+  def self.pens_by_popularity(force: false)
+    Rails.cache.fetch("LeaderBoard#pens_by_popularity", force: force) do
+      CollectedPen.group('lower(concat(brand, model))')
+        .where(archived_on: nil)
+        .select('initcap(min(brand)) as brand, initcap(min(model)) as model, count(id) as count')
+        .having('count(distinct user_id) > 1')
+        .order('count desc')
+    end
+  end
+
+  def self.top_pens_by_popularity
+    pens_by_popularity.take(10)
   end
 
   def self.usage_records(force: false)

@@ -43,7 +43,7 @@ div class="col-xs-12 col-sm-6 leaderboard"
   p= link_to "Show all", page_path("usage_records_leaderboard")
 
 div class="col-xs-12 col-sm-6 leaderboard"
-  h4 Popular inks
+  h4 Popular Inks
   h6 Ranked by number of people who own this
   ol
     - LeaderBoard.top_inks_by_popularity.each do |macro_cluster|
@@ -54,3 +54,10 @@ div class="col-xs-12 col-sm-6 leaderboard"
           = macro_cluster.name
         = " (#{macro_cluster.ci_count})"
   p= link_to "Show all", page_path("inks_by_popularity")
+div class="col-xs-12 col-sm-6 leaderboard"
+  h4 Popular Pens
+  h6 Ranked by number of people who own this
+  ol
+    - LeaderBoard.top_pens_by_popularity.each do |pen|
+      li= "#{pen.brand} #{pen.model} (#{pen.count})"
+  p= link_to "Show all", page_path("pens_by_popularity")
