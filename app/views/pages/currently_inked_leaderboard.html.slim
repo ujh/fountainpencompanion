@@ -1,0 +1,5 @@
+- content_for :title, "Currently Inked Leaderboard"
+div class="leaderboard"
+  ol
+    - LeaderBoard.currently_inked.each do |user_data|
+      = render partial: "leaderboard_row", locals: { user_data: user_data }

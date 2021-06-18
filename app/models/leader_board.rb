@@ -8,6 +8,18 @@ class LeaderBoard
     inks_by_popularity(force: true)
   end
 
+  def self.currently_inked(force: false)
+    Rails.cache.fetch("LeaderBoard#currently_inked", force: force) do
+      relation = User.joins(:currently_inkeds).select("users.*, count(*) as counter")
+        .group("users.id").order("counter DESC")
+      extract(relation)
+    end
+  end
+
+  def self.top_currently_inked
+    currently_inked.take(10)
+  end
+
   def self.inks_by_popularity(force: false)
     Rails.cache.fetch("LeaderBoard#inks_by_popularity", force: force) do
       MacroCluster.joins(micro_clusters: :collected_inks).includes(:brand_cluster).where(
