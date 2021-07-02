@@ -1,7 +1,6 @@
 import React from "react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import * as ReactDOM from "react-dom";
-import { useEffect } from "react/cjs/react.development";
 import { getRequest, postRequest } from "../fetch";
 
 document.addEventListener("DOMContentLoaded", () => {
