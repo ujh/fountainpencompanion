@@ -268,4 +268,12 @@ describe CurrentlyInked do
       expect(subject).to_not be_used_today
     end
   end
+
+  describe '#collected_inks_for_active_select' do
+    it 'includes the current ink even if it is archived' do
+      currently_inked = create(:currently_inked)
+      currently_inked.collected_ink.archive!
+      expect(currently_inked.collected_inks_for_active_select).to include(currently_inked.collected_ink)
+    end
+  end
 end
