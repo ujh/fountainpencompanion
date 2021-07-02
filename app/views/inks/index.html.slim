@@ -10,6 +10,8 @@ div class="table-wrapper"
         th Line
         th colspan="2" Ink
         th
+        - if user_signed_in?
+          th
     tbody
       - @clusters.each do |ink|
         tr
@@ -18,3 +20,6 @@ div class="table-wrapper"
           td style="background-color:#{ink.color};width: 37px;"
           td= ink.ink_name
           td= link_to "Details", brand_ink_path(ink.brand_cluster, ink)
+          - if user_signed_in?
+            td
+              div class="add-ink-button" data={ "macro-cluster-id" => ink.id }
