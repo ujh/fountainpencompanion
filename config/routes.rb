@@ -33,7 +33,14 @@ Rails.application.routes.draw do
     collection do
       get 'import'
     end
-    resource :archive, only: [:create, :destroy]
+    member do
+      post 'archive'
+    end
+  end
+  resources :collected_pens_archive, only: [:index, :edit, :update, :destroy] do
+    member do
+      post 'unarchive'
+    end
   end
   resources :currently_inked do
     member do

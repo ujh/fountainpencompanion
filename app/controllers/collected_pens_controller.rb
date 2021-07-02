@@ -2,7 +2,7 @@ class CollectedPensController < ApplicationController
   before_action :authenticate_user!
   before_action :set_flash, except: [:import]
   before_action :retrieve_collected_pens, only: [:index, :edit, :create, :update]
-  before_action :retrieve_collected_pen, only: [:edit, :update, :destroy]
+  before_action :retrieve_collected_pen, only: [:edit, :update, :destroy, :archive, :unarchive]
 
   def index
     respond_to do |format|
@@ -43,6 +43,18 @@ class CollectedPensController < ApplicationController
 
   def destroy
     @collected_pen&.destroy
+    redirect_to collected_pens_path
+  end
+
+  def archive
+    flash[:notice] = "Successfully archived '#{@collected_pen.name}'" if @collected_pen
+    @collected_pen&.archive!
+    redirect_to collected_pens_path
+  end
+
+  def unarchive
+    flash[:notice] = "Successfully unarchived '#{@collected_pen.name}'" if @collected_pen
+    @collected_pen&.unarchive!
     redirect_to collected_pens_path
   end
 
