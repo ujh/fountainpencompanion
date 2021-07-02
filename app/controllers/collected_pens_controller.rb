@@ -1,12 +1,12 @@
 class CollectedPensController < ApplicationController
   before_action :authenticate_user!
   before_action :set_flash, except: [:import]
-  before_action :retrieve_collected_pens, only: [:index, :edit, :create, :update]
-  before_action :retrieve_collected_pen, only: [:edit, :update, :destroy]
+  before_action :retrieve_collected_pens, only: [:index]
+  before_action :retrieve_collected_pen, only: [:edit, :update, :destroy, :archive]
 
   def index
     respond_to do |format|
-      format.html { @collected_pen = CollectedPen.new }
+      format.html
       format.csv do
         pens = current_user.collected_pens.includes(:currently_inkeds).order('brand, model, nib, color, comment')
         send_data pens.to_csv, type: "text/csv", filename: "collected_pens.csv"
@@ -46,6 +46,12 @@ class CollectedPensController < ApplicationController
     redirect_to collected_pens_path
   end
 
+  def archive
+    flash[:notice] = "Successfully archived '#{@collected_pen.name}'" if @collected_pen
+    @collected_pen&.archive!
+    redirect_to collected_pens_path
+  end
+
   private
 
   def collected_pen_params
@@ -64,7 +70,6 @@ class CollectedPensController < ApplicationController
 
   def retrieve_collected_pens
     @collected_pens = current_user.active_collected_pens.includes(:currently_inkeds).order('brand, model')
-    @archived_collected_pens = current_user.archived_collected_pens.includes(:currently_inkeds).order('brand, model')
   end
 
   def set_flash
