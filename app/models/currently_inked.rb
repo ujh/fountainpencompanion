@@ -98,7 +98,7 @@ class CurrentlyInked < ApplicationRecord
   end
 
   def collected_inks_for_active_select
-    user.active_collected_inks
+    user.active_collected_inks + [collected_ink]
   end
 
   private
