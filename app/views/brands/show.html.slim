@@ -4,7 +4,7 @@
   meta property="og:url" content=brand_url(@brand)
   meta property="og:description" content="#{@brand.public_ink_count} distinct inks. #{@brand.public_collected_inks_count} entries in total."
 
-div class="table-wrapper"
+div class="table-wrapper macro-clusters"
   table class="table table-striped table-condensed"
     thead
       tr
@@ -13,6 +13,8 @@ div class="table-wrapper"
         th Line
         th colspan="2" Ink
         th
+        - if user_signed_in?
+          th
     tbody
       - @inks.each do |ink|
         tr
@@ -22,3 +24,6 @@ div class="table-wrapper"
           td style="background-color:#{ink.color};width: 37px;"
           td= ink.ink_name
           td= link_to "Details", brand_ink_url(@brand, ink)
+          - if user_signed_in?
+            td
+              div class="add-ink-button" data={ "macro-cluster-id" => ink.id }

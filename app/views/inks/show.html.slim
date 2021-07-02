@@ -25,6 +25,8 @@ div class="row details"
           tr
             td Average Color
             td style="background-color:#{@ink.color};"
+    - if user_signed_in?
+      div class="add-ink-button" data={ "macro-cluster-id" => @ink.id }
 
   div class="col-xs-12 col-sm-6"
     h4 Colors for this ink

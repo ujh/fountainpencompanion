@@ -28,6 +28,9 @@ Rails.application.routes.draw do
       post 'unarchive'
     end
   end
+  namespace :collected_inks do
+    resources :add, only: [:create]
+  end
 
   resources :collected_pens do
     collection do
