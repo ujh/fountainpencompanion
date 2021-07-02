@@ -98,7 +98,7 @@ class CurrentlyInked < ApplicationRecord
   end
 
   def collected_inks_for_active_select
-    user.active_collected_inks + [collected_ink]
+    user.active_collected_inks.or(CollectedInk.where(id: collected_ink_id))
   end
 
   private
