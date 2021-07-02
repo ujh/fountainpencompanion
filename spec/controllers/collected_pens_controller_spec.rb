@@ -70,7 +70,7 @@ describe CollectedPensController do
             brand: 'Pelikan',
             model: 'M205'
           }}
-          expect(response).to redirect_to(collected_pens_path(anchor: "add-form"))
+          expect(response).to redirect_to(collected_pens_path)
         end.to change { user.collected_pens.count }.by(1)
         collected_pen = user.collected_pens.order(:id).last
         expect(collected_pen.brand).to eq('Pelikan')
@@ -83,7 +83,7 @@ describe CollectedPensController do
             brand: ' Pelikan ',
             model: ' M205 '
           }}
-          expect(response).to redirect_to(collected_pens_path(anchor: "add-form"))
+          expect(response).to redirect_to(collected_pens_path)
         end.to change { user.collected_pens.count }.by(1)
         collected_pen = user.collected_pens.order(:id).last
         expect(collected_pen.brand).to eq('Pelikan')
@@ -109,14 +109,14 @@ describe CollectedPensController do
       it 'updates the pen' do
         expect do
           put :update, params: { id: wing_sung.id, collected_pen: { brand: 'Not Wing Sung' } }
-          expect(response).to redirect_to(collected_pens_path(anchor: wing_sung.id))
+          expect(response).to redirect_to(collected_pens_path)
         end.to change { wing_sung.reload.brand }.from('Wing Sung').to('Not Wing Sung')
       end
 
       it 'strips out whitespace' do
         expect do
           put :update, params: { id: wing_sung.id, collected_pen: { brand: ' Not Wing Sung ' } }
-          expect(response).to redirect_to(collected_pens_path(anchor: wing_sung.id))
+          expect(response).to redirect_to(collected_pens_path)
         end.to change { wing_sung.reload.brand }.from('Wing Sung').to('Not Wing Sung')
       end
     end

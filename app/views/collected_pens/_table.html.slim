@@ -15,32 +15,27 @@ div class="pen-collection"
           th Actions
       tbody
         - pen_collection.each do |cp|
-          - if cp == @collected_pen
-            tr id="#{cp.id}" class="info"= render partial: "form", locals: { f: f , cp: cp}
-          - else
-            tr id="#{cp.id}" data-name="entry"
-              td data-name="brand"= cp.brand
-              td data-name="model"= cp.model
-              td data-name="nib"= cp.nib
-              td data-name="color"= cp.color
-              td data-name="comment"= cp.comment
-              td data-name="usage"= cp.currently_inkeds.length
-              td
-                span class="actions"
-                  = link_to edit_collected_pen_path(cp, anchor: cp.id), class: "btn btn-default", title: "Edit #{cp.name}" do
-                    = fa_icon("pencil")
-                  - if cp.active?
-                    = link_to collected_pen_archive_path(cp), class: "btn btn-default", method: :post, title: "Archive #{cp.name}" do
-                      = fa_icon("archive")
-                  - if cp.archived?
-                    = link_to collected_pen_archive_path(cp), class: "btn btn-default", method: :delete, title: "Unarchive #{cp.name}" do
-                      = fa_icon("folder-open")
-                  - if cp.deletable?
-                    = link_to collected_pen_path(cp), class: "btn btn-default", method: :delete, data: { confirm: "Really delete #{cp.name}" }, title: "Delete #{cp.name}"
-                      = fa_icon("trash")
+          tr id="#{cp.id}" data-name="entry"
+            td data-name="brand"= cp.brand
+            td data-name="model"= cp.model
+            td data-name="nib"= cp.nib
+            td data-name="color"= cp.color
+            td data-name="comment"= cp.comment
+            td data-name="usage"= cp.currently_inkeds.length
+            td
+              span class="actions"
+                = link_to edit_collected_pen_path(cp, anchor: cp.id), class: "btn btn-default", title: "Edit #{cp.name}" do
+                  = fa_icon("pencil")
+                - if cp.active?
+                  = link_to collected_pen_archive_path(cp), class: "btn btn-default", method: :post, title: "Archive #{cp.name}" do
+                    = fa_icon("archive")
+                - if cp.archived?
+                  = link_to collected_pen_archive_path(cp), class: "btn btn-default", method: :delete, title: "Unarchive #{cp.name}" do
+                    = fa_icon("folder-open")
+                - if cp.deletable?
+                  = link_to collected_pen_path(cp), class: "btn btn-default", method: :delete, data: { confirm: "Really delete #{cp.name}" }, title: "Delete #{cp.name}"
+                    = fa_icon("trash")
       tfoot
-        - if @collected_pen&.new_record? && !archive
-          tr id="add-form"= render partial: "form", locals: { f: f , cp: @collected_pen }
         tr
           th
           th= "#{pen_collection.count} pens"

@@ -21,6 +21,14 @@
       margin-left: 10px;
     }
   }
+  .buttons {
+    .btn {
+      width: 100%;
+    }
+  }
+  .row {
+    box-shadow: none;
+  }
 }
 
 #collected-pens-archive {
@@ -32,5 +40,22 @@
 .pen-collection {
   .actions {
     white-space: nowrap;
+  }
+}
+
+form.edit_collected_pen,
+form.new_collected_pen {
+  .row {
+    box-shadow: none !important;
+  }
+  input[type="submit"] {
+    margin-right: 15px;
+  }
+  .boolean .help-block {
+    margin-top: -10px;
+  }
+  .help-block {
+    font-size: smaller;
+    line-height: 15px;
   }
 }

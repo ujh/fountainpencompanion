@@ -17,8 +17,6 @@ html
       = render partial: "layouts/header"
       = render partial: "layouts/main"
       = render partial: "layouts/footer"
-      = javascript_tag do
-        = "elementToScrollTo = #{@elementToScrollTo.to_s.inspect}".html_safe
       - if current_user && current_user.time_zone.blank?
         = javascript_tag do
           | setTimeZone()

@@ -1,11 +1,13 @@
-td class="form"= f.input :brand, label: false
-td class="form"= f.input :model, label: false
-td class="form"= f.input :nib, label: false
-td class="form"= f.input :color, label: false
-td class="form"= f.input :comment, as: :string, label: false
-td
-td class="form actions"
-  = f.button :button do
-    = fa_icon("check")
-  = link_to collected_pens_path, class: "btn btn-default" do
-    = fa_icon("close")
+= simple_form_for pen do |f|
+  div class="row"
+    div class="col-sm-12 col-md-6"
+      = f.input :brand, required: true, hint: "e.g. Pilot, Parker, Waterman"
+      = f.input :model, required: true, hint: "e.g. 51, Kakuno"
+    div class="col-sm-12 col-md-6"
+      = f.input :nib, hint: "e.g. M, B, architect"
+      = f.input :color
+      = f.input :comment
+  div class="row"
+    div class="col-sm-12 col-md-6"
+      = f.submit 'Save', class: "btn btn-default"
+      = link_to 'Cancel', collected_pens_path, class: "btn btn-default"

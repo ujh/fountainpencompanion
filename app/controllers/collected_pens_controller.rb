@@ -14,8 +14,11 @@ class CollectedPensController < ApplicationController
     end
   end
 
+  def new
+    @collected_pen = current_user.collected_pens.build
+  end
+
   def edit
-    render :index
   end
 
   def import
@@ -24,19 +27,17 @@ class CollectedPensController < ApplicationController
   def create
     @collected_pen = current_user.collected_pens.build(collected_pen_params)
     if @collected_pen.save
-      redirect_to collected_pens_path(anchor: "add-form")
+      redirect_to collected_pens_path
     else
-      @elementToScrollTo = "#add-form"
-      render :index
+      render :new
     end
   end
 
   def update
     if @collected_pen.update(collected_pen_params)
-      redirect_to collected_pens_path(anchor: @collected_pen.id)
+      redirect_to collected_pens_path
     else
-      @elementToScrollTo = "##{@collected_pen.id}"
-      render :index
+      render :edit
     end
   end
 
