@@ -12,6 +12,9 @@ class CollectedInksController < ApplicationController
     ).order(
       "brand_name, line_name, ink_name"
     )
+    if params.dig(:filter, :macro_cluster_id)
+      inks = inks.joins(:micro_cluster).where(micro_clusters: { macro_cluster_id: params.dig(:filter, :macro_cluster_id)})
+    end
     respond_to do |format|
       format.html
       format.json { render json: CollectedInkSerializer.new(inks, index_options).serializable_hash.to_json }

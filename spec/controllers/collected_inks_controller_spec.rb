@@ -82,6 +82,22 @@ describe CollectedInksController do
         expect(response.body).to include(user_inks.first.brand_name)
       end
 
+      it 'can filter by macro cluster id' do
+        ink = user_inks.first
+        micro_cluster = create(:micro_cluster)
+        micro_cluster.collected_inks << ink
+        macro_cluster = create(:macro_cluster)
+        macro_cluster.micro_clusters << micro_cluster
+        get :index, params: { filter: { macro_cluster_id: macro_cluster.id } }, format: :json
+        expect(response).to be_successful
+        json = JSON.parse(response.body)
+        expect(json['data'].length).to eq(1)
+        first_ink_attributes = json['data'].first['attributes']
+        expect(first_ink_attributes['brand_name']).to eq(ink.brand_name)
+        expect(first_ink_attributes['line_name']).to eq(ink.line_name)
+        expect(first_ink_attributes['ink_name']).to eq(ink.ink_name)
+      end
+
       it 'supports sparse fieldsets' do
         get :index, params: { fields: { collected_ink: "brand_name,line_name" } }, format: :json
         expect(response).to be_successful
