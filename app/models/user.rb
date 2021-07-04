@@ -1,7 +1,7 @@
 class User < ApplicationRecord
 
   BLACKLIST = ['51.91.67.153']
-  MAX_SAME_IP_24H = 3
+  MAX_SAME_IP_24H = 2
   # Include default devise modules. Others available are:
   # :confirmable, :lockable, :timeoutable and :omniauthable
   devise :database_authenticatable, :registerable, :confirmable,
