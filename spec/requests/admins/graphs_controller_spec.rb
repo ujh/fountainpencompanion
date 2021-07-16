@@ -88,6 +88,31 @@ describe Admins::GraphsController do
           [1.day.ago.at_beginning_of_day.to_i*1000, 1]
         ])
       end
+
+      it 'returns the bot sign up data' do
+        create(:user, created_at: 2.days.ago, bot: true, bot_reason: 'reason1')
+        create(:user, created_at: 2.days.ago, bot: true, bot_reason: 'reason2')
+        create(:user, created_at: 2.days.ago, bot: false, bot_reason: '')
+        create(:user, created_at: 1.day.ago, bot: true, bot_reason: 'reason1')
+        get '/admins/graphs/bot-signups'
+        expect(response).to be_successful
+        json = JSON.parse(response.body)
+        expect(json).to match_array([
+          {
+            "data" => [
+              [2.days.ago.at_beginning_of_day.to_i*1000,1],
+              [1.day.ago.at_beginning_of_day.to_i*1000,1]
+            ],
+            "name" => "reason1"
+          },
+          {
+            "data" => [
+              [2.days.ago.at_beginning_of_day.to_i*1000,1]
+            ],
+            "name" => "reason2"
+          }
+        ])
+      end
     end
   end
 end

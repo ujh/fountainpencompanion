@@ -7,6 +7,7 @@ class Admins::GraphsController < Admins::BaseController
            when 'collected-pens' then collected_pens
            when 'currently-inked' then currently_inked
            when 'usage-records' then usage_records
+           when 'bot-signups' then bot_signups
            end
     render json: data
   end
@@ -24,6 +25,17 @@ class Admins::GraphsController < Admins::BaseController
       data: build(User.bots, range: 2.months),
       name: "Bot signups"
     }]
+  end
+
+  def bot_signups
+    User.select(:bot_reason).distinct.pluck(:bot_reason).reject do |reason|
+      reason.blank?
+    end.map do |reason|
+      {
+        name: reason,
+        data: build(User.bots.where(bot_reason: reason), range: 2.months)
+      }
+    end
   end
 
   def collected_inks

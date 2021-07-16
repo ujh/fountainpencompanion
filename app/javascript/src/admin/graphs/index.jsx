@@ -6,10 +6,16 @@ import { CollectedInks } from "./CollectedInks";
 import { CollectedPens } from "./CollectedPens";
 import { CurrentlyInked } from "./CurrentlyInked";
 import { UsageRecords } from "./UsageRecords";
+import { BotSignUps } from "./BotSignUps";
 
 document.addEventListener("DOMContentLoaded", () => {
   const el = document.getElementById("signups-graph");
   if (el) ReactDOM.render(<SignUps />, el);
+});
+
+document.addEventListener("DOMContentLoaded", () => {
+  const el = document.getElementById("bot-signups-graph");
+  if (el) ReactDOM.render(<BotSignUps />, el);
 });
 
 document.addEventListener("DOMContentLoaded", () => {
