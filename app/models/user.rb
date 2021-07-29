@@ -107,7 +107,7 @@ class User < ApplicationRecord
 
 
   def admin?
-    false
+    Admin.find_by(email: email).present?
   end
 
   def public_inks
