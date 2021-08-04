@@ -340,7 +340,7 @@ GEM
       activesupport (>= 4.0)
       sprockets (>= 3.0.0)
     statsd-ruby (1.5.0)
-    strong_migrations (0.7.7)
+    strong_migrations (0.7.8)
       activerecord (>= 5)
     temple (0.8.2)
     thor (1.1.0)
