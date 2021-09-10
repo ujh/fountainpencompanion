@@ -303,7 +303,7 @@ GEM
       activerecord (>= 4.0.0)
       railties (>= 4.0.0)
     semantic_range (3.0.0)
-    sidekiq (6.2.1)
+    sidekiq (6.2.2)
       connection_pool (>= 2.2.2)
       rack (~> 2.0)
       redis (>= 4.2.0)
