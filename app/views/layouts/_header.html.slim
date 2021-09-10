@@ -14,6 +14,7 @@ nav class="navbar navbar-default" id="header"
         li= link_to "Brands", brands_path
         li= link_to "Leaderboards", page_path("leaderboards")
         li= link_to "Blog", blog_index_path
+        li= link_to "Community", "https://community.fpc.ink"
       ul class="nav navbar-nav navbar-right"
         - if user_signed_in?
           li= link_to "Currently Inked", currently_inked_index_path
