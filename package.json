@@ -36,7 +36,7 @@
     "webpack-dev-server": "^3.11.2"
   },
   "engines": {
-    "node": "12.13.0",
+    "node": "14.17.6",
     "yarn": "1.22.10"
   },
   "jest": {
