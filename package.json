@@ -12,7 +12,7 @@
     "jsona": "^1.9.2",
     "jstz": "^2.1.1",
     "lodash": "^4.17.21",
-    "match-sorter": "^6.3.0",
+    "match-sorter": "^6.3.1",
     "postcss-preset-env": "^6.7.0",
     "postcss-smart-import": "^0.7.6",
     "prop-types": "^15.7.2",
