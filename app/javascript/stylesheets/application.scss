@@ -17,7 +17,6 @@
 @import "brands";
 @import "blog";
 
-
 #wrapper {
   display: flex;
   flex-direction: column;
@@ -41,4 +40,9 @@
 
 .table-wrapper {
   width: 100%;
+}
+
+.user_bot_field {
+  position: absolute;
+  left: 30000px;
 }
