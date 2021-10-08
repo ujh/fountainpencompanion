@@ -5,6 +5,7 @@ import { matchSorter } from "match-sorter";
 import _ from "lodash";
 import { getRequest } from "src/fetch";
 import { colorSort } from "../color-sorting";
+import Jsona from "jsona";
 
 document.addEventListener("DOMContentLoaded", () => {
   const elements = document.querySelectorAll("#collected-inks .app");
@@ -21,10 +22,14 @@ const CollectedInks = ({ archive }) => {
   useEffect(() => {
     getRequest("/collected_inks.json")
       .then((response) => response.json())
-      .then((json) => setInks(json.data));
+      .then((json) => {
+        const formatter = new Jsona();
+        return formatter.deserialize(json);
+      })
+      .then((ink_data) => setInks(ink_data));
   }, []);
   const visibleInks = useMemo(
-    () => (inks || []).filter((i) => i.attributes.archived == archive),
+    () => (inks || []).filter((i) => i.archived == archive),
     [inks]
   );
   if (inks) {
@@ -42,9 +47,7 @@ const renderInkWithLink = ({
   cell: {
     value,
     row: {
-      original: {
-        attributes: { ink_id },
-      },
+      original: { ink_id },
     },
   },
 }) => {
@@ -66,7 +69,7 @@ const CollectedInksTable = ({ data, archive }) => {
   const columns = useMemo(
     () => [
       {
-        accessor: "attributes.private",
+        accessor: "private",
         Cell: ({ cell: { value } }) => {
           if (value) {
             return <i className="fa fa-lock" />;
@@ -77,24 +80,22 @@ const CollectedInksTable = ({ data, archive }) => {
       },
       {
         Header: "Brand",
-        accessor: "attributes.brand_name",
+        accessor: "brand_name",
         Footer: (info) => {
           const count = useMemo(() => {
-            return _.uniqBy(
-              info.rows,
-              (row) => row.values["attributes.brand_name"]
-            ).length;
+            return _.uniqBy(info.rows, (row) => row.values["brand_name"])
+              .length;
           }, [info.rows]);
           return <span>{count} brands</span>;
         },
       },
       {
         Header: "Line",
-        accessor: "attributes.line_name",
+        accessor: "line_name",
       },
       {
         Header: "Name",
-        accessor: "attributes.ink_name",
+        accessor: "ink_name",
         Cell: renderInkWithLink,
         Footer: (info) => {
           return <span>{info.rows.length} inks</span>;
@@ -102,14 +103,14 @@ const CollectedInksTable = ({ data, archive }) => {
       },
       {
         Header: "Maker",
-        accessor: "attributes.maker",
+        accessor: "maker",
       },
       {
         Header: "Type",
-        accessor: "attributes.kind",
+        accessor: "kind",
         Footer: (info) => {
           const counters = useMemo(() => {
-            return _.countBy(info.rows, (row) => row.values["attributes.kind"]);
+            return _.countBy(info.rows, (row) => row.values["kind"]);
           });
           return (
             <span>
@@ -126,13 +127,13 @@ const CollectedInksTable = ({ data, archive }) => {
       },
       {
         Header: "Color",
-        accessor: "attributes.color",
+        accessor: "color",
         Cell: () => "",
         sortType: sortByColor,
       },
       {
         Header: "Swabbed",
-        accessor: "attributes.swabbed",
+        accessor: "swabbed",
         Cell: ({ cell: { value } }) => {
           if (value) {
             return <i className="fa fa-check" />;
@@ -144,7 +145,7 @@ const CollectedInksTable = ({ data, archive }) => {
       },
       {
         Header: "Used",
-        accessor: "attributes.used",
+        accessor: "used",
         Cell: ({ cell: { value } }) => {
           if (value) {
             return <i className="fa fa-check" />;
@@ -156,39 +157,53 @@ const CollectedInksTable = ({ data, archive }) => {
       },
       {
         Header: "Usage",
-        accessor: "attributes.usage",
+        accessor: "usage",
         sortDescFirst: true,
       },
       {
         Header: "Daily Usage",
-        accessor: "attributes.daily_usage",
+        accessor: "daily_usage",
         sortDescFirst: true,
       },
       {
         Header: "Comment",
-        accessor: "attributes.comment",
+        accessor: "comment",
       },
       {
         Header: "Private Comment",
-        accessor: "attributes.private_comment",
+        accessor: "private_comment",
+      },
+      {
+        Header: "Tags",
+        accessor: "tags",
+        Cell: ({ cell: { value } }) => {
+          if (!value.length) return null;
+          return (
+            <ul className="tags">
+              {value.map((tag) => (
+                <li key={tag.id} className="tag">
+                  {tag.name}
+                </li>
+              ))}
+            </ul>
+          );
+        },
       },
     ],
     [data]
   );
-  const hiddenColumns = useMemo(
-    () =>
-      [
-        "private_comment",
-        "comment",
-        "maker",
-        "line_name",
-        "kind",
-        "daily_usage",
-      ]
-        .filter((n) => !data.some((e) => e.attributes[n]))
-        .map((n) => `attributes.${n}`),
-    []
-  );
+  const hiddenColumns = useMemo(() => {
+    let hidden_columns = [
+      "private_comment",
+      "comment",
+      "maker",
+      "line_name",
+      "kind",
+      "daily_usage",
+    ].filter((n) => !data.some((e) => e[n]));
+    if (data.every((e) => e.tags.length == 0)) hidden_columns.push("tags");
+    return hidden_columns;
+  }, []);
   const {
     getTableProps,
     getTableBodyProps,
@@ -286,7 +301,7 @@ const Table = ({
             <tr {...row.getRowProps()}>
               {row.cells.map((cell) => {
                 let additionalProps = {};
-                if (cell.column.id == "attributes.color" && cell.value) {
+                if (cell.column.id == "color" && cell.value) {
                   additionalProps = {
                     style: { backgroundColor: cell.value, width: "30px" },
                   };
@@ -297,7 +312,7 @@ const Table = ({
                   </td>
                 );
               })}
-              <ActionsCell {...row.original.attributes} id={row.original.id} />
+              <ActionsCell {...row.original} id={row.original.id} />
             </tr>
           );
         })}
@@ -453,12 +468,12 @@ const sortByColor = (rowA, rowB, columnId) =>
 
 function fuzzyTextFilterFn(rows, id, filterValue) {
   const attrs = [
-    "attributes.brand_name",
-    "attributes.line_name",
-    "attributes.ink_name",
-    "attributes.maker",
-    "attributes.comment",
-    "attributes.private_comment",
+    "brand_name",
+    "line_name",
+    "ink_name",
+    "maker",
+    "comment",
+    "private_comment",
   ];
   return matchSorter(rows, filterValue.replace(/\s+/gi, ""), {
     keys: [(row) => attrs.map((a) => row.values[a]).join("")],

@@ -82,6 +82,18 @@ describe CollectedInksController do
         expect(response.body).to include(user_inks.first.brand_name)
       end
 
+      it 'includes the tags' do
+        ink = user_inks.first
+        ink.tags_as_string = "one"
+        ink.save!
+        get :index, format: :json
+        expect(response).to be_successful
+        json = JSON.parse(response.body)
+        expect(json['included'].length).to eq(1)
+        tag = json['included'].first
+        expect(tag['attributes']['name']).to eq('one')
+      end
+
       it 'can filter by macro cluster id' do
         ink = user_inks.first
         micro_cluster = create(:micro_cluster)

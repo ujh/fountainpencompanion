@@ -2,6 +2,7 @@ class CollectedInkSerializer
   include JSONAPI::Serializer
 
   belongs_to :micro_cluster
+  has_many :tags
 
   attribute :brand_name
   attribute :line_name

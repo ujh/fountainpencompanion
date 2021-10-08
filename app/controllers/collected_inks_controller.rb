@@ -121,7 +121,7 @@ class CollectedInksController < ApplicationController
   end
 
   def index_options
-    options = {}
+    options = { include: [:tags] }
     if params.dig(:fields, :collected_ink)
       options[:fields] = { collected_ink: params.dig(:fields, :collected_ink).split(/\s*,\s*/)}
     end
