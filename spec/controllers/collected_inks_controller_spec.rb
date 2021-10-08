@@ -82,6 +82,18 @@ describe CollectedInksController do
         expect(response.body).to include(user_inks.first.brand_name)
       end
 
+      it 'includes the tags' do
+        ink = user_inks.first
+        ink.tags_as_string = "one"
+        ink.save!
+        get :index, format: :json
+        expect(response).to be_successful
+        json = JSON.parse(response.body)
+        expect(json['included'].length).to eq(1)
+        tag = json['included'].first
+        expect(tag['attributes']['name']).to eq('one')
+      end
+
       it 'can filter by macro cluster id' do
         ink = user_inks.first
         micro_cluster = create(:micro_cluster)
@@ -340,6 +352,14 @@ describe CollectedInksController do
           post :create, params: { collected_ink: { brand_name: 'brand', ink_name: 'ink', color: 'turquoise blue'} }
           expect(response).to render_template(:new)
         end.to_not change { user.collected_inks.count }
+      end
+
+      it 'saves the tags' do
+        expect do
+          post :create, params: { collected_ink: { brand_name: 'brand', ink_name: 'ink', tags_as_string: 'one, two'} }
+        end.to change { user.collected_inks.count }.by(1)
+        ci = user.collected_inks.last
+        expect(ci.tags.pluck(:name)).to match_array(['one', 'two'])
       end
     end
   end

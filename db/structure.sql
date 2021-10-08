@@ -321,6 +321,71 @@ ALTER SEQUENCE public.friendships_id_seq OWNED BY public.friendships.id;
 
 
 --
+-- Name: gutentag_taggings; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.gutentag_taggings (
+    id bigint NOT NULL,
+    tag_id integer NOT NULL,
+    taggable_id integer NOT NULL,
+    taggable_type character varying NOT NULL,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
+);
+
+
+--
+-- Name: gutentag_taggings_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.gutentag_taggings_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: gutentag_taggings_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.gutentag_taggings_id_seq OWNED BY public.gutentag_taggings.id;
+
+
+--
+-- Name: gutentag_tags; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.gutentag_tags (
+    id bigint NOT NULL,
+    name character varying NOT NULL,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL,
+    taggings_count integer DEFAULT 0 NOT NULL
+);
+
+
+--
+-- Name: gutentag_tags_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.gutentag_tags_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: gutentag_tags_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.gutentag_tags_id_seq OWNED BY public.gutentag_tags.id;
+
+
+--
 -- Name: ink_brands; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -634,6 +699,20 @@ ALTER TABLE ONLY public.friendships ALTER COLUMN id SET DEFAULT nextval('public.
 
 
 --
+-- Name: gutentag_taggings id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.gutentag_taggings ALTER COLUMN id SET DEFAULT nextval('public.gutentag_taggings_id_seq'::regclass);
+
+
+--
+-- Name: gutentag_tags id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.gutentag_tags ALTER COLUMN id SET DEFAULT nextval('public.gutentag_tags_id_seq'::regclass);
+
+
+--
 -- Name: ink_brands id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -744,6 +823,22 @@ ALTER TABLE ONLY public.currently_inked
 
 ALTER TABLE ONLY public.friendships
     ADD CONSTRAINT friendships_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: gutentag_taggings gutentag_taggings_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.gutentag_taggings
+    ADD CONSTRAINT gutentag_taggings_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: gutentag_tags gutentag_tags_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.gutentag_tags
+    ADD CONSTRAINT gutentag_tags_pkey PRIMARY KEY (id);
 
 
 --
@@ -909,6 +1004,34 @@ CREATE INDEX index_friendships_on_sender_id ON public.friendships USING btree (s
 
 
 --
+-- Name: index_gutentag_taggings_on_tag_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_gutentag_taggings_on_tag_id ON public.gutentag_taggings USING btree (tag_id);
+
+
+--
+-- Name: index_gutentag_taggings_on_taggable_type_and_taggable_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_gutentag_taggings_on_taggable_type_and_taggable_id ON public.gutentag_taggings USING btree (taggable_type, taggable_id);
+
+
+--
+-- Name: index_gutentag_tags_on_name; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_gutentag_tags_on_name ON public.gutentag_tags USING btree (name);
+
+
+--
+-- Name: index_gutentag_tags_on_taggings_count; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_gutentag_tags_on_taggings_count ON public.gutentag_tags USING btree (taggings_count);
+
+
+--
 -- Name: index_ink_brands_on_simplified_name; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -1011,6 +1134,13 @@ CREATE UNIQUE INDEX index_users_on_reset_password_token ON public.users USING bt
 --
 
 CREATE UNIQUE INDEX unique_micro_clusters ON public.micro_clusters USING btree (simplified_brand_name, simplified_line_name, simplified_ink_name);
+
+
+--
+-- Name: unique_taggings; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX unique_taggings ON public.gutentag_taggings USING btree (taggable_type, taggable_id, tag_id);
 
 
 --
@@ -1247,6 +1377,10 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20210419191331'),
 ('20210420100740'),
 ('20210422204021'),
-('20210521072307');
+('20210521072307'),
+('20211008130444'),
+('20211008130445'),
+('20211008130446'),
+('20211008130613');
 
 

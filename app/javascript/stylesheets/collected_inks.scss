@@ -122,3 +122,18 @@ form.new_collected_ink {
 .pick-kind span {
   margin-right: 5px;
 }
+
+ul.tags {
+  display: inline;
+  list-style: none;
+  padding: 0px;
+  li.tag {
+    display: inline;
+    &::after {
+      content: ", ";
+    }
+    &:last-child::after {
+      content: "";
+    }
+  }
+}

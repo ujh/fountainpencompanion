@@ -16,6 +16,7 @@
       = f.input :private, hint: "Check this box if do not want to share this ink on your public profile."
       = f.input :comment, hint: "Will be visible to everyone if the ink is public. Use the private comment field below for private data."
       = f.input :private_comment, hint: "Will only be visible to you even if you've made the ink itself public."
+      = f.input :tags_as_string, label: "Tags", hint: "A comma separated list of tags to classify your inks"
   - if ink.new_record?
     div class="row"
       div class="col-sm-12 col-md-6"

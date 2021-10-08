@@ -38,6 +38,16 @@ class CollectedInk < ApplicationRecord
     }
   )
 
+  Gutentag::ActiveRecord.call self
+
+  def tags_as_string
+    tag_names.join(", ")
+  end
+
+  def tags_as_string=(string)
+    self.tag_names = string.split(/,\s*/)
+  end
+
   def si
     [simplified_brand_name, simplified_line_name, simplified_ink_name]
   end
