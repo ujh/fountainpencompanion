@@ -16,6 +16,16 @@ describe CollectedInk do
     expect(subject.errors).to include(:brand_name)
   end
 
+  describe 'tags' do
+    it 'adds new tags' do
+      ink = create(:collected_ink)
+      ink.tags_as_string = "one, two"
+      expect do
+        ink.save
+      end.to change { Gutentag::Tag.count }.by(2)
+    end
+  end
+
   describe 'uniqueness' do
     let(:existing_ink) { create(:collected_ink, ink_name: 'Syrah') }
 
