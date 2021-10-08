@@ -15,7 +15,7 @@ class User < ApplicationRecord
 
   validates :name, length: { in: 1..100, allow_blank: true }
 
-  before_create :check_if_we_should_skip_confirmation
+  before_save :check_if_we_should_skip_confirmation
 
   def self.active
     where.not(confirmed_at: nil)
