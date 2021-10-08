@@ -116,6 +116,7 @@ class CollectedInksController < ApplicationController
       :private_comment,
       :color,
       :private,
+      :tags_as_string,
     )
   end
 

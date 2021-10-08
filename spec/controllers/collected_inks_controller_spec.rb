@@ -341,6 +341,14 @@ describe CollectedInksController do
           expect(response).to render_template(:new)
         end.to_not change { user.collected_inks.count }
       end
+
+      it 'saves the tags' do
+        expect do
+          post :create, params: { collected_ink: { brand_name: 'brand', ink_name: 'ink', tags_as_string: 'one, two'} }
+        end.to change { user.collected_inks.count }.by(1)
+        ci = user.collected_inks.last
+        expect(ci.tags.pluck(:name)).to match_array(['one', 'two'])
+      end
     end
   end
 end
