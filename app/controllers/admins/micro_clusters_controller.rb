@@ -27,7 +27,11 @@ class Admins::MicroClustersController < Admins::BaseController
     cluster = MicroCluster.find(params[:id])
     cluster.update!(update_params)
     UpdateMicroCluster.perform_async(cluster.id)
-    render json: MicroClusterSerializer.new(cluster, update_options).serializable_hash.to_json
+    if request.referrer == ignored_admins_micro_clusters_url
+      redirect_to ignored_admins_micro_clusters_url
+    else
+      render json: MicroClusterSerializer.new(cluster, update_options).serializable_hash.to_json
+    end
   end
 
   def unassign
@@ -40,7 +44,9 @@ class Admins::MicroClustersController < Admins::BaseController
   private
 
   def update_params
-    (params['_jsonapi'] || params).require(:data).require(:attributes).permit(
+    update_params = (params['_jsonapi'] || params).dig(:data, :attributes)
+    update_params ||= params[:micro_cluster]
+    update_params.permit(
       :macro_cluster_id, :ignored
     )
   end
