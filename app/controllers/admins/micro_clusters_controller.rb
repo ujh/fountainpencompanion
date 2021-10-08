@@ -14,9 +14,13 @@ class Admins::MicroClustersController < Admins::BaseController
   end
 
   def ignored
-    @clusters = MicroCluster.ignored.order(
-      :simplified_brand_name, :simplified_line_name, :simplified_ink_name
-    )
+    @clusters = MicroCluster.ignored
+      .joins(:collected_inks)
+      .select("micro_clusters.*, count(*) as count")
+      .group("micro_clusters.id")
+      .order(
+        "count desc, simplified_brand_name, simplified_line_name, simplified_ink_name"
+      )
   end
 
   def update

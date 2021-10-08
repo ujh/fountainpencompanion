@@ -9,6 +9,7 @@ table class="table table-striped"
     - @clusters.each do |cluster|
       tr
         td= cluster.id
+        td= cluster.count
         td= cluster.simplified_brand_name
         td= cluster.simplified_line_name
         td= cluster.simplified_ink_name
