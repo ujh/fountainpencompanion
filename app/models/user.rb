@@ -53,10 +53,6 @@ class User < ApplicationRecord
     super
   end
 
-  def active_for_authentication?
-    super && !bot
-  end
-
   def unread
     reading_statuses.unread.includes(:blog_post)
   end

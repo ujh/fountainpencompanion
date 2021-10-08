@@ -101,8 +101,13 @@ describe User do
       expect(user).to be_active_for_authentication
     end
 
-    it 'returns fals for bots' do
-      user = create(:user, bot: true)
+    it 'returns true for confirmed users with bot field set to true' do
+      user = create(:user, confirmed_at: 1.day.ago, bot: true)
+      expect(user).to be_active_for_authentication
+    end
+
+    it 'returns false for bots' do
+      user = create(:user, confirmed_at: nil, bot: true)
       expect(user).not_to be_active_for_authentication
     end
   end
