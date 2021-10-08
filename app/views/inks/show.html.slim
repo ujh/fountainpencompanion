@@ -38,9 +38,9 @@ div class="row details"
     div class="error-reporting"
       h4 Errors
       p
-        | If there are any inks that don't belong here or if there is anything
-        | else that is wrong, feel free to report this using the button below.
-        | We will try to fix it as soon as possible.
+        ' If there are any inks that don't belong here or if there is anything
+        ' else that is wrong, feel free to report this using the button below.
+        ' We will try to fix it as soon as possible.
       = link_to "Report an error",
                 "mailto:clustering-error@fountainpencompanion.com?subject=#{@ink.name}",
                 class: "btn btn-default"
