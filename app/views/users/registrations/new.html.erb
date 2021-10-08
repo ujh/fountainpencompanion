@@ -7,7 +7,7 @@
     <%= f.input :email, required: true, autofocus: true %>
     <%= f.input :password, required: true, hint: ("#{@minimum_password_length} characters minimum" if @minimum_password_length) %>
     <%= f.input :password_confirmation, required: true %>
-    <%= f.input :bot_field, as: :boolean, label: "Tick this box if you are a bot" %>
+    <%= f.input :bot_field, as: :boolean, label: "Tick this box if you are a bot", input_html: { tabindex: "-1" } %>
   </div>
 
   <div class="alert alert-danger">
