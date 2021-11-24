@@ -24,6 +24,13 @@ describe CollectedInk do
         ink.save
       end.to change { Gutentag::Tag.count }.by(2)
     end
+
+    it 'strips out all empty spaces at the ends' do
+      ink = create(:collected_ink)
+      ink.tags_as_string = " one , two "
+      ink.save
+      expect(Gutentag::Tag.pluck(:name)).to match_array(['one', 'two'])
+    end
   end
 
   describe 'uniqueness' do

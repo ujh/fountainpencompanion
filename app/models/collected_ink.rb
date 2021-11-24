@@ -45,7 +45,7 @@ class CollectedInk < ApplicationRecord
   end
 
   def tags_as_string=(string)
-    self.tag_names = string.split(/,\s*/)
+    self.tag_names = string.split(',').map(&:strip)
   end
 
   def si
