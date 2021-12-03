@@ -397,6 +397,7 @@ DEPENDENCIES
   letter_opener
   listen
   newrelic_rpm
+  nokogiri
   pg
   pg_search
   puma
