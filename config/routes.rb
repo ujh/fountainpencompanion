@@ -104,7 +104,11 @@ Rails.application.routes.draw do
         put 'publish'
       end
     end
-    resources :reviews, only: [:index, :update, :destroy]
+    resources :reviews, only: [:index, :update, :destroy] do
+      collection do
+        get 'missing'
+      end
+    end
   end
 
   authenticate :admin do

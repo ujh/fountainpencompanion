@@ -15,6 +15,18 @@ class Admins::ReviewsController < Admins::BaseController
     redirect_after_change
   end
 
+  def missing
+    @macro_clusters = MacroCluster.without_review.joins(
+      micro_clusters: :collected_inks
+    ).includes(
+      :brand_cluster
+    ).where(
+      collected_inks: { private: false }
+    ).group("macro_clusters.id").select(
+      "macro_clusters.*, count(macro_clusters.id) as ci_count"
+    ).order("ci_count desc").page(params[:page]).per(10)
+  end
+
   private
 
   def redirect_after_change
