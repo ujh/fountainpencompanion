@@ -1,6 +1,6 @@
 class Admins::ReviewsController < Admins::BaseController
   def index
-    @ink_review = InkReview.queued.order('created_at desc').first
+    @ink_reviews = InkReview.queued.order('created_at desc').page(params[:page])
   end
 
   def destroy
