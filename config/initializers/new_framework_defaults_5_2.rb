@@ -22,5 +22,3 @@ Rails.application.config.active_support.use_authenticated_message_encryption = t
 # ApplicationController.
 Rails.application.config.action_controller.default_protect_from_forgery = true
 
-# Use SHA-1 instead of MD5 to generate non-sensitive digests, such as the ETag header.
-Rails.application.config.active_support.use_sha1_digests = true
