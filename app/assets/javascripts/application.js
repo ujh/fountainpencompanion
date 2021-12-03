@@ -54,3 +54,13 @@ $(function () {
     fetch(url, { method: "PUT", headers: { "X-CSRF-Token": csrfToken() } });
   });
 });
+
+$(function () {
+  ink_review_submission_form = $("#new_ink_review_submission");
+  ink_review_submission_form.on("ajax:success", (event) => {
+    ink_review_submission_form.find("input").val("");
+    ink_review_submission_form
+      .find(".help-block")
+      .text("URL successful submitted!");
+  });
+});

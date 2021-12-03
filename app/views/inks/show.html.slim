@@ -44,6 +44,26 @@ div class="row details"
       = link_to "Report an error",
                 "mailto:clustering-error@fountainpencompanion.com?subject=#{@ink.name}",
                 class: "btn btn-default"
+    div class="reviews"
+      - if user_signed_in?
+        h4 Submit a review
+        = simple_form_for InkReviewSubmission.new, url: brand_ink_ink_review_submissions_path(params[:brand_id], params[:id]), remote: true do |f|
+          = f.input :url, as: :string, hint: "Enter the URL of the review you would like to submit", label: false
+          = f.submit "Submit a review"
+
+- if @ink.ink_reviews.exists?
+  h2 Reviews
+  div class="reviews"
+    - @ink.ink_reviews.each do |ink_review|
+      div class="review row"
+        div class="col-xs-12 col-sm-6"
+          = link_to ink_review.title, ink_review.url
+          div class="domain"= URI(ink_review.url).host
+          div class="description"= ink_review.description
+        div class="col-xs-12 col-sm-6"
+          = image_tag ink_review.image
+
+
 
 h2 Names for this ink
 

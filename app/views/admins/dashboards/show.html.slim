@@ -35,6 +35,9 @@ table class="table table-striped"
               | (
               = @stats.unassigned_macro_cluster_count
               |  unassigned macro clusters)
+          tr
+            td
+            td= " (#{MacroCluster.without_review.count} without review)"
     tr
       td Number of micro clusters
       td
@@ -107,6 +110,22 @@ table class="table table-striped"
         |  (
         = number_to_percentage(@stats.users_using_usage_records_percentage, precision: 2)
         |  of active users use this feature)
+    tr
+      td Number of ink reviews
+      td
+        table
+          tr
+            td = InkReview.count
+            td = " (#{InkReview.queued.count} queued)"
+          tr
+            td
+            td = " (#{InkReview.approved.count} approved)"
+          tr
+            td
+            td = " (#{InkReview.rejected.count} rejected)"
+    tr
+      td Number of ink review submissions
+      td = InkReviewSubmission.count
 
 div#graphs
   div.row

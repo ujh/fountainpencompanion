@@ -25,6 +25,7 @@ gem 'jsonapi-rails'
 gem 'jsonapi-serializer'
 gem 'kaminari'
 gem 'newrelic_rpm'
+gem 'nokogiri'
 gem 'pg'
 gem 'pg_search'
 gem 'puma'
@@ -61,4 +62,5 @@ group :test do
   gem 'rails-controller-testing'
   gem 'simplecov', require: false
   gem 'simplecov-lcov', require: false
+  gem 'webmock'
 end
