@@ -418,6 +418,40 @@ ALTER SEQUENCE public.ink_brands_id_seq OWNED BY public.ink_brands.id;
 
 
 --
+-- Name: ink_review_submissions; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.ink_review_submissions (
+    id bigint NOT NULL,
+    url text NOT NULL,
+    macro_cluster_id bigint NOT NULL,
+    user_id bigint NOT NULL,
+    ink_review_id bigint,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
+);
+
+
+--
+-- Name: ink_review_submissions_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.ink_review_submissions_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: ink_review_submissions_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.ink_review_submissions_id_seq OWNED BY public.ink_review_submissions.id;
+
+
+--
 -- Name: ink_reviews; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -757,6 +791,13 @@ ALTER TABLE ONLY public.ink_brands ALTER COLUMN id SET DEFAULT nextval('public.i
 
 
 --
+-- Name: ink_review_submissions id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.ink_review_submissions ALTER COLUMN id SET DEFAULT nextval('public.ink_review_submissions_id_seq'::regclass);
+
+
+--
 -- Name: ink_reviews id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -891,6 +932,14 @@ ALTER TABLE ONLY public.gutentag_tags
 
 ALTER TABLE ONLY public.ink_brands
     ADD CONSTRAINT ink_brands_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: ink_review_submissions ink_review_submissions_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.ink_review_submissions
+    ADD CONSTRAINT ink_review_submissions_pkey PRIMARY KEY (id);
 
 
 --
@@ -1091,6 +1140,27 @@ CREATE UNIQUE INDEX index_ink_brands_on_simplified_name ON public.ink_brands USI
 
 
 --
+-- Name: index_ink_review_submissions_on_ink_review_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_ink_review_submissions_on_ink_review_id ON public.ink_review_submissions USING btree (ink_review_id);
+
+
+--
+-- Name: index_ink_review_submissions_on_macro_cluster_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_ink_review_submissions_on_macro_cluster_id ON public.ink_review_submissions USING btree (macro_cluster_id);
+
+
+--
+-- Name: index_ink_review_submissions_on_user_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_ink_review_submissions_on_user_id ON public.ink_review_submissions USING btree (user_id);
+
+
+--
 -- Name: index_ink_reviews_on_macro_cluster_id; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -1250,6 +1320,22 @@ ALTER TABLE ONLY public.macro_clusters
 
 
 --
+-- Name: ink_review_submissions fk_rails_4ffd484639; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.ink_review_submissions
+    ADD CONSTRAINT fk_rails_4ffd484639 FOREIGN KEY (user_id) REFERENCES public.users(id);
+
+
+--
+-- Name: ink_review_submissions fk_rails_56df03bea8; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.ink_review_submissions
+    ADD CONSTRAINT fk_rails_56df03bea8 FOREIGN KEY (ink_review_id) REFERENCES public.ink_reviews(id);
+
+
+--
 -- Name: collected_inks fk_rails_6e15b56fd1; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1319,6 +1405,14 @@ ALTER TABLE ONLY public.usage_records
 
 ALTER TABLE ONLY public.friendships
     ADD CONSTRAINT fk_rails_d78dc9c7fd FOREIGN KEY (friend_id) REFERENCES public.users(id);
+
+
+--
+-- Name: ink_review_submissions fk_rails_ee836511b9; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.ink_review_submissions
+    ADD CONSTRAINT fk_rails_ee836511b9 FOREIGN KEY (macro_cluster_id) REFERENCES public.macro_clusters(id);
 
 
 --
@@ -1449,6 +1543,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20211008130445'),
 ('20211008130446'),
 ('20211008130613'),
-('20211203085611');
+('20211203085611'),
+('20211203095418');
 
 
