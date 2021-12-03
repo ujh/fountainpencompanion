@@ -125,7 +125,7 @@ table class="table table-striped"
             td = " (#{InkReview.rejected.count} rejected)"
     tr
       td Number of ink review submissions
-      td = InkReviewSubmission.count
+      td = "#{InkReviewSubmission.count} (#{InkReviewSubmission.unassigned.count})"
 
 div#graphs
   div.row
