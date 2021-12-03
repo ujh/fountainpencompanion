@@ -7,6 +7,7 @@ class MacroCluster < ApplicationRecord
   paginates_per 100
 
   scope :unassigned, -> { where(brand_cluster_id: nil) }
+  scope :without_review, -> { left_joins(:ink_reviews).where('ink_reviews.id IS NULL') }
 
   def self.search(query)
     return self if query.blank?

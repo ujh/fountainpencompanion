@@ -35,6 +35,9 @@ table class="table table-striped"
               | (
               = @stats.unassigned_macro_cluster_count
               |  unassigned macro clusters)
+          tr
+            td
+            td= " (#{MacroCluster.without_review.count} without review)"
     tr
       td Number of micro clusters
       td
