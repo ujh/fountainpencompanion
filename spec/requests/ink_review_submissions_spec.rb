@@ -20,24 +20,24 @@ describe "InkReviewSubmissions" do
 
       it 'creates a new submission' do
         expect do
-          post path, params: { url: 'http://example.com' }
+          post path, params: { ink_review_submission: { url: 'http://example.com' } }
         end.to change(InkReviewSubmission, :count).by(1)
       end
 
       it 'assigns the submission to the user' do
-        post path, params: { url: 'http://example.com' }
+        post path, params: { ink_review_submission: { url: 'http://example.com' } }
         submission = InkReviewSubmission.first
         expect(submission.user).to eq(user)
       end
 
       it 'assigns the submission to the macro cluster' do
-        post path, params: { url: 'http://example.com' }
+        post path, params: { ink_review_submission: { url: 'http://example.com' } }
         submission = InkReviewSubmission.first
         expect(submission.macro_cluster).to eq(macro_cluster)
       end
 
       it 'sets the correct url' do
-        post path, params: { url: 'http://example.com' }
+        post path, params: { ink_review_submission: { url: 'http://example.com' } }
         submission = InkReviewSubmission.first
         expect(submission.url).to eq('http://example.com')
       end

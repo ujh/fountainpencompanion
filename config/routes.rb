@@ -104,6 +104,7 @@ Rails.application.routes.draw do
         put 'publish'
       end
     end
+    resources :reviews, only: [:index, :update, :destroy]
   end
 
   authenticate :admin do

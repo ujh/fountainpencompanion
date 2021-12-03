@@ -1,0 +1,24 @@
+- content_for :title, "#{InkReview.queued.count} reviews to check"
+
+- if @ink_review
+  table class="table" id="admin_ink_review"
+    tr
+      th Ink
+      th = @ink_review.macro_cluster.name
+    tr
+      td Title
+      td= @ink_review.title
+    tr
+      td Description
+      td= @ink_review.description
+    tr
+      td URL
+      td= @ink_review.url
+    tr
+      td Image
+      td= image_tag(@ink_review.image)
+    tr
+      td
+      td
+        = link_to "Approve",  admins_review_path(@ink_review), method: :put, class: 'btn btn-default'
+        = link_to "Reject", admins_review_path(@ink_review), method: :delete, class: 'btn btn-default'
