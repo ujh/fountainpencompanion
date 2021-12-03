@@ -62,7 +62,9 @@ Rails.application.routes.draw do
   resources :usage_records, only: [:index, :destroy, :edit, :update]
 
   resources :brands, only: [:index] do
-    resources :inks, only: [:show]
+    resources :inks, only: [:show] do
+      resources :ink_review_submissions, only: [:create]
+    end
   end
   resources :inks, only: [:show]
   namespace :pens do
