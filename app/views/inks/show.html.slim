@@ -54,14 +54,17 @@ div class="row details"
 - if @ink.ink_reviews.exists?
   h2 Reviews
   div class="reviews"
-    - @ink.ink_reviews.each do |ink_review|
-      div class="review row"
-        div class="col-xs-12 col-sm-6"
-          = link_to ink_review.title, ink_review.url
-          div class="domain"= URI(ink_review.url).host
-          div class="description"= ink_review.description
-        div class="col-xs-12 col-sm-6"
-          = image_tag ink_review.image
+    -@ink.ink_reviews.in_groups_of(2, nil) do |group|
+      div class="row"
+        - group.each do |ink_review|
+          div class="col-xs-12 col-sm-6"
+            div class="review row"
+              div class="col-xs-12 col-sm-6"
+                = link_to ink_review.title, ink_review.url
+                div class="domain"= URI(ink_review.url).host
+                div class="description"= ink_review.description
+              div class="col-xs-12 col-sm-6"
+                = image_tag ink_review.image
 
 
 

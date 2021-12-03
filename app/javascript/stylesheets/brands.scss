@@ -21,6 +21,9 @@
 }
 
 .reviews {
+  .row {
+    box-shadow: none !important;
+  }
   .review {
     &.row {
       box-shadow: none !important;
@@ -28,6 +31,7 @@
     img {
       max-width: 100%;
       max-height: 300px;
+      border-radius: 10px;
     }
     a {
       font-weight: bold;
