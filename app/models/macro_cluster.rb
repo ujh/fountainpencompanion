@@ -46,6 +46,10 @@ class MacroCluster < ApplicationRecord
     ).group("macro_clusters.id")
   end
 
+  def approved_ink_reviews
+    ink_reviews.approved
+  end
+
   def public_collected_inks_count
     collected_inks.where(private: false).count
   end
