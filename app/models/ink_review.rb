@@ -4,7 +4,6 @@ class InkReview < ApplicationRecord
 
   validates :title, presence: true
   validates :url, presence: true
-  validates :description, presence: true
   validates :image, presence: true
 
   scope :queued, -> { where(approved_at: nil, rejected_at: nil) }

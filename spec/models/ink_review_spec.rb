@@ -11,11 +11,6 @@ describe InkReview do
     expect(subject.errors).to include(:url)
   end
 
-  it 'fails validation if the description is missing' do
-    expect(subject).not_to be_valid
-    expect(subject.errors).to include(:description)
-  end
-
   it 'fails validation if the image is missing' do
     expect(subject).not_to be_valid
     expect(subject.errors).to include(:image)

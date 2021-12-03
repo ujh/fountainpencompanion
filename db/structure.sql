@@ -459,7 +459,7 @@ CREATE TABLE public.ink_reviews (
     id bigint NOT NULL,
     title text NOT NULL,
     url text NOT NULL,
-    description text NOT NULL,
+    description text,
     image text NOT NULL,
     macro_cluster_id bigint NOT NULL,
     rejected_at timestamp without time zone,
@@ -1553,6 +1553,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20211203085611'),
 ('20211203095418'),
 ('20211203101004'),
-('20211203123031');
+('20211203123031'),
+('20211203132510');
 
 
