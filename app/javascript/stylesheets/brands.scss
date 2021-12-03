@@ -19,3 +19,17 @@
 .reviews {
   margin-top: 30px;
 }
+
+.reviews {
+  .review {
+    &.row {
+      box-shadow: none !important;
+    }
+    img {
+      max-width: 100%;
+    }
+    a {
+      font-weight: bold;
+    }
+  }
+}

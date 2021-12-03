@@ -51,6 +51,19 @@ div class="row details"
           = f.input :url, as: :string, hint: "Enter the URL of the review you would like to submit", label: false
           = f.submit "Submit a review"
 
+- if @ink.ink_reviews.exists?
+  h2 Reviews
+  div class="reviews"
+    - @ink.ink_reviews.each do |ink_review|
+      div class="review row"
+        div class="col-xs-12 col-sm-6"
+          = link_to ink_review.title, ink_review.url
+          div class="description"= ink_review.description
+        div class="col-xs-12 col-sm-6"
+          = image_tag ink_review.image
+
+
+
 h2 Names for this ink
 
 div class="table-wrapper"
