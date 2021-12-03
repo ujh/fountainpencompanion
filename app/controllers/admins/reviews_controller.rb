@@ -31,7 +31,7 @@ class Admins::ReviewsController < Admins::BaseController
 
   def redirect_after_change
     if InkReview.queued.exists?
-      redirect_to admins_review_path
+      redirect_to admins_reviews_path
     else
       redirect_to admins_dashboard_path
     end
