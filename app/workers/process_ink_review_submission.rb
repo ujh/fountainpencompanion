@@ -21,7 +21,11 @@ class ProcessInkReviewSubmission
   end
 
   def html
-    Net::HTTP.get(url_to_unfurl)
+    connection = Faraday.new do |c|
+      c.response :follow_redirects
+      c.response :raise_error
+    end
+    connection.get(url_to_unfurl).body
   end
 
   def url_to_unfurl

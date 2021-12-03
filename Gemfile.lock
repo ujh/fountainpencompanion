@@ -128,6 +128,27 @@ GEM
     factory_bot_rails (6.2.0)
       factory_bot (~> 6.2.0)
       railties (>= 5.0.0)
+    faraday (1.8.0)
+      faraday-em_http (~> 1.0)
+      faraday-em_synchrony (~> 1.0)
+      faraday-excon (~> 1.1)
+      faraday-httpclient (~> 1.0.1)
+      faraday-net_http (~> 1.0)
+      faraday-net_http_persistent (~> 1.1)
+      faraday-patron (~> 1.0)
+      faraday-rack (~> 1.0)
+      multipart-post (>= 1.2, < 3)
+      ruby2_keywords (>= 0.0.4)
+    faraday-em_http (1.0.0)
+    faraday-em_synchrony (1.0.0)
+    faraday-excon (1.1.0)
+    faraday-httpclient (1.0.1)
+    faraday-net_http (1.0.1)
+    faraday-net_http_persistent (1.2.0)
+    faraday-patron (1.0.0)
+    faraday-rack (1.0.0)
+    faraday_middleware (1.2.0)
+      faraday (~> 1.0)
     ffi (1.15.4)
     font-awesome-rails (4.7.0.7)
       railties (>= 3.2, < 7)
@@ -201,6 +222,7 @@ GEM
     minitest (5.14.4)
     msgpack (1.4.2)
     multi_json (1.15.0)
+    multipart-post (2.1.1)
     newrelic_rpm (8.2.0)
     nio4r (2.5.8)
     nokogiri (1.12.5)
@@ -288,6 +310,7 @@ GEM
     ruby-oembed (0.15.0)
     ruby-progressbar (1.11.0)
     ruby-statistics (2.1.3)
+    ruby2_keywords (0.0.5)
     rufus-scheduler (3.7.0)
       fugit (~> 1.1, >= 1.1.6)
     sanitize (5.2.3)
@@ -393,6 +416,8 @@ DEPENDENCIES
   dotenv-rails
   exception_notification
   factory_bot_rails
+  faraday
+  faraday_middleware
   font-awesome-rails
   gutentag
   jbuilder
