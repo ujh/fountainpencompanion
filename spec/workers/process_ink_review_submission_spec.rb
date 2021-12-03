@@ -33,10 +33,26 @@ describe ProcessInkReviewSubmission do
   end
 
   it 'attaches to an exsting ink review if one exists' do
-    existing_review = create(:ink_review, url: 'https://mountainofink.com/blog/kobe-hatoba-blue')
+    existing_review = create(
+      :ink_review,
+      url: 'https://mountainofink.com/blog/kobe-hatoba-blue',
+      macro_cluster: ink_review_submission.macro_cluster
+    )
     expect do
       described_class.new.perform(ink_review_submission.id)
     end.not_to change(InkReview, :count)
     expect(existing_review.ink_review_submissions).to eq([ink_review_submission])
+  end
+
+  it 'creates a new review if url submitted only to separate cluster' do
+    existing_review = create(
+      :ink_review,
+      url: 'https://mountainofink.com/blog/kobe-hatoba-blue',
+      macro_cluster: create(:macro_cluster)
+    )
+    expect do
+      described_class.new.perform(ink_review_submission.id)
+    end.to change(InkReview, :count).by(1)
+    expect(InkReview.last.macro_cluster).to eq(ink_review_submission.macro_cluster)
   end
 end

@@ -1168,10 +1168,10 @@ CREATE INDEX index_ink_reviews_on_macro_cluster_id ON public.ink_reviews USING b
 
 
 --
--- Name: index_ink_reviews_on_url; Type: INDEX; Schema: public; Owner: -
+-- Name: index_ink_reviews_on_url_and_macro_cluster_id; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE UNIQUE INDEX index_ink_reviews_on_url ON public.ink_reviews USING btree (url);
+CREATE UNIQUE INDEX index_ink_reviews_on_url_and_macro_cluster_id ON public.ink_reviews USING btree (url, macro_cluster_id);
 
 
 --
@@ -1552,6 +1552,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20211008130613'),
 ('20211203085611'),
 ('20211203095418'),
-('20211203101004');
+('20211203101004'),
+('20211203123031');
 
 

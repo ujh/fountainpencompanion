@@ -6,11 +6,10 @@ class ProcessInkReviewSubmission
   def perform(id)
     self.ink_review_submission = InkReviewSubmission.find(id)
     result = unfurl
-    ink_review = InkReview.find_or_create_by(url: result.url) do |ink_review|
+    ink_review = InkReview.find_or_create_by(url: result.url, macro_cluster: ink_review_submission.macro_cluster) do |ink_review|
       ink_review.title = unfurl.title
       ink_review.description = unfurl.description
       ink_review.image = unfurl.image
-      ink_review.macro_cluster = ink_review_submission.macro_cluster
     end
     ink_review_submission.update(ink_review: ink_review)
   end
