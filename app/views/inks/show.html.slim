@@ -54,7 +54,7 @@ div class="row details"
 - if @ink.ink_reviews.exists?
   h2 Reviews
   div class="reviews"
-    -@ink.ink_reviews.in_groups_of(2, nil) do |group|
+    -@ink.ink_reviews.in_groups_of(2, false) do |group|
       div class="row"
         - group.each do |ink_review|
           div class="col-xs-12 col-sm-6"
