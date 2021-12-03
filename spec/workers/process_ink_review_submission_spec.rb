@@ -1,11 +1,12 @@
 require 'rails_helper'
 
 describe ProcessInkReviewSubmission do
-  let(:ink_review_submission) { create(:ink_review_submission) }
+  let(:ink_review_submission) { create(:ink_review_submission, url: 'http://example.com') }
+  let(:content) { file_fixture("kobe-hatoba-blue-all-attributes.html") }
 
   before do
     stub_request(:get, ink_review_submission.url).to_return(
-      body: file_fixture("kobe-hatoba-blue-all-attributes.html")
+      body: content
     )
   end
 
@@ -54,5 +55,24 @@ describe ProcessInkReviewSubmission do
       described_class.new.perform(ink_review_submission.id)
     end.to change(InkReview, :count).by(1)
     expect(InkReview.last.macro_cluster).to eq(ink_review_submission.macro_cluster)
+  end
+
+  context 'no image tag found' do
+    let(:content) { file_fixture("kobe-hatoba-blue-no-image.html") }
+
+    it 'does nothing' do
+      expect do
+        described_class.new.perform(ink_review_submission.id)
+      end.not_to change(InkReview, :count)
+    end
+  end
+
+  context 'no url found' do
+    let(:content) { file_fixture("kobe-hatoba-blue-no-url.html") }
+
+    it 'takes the original url' do
+      described_class.new.perform(ink_review_submission.id)
+      expect(InkReview.first.url).to eq('http://example.com')
+    end
   end
 end

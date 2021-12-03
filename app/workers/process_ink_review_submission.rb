@@ -3,11 +3,12 @@ class ProcessInkReviewSubmission
 
   def perform(id)
     self.ink_review_submission = InkReviewSubmission.find(id)
-    result = unfurl
-    ink_review = InkReview.find_or_create_by!(url: result.url, macro_cluster: ink_review_submission.macro_cluster) do |ink_review|
-      ink_review.title = unfurl.title
-      ink_review.description = unfurl.description
-      ink_review.image = unfurl.image
+    return unless required_data_present?
+
+    ink_review = InkReview.find_or_create_by!(url: url, macro_cluster: macro_cluster) do |ink_review|
+      ink_review.title = title
+      ink_review.description = description
+      ink_review.image = image
     end
     ink_review_submission.update(ink_review: ink_review)
   end
@@ -16,8 +17,34 @@ class ProcessInkReviewSubmission
 
   attr_accessor :ink_review_submission
 
-  def unfurl
-    Unfurler.new(html).perform
+  def required_data_present?
+    [:title, :url, :image].all? do |data_point|
+      send(data_point).present?
+    end
+  end
+
+  def title
+    page_data.title
+  end
+
+  def url
+    page_data.url.presence || ink_review_submission.url
+  end
+
+  def description
+    page_data.description
+  end
+
+  def image
+    page_data.image
+  end
+
+  def macro_cluster
+    ink_review_submission.macro_cluster
+  end
+
+  def page_data
+    @page_data ||= Unfurler.new(html).perform
   end
 
   def html
