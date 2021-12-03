@@ -1,5 +1,7 @@
 FactoryBot.define do
   factory :ink_review_submission do
-    url { "MyText" }
+    url { "http://example.com" }
+    user
+    macro_cluster
   end
 end

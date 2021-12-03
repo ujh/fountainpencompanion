@@ -85,6 +85,8 @@ GEM
     color (1.8)
     concurrent-ruby (1.1.9)
     connection_pool (2.2.5)
+    crack (0.4.5)
+      rexml
     crass (1.0.6)
     dead_end (1.1.6)
     derailed (0.1.0)
@@ -138,6 +140,7 @@ GEM
       activesupport (>= 5.0)
     gutentag (2.6.1)
       activerecord (>= 3.2.0)
+    hashdiff (1.0.1)
     heapy (0.2.0)
       thor
     i18n (1.8.11)
@@ -360,6 +363,10 @@ GEM
       activemodel (>= 6.0.0)
       bindex (>= 0.4.0)
       railties (>= 6.0.0)
+    webmock (3.14.0)
+      addressable (>= 2.8.0)
+      crack (>= 0.3.2)
+      hashdiff (>= 0.4.0, < 2.0.0)
     webpacker (5.4.2)
       activesupport (>= 5.2)
       rack-proxy (>= 0.6.1)
@@ -420,6 +427,7 @@ DEPENDENCIES
   strong_migrations
   uglifier
   web-console
+  webmock
   webpacker
 
 RUBY VERSION
