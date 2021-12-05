@@ -3,25 +3,22 @@ class ProcessInkReviewSubmission
 
   def perform(id)
     self.ink_review_submission = InkReviewSubmission.find(id)
-    return unless required_data_present?
 
-    ink_review = InkReview.find_or_create_by!(url: url, macro_cluster: macro_cluster) do |ink_review|
+    ink_review = InkReview.find_or_initialize_by(url: url, macro_cluster: macro_cluster) do |ink_review|
       ink_review.title = title
       ink_review.description = description
       ink_review.image = image
     end
-    ink_review_submission.update(ink_review: ink_review)
+    if ink_review.save
+      ink_review_submission.update(ink_review: ink_review)
+    else
+      ink_review_submission.update(unfurling_errors: ink_review.errors.messages.to_json)
+    end
   end
 
   private
 
   attr_accessor :ink_review_submission
-
-  def required_data_present?
-    [:title, :url, :image].all? do |data_point|
-      send(data_point).present?
-    end
-  end
 
   def title
     page_data.title

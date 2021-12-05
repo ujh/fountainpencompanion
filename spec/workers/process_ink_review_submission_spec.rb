@@ -60,10 +60,17 @@ describe ProcessInkReviewSubmission do
   context 'no image tag found' do
     let(:content) { file_fixture("kobe-hatoba-blue-no-image.html") }
 
-    it 'does nothing' do
+    it 'does not create an ink review' do
       expect do
         described_class.new.perform(ink_review_submission.id)
       end.not_to change(InkReview, :count)
+    end
+
+    it 'saves the validation errors' do
+      described_class.new.perform(ink_review_submission.id)
+      expect(ink_review_submission.reload.unfurling_errors).to eq(
+        { image: ["can't be blank"] }.to_json
+      )
     end
   end
 
