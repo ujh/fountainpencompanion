@@ -46,6 +46,16 @@ class MacroCluster < ApplicationRecord
     ).group("macro_clusters.id")
   end
 
+  def self.full_text_search(term)
+    # These are ordered by rank!
+    mc_ids = CollectedInk.search(term).where(private: false).joins(
+      micro_cluster: :macro_cluster
+    ).pluck('macro_clusters.id').uniq
+    MacroCluster.where(id: mc_ids).sort_by do |mc|
+      mc_ids.index(mc.id)
+    end
+  end
+
   def approved_ink_reviews
     ink_reviews.approved
   end
