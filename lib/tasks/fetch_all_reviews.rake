@@ -6,17 +6,18 @@ namespace :fetch_all_reviews do
     loop do
       puts "Fetching #{url}"
       page_results, url = fetch_page(url, base_url)
-      processed_results = page_results.map {|r| postprocess(r) }.compact
-      puts "(#{processed_results.size} of #{page_results.size} found)\n"
-      sleep rand(2)
-      processed_results.each do |r|
-        submission = CreateInkReviewSubmission.new(
-          url: r.first,
+      processed_results = page_results.map do |r|
+        processed = postprocess(r)
+        next unless processed
+        CreateInkReviewSubmission.new(
+          url: processed.first,
           user: user,
-          macro_cluster: r.last
+          macro_cluster: processed.last
         ).perform
-      end
+      end.compact
+      puts "(#{processed_results.size} of #{page_results.size} found)\n"
       break unless url
+      sleep rand(2)
     end
   end
 
