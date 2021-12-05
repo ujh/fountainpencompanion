@@ -7,6 +7,8 @@ namespace :fetch_all_reviews do
       puts "Fetching #{url}"
       page_results, url = fetch_page(url, base_url)
       processed_results = page_results.map do |r|
+        puts "."
+        sleep(2) # Less load on the the external website and the DB
         processed = postprocess(r)
         next unless processed
         CreateInkReviewSubmission.new(
@@ -17,7 +19,6 @@ namespace :fetch_all_reviews do
       end.compact
       puts "(#{processed_results.size} of #{page_results.size} found)\n"
       break unless url
-      sleep rand(2)
     end
   end
 
