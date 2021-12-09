@@ -3,7 +3,7 @@ class FetchReviews
     include Sidekiq::Worker
 
     def perform(url, macro_cluster_id)
-      macro_cluster = MacroCluster.find(macro_cluster_id)
+      macro_cluster = MacroCluster.find_by(id: macro_cluster_id)
       submit_review(url, macro_cluster)
     end
 
