@@ -3,5 +3,6 @@ class FetchReviews
 
   def perform
     FetchReviews::MountainOfInk.perform_async
+    FetchReviews::PenAddict.perform_async
   end
 end

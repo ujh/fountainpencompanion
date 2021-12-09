@@ -1,5 +1,5 @@
 class FetchReviews
-  class MountainOfInk
+  class PenAddict
     include Sidekiq::Worker
 
     def perform
@@ -29,7 +29,7 @@ class FetchReviews
 
     def fetch_homepage
       document = Nokogiri::HTML(html(url))
-      document.css('h1.entry-title').map do |element|
+      document.css('h1.post-title').map do |element|
         link = element.at_css('a')
         {
           url: File.join(url, link['href']),
@@ -47,7 +47,7 @@ class FetchReviews
     end
 
     def url
-      'https://mountainofink.com/'
+      'https://www.penaddict.com/'
     end
   end
 end
