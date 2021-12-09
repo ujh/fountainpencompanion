@@ -10,13 +10,11 @@ class FetchReviews
     private
 
     def submit_review(url, macro_cluster)
-      reviews.each do |review|
-        CreateInkReviewSubmission.new(
-          url: url,
-          user: user,
-          macro_cluster: macro_cluster
-        ).perform
-      end
+      CreateInkReviewSubmission.new(
+        url: url,
+        user: user,
+        macro_cluster: macro_cluster
+      ).perform
     end
 
     def user
