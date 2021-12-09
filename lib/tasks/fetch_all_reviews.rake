@@ -1,7 +1,6 @@
 namespace :fetch_all_reviews do
-  desc "mountainofink.com"
-  task mountainofink: :environment do
-    url = base_url = 'https://mountainofink.com/'
+  task penaddict: :environment do
+    url = base_url = 'https://www.penaddict.com/'
     user = User.first
     loop do
       puts "Fetching #{url}"
@@ -10,6 +9,7 @@ namespace :fetch_all_reviews do
         puts "."
         sleep(2) # Less load on the the external website and the DB
         processed = postprocess(r)
+        pp processed
         next unless processed
         CreateInkReviewSubmission.new(
           url: processed.first,
@@ -17,6 +17,7 @@ namespace :fetch_all_reviews do
           macro_cluster: processed.last
         ).perform
       end.compact
+      puts url
       puts "(#{processed_results.size} of #{page_results.size} found)\n"
       break unless url
     end
@@ -26,14 +27,16 @@ namespace :fetch_all_reviews do
 
   def fetch_page(url, base_url)
     document = Nokogiri::HTML(html(url))
-    results = document.css('h1.entry-title').map do |element|
+    results = document.css('h1.post-title').map do |element|
       link = element.at_css('a')
       [
         File.join(base_url, link['href']),
         link.inner_html
       ]
     end
-    next_path = document.css('#nextLink')&.attribute('href')&.value
+    links = document.css('a')
+    next_link = links.find {|link| link.inner_html.strip == 'Older' }
+    next_path = next_link&.attribute('href')&.value
     next_url = if next_path
       File.join(base_url, next_path)
     end
