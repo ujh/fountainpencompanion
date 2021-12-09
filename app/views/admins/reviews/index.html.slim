@@ -15,7 +15,7 @@
       td= ink_review.description
     tr
       td URL
-      td= ink_review.url
+      td= link_to ink_review.url, ink_review.url, target: "_blank"
     tr
       td Image
       td= image_tag(ink_review.image)
