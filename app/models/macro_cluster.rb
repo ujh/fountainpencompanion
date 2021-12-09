@@ -7,7 +7,26 @@ class MacroCluster < ApplicationRecord
   paginates_per 100
 
   scope :unassigned, -> { where(brand_cluster_id: nil) }
-  scope :without_review, -> { left_joins(:ink_reviews).where('ink_reviews.id IS NULL') }
+
+  def self.without_review
+    MacroCluster.find_by_sql(<<~SQL)
+      WITH no_reviews AS (
+        SELECT macro_clusters.*
+        FROM macro_clusters
+        LEFT OUTER JOIN ink_reviews ON macro_clusters.id = ink_reviews.macro_cluster_id
+        WHERE ink_reviews.id IS NULL
+      ),
+      only_rejected_reviews AS (
+        SELECT macro_clusters.* FROM macro_clusters
+        JOIN ink_reviews ON macro_clusters.id = ink_reviews.macro_cluster_id
+        GROUP BY macro_clusters.id
+        HAVING EVERY(ink_reviews.rejected_at IS NOT NULL)
+      )
+      SELECT * FROM no_reviews
+      UNION
+      SELECT * FROM only_rejected_reviews
+    SQL
+  end
 
   def self.search(query)
     return self if query.blank?
