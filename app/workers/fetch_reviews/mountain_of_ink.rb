@@ -12,11 +12,10 @@ class FetchReviews
 
     def submit_reviews(reviews)
       reviews.each do |review|
-        CreateInkReviewSubmission.new(
-          url: review[:url],
-          user: user,
-          macro_cluster: review[:macro_cluster]
-        ).perform
+        FetchReviews::SubmitReview.perform_async(
+          review[:url],
+          review[:macro_cluster]
+        )
       end
     end
 
@@ -24,7 +23,7 @@ class FetchReviews
       reviews.each do |review|
         search_term = review[:title].split(':').last.strip
         cluster = MacroCluster.full_text_search(search_term).first
-        review.merge(cluster: cluster)
+        review.merge(cluster: cluster.id)
       end
     end
 
@@ -49,10 +48,6 @@ class FetchReviews
 
     def url
       'https://mountainofink.com/'
-    end
-
-    def user
-      @user ||= User.find_by(email: Admin.first.email)
     end
   end
 end
