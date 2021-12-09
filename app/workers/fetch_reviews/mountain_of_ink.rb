@@ -20,7 +20,7 @@ class FetchReviews
     end
 
     def process_reviews(reviews)
-      reviews.each do |review|
+      reviews.map do |review|
         search_term = review[:title].split(':').last.strip
         cluster = MacroCluster.full_text_search(search_term).first
         review.merge(cluster: cluster.id)
