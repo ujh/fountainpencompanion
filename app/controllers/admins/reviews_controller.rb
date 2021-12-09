@@ -16,7 +16,8 @@ class Admins::ReviewsController < Admins::BaseController
   end
 
   def missing
-    @macro_clusters = MacroCluster.without_review.joins(
+    unreviewed_ids = MacroCluster.without_review.pluck(:id)
+    @macro_clusters = MacroCluster.where(id: unreviewed_ids).joins(
       micro_clusters: :collected_inks
     ).includes(
       :brand_cluster
