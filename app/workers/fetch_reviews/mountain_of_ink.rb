@@ -23,7 +23,7 @@ class FetchReviews
       reviews.map do |review|
         search_term = review[:title].split(':').last.strip
         cluster = MacroCluster.full_text_search(search_term).first
-        review.merge(cluster: cluster&.id)
+        review.merge(macro_cluster: cluster&.id)
       end
     end
 
