@@ -11,7 +11,7 @@ class FetchReviews
     end
 
     def process_review(review)
-      raise NotImplementedError
+      review
     end
 
     def perform
