@@ -466,7 +466,8 @@ CREATE TABLE public.ink_reviews (
     rejected_at timestamp without time zone,
     approved_at timestamp without time zone,
     created_at timestamp(6) without time zone NOT NULL,
-    updated_at timestamp(6) without time zone NOT NULL
+    updated_at timestamp(6) without time zone NOT NULL,
+    host text
 );
 
 
@@ -1556,6 +1557,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20211203101004'),
 ('20211203123031'),
 ('20211203132510'),
-('20211205123842');
+('20211205123842'),
+('20211210105355');
 
 
