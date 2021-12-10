@@ -15,7 +15,9 @@ class FetchReviews
     [
       'https://fountainpenpharmacist.com/?format=rss',
       'https://wondernaut.wordpress.com/category/ink-review/feed/',
-      'https://www.wellappointeddesk.com/category/ink-review/feed/'
+      'https://www.wellappointeddesk.com/category/ink-review/feed/',
+      'https://macchiatoman.com/?format=rss',
+      'http://www.inkdependence.com/feeds/posts/default?alt=rss',
     ]
   end
 end
