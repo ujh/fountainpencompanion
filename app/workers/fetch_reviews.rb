@@ -13,7 +13,8 @@ class FetchReviews
 
   def feeds
     [
-      'https://fountainpenpharmacist.com/?format=rss'
+      'https://fountainpenpharmacist.com/?format=rss',
+      'https://wondernaut.wordpress.com/category/ink-review/feed/',
     ]
   end
 end
