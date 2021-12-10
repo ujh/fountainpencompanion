@@ -1,5 +1,5 @@
 task fetch_all_reviews: :environment do
-  url = base_url = 'https://macchiatoman.com/'
+  url = base_url = 'http://www.inkdependence.com/'
   user = User.first
   loop do
     puts "Fetching #{url}"
@@ -26,24 +26,24 @@ private
 
 def fetch_page(url, base_url)
   document = Nokogiri::HTML(html(url))
-  results = document.css('h1.entry-title').map do |element|
+  results = document.css('h3.entry-title').map do |element|
     link = element.at_css('a')
     [
-      File.join(base_url, link['href']),
-      # link['href'],
+      # File.join(base_url, link['href']),
+      link['href'],
       link.inner_html.strip
     ]
   end
-  links = document.css('nav.pagination a')
-  next_link = links.find {|link| link.inner_html.strip == 'Older' }
-  next_path = next_link&.attribute('href')&.value
-  next_url = if next_path
-    File.join(base_url, next_path)
-  end
-  # next_url = begin
-  #   document.at_css('a.next')['href']
-  # rescue
+  # links = document.css('nav.pagination a')
+  # next_link = links.find {|link| link.inner_html.strip == 'Older' }
+  # next_path = next_link&.attribute('href')&.value
+  # next_url = if next_path
+  #   File.join(base_url, next_path)
   # end
+  next_url = begin
+    document.at_css('#blog-pager-older-link a')['href']
+  rescue
+  end
   return [results, next_url]
 end
 
