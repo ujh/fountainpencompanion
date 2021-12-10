@@ -32,4 +32,9 @@ describe InkReview do
     expect(subject).not_to be_valid
     expect(subject.errors).to include(:url)
   end
+
+  it 'sets host automatically from the url' do
+    subject.url = 'https://example.com/some/page'
+    expect(subject.host).to eq('example.com')
+  end
 end

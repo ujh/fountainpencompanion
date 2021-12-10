@@ -21,12 +21,24 @@ class InkReview < ApplicationRecord
     update(approved_at: Time.zone.now, rejected_at: nil)
   end
 
+  def url=(value)
+    set_host!(value)
+    write_attribute(:url, value)
+  end
+
   def approved?
     approved_at.present?
   end
 
   def rejected?
     rejected_at.present?
+  end
+
+  private
+
+  def set_host!(value)
+    self.host = URI(value).host
+  rescue URI::InvalidURIError
   end
 
   def url_format
