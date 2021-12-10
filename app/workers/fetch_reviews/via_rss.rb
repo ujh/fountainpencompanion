@@ -2,6 +2,10 @@ require 'rss'
 
 class FetchReviews
   module ViaRss
+    # As we run this multiple times a day we do not have to process all reviews
+    # every time.
+    REVIEW_COUNT = 5
+
     def feed_url
       raise NotImplementedError
     end
@@ -20,6 +24,7 @@ class FetchReviews
       end
       reviews = reviews.map {|review| process_review(review) }
       reviews = reviews.compact
+      reviews = reviews.take(REVIEW_COUNT)
       reviews = reviews.map {|review| match_review(review) }
       reviews.map {|review| submit_review(review) }
     end
