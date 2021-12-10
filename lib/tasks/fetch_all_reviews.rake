@@ -1,6 +1,6 @@
 namespace :fetch_all_reviews do
-  task wondernaut: :environment do
-    url = base_url = 'https://wondernaut.wordpress.com/category/ink-review/'
+  task wellappointeddesk: :environment do
+    url = base_url = 'https://www.wellappointeddesk.com/category/ink-review/'
     user = User.first
     loop do
       puts "Fetching #{url}"
@@ -28,11 +28,11 @@ namespace :fetch_all_reviews do
   def fetch_page(url, base_url)
     document = Nokogiri::HTML(html(url))
     results = document.css('article.post').map do |element|
-      link = element.at_css('a')
+      link = element.at_css('h2.entry-title a')
       [
         # File.join(base_url, link['href']),
         link['href'],
-        link['title']
+        link.inner_html.strip
       ]
     end
     # links = document.css('a.BlogList-pagination-link')
@@ -43,6 +43,7 @@ namespace :fetch_all_reviews do
     # end
     next_url = begin
       document.at_css('a.next')['href']
+    rescue
     end
     return [results, next_url]
   end
