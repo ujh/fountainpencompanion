@@ -1,6 +1,6 @@
 namespace :fetch_all_reviews do
-  task fountainpenpharmacist: :environment do
-    url = base_url = 'https://fountainpenpharmacist.com/'
+  task wondernaut: :environment do
+    url = base_url = 'https://wondernaut.wordpress.com/category/ink-review/'
     user = User.first
     loop do
       puts "Fetching #{url}"
@@ -27,18 +27,22 @@ namespace :fetch_all_reviews do
 
   def fetch_page(url, base_url)
     document = Nokogiri::HTML(html(url))
-    results = document.css('article.BlogList-item').map do |element|
-      link = element.at_css('a.BlogList-item-title')
+    results = document.css('article.post').map do |element|
+      link = element.at_css('a')
       [
-        File.join(base_url, link['href']),
-        link.inner_html.strip
+        # File.join(base_url, link['href']),
+        link['href'],
+        link['title']
       ]
     end
-    links = document.css('a.BlogList-pagination-link')
-    next_link = links.find {|link| link.at_css('span').inner_html.strip == 'Older' }
-    next_path = next_link&.attribute('href')&.value
-    next_url = if next_path
-      File.join(base_url, next_path)
+    # links = document.css('a.BlogList-pagination-link')
+    # next_link = links.find {|link| link.at_css('span').inner_html.strip == 'Older' }
+    # next_path = next_link&.attribute('href')&.value
+    # next_url = if next_path
+    #   File.join(base_url, next_path)
+    # end
+    next_url = begin
+      document.at_css('a.next')['href']
     end
     return [results, next_url]
   end
