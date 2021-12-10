@@ -7,6 +7,7 @@ class InkReview < ApplicationRecord
   validates :title, presence: true
   validates :url, presence: true
   validates :image, presence: true
+  validate :url_format
 
   scope :queued, -> { where(approved_at: nil, rejected_at: nil) }
   scope :approved, -> { where.not(approved_at: nil) }
@@ -26,5 +27,11 @@ class InkReview < ApplicationRecord
 
   def rejected?
     rejected_at.present?
+  end
+
+  def url_format
+    return if url.blank?
+    uri = URI(url)
+    errors.add(:url, :invalid) if uri.host.blank?
   end
 end

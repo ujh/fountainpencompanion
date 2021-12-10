@@ -20,4 +20,16 @@ describe InkReview do
     expect(subject).not_to be_valid
     expect(subject.errors).to include(:macro_cluster)
   end
+
+  it 'fails validation if it is not a valid url' do
+    subject.url = 'weeeeeeee'
+    expect(subject).not_to be_valid
+    expect(subject.errors).to include(:url)
+  end
+
+  it 'fails validation if url is a blank string' do
+    subject.url = '          '
+    expect(subject).not_to be_valid
+    expect(subject.errors).to include(:url)
+  end
 end
