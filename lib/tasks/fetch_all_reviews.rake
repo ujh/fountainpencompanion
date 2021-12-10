@@ -52,8 +52,8 @@ namespace :fetch_all_reviews do
   end
 
   def postprocess(entry)
-    search_term = entry.last.split(':').last.strip
-    cluster = MacroCluster.full_text_search(entry).first
+    search_term = entry.last
+    cluster = MacroCluster.full_text_search(search_term).first
     if cluster
     entry + [cluster]
     else
