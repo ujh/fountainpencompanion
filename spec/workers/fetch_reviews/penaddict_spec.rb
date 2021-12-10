@@ -10,7 +10,6 @@ describe FetchReviews::PenAddict do
   it 'adds all items as ink reviews' do
     expect do
       FetchReviews::PenAddict.new.perform
-      # 20 items in total minus 5 giveaway posts
-    end.to change(FetchReviews::SubmitReview.jobs, :count).by(15)
+    end.to change(FetchReviews::SubmitReview.jobs, :count).by(5)
   end
 end
