@@ -1,6 +1,6 @@
 namespace :fetch_all_reviews do
-  task penaddict: :environment do
-    url = base_url = 'https://www.penaddict.com/'
+  task fountainpenpharmacist: :environment do
+    url = base_url = 'https://fountainpenpharmacist.com/'
     user = User.first
     loop do
       puts "Fetching #{url}"
@@ -27,15 +27,15 @@ namespace :fetch_all_reviews do
 
   def fetch_page(url, base_url)
     document = Nokogiri::HTML(html(url))
-    results = document.css('h1.post-title').map do |element|
-      link = element.at_css('a')
+    results = document.css('article.BlogList-item').map do |element|
+      link = element.at_css('a.BlogList-item-title')
       [
         File.join(base_url, link['href']),
-        link.inner_html
+        link.inner_html.strip
       ]
     end
-    links = document.css('a')
-    next_link = links.find {|link| link.inner_html.strip == 'Older' }
+    links = document.css('a.BlogList-pagination-link')
+    next_link = links.find {|link| link.at_css('span').inner_html.strip == 'Older' }
     next_path = next_link&.attribute('href')&.value
     next_url = if next_path
       File.join(base_url, next_path)
