@@ -1,8 +1,13 @@
 - content_for :title, "Missing reviews"
 
+p All of the inks listed here do not have a single review attached. If you have the time, it would be great if you could add some!
+
 = paginate @macro_clusters
 
 table class="table table-striped"
+  tr
+    th User count
+    th Ink
   - @macro_clusters.each do |macro_cluster|
     tr
       td= macro_cluster.ci_count
