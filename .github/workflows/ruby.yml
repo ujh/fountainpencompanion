@@ -40,6 +40,8 @@ jobs:
         bundler-cache: true # runs 'bundle install' and caches installed gems automatically
     - name: Install JS dependencies
       run: yarn install
+    - name: Migrate the database
+      run: bundle exec rails db:migrate
     - name: Run tests
       run: bundle exec rake
     - name: Report to Coveralls (parallel)
