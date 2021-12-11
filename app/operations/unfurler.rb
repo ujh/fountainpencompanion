@@ -1,12 +1,12 @@
 class Unfurler
-  Result = Struct.new(:url, :title, :description, :image)
+  Result = Struct.new(:url, :title, :description, :image, :author)
 
   def initialize(string_or_io)
     self.document = Nokogiri::HTML(string_or_io)
   end
 
   def perform
-    Result.new(url, title, description, image)
+    Result.new(url, title, description, image, author)
   end
 
   private
@@ -39,5 +39,10 @@ class Unfurler
     image ||= document.at_css('meta[itemprop="image"]')&.attribute('content')&.value
     image ||= document.at_css('meta[name="twitter:image"]')&.attribute('content')&.value
     image ||= document.at_css('link[rel="image_src"]')&.attribute('href')&.value
+  end
+
+  def author
+    author = document.at_css('meta[itemprop="author"]')&.attribute('content')&.value
+    author ||= document.at_css('link[itemprop="name"]')&.attribute('content')&.value
   end
 end
