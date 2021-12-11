@@ -61,7 +61,10 @@ div class="row details"
             div class="review row"
               div class="col-xs-12 col-sm-6"
                 = link_to ink_review.title, ink_review.url
-                div class="domain"= URI(ink_review.url).host
+                div class="source"
+                  = URI(ink_review.url).host
+                  - if ink_review.author
+                    = " | #{ink_review.author}"
                 div class="description"= ink_review.description
               div class="col-xs-12 col-sm-6"
                 = image_tag ink_review.image

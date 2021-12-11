@@ -8,6 +8,7 @@ class ProcessInkReviewSubmission
       ink_review.title = title
       ink_review.description = description
       ink_review.image = image
+      ink_review.author = author
     end
     if ink_review.save
       ink_review_submission.update(ink_review: ink_review)
@@ -20,20 +21,10 @@ class ProcessInkReviewSubmission
 
   attr_accessor :ink_review_submission
 
-  def title
-    page_data.title
-  end
+  delegate :title, :description, :image, :author, to: :page_data
 
   def url
     page_data.url.presence || ink_review_submission.url
-  end
-
-  def description
-    page_data.description
-  end
-
-  def image
-    page_data.image
   end
 
   def macro_cluster
