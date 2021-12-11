@@ -32,7 +32,7 @@ class FetchReviews
     private
 
     def match_review(review)
-      cluster = MacroCluster.full_text_search(review[:title]).first
+      cluster = MacroCluster.full_text_search(review[:search_term]).first
       review.merge(macro_cluster: cluster&.id)
     end
 
