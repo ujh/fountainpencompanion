@@ -26,17 +26,18 @@ jobs:
 
     services:
       postgres:
-        image: postgres:latest
+        image: postgres:13.3-alpine
         env:
           POSTGRES_USER: test
           POSTGRES_DB: fountainpencompanion_test
-        ports:
-          - 5432:5432
+          POSTGRES_HOST_AUTH_METHOD: trust
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
+        ports:
+          - 5432:5432
     steps:
     - uses: actions/checkout@v2.4.0
     - name: Install correct Node version
@@ -46,7 +47,6 @@ jobs:
     - name: Set up Ruby
       uses: ruby/setup-ruby@v1
       with:
-        ruby-version: ${{ matrix.ruby-version }}
         bundler-cache: true # runs 'bundle install' and caches installed gems automatically
     - name: Install JS dependencies
       run: yarn install
