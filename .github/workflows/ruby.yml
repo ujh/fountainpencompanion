@@ -50,8 +50,6 @@ jobs:
         bundler-cache: true # runs 'bundle install' and caches installed gems automatically
     - name: Install JS dependencies
       run: yarn install
-    - name: Setup Database
-      run: bundle exec rake db:drop db:create db:migrate --trace
     - name: Run tests
       run: bundle exec rake
     - name: Report to Coveralls (parallel)
