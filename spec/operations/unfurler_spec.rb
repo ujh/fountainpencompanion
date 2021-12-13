@@ -154,4 +154,28 @@ describe Unfurler do
       expect(subject.author).to eq('The Inked Well')
     end
   end
+
+  context 'instagram' do
+    let(:html) { file_fixture('instagram.html') }
+
+    it 'extracts the url' do
+      expect(subject.url).to eq('https://www.instagram.com/p/CVTFE8Dp1Tl/')
+    end
+
+    it 'extracts the title' do
+      expect(subject.title).to eq('Melissa on Instagram: “My humble tribute to Sailor x Tinterías Spicy Chipotle, once again blatantly inspired by inky hero @mike.antkowiak  Hosts of Tinterías…”')
+    end
+
+    it 'extracts the description' do
+      expect(subject.description).to eq("")
+    end
+
+    it 'extracts the image' do
+      expect(subject.image).to eq('https://scontent-muc2-1.cdninstagram.com/v/t51.2885-15/e35/248006031_575991063453225_8796630673610683138_n.jpg?_nc_ht=scontent-muc2-1.cdninstagram.com&_nc_cat=109&_nc_ohc=tWkhdePrIhgAX--SKQJ&edm=AABBvjUBAAAA&ccb=7-4&oh=00_AT9CugCRgBMy4w_B8QTL5-h9Rl3EZMLUB2wIJAeu4l0oVQ&oe=61BECB3A&_nc_sid=83d603')
+    end
+
+    it 'extracts the author' do
+      expect(subject.author).to eq(nil)
+    end
+  end
 end

@@ -11,9 +11,16 @@ class ProcessInkReviewSubmission
       ink_review.author = author
     end
     if ink_review.save
-      ink_review_submission.update(ink_review: ink_review)
+      ink_review_submission.update(
+        ink_review: ink_review,
+        unfurling_errors: nil,
+        html: nil
+      )
     else
-      ink_review_submission.update(unfurling_errors: ink_review.errors.messages.to_json)
+      ink_review_submission.update(
+        unfurling_errors: ink_review.errors.messages.to_json,
+        html: html
+      )
     end
   end
 
@@ -36,11 +43,13 @@ class ProcessInkReviewSubmission
   end
 
   def html
-    connection = Faraday.new do |c|
-      c.response :follow_redirects
-      c.response :raise_error
+    @html ||= begin
+      connection = Faraday.new do |c|
+        c.response :follow_redirects
+        c.response :raise_error
+      end
+      connection.get(url_to_unfurl).body
     end
-    connection.get(url_to_unfurl).body
   end
 
   def url_to_unfurl

@@ -429,7 +429,8 @@ CREATE TABLE public.ink_review_submissions (
     ink_review_id bigint,
     created_at timestamp(6) without time zone NOT NULL,
     updated_at timestamp(6) without time zone NOT NULL,
-    unfurling_errors text
+    unfurling_errors text,
+    html text
 );
 
 
@@ -1560,6 +1561,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20211203132510'),
 ('20211205123842'),
 ('20211210105355'),
-('20211211155425');
+('20211211155425'),
+('20211213131530');
 
 
