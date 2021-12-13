@@ -15,7 +15,7 @@ def submit_video(video)
   return unless video[:macro_cluster]
   sub = CreateInkReviewSubmission.new(
     url: video[:url],
-    user: user,
+    user: User.first,
     macro_cluster: video[:macro_cluster]
   ).perform
 end
@@ -28,6 +28,3 @@ def postprocess(video)
   v
 end
 
-def user
-  @user ||= User.first
-end
