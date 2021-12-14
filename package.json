@@ -1,7 +1,7 @@
 {
   "license": "UNLICENSED",
   "dependencies": {
-    "@babel/preset-react": "^7.14.5",
+    "@babel/preset-react": "^7.16.5",
     "@rails/webpacker": "5.4.2",
     "babel-plugin-transform-react-remove-prop-types": "^0.4.24",
     "color-convert": "^2.0.1",
