@@ -30,6 +30,7 @@ class FetchReviews
       'UCZaWG7RkmQVLE0EmvfOuJ9w', # Inky Rocks
       'UCNCL45NnxiFKOoXB8sy6OYA', # The Inked Well
       'UClEwjXhW8IekvkQlg2KZzAw', # Mike Matteson
+      'UCMyv8yHpaI6_KGHvq0TttOw', # An Ink Guy
     ]
   end
 end
