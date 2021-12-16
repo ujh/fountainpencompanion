@@ -5939,10 +5939,10 @@ json5@^2.1.2:
   dependencies:
     minimist "^1.2.5"
 
-jsona@^1.9.2:
-  version "1.9.2"
-  resolved "https://registry.yarnpkg.com/jsona/-/jsona-1.9.2.tgz#6da69c7fe5846166b98a5b6d967cdbcfd781b044"
-  integrity sha512-+af2mw8JbVUBNVFymWhovX8OV02xBKYTt8oST4HOmyfrLMfdWpatSrhvdldUTTcByzbWb4tgPbaZXaAV5yAbfg==
+jsona@^1.9.4:
+  version "1.9.4"
+  resolved "https://registry.yarnpkg.com/jsona/-/jsona-1.9.4.tgz#0cfb8226698dcac115fa8d49b1e664888f86e4a3"
+  integrity sha512-HM5A0+Jp1JQF+rFhCssrNNchFnIdiM0hCq4JvKPtJwexr+Yiz9DACMxW4tEBSP1Aqa4R/kr1RR0hFq9+iKqq5A==
 
 jstz@^2.1.1:
   version "2.1.1"
