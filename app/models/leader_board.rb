@@ -9,6 +9,7 @@ class LeaderBoard
     currently_inked(force: true)
     usage_records(force: true)
     pens_by_popularity(force: true)
+    ink_review_submissions(force: true)
   end
 
   def self.pens_by_popularity(force: false)
@@ -23,6 +24,19 @@ class LeaderBoard
 
   def self.top_pens_by_popularity
     pens_by_popularity.take(10)
+  end
+
+  def self.ink_review_submissions(force: false)
+    Rails.cache.fetch("LeaderBoard#ink_review_submissions", force: force) do
+      relation = User.joins(:ink_review_submissions)
+        .select("users.*, count(*) as counter")
+        .group("users.id").order("counter DESC")
+      extract(relation)
+    end
+  end
+
+  def self.top_ink_review_submissions
+    ink_review_submissions.take(10)
   end
 
   def self.usage_records(force: false)

@@ -2,7 +2,7 @@
 - content_for :subtitle do
   ' Based on
   = number_to_percentage(AdminStats.new.collected_inks_with_macro_cluster_percentage, precision: 2)
-  |  percent of the data.
+  |  percent of the data
 div class="leaderboard"
   ol
     - LeaderBoard.inks_by_popularity.each do |macro_cluster|

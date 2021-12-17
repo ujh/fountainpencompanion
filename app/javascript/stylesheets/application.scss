@@ -46,3 +46,14 @@
   position: absolute;
   left: 30000px;
 }
+
+.hint {
+  background-color: #ddd;
+  padding: 3px 6px;
+  text-align: center;
+  border-radius: 5px;
+  margin-bottom: 15px;
+  p:last-child {
+    margin-bottom: 0;
+  }
+}
