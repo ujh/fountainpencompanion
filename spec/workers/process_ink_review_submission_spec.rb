@@ -45,6 +45,22 @@ describe ProcessInkReviewSubmission do
     expect(existing_review.ink_review_submissions).to eq([ink_review_submission])
   end
 
+  it 'resets rejected_at of existing review' do
+    existing_review = create(
+      :ink_review,
+      url: 'https://mountainofink.com/blog/kobe-hatoba-blue',
+      macro_cluster: ink_review_submission.macro_cluster,
+      approved_at: Time.now,
+      rejected_at: Time.now
+    )
+    expect do
+      described_class.new.perform(ink_review_submission.id)
+    end.not_to change(InkReview, :count)
+    existing_review.reload
+    expect(existing_review.approved_at).not_to eq(nil)
+    expect(existing_review.rejected_at).to eq(nil)
+  end
+
   it 'creates a new review if url submitted only to separate cluster' do
     existing_review = create(
       :ink_review,

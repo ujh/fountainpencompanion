@@ -6,7 +6,7 @@ class CreateInkReviewSubmission
   end
 
   def perform
-    submission = InkReviewSubmission.create(url: url, user: user, macro_cluster: macro_cluster)
+    submission = InkReviewSubmission.find_or_create_by(url: url, user: user, macro_cluster: macro_cluster)
     if submission.persisted?
       ProcessInkReviewSubmission.perform_async(submission.id)
     end

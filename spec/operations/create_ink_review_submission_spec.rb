@@ -37,4 +37,15 @@ describe CreateInkReviewSubmission do
       described_class.new(user: nil, macro_cluster: nil, url: nil).perform
     end.not_to change(ProcessInkReviewSubmission.jobs, :count)
   end
+
+  it 'schedules the processing job even if the submission already exists' do
+    submission = create(:ink_review_submission)
+    expect do
+      described_class.new(
+        user: submission.user,
+        macro_cluster: submission.macro_cluster,
+        url: submission.url,
+      ).perform
+    end.to change(ProcessInkReviewSubmission.jobs, :count).by(1)
+  end
 end
