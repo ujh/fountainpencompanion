@@ -11,6 +11,7 @@ class ProcessInkReviewSubmission
       ink_review.author = author
     end
     if ink_review.save
+      ink_review.update(rejected_at: nil)
       ink_review_submission.update(
         ink_review: ink_review,
         unfurling_errors: nil,
