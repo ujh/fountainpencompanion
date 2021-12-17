@@ -1,7 +1,7 @@
 doctype html
 html
   head
-    title= "#{strip_tags(content_for :title)} - Fountain Pen Companion"
+    title= "#{strip_tags(content_for :title).gsub('&amp;', '&')} - Fountain Pen Companion"
     = csrf_meta_tags
     = auto_discovery_link_tag(:rss, controller: '/blog', action: 'feed')
     = stylesheet_link_tag    'application', media: 'all'
