@@ -6,6 +6,7 @@
       = f.input :brand_name, required: true, hint: "e.g. Pilot, Parker, Waterman"
       = f.input :line_name, hint: "e.g. Iroshizuku, Edelstein"
       = f.input :ink_name, required: true
+      div id="ink-search-hint"
       = f.input :maker, as: :string, hint: "e.g. Sailor or Diamine (the big two when it comes to making inks for other brands)"
     div class="col-sm-12 col-md-6"
       = f.input :kind, as: :select, collection: CollectedInk::KINDS, label: 'Type'
