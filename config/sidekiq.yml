@@ -8,4 +8,7 @@
   fetch_reviews:
     every: '6h'
     class: FetchReviews
+  refresh_leaderboards:
+    every: '15min'
+    class: RefreshLeaderBoards
 :timeout: 25
