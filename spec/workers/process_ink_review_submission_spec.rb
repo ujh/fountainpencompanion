@@ -103,4 +103,17 @@ describe ProcessInkReviewSubmission do
       expect(InkReview.first.url).to eq('http://example.com')
     end
   end
+
+  it 'auto approves when second submission comes in' do
+    macro_cluster = create(:macro_cluster)
+    submissions = create_list(:ink_review_submission, 2, url: 'http://example.com', macro_cluster: macro_cluster)
+    expect do
+      submissions.each do |submission|
+        described_class.new.perform(submission.id)
+      end
+    end.to change(InkReview, :count).by(1)
+    review = InkReview.first
+    expect(review.approved_at).not_to eq(nil)
+    expect(review.auto_approved).to eq(true)
+  end
 end

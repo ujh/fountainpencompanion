@@ -469,7 +469,8 @@ CREATE TABLE public.ink_reviews (
     created_at timestamp(6) without time zone NOT NULL,
     updated_at timestamp(6) without time zone NOT NULL,
     host text,
-    author text
+    author text,
+    auto_approved boolean DEFAULT false
 );
 
 
@@ -1562,6 +1563,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20211205123842'),
 ('20211210105355'),
 ('20211211155425'),
-('20211213131530');
+('20211213131530'),
+('20211217111324');
 
 
