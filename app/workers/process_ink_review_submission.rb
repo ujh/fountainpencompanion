@@ -17,6 +17,7 @@ class ProcessInkReviewSubmission
         unfurling_errors: nil,
         html: nil
       )
+      ink_review.auto_approve! if (ink_review.ink_review_submissions.size > 1)
     else
       ink_review_submission.update(
         unfurling_errors: ink_review.errors.messages.to_json,

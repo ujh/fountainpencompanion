@@ -21,6 +21,10 @@ class InkReview < ApplicationRecord
     update(approved_at: Time.zone.now, rejected_at: nil)
   end
 
+  def auto_approve!
+    update(approved_at: Time.zone.now, rejected_at: nil, auto_approved: true)
+  end
+
   def url=(value)
     set_host!(value)
     write_attribute(:url, value)
