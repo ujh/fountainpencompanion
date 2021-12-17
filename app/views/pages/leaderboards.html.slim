@@ -41,6 +41,13 @@ div class="col-xs-12 col-sm-6 leaderboard"
     - LeaderBoard.top_usage_records.each do |user_data|
       = render partial: "leaderboard_row", locals: { user_data: user_data }
   p= link_to "Show all", page_path("usage_records_leaderboard")
+div class="col-xs-12 col-sm-6 leaderboard"
+  h4 Review submissions
+  h6 Ranked by the number of reviews submitted
+  ol
+    - LeaderBoard.top_ink_review_submissions.each do |user_data|
+      = render partial: "leaderboard_row", locals: { user_data: user_data }
+  p= link_to "Show all", page_path("ink_review_submissions_leaderboard")
 
 div class="col-xs-12 col-sm-6 leaderboard"
   h4 Popular Inks

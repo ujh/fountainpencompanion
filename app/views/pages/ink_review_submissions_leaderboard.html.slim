@@ -1,0 +1,5 @@
+- content_for :title, "Review Submissions Leaderboard"
+div class="leaderboard"
+  ol
+    - LeaderBoard.ink_review_submissions.each do |user_data|
+      = render partial: "leaderboard_row", locals: { user_data: user_data }
