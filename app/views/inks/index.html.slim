@@ -19,7 +19,9 @@ div class="table-wrapper"
           td= ink.line_name
           td style="background-color:#{ink.color};width: 37px;"
           td= ink.ink_name
-          td= link_to "Details", brand_ink_path(ink.brand_cluster, ink)
+          td
+            - if ink.brand_cluster.present?
+              = link_to "Details", brand_ink_path(ink.brand_cluster, ink)
           - if user_signed_in?
             td
               div class="add-ink-button" data={ "macro-cluster-id" => ink.id }
