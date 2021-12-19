@@ -13,7 +13,8 @@ class FetchReviews
       CreateInkReviewSubmission.new(
         url: url,
         user: user,
-        macro_cluster: macro_cluster
+        macro_cluster: macro_cluster,
+        automatic: true,
       ).perform
     end
 
