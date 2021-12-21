@@ -1,6 +1,6 @@
 class InkReview < ApplicationRecord
   belongs_to :macro_cluster
-  has_many :ink_review_submissions
+  has_many :ink_review_submissions, dependent: :destroy
 
   paginates_per 1
 
