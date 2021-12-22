@@ -12,7 +12,7 @@
       td= ink_review.title
     tr
       td Description
-      td= ink_review.description
+      td= truncate(ink_review.description, length: 200)
     tr
       td URL
       td= link_to ink_review.url, ink_review.url, target: "_blank"
