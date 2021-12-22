@@ -65,7 +65,7 @@ div class="row details"
                   = URI(ink_review.url).host
                   - if ink_review.author
                     = " | #{ink_review.author}"
-                div class="description"= ink_review.description
+                div class="description"= truncate(ink_review.description, length: 200)
               div class="col-xs-12 col-sm-6"
                 = image_tag ink_review.image
 

@@ -88,11 +88,6 @@ describe ProcessInkReviewSubmission do
         { image: ["can't be blank"] }.to_json
       )
     end
-
-    it 'saves the html for future debugging' do
-      described_class.new.perform(ink_review_submission.id)
-      expect(ink_review_submission.reload.html).to eq(content.read)
-    end
   end
 
   context 'no url found' do

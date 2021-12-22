@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe Unfurler do
+describe Unfurler::Html do
   subject { described_class.new(html).perform }
 
   context 'full example file' do

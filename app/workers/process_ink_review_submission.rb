@@ -21,7 +21,6 @@ class ProcessInkReviewSubmission
     else
       ink_review_submission.update(
         unfurling_errors: ink_review.errors.messages.to_json,
-        html: html
       )
     end
   end
@@ -30,31 +29,13 @@ class ProcessInkReviewSubmission
 
   attr_accessor :ink_review_submission
 
-  delegate :title, :description, :image, :author, to: :page_data
-
-  def url
-    page_data.url.presence || ink_review_submission.url
-  end
+  delegate :url, :title, :description, :image, :author, to: :page_data
 
   def macro_cluster
     ink_review_submission.macro_cluster
   end
 
   def page_data
-    @page_data ||= Unfurler.new(html).perform
-  end
-
-  def html
-    @html ||= begin
-      connection = Faraday.new do |c|
-        c.response :follow_redirects
-        c.response :raise_error
-      end
-      connection.get(url_to_unfurl).body
-    end
-  end
-
-  def url_to_unfurl
-    URI(ink_review_submission.url)
+    @page_data ||= Unfurler.new(ink_review_submission.url).perform
   end
 end

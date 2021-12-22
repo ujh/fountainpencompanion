@@ -1,48 +1,41 @@
 class Unfurler
   Result = Struct.new(:url, :title, :description, :image, :author)
 
-  def initialize(string_or_io)
-    self.document = Nokogiri::HTML(string_or_io)
+  def initialize(url)
+    self.uri = URI(url)
   end
 
   def perform
-    Result.new(url, title, description, image, author)
+    result = unfurler.perform
+    result.url ||= uri.to_s
+    result
   end
 
   private
 
-  attr_accessor :document
+  attr_accessor :uri
 
-  def url
-    url = document.at_css('meta[property="og:url"]')&.attribute('content')&.value
-    url ||= document.at_css('meta[itemprop="url"]')&.attribute('content')&.value
-    url ||= document.at_css('meta[name="twitter:url"]')&.attribute('content')&.value
-    url ||= document.at_css('link[rel="canonical"]')&.attribute('href')&.value
+  def unfurler
+    if youtube?
+      Unfurler::Youtube.new(video_id)
+    else
+      Unfurler::Html.new(html)
+    end
   end
 
-  def title
-    title = document.at_css('meta[property="og:title"]')&.attribute('content')&.value
-    title ||= document.at_css('meta[itemprop="name"]')&.attribute('content')&.value
-    title ||= document.at_css('meta[name="twitter:title"]')&.attribute('content')&.value
-    title ||= document.at_css('title')&.inner_html
+  def youtube?
+    uri.host =~ /youtube.com/
   end
 
-  def description
-    description = document.at_css('meta[property="og:description"]')&.attribute('content')&.value
-    description ||= document.at_css('meta[itemprop="description"]')&.attribute('content')&.value
-    description ||= document.at_css('meta[name="twitter:description"]')&.attribute('content')&.value
-    description ||= document.at_css('meta[name="description"]')&.attribute('content')&.value
+  def video_id
+    Rack::Utils.parse_query(uri.query)['v']
   end
 
-  def image
-    image = document.at_css('meta[property="og:image"]')&.attribute('content')&.value
-    image ||= document.at_css('meta[itemprop="image"]')&.attribute('content')&.value
-    image ||= document.at_css('meta[name="twitter:image"]')&.attribute('content')&.value
-    image ||= document.at_css('link[rel="image_src"]')&.attribute('href')&.value
-  end
-
-  def author
-    author = document.at_css('meta[itemprop="author"]')&.attribute('content')&.value
-    author ||= document.at_css('link[itemprop="name"]')&.attribute('content')&.value
+  def html
+    connection = Faraday.new do |c|
+      c.response :follow_redirects
+      c.response :raise_error
+    end
+    connection.get(uri).body
   end
 end
