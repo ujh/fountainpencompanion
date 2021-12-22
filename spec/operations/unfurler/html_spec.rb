@@ -154,4 +154,28 @@ describe Unfurler::Html do
       expect(subject.author).to eq('The Inked Well')
     end
   end
+
+  context 'anderson' do
+    let(:html) { file_fixture('anderson.html') }
+
+    it 'extracts the url' do
+      expect(subject.url).to eq('https://blog.andersonpens.com/sailor-miruai-ink-review/')
+    end
+
+    it 'extracts the title' do
+      expect(subject.title).to eq('thINKthursday – Sailor Miruai Ink Review | Anderson Pens Blog')
+    end
+
+    it 'extracts the description' do
+      expect(subject.description).to eq(nil)
+    end
+
+    it 'extracts the image' do
+      expect(subject.image).to eq('http://blog.andersonpens.com/wp-content/uploads/2016/05/InkReview_Sailor_Miruai_Full.jpg')
+    end
+
+    it 'extracts the author' do
+      expect(subject.author).to eq(nil)
+    end
+  end
 end

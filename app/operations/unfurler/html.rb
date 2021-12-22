@@ -24,6 +24,7 @@ class Unfurler
       title ||= document.at_css('meta[itemprop="name"]')&.attribute('content')&.value
       title ||= document.at_css('meta[name="twitter:title"]')&.attribute('content')&.value
       title ||= document.at_css('title')&.inner_html
+      title&.strip
     end
 
     def description
@@ -38,6 +39,7 @@ class Unfurler
       image ||= document.at_css('meta[itemprop="image"]')&.attribute('content')&.value
       image ||= document.at_css('meta[name="twitter:image"]')&.attribute('content')&.value
       image ||= document.at_css('link[rel="image_src"]')&.attribute('href')&.value
+      image ||= document.css('#main img')&.first&.attribute('src')&.value
     end
 
     def author
