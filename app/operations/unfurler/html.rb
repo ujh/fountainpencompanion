@@ -40,6 +40,7 @@ class Unfurler
       image ||= document.at_css('meta[name="twitter:image"]')&.attribute('content')&.value
       image ||= document.at_css('link[rel="image_src"]')&.attribute('href')&.value
       image ||= document.css('#main img')&.first&.attribute('src')&.value
+      image ||= document.css('main .cPost_contentWrap img')&.first&.attribute('data-src')&.value
     end
 
     def author

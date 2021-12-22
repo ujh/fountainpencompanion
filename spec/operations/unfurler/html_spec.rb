@@ -178,4 +178,29 @@ describe Unfurler::Html do
       expect(subject.author).to eq(nil)
     end
   end
+
+  context 'fpn' do
+    let(:html) { file_fixture('fpn.html') }
+
+    it 'extracts the url' do
+      expect(subject.url).to eq('https://www.fountainpennetwork.com/forum/topic/217856-de-atramentis-sherlock-holmes/')
+    end
+
+    it 'extracts the title' do
+      expect(subject.title).to eq('De Atramentis Sherlock Holmes')
+    end
+
+    it 'extracts the description' do
+      expect(subject.description).to eq("Here is a quick review of De Atramentis Sherlock Holmes, which is called Night Blue. It's a very nice dark blue, fairly wet and with some nice shading. I really like it I'm not entirely happy with the scan. The inks are all slightly more vibrant and darker than they appear here. I'm not sure how ...")
+    end
+
+    it 'extracts the image' do
+      expect(subject.image).to eq('https://www.fountainpennetwork.com/forum/uploads/imgs/fpn_1332727197__sherlock_holmes_1_copy.jpg')
+    end
+
+    it 'extracts the author' do
+      expect(subject.author).to eq(nil)
+    end
+  end
+
 end
