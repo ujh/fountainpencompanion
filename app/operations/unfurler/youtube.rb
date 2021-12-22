@@ -5,12 +5,16 @@ class Unfurler
     end
 
     def perform
-      Result.new(nil, title, description, image, author)
+      Result.new(url, title, description, image, author)
     end
 
     private
 
     attr_accessor :video_id
+
+    def url
+      "https://www.youtube.com/watch?#{{v: video_id}.to_query}"
+    end
 
     def title
       video.snippet.title
