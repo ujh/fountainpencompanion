@@ -43,6 +43,10 @@ class Unfurler
       # FPN
       image ||= document.css('main .cPost_contentWrap img')&.first&.attribute('data-src')&.value
       image ||= document.css('article img')&.first&.attribute('src')&.value
+
+      image = nil if image && URI(image).host.blank?
+
+      image
     end
 
     def author
