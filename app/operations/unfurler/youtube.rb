@@ -25,7 +25,8 @@ class Unfurler
     end
 
     def image
-      video.snippet.thumbnails.default.url
+      thumbnails = video.snippet.thumbnails
+      (thumbnails.maxres || thumbnails.default).url
     end
 
     def author
