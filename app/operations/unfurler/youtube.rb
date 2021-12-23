@@ -26,7 +26,8 @@ class Unfurler
 
     def image
       thumbnails = video.snippet.thumbnails
-      (thumbnails.maxres || thumbnails.default).url
+      t = [:maxres, :standard, :medium, :high, :default].find {|t| thumbnails.send(t) }
+      thumbnails.send(t).url
     end
 
     def author
