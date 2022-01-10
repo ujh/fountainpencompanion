@@ -31,6 +31,7 @@ class FetchReviews
       'UCNCL45NnxiFKOoXB8sy6OYA', # The Inked Well
       'UClEwjXhW8IekvkQlg2KZzAw', # Mike Matteson
       'UCMyv8yHpaI6_KGHvq0TttOw', # An Ink Guy
+      'UCbIT8Rc2HNrdC2VMjqyKWdg', # Chris Saenz
     ]
   end
 end
