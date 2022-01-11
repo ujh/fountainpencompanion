@@ -32,6 +32,7 @@ class FetchReviews
       'UClEwjXhW8IekvkQlg2KZzAw', # Mike Matteson
       'UCMyv8yHpaI6_KGHvq0TttOw', # An Ink Guy
       'UCbIT8Rc2HNrdC2VMjqyKWdg', # Chris Saenz
+      'UCx_N2ZoaMXpxWkCRYAKWObw', # What I Ink
     ]
   end
 end
