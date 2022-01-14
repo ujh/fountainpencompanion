@@ -13,7 +13,15 @@ class AssignMicroCluster
       if macro_cluster_id
         cluster.macro_cluster_id = macro_cluster_id
       else
-        AdminMailer.new_cluster.deliver_later
+        micro_cluster = MicroCluster.find_by(
+          simplified_brand_name: collected_ink.simplified_brand_name,
+          simplified_ink_name: collected_ink.simplified_ink_name
+        )
+        if micro_cluster
+          cluster.macro_cluster_id = micro_cluster.macro_cluster_id
+        else
+          AdminMailer.new_cluster.deliver_later
+        end
       end
     end
     collected_ink.update!(micro_cluster: cluster)
