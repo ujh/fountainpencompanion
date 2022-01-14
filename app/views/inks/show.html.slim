@@ -51,17 +51,23 @@ div class="row details"
           = f.input :url, as: :string, hint: "Enter the URL of the review you would like to submit", label: false
           = f.submit "Submit a review"
 
-- if @ink.ink_reviews.exists?
+- if @ink.approved_ink_reviews.exists?
   h2 Reviews
   div class="reviews"
-    - @ink.ink_reviews.each do |ink_review|
-      div class="review row"
-        div class="col-xs-12 col-sm-6"
-          = link_to ink_review.title, ink_review.url
-          div class="domain"= URI(ink_review.url).host
-          div class="description"= ink_review.description
-        div class="col-xs-12 col-sm-6"
-          = image_tag ink_review.image
+    -@ink.approved_ink_reviews.in_groups_of(2, false) do |group|
+      div class="row"
+        - group.each do |ink_review|
+          div class="col-xs-12 col-sm-6"
+            div class="review row"
+              div class="col-xs-12 col-sm-6"
+                = link_to ink_review.title, ink_review.url
+                div class="source"
+                  = URI(ink_review.url).host
+                  - if ink_review.author
+                    = " | #{ink_review.author}"
+                div class="description"= truncate(ink_review.description, length: 200)
+              div class="col-xs-12 col-sm-6"
+                = image_tag ink_review.image
 
 
 

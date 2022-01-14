@@ -4,8 +4,9 @@ describe CreateInkReviewSubmission do
   let(:user) { create(:user) }
   let(:macro_cluster) { create(:macro_cluster) }
   let(:url) { 'http://example.com' }
+  let(:automatic) { false }
 
-  subject { described_class.new(user: user, macro_cluster: macro_cluster, url: url) }
+  subject { described_class.new(user: user, macro_cluster: macro_cluster, url: url, automatic: false) }
 
   it 'saves the submission' do
     expect do
@@ -36,5 +37,45 @@ describe CreateInkReviewSubmission do
     expect do
       described_class.new(user: nil, macro_cluster: nil, url: nil).perform
     end.not_to change(ProcessInkReviewSubmission.jobs, :count)
+  end
+
+  it 'schedules the processing job even if the submission already exists' do
+    submission = create(:ink_review_submission)
+    expect do
+      described_class.new(
+        user: submission.user,
+        macro_cluster: submission.macro_cluster,
+        url: submission.url,
+      ).perform
+    end.to change(ProcessInkReviewSubmission.jobs, :count).by(1)
+  end
+
+  context 'automatic review' do
+    let(:automatic) { true }
+
+    it 'saves the submission' do
+      expect do
+        subject.perform
+      end.to change(InkReviewSubmission, :count).by(1)
+    end
+
+    it 'schedules the processing job' do
+      expect do
+        subject.perform
+      end.to change(ProcessInkReviewSubmission.jobs, :count).by(1)
+    end
+
+    it 'does not schedule the processing job if the submission already exists' do
+      submission = create(:ink_review_submission)
+      expect do
+        described_class.new(
+          user: submission.user,
+          macro_cluster: submission.macro_cluster,
+          url: submission.url,
+          automatic: true,
+        ).perform
+      end.not_to change(ProcessInkReviewSubmission.jobs, :count)
+    end
+
   end
 end

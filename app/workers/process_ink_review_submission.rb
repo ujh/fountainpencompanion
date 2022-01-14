@@ -3,28 +3,39 @@ class ProcessInkReviewSubmission
 
   def perform(id)
     self.ink_review_submission = InkReviewSubmission.find(id)
-    result = unfurl
-    ink_review = InkReview.find_or_create_by!(url: result.url, macro_cluster: ink_review_submission.macro_cluster) do |ink_review|
-      ink_review.title = unfurl.title
-      ink_review.description = unfurl.description
-      ink_review.image = unfurl.image
+
+    ink_review = InkReview.find_or_initialize_by(url: url, macro_cluster: macro_cluster) do |ink_review|
+      ink_review.title = title
+      ink_review.description = description
+      ink_review.image = image
+      ink_review.author = author
     end
-    ink_review_submission.update(ink_review: ink_review)
+    if ink_review.save
+      ink_review.update(rejected_at: nil)
+      ink_review_submission.update(
+        ink_review: ink_review,
+        unfurling_errors: nil,
+        html: nil
+      )
+      ink_review.auto_approve! if (ink_review.ink_review_submissions.size > 1)
+    else
+      ink_review_submission.update(
+        unfurling_errors: ink_review.errors.messages.to_json,
+      )
+    end
   end
 
   private
 
   attr_accessor :ink_review_submission
 
-  def unfurl
-    Unfurler.new(html).perform
+  delegate :url, :title, :description, :image, :author, to: :page_data
+
+  def macro_cluster
+    ink_review_submission.macro_cluster
   end
 
-  def html
-    Net::HTTP.get(url_to_unfurl)
-  end
-
-  def url_to_unfurl
-    URI(ink_review_submission.url)
+  def page_data
+    @page_data ||= Unfurler.new(ink_review_submission.url).perform
   end
 end

@@ -132,7 +132,7 @@ class CollectedInk < ApplicationRecord
   end
 
   def color=(value)
-    super(value.strip)
+    super(value.strip) if value.strip != cluster_color
   end
 
   def name

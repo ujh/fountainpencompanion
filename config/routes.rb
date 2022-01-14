@@ -78,6 +78,11 @@ Rails.application.routes.draw do
 
   resources :users, only: [:index, :show]
 
+  resources :reviews, only: [] do
+    collection do
+      get 'missing'
+    end
+  end
   namespace :admins do
     resource :dashboard, only: [:show]
     resources :users, only: [:index, :show, :update] do
@@ -105,9 +110,6 @@ Rails.application.routes.draw do
       end
     end
     resources :reviews, only: [:index, :update, :destroy] do
-      collection do
-        get 'missing'
-      end
     end
   end
 

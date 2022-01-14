@@ -1,0 +1,13 @@
+- content_for :title, "Review Submissions Leaderboard"
+div class="leaderboard"
+  div class="hint"
+    p
+      ' You can add reviews for all inks in the system. The most useful reviews to
+      ' add would however be those from
+      = link_to 'this list', missing_reviews_path
+      '  as none of the inks listed there have any review.
+    p Note that you need to be logged in if you want to add reviews.
+
+  ol
+    - LeaderBoard.ink_review_submissions.each do |user_data|
+      = render partial: "leaderboard_row", locals: { user_data: user_data }

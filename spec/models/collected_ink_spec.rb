@@ -201,5 +201,11 @@ describe CollectedInk do
       subject.cluster_color = '#bbb'
       expect(subject.color).to eq('#bbb')
     end
+
+    it 'does not save the color if it is the same as the cluster color' do
+      subject.cluster_color = '#aaa'
+      subject.color = '#aaa'
+      expect(subject.read_attribute(:color)).to eq('')
+    end
   end
 end

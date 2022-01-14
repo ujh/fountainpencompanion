@@ -21,12 +21,6 @@ class InksController < ApplicationController
   private
 
   def full_text_cluster_search
-    # These are ordered by rank!
-    mc_ids = CollectedInk.search(params[:q]).where(private: false).joins(
-      micro_cluster: :macro_cluster
-    ).pluck('macro_clusters.id').uniq
-    MacroCluster.where(id: mc_ids).sort_by do |mc|
-      mc_ids.index(mc.id)
-    end
+    MacroCluster.full_text_search(params[:q])
   end
 end

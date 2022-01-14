@@ -14,7 +14,11 @@ nav class="navbar navbar-default" id="header"
         li= link_to "Brands", brands_path
         li= link_to "Leaderboards", page_path("leaderboards")
         li= link_to "Blog", blog_index_path
-        li= link_to "Community", "https://community.fpc.ink"
+        li class="dropdown"
+          a href="#" class="dropdown-toggle" data-toggle="dropdown" Community
+          ul class="dropdown-menu"
+            li= link_to "Forum", "https://community.fpc.ink"
+            li= link_to "Missing Reviews", missing_reviews_path
       ul class="nav navbar-nav navbar-right"
         - if user_signed_in?
           li= link_to "Currently Inked", currently_inked_index_path

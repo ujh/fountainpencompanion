@@ -428,7 +428,9 @@ CREATE TABLE public.ink_review_submissions (
     user_id bigint NOT NULL,
     ink_review_id bigint,
     created_at timestamp(6) without time zone NOT NULL,
-    updated_at timestamp(6) without time zone NOT NULL
+    updated_at timestamp(6) without time zone NOT NULL,
+    unfurling_errors text,
+    html text
 );
 
 
@@ -465,7 +467,10 @@ CREATE TABLE public.ink_reviews (
     rejected_at timestamp without time zone,
     approved_at timestamp without time zone,
     created_at timestamp(6) without time zone NOT NULL,
-    updated_at timestamp(6) without time zone NOT NULL
+    updated_at timestamp(6) without time zone NOT NULL,
+    host text,
+    author text,
+    auto_approved boolean DEFAULT false
 );
 
 
@@ -1554,6 +1559,12 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20211203095418'),
 ('20211203101004'),
 ('20211203123031'),
-('20211203132510');
+('20211203132510'),
+('20211205123842'),
+('20211210105355'),
+('20211211155425'),
+('20211213131530'),
+('20211217111324'),
+('20211222103755');
 
 

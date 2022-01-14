@@ -35,7 +35,6 @@ class AdminStats
     collected_inks_with_macro_cluster*100.0/collected_inks_count
   end
 
-
   def user_count
     @user_count ||= User.active.count
   end
@@ -106,5 +105,13 @@ class AdminStats
 
   def unassigned_macro_cluster_count
     MacroCluster.unassigned.count
+  end
+
+  def macro_clusters_without_review_count
+    @macro_clusters_without_review_count ||= MacroCluster.without_review.count
+  end
+
+  def macro_clusters_without_reviews_percentage
+    macro_clusters_without_review_count*100.0/macro_cluster_count
   end
 end

@@ -1,0 +1,22 @@
+- content_for :title, "Missing reviews"
+- content_for :subtitle do
+  = number_to_percentage(AdminStats.new.macro_clusters_without_reviews_percentage, precision: 2)
+  |  inks without review
+
+div class='hint'
+  p
+    ' All of the inks listed here do not have any reviews.
+    ' If you have the time, it would be great if you could add some!
+
+= paginate @macro_clusters
+
+table class="table table-striped"
+  tr
+    th User count
+    th Ink
+  - @macro_clusters.each do |macro_cluster|
+    tr
+      td= macro_cluster.ci_count
+      td= link_to macro_cluster.name, ink_path(macro_cluster), target: "_blank"
+
+= paginate @macro_clusters

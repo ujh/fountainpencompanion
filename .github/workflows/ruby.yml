@@ -16,27 +16,37 @@ on:
 jobs:
   rspec:
     env:
-      DATABASE_URL: postgres://test:test@localhost/fountainpencompanion_test
+      RAILS_ENV: test
+      PGUSER: test
+      PGHOST: localhost
+      PGPORT: 5432
+      DATABASE_URL: postgres://test@localhost/fountainpencompanion_test
 
     runs-on: ubuntu-latest
 
+    services:
+      postgres:
+        image: postgres:13.3-alpine
+        env:
+          POSTGRES_USER: test
+          POSTGRES_DB: fountainpencompanion_test
+          POSTGRES_HOST_AUTH_METHOD: trust
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
     steps:
     - uses: actions/checkout@v2.4.0
     - name: Install correct Node version
-      uses: actions/setup-node@v2.5.0
+      uses: actions/setup-node@v2.5.1
       with:
         node-version: '14.17.6'
-    - name: Set up Postgres
-      uses: harmon758/postgresql-action@v1
-      with:
-        postgresql version: '12'
-        postgresql db: fountainpencompanion_test
-        postgresql user: test
-        postgresql password: test
     - name: Set up Ruby
       uses: ruby/setup-ruby@v1
       with:
-        ruby-version: ${{ matrix.ruby-version }}
         bundler-cache: true # runs 'bundle install' and caches installed gems automatically
     - name: Install JS dependencies
       run: yarn install
@@ -54,7 +64,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2.4.0
     - name: Install correct Node version
-      uses: actions/setup-node@v2.5.0
+      uses: actions/setup-node@v2.5.1
       with:
         node-version: '14.17.6'
     - name: Install JS dependencies

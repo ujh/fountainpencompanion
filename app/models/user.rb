@@ -5,13 +5,14 @@ class User < ApplicationRecord
   # Include default devise modules. Others available are:
   # :confirmable, :lockable, :timeoutable and :omniauthable
   devise :database_authenticatable, :registerable, :confirmable,
-         :recoverable, :rememberable, :timeoutable, :trackable, :validatable
+         :recoverable, :rememberable, :trackable, :validatable
 
   has_many :currently_inkeds, dependent: :destroy
   has_many :collected_inks, dependent: :delete_all
   has_many :collected_pens, dependent: :delete_all
   has_many :usage_records, through: :currently_inkeds
   has_many :reading_statuses, dependent: :destroy
+  has_many :ink_review_submissions, dependent: :nullify
 
   validates :name, length: { in: 1..100, allow_blank: true }
 

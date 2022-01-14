@@ -1,13 +1,32 @@
 class MacroCluster < ApplicationRecord
   has_many :micro_clusters, dependent: :nullify
   has_many :collected_inks, through: :micro_clusters
-  has_many :ink_reviews
+  has_many :ink_reviews, dependent: :destroy
   belongs_to :brand_cluster, optional: true
 
   paginates_per 100
 
   scope :unassigned, -> { where(brand_cluster_id: nil) }
-  scope :without_review, -> { left_joins(:ink_reviews).where('ink_reviews.id IS NULL') }
+
+  def self.without_review
+    MacroCluster.find_by_sql(<<~SQL)
+      WITH no_reviews AS (
+        SELECT macro_clusters.*
+        FROM macro_clusters
+        LEFT OUTER JOIN ink_reviews ON macro_clusters.id = ink_reviews.macro_cluster_id
+        WHERE ink_reviews.id IS NULL
+      ),
+      only_rejected_reviews AS (
+        SELECT macro_clusters.* FROM macro_clusters
+        JOIN ink_reviews ON macro_clusters.id = ink_reviews.macro_cluster_id
+        GROUP BY macro_clusters.id
+        HAVING EVERY(ink_reviews.rejected_at IS NOT NULL)
+      )
+      SELECT * FROM no_reviews
+      UNION
+      SELECT * FROM only_rejected_reviews
+    SQL
+  end
 
   def self.search(query)
     return self if query.blank?
@@ -44,6 +63,20 @@ class MacroCluster < ApplicationRecord
     joins(micro_clusters: :collected_inks).where(
       collected_inks: { private: false }
     ).group("macro_clusters.id")
+  end
+
+  def self.full_text_search(term)
+    # These are ordered by rank!
+    mc_ids = CollectedInk.search(term).where(private: false).joins(
+      micro_cluster: :macro_cluster
+    ).pluck('macro_clusters.id').uniq
+    MacroCluster.where(id: mc_ids).sort_by do |mc|
+      mc_ids.index(mc.id)
+    end
+  end
+
+  def approved_ink_reviews
+    ink_reviews.approved
   end
 
   def public_collected_inks_count

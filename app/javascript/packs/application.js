@@ -18,6 +18,7 @@ import "../src/color-picker";
 import "../src/collected_inks";
 import "../src/dashboard";
 import "../src/add-ink-button";
+import "../src/ink-search-hint";
 import { renderFriendButton } from "../src/friends";
 import renderPublicInks from "../src/public_inks";
 import setTimeZone from "../src/setTimeZone";
