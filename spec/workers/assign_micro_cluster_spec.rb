@@ -7,7 +7,9 @@ describe AssignMicroCluster do
     expect do
       subject.perform(collected_ink.id)
     end.to change { MicroCluster.count }.by(1)
-    expect(collected_ink.reload.micro_cluster).to eq(MicroCluster.last)
+    cluster = MicroCluster.last
+    expect(collected_ink.reload.micro_cluster).to eq(cluster)
+    expect(cluster.macro_cluster).to eq(nil)
   end
 
   it 'reuses an existing cluster' do
@@ -21,5 +23,14 @@ describe AssignMicroCluster do
       subject.perform(collected_ink.id)
     end.to_not change { MicroCluster.count }
     expect(collected_ink.reload.micro_cluster).to eq(cluster)
+  end
+
+  it 'uses the macro cluster id if supplied' do
+    macro_cluster = create(:macro_cluster)
+    expect do
+      subject.perform(collected_ink.id, macro_cluster.id)
+    end.to change { MicroCluster.count }.by(1)
+    cluster = MicroCluster.last
+    expect(cluster.macro_cluster).to eq(macro_cluster)
   end
 end
