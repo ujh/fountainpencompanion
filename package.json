@@ -32,7 +32,7 @@
   },
   "devDependencies": {
     "jest": "^27.4.3",
-    "webpack-dev-server": "^3"
+    "webpack-dev-server": "^4"
   },
   "engines": {
     "node": "14.17.6",
