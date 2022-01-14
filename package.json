@@ -8,7 +8,7 @@
     "d3-scale-chromatic": "^3.0.0",
     "fast-levenshtein": "^3.0.0",
     "highcharts": "^9.3.2",
-    "highcharts-react-official": "^3.0.0",
+    "highcharts-react-official": "^3.1.0",
     "jsona": "^1.9.5",
     "jstz": "^2.1.1",
     "lodash": "^4.17.21",
