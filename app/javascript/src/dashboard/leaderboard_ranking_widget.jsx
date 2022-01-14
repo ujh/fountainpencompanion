@@ -13,7 +13,8 @@ export const LeaderboardRankingWidget = () => (
 
 const LeaderboardRankingWidgetContent = () => {
   const { data } = useContext(WidgetDataContext);
-  const { inks, bottles, samples, brands } = data.attributes;
+  const { inks, bottles, samples, brands, ink_review_submissions } =
+    data.attributes;
   return (
     <>
       <p>
@@ -32,6 +33,34 @@ const LeaderboardRankingWidgetContent = () => {
         You are in <b>{brands}.</b> place in the{" "}
         <a href="/pages/brands_leaderboard">brands</a> leaderboard.
       </p>
+      <InkReviewSubmissionsContent rank={ink_review_submissions} />
     </>
   );
+};
+
+const InkReviewSubmissionsContent = ({ rank }) => {
+  if (rank) {
+    return (
+      <p>
+        You are in <b>{rank}.</b> place in the{" "}
+        <a href="/pages/ink_review_submissions_leaderboard">
+          ink review submissions
+        </a>{" "}
+        leaderboard.
+      </p>
+    );
+  } else {
+    return (
+      <p>
+        <b>
+          Submit at least one ink review to appear on the{" "}
+          <a href="/pages/ink_review_submissions_leaderboard">
+            ink review submissions
+          </a>{" "}
+          leaderboard. You can either submit a review to any ink you own or pick
+          <a href="/reviews/missing"> one of the inks that have no reviews</a>.
+        </b>
+      </p>
+    );
+  }
 };
