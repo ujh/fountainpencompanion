@@ -28,7 +28,7 @@
     "react-table-6": "^6.11.0",
     "recharts": "^2.1.8",
     "webpack": "^4.46.0",
-    "webpack-cli": "^3.3.12",
+    "webpack-cli": "^4.9.1",
     "whatwg-fetch": "^3.6.2"
   },
   "devDependencies": {
