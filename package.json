@@ -31,7 +31,7 @@
     "whatwg-fetch": "^3.6.2"
   },
   "devDependencies": {
-    "jest": "^27.4.3",
+    "jest": "^27.4.7",
     "webpack-dev-server": "^3"
   },
   "engines": {
