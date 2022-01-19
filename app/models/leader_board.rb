@@ -28,7 +28,8 @@ class LeaderBoard
 
   def self.ink_review_submissions(force: false)
     Rails.cache.fetch("LeaderBoard#ink_review_submissions", force: force) do
-      relation = User.joins(:ink_review_submissions)
+      relation = User.where('users.id <> 1')
+        .joins(:ink_review_submissions)
         .select("users.*, count(*) as counter")
         .group("users.id").order("counter DESC")
       extract(relation)
