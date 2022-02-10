@@ -188,7 +188,7 @@ GEM
     heapy (0.2.0)
       thor
     httpclient (2.8.3)
-    i18n (1.8.11)
+    i18n (1.9.1)
       concurrent-ruby (~> 1.0)
     jbuilder (2.11.5)
       actionview (>= 5.0.0)
@@ -406,8 +406,8 @@ GEM
       activesupport (>= 5.2)
       sprockets (>= 3.0.0)
     statsd-ruby (1.5.0)
-    strong_migrations (0.7.9)
-      activerecord (>= 5)
+    strong_migrations (0.8.0)
+      activerecord (>= 5.2)
     temple (0.8.2)
     thor (1.1.0)
     thwait (0.2.0)
@@ -439,7 +439,7 @@ GEM
     websocket-driver (0.7.5)
       websocket-extensions (>= 0.1.0)
     websocket-extensions (0.1.5)
-    zeitwerk (2.5.3)
+    zeitwerk (2.5.4)
 
 PLATFORMS
   ruby
