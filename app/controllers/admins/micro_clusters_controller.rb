@@ -36,8 +36,9 @@ class Admins::MicroClustersController < Admins::BaseController
 
   def unassign
     cluster = MicroCluster.find(params[:id])
+    macro_cluster_id = cluster.macro_cluster_id
     cluster.update!(macro_cluster_id: nil)
-    UpdateMicroCluster.perform_async(cluster.id)
+    UpdateMacroCluster.perform_async(macro_cluster_id)
     head :ok
   end
 

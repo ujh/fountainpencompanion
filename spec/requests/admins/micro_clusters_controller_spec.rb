@@ -113,4 +113,29 @@ describe Admins::MicroClustersController do
       end
     end
   end
+
+  describe '#unassign' do
+    let!(:macro_cluster) { create(:macro_cluster) }
+    let!(:micro_cluster) { create(:micro_cluster, macro_cluster: macro_cluster) }
+
+    before(:each) do
+      sign_in(admin)
+    end
+
+    it 'unassigns it from the macro cluster' do
+      expect do
+        delete "/admins/micro_clusters/#{micro_cluster.id}/unassign"
+        expect(response).to be_successful
+      end.to change { micro_cluster.reload.macro_cluster_id}.from(macro_cluster.id).to(nil)
+    end
+
+    it 'schedules a recalculation of the macro cluster data' do
+      expect do
+        delete "/admins/micro_clusters/#{micro_cluster.id}/unassign"
+        expect(response).to be_successful
+      end.to change { UpdateMacroCluster.jobs.count }.from(0).to(1)
+      job = UpdateMacroCluster.jobs.first
+      expect(job['args']).to eq([macro_cluster.id])
+    end
+  end
 end
