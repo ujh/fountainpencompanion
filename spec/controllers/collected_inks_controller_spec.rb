@@ -54,7 +54,8 @@ describe CollectedInksController do
             "Comment",
             "Private Comment",
             "Archived",
-            "Usage"
+            "Usage",
+            "Tags"
           ]
           user_inks.each do |ci|
             csv << [
@@ -68,7 +69,8 @@ describe CollectedInksController do
               ci.comment,
               ci.private_comment,
               ci.archived?,
-              ci.currently_inkeds.count
+              ci.currently_inkeds.count,
+              ci.tags_as_string
             ]
           end
         end

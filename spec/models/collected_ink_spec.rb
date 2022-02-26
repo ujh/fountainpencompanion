@@ -122,14 +122,24 @@ describe CollectedInk do
   end
 
   describe '#to_csv' do
-    let(:collected_ink) { create(:collected_ink, brand_name: 'Robert Oster', line_name: 'Signature', ink_name: 'Fire & Ice', kind: 'bottle', color: '#cdcdcd') }
+    let(:collected_ink) do
+      create(
+        :collected_ink,
+        brand_name: 'Robert Oster',
+        line_name: 'Signature',
+        ink_name: 'Fire & Ice',
+        kind: 'bottle',
+        color: '#cdcdcd',
+        tags_as_string: "one, two"
+      )
+    end
     let(:csv) do
       CSV.parse(CollectedInk.where(id: [collected_ink.id]).to_csv, headers: true, col_sep: ";")
     end
     let(:entry) { csv.first }
 
     it 'has a header row' do
-      expect(CollectedInk.none.to_csv).to eq("Brand;Line;Name;Type;Color;Swabbed;Used;Comment;Private Comment;Archived;Usage\n")
+      expect(CollectedInk.none.to_csv).to eq("Brand;Line;Name;Type;Color;Swabbed;Used;Comment;Private Comment;Archived;Usage;Tags\n")
     end
 
     it 'has the correct brand' do
@@ -186,6 +196,10 @@ describe CollectedInk do
         archived_on: Date.today
       )
       expect(entry['Usage']).to eq('2')
+    end
+
+    it 'has the correct tags' do
+      expect(entry['Tags']).to eq('one, two')
     end
   end
 
