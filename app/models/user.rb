@@ -175,6 +175,10 @@ class User < ApplicationRecord
     collected_inks.active
   end
 
+  def inks_without_reviews?
+    MacroCluster.without_review_of_user(self).count > 0
+  end
+
   private
 
   def possible_and_approved_friends

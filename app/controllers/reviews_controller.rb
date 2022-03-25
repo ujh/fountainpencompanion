@@ -6,9 +6,6 @@ class ReviewsController < ApplicationController
   end
 
   def my_missing
-    my_unreviewed_ids = MacroCluster.where(
-      id: unreviewed_ids
-    ).of_user(current_user).pluck(:id)
     @macro_clusters = sorted_clusters(my_unreviewed_ids)
   end
 
@@ -16,6 +13,10 @@ class ReviewsController < ApplicationController
 
   def unreviewed_ids
     MacroCluster.without_review.pluck(:id)
+  end
+
+  def my_unreviewed_ids
+    MacroCluster.without_review_of_user(current_user).pluck(:id)
   end
 
   def sorted_clusters(ids)
