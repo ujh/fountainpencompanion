@@ -28,9 +28,14 @@ class WidgetsController < ApplicationController
         count: current_user.collected_inks.active.count,
         used: current_user.collected_inks.active.where(used: true).count,
         swabbed: current_user.collected_inks.active.where(swabbed: true).count,
-        archived: current_user.collected_inks.archived.count
+        archived: current_user.collected_inks.archived.count,
+        inks_without_reviews: my_unreviewed_inks.count
       }
     end
+  end
+
+  def my_unreviewed_inks
+    MacroCluster.without_review_of_user(current_user)
   end
 
   def pens_summary_data

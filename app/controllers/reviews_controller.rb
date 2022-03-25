@@ -1,7 +1,26 @@
 class ReviewsController < ApplicationController
+  before_action :authenticate_user!, only: [:my_missing]
+
   def missing
-    unreviewed_ids = MacroCluster.without_review.pluck(:id)
-    @macro_clusters = MacroCluster.where(id: unreviewed_ids).joins(
+    @macro_clusters = sorted_clusters(unreviewed_ids)
+  end
+
+  def my_missing
+    @macro_clusters = sorted_clusters(my_unreviewed_ids)
+  end
+
+  private
+
+  def unreviewed_ids
+    MacroCluster.without_review.pluck(:id)
+  end
+
+  def my_unreviewed_ids
+    MacroCluster.without_review_of_user(current_user).pluck(:id)
+  end
+
+  def sorted_clusters(ids)
+    MacroCluster.where(id: ids).joins(
       micro_clusters: :collected_inks
     ).includes(
       :brand_cluster

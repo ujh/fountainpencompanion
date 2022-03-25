@@ -28,6 +28,21 @@ class MacroCluster < ApplicationRecord
     SQL
   end
 
+  def self.of_user(user)
+    joins(
+      :collected_inks
+    ).where(
+      collected_inks: { user_id: user.id, archived_on: nil }
+    )
+  end
+
+  def self.without_review_of_user(user)
+    unreviewed_ids = MacroCluster.without_review.pluck(:id)
+    MacroCluster.where(
+      id: unreviewed_ids
+    ).of_user(user)
+  end
+
   def self.search(query)
     return self if query.blank?
 
