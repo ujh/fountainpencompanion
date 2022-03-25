@@ -1,7 +1,13 @@
 class ReviewsController < ApplicationController
   def missing
     unreviewed_ids = MacroCluster.without_review.pluck(:id)
-    @macro_clusters = MacroCluster.where(id: unreviewed_ids).joins(
+    @macro_clusters = sorted_clusters(unreviewed_ids)
+  end
+
+  private
+
+  def sorted_clusters(ids)
+    MacroCluster.where(id: ids).joins(
       micro_clusters: :collected_inks
     ).includes(
       :brand_cluster
