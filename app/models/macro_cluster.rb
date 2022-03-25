@@ -28,6 +28,14 @@ class MacroCluster < ApplicationRecord
     SQL
   end
 
+  def self.of_user(user)
+    joins(
+      :collected_inks
+    ).where(
+      collected_inks: { user_id: user.id }
+    )
+  end
+
   def self.search(query)
     return self if query.blank?
 

@@ -81,6 +81,7 @@ Rails.application.routes.draw do
   resources :reviews, only: [] do
     collection do
       get 'missing'
+      get 'my_missing'
     end
   end
   namespace :admins do

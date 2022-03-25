@@ -1,16 +1,17 @@
-- content_for :title, "Missing reviews"
+- content_for :title, "Missing reviews of inks you own"
 - content_for :subtitle do
   = number_to_percentage(AdminStats.new.macro_clusters_without_reviews_percentage, precision: 2)
   |  inks without review
 
 div class='hint'
   p
-    ' All of the inks listed here do not have any reviews.
+    ' All of the inks listed here are inks
+    b that you own
+    '  and that do not have any reviews.
     ' If you have the time, it would be great if you could add some!
-    - if user_signed_in?
-      b
-        ' You can find a list of inks without reviews that you own
-        = link_to "here", my_missing_reviews_path
-        ' .
+    em
+      ' You can find the list of all inks without reviews
+      = link_to "here", missing_reviews_path
+      ' .
 
 = render 'missing_inks_table', {macro_clusters: @macro_clusters }
