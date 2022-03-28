@@ -24,7 +24,8 @@ class ProcessInkReviewSubmission
       )
     end
   rescue URI::InvalidURIError
-    ink_review.destroy if ink_review.persisted?
+    ink_review&.destroy
+    ink_review_submission&.destroy
   end
 
   private
