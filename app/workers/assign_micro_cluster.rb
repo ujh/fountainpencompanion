@@ -26,5 +26,7 @@ class AssignMicroCluster
     end
     collected_ink.update!(micro_cluster: cluster)
     UpdateMicroCluster.perform_async(cluster.id)
+  rescue ActiveRecord::RecordNotFound
+    # do nothing
   end
 end

@@ -23,6 +23,8 @@ class ProcessInkReviewSubmission
         unfurling_errors: ink_review.errors.messages.to_json,
       )
     end
+  rescue URI::InvalidURIError
+    ink_review.destroy if ink_review.persisted?
   end
 
   private
