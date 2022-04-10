@@ -25,14 +25,6 @@ class FetchReviews
   end
 
   def youtube_channels
-    [
-      'UCruW1x5gCc21b0khnEzrOgg', # Mick L
-      'UCZaWG7RkmQVLE0EmvfOuJ9w', # Inky Rocks
-      'UCNCL45NnxiFKOoXB8sy6OYA', # The Inked Well
-      'UClEwjXhW8IekvkQlg2KZzAw', # Mike Matteson
-      'UCMyv8yHpaI6_KGHvq0TttOw', # An Ink Guy
-      'UCbIT8Rc2HNrdC2VMjqyKWdg', # Chris Saenz
-      'UCx_N2ZoaMXpxWkCRYAKWObw', # What I Ink
-    ]
+    YoutubeChannel.channel_ids_for_reviews
   end
 end
