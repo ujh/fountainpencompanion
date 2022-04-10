@@ -23,6 +23,10 @@ class ProcessInkReviewSubmission
         unfurling_errors: ink_review.errors.messages.to_json,
       )
     end
+    if you_tube_channel_id
+      channel = YouTubeChannel.find_or_create_by(channel_id: you_tube_channel_id)
+      ink_review.update!(you_tube_channel: channel)
+    end
   rescue URI::InvalidURIError
     ink_review&.destroy
     ink_review_submission&.destroy
@@ -32,7 +36,7 @@ class ProcessInkReviewSubmission
 
   attr_accessor :ink_review_submission
 
-  delegate :url, :title, :description, :image, :author, to: :page_data
+  delegate :url, :title, :description, :image, :author, :you_tube_channel_id, to: :page_data
 
   def macro_cluster
     ink_review_submission.macro_cluster

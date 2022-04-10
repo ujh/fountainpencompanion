@@ -73,6 +73,50 @@ describe ProcessInkReviewSubmission do
     expect(InkReview.last.macro_cluster).to eq(ink_review_submission.macro_cluster)
   end
 
+  context 'YouTube' do
+    let(:ink_review_submission) do
+      create(:ink_review_submission, url: 'https://www.youtube.com/watch?v=09mpgUzVc5g')
+    end
+
+    before do
+      video_snippet = double(:snippet, {
+        title: 'title',
+        description: 'description',
+        thumbnails: double(:thumbnails, maxres: double(:t, url: 'url')),
+        channel_title: 'channel title',
+        channel_id: 'channel_id'
+      })
+      video = double(:video, snippet: video_snippet)
+      client = double(:client, list_videos: double(:videos, items: [video]))
+      allow_any_instance_of(Unfurler::Youtube).to receive(:client).and_return(client)
+    end
+
+    it 'creates the youtube channel if it does not exist' do
+      expect do
+        described_class.new.perform(ink_review_submission.id)
+      end.to change(YouTubeChannel, :count).by(1)
+      channel = YouTubeChannel.first
+      expect(channel.channel_id).to eq('channel_id')
+    end
+
+    it 'associates the review with the new youtube channel' do
+      described_class.new.perform(ink_review_submission.id)
+      channel = YouTubeChannel.first
+      review = InkReview.first
+      expect(review.you_tube_channel).to eq(channel)
+    end
+
+    it 'associates the review with the existing youtube channel' do
+      channel = create(:you_tube_channel, channel_id: 'channel_id')
+      expect do
+        described_class.new.perform(ink_review_submission.id)
+      end.not_to change(YouTubeChannel, :count)
+      review = InkReview.first
+      expect(review.you_tube_channel).to eq(channel)
+    end
+
+  end
+
   context 'no image tag found' do
     let(:content) { file_fixture("kobe-hatoba-blue-no-image.html") }
 
