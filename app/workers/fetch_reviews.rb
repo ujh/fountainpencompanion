@@ -25,6 +25,6 @@ class FetchReviews
   end
 
   def youtube_channels
-    YoutubeChannel.channel_ids_for_reviews
+    ::YouTubeChannel.channel_ids_for_reviews
   end
 end
