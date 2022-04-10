@@ -3,7 +3,7 @@ class FetchReviews
     include Sidekiq::Worker
 
     def perform(channel_id)
-      self.channel = YoutubeChannel.find_by!(channel_id: channel_id)
+      self.channel = YouTubeChannel.find_by!(channel_id: channel_id)
       import!
     end
 
