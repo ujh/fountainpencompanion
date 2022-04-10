@@ -5,7 +5,7 @@ class Unfurler
     end
 
     def perform
-      Result.new(url, title, description, image, author)
+      Result.new(url, title, description, image, author, channel_id)
     end
 
     private
@@ -14,6 +14,10 @@ class Unfurler
 
     def url
       "https://www.youtube.com/watch?#{{v: video_id}.to_query}"
+    end
+
+    def channel_id
+      video.snippet.channel_id
     end
 
     def title

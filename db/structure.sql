@@ -470,7 +470,8 @@ CREATE TABLE public.ink_reviews (
     updated_at timestamp(6) without time zone NOT NULL,
     host text,
     author text,
-    auto_approved boolean DEFAULT false
+    auto_approved boolean DEFAULT false,
+    you_tube_channel_id bigint
 );
 
 
@@ -726,6 +727,38 @@ ALTER SEQUENCE public.users_id_seq OWNED BY public.users.id;
 
 
 --
+-- Name: you_tube_channels; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.you_tube_channels (
+    id bigint NOT NULL,
+    channel_id character varying NOT NULL,
+    back_catalog_imported boolean DEFAULT false,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
+);
+
+
+--
+-- Name: you_tube_channels_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.you_tube_channels_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: you_tube_channels_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.you_tube_channels_id_seq OWNED BY public.you_tube_channels.id;
+
+
+--
 -- Name: admins id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -849,6 +882,13 @@ ALTER TABLE ONLY public.usage_records ALTER COLUMN id SET DEFAULT nextval('publi
 --
 
 ALTER TABLE ONLY public.users ALTER COLUMN id SET DEFAULT nextval('public.users_id_seq'::regclass);
+
+
+--
+-- Name: you_tube_channels id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.you_tube_channels ALTER COLUMN id SET DEFAULT nextval('public.you_tube_channels_id_seq'::regclass);
 
 
 --
@@ -1009,6 +1049,14 @@ ALTER TABLE ONLY public.usage_records
 
 ALTER TABLE ONLY public.users
     ADD CONSTRAINT users_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: you_tube_channels you_tube_channels_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.you_tube_channels
+    ADD CONSTRAINT you_tube_channels_pkey PRIMARY KEY (id);
 
 
 --
@@ -1271,6 +1319,13 @@ CREATE UNIQUE INDEX index_users_on_reset_password_token ON public.users USING bt
 
 
 --
+-- Name: index_you_tube_channels_on_channel_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_you_tube_channels_on_channel_id ON public.you_tube_channels USING btree (channel_id);
+
+
+--
 -- Name: unique_micro_clusters; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -1337,6 +1392,14 @@ ALTER TABLE ONLY public.macro_clusters
 
 ALTER TABLE ONLY public.ink_review_submissions
     ADD CONSTRAINT fk_rails_4ffd484639 FOREIGN KEY (user_id) REFERENCES public.users(id);
+
+
+--
+-- Name: ink_reviews fk_rails_5569a8a900; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.ink_reviews
+    ADD CONSTRAINT fk_rails_5569a8a900 FOREIGN KEY (you_tube_channel_id) REFERENCES public.you_tube_channels(id);
 
 
 --
@@ -1565,6 +1628,8 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20211211155425'),
 ('20211213131530'),
 ('20211217111324'),
-('20211222103755');
+('20211222103755'),
+('20220410080853'),
+('20220410081621');
 
 

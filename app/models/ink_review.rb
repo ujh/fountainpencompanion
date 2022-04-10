@@ -1,5 +1,6 @@
 class InkReview < ApplicationRecord
   belongs_to :macro_cluster
+  belongs_to :you_tube_channel, optional: true
   has_many :ink_review_submissions, dependent: :destroy
 
   paginates_per 1
