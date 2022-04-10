@@ -2,20 +2,31 @@ class FetchReviews
   class YoutubeChannel
     include Sidekiq::Worker
 
-    attr_accessor :channel_id
-
     def perform(channel_id)
-      self.channel_id = channel_id
+      self.channel = YoutubeChannel.find_by!(channel_id: channel_id)
       import!
     end
 
     private
 
+    attr_accessor :channel
+    delegate :channel_id, to: :channel
+
+
     def import!
-      client.fetch_videos.take(5).each do |video|
+      videos.each do |video|
         video = video.merge(search_term: video[:title])
         video = match(video)
         submit(video)
+      end
+    end
+
+    def videos
+      if channel.back_catalog_imported
+        client.fetch_videos.take(5)
+      else
+        channel.update!(back_catalog_imported: true)
+        client.fetch_videos
       end
     end
 
