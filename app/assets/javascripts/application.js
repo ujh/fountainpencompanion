@@ -43,6 +43,12 @@ $(function () {
 });
 
 $(function () {
+  $(".video").on("ajax:success", function () {
+    $(this).hide();
+  });
+});
+
+$(function () {
   $(".blog-alert").on("closed.bs.alert", function () {
     console.log(this);
     var url = "/reading_statuses/" + $(this).data("id");

@@ -1,0 +1,10 @@
+= content_for :title, "Videos for #{@cluster.name}"
+
+- @search_results.each do |video_id, data|
+  div.video data-video-id=video_id
+    h2.title= link_to data.title, data.url
+    em.channel= data.author
+    div.description=data.description
+    div.thumbnail
+      img src=data.image
+    = link_to "Add", add_admins_reviews_missing_path(@cluster.id, video_id: video_id), remote: true, method: :post, class: 'btn btn-default'

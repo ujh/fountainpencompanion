@@ -112,6 +112,13 @@ Rails.application.routes.draw do
     end
     resources :reviews, only: [:index, :update, :destroy] do
     end
+    namespace :reviews do
+      resources :missing, only: [:index, :show] do
+        member do
+          post 'add'
+        end
+      end
+    end
   end
 
   authenticate :admin do
