@@ -514,6 +514,7 @@ DEPENDENCIES
   simplecov-lcov
   slim
   slodown
+  sprockets-rails
   strong_migrations
   uglifier
   web-console
