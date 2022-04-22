@@ -17,9 +17,9 @@
     "postcss-smart-import": "^0.7.6",
     "prop-types": "^15.8.1",
     "rc-resize-observer": "^1.2.0",
-    "react": "^16.14.0",
+    "react": "^18.0.0",
     "react-color": "^2.19.3",
-    "react-dom": "^16.14.0",
+    "react-dom": "^18.0.0",
     "react-on-screen": "^2.1.1",
     "react-scroll-into-view-if-needed": "^2.1.7",
     "react-select": "^5.2.2",
@@ -31,7 +31,10 @@
     "whatwg-fetch": "^3.6.2"
   },
   "devDependencies": {
+    "@testing-library/jest-dom": "^5.16.4",
+    "@testing-library/react": "^13.1.1",
     "jest": "^27.5.1",
+    "msw": "^0.39.2",
     "webpack-dev-server": "^3"
   },
   "engines": {
@@ -51,6 +54,10 @@
     "modulePaths": [
       "<rootDir>/app/javascript/src"
     ],
+    "setupFilesAfterEnv": [
+      "<rootDir>/spec/javascript/support/setup.js"
+    ],
+    "testEnvironment": "jest-environment-jsdom",
     "testPathIgnorePatterns": [
       "/node_modules/",
       "<rootDir>/config/"

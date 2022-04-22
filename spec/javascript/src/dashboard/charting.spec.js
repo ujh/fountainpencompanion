@@ -1,4 +1,4 @@
-import { dataWithOtherEntry } from "./charting";
+import { dataWithOtherEntry } from "dashboard/charting";
 
 describe("dataWithOtherEntry", () => {
   it("combines the last 10% to an entry", () => {

@@ -1,3 +1,5 @@
+import "whatwg-fetch";
+
 export function deleteRequest(path) {
   return request(path, "DELETE");
 }
@@ -20,11 +22,11 @@ function request(path, method, body) {
     method: method,
     body: JSON.stringify(body),
     headers: {
-      "Accept": "application/vnd.api+json",
+      Accept: "application/vnd.api+json",
       "Content-Type": "application/vnd.api+json",
       "X-CSRF-Token": csrfToken(),
-    }
-  })
+    },
+  });
 }
 
 const csrfToken = () => {
