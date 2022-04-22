@@ -6504,10 +6504,10 @@ json5@^2.1.2:
   dependencies:
     minimist "^1.2.5"
 
-jsona@^1.9.5:
-  version "1.9.5"
-  resolved "https://registry.yarnpkg.com/jsona/-/jsona-1.9.5.tgz#b2cdfa5eb373373e95074152c86983ba9629d5cb"
-  integrity sha512-VCBfwL8dUPa0hx827LJK8kpcSsoH0al+wsuZ72AbP/gy7kTJBr6/7GdVdCtYci//uGe9i7wimUFKS5uya0+nLw==
+jsona@^1.9.7:
+  version "1.9.7"
+  resolved "https://registry.yarnpkg.com/jsona/-/jsona-1.9.7.tgz#993c603f22320ce698de791db617fb9fbcf18330"
+  integrity sha512-GC3uTVJfYu0ovWrXmhAC+SqroKyv64dOI8iIWdVKYYn0ef7XNfXEkvkVcmdjfKdIjk6nZrf8VkYsZeSbPF3BGQ==
 
 jstz@^2.1.1:
   version "2.1.1"
