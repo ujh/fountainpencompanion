@@ -83,7 +83,7 @@ GEM
     builder (3.2.4)
     byebug (11.1.3)
     color (1.8)
-    concurrent-ruby (1.1.9)
+    concurrent-ruby (1.1.10)
     connection_pool (2.2.5)
     crack (0.4.5)
       rexml
@@ -406,7 +406,7 @@ GEM
       activesupport (>= 5.2)
       sprockets (>= 3.0.0)
     statsd-ruby (1.5.0)
-    strong_migrations (0.8.0)
+    strong_migrations (1.0.0)
       activerecord (>= 5.2)
     temple (0.8.2)
     thor (1.2.1)
