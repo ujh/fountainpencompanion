@@ -1,4 +1,5 @@
-[![Coverage Status](https://coveralls.io/repos/github/ujh/fountainpencompanion/badge.svg?branch=master)](https://coveralls.io/github/ujh/fountainpencompanion?branch=master)
+[![codecov](https://codecov.io/gh/ujh/fountainpencompanion/branch/master/graph/badge.svg?token=A4PS79JPB3)](https://codecov.io/gh/ujh/fountainpencompanion)
+
 # Goals
 
 There's two things that FPC wants to do. First of all it should be a place where users can manage their inks & pens.
