@@ -20,7 +20,11 @@ export const App = ({ macro_cluster_id }) => {
   } else if (inCollection) {
     // Add a hidden button to make the table row the same height as the others
     return (
-      <div className="btn" style={{ visibility: "hidden" }}>
+      <div
+        className="btn"
+        style={{ visibility: "hidden" }}
+        data-testid="ink-in-collection"
+      >
         &nbsp;
       </div>
     );
