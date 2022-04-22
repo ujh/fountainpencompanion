@@ -1,11 +1,12 @@
 class Youtube
 
-  def initialize(channel_id:)
-    @channel_id = channel_id
+  def initialize(channel_id:, client: Youtube::Client.new)
+    self.channel_id = channel_id
+    self.client = client
   end
 
   def channel_name
-    result = client.list_channels('snippet', id: @channel_id)
+    result = client.list_channels('snippet', id: channel_id)
     result.items.first.snippet.title
   end
 
@@ -26,6 +27,9 @@ class Youtube
 
   private
 
+  attr_accessor :channel_id
+  attr_accessor :client
+
   def transform_item(item)
     snippet = item.snippet
     video_id = snippet.resource_id.video_id
@@ -37,13 +41,9 @@ class Youtube
 
   def uploads_id
     @uploads_id ||= begin
-      result = client.list_channels('contentDetails', id: @channel_id)
+      result = client.list_channels('contentDetails', id: channel_id)
       channel = result.items.first
       channel.content_details.related_playlists.uploads
     end
-  end
-
-  def client
-    @client ||= Youtube::Client.new
   end
 end
