@@ -55,7 +55,7 @@ jobs:
     - name: Report to CodeCov
       uses: codecov/codecov-action@v2
       with:
-        flags: rspec
+        flags: ruby
   jest:
     runs-on: ubuntu-latest
     steps:
