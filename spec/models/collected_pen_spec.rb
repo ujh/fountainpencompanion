@@ -92,7 +92,7 @@ describe CollectedPen do
     it 'has the correct value for archived on' do
       date = Date.today
       collected_pen.update(archived_on: date)
-      expect(entry["Archived On"]).to eq(date.to_s(:db))
+      expect(entry["Archived On"]).to eq(date.to_fs(:db))
     end
 
     it 'has the correct value for Usage' do
