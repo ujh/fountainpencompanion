@@ -125,7 +125,7 @@ GEM
       railties (>= 3.2)
     e2mmap (0.1.0)
     erubi (1.10.0)
-    et-orbi (1.2.6)
+    et-orbi (1.2.7)
       tzinfo
     exception_notification (4.5.0)
       actionmailer (>= 5.2, < 8)
@@ -164,8 +164,8 @@ GEM
     ffi (1.15.5)
     font-awesome-rails (4.7.0.8)
       railties (>= 3.2, < 8.0)
-    fugit (1.5.2)
-      et-orbi (~> 1.1, >= 1.1.8)
+    fugit (1.5.3)
+      et-orbi (~> 1, >= 1.2.7)
       raabro (~> 1.4)
     get_process_mem (0.2.7)
       ffi (~> 1.0)
@@ -389,7 +389,7 @@ GEM
       connection_pool (>= 2.2.2)
       rack (~> 2.0)
       redis (>= 4.2.0)
-    sidekiq-scheduler (3.1.1)
+    sidekiq-scheduler (3.2.0)
       e2mmap
       redis (>= 3, < 5)
       rufus-scheduler (~> 3.2)
