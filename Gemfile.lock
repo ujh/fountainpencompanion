@@ -123,7 +123,6 @@ GEM
     dotenv-rails (2.7.6)
       dotenv (= 2.7.6)
       railties (>= 3.2)
-    e2mmap (0.1.0)
     erubi (1.10.0)
     et-orbi (1.2.7)
       tzinfo
@@ -389,12 +388,10 @@ GEM
       connection_pool (>= 2.2.2)
       rack (~> 2.0)
       redis (>= 4.2.0)
-    sidekiq-scheduler (3.2.1)
-      e2mmap
-      redis (>= 3, < 5)
+    sidekiq-scheduler (4.0.0)
+      redis (>= 4.2.0)
       rufus-scheduler (~> 3.2)
-      sidekiq (>= 3)
-      thwait
+      sidekiq (>= 4)
       tilt (>= 1.4.0)
     signet (0.16.1)
       addressable (~> 2.8)
@@ -432,8 +429,6 @@ GEM
     strscan (3.0.1)
     temple (0.8.2)
     thor (1.2.1)
-    thwait (0.2.0)
-      e2mmap
     tilt (2.0.10)
     timeout (0.2.0)
     trailblazer-option (0.1.2)
