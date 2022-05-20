@@ -1,0 +1,55 @@
+version: "3.9"
+
+x-rails: &rails
+  image: ujh/fountainpencompanion:latest
+  tty: true
+  stdin_open: true
+  build: .
+  environment:
+    DATABASE_URL: postgres://fpc:fpc@postgres/fpc_develop
+    TEST_DATABASE_URL: postgres://fpc:fpc@postgres/fpc_test
+    REDIS_URL: redis://redis:6379/0
+    REDIS_CLOUD_URL: redis://redis:6379/1
+    REDIS_PROVIDER: REDIS_URL
+  depends_on:
+    - postgres
+    - redis
+  volumes:
+    - .:/app
+    - gem_cache:/usr/local/bundle
+
+services:
+  postgres:
+    image: postgres:12
+    volumes:
+      - postgres_data:/var/lib/postgresql/data:cached
+    environment:
+      POSTGRES_USER: fpc
+      POSTGRES_PASSWORD: fpc
+    ports:
+      - 5432:5432
+  redis:
+    image: redis:6-alpine
+    command: redis-server
+    volumes:
+      - redis_data:/data:cached
+    ports:
+      - 6379:6379
+  app:
+    <<: *rails
+    command: bundle exec rails server -b 0.0.0.0
+    ports:
+      - 3000:3000
+  webpack:
+    <<: *rails
+    command: ./bin/webpack-dev-server
+    ports:
+      - 3035:3035
+  sidekiq:
+    <<: *rails
+    command: bundle exec sidekiq
+
+volumes:
+  postgres_data:
+  redis_data:
+  gem_cache:
