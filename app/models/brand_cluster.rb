@@ -40,4 +40,24 @@ class BrandCluster < ApplicationRecord
   def synonyms
     macro_clusters.pluck(:brand_name).uniq.sort - [name]
   end
+
+  def to_csv
+    clusters = macro_clusters.public.order(:line_name, :ink_name)
+    CSV.generate(col_sep: ";") do |csv|
+      csv << ['Cluster ID', 'Cluster Brand Name', 'Cluster Line Name', 'Cluster Ink Name', 'Brand Name', 'Line Name', 'Ink Name']
+      clusters.each do |macro_cluster|
+        macro_cluster.all_names.each do |ink_name|
+          csv << [
+            macro_cluster.id,
+            macro_cluster.brand_name,
+            macro_cluster.line_name,
+            macro_cluster.ink_name,
+            ink_name.brand_name,
+            ink_name.line_name,
+            ink_name.ink_name
+          ]
+        end
+      end
+    end
+  end
 end

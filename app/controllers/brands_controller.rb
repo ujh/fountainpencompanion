@@ -14,9 +14,16 @@ class BrandsController < ApplicationController
 
   def show
     @brand = BrandCluster.find(params[:id])
-    @inks = @brand.macro_clusters.public.order(
-      "line_name, ink_name"
-    ).select("macro_clusters.*, count(*) as collected_inks_count")
+    respond_to do |format|
+      format.html {
+        @inks = @brand.macro_clusters.public.order(
+          "line_name, ink_name"
+        ).select("macro_clusters.*, count(*) as collected_inks_count")
+      }
+      format.csv {
+        send_data @brand.to_csv, type: "text/csv", filename: "#{@brand.name.parameterize}.csv"
+      }
+    end
   end
 
 end
