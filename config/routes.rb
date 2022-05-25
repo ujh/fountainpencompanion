@@ -71,7 +71,7 @@ Rails.application.routes.draw do
     resources :brands, only: [:index]
     resources :models, only: [:index]
   end
-  get 'brands/:id', to: "brands#show", constraints: { id: /[^\/]+/}, as: "brand"
+  get 'brands/:id', to: "brands#show", as: "brand"
   resources :lines, only: [:index]
   resources :inks, only: [:index]
   resource :account, only: [:show, :edit, :update]
