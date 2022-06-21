@@ -1,4 +1,4 @@
-FROM ruby:2.7.4-slim
+FROM ruby:2.7.4
 
 ENV APP_ROOT /app
 ENV BUNDLE_PATH "/usr/local/bundle"
