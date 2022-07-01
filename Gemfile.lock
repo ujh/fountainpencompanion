@@ -203,7 +203,7 @@ GEM
       railties (>= 3.2.16)
     jsonapi-deserializable (0.2.0)
     jsonapi-parser (0.1.1)
-    jsonapi-rails (0.4.0)
+    jsonapi-rails (0.4.1)
       jsonapi-parser (~> 0.1.0)
       jsonapi-rb (~> 0.5.0)
     jsonapi-rb (0.5.0)
