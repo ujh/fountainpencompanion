@@ -6,7 +6,7 @@
   table class="table" id="admin_ink_review"
     tr
       th Ink
-      th = ink_review.macro_cluster.name
+      th = link_to ink_review.macro_cluster.name, ink_path(ink_review.macro_cluster)
     tr
       td Title
       td= ink_review.title
