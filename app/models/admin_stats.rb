@@ -4,14 +4,6 @@ class AdminStats
     MicroCluster.count
   end
 
-  def assigned_micro_cluster_count
-    MicroCluster.where.not(macro_cluster_id: nil).count
-  end
-
-  def ignored_micro_cluster_count
-    MicroCluster.ignored.count
-  end
-
   def micro_clusters_to_assign_count
     # The JOIN is there to remove clusters without inks
     MicroCluster.where(
@@ -21,10 +13,6 @@ class AdminStats
 
   def macro_cluster_count
     @macro_cluster_count ||= MacroCluster.count
-  end
-
-  def macro_clusters_with_color_percentage
-    MacroCluster.where.not(color: '').count*100.0/macro_cluster_count
   end
 
   def collected_inks_with_macro_cluster
@@ -43,10 +31,6 @@ class AdminStats
     ink_user_ids = User.joins(:collected_inks).group('users.id').pluck(:id)
     pen_user_ids = User.joins(:collected_pens).group('users.id').pluck(:id)
     @active_user_count ||= (ink_user_ids | pen_user_ids).count
-  end
-
-  def active_user_percentage
-    active_user_count*100.0/user_count
   end
 
   def patron_count
@@ -73,10 +57,6 @@ class AdminStats
     @users_using_collected_inks_count ||= User.joins(:collected_inks).group('users.id').count.count
   end
 
-  def users_using_collected_inks_percentage
-    users_using_collected_inks_count*100.0/active_user_count
-  end
-
   def collected_inks_count
     @collected_inks_count ||= CollectedInk.count
   end
@@ -85,14 +65,6 @@ class AdminStats
     @collected_inks_with_color_count ||= CollectedInk.where.not(color: '').or(
       CollectedInk.where.not(cluster_color: '')
     ).count
-  end
-
-  def collected_inks_with_color_percentage
-    collected_inks_with_color_count*100.0/collected_inks_count
-  end
-
-  def collected_inks_without_color_count
-    @collected_inks_without_color_count ||= CollectedInk.where(color: '', cluster_color: '').count
   end
 
   def users_using_usage_records_count

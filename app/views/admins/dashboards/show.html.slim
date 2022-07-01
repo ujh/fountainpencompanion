@@ -10,11 +10,6 @@ table class="table table-striped"
           tr
             td= "#{@stats.user_count} confirmed users"
           tr
-            td
-              |  (
-              = number_to_percentage(@stats.active_user_percentage, precision: 2)
-              |  active, i.e. with at least one ink or pen)
-          tr
             td= "(#{@stats.patron_count} Patrons)"
     tr
       td Number of ink brands
@@ -22,72 +17,20 @@ table class="table table-striped"
     tr
       td Number of macro clusters
       td
-        table
-          tr
-            td= @stats.macro_cluster_count
-            td
-              |  (
-              = number_to_percentage(@stats.macro_clusters_with_color_percentage, precision: 2)
-              |  clusters with color)
-          tr
-            td
-            td
-              | (
-              = @stats.unassigned_macro_cluster_count
-              |  unassigned macro clusters)
-          tr
-            td
-            td= " (#{MacroCluster.without_review.count} without review)"
+        = @stats.macro_cluster_count
+        |   (
+        = @stats.unassigned_macro_cluster_count
+        |  unassigned macro clusters)
     tr
       td Number of micro clusters
       td
-        table
-          tr
-            td= @stats.micro_cluster_count
-            td
-              |   (
-              = @stats.assigned_micro_cluster_count
-              |  assigned to macro cluster)
-          tr
-            td
-            td
-              |   (
-              = @stats.ignored_micro_cluster_count
-              |  ignored)
-          tr
-            td
-            td
-              |   (
-              = @stats.micro_clusters_to_assign_count
-              |  waiting to be assigned)
+        = @stats.micro_cluster_count
+        |   (
+        = @stats.micro_clusters_to_assign_count
+        |  waiting to be assigned)
     tr
       td Number of collected inks
-      td
-        table
-          tr
-            td= @stats.collected_inks_count
-            td
-              |  (
-              = number_to_percentage(@stats.users_using_collected_inks_percentage, precision: 2)
-              |  of active users use this feature)
-          tr
-            td
-            td
-              |  (
-              = number_to_percentage(@stats.collected_inks_with_color_percentage, precision: 2)
-              |  collected inks with color)
-          tr
-            td
-            td
-              |  (
-              = @stats.collected_inks_without_color_count
-              |  collected inks without color)
-          tr
-            td
-            td
-              |  (
-              = number_to_percentage(@stats.collected_inks_with_macro_cluster_percentage, precision: 2)
-              |  collected inks assigned to macro cluster)
+      td= @stats.collected_inks_count
 
     tr
       td Number of collected pens
@@ -112,20 +55,7 @@ table class="table table-striped"
         |  of active users use this feature)
     tr
       td Number of ink reviews
-      td
-        table
-          tr
-            td = InkReview.count
-            td = " (#{InkReview.queued.count} queued)"
-          tr
-            td
-            td = " (#{InkReview.approved.count} approved)"
-          tr
-            td
-            td = " (#{InkReview.rejected.count} rejected)"
-    tr
-      td Number of ink review submissions
-      td = "#{InkReviewSubmission.count} (#{InkReviewSubmission.unassigned.count} unassigned)"
+      td= "#{InkReview.count} (#{InkReview.queued.count} queued)"
 
 div#graphs
   div.row
