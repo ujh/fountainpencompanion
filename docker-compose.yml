@@ -20,9 +20,9 @@ x-rails: &rails
 
 services:
   postgres:
-    image: postgres:12
+    image: postgres:14
     volumes:
-      - postgres_data:/var/lib/postgresql/data:cached
+      - postgres_14_data:/var/lib/postgresql/data:cached
     environment:
       POSTGRES_USER: fpc
       POSTGRES_PASSWORD: fpc
@@ -50,6 +50,6 @@ services:
     command: bundle exec sidekiq
 
 volumes:
-  postgres_data:
+  postgres_14_data:
   redis_data:
   gem_cache:
