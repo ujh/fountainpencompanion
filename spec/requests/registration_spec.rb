@@ -21,14 +21,14 @@ describe 'sign up' do
   context 'bot user' do
     let(:user_params) { { email: 'user@example.com', password: 'password', password_confirmation: 'password', bot_field: '1' } }
 
-    it 'creates a bot user' do
+    xit 'creates a bot user' do
       expect do
         post "/users", params: { user: user_params }
         expect(response).to be_redirect
       end.to change { User.where(bot: true).count }.by(1)
     end
 
-    it 'does not send an email' do
+    xit 'does not send an email' do
       expect do
         post "/users", params: { user: user_params }
         expect(response).to be_redirect

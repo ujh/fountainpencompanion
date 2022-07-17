@@ -2,11 +2,12 @@
 set -e
 set -x
 
+bundle check || bundle install || true
+
 if [[ $@ =~ 'webpack' ]]
 then
   yarn install --frozen-lockfile
 else
-  bundle check || bundle install || true
   # Remove a potentially pre-existing server.pid for Rails.
   rm -f /app/tmp/pids/server.pid
 fi
