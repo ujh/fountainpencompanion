@@ -101,7 +101,8 @@ Rails.application.configure do
 
   ignore_list = [
     "ActionController::InvalidAuthenticityToken",
-    "ActionDispatch::Http::MimeNegotiation::InvalidType"
+    "ActionDispatch::Http::MimeNegotiation::InvalidType",
+    "ActionDispatch::Http::Parameters::ParseError"
   ]
   config.middleware.use(
     ExceptionNotification::Rack,
@@ -110,7 +111,9 @@ Rails.application.configure do
       :email_prefix => "[FPC] ",
       :sender_address => %{"Exception Notifier" <exception-notifier@fountainpencompanion.com>},
       :exception_recipients => %w{contact@urbanhafner.com}
-    }
+    },
+    error_grouping: true,
+    error_grouping_cache: Rails.cache
   )
 
   # Inserts middleware to perform automatic connection switching.
