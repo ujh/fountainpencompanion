@@ -37,7 +37,7 @@ class User < ApplicationRecord
 
     if value.present? && value != '0'
       self.bot = true
-      self.bot_reason = "bot_field (#{value.inspect})"
+      self.bot_reason = "bot_field"
     end
   end
 

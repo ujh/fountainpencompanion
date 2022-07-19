@@ -42,7 +42,7 @@ describe User do
 
     it 'correctly sets bot_reason when marking as a bot via this method' do
       user = build(:user, bot_field: 'some value')
-      expect(user.bot_reason).to eq('bot_field ("some value")')
+      expect(user.bot_reason).to eq('bot_field')
     end
   end
 
