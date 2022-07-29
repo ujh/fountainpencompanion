@@ -3,12 +3,12 @@
   - mailers
 :schedule:
   check_brand_clusters:
-    every: "1h"
+    cron: "0 * * * *" # Every hour
     class: CheckBrandClusters
   fetch_reviews:
-    every: '6h'
+    cron: "0 */6 * * *" # Every six hours
     class: FetchReviews
   refresh_leaderboards:
-    every: '4h'
+    cron: "0 */4 * * *" # Every four hours
     class: RefreshLeaderBoards
 :timeout: 25
