@@ -39,8 +39,10 @@ class FetchReviews
     end
 
     def match(video)
-      cluster = MacroCluster.full_text_search(video[:search_term]).first
-      video.merge(macro_cluster: cluster&.id)
+      Rails.cache.fetch("youtube:#{video[:url]}", expires_in: 1.year) do
+        cluster = MacroCluster.full_text_search(video[:search_term]).first
+        video.merge(macro_cluster: cluster&.id)
+      end
     end
 
     def client
