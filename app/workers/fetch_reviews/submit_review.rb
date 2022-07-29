@@ -1,6 +1,7 @@
 class FetchReviews
   class SubmitReview
     include Sidekiq::Worker
+    sidekiq_options queue: 'reviews'
 
     def perform(url, macro_cluster_id)
       macro_cluster = MacroCluster.find_by(id: macro_cluster_id)

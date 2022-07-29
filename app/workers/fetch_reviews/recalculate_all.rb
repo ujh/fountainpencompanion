@@ -1,6 +1,7 @@
 class FetchReviews
   class RecalculateAll
     include Sidekiq::Worker
+    sidekiq_options queue: 'reviews'
 
     def perform
       InkReview.find_each do |ink_review|

@@ -1,6 +1,7 @@
 class FetchReviews
   class YoutubeChannel
     include Sidekiq::Worker
+    sidekiq_options queue: 'reviews'
 
     def perform(channel_id)
       self.channel = YouTubeChannel.find_by!(channel_id: channel_id)
