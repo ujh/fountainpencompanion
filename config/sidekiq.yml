@@ -1,4 +1,1 @@
-:queues:
-  - default
-  - mailers
 :timeout: 25
