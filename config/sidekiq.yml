@@ -1,14 +1,1 @@
-:queues:
-  - default
-  - mailers
-:schedule:
-  check_brand_clusters:
-    every: "1h"
-    class: CheckBrandClusters
-  fetch_reviews:
-    every: '6h'
-    class: FetchReviews
-  refresh_leaderboards:
-    every: '4h'
-    class: RefreshLeaderBoards
 :timeout: 25

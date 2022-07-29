@@ -1,4 +1,0 @@
-enable_sidekiq: true
-ignored_endpoints:
-  - Admins::MacroClustersController#index
-  - Admins::MacroClustersController#show
