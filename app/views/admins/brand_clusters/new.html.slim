@@ -33,7 +33,7 @@ table class="table table-striped"
     - @brand_clusters.each do |brand_cluster|
       tr
         td= "#{brand_cluster.name} (#{brand_cluster.synonyms.join(', ')})"
-        td= brand_cluster.macro_clusters.count
+        td= brand_cluster.macro_clusters.size
         td
           = link_to "Assign",
                     admins_brand_cluster_path(@macro_cluster, brand_cluster_id: brand_cluster.id),
