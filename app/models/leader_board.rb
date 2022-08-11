@@ -1,15 +1,19 @@
 class LeaderBoard
 
-  def self.refresh!
-    inks(force: true)
-    bottles(force: true)
-    samples(force: true)
-    brands(force: true)
-    inks_by_popularity(force: true)
-    currently_inked(force: true)
-    usage_records(force: true)
-    pens_by_popularity(force: true)
-    ink_review_submissions(force: true)
+  TYPES = %w[
+    inks
+    bottles
+    samples
+    brands
+    inks_by_popularity
+    currently_inked
+    usage_records
+    pens_by_popularity
+    ink_review_submissions
+  ]
+
+  def self.refresh!(type)
+    self.send(type, force: true)
   end
 
   def self.pens_by_popularity(force: false)
