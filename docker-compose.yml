@@ -50,7 +50,7 @@ services:
     command: bundle exec sidekiq -q default -q mailers -c 1
   sidekiq_reviews:
     <<: *rails
-    command: bundle exec sidekiq -q reviews -c 1
+    command: bundle exec sidekiq -q reviews -q leaderboards -c 1
 
 volumes:
   postgres_14_data:
