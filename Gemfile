@@ -1,6 +1,6 @@
 source 'https://rubygems.org'
 
-ruby '2.7.6'
+ruby '3.1.2'
 
 git_source(:github) do |repo_name|
   repo_name = "#{repo_name}/#{repo_name}" unless repo_name.include?("/")
@@ -35,6 +35,7 @@ gem 'puma'
 gem 'puma_worker_killer'
 gem 'rails-assets-select2', '4.0.8', source: 'https://rails-assets.org' # Select2 4.0.6 breaks the currently inked page
 gem 'redis'
+gem 'rss'
 gem 'ruby-progressbar'
 gem 'sass-rails'
 gem 'scenic'

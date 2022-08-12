@@ -37,7 +37,7 @@ services:
       - 6379:6379
   app:
     <<: *rails
-    command: bundle exec rails server -b 0.0.0.0
+    command: bundle exec puma
     ports:
       - 3000:3000
   webpack:
