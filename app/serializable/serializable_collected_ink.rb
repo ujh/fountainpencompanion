@@ -28,7 +28,8 @@ class SerializableCollectedInk < JSONAPI::Serializable::Resource
     @object.currently_inked_count
   end
   attribute :daily_usage do
-    @object.usage_records.size
+    # To avoid N+1 queries
+    @object.currently_inkeds.map {|ci| ci.usage_records.size}.sum
   end
   attribute :used
 end
