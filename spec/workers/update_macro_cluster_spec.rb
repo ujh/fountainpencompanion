@@ -22,17 +22,17 @@ describe UpdateMacroCluster do
     expect(collected_ink2.reload.cluster_color) .to eq('#262626')
   end
 
-  it 'schedules CheckBrandCluster' do
+  it 'schedules CheckBrandClusters' do
     collected_ink1
     expect do
       described_class.new.perform(macro_cluster.id)
-    end.to change { CheckBrandCluster.jobs.size }.by(1)
+    end.to change { CheckBrandClusters.jobs.size }.by(1)
   end
 
   it 'does nothing if no collected inks in cluster' do
     expect do
       described_class.new.perform(macro_cluster.id)
-    end.to_not change { CheckBrandCluster.jobs.size }
+    end.to_not change { CheckBrandClusters.jobs.size }
   end
 
   it 'sets brand_name to the most popular one' do
