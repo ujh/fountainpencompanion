@@ -4,7 +4,7 @@ class SerializableUser < JSONAPI::Serializable::Resource
 
   has_many :collected_inks do
     data do
-      @object.public_inks.includes(:micro_cluster)
+      @object.public_inks.includes(:micro_cluster, {currently_inkeds: :usage_records})
     end
   end
 
