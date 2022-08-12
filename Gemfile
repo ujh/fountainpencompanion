@@ -35,6 +35,7 @@ gem 'puma'
 gem 'puma_worker_killer'
 gem 'rails-assets-select2', '4.0.8', source: 'https://rails-assets.org' # Select2 4.0.6 breaks the currently inked page
 gem 'redis'
+gem 'rss'
 gem 'ruby-progressbar'
 gem 'sass-rails'
 gem 'scenic'

@@ -360,6 +360,8 @@ GEM
       rspec-mocks (~> 3.10)
       rspec-support (~> 3.10)
     rspec-support (3.11.0)
+    rss (0.2.9)
+      rexml
     ruby-oembed (0.15.0)
     ruby-progressbar (1.11.0)
     ruby-statistics (2.1.3)
@@ -499,6 +501,7 @@ DEPENDENCIES
   rails-controller-testing
   redis
   rspec-rails
+  rss
   ruby-progressbar
   sass-rails
   scenic

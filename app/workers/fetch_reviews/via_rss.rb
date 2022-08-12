@@ -1,5 +1,3 @@
-require 'rss'
-
 class FetchReviews
   module ViaRss
     # As we run this multiple times a day we do not have to process all reviews
