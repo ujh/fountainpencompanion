@@ -116,7 +116,7 @@ class LeaderBoard
   def self.brands(force: false)
     Rails.cache.fetch("LeaderBoard#brands", force: force) do
       extract(build(
-        "(select sum(1) OVER () from collected_inks where collected_inks.user_id = users.id group by collected_inks.brand_name limit 1) as counter"
+        "(select count(distinct brand_name) from collected_inks where collected_inks.user_id = users.id) as counter"
       ))
     end
   end
