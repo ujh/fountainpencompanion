@@ -12,7 +12,7 @@ ignore_list = [
 # Goes here for the Sidekiq emails
 ExceptionNotification.configure do |config|
   config.ignore_if {|exception, options| not Rails.env.production? }
-  config.ignored_exceptions = ignore_list
+  config.ignored_exceptions += ignore_list
   config.error_grouping = true
   config.error_grouping_cache = Rails.cache
   config.add_notifier :email, {
