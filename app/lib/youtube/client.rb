@@ -25,8 +25,8 @@ class Youtube
       self.service.authorization = authorize
     end
 
-    def method_missing(method, *args)
-      self.service.send(method, *args)
+    def method_missing(method, *args, **kwargs)
+      self.service.send(method, *args, **kwargs)
     end
 
     private
