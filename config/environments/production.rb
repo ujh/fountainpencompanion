@@ -99,22 +99,7 @@ Rails.application.configure do
   # Do not dump schema after migrations.
   config.active_record.dump_schema_after_migration = false
 
-  ignore_list = [
-    "ActionController::InvalidAuthenticityToken",
-    "ActionDispatch::Http::MimeNegotiation::InvalidType",
-    "ActionDispatch::Http::Parameters::ParseError"
-  ]
-  config.middleware.use(
-    ExceptionNotification::Rack,
-    ignore_exceptions: ignore_list + ExceptionNotifier.ignored_exceptions,
-    email: {
-      :email_prefix => "[FPC] ",
-      :sender_address => %{"Exception Notifier" <exception-notifier@fountainpencompanion.com>},
-      :exception_recipients => %w{contact@urbanhafner.com}
-    },
-    error_grouping: true,
-    error_grouping_cache: Rails.cache
-  )
+  config.middleware.use ExceptionNotification::Rack
 
   # Inserts middleware to perform automatic connection switching.
   # The `database_selector` hash is used to pass options to the DatabaseSelector
