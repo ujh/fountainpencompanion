@@ -3,10 +3,11 @@ require 'exception_notification/rails'
 require 'exception_notification/sidekiq'
 
 
-ignore_list = [
-  "ActionController::InvalidAuthenticityToken",
-  "ActionDispatch::Http::MimeNegotiation::InvalidType",
-  "ActionDispatch::Http::Parameters::ParseError"
+ignore_list = %w[
+  ActionController::InvalidAuthenticityToken
+  ActionDispatch::Http::MimeNegotiation::InvalidType
+  ActionDispatch::Http::Parameters::ParseError
+  ActiveRecord::RecordNotUnique
 ]
 
 # Goes here for the Sidekiq emails
