@@ -332,7 +332,10 @@ GEM
     rb-fsevent (0.11.0)
     rb-inotify (0.10.1)
       ffi (~> 1.0)
-    redis (4.7.1)
+    redis (5.0.1)
+      redis-client (~> 0.7)
+    redis-client (0.7.1)
+      connection_pool
     representable (3.2.0)
       declarative (< 0.1.0)
       trailblazer-option (>= 0.1.1, < 0.2.0)
