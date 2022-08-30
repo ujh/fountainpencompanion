@@ -7,7 +7,7 @@
     "color-convert": "^2.0.1",
     "d3-scale-chromatic": "^3.0.0",
     "fast-levenshtein": "^3.0.0",
-    "highcharts": "^10.2.0",
+    "highcharts": "^10.2.1",
     "highcharts-react-official": "^3.1.0",
     "jsona": "^1.10.1",
     "jstz": "^2.1.1",
