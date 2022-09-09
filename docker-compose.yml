@@ -40,11 +40,11 @@ services:
     command: bundle exec puma
     ports:
       - 3000:3000
-  webpack:
-    <<: *rails
-    command: ./bin/webpack-dev-server
-    ports:
-      - 3035:3035
+  # webpack:
+  #   <<: *rails
+  #   command: ./bin/webpack-dev-server
+  #   ports:
+  #     - 3035:3035
   sidekiq:
     <<: *rails
     command: bundle exec sidekiq -q default -q mailers -c 1
