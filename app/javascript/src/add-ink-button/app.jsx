@@ -66,6 +66,7 @@ const ActualInkAddButton = ({ macro_cluster_id }) => {
               <option value="bottle">bottle</option>
               <option value="sample">sample</option>
               <option value="cartridge">cartridge</option>
+              <option value="swab">swab</option>
             </select>
           </span>
           <span className="btn btn-primary" onClick={add}>

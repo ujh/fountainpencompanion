@@ -5,7 +5,7 @@ class CollectedInk < ApplicationRecord
   include Archivable
   include PgSearch::Model
 
-  KINDS = %w(bottle sample cartridge)
+  KINDS = %w(bottle sample cartridge swab)
 
   validates :kind, inclusion: { in: KINDS, allow_blank: true }
   validates :brand_name, length: { in: 1..100 }

@@ -303,6 +303,7 @@ class TypeFilter extends React.Component {
         <option value="bottle">bottle</option>
         <option value="cartridge">cartridge</option>
         <option value="sample">sample</option>
+        <option value="swab">swab</option>
         <option value="unknown">unknown</option>
       </select>
     );
