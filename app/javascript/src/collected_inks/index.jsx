@@ -114,13 +114,10 @@ const CollectedInksTable = ({ data, archive }) => {
           });
           return (
             <span>
-              <span className="counter">{counters.bottle || 0}x bottle</span>
-              <br />
-              <span className="counter">{counters.sample || 0}x sample</span>
-              <br />
-              <span className="counter">
-                {counters.cartridge || 0}x cartridge
-              </span>
+              <Counter data={counters} field="bottle" />
+              <Counter data={counters} field="sample" />
+              <Counter data={counters} field="cartridge" />
+              <Counter data={counters} field="swab" />
             </span>
           );
         },
@@ -258,6 +255,16 @@ const CollectedInksTable = ({ data, archive }) => {
       />
     </div>
   );
+};
+
+const Counter = ({data, field}) => {
+  const value = data[field];
+  if (!value) return null;
+
+  return <>
+    <span className="counter">{value}x {field}</span>
+    <br />
+  </>
 };
 
 const Table = ({
