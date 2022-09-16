@@ -8,6 +8,7 @@ ignore_list = %w[
   ActionDispatch::Http::MimeNegotiation::InvalidType
   ActionDispatch::Http::Parameters::ParseError
   ActiveRecord::RecordNotUnique
+  ActionController::BadRequest
 ]
 
 # Goes here for the Sidekiq emails
