@@ -47,10 +47,7 @@ services:
   #     - 3035:3035
   sidekiq:
     <<: *rails
-    command: bundle exec sidekiq -q default -q mailers -c 1
-  sidekiq_reviews:
-    <<: *rails
-    command: bundle exec sidekiq -q reviews -q leaderboards -c 1
+    command: bundle exec sidekiq
 
 volumes:
   postgres_14_data:
