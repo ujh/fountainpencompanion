@@ -20,6 +20,17 @@ Both the Ruby and the React code aren't in the best of shape. I was in a rush to
 
 I've collected a lot of issues. Most of them are not yet concretely thought out, so please reach out to me before starting to implement anything. Then we can discuss what makes sense and what doesn't. Feel free to also create issues for things that would would like to see get done.
 
+## Local development
+
+This app currently _does not_ have a Docker setup, but is meant to be used for "bare bones" development. You will need a Postgres as well as Redis running (see `.env` for the redis vars).
+
+Once you've set up everything you can run the whole thing with:
+
+1. `heroku local` in one terminal (runs puma and Sidekiq)
+2. `./bin/webpack-dev-server` in another terminal to speed up the JavaScript recompilation process during development.
+
+Use `rake` (without any arguments) to run the rspec tests.
+
 # Licensing
 
 The code base is licensed under the MIT license.
