@@ -39,7 +39,7 @@ jobs:
         ports:
           - 5432:5432
     steps:
-    - uses: actions/checkout@v3.0.2
+    - uses: actions/checkout@v3.1.0
     - name: Install correct Node version
       uses: actions/setup-node@v3.5.0
       with:
@@ -59,7 +59,7 @@ jobs:
   jest:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3.0.2
+    - uses: actions/checkout@v3.1.0
     - name: Install correct Node version
       uses: actions/setup-node@v3.5.0
       with:
