@@ -6,7 +6,7 @@ import { generateColors, dataWithOtherEntry } from "./charting";
 
 export const PensGroupedByBrandWidget = () => (
   <Widget
-    header={<a href="/collected_inks">Pens</a>}
+    header={<a href="/collected_pens">Pens</a>}
     path="/dashboard/widgets/pens_grouped_by_brand.json"
   >
     <PensGroupedByBrandWidgetContent />
