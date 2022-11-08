@@ -188,7 +188,7 @@ GEM
       multi_json (~> 1.11)
       os (>= 0.9, < 2.0)
       signet (>= 0.16, < 2.a)
-    gutentag (2.6.1)
+    gutentag (2.6.2)
       activerecord (>= 3.2.0)
     hashdiff (1.0.1)
     heapy (0.2.0)
