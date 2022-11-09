@@ -34,7 +34,7 @@
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^13.4.0",
     "jest": "^29.3.1",
-    "jest-environment-jsdom": "^29.3.0",
+    "jest-environment-jsdom": "^29.3.1",
     "msw": "^0.48.0",
     "webpack-dev-server": "^3"
   },
