@@ -68,6 +68,8 @@ div class="row details"
                 div class="description"= truncate(ink_review.description, length: 200)
               div class="col-xs-12 col-sm-6"
                 = image_tag ink_review.image
+              - if admin?
+                = link_to "Reject", admins_review_path(ink_review), method: :delete, class: 'btn btn-default', data: { confirm: 'Reject?' }
 
 
 

@@ -25,7 +25,7 @@
     tr
       td
       td
-        = link_to "Approve",  admins_review_path(ink_review), method: :put, class: 'btn btn-default'
-        = link_to "Reject", admins_review_path(ink_review), method: :delete, class: 'btn btn-default'
+        = link_to "Approve",  admins_review_path(ink_review, page: params[:page]), method: :put, class: 'btn btn-default'
+        = link_to "Reject", admins_review_path(ink_review, page: params[:page]), method: :delete, class: 'btn btn-default'
 
 = paginate @ink_reviews
