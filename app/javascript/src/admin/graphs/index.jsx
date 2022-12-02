@@ -1,5 +1,5 @@
 import React from "react";
-import ReactDOM from "react-dom";
+import { createRoot } from "react-dom/client";
 
 import { SignUps } from "./SignUps";
 import { CollectedInks } from "./CollectedInks";
@@ -10,30 +10,48 @@ import { BotSignUps } from "./BotSignUps";
 
 document.addEventListener("DOMContentLoaded", () => {
   const el = document.getElementById("signups-graph");
-  if (el) ReactDOM.render(<SignUps />, el);
+  if (el) {
+    const root = createRoot(el);
+    root.render(<SignUps />);
+  }
 });
 
 document.addEventListener("DOMContentLoaded", () => {
   const el = document.getElementById("bot-signups-graph");
-  if (el) ReactDOM.render(<BotSignUps />, el);
+  if (el) {
+    const root = createRoot(el);
+    root.render(<BotSignUps />);
+  }
 });
 
 document.addEventListener("DOMContentLoaded", () => {
   const el = document.getElementById("collected-inks-graph");
-  if (el) ReactDOM.render(<CollectedInks />, el);
+  if (el) {
+    const root = createRoot(el);
+    root.render(<CollectedInks />);
+  }
 });
 
 document.addEventListener("DOMContentLoaded", () => {
   const el = document.getElementById("collected-pens-graph");
-  if (el) ReactDOM.render(<CollectedPens />, el);
+  if (el) {
+    const root = createRoot(el);
+    root.render(<CollectedPens />);
+  }
 });
 
 document.addEventListener("DOMContentLoaded", () => {
   const el = document.getElementById("currently-inked-graph");
-  if (el) ReactDOM.render(<CurrentlyInked />, el);
+  if (el) {
+    const root = createRoot(el);
+    root.render(<CurrentlyInked />);
+  }
 });
 
 document.addEventListener("DOMContentLoaded", () => {
   const el = document.getElementById("usage-records-graph");
-  if (el) ReactDOM.render(<UsageRecords />, el);
+  if (el) {
+    const root = createRoot(el);
+    root.render(<UsageRecords />);
+  }
 });

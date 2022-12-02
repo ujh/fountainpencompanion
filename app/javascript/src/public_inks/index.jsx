@@ -1,10 +1,11 @@
 import * as React from "react";
-import * as ReactDOM from "react-dom";
+import { createRoot } from "react-dom/client";
 
 import App from "./app";
 
 const renderPublicInks = (el) => {
-    ReactDOM.render(<App />, el)
-}
+  const root = createRoot(el);
+  root.render(<App />);
+};
 
 export default renderPublicInks;

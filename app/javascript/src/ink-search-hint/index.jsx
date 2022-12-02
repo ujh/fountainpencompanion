@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from "react";
-import ReactDOM from "react-dom";
+import { createRoot } from "react-dom/client";
 
 document.addEventListener("DOMContentLoaded", () => {
   const form = document.getElementById("new_collected_ink");
   const el = document.getElementById("ink-search-hint");
   if (!form || !el) return;
 
-  ReactDOM.render(<InkSearchHint form={form} />, el);
+  const root = createRoot(el);
+  root.render(<InkSearchHint form={form} />);
 });
 
 const InkSearchHint = ({ form }) => {

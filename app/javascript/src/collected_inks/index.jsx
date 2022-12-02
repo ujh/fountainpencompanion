@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
-import * as ReactDOM from "react-dom";
+import { createRoot } from "react-dom/client";
 import { useTable, useSortBy, useGlobalFilter } from "react-table";
 import { matchSorter } from "match-sorter";
 import _ from "lodash";
@@ -10,9 +10,9 @@ import Jsona from "jsona";
 document.addEventListener("DOMContentLoaded", () => {
   const elements = document.querySelectorAll("#collected-inks .app");
   Array.from(elements).forEach((el) => {
-    ReactDOM.render(
-      <CollectedInks archive={el.getAttribute("data-archive") == "true"} />,
-      el
+    const root = createRoot(el);
+    root.render(
+      <CollectedInks archive={el.getAttribute("data-archive") == "true"} />
     );
   });
 });
@@ -257,14 +257,18 @@ const CollectedInksTable = ({ data, archive }) => {
   );
 };
 
-const Counter = ({data, field}) => {
+const Counter = ({ data, field }) => {
   const value = data[field];
   if (!value) return null;
 
-  return <>
-    <span className="counter">{value}x {field}</span>
-    <br />
-  </>
+  return (
+    <>
+      <span className="counter">
+        {value}x {field}
+      </span>
+      <br />
+    </>
+  );
 };
 
 const Table = ({
