@@ -1,9 +1,12 @@
 import React from "react";
-import ReactDOM from "react-dom";
+import { createRoot } from "react-dom/client";
 
 import { App } from "./App";
 
 document.addEventListener("DOMContentLoaded", () => {
   const el = document.getElementById("micro-clusters-app");
-  if (el) ReactDOM.render(<App />, el);
+  if (el) {
+    const root = createRoot(el)
+    root.render(<App />);
+  }
 });

@@ -8,6 +8,7 @@ import { Spinner } from "./Spinner";
 import { DisplayMicroClusters } from "./DisplayMicroClusters";
 import { reducer, initalState } from "./reducer";
 import {
+  SET_LOADING_PERCENTAGE,
   SET_MACRO_CLUSTERS,
   SET_MICRO_CLUSTERS,
   UPDATE_SELECTED_BRANDS,
@@ -52,7 +53,7 @@ export const App = () => {
       </DispatchContext.Provider>
     );
   } else {
-    return <Spinner />;
+    return <Spinner text={`${state.loadingPercentage.toFixed(2)}%`} />;
   }
 };
 
@@ -149,6 +150,11 @@ const loadMacroClusters = (dispatch) => {
     const formatter = new Jsona();
     function run(page = 1) {
       loadMacroClusterPage(page).then((json) => {
+        const pagination = json.meta.pagination;
+        dispatch({
+          type: SET_LOADING_PERCENTAGE,
+          payload: (pagination.current_page * 100) / pagination.total_pages,
+        });
         const next_page = json.meta.pagination.next_page;
         const pageData = formatter.deserialize(json).map((c) => {
           const grouped_collected_inks = groupedInks(
@@ -169,9 +175,9 @@ const loadMacroClusters = (dispatch) => {
 };
 
 const loadMacroClusterPage = (page) => {
-  return getRequest(
-    `/admins/macro_clusters.json?page=${page}`
-  ).then((response) => response.json());
+  return getRequest(`/admins/macro_clusters.json?page=${page}`).then(
+    (response) => response.json()
+  );
 };
 
 export const groupedInks = (collectedInks) =>

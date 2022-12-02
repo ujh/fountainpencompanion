@@ -12,7 +12,8 @@ import {
   UPDATING,
   UPDATE_MACRO_CLUSTER,
   NEXT_MACRO_CLUSTER,
-  PREVIOUS_MACRO_CLUSTER
+  PREVIOUS_MACRO_CLUSTER,
+  SET_LOADING_PERCENTAGE,
 } from "./actions";
 
 export const initalState = {
@@ -26,7 +27,8 @@ export const initalState = {
   selectedMacroClusterIndex: 0,
   selectedMicroClusters: [],
   updateCounter: 0,
-  updating: false
+  updating: false,
+  loadingPercentage: 0
 };
 
 export const reducer = (state, action) => {
@@ -92,6 +94,8 @@ const actualReducer = (state, { type, payload }) => {
         loadingMicroClusters: false
       };
     }
+    case SET_LOADING_PERCENTAGE:
+      return { ...state, loadingPercentage: payload }
     case UPDATE_MACRO_CLUSTER:
       return {
         ...state,
