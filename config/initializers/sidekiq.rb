@@ -8,3 +8,11 @@ Sidekiq.configure_server do |config|
     SidekiqScheduler::Scheduler.instance.reload_schedule!
   end
 end
+
+# Separate capsule for the leaderboard queue as it's super slow
+Sidekiq.configure_server do |config|
+  config.capsule('slow') do |cap|
+    cap.concurrency = 1
+    cap.queues = ['leaderboards']
+  end
+end
