@@ -13,4 +13,8 @@ module ApplicationHelper
     # Only for signed in users, roughly every 8 weeks
     user_signed_in? && !current_user.patron? && (Date.current.cweek % 8).zero?
   end
+
+  def admin?
+    current_user&.admin? || admin_signed_in?
+  end
 end

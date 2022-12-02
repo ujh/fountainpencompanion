@@ -39,6 +39,12 @@ describe "Admins::Reviews" do
           put "/admins/reviews/#{ink_review.id}"
         end.to change { ink_review.reload.approved? }.from(false).to(true)
       end
+
+      it 'keeps redirects to the reviews index page with the page param if another review exists' do
+        create(:ink_review)
+        put "/admins/reviews/#{ink_review.id}?page=2"
+        expect(response).to redirect_to('/admins/reviews?page=2')
+      end
     end
   end
 
