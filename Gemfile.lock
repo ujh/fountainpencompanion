@@ -1,3 +1,13 @@
+GIT
+  remote: https://github.com/sidekiq-scheduler/sidekiq-scheduler.git
+  revision: 76573dbc46c73afa213331049cfc5657582dc376
+  branch: master
+  specs:
+    sidekiq-scheduler (4.0.3)
+      rufus-scheduler (~> 3.2)
+      sidekiq (>= 4, < 8)
+      tilt (>= 1.4.0)
+
 GEM
   remote: https://rails-assets.org/
   specs:
@@ -163,7 +173,7 @@ GEM
     ffi (1.15.5)
     font-awesome-rails (4.7.0.8)
       railties (>= 3.2, < 8.0)
-    fugit (1.7.1)
+    fugit (1.7.2)
       et-orbi (~> 1, >= 1.2.7)
       raabro (~> 1.4)
     get_process_mem (0.2.7)
@@ -393,11 +403,6 @@ GEM
       connection_pool (>= 2.3.0)
       rack (>= 2.2.4)
       redis-client (>= 0.11.0)
-    sidekiq-scheduler (4.0.2)
-      redis (>= 4.2.0)
-      rufus-scheduler (~> 3.2)
-      sidekiq (>= 4)
-      tilt (>= 1.4.0)
     signet (0.17.0)
       addressable (~> 2.8)
       faraday (>= 0.17.5, < 3.a)
@@ -509,7 +514,7 @@ DEPENDENCIES
   sass-rails
   scenic
   sidekiq
-  sidekiq-scheduler
+  sidekiq-scheduler!
   simple_form
   simplecov
   simplecov-lcov

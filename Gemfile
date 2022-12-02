@@ -40,7 +40,7 @@ gem 'ruby-progressbar'
 gem 'sass-rails'
 gem 'scenic'
 gem 'sidekiq'
-gem 'sidekiq-scheduler'
+gem 'sidekiq-scheduler', github: "sidekiq-scheduler/sidekiq-scheduler", branch: "master"
 gem 'simple_form'
 gem 'slim'
 gem 'slodown'
