@@ -22,7 +22,7 @@ I've collected a lot of issues. Most of them are not yet concretely thought out,
 
 ## Local development
 
-This app currently _does not_ have a Docker setup, but is meant to be used for "bare bones" development. You will need a Postgres as well as Redis running (see `.env` for the redis vars).
+This app currently _does not_ have a Docker setup, but is meant to be used for "bare bones" development. You will need a Postgres as well as Redis running (see `.env` for the redis vars). A convenience `docker-compose` file is available for the two services.
 
 Once you've set up everything you can run the whole thing with:
 
