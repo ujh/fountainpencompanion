@@ -9,7 +9,7 @@ export const WidgetWidthContext = React.createContext();
 export const Widget = (props) => {
   return (
     <div className="col-md-12 col-lg-6">
-      <div className="widget">
+      <div className="fpc-dashboard-widget">
         <TrackVisibility once>
           {({ isVisible }) => isVisible && <WidgetContent {...props} />}
         </TrackVisibility>
@@ -50,7 +50,7 @@ const WidgetContent = ({ header, children, path }) => {
 };
 
 const Loader = () => (
-  <div className="loader">
+  <div className="fpc-widget__loader">
     <i className="fa fa-spin fa-refresh" />
   </div>
 );
