@@ -14,18 +14,7 @@
 //= require jquery_ujs
 //= require jquery-ui
 //= require select2
-//= require popper
-//= require bootstrap-sprockets
 //= require_tree .
-
-$(function () {
-  const tooltipTriggerList = document.querySelectorAll(
-    '[data-bs-toggle="tooltip"]'
-  );
-  const tooltipList = [...tooltipTriggerList].map(
-    (tooltipTriggerEl) => new bootstrap.Tooltip(tooltipTriggerEl)
-  );
-});
 
 $(function () {
   $("#new-public-inks").each(function () {
