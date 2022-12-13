@@ -19,6 +19,7 @@
 @use "./friends";
 @use "./brands";
 @use "./blog";
+@use "./form";
 
 .fpc {
   --fpc-text-color: #{b.$gray-900};

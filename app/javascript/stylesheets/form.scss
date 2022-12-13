@@ -1,0 +1,6 @@
+@use "~bootstrap/scss/bootstrap" as b;
+@use "./fpc";
+
+.fpc-form {
+  max-width: 60ch;
+}
