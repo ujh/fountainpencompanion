@@ -3,8 +3,11 @@
 
 .fpc-title {
   font-size: map.get(b.$display-font-sizes, 4);
-  line-height: b.$line-height-lg;
   text-align: center;
+
+  @include b.media-breakpoint-up("sm") {
+    line-height: b.$line-height-lg;
+  }
 }
 
 .fpc-subtitle {
