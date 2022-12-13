@@ -51,21 +51,9 @@
 }
 
 .fpc-content {
-  --fpc-content-background: #{b.$white};
-  background: var(--fpc-content-background);
-
   border-radius: 5px;
-  margin-left: 0;
-  margin-right: 0;
-  box-shadow: fpc.$box-shadow-md;
-  margin-bottom: 10px;
   padding: 15px;
-
-  @media (prefers-color-scheme: dark) {
-    & {
-      --fpc-content-background: #{b.$black};
-    }
-  }
+  margin-bottom: 10px;
 }
 
 .fpc-patron-tiny {
