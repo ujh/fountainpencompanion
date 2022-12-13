@@ -1,4 +1,9 @@
-@use "~bootstrap/scss/bootstrap" as b;
+@use "~bootstrap/scss/bootstrap" as b with (
+  // This is the default, but here is how to override theme colors.
+  // See https://getbootstrap.com/docs/5.2/customize/color/#theme-colors
+  // For a list of themable colors.
+  $primary: rgb(13, 110, 253)
+);
 @use "~react-table-6/react-table";
 
 // @use "./vesper";
@@ -25,6 +30,7 @@
   --fpc-text-color: #{b.$gray-900};
   --fpc-muted-text-color: #{b.$gray-700};
   --fpc-background: #{b.$gray-100};
+  --fpc-bright-background: #{b.$white};
 
   background: var(--fpc-background-color);
   color: var(--fpc-text-color);
@@ -42,6 +48,7 @@
       --fpc-text-color: #{b.$gray-100};
       --fpc-muted-text-color: #{b.$gray-300};
       --fpc-background-color: #{b.$gray-900};
+      --fpc-bright-background: #{b.$black};
     }
   }
 }
@@ -52,9 +59,7 @@
 }
 
 .fpc-content {
-  border-radius: 5px;
-  padding: 15px;
-  margin-bottom: 10px;
+  margin-bottom: b.$spacer;
 }
 
 .fpc-patron-tiny {
