@@ -1,6 +1,6 @@
 - content_for :title, "Account"
 div id="account"
-  div class="col-sm-12 col-md-3 image"
+  div class="col-sm-12 col-md-3 fpc-account-image"
     = profile_image
   div class="col-sm-12 col-md-9 data"
     = simple_form_for current_user, url: account_path, html: { class: 'form-horizontal' } do |f|

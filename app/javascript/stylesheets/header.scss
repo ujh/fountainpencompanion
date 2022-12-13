@@ -1,21 +1,19 @@
-#footer, #header {
-  background: black;
-  border-color: black;
+@use "~bootstrap/scss/bootstrap" as b;
+
+.fpc-header,
+.fpc-footer {
+  background: b.$black;
+  border-color: b.$black;
   border-radius: 0px;
-  filter:none !important;
-  font-family: Droid Serif, Georgia;
   font-size: 14px;
-  a {
-    color: #999;
-  }
-  a:hover {
-    color: #fff;
-  }
-  .collapse.in, .collapsing {
+
+  .collapse.in,
+  .collapsing {
     img {
       display: none;
     }
   }
+
   .navbar-right img {
     margin-top: 6px;
     height: 36px;
@@ -24,6 +22,7 @@
   }
 }
 
-#footer {
+.fpc-footer {
+  margin-top: auto;
   margin-bottom: 0px;
 }

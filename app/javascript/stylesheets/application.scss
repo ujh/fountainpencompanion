@@ -1,53 +1,86 @@
-@import "react-table-6/react-table";
+@use "~bootstrap/scss/bootstrap" as b;
+@use "~react-table-6/react-table";
 
-@import "vesper";
+// @use "./vesper";
 
-@import "account";
-@import "collected_inks";
-@import "header";
-@import "home";
-@import "ink-collection";
-@import "leaderboard";
-@import "public-inks";
-@import "collected_pens";
-@import "currently_inked";
-@import "usage-records";
-@import "dashboards";
-@import "friends";
-@import "brands";
-@import "blog";
+@use "./fpc";
 
-#wrapper {
+@use "./account";
+@use "./collected_inks";
+@use "./header";
+@use "./home";
+@use "./ink-collection";
+@use "./leaderboard";
+@use "./public-inks";
+@use "./collected_pens";
+@use "./currently_inked";
+@use "./usage-records";
+@use "./dashboards";
+@use "./friends";
+@use "./brands";
+@use "./blog";
+
+.fpc {
+  --fpc-text-color: #{b.$gray-900};
+  --fpc-muted-text-color: #{b.$gray-700};
+  --fpc-background: #{b.$gray-100};
+
+  background: var(--fpc-background-color);
+  color: var(--fpc-text-color);
+
+  font-family: b.$font-family-base;
+  font-size: b.$font-size-base;
+  line-height: b.$line-height-base;
+
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-}
 
-#admin {
-  #wrap {
-    margin-top: 70px;
+  @media (prefers-color-scheme: dark) {
+    & {
+      --fpc-text-color: #{b.$gray-100};
+      --fpc-muted-text-color: #{b.$gray-300};
+      --fpc-background-color: #{b.$gray-900};
+    }
   }
 }
-#footer {
-  margin-top: auto;
+
+.fpc-main {
+  padding: 10px;
+  padding-top: 20px;
 }
 
-.patron-tiny {
+.fpc-content {
+  --fpc-content-background: #{b.$white};
+  background: var(--fpc-content-background);
+
+  border-radius: 5px;
+  margin-left: 0;
+  margin-right: 0;
+  box-shadow: fpc.$box-shadow-md;
+  margin-bottom: 10px;
+  padding: 15px;
+
+  @media (prefers-color-scheme: dark) {
+    & {
+      --fpc-content-background: #{b.$black};
+    }
+  }
+}
+
+.fpc-patron-tiny {
   width: 15px;
   margin-left: 5px;
   margin-top: -3px;
 }
 
-.table-wrapper {
-  width: 100%;
+.fpc-table {
+  &--full-width {
+    width: 100%;
+  }
 }
 
-.user_bot_field {
-  position: absolute;
-  left: 30000px;
-}
-
-.hint {
+.fpc-hint {
   background-color: #ddd;
   padding: 3px 6px;
   text-align: center;

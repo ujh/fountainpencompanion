@@ -1,0 +1,15 @@
+@use "sass:map";
+@use "~bootstrap/scss/bootstrap" as b;
+
+.fpc-title {
+  font-size: map.get(b.$display-font-sizes, 4);
+  line-height: b.$line-height-lg;
+  text-align: center;
+}
+
+.fpc-subtitle {
+  text-align: center;
+  font-size: b.$h3-font-size;
+  line-height: b.$line-height-lg;
+  color: var(--fpc-muted-text-color);
+}
