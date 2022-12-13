@@ -14,11 +14,17 @@
 //= require jquery_ujs
 //= require jquery-ui
 //= require select2
+//= require popper
 //= require bootstrap-sprockets
 //= require_tree .
 
 $(function () {
-  $('[data-toggle="tooltip"]').tooltip();
+  const tooltipTriggerList = document.querySelectorAll(
+    '[data-bs-toggle="tooltip"]'
+  );
+  const tooltipList = [...tooltipTriggerList].map(
+    (tooltipTriggerEl) => new bootstrap.Tooltip(tooltipTriggerEl)
+  );
 });
 
 $(function () {
@@ -66,7 +72,7 @@ $(function () {
   ink_review_submission_form.on("ajax:success", (event) => {
     ink_review_submission_form.find("input").val("");
     ink_review_submission_form
-      .find(".help-block")
+      .find(".form-text")
       .text("URL successful submitted!");
   });
 });

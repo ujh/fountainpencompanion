@@ -1,31 +1,27 @@
-nav class="navbar navbar-default" id="header"
+nav class="navbar navbar-dark navbar-expand-md" id="header"
   div class="container"
-    div class="navbar-header"
-      button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#header-menu"
-        span class="icon-bar"
-        span class="icon-bar"
-        span class="icon-bar"
-      a class="navbar-brand" href="#"
+    button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#header-menu" aria-controls="#header-menu" aria-expanded="false" aria-label="Toggle navigation"
+      span class="navbar-toggler-icon"
 
     div class="collapse navbar-collapse" id="header-menu"
       ul class="nav navbar-nav"
-        li= link_to "Dashboard", admins_dashboard_path
-        li= link_to "Users", admins_users_path
-        li class="dropdown"
-          a href="#" class="dropdown-toggle" data-toggle="dropdown" Macro Clusters
+        li.nav-item= link_to "Dashboard", admins_dashboard_path
+        li.nav-item= link_to "Users", admins_users_path
+        li class="nav-item dropdown"
+          a href="#" class="dropdown-toggle" data-bs-toggle="dropdown" Macro Clusters
           ul class="dropdown-menu"
             li= link_to "Clustering App", admins_micro_clusters_path
             li= link_to "Clusters", admins_macro_clusters_path
             li= link_to "Ignored", ignored_admins_micro_clusters_path
         li class="dropdown"
-          a href="#" class="dropdown-toggle" data-toggle="dropdown" Brand Clusters
+          a href="#" class="dropdown-toggle" data-bs-toggle="dropdown" Brand Clusters
           ul class="dropdown-menu"
             li= link_to "Clustering App", new_admins_brand_cluster_path
             li= link_to "Clusters", admins_brand_clusters_path
-        li= link_to "Sidekiq", sidekiq_web_path
-        li= link_to "Blog", admins_blog_posts_path
+        li.nav-item= link_to "Sidekiq", sidekiq_web_path
+        li.nav-item= link_to "Blog", admins_blog_posts_path
         li class="dropdown"
-          a href="#" class="dropdown-toggle" data-toggle="dropdown" Reviews
+          a href="#" class="dropdown-toggle" data-bs-toggle="dropdown" Reviews
           ul class="dropdown-menu"
             li= link_to "Queue", admins_reviews_path
             li= link_to "Missing Reviews", admins_reviews_missing_index_path

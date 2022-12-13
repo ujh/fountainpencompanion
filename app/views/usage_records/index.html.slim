@@ -1,6 +1,6 @@
 - content_for :title, "Usage Records"
 - if current_user.usage_records.count < 5
-  div class="col-xs-12"
+  div class="col-sm-12"
     div class="alert alert-success"
       'By clicking on the
       = fa_icon('bookmark')
@@ -30,6 +30,6 @@ div id="usage-records"
           td= ur.ink_name
           td
             span class="actions"
-              = link_to usage_record_path(ur), class: "btn btn-default", method: :delete, data: { confirm: "Really delet entry?"} do
+              = link_to usage_record_path(ur), class: "btn btn-secondary", method: :delete, data: { confirm: "Really delet entry?"} do
                 = fa_icon("trash")
   = paginate @usage_records

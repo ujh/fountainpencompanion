@@ -8,7 +8,7 @@ export const WidgetWidthContext = React.createContext();
 
 export const Widget = (props) => {
   return (
-    <div className="col-sm-12 col-md-6">
+    <div className="col-md-12 col-lg-6">
       <div className="widget">
         <TrackVisibility once>
           {({ isVisible }) => isVisible && <WidgetContent {...props} />}

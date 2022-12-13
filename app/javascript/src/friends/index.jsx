@@ -66,7 +66,7 @@ class FriendButton extends React.Component {
       return (
         <div>
           <a
-            className="btn btn-default"
+            className="btn btn-secondary"
             onClick={() => this.deleteFriendRequest()}
           >
             Delete Friend Request

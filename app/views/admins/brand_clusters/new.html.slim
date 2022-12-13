@@ -16,11 +16,11 @@ table class="table"
         = link_to "Create",
                   admins_brand_clusters_path(macro_cluster_id: @macro_cluster.id),
                   method: :post,
-                  class: "btn btn-default"
+                  class: "btn btn-secondary"
         = link_to "Create All",
                   admins_brand_clusters_path(macro_cluster_id: @macro_cluster.id, all: true),
                   method: :post,
-                  class: "btn btn-default"
+                  class: "btn btn-secondary"
 
 h2 Existing clusters
 table class="table table-striped"
@@ -38,8 +38,8 @@ table class="table table-striped"
           = link_to "Assign",
                     admins_brand_cluster_path(@macro_cluster, brand_cluster_id: brand_cluster.id),
                     method: :put,
-                    class: "btn btn-default"
+                    class: "btn btn-secondary"
           = link_to "Assign All",
                     admins_brand_cluster_path(@macro_cluster, brand_cluster_id: brand_cluster.id, all: true),
                     method: :put,
-                    class: "btn btn-default"
+                    class: "btn btn-secondary"

@@ -280,7 +280,7 @@ const Table = ({
   prepareRow,
 }) => (
   <div className="table-wrapper">
-    <table {...getTableProps()} className="table table-striped table-condensed">
+    <table {...getTableProps()} className="table table-striped table-sm">
       <thead>
         {headerGroups.map((headerGroup) => (
           <tr {...headerGroup.getHeaderGroupProps()}>
@@ -352,14 +352,14 @@ const Buttons = ({
     <div className="row buttons">
       {!archive && (
         <>
-          <div className="col-xs-12 col-sm-2 col-md-2">
+          <div className="col-sm-12 col-md-2 col-lg-2">
             <a className="btn btn-primary" href="/collected_inks/new">
               Add Ink
             </a>
           </div>
-          <div className="col-xs-12 col-sm-2 col-md-2">
+          <div className="col-sm-12 col-md-2 col-lg-2">
             <a
-              className="btn btn-default"
+              className="btn btn-secondary"
               href="/collected_inks?search[archive]=true"
             >
               Archive
@@ -367,7 +367,7 @@ const Buttons = ({
           </div>
         </>
       )}
-      <div className={archive ? "col-xs-12" : "col-xs-12 col-sm-8 col-md-8"}>
+      <div className={archive ? "col-sm-12" : "col-sm-12 col-md-8 col-lg-8"}>
         <div className="search">
           <input
             value={globalFilter || ""}
@@ -412,7 +412,7 @@ const EditButton = ({ name, id, archived }) => {
   if (archived) href += "?search[archive]=true";
   return (
     <span>
-      <a className="btn btn-default" href={href} title={`Edit ${name}`}>
+      <a className="btn btn-secondary" href={href} title={`Edit ${name}`}>
         <i className="fa fa-pencil" />
       </a>
     </span>
@@ -426,7 +426,7 @@ const DeleteButton = ({ name, id, deletable, archived }) => {
   return (
     <span>
       <a
-        className="btn btn-default"
+        className="btn btn-secondary"
         data-confirm={`Really delete ${name}?`}
         title={`Delete ${name}`}
         data-method="delete"
@@ -443,7 +443,7 @@ const ArchiveButton = ({ name, id, archived }) => {
     return (
       <span>
         <a
-          className="btn btn-default"
+          className="btn btn-secondary"
           title={`Unarchive ${name}`}
           href={`/collected_inks/${id}/unarchive`}
           data-method="post"
@@ -456,7 +456,7 @@ const ArchiveButton = ({ name, id, archived }) => {
     return (
       <span>
         <a
-          className="btn btn-default"
+          className="btn btn-secondary"
           title={`Archive ${name}`}
           href={`/collected_inks/${id}/archive`}
           data-method="post"

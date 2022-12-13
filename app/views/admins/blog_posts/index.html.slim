@@ -1,5 +1,5 @@
 #controls
-  = link_to "New blog post", new_admins_blog_post_path, class: "btn btn-default"
+  = link_to "New blog post", new_admins_blog_post_path, class: "btn btn-secondary"
 #posts
   - @blog_posts.each do |post|
     .post
@@ -14,17 +14,17 @@
           div= "#{post.reading_statuses.dismissed.count} dismissed"
       p= post.html_body
       div
-        = link_to "Edit", edit_admins_blog_post_path(post), class: 'btn btn-default'
+        = link_to "Edit", edit_admins_blog_post_path(post), class: 'btn btn-secondary'
         = link_to "Delete",
                   admins_blog_post_path(post),
                   method: :delete,
-                  class: 'btn btn-default',
+                  class: 'btn btn-secondary',
                   data: { confirm: 'Really delete?' }
         - unless post.published?
           = link_to "Publish",
                     publish_admins_blog_post_path(post),
                     method: :put,
-                    class: 'btn btn-default',
+                    class: 'btn btn-secondary',
                     data: { confirm: 'Really publish?' }
 
   = paginate @blog_posts

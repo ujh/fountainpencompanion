@@ -1,14 +1,14 @@
 span
-  = link_to edit_currently_inked_archive_path(ci), class: "btn btn-default", title: "Edit #{ci.name}"
+  = link_to edit_currently_inked_archive_path(ci), class: "btn btn-secondary", title: "Edit #{ci.name}"
     = fa_icon("pencil")
   - if ci.unarchivable?(@used_pen_ids)
     = link_to unarchive_currently_inked_archive_path(ci),
-              class: "btn btn-default",
+              class: "btn btn-secondary",
               method: :post,
               title: "Unarchive #{ci.name}"
       = fa_icon("archive")
   = link_to currently_inked_archive_path(ci),
-            class: "btn btn-default",
+            class: "btn btn-secondary",
             method: :delete,
             data: { confirm: "Really delete #{ci.name}?" },
             title: "Delete #{ci.name}"

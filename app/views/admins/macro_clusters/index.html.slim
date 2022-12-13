@@ -22,7 +22,7 @@ table class="table"
         td
           = link_to "Delete",
                     admins_macro_cluster_path(cluster),
-                    class: "btn btn-default",
+                    class: "btn btn-secondary",
                     method: :delete,
                     confirm: "Really delete?",
                     remote: true
@@ -39,7 +39,7 @@ table class="table"
                   td
                     = link_to "Remove",
                               unassign_admins_micro_cluster_path(mc),
-                              class: "btn btn-default",
+                              class: "btn btn-secondary",
                               method: :delete,
                               confirm: "Really unassign?",
                               remote: true

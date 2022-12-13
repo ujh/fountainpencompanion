@@ -205,7 +205,7 @@ const MacroClusterRow = ({ macroCluster, afterAssign, selected }) => {
         </td>
         <td>
           <input
-            className="btn btn-default"
+            className="btn btn-secondary"
             type="submit"
             disabled={updating}
             value="Assign"

@@ -48,14 +48,14 @@ export const CreateRow = ({ afterCreate }) => {
       <th></th>
       <th>
         <input
-          className="btn btn-default"
+          className="btn btn-secondary"
           type="submit"
           disabled={updating}
           value="Create"
           onClick={create}
         />
         <input
-          className="btn btn-default"
+          className="btn btn-secondary"
           type="submit"
           disabled={updating}
           value="Ignore"

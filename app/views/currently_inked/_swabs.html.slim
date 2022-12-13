@@ -1,20 +1,20 @@
 div class="row stats"
-  div class="col-xs-12"
+  div class="col-sm-12"
     'You currently have
     b= "#{collection.size} pens "
     'inked with
     b= "#{collection.map(&:ink_simplified_name).uniq.length} inks"
     |.
 div class="links row"
-  div class="col-xs-12"
+  div class="col-sm-12"
     = link_to "Add entry", new_currently_inked_path, class: "btn btn-primary"
-  div class="col-xs-12 col-sm-6"
-    = link_to 'Show Archived Entries', currently_inked_archive_index_path, class: "btn btn-default"
-  div class="col-xs-12 col-sm-6"
-    = link_to "Show Usage Records", usage_records_path, class: "btn btn-default"
+  div class="col-sm-12 col-md-6"
+    = link_to 'Show Archived Entries', currently_inked_archive_index_path, class: "btn btn-secondary"
+  div class="col-sm-12 col-md-6"
+    = link_to "Show Usage Records", usage_records_path, class: "btn btn-secondary"
 div class="row"
   - collection.each_with_index do |ci, index|
-    div class="col-xs-12 col-sm-6"
+    div class="col-sm-12 col-md-6"
       div class="entry"
         div= image_pack_tag("swab.png", style: "background-color:#{ci.ink_color};")
         div
@@ -44,27 +44,27 @@ div class="row"
           span
             - if ci.refillable?
               = link_to refill_currently_inked_path(ci),
-                        class: "btn btn-default",
+                        class: "btn btn-secondary",
                         method: :post,
                         title: "Refill this pen",
                         data: { confirm: "Really refill #{ci.name}?"}
                 = fa_icon("rotate-right")
             - if ci.used_today?
-              div class="btn btn-default" title="Already recorded usage for today"
+              div class="btn btn-secondary" title="Already recorded usage for today"
                 = fa_icon("bookmark-o")
             - else
               = link_to currently_inked_usage_record_path(ci),
-                        class: "usage btn btn-default",
+                        class: "usage btn btn-secondary",
                         method: :post,
                         remote: true,
                         title: "Record usage for today"
                 = fa_icon("bookmark")
-            = link_to edit_currently_inked_path(ci), class: "btn btn-default", title: "Edit #{ci.name}"
+            = link_to edit_currently_inked_path(ci), class: "btn btn-secondary", title: "Edit #{ci.name}"
               = fa_icon("pencil")
-            = link_to archive_currently_inked_path(ci), class: "btn btn-default", method: :post, title: "Archive #{ci.name}"
+            = link_to archive_currently_inked_path(ci), class: "btn btn-secondary", method: :post, title: "Archive #{ci.name}"
               = fa_icon("archive")
             = link_to currently_inked_path(ci),
-                      class: "btn btn-default",
+                      class: "btn btn-secondary",
                       method: :delete,
                       data: { confirm: "Really delete #{ci.name}?" },
                       title: "Delete #{ci.name}"
@@ -72,9 +72,9 @@ div class="row"
     - if (index+1) % 2 == 0
       div class="clearfix visible-sm-block"
 div class="links row"
-  div class="col-xs-12"
+  div class="col-sm-12"
     = link_to "Add entry", new_currently_inked_path, class: "btn btn-primary"
-  div class="col-xs-12 col-sm-6"
-    = link_to 'Show Archived Entries', currently_inked_archive_index_path, class: "btn btn-default"
-  div class="col-xs-12 col-sm-6"
-    = link_to "Show Usage Records", usage_records_path, class: "btn btn-default"
+  div class="col-sm-12 col-md-6"
+    = link_to 'Show Archived Entries', currently_inked_archive_index_path, class: "btn btn-secondary"
+  div class="col-sm-12 col-md-6"
+    = link_to "Show Usage Records", usage_records_path, class: "btn btn-secondary"

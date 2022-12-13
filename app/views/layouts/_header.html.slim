@@ -1,32 +1,28 @@
-nav class="navbar navbar-default" id="header"
+nav class="navbar navbar-dark navbar-expand-md" id="header"
   div class="container"
-    div class="navbar-header"
-      button type="button" class="navbar-toggle collapsed pull-left" data-toggle="collapse" data-target="#header-menu"
-        span class="icon-bar"
-        span class="icon-bar"
-        span class="icon-bar"
-      a class="navbar-brand" href="#"
+    button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#header-menu" aria-controls="#header-menu" aria-expanded="false" aria-label="Toggle navigation"
+      span class="navbar-toggler-icon"
 
     div class="collapse navbar-collapse" id="header-menu"
-      ul class="nav navbar-nav"
-        li= link_to "Home", root_path
-        li= link_to "Users", users_path
-        li= link_to "Brands", brands_path
-        li= link_to "Leaderboards", page_path("leaderboards")
-        li= link_to "Blog", blog_index_path
-        li class="dropdown"
-          a href="#" class="dropdown-toggle" data-toggle="dropdown" Community
-          ul class="dropdown-menu"
-            li= link_to "Forum", "https://community.fpc.ink"
-            li= link_to "Missing Reviews", missing_reviews_path
-      ul class="nav navbar-nav navbar-right"
+      ul class="navbar-nav me-auto flex-grow-1 mb-2 mb-lg-0"
+        li.nav-item= link_to "Home", root_path, class: "nav-link"
+        li.nav-item= link_to "Users", users_path, class: "nav-link"
+        li.nav-item= link_to "Brands", brands_path, class: "nav-link"
+        li.nav-item= link_to "Leaderboards", page_path("leaderboards"), class: "nav-link"
+        li.nav-item= link_to "Blog", blog_index_path, class: "nav-link"
+        li class="nav-item dropdown"
+          a href="#" class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false" Community
+          ul class="dropdown-menu dropdown-menu-dark"
+            li= link_to "Forum", "https://community.fpc.ink", class: "dropdown-item"
+            li= link_to "Missing Reviews", missing_reviews_path, class: "dropdown-item"
+      ul class="navbar-nav me-auto mb-2 mb-lg-0 align-self-right"
         - if user_signed_in?
-          li= link_to "Currently Inked", currently_inked_index_path
-          li= link_to "My Pens", collected_pens_path
-          li= link_to "My Inks", collected_inks_path
-          li= link_to "Account", account_path
-          li= link_to "Logout", destroy_user_session_path, method: :delete
-          li= profile_image(size: 100)
+          li.nav-item= link_to "Currently Inked", currently_inked_index_path, class: "nav-link"
+          li.nav-item= link_to "My Pens", collected_pens_path, class: "nav-link"
+          li.nav-item= link_to "My Inks", collected_inks_path, class: "nav-link"
+          li.nav-item= link_to "Account", account_path, class: "nav-link"
+          li.nav-item= link_to "Logout", destroy_user_session_path, method: :delete, class: "nav-link"
+          li.nav-item= profile_image(size: 100)
         - else
-          li= link_to "Sign Up", new_user_registration_path
-          li= link_to "Login", new_user_session_path
+          li.nav-item= link_to "Sign Up", new_user_registration_path, class: "nav-link"
+          li.nav-item= link_to "Login", new_user_session_path, class: "nav-link"

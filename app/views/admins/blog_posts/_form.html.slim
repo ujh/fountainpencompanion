@@ -1,5 +1,5 @@
 = simple_form_for [:admins, blog_post] do |f|
   = f.input :title, as: :string
   = f.input :body, input_html: { rows: 20 }
-  = f.submit class: 'btn btn-default'
-  = link_to "Cancel", admins_blog_posts_path, class: 'btn btn-default'
+  = f.submit class: 'btn btn-secondary'
+  = link_to "Cancel", admins_blog_posts_path, class: 'btn btn-secondary'

@@ -18,7 +18,7 @@ const InksVisualizationWidgetContent = () => {
   const width = useContext(WidgetWidthContext);
   return (
     <>
-      <div className="form-group">
+      <div className="container">
         <div className="checkbox">
           <label
             htmlFor="include-archived"

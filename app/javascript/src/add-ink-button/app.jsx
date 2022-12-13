@@ -47,13 +47,13 @@ const ActualInkAddButton = ({ macro_cluster_id }) => {
   switch (state) {
     case "added":
       return (
-        <div className="btn btn-default">
+        <div className="btn btn-secondary">
           <i className="fa fa-check" />
         </div>
       );
     case "adding":
       return (
-        <div className="btn btn-default">
+        <div className="btn btn-secondary">
           <Loader />
         </div>
       );
@@ -72,14 +72,17 @@ const ActualInkAddButton = ({ macro_cluster_id }) => {
           <span className="btn btn-primary" onClick={add}>
             Add
           </span>
-          <span className="btn btn-default" onClick={() => setState(null)}>
+          <span className="btn btn-secondary" onClick={() => setState(null)}>
             <i className="fa fa-times" />
           </span>
         </div>
       );
     default:
       return (
-        <div className="btn btn-default" onClick={() => setState("pick-kind")}>
+        <div
+          className="btn btn-secondary"
+          onClick={() => setState("pick-kind")}
+        >
           Add to collection
         </div>
       );

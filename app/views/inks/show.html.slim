@@ -5,7 +5,7 @@
   meta property="og:description" content="This ink is owned by #{@ink.public_collected_inks_count} users"
 
 div class="row details"
-  div class="col-xs-12 col-sm-6"
+  div class="col-sm-12 col-md-6"
     h4 Details
     div class="table-wrapper"
       table class="table"
@@ -28,7 +28,7 @@ div class="row details"
     - if user_signed_in?
       div class="add-ink-button" data={ "macro-cluster-id" => @ink.id }
 
-  div class="col-xs-12 col-sm-6"
+  div class="col-sm-12 col-md-6"
     h4 Colors for this ink
     div class="color-tiles"
       - @ink.collected_inks.pluck(:color).uniq.each do |c|
@@ -43,7 +43,7 @@ div class="row details"
         ' We will try to fix it as soon as possible.
       = link_to "Report an error",
                 "mailto:clustering-error@fountainpencompanion.com?subject=#{@ink.name}",
-                class: "btn btn-default"
+                class: "btn btn-secondary"
     div class="reviews"
       - if user_signed_in?
         h4 Submit a review
@@ -57,26 +57,26 @@ div class="row details"
     -@ink.approved_ink_reviews.in_groups_of(2, false) do |group|
       div class="row"
         - group.each do |ink_review|
-          div class="col-xs-12 col-sm-6"
+          div class="col-sm-12 col-md-6"
             div class="review row"
-              div class="col-xs-12 col-sm-6"
+              div class="col-sm-12 col-md-6"
                 = link_to ink_review.title, ink_review.url
                 div class="source"
                   = URI(ink_review.url).host
                   - if ink_review.author
                     = " | #{ink_review.author}"
                 div class="description"= truncate(ink_review.description, length: 200)
-              div class="col-xs-12 col-sm-6"
+              div class="col-sm-12 col-md-6"
                 = image_tag ink_review.image
               - if admin?
-                = link_to "Reject", admins_review_path(ink_review), method: :delete, class: 'btn btn-default', data: { confirm: 'Reject?' }
+                = link_to "Reject", admins_review_path(ink_review), method: :delete, class: 'btn btn-secondary', data: { confirm: 'Reject?' }
 
 
 
 h2 Names for this ink
 
 div class="table-wrapper"
-  table class="table table-striped table-condensed"
+  table class="table table-striped table-sm"
     thead
       tr
         th Count
