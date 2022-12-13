@@ -30,7 +30,8 @@ main class="fpc-main container" id="main"
           span &times;
         b= reading_status.blog_post.title
         p= truncate(reading_status.blog_post.body, length: 100) { link_to " continue reading", blog_path(reading_status.blog_post)}
-  h1.fpc-title= content_for :title
+  - if content_for?(:title)
+    h1.fpc-title= content_for :title
   - if content_for?(:subtitle)
     div.fpc-subtitle= content_for :subtitle
   div class="fpc-content content"
