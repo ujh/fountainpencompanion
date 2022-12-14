@@ -84,3 +84,38 @@
     margin-bottom: 0;
   }
 }
+
+.ReactTable {
+  $_react-table-dark-border: solid 1px rgba(255, 255, 255, 0.1);
+
+  @media (prefers-color-scheme: dark) {
+    & {
+      border: $_react-table-dark-border;
+    }
+  }
+
+  .-pagination .-btn {
+    color: var(--fpc-text-color);
+  }
+
+  .rt-thead,
+  .rt-tfoot,
+  .rt-tbody {
+    .rt-tr-group {
+      @media (prefers-color-scheme: dark) {
+        & {
+          border-bottom: $_react-table-dark-border;
+        }
+      }
+    }
+
+    .rt-th:not(:last-child),
+    .rt-td:not(:last-child) {
+      @media (prefers-color-scheme: dark) {
+        & {
+          border-right: $_react-table-dark-border;
+        }
+      }
+    }
+  }
+}
