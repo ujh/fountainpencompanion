@@ -26,4 +26,4 @@ div class="fpc-table fpc-table--full-width fpc-inks-table"
           td= link_to "Details", brand_ink_url(@brand, ink)
           - if user_signed_in?
             td
-              div class="add-ink-button" data={ "macro-cluster-id" => ink.id }
+              div class="fpc-add-ink-button" data={ "macro-cluster-id" => ink.id }
