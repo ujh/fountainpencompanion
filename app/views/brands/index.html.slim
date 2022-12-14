@@ -1,8 +1,11 @@
-- content_for :title, "#{BrandCluster.public_count} brands"
+- content_for :title, "Ink search"
 
 = render partial: 'inks/search'
 
-- @brands.each_with_index do |brand, i|
-  div class="col-sm-12 col-md-6 col-lg-4 col-xl-3"
-    = "#{i+1}. "
-    = link_to brand.name, brand_path(brand)
+
+h2.mt-5.mb-3 Browse by brand
+p #{BrandCluster.public_count} brands
+ol class="fpc-brands-list"
+  - @brands.each_with_index do |brand, i|
+    li
+      = link_to brand.name, brand_path(brand)
