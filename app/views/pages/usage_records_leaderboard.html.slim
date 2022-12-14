@@ -1,5 +1,5 @@
-- content_for :title, "Usage Records Leaderboard"
-div class="leaderboard"
-  ol
-    - LeaderBoard.usage_records.each do |user_data|
-      = render partial: "leaderboard_row", locals: { user_data: user_data }
+- content_for :title, "Usage records leaderboard"
+
+ol class="fpc-leaderboard"
+  - LeaderBoard.usage_records.each do |user_data|
+    = render partial: "leaderboard_row", locals: { user_data: user_data }
