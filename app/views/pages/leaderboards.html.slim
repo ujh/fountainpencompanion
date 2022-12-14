@@ -1,70 +1,80 @@
 - content_for :title, "Leaderboards"
-div class="col-sm-12 col-md-6 leaderboard"
-  h4 Inks
-  h6 Ranked by the number of inks in total
-  ol
-    - LeaderBoard.top_inks.each do |user_data|
-      = render partial: "leaderboard_row", locals: { user_data: user_data }
-  p= link_to "Show all", page_path("inks_leaderboard")
-div class="col-sm-12 col-md-6 leaderboard"
-  h4 Bottles
-  h6 Ranked by the number of ink bottles
-  ol
-    - LeaderBoard.top_bottles.each do |user_data|
-      = render partial: "leaderboard_row", locals: { user_data: user_data }
-  p= link_to "Show all", page_path("bottles_leaderboard")
-div class="col-sm-12 col-md-6 leaderboard"
-  h4 Samples
-  h6 Ranked by the number of samples
-  ol
-    - LeaderBoard.top_samples.each do |user_data|
-      = render partial: "leaderboard_row", locals: { user_data: user_data }
-  p= link_to "Show all", page_path("samples_leaderboard")
-div class="col-sm-12 col-md-6 leaderboard"
-  h4 Brands
-  h6 Ranked by the number of different brands
-  ol
-    - LeaderBoard.top_brands.each do |user_data|
-      = render partial: "leaderboard_row", locals: { user_data: user_data }
-  p= link_to "Show all", page_path("brands_leaderboard")
-div class="col-sm-12 col-md-6 leaderboard"
-  h4 Currently Inked
-  h6 Ranked by the number of currently inked entries
-  ol
-    - LeaderBoard.top_currently_inked.each do |user_data|
-      = render partial: "leaderboard_row", locals: { user_data: user_data }
-  p= link_to "Show all", page_path("currently_inked_leaderboard")
-div class="col-sm-12 col-md-6 leaderboard"
-  h4 Usage Records
-  h6 Ranked by the number of usage records
-  ol
-    - LeaderBoard.top_usage_records.each do |user_data|
-      = render partial: "leaderboard_row", locals: { user_data: user_data }
-  p= link_to "Show all", page_path("usage_records_leaderboard")
-div class="col-sm-12 col-md-6 leaderboard"
-  h4 Review submissions
-  h6 Ranked by the number of reviews submitted
-  ol
-    - LeaderBoard.top_ink_review_submissions.each do |user_data|
-      = render partial: "leaderboard_row", locals: { user_data: user_data }
-  p= link_to "Show all", page_path("ink_review_submissions_leaderboard")
 
-div class="col-sm-12 col-md-6 leaderboard"
-  h4 Popular Inks
-  h6 Ranked by number of people who own this
-  ol
-    - LeaderBoard.top_inks_by_popularity.each do |macro_cluster|
-      li
-        - if macro_cluster.brand_cluster
-          = link_to macro_cluster.name, brand_ink_path(macro_cluster.brand_cluster, macro_cluster)
-        - else
-          = macro_cluster.name
-        = " (#{macro_cluster.ci_count})"
-  p= link_to "Show all", page_path("inks_by_popularity")
-div class="col-sm-12 col-md-6 leaderboard"
-  h4 Popular Pens
-  h6 Ranked by number of people who own this
-  ol
-    - LeaderBoard.top_pens_by_popularity.each do |pen|
-      li= "#{pen.brand} #{pen.model} (#{pen.count})"
-  p= link_to "Show all", page_path("pens_by_popularity")
+div.row.mb-3
+  div class="col-sm-12 col-md-6 fpc-leaderboard"
+    h2 class="h4" Inks
+    p.text-muted Ranked by the number of inks in total
+    ol
+      - LeaderBoard.top_inks.each do |user_data|
+        = render partial: "leaderboard_row", locals: { user_data: user_data }
+    p= link_to "Show all", page_path("inks_leaderboard")
+  div class="col-sm-12 col-md-6 fpc-leaderboard"
+    h2 class="h4" Bottles
+    p.text-muted Ranked by the number of ink bottles
+    ol
+      - LeaderBoard.top_bottles.each do |user_data|
+        = render partial: "leaderboard_row", locals: { user_data: user_data }
+    p= link_to "Show all", page_path("bottles_leaderboard")
+
+div.row.mb-3
+  div class="col-sm-12 col-md-6 fpc-leaderboard"
+    h2 class="h4" Samples
+    p.text-muted Ranked by the number of samples
+    ol
+      - LeaderBoard.top_samples.each do |user_data|
+        = render partial: "leaderboard_row", locals: { user_data: user_data }
+    p= link_to "Show all", page_path("samples_leaderboard")
+  div class="col-sm-12 col-md-6 fpc-leaderboard"
+    h2 class="h4" Brands
+    p.text-muted Ranked by the number of different brands
+    ol
+      - LeaderBoard.top_brands.each do |user_data|
+        = render partial: "leaderboard_row", locals: { user_data: user_data }
+    p= link_to "Show all", page_path("brands_leaderboard")
+
+div.row.mb-3
+  div class="col-sm-12 col-md-6 fpc-leaderboard"
+    h2 class="h4" Currently Inked
+    p.text-muted Ranked by the number of currently inked entries
+    ol
+      - LeaderBoard.top_currently_inked.each do |user_data|
+        = render partial: "leaderboard_row", locals: { user_data: user_data }
+    p= link_to "Show all", page_path("currently_inked_leaderboard")
+  div class="col-sm-12 col-md-6 fpc-leaderboard"
+    h2 class="h4" Usage Records
+    p.text-muted Ranked by the number of usage records
+    ol
+      - LeaderBoard.top_usage_records.each do |user_data|
+        = render partial: "leaderboard_row", locals: { user_data: user_data }
+    p= link_to "Show all", page_path("usage_records_leaderboard")
+
+div.row.mb-3
+  div class="col-sm-12 col-md-6 fpc-leaderboard"
+    h2 class="h4" Review submissions
+    p.text-muted Ranked by the number of reviews submitted
+    ol
+      - LeaderBoard.top_ink_review_submissions.each do |user_data|
+        = render partial: "leaderboard_row", locals: { user_data: user_data }
+    p= link_to "Show all", page_path("ink_review_submissions_leaderboard")
+
+  div class="col-sm-12 col-md-6 fpc-leaderboard"
+    h2 class="h4" Popular Inks
+    p.text-muted Ranked by number of people who own this
+    ol
+      - LeaderBoard.top_inks_by_popularity.each do |macro_cluster|
+        li
+          - if macro_cluster.brand_cluster
+            = link_to macro_cluster.name, brand_ink_path(macro_cluster.brand_cluster, macro_cluster)
+          - else
+            = macro_cluster.name
+          = " (#{macro_cluster.ci_count})"
+    p= link_to "Show all", page_path("inks_by_popularity")
+
+div.row.mb-3
+  div class="col-sm-12 fpc-leaderboard"
+    h2 class="h4" Popular Pens
+    p.text-muted Ranked by number of people who own this
+    ol
+      - LeaderBoard.top_pens_by_popularity.each do |pen|
+        li= "#{pen.brand} #{pen.model} (#{pen.count})"
+    p= link_to "Show all", page_path("pens_by_popularity")
