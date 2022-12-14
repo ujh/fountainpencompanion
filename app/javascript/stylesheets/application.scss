@@ -75,47 +75,42 @@
 }
 
 .fpc-hint {
-  background-color: #ddd;
-  padding: 3px 6px;
-  text-align: center;
-  border-radius: 5px;
-  margin-bottom: 15px;
+  margin-bottom: 40px;
+  max-width: 80ch;
+
   p:last-child {
     margin-bottom: 0;
   }
 }
 
-.ReactTable {
-  $_react-table-dark-border: solid 1px rgba(255, 255, 255, 0.1);
+@media (prefers-color-scheme: dark) {
+  $_table-dark-border-color: rgba(255, 255, 255, 0.1);
+  $_table-dark-border: solid 1px $_table-dark-border-color;
 
-  @media (prefers-color-scheme: dark) {
-    & {
-      border: $_react-table-dark-border;
+  .ReactTable {
+    border: $_table-dark-border;
+
+    .-pagination .-btn {
+      color: var(--fpc-text-color);
     }
-  }
 
-  .-pagination .-btn {
-    color: var(--fpc-text-color);
-  }
-
-  .rt-thead,
-  .rt-tfoot,
-  .rt-tbody {
-    .rt-tr-group {
-      @media (prefers-color-scheme: dark) {
-        & {
-          border-bottom: $_react-table-dark-border;
-        }
+    .rt-thead,
+    .rt-tfoot,
+    .rt-tbody {
+      .rt-tr-group {
+        border-bottom: $_table-dark-border;
       }
     }
 
     .rt-th:not(:last-child),
     .rt-td:not(:last-child) {
-      @media (prefers-color-scheme: dark) {
-        & {
-          border-right: $_react-table-dark-border;
-        }
-      }
+      border-right: $_table-dark-border;
     }
+  }
+
+  .table {
+    --bs-table-color: var(--fpc-text-color);
+    --bs-table-striped-color: var(--fpc-text-color);
+    --bs-table-striped-bg: var(--fpc-bright-background);
   }
 }
