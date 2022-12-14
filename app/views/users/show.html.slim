@@ -8,7 +8,7 @@
   meta property="og:image" content=profile_image_url(@user, size: 500)
 
 
-div id="account"
+div id="account" class="row"
   div class="col-sm-12 col-md-3 fpc-account-image"
     = profile_image_for(@user)
     - if user_signed_in?
