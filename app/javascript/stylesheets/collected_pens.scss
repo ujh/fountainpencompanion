@@ -1,3 +1,15 @@
+@use "~bootstrap/scss/bootstrap" as b;
+
+.fpc-collected-pens-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+
+  @include b.media-breakpoint-up("sm") {
+    flex-direction: row;
+  }
+}
+
 #collected-pens,
 #collected-pens-archive {
   td {
@@ -13,7 +25,9 @@
 #collected-pens {
   .export {
     text-align: right;
-    margin-bottom: 20px;
+    @include b.media-breakpoint-down("sm") {
+      margin-bottom: 10px;
+    }
     .btn {
       margin-left: 10px;
     }
