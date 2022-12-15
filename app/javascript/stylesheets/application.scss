@@ -70,6 +70,8 @@
 }
 
 .fpc-table {
+  overflow-x: auto;
+
   &--full-width {
     width: 100%;
   }
