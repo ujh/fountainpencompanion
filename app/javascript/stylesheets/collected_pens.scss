@@ -24,10 +24,12 @@
 
 #collected-pens {
   .export {
-    text-align: right;
+    float: right;
+
     @include b.media-breakpoint-down("sm") {
       margin-bottom: 10px;
     }
+
     .btn {
       margin-left: 10px;
     }
