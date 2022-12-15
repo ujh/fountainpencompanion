@@ -119,8 +119,9 @@ form.new_collected_ink {
   overflow-x: hidden;
 }
 
-.pick-kind span {
-  margin-right: 5px;
+.pick-kind {
+  display: flex;
+  gap: 5px;
 }
 
 ul.tags {

@@ -1,6 +1,6 @@
-- content_for :title, "Currently Inked Archive"
+- content_for :title, "Currently inked archive"
 div id="currently-inked-archive"
-  div class="table"
+  div class="fpc-currently-inked-table"
     = render partial: "table", locals: { collection: @collection }
   div class="swabs"
     = render partial: "swabs", locals: { collection: @collection }

@@ -1,4 +1,4 @@
-- content_for :title, "Usage Records"
+- content_for :title, "Usage records"
 - if current_user.usage_records.count < 5
   div class="col-sm-12"
     div class="alert alert-success"
@@ -13,7 +13,7 @@
       | .
 div id="usage-records"
   div class="export"
-    = link_to "Export data", usage_records_path(format: 'csv'), class: "btn btn-primary"
+    = link_to "Export data", usage_records_path(format: 'csv'), class: "btn btn-sm btn-outline-primary"
   = paginate @usage_records
   table class="table table-striped"
     thead
@@ -30,6 +30,6 @@ div id="usage-records"
           td= ur.ink_name
           td
             span class="actions"
-              = link_to usage_record_path(ur), class: "btn btn-secondary", method: :delete, data: { confirm: "Really delet entry?"} do
+              = link_to usage_record_path(ur), class: "btn btn-outline-primary", method: :delete, data: { confirm: "Really delet entry?"} do
                 = fa_icon("trash")
   = paginate @usage_records

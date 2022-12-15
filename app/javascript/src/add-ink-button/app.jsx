@@ -53,37 +53,40 @@ const ActualInkAddButton = ({ macro_cluster_id }) => {
       );
     case "adding":
       return (
-        <button disabled className="btn btn-outline-secondary">
+        <button disabled className="btn btn-outline-primary">
           <Loader />
         </button>
       );
     case "pick-kind":
       return (
         <div className="pick-kind">
-          <span>Type:</span>
-          <span>
-            <select value={kind} onChange={(e) => setKind(e.target.value)}>
-              <option value="bottle">bottle</option>
-              <option value="sample">sample</option>
-              <option value="cartridge">cartridge</option>
-              <option value="swab">swab</option>
-            </select>
-          </span>
-          <span className="btn btn-primary" onClick={add}>
+          <select
+            aria-label="Type"
+            className="form-select"
+            value={kind}
+            onChange={(e) => setKind(e.target.value)}
+          >
+            <option value="bottle">bottle</option>
+            <option value="sample">sample</option>
+            <option value="cartridge">cartridge</option>
+            <option value="swab">swab</option>
+          </select>
+          <button type="button" className="btn btn-primary" onClick={add}>
             Add
-          </span>
-          <span
+          </button>
+          <button
+            type="button"
             className="btn btn-outline-secondary"
             onClick={() => setState(null)}
           >
             <i className="fa fa-times" />
-          </span>
+          </button>
         </div>
       );
     default:
       return (
         <div
-          className="btn btn-outline-secondary"
+          className="btn btn-outline-primary"
           onClick={() => setState("pick-kind")}
         >
           Add to collection
