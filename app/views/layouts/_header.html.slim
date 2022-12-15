@@ -17,12 +17,12 @@ nav class="fpc-header navbar navbar-dark navbar-expand-md" id="header"
             li= link_to "Missing Reviews", missing_reviews_path, class: "dropdown-item"
       ul class="navbar-nav me-auto mb-2 mb-lg-0 align-self-right"
         - if user_signed_in?
-          li.nav-item= link_to "Currently Inked", currently_inked_index_path, class: "nav-link"
-          li.nav-item= link_to "My Pens", collected_pens_path, class: "nav-link"
-          li.nav-item= link_to "My Inks", collected_inks_path, class: "nav-link"
+          li.nav-item= link_to "Currently inked", currently_inked_index_path, class: "nav-link"
+          li.nav-item= link_to "My pens", collected_pens_path, class: "nav-link"
+          li.nav-item= link_to "My inks", collected_inks_path, class: "nav-link"
           li.nav-item= link_to "Account", account_path, class: "nav-link"
           li.nav-item= link_to "Log out", destroy_user_session_path, method: :delete, class: "nav-link"
           li.nav-item= profile_image(size: 100)
         - else
-          li.nav-item= link_to "Sign Up", new_user_registration_path, class: "nav-link"
+          li.nav-item= link_to "Sign up", new_user_registration_path, class: "nav-link"
           li.nav-item= link_to "Login", new_user_session_path, class: "nav-link"
