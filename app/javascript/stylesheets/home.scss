@@ -1,9 +1,83 @@
-#home {
-  .row {
-    box-shadow: none;
+@use "sass:map";
+@use "~bootstrap/scss/bootstrap" as b;
+
+.fpc-cta {
+  display: flex;
+  justify-content: center;
+  margin-top: b.$spacer * 2;
+  margin-bottom: b.$spacer * 2;
+  width: 100%;
+
+  @include b.media-breakpoint-up("md") {
+    margin-top: b.$spacer * 3;
+    margin-bottom: b.$spacer * 3;
   }
+}
+
+.fpc-home-capybara {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+
+  img {
+    width: 100%;
+    max-width: 220px;
+
+    @include b.media-breakpoint-up("md") {
+      margin-top: b.$spacer;
+      max-width: 325px;
+    }
+  }
+}
+
+.fpc-title {
+  font-family: b.$display-font-family;
+  font-style: b.$display-font-style;
+  font-size: map.get(b.$display-font-sizes, 6);
+  font-weight: b.$display-font-weight;
+  line-height: b.$display-line-height;
   text-align: center;
-  i {
+
+  @include b.media-breakpoint-up("md") {
+    font-size: map.get(b.$display-font-sizes, 3);
+  }
+}
+
+.fpc-features {
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: auto;
+  gap: b.$spacer;
+
+  @include b.media-breakpoint-up("md") {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.fpc-feature {
+  border-radius: 4px;
+  padding: b.$spacer;
+  width: 100%;
+  background: var(--fpc-bright-background);
+
+  display: flex;
+  flex-direction: row;
+
+  @include b.media-breakpoint-up("md") {
+    &:nth-child(even) {
+      flex-direction: row-reverse;
+    }
+  }
+
+  &__icon {
+    min-width: 92px;
     font-size: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  &__descriptions {
+    flex-grow: 1;
   }
 }

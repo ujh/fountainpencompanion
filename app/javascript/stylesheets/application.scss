@@ -33,7 +33,7 @@
   --fpc-background: #{b.$gray-100};
   --fpc-bright-background: #{b.$white};
 
-  background: var(--fpc-background-color);
+  background: var(--fpc-background);
   color: var(--fpc-text-color);
 
   font-family: b.$font-family-base;
