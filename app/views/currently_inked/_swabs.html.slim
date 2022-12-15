@@ -5,13 +5,9 @@ div class="row stats"
     'inked with
     b= "#{collection.map(&:ink_simplified_name).uniq.length} inks"
     |.
-div class="links row"
-  div class="col-sm-12"
-    = link_to "Add entry", new_currently_inked_path, class: "btn btn-primary"
-  div class="col-sm-12 col-md-6"
-    = link_to "Show archived entries", currently_inked_archive_index_path, class: "btn btn-outline-secondary"
-  div class="col-sm-12 col-md-6"
-    = link_to "Show usage records", usage_records_path, class: "btn btn-outline-secondary"
+
+= render partial: "actions"
+
 div class="row"
   - collection.each_with_index do |ci, index|
     div class="col-sm-12 col-md-6"
@@ -71,10 +67,5 @@ div class="row"
               = fa_icon("trash")
     - if (index+1) % 2 == 0
       div class="clearfix visible-sm-block"
-div class="links row"
-  div class="col-sm-12"
-    = link_to "Add entry", new_currently_inked_path, class: "btn btn-primary"
-  div class="col-sm-12 col-md-6"
-    = link_to "Show archived entries", currently_inked_archive_index_path, class: "btn btn-outline-secondary"
-  div class="col-sm-12 col-md-6"
-    = link_to "Show usage records", usage_records_path, class: "btn btn-outline-secondary"
+
+= render partial: "actions"
