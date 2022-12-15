@@ -11,7 +11,7 @@
     div class="col-md-12 col-lg-6"
       = f.input :kind, as: :select, collection: CollectedInk::KINDS, label: 'Type'
       = f.input :color, hint: "HTML hex code, or leave blank and have the system fill it in for you"
-      div class="color-picker" data-input="collected_ink_color"
+      div class="color-picker mb-3" data-input="collected_ink_color"
       = f.input :swabbed, hint: "Check this box if you made a swab card of the ink"
       = f.input :used, hint: "Check this box if you've used this ink. Also gets set automatically when you create a currently inked entry with this ink"
       = f.input :private, hint: "Check this box if do not want to share this ink on your public profile."
@@ -21,12 +21,11 @@
   - if ink.new_record?
     div class="row"
       div class="col-md-12 col-lg-6"
-        div class="container boolean optional"
+        fieldset class="mb-3 boolean optional"
           div class="form-check"
-            label for='redo' class="form-check-label"
-              = check_box_tag 'redo', 'yes', params[:redo].present?
-              | Add another ink
+            = check_box_tag 'redo', 'yes', params[:redo].present?, class: "form-check-input"
+            label for='redo' class="form-check-label" Add another ink
   div class="row"
     div class="col-md-12 col-lg-6"
-      = f.submit 'Save', class: "btn btn-secondary"
-      = link_to 'Cancel', collected_inks_path, class: "btn btn-secondary"
+      = f.submit 'Save', class: "btn btn-primary"
+      = link_to 'Cancel', collected_inks_path, class: "btn btn-outlinesecondary"

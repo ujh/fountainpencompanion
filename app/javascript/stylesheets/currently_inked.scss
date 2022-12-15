@@ -57,8 +57,12 @@
     }
   }
   .export {
-    float: right;
-    margin-bottom: 20px;
+    text-align: right;
+    margin-bottom: 10px;
+
+    @include b.media-breakpoint-up("sm") {
+      float: right;
+    }
   }
 
   .swabs {

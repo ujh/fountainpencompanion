@@ -1,20 +1,18 @@
 - if archive?
-  - content_for :title, "Ink Archive"
+  - content_for :title, "Ink archive"
 - else
   - content_for :title, "Inks"
 
 - if current_user.inks_without_reviews?
-  div class="alert alert-warning alert-dismissible"
-    button type="button" class="close" data-dismiss="alert"
-      span &times;
-    p
-      b= MacroCluster.without_review_of_user(current_user).count
-      '  of your inks don't have a review. You can add reviews for them
-      = link_to "here", my_missing_reviews_path
-      ' .
+  div class="alert alert-warning alert-dismissible fade show"
+    b= MacroCluster.without_review_of_user(current_user).count
+    '  of your inks don't have a review. You can add reviews for them
+    = link_to "here", my_missing_reviews_path
+    ' .
+    button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"
 
 div id="collected-inks"
   div class="export"
-    = link_to "Import data", import_collected_inks_path, class: "btn btn-secondary"
-    = link_to "Export data", collected_inks_path(format: 'csv'), class: "btn btn-primary"
+    = link_to "Import data", import_collected_inks_path, class: "btn btn-sm btn-outline-secondary"
+    = link_to "Export data", collected_inks_path(format: 'csv'), class: "btn btn-sm btn-outline-primary"
   div class="app" data-archive="#{archive?}"

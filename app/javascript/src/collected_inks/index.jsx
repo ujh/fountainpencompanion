@@ -349,34 +349,31 @@ const Buttons = ({
   globalFilter,
 }) => {
   return (
-    <div className="row buttons">
+    <div className="buttons">
       {!archive && (
         <>
-          <div className="col-sm-12 col-md-2 col-lg-2">
-            <a className="btn btn-primary" href="/collected_inks/new">
-              Add Ink
-            </a>
-          </div>
-          <div className="col-sm-12 col-md-2 col-lg-2">
-            <a
-              className="btn btn-secondary"
-              href="/collected_inks?search[archive]=true"
-            >
-              Archive
-            </a>
-          </div>
+          <a className="btn btn-primary" href="/collected_inks/new">
+            Add ink
+          </a>
+          <a
+            className="btn btn-outline-secondary"
+            href="/collected_inks?search[archive]=true"
+          >
+            Archive
+          </a>
         </>
       )}
-      <div className={archive ? "col-sm-12" : "col-sm-12 col-md-8 col-lg-8"}>
-        <div className="search">
-          <input
-            value={globalFilter || ""}
-            onChange={(e) => {
-              setGlobalFilter(e.target.value || undefined); // Set undefined to remove the filter entirely
-            }}
-            placeholder={`Type to search in ${preGlobalFilteredRows.length} inks`}
-          />
-        </div>
+      <div className="search">
+        <input
+          class="form-control"
+          type="text"
+          value={globalFilter || ""}
+          onChange={(e) => {
+            setGlobalFilter(e.target.value || undefined); // Set undefined to remove the filter entirely
+          }}
+          placeholder={`Type to search in ${preGlobalFilteredRows.length} inks`}
+          aria-label="Search"
+        />
       </div>
     </div>
   );
@@ -412,7 +409,7 @@ const EditButton = ({ name, id, archived }) => {
   if (archived) href += "?search[archive]=true";
   return (
     <span>
-      <a className="btn btn-secondary" href={href} title={`Edit ${name}`}>
+      <a className="btn btn-outline-primary" href={href} title={`Edit ${name}`}>
         <i className="fa fa-pencil" />
       </a>
     </span>
@@ -426,7 +423,7 @@ const DeleteButton = ({ name, id, deletable, archived }) => {
   return (
     <span>
       <a
-        className="btn btn-secondary"
+        className="btn btn-outline-primary"
         data-confirm={`Really delete ${name}?`}
         title={`Delete ${name}`}
         data-method="delete"
@@ -443,7 +440,7 @@ const ArchiveButton = ({ name, id, archived }) => {
     return (
       <span>
         <a
-          className="btn btn-secondary"
+          className="btn btn-outline-primary"
           title={`Unarchive ${name}`}
           href={`/collected_inks/${id}/unarchive`}
           data-method="post"
@@ -456,7 +453,7 @@ const ArchiveButton = ({ name, id, archived }) => {
     return (
       <span>
         <a
-          className="btn btn-secondary"
+          className="btn btn-outline-primary"
           title={`Archive ${name}`}
           href={`/collected_inks/${id}/archive`}
           data-method="post"

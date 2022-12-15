@@ -69,7 +69,7 @@ SimpleForm.setup do |config|
       bb.use :input, class: 'form-check-input', error_class: 'is-invalid', valid_class: 'is-valid'
       bb.use :label, class: 'form-check-label'
       bb.use :full_error, wrap_with: { class: 'invalid-feedback' }
-      bb.use :hint, wrap_with: { class: 'form-text' }
+      bb.use :hint, wrap_with: { class: 'mt-1 form-text' }
     end
   end
 
