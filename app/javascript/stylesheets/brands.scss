@@ -35,6 +35,12 @@
 }
 
 .fpc-inks-table {
+  // Count
+  th:first-of-type,
+  td:first-of-type {
+    width: 80px;
+  }
+
   td,
   th {
     vertical-align: middle;

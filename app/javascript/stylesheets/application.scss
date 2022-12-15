@@ -11,19 +11,20 @@
 @use "./fpc";
 
 @use "./account";
+@use "./blog";
+@use "./brands";
 @use "./collected_inks";
+@use "./collected_pens";
+@use "./currently_inked";
+@use "./dashboards";
+@use "./form";
+@use "./friends";
 @use "./header";
 @use "./home";
 @use "./ink-collection";
 @use "./leaderboard";
-@use "./collected_pens";
-@use "./currently_inked";
+@use "./reviews";
 @use "./usage-records";
-@use "./dashboards";
-@use "./friends";
-@use "./brands";
-@use "./blog";
-@use "./form";
 @use "./users";
 
 .fpc {
@@ -112,5 +113,14 @@
     --bs-table-color: var(--fpc-text-color);
     --bs-table-striped-color: var(--fpc-text-color);
     --bs-table-striped-bg: var(--fpc-bright-background);
+  }
+
+  a {
+    --bs-link-color: #{b.$blue-400};
+    --bs-link-hover-color: #{b.$blue-500};
+  }
+  .alert a {
+    --bs-link-color: #{b.$blue-500};
+    --bs-link-hover-color: #{b.$blue-600};
   }
 }
