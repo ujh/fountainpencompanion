@@ -1,13 +1,9 @@
-@use "./header";
+@use "./fpc";
 @use "./admin/micro-clusters";
 @use "./admin/macro-clusters";
 @use "./admin/graphs";
 @use "./admin/blog";
 @use "./admin/reviews";
-
-.section {
-  padding-bottom: 20px;
-}
 
 #users-table {
   tr.patron {
