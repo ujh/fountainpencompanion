@@ -1,48 +1,55 @@
 = paginate @clusters
-div class="search-form"
-  = form_tag admins_macro_clusters_path, method: :get do
-    = text_field_tag :q, params[:q]
-table class="table"
-  thead
-    tr
-      th
-      th Brand
-      th Line
-      th Ink
-      th
-      th
-  tbody
-    - @clusters.each do |cluster|
-      tr class="admin-macro-cluster-row"
-        td= cluster.micro_clusters.size
-        td= cluster.brand_name
-        td= cluster.line_name
-        td= cluster.ink_name
-        td style="background-color: #{cluster.color}; width: 30px;"
-        td
-          = link_to "Delete",
-                    admins_macro_cluster_path(cluster),
-                    class: "btn btn-secondary",
-                    method: :delete,
-                    confirm: "Really delete?",
-                    remote: true
-      - if cluster.micro_clusters.size > 1
-        tr
+
+= form_tag admins_macro_clusters_path, method: :get do
+  div class="row"
+    div class="col-sm-3"
+      label for="search" class="visually-hidden"
+        | Search for inks
+      div.input-group.mb-3
+        = text_field_tag :q, params[:q], placeholder: "Search", class: 'form-control', id: 'search'
+
+div class="fpc-table fpc-table--full-width"
+  table class="table table-striped"
+    thead
+      tr
+        th
+        th Brand
+        th Line
+        th Ink
+        th
+        th
+    tbody
+      - @clusters.each do |cluster|
+        tr class="admin-macro-cluster-row"
+          td= cluster.micro_clusters.size
+          td= cluster.brand_name
+          td= cluster.line_name
+          td= cluster.ink_name
+          td style="background-color: #{cluster.color}; width: 30px;"
           td
-          td colspan="4"
-            table class="table"
-              - cluster.micro_clusters.each do |mc|
-                tr class="admin-micro-cluster-row"
-                  td= mc.simplified_brand_name
-                  td= mc.simplified_line_name
-                  td= mc.simplified_ink_name
-                  td
-                    = link_to "Remove",
-                              unassign_admins_micro_cluster_path(mc),
-                              class: "btn btn-secondary",
-                              method: :delete,
-                              confirm: "Really unassign?",
-                              remote: true
-          td
+            = link_to "Delete",
+                      admins_macro_cluster_path(cluster),
+                      class: "btn btn-sm btn-outline-primary",
+                      method: :delete,
+                      confirm: "Really delete?",
+                      remote: true
+        - if cluster.micro_clusters.size > 1
+          tr
+            td
+            td colspan="4"
+              table class="table"
+                - cluster.micro_clusters.each do |mc|
+                  tr class="admin-micro-cluster-row"
+                    td= mc.simplified_brand_name
+                    td= mc.simplified_line_name
+                    td= mc.simplified_ink_name
+                    td
+                      = link_to "Remove",
+                                unassign_admins_micro_cluster_path(mc),
+                                class: "btn btn-sm btn-outline-primary",
+                                method: :delete,
+                                confirm: "Really unassign?",
+                                remote: true
+            td
 
 = paginate @clusters

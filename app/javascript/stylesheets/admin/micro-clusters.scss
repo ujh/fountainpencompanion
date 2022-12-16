@@ -28,7 +28,11 @@
       vertical-align: middle;
     }
     tr.selected td {
-      background-color: #f5f5dc;
+      background: #f5f5dc;
+
+      @media (prefers-color-scheme: dark) {
+        background: var(--fpc-bright-background);
+      }
     }
     .nav {
       &:hover {
