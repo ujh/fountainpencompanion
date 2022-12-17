@@ -15,7 +15,7 @@ div class="row"
     h2 class="mt-5 mb-3" On behalf of user
     div class="mb-3"
       = link_to "Login as user", become_admins_user_path(@user),
-                method: :post, target: "_blank", class: "btn btn-outline-warning"
+                method: :post, target: "_blank", class: "btn btn-warning"
     div class="mb-3"
       = form_tag(ink_import_admins_user_path(@user), method: :post, multipart: true) do
         = file_field_tag "file"
