@@ -28,10 +28,10 @@ window.renderPublicInks = renderPublicInks;
 window.renderFriendButton = renderFriendButton;
 window.setTimeZone = setTimeZone;
 
-document
-  .querySelectorAll('[data-bs-toggle="tooltip"]')
-  .map((triggerEl) => new Tooltip(triggerEl));
+[...document.querySelectorAll('[data-bs-toggle="tooltip"]')].map(
+  (triggerEl) => new Tooltip(triggerEl)
+);
 
-document
-  .querySelectorAll('[data-bs-toggle="dropdown"]')
-  .map((triggerEl) => new Dropdown(triggerEl));
+[...document.querySelectorAll('[data-bs-toggle="dropdown"]')].map(
+  (triggerEl) => new Dropdown(triggerEl)
+);

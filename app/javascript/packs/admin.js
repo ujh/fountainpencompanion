@@ -9,10 +9,10 @@ import "@popperjs/core";
 import "../src/admin/micro-clusters";
 import "../src/admin/graphs";
 
-document
-  .querySelectorAll('[data-bs-toggle="tooltip"]')
-  .map((triggerEl) => new Tooltip(triggerEl));
+[...document.querySelectorAll('[data-bs-toggle="tooltip"]')].map(
+  (triggerEl) => new Tooltip(triggerEl)
+);
 
-document
-  .querySelectorAll('[data-bs-toggle="dropdown"]')
-  .map((triggerEl) => new Dropdown(triggerEl));
+[...document.querySelectorAll('[data-bs-toggle="dropdown"]')].map(
+  (triggerEl) => new Dropdown(triggerEl)
+);
