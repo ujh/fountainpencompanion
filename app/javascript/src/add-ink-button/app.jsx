@@ -63,6 +63,7 @@ const ActualInkAddButton = ({ macro_cluster_id }) => {
           <select
             aria-label="Type"
             className="form-select"
+            style={{ minWidth: "100px" }}
             value={kind}
             onChange={(e) => setKind(e.target.value)}
           >
