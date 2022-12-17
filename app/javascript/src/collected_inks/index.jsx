@@ -445,7 +445,7 @@ const ArchiveButton = ({ name, id, archived }) => {
           href={`/collected_inks/${id}/unarchive`}
           data-method="post"
         >
-          <i className="fa fa-archive" />
+          <i className="fa fa-folder-open" />
         </a>
       </span>
     );
