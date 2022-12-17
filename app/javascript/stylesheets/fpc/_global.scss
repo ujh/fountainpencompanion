@@ -159,6 +159,12 @@
     --bs-table-color: var(--fpc-text-color);
     --bs-table-striped-color: var(--fpc-text-color);
     --bs-table-striped-bg: var(--fpc-bright-background);
+
+    // For "manual stripes" for instance like in brand clusters
+    .table-secondary {
+      --bs-table-color: var(--fpc-text-color);
+      --bs-table-bg: var(--fpc-bright-background);
+    }
   }
 
   a {
