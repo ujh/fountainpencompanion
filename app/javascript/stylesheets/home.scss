@@ -30,19 +30,6 @@
   }
 }
 
-.fpc-title {
-  font-family: b.$display-font-family;
-  font-style: b.$display-font-style;
-  font-size: map.get(b.$display-font-sizes, 6);
-  font-weight: b.$display-font-weight;
-  line-height: b.$display-line-height;
-  text-align: center;
-
-  @include b.media-breakpoint-up("md") {
-    font-size: map.get(b.$display-font-sizes, 3);
-  }
-}
-
 .fpc-features {
   display: grid;
   grid-template-columns: 1fr;
