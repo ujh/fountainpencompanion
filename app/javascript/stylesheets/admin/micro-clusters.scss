@@ -16,9 +16,8 @@
     .main {
       margin-left: auto;
       margin-right: auto;
-      input {
-        width: 100%;
-      }
+      width: 95%;
+
       .distance {
         color: #ccc;
       }
@@ -33,6 +32,10 @@
       @media (prefers-color-scheme: dark) {
         background: var(--fpc-bright-background);
       }
+    }
+    th:last-of-type,
+    td:last-of-type {
+      text-align: right;
     }
     .nav {
       &:hover {

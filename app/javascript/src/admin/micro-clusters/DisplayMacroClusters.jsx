@@ -75,6 +75,9 @@ const MacroClusterRows = ({ afterAssign }) => {
     <tr key="search-box">
       <td colSpan="8">
         <input
+          className="form-control"
+          aria-label="Filter"
+          placeholder="Filter existing"
           type="text"
           value={search}
           onChange={(e) => {
@@ -204,13 +207,14 @@ const MacroClusterRow = ({ macroCluster, afterAssign, selected }) => {
           <SearchLink ci={macroCluster} />
         </td>
         <td>
-          <input
+          <button
             className="btn btn-secondary"
             type="submit"
             disabled={updating}
-            value="Assign"
             onClick={assign}
-          />
+          >
+            Assign
+          </button>
         </td>
       </tr>
       {(showInks || selected) && (
