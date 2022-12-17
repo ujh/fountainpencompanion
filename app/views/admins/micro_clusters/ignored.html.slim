@@ -1,5 +1,5 @@
 div class="fpc-table fpc-table--full-width"
-  table class="table table-striped"
+  table class="table align-middle table-striped"
     thead
       tr
         th ID
@@ -17,4 +17,4 @@ div class="fpc-table fpc-table--full-width"
           td
             = simple_form_for [:admins, cluster] do |f|
               = f.input :ignored, as: :hidden, input_html: { value: '0' }
-              = f.submit "Remove", class: "btn btn-sm btn-secondary"
+              = f.submit "Unignore", class: "btn btn-sm btn-warning"
