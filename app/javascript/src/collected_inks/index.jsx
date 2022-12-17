@@ -280,7 +280,7 @@ const Table = ({
   prepareRow,
 }) => (
   <div className="fpc-table fpc-table--full-width">
-    <table {...getTableProps()} className="table table-striped table-sm">
+    <table {...getTableProps()} className="table table-striped">
       <thead>
         {headerGroups.map((headerGroup) => (
           <tr {...headerGroup.getHeaderGroupProps()}>
