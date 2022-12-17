@@ -91,6 +91,30 @@
   }
 }
 
+.pagination {
+  padding-block: b.$spacer;
+
+  .first,
+  .prev,
+  .next,
+  .page,
+  .last {
+    margin-inline: 5px;
+  }
+
+  .page {
+    overflow: auto;
+  }
+
+  .prev {
+    margin-right: b.$spacer;
+  }
+
+  .next {
+    margin-left: b.$spacer;
+  }
+}
+
 @media (prefers-color-scheme: dark) {
   $_table-dark-border-color: rgba(255, 255, 255, 0.1);
   $_table-dark-border: solid 1px $_table-dark-border-color;
