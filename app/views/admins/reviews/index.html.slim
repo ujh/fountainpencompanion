@@ -1,7 +1,5 @@
 - content_for :title, "#{InkReview.queued.count} reviews to check"
 
-= paginate @ink_reviews
-
 - @ink_reviews.each do |ink_review|
   dl class="row" id="admin_ink_review"
     dt class="col-sm-3" Ink
