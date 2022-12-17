@@ -23,13 +23,11 @@ div class="pen-collection"
             td data-name="comment"= cp.comment
             td data-name="usage"= cp.currently_inkeds.length
             td class="actions"
-              = link_to edit_collected_pen_path(cp, anchor: cp.id), class: "btn btn-secondary me-2", title: "Edit #{cp.name}" do
+              = link_to edit_collected_pen_path(cp, anchor: cp.id), class: "btn btn-secondary", title: "Edit #{cp.name}" do
                 = fa_icon("pencil")
-              = link_to archive_collected_pen_path(cp), class: "btn btn-secondary me-2", method: :post, title: "Archive #{cp.name}" do
+              = link_to archive_collected_pen_path(cp), class: "btn btn-secondary", method: :post, title: "Archive #{cp.name}" do
                 = fa_icon("archive")
-              - if cp.deletable?
-                = link_to collected_pen_path(cp), class: "btn btn-danger", method: :delete, data: { confirm: "Really delete #{cp.name}" }, title: "Delete #{cp.name}"
-                  = fa_icon("trash")
+
       tfoot
         tr
           th

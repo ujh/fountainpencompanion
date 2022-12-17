@@ -38,23 +38,22 @@
       font-size: 18px;
       margin: 0;
       &.fa-check {
-        color: green;
+        color: b.$success;
       }
       &.fa-times {
-        color: red;
+        color: b.$secondary;
       }
     }
     th {
       white-space: nowrap;
       &[role="columnheader"] {
         &:hover {
-          background-color: #ddd;
+          background-color: var(--fpc-bright-background);
         }
       }
     }
-    td,
-    th {
-      vertical-align: middle !important;
+    tbody td {
+      vertical-align: middle;
     }
     tfoot {
       font-weight: bold;

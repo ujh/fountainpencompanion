@@ -1,12 +1,16 @@
 span
-  = link_to edit_currently_inked_archive_path(ci), class: "btn btn-secondary me-2", title: "Edit #{ci.name}"
+  = link_to edit_currently_inked_archive_path(ci), class: "btn btn-secondary", title: "Edit #{ci.name}"
     = fa_icon("pencil")
-  - if ci.unarchivable?(@used_pen_ids)
+
+- if ci.unarchivable?(@used_pen_ids)
+  span
     = link_to unarchive_currently_inked_archive_path(ci),
-              class: "btn btn-secondary me-2",
+              class: "btn btn-secondary",
               method: :post,
               title: "Unarchive #{ci.name}"
       = fa_icon("folder-open")
+
+span
   = link_to currently_inked_archive_path(ci),
             class: "btn btn-danger",
             method: :delete,

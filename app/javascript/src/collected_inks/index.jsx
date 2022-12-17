@@ -238,7 +238,7 @@ const CollectedInksTable = ({ data, archive }) => {
   );
   return (
     <div>
-      <Buttons
+      <Actions
         archive={archive}
         preGlobalFilteredRows={preGlobalFilteredRows}
         globalFilter={state.globalFilter}
@@ -251,12 +251,6 @@ const CollectedInksTable = ({ data, archive }) => {
         rows={rows}
         prepareRow={prepareRow}
         footerGroups={footerGroups}
-      />
-      <Buttons
-        archive={archive}
-        preGlobalFilteredRows={preGlobalFilteredRows}
-        globalFilter={state.globalFilter}
-        setGlobalFilter={setGlobalFilter}
       />
     </div>
   );
@@ -345,7 +339,7 @@ const Table = ({
       </tbody>
       <tfoot>
         {footerGroups.map((group) => (
-          <tr {...group.getFooterGroupProps()}>
+          <tr className="align-top" {...group.getFooterGroupProps()}>
             {group.headers.map((column) => (
               <td {...column.getFooterProps()}>{column.render("Footer")}</td>
             ))}
@@ -357,28 +351,31 @@ const Table = ({
   </div>
 );
 
-const Buttons = ({
+const Actions = ({
   archive,
   preGlobalFilteredRows,
   setGlobalFilter,
   globalFilter,
 }) => {
   return (
-    <div className="buttons">
+    <div className="d-flex justify-content-end align-items-center mb-3">
       {!archive && (
         <>
-          <a className="btn btn-primary" href="/collected_inks/new">
-            Add ink
+          <a className="btn btn-sm btn-link" href="/collected_inks/import">
+            Import
+          </a>
+          <a className="btn btn-sm btn-link" href="/collected_inks.csv">
+            Export
           </a>
           <a
-            className="btn btn-secondary"
+            className="btn btn-sm btn-link"
             href="/collected_inks?search[archive]=true"
           >
             Archive
           </a>
         </>
       )}
-      <div className="search">
+      <div className="ms-2 search me-2">
         <input
           class="form-control"
           type="text"
@@ -390,6 +387,13 @@ const Buttons = ({
           aria-label="Search"
         />
       </div>
+      {!archive && (
+        <>
+          <a className="btn btn-success" href="/collected_inks/new">
+            Add ink
+          </a>
+        </>
+      )}
     </div>
   );
 };
@@ -434,7 +438,7 @@ const EditButton = ({ name, id, archived }) => {
 const DeleteButton = ({ name, id, deletable, archived }) => {
   let href = `/collected_inks/${id}`;
   if (archived) href += "?search[archive]=true";
-  if (!deletable) return null;
+  if (!deletable || !archived) return null;
   return (
     <span>
       <a

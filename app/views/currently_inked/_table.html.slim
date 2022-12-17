@@ -30,34 +30,33 @@ div class="fpc-table fpc-table--full-width"
                 ="#{distance_of_time_in_words(ci.last_used_on, Date.today)} ago"
           td= ci.comment
           td class="actions"
-            span
-              - if ci.refillable?
-                = link_to refill_currently_inked_path(ci),
-                          class: "btn btn-secondary me-2",
-                          method: :post,
-                          title: "Refill this pen",
-                          data: { confirm: "Really refill #{ci.name}?"}
-                  = fa_icon("rotate-right")
-              - if ci.used_today?
-                div class="btn btn-secondary me-2" title="Already recorded usage for today"
+            - if ci.used_today?
+              span
+                div class="btn btn-secondary" title="Already recorded usage for today"
                   = fa_icon("bookmark-o")
-              - else
+            - else
+              span
                 = link_to currently_inked_usage_record_path(ci),
-                          class: "usage btn btn-secondary me-2",
+                          class: "usage btn btn-secondary",
                           method: :post,
                           remote: true,
                           title: "Record usage for today"
                   = fa_icon("bookmark")
-              = link_to edit_currently_inked_path(ci), class: "btn btn-secondary me-2", title: "Edit #{ci.name}"
+            - if ci.refillable?
+              span
+                = link_to refill_currently_inked_path(ci),
+                          class: "btn btn-secondary",
+                          method: :post,
+                          title: "Refill this pen",
+                          data: { confirm: "Really refill #{ci.name}?"}
+                  = fa_icon("rotate-right")
+            span
+              = link_to edit_currently_inked_path(ci), class: "btn btn-secondary", title: "Edit #{ci.name}"
                 = fa_icon("pencil")
-              = link_to archive_currently_inked_path(ci), class: "btn btn-secondary me-2", method: :post, title: "Archive #{ci.name}"
+            span
+              = link_to archive_currently_inked_path(ci), class: "btn btn-secondary", method: :post, title: "Archive #{ci.name}"
                 = fa_icon("archive")
-              = link_to currently_inked_path(ci),
-                        class: "btn btn-danger",
-                        method: :delete,
-                        data: { confirm: "Really delete #{ci.name}?" },
-                        title: "Delete #{ci.name}"
-                = fa_icon("trash")
+
     tfoot
       tr
         th= "#{collection.size} pens"
@@ -67,5 +66,3 @@ div class="fpc-table fpc-table--full-width"
         th
         th
         th
-
-= render partial: "actions"

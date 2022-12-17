@@ -11,10 +11,11 @@
       ' you will be able to see some awesome statistics on the
       = link_to 'dashboard', dashboard_path
       | .
+
 div id="usage-records"
-  div class="export"
-    = link_to "Export data", usage_records_path(format: 'csv'), class: "btn btn-sm btn-secondary"
-  = paginate @usage_records
+  div class="d-flex justify-content-end align-items-center mb-3"
+    = link_to "Export data", usage_records_path(format: 'csv'), class: "btn btn-sm btn-link"
+
   table class="table table-striped"
     thead
       tr
@@ -32,4 +33,5 @@ div id="usage-records"
             span class="actions"
               = link_to usage_record_path(ur), class: "btn btn-danger", method: :delete, data: { confirm: "Really delete entry?"} do
                 = fa_icon("trash")
+
   = paginate @usage_records

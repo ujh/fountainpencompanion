@@ -1,61 +1,7 @@
 @use "~bootstrap/scss/bootstrap" as b;
 
-.fpc-collected-pens-actions {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-
-  @include b.media-breakpoint-up("sm") {
-    flex-direction: row;
-  }
-}
-
-#collected-pens,
-#collected-pens-archive {
-  td {
-    vertical-align: middle;
-  }
-
-  i {
-    font-size: 18px;
-    margin: 0;
-  }
-}
-
-#collected-pens {
-  .export {
-    text-align: right;
-    margin-bottom: 10px;
-
-    @include b.media-breakpoint-up("sm") {
-      float: right;
-    }
-
-    .btn {
-      margin-left: 10px;
-    }
-  }
-  .buttons {
-    .btn {
-      width: 100%;
-    }
-  }
-  .row {
-    box-shadow: none;
-  }
-}
-
-#collected-pens-archive {
-  h1 {
-    text-align: center;
-  }
-}
-
 form.edit_collected_pen,
 form.new_collected_pen {
-  .row {
-    box-shadow: none !important;
-  }
   input[type="submit"] {
     margin-right: 15px;
   }

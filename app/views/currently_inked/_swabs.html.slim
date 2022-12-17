@@ -1,3 +1,5 @@
+= render partial: "actions"
+
 div class="row stats"
   div class="col-sm-12"
     'You currently have
@@ -5,8 +7,6 @@ div class="row stats"
     'inked with
     b= "#{collection.map(&:ink_simplified_name).uniq.length} inks"
     |.
-
-= render partial: "actions"
 
 div class="row"
   - collection.each_with_index do |ci, index|
@@ -38,13 +38,6 @@ div class="row"
         div style="clear:left;"
         div class="actions"
           span
-            - if ci.refillable?
-              = link_to refill_currently_inked_path(ci),
-                        class: "btn btn-secondary me-2",
-                        method: :post,
-                        title: "Refill this pen",
-                        data: { confirm: "Really refill #{ci.name}?"}
-                = fa_icon("rotate-right")
             - if ci.used_today?
               div class="btn btn-secondary me-2" title="Already recorded usage for today"
                 = fa_icon("bookmark-o")
@@ -55,17 +48,18 @@ div class="row"
                         remote: true,
                         title: "Record usage for today"
                 = fa_icon("bookmark")
+            - if ci.refillable?
+              = link_to refill_currently_inked_path(ci),
+                        class: "btn btn-secondary me-2",
+                        method: :post,
+                        title: "Refill this pen",
+                        data: { confirm: "Really refill #{ci.name}?"}
+                = fa_icon("rotate-right")
             = link_to edit_currently_inked_path(ci), class: "btn btn-secondary me-2", title: "Edit #{ci.name}"
               = fa_icon("pencil")
             = link_to archive_currently_inked_path(ci), class: "btn btn-secondary me-2", method: :post, title: "Archive #{ci.name}"
               = fa_icon("archive")
-            = link_to currently_inked_path(ci),
-                      class: "btn btn-danger",
-                      method: :delete,
-                      data: { confirm: "Really delete #{ci.name}?" },
-                      title: "Delete #{ci.name}"
-              = fa_icon("trash")
+
     - if (index+1) % 2 == 0
       div class="clearfix visible-sm-block"
 
-= render partial: "actions"

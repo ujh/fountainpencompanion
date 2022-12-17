@@ -1,15 +1,5 @@
 @use "~bootstrap/scss/bootstrap" as b;
 
-.fpc-currently-inked-actions {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-
-  @include b.media-breakpoint-up("sm") {
-    flex-direction: row;
-  }
-}
-
 .fpc-currently-inked-table {
   td {
     vertical-align: middle;

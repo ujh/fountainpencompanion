@@ -1,11 +1,5 @@
 - content_for :title, "Pens"
 div id="collected-pens"
-  div class="export"
-    = link_to "Import data", import_collected_pens_path, class: "btn btn-sm btn-secondary"
-    = link_to "Export data", collected_pens_path(format: 'csv'), class: "btn btn-sm btn-secondary"
-
   = render partial: "actions"
 
   = render partial: "table", locals: { pen_collection: @collected_pens }
-
-  = render partial: "actions"

@@ -1,4 +1,3 @@
-= paginate collection
 div class="fpc-table fpc-table--full-width"
   table class="table table-striped"
     thead
@@ -20,4 +19,5 @@ div class="fpc-table fpc-table--full-width"
           td=l ci.archived_on
           td= ci.comment
           td class="actions"= render partial: "actions", locals: { ci: ci }
-= paginate collection
+
+= paginate @collection
