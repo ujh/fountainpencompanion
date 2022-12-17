@@ -72,9 +72,19 @@ const CollectedInksTable = ({ data, archive }) => {
         accessor: "private",
         Cell: ({ cell: { value } }) => {
           if (value) {
-            return <i className="fa fa-lock" />;
+            return (
+              <i
+                title="Private, hidden from your profile"
+                className="fa fa-lock"
+              />
+            );
           } else {
-            return <i className="fa fa-unlock" />;
+            return (
+              <i
+                title="Publicly visible on your profile"
+                className="fa fa-unlock"
+              />
+            );
           }
         },
       },
