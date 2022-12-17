@@ -423,7 +423,7 @@ const DeleteButton = ({ name, id, deletable, archived }) => {
   return (
     <span>
       <a
-        className="btn btn-secondary"
+        className="btn btn-danger"
         data-confirm={`Really delete ${name}?`}
         title={`Delete ${name}`}
         data-method="delete"

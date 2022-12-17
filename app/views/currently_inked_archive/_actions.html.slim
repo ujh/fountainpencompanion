@@ -8,7 +8,7 @@ span
               title: "Unarchive #{ci.name}"
       = fa_icon("archive")
   = link_to currently_inked_archive_path(ci),
-            class: "btn btn-secondary",
+            class: "btn btn-danger",
             method: :delete,
             data: { confirm: "Really delete #{ci.name}?" },
             title: "Delete #{ci.name}"

@@ -29,7 +29,7 @@ div class="pen-collection"
                 = link_to archive_collected_pen_path(cp), class: "btn btn-secondary me-2", method: :post, title: "Archive #{cp.name}" do
                   = fa_icon("archive")
                 - if cp.deletable?
-                  = link_to collected_pen_path(cp), class: "btn btn-secondary", method: :delete, data: { confirm: "Really delete #{cp.name}" }, title: "Delete #{cp.name}"
+                  = link_to collected_pen_path(cp), class: "btn btn-danger", method: :delete, data: { confirm: "Really delete #{cp.name}" }, title: "Delete #{cp.name}"
                     = fa_icon("trash")
       tfoot
         tr

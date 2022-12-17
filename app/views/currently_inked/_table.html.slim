@@ -52,7 +52,7 @@ div class="fpc-table fpc-table--full-width"
               = link_to archive_currently_inked_path(ci), class: "btn btn-secondary me-2", method: :post, title: "Archive #{ci.name}"
                 = fa_icon("archive")
               = link_to currently_inked_path(ci),
-                        class: "btn btn-secondary",
+                        class: "btn btn-danger",
                         method: :delete,
                         data: { confirm: "Really delete #{ci.name}?" },
                         title: "Delete #{ci.name}"
