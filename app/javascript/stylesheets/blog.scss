@@ -1,5 +1,7 @@
 .fpc-blog-post {
   margin-bottom: 40px;
+  overflow-x: auto;
+  width: 100%;
 
   &__published-at {
     font-style: italic;
