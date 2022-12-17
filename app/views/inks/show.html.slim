@@ -49,7 +49,7 @@ div class="row fpc-ink-details"
         h4 Submit a review
         = simple_form_for InkReviewSubmission.new, url: brand_ink_ink_review_submissions_path(params[:brand_id], params[:id]), remote: true do |f|
           = f.input :url, as: :string, hint: "Enter the URL of the review you would like to submit", label: false
-          = f.submit "Submit a review", class: "btn btn-secondary"
+          = f.submit "Submit a review", class: "btn btn-primary"
 
   - if @ink.approved_ink_reviews.exists?
     h2 Reviews
