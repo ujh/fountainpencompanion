@@ -13,7 +13,8 @@ div class="fpc-table fpc-table--full-width"
       - collection.each do |ci|
         tr id="#{ci.id}"
           td= ci.pen_name
-          td style="background-color:#{ci.ink_color};width:30px;"
+          td
+            div style="background-color: #{ci.ink_color}; width: 45px; height: 45px;"
           td= ci.ink_name
           td=l ci.inked_on
           td=l ci.archived_on

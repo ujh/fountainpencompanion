@@ -17,12 +17,15 @@ export const CollectedInksList = ({ collectedInks }) => {
         <td>{ci.line_name}</td>
         <td>{ci.ink_name}</td>
         <td>{ci.maker}</td>
-        <td
-          style={{
-            backgroundColor: ci.color,
-            width: "30px"
-          }}
-        ></td>
+        <td>
+          <div
+            style={{
+              backgroundColor: ci.color,
+              height: "45px",
+              width: "45px",
+            }}
+          />
+        </td>
         <td>
           <SearchLink ci={ci} />
         </td>

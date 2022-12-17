@@ -313,9 +313,19 @@ const Table = ({
               {row.cells.map((cell) => {
                 let additionalProps = {};
                 if (cell.column.id == "color" && cell.value) {
-                  additionalProps = {
-                    style: { backgroundColor: cell.value, width: "30px" },
-                  };
+                  return (
+                    <td {...cell.getCellProps()} {...additionalProps}>
+                      <div
+                        style={{
+                          backgroundColor: cell.value,
+                          width: "45px",
+                          height: "45px",
+                        }}
+                      >
+                        {cell.render("Cell")}
+                      </div>
+                    </td>
+                  );
                 }
                 return (
                   <td {...cell.getCellProps()} {...additionalProps}>

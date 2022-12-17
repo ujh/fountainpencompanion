@@ -25,7 +25,8 @@ div class="fpc-table fpc-table--full-width"
           td= cluster.brand_name
           td= cluster.line_name
           td= cluster.ink_name
-          td style="background-color: #{cluster.color}; width: 30px;"
+          td
+            div style="background-color: #{cluster.color}; width: 45px; height: 45px;"
           td
             = link_to "Delete",
                       admins_macro_cluster_path(cluster),

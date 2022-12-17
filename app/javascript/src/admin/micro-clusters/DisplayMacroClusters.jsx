@@ -196,13 +196,15 @@ const MacroClusterRow = ({ macroCluster, afterAssign, selected }) => {
         <td onClick={onClick}>{macroCluster.line_name}</td>
         <td onClick={onClick}>{macroCluster.ink_name}</td>
         <td onClick={onClick}></td>
-        <td
-          style={{
-            backgroundColor: macroCluster.color,
-            width: "30px",
-          }}
-          onClick={onClick}
-        ></td>
+        <td onClick={onClick}>
+          <div
+            style={{
+              backgroundColor: macroCluster.color,
+              height: "45px",
+              width: "45px",
+            }}
+          />
+        </td>
         <td>
           <SearchLink ci={macroCluster} />
         </td>
