@@ -42,14 +42,14 @@ div class="row fpc-ink-details"
         ' else that is wrong, feel free to report this using the button below.
         ' We will try to fix it as soon as possible.
       = link_to "Report an error",
-                "mailto:clustering-error@fountainpencompanion.com?subject=#{@ink.name}",
-                class: "btn btn-secondary"
+                "mailto:clustering-error@fountainpencompanion.com?subject=#{@ink.name}"
+
     div class="fpc-ink-details__submit-review"
       - if user_signed_in?
         h4 Submit a review
         = simple_form_for InkReviewSubmission.new, url: brand_ink_ink_review_submissions_path(params[:brand_id], params[:id]), remote: true do |f|
           = f.input :url, as: :string, hint: "Enter the URL of the review you would like to submit", label: false
-          = f.submit "Submit a review", class: "btn btn-primary"
+          = f.submit "Submit a review", class: "btn btn-success"
 
   - if @ink.approved_ink_reviews.exists?
     h2 Reviews

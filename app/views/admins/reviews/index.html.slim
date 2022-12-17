@@ -22,7 +22,7 @@
 
     dt class="col-sm-3" Actions
     dd class="col-sm-9"
-      = link_to "Approve",  admins_review_path(ink_review, page: params[:page]), method: :put, class: 'btn btn-primary me-2'
+      = link_to "Approve",  admins_review_path(ink_review, page: params[:page]), method: :put, class: 'btn btn-success me-2'
       = link_to "Reject", admins_review_path(ink_review, page: params[:page]), method: :delete, class: 'btn btn-secondary'
 
 = paginate @ink_reviews

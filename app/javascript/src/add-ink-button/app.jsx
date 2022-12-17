@@ -72,7 +72,7 @@ const ActualInkAddButton = ({ macro_cluster_id }) => {
             <option value="cartridge">cartridge</option>
             <option value="swab">swab</option>
           </select>
-          <button type="button" className="btn btn-primary" onClick={add}>
+          <button type="button" className="btn btn-success" onClick={add}>
             Add
           </button>
           <button

@@ -11,4 +11,4 @@ div id="account" class="row"
       = f.input :time_zone, wrapper: :vertical_select, input_html: { class: 'form-control' }, collection: ActiveSupport::TimeZone.all.map {|tz| [tz.to_s, tz.tzinfo.identifier] }
       = f.input :public_page, wrapper: :vertical_form, input_html: { value: user_url(current_user, domain: "fpc.ink", port: nil, protocol: 'http')}, hint: "Changing the value here does not have any effect"
       = f.input :blurb, wrapper: :vertical_form, input_html: { rows: "10"}, hint: "This field allows styling through markdown", placeholder: "The contents of this field will show up on your public account page."
-      = f.button :button, "Save", class: "btn-primary"
+      = f.button :button, "Save", class: "btn-success"

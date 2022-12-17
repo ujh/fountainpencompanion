@@ -48,7 +48,7 @@ export const CreateRow = ({ afterCreate }) => {
       <th></th>
       <th>
         <button
-          className="btn btn-primary me-2"
+          className="btn btn-success me-2"
           type="button"
           disabled={updating}
           onClick={create}
