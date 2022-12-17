@@ -228,11 +228,6 @@ const CollectedInksTable = ({ data, archive }) => {
   );
   return (
     <div>
-      {!archive && (
-        <a className="add-button" href="/collected_inks/new">
-          <i className="fa fa-plus" />
-        </a>
-      )}
       <Buttons
         archive={archive}
         preGlobalFilteredRows={preGlobalFilteredRows}

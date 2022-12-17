@@ -9,33 +9,6 @@
     margin-bottom: 20px;
     margin-top: 20px;
   }
-  @media (min-width: 992px) {
-    .add-button {
-      display: none;
-    }
-  }
-  .add-button {
-    position: fixed;
-    bottom: 15px;
-    right: 15px;
-    font-size: 36px;
-    text-decoration: none;
-    border: 2px solid #2e6da4;
-    border-radius: 5px;
-    color: #fff;
-    background-color: #337ab7;
-    padding-top: 5px;
-    padding-bottom: 5px;
-    padding-left: 10px;
-    padding-right: 9px;
-    background-image: url(../images/bg-btn.png) !important;
-    background-repeat: repeat;
-    z-index: 1000;
-    &:hover {
-      background-color: #286090;
-      border-color: #204d74;
-    }
-  }
   .buttons {
     display: flex;
     flex-direction: column;
