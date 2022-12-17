@@ -37,25 +37,23 @@
   padding-top: 20px;
 }
 
-.fpc-header,
-.fpc-footer {
-  background: b.$black;
-  border-color: b.$black;
-  border-radius: 0px;
-  font-size: 14px;
-
-  .collapse.in,
-  .collapsing {
+.fpc-header {
+  &__capybara {
     img {
-      display: none;
+      height: 48px;
+      width: 48px;
+      margin-top: -16px;
+      margin-bottom: -16px;
     }
   }
 
-  img {
-    margin-left: 6px;
-    height: 36px;
-    width: 36px;
-    border-radius: 4px;
+  &__account-dropdown {
+    padding: 0;
+    img {
+      height: 36px;
+      width: 36px;
+      border-radius: 4px;
+    }
   }
 }
 
