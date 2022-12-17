@@ -80,6 +80,16 @@
   &--full-width {
     width: 100%;
   }
+
+  .actions {
+    white-space: nowrap;
+    text-align: right;
+
+    & > * {
+      display: inline-block;
+      margin-left: 5px;
+    }
+  }
 }
 
 .fpc-hint {
