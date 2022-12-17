@@ -13,6 +13,6 @@
 
 div id="collected-inks"
   div class="export"
-    = link_to "Import data", import_collected_inks_path, class: "btn btn-sm btn-outline-secondary"
+    = link_to "Import data", import_collected_inks_path, class: "btn btn-sm btn-secondary"
     = link_to "Export data", collected_inks_path(format: 'csv'), class: "btn btn-sm btn-secondary"
   div class="app" data-archive="#{archive?}"

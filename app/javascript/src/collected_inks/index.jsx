@@ -366,7 +366,7 @@ const Buttons = ({
             Add ink
           </a>
           <a
-            className="btn btn-outline-secondary"
+            className="btn btn-secondary"
             href="/collected_inks?search[archive]=true"
           >
             Archive

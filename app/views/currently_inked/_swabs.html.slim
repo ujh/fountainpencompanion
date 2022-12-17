@@ -46,7 +46,7 @@ div class="row"
                         data: { confirm: "Really refill #{ci.name}?"}
                 = fa_icon("rotate-right")
             - if ci.used_today?
-              div class="btn btn-outline-secondary me-2" title="Already recorded usage for today"
+              div class="btn btn-secondary me-2" title="Already recorded usage for today"
                 = fa_icon("bookmark-o")
             - else
               = link_to currently_inked_usage_record_path(ci),

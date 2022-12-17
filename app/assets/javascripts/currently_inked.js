@@ -11,7 +11,7 @@ $(function () {
 
   $("#currently-inked .actions .usage").bind("ajax:complete", function () {
     $(this)
-      .addClass("btn-outline-secondary")
+      .addClass("btn-secondary")
       .removeClass("btn-primary-secondary")
       .find("i")
       .addClass("fa-bookmark-o")

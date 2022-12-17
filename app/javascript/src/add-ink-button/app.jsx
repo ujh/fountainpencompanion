@@ -77,7 +77,7 @@ const ActualInkAddButton = ({ macro_cluster_id }) => {
           </button>
           <button
             type="button"
-            className="btn btn-outline-secondary"
+            className="btn btn-secondary"
             onClick={() => setState(null)}
           >
             <i className="fa fa-times" />
