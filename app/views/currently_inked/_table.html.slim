@@ -32,7 +32,7 @@ div class="fpc-table fpc-table--full-width"
             span
               - if ci.refillable?
                 = link_to refill_currently_inked_path(ci),
-                          class: "btn btn-outline-primary me-2",
+                          class: "btn btn-secondary me-2",
                           method: :post,
                           title: "Refill this pen",
                           data: { confirm: "Really refill #{ci.name}?"}
@@ -42,17 +42,17 @@ div class="fpc-table fpc-table--full-width"
                   = fa_icon("bookmark-o")
               - else
                 = link_to currently_inked_usage_record_path(ci),
-                          class: "usage btn btn-outline-primary me-2",
+                          class: "usage btn btn-secondary me-2",
                           method: :post,
                           remote: true,
                           title: "Record usage for today"
                   = fa_icon("bookmark")
-              = link_to edit_currently_inked_path(ci), class: "btn btn-outline-primary me-2", title: "Edit #{ci.name}"
+              = link_to edit_currently_inked_path(ci), class: "btn btn-secondary me-2", title: "Edit #{ci.name}"
                 = fa_icon("pencil")
-              = link_to archive_currently_inked_path(ci), class: "btn btn-outline-primary me-2", method: :post, title: "Archive #{ci.name}"
+              = link_to archive_currently_inked_path(ci), class: "btn btn-secondary me-2", method: :post, title: "Archive #{ci.name}"
                 = fa_icon("archive")
               = link_to currently_inked_path(ci),
-                        class: "btn btn-outline-primary",
+                        class: "btn btn-secondary",
                         method: :delete,
                         data: { confirm: "Really delete #{ci.name}?" },
                         title: "Delete #{ci.name}"

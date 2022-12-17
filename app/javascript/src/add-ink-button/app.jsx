@@ -53,7 +53,7 @@ const ActualInkAddButton = ({ macro_cluster_id }) => {
       );
     case "adding":
       return (
-        <button disabled className="btn btn-outline-primary">
+        <button disabled className="btn btn-secondary">
           <Loader />
         </button>
       );
@@ -86,7 +86,7 @@ const ActualInkAddButton = ({ macro_cluster_id }) => {
     default:
       return (
         <div
-          className="btn btn-outline-primary"
+          className="btn btn-secondary"
           onClick={() => setState("pick-kind")}
         >
           Add to collection

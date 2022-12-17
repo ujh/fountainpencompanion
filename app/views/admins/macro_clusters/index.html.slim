@@ -29,7 +29,7 @@ div class="fpc-table fpc-table--full-width"
           td
             = link_to "Delete",
                       admins_macro_cluster_path(cluster),
-                      class: "btn btn-sm btn-outline-primary",
+                      class: "btn btn-sm btn-danger",
                       method: :delete,
                       confirm: "Really delete?",
                       remote: true
@@ -46,7 +46,7 @@ div class="fpc-table fpc-table--full-width"
                     td
                       = link_to "Remove",
                                 unassign_admins_micro_cluster_path(mc),
-                                class: "btn btn-sm btn-outline-primary",
+                                class: "btn btn-sm btn-danger",
                                 method: :delete,
                                 confirm: "Really unassign?",
                                 remote: true

@@ -409,7 +409,7 @@ const EditButton = ({ name, id, archived }) => {
   if (archived) href += "?search[archive]=true";
   return (
     <span>
-      <a className="btn btn-outline-primary" href={href} title={`Edit ${name}`}>
+      <a className="btn btn-secondary" href={href} title={`Edit ${name}`}>
         <i className="fa fa-pencil" />
       </a>
     </span>
@@ -423,7 +423,7 @@ const DeleteButton = ({ name, id, deletable, archived }) => {
   return (
     <span>
       <a
-        className="btn btn-outline-primary"
+        className="btn btn-secondary"
         data-confirm={`Really delete ${name}?`}
         title={`Delete ${name}`}
         data-method="delete"
@@ -440,7 +440,7 @@ const ArchiveButton = ({ name, id, archived }) => {
     return (
       <span>
         <a
-          className="btn btn-outline-primary"
+          className="btn btn-secondary"
           title={`Unarchive ${name}`}
           href={`/collected_inks/${id}/unarchive`}
           data-method="post"
@@ -453,7 +453,7 @@ const ArchiveButton = ({ name, id, archived }) => {
     return (
       <span>
         <a
-          className="btn btn-outline-primary"
+          className="btn btn-secondary"
           title={`Archive ${name}`}
           href={`/collected_inks/${id}/archive`}
           data-method="post"

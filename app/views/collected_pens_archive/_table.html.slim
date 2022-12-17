@@ -24,12 +24,12 @@ div class="pen-collection"
             td data-name="usage"= cp.currently_inkeds.length
             td
               span class="actions"
-                = link_to edit_collected_pens_archive_path(cp), class: "btn btn-outline-primary me-2", title: "Edit #{cp.name}" do
+                = link_to edit_collected_pens_archive_path(cp), class: "btn btn-secondary me-2", title: "Edit #{cp.name}" do
                   = fa_icon("pencil")
-                = link_to unarchive_collected_pens_archive_path(cp), class: "btn btn-outline-primary me-2", method: :post, title: "Unarchive #{cp.name}" do
+                = link_to unarchive_collected_pens_archive_path(cp), class: "btn btn-secondary me-2", method: :post, title: "Unarchive #{cp.name}" do
                   = fa_icon("folder-open")
                 - if cp.deletable?
-                  = link_to collected_pens_archive_path(cp), class: "btn btn-outline-primary", method: :delete, data: { confirm: "Really delete #{cp.name}" }, title: "Delete #{cp.name}"
+                  = link_to collected_pens_archive_path(cp), class: "btn btn-secondary", method: :delete, data: { confirm: "Really delete #{cp.name}" }, title: "Delete #{cp.name}"
                     = fa_icon("trash")
       tfoot
         tr

@@ -17,4 +17,4 @@ div class="fpc-table fpc-table--full-width"
           td
             = simple_form_for [:admins, cluster] do |f|
               = f.input :ignored, as: :hidden, input_html: { value: '0' }
-              = f.submit "Remove", class: "btn btn-sm btn-outline-primary"
+              = f.submit "Remove", class: "btn btn-sm btn-secondary"
