@@ -358,7 +358,7 @@ const Actions = ({
   globalFilter,
 }) => {
   return (
-    <div className="d-flex justify-content-end align-items-center mb-3">
+    <div className="d-flex flex-wrap justify-content-end align-items-center mb-3">
       {!archive && (
         <>
           <a className="btn btn-sm btn-link" href="/collected_inks/import">
@@ -375,7 +375,7 @@ const Actions = ({
           </a>
         </>
       )}
-      <div className="ms-2 search me-2">
+      <div className="m-2 search" style={{ minWidth: "190px" }}>
         <input
           className="form-control"
           type="text"
