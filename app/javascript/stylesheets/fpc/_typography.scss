@@ -2,11 +2,7 @@
 @use "~bootstrap/scss/bootstrap" as b;
 
 .fpc-title {
-  font-size: map.get(b.$display-font-sizes, 4);
-
-  @include b.media-breakpoint-up("sm") {
-    line-height: b.$line-height-lg;
-  }
+  font-size: map.get(b.$display-font-sizes, 6);
 
   &--cta {
     font-family: b.$display-font-family;
