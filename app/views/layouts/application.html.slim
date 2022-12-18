@@ -16,6 +16,9 @@ html
     = content_for :head
   body
     div class="fpc"
+      div class="fpc-skip-link container"
+        a class="visually-hidden-focusable" href="#content"
+          | Skip to main content
       = render partial: "layouts/header"
       = render partial: "layouts/breadcrumbs"
       = render partial: "layouts/main"

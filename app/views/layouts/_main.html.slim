@@ -34,5 +34,5 @@ main class="fpc-main container" id="main"
         p= truncate(reading_status.blog_post.body, length: 100) { link_to " continue reading", blog_path(reading_status.blog_post)}
         button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"
 
-  div class="fpc-content content"
+  div class="fpc-content content" id="content"
     = yield
