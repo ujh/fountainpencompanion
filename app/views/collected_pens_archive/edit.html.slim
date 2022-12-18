@@ -1,14 +1,15 @@
 - content_for :title, "Edit pen"
 = simple_form_for @collected_pen, url: collected_pens_archive_path(@collected_pen) do |f|
-  div class="row"
-    div class="col-md-12 col-lg-6"
-      = f.input :brand, required: true, hint: "e.g. Pilot, Parker, Waterman"
-      = f.input :model, required: true, hint: "e.g. 51, Kakuno"
-    div class="col-md-12 col-lg-6"
-      = f.input :nib, hint: "e.g. M, B, architect"
-      = f.input :color
-      = f.input :comment
-  div class="row"
-    div class="col-md-12 col-lg-6"
-      = f.submit 'Save', class: "btn btn-success me-2"
-      = link_to 'Cancel', collected_pens_path, class: "btn btn-secondary"
+  div style="max-width: 450px"
+    = f.input :brand, required: true, hint: "e.g. Pilot, Parker, Waterman"
+  div style="max-width: 650px"
+    = f.input :model, required: true, hint: "e.g. 51, Kakuno"
+    = f.input :nib, hint: "e.g. M, B, architect"
+    = f.input :color
+
+  div style="max-width: 850px"
+    = f.input :comment
+
+  div class="pt-2 mb-5"
+    = f.submit 'Save', class: "btn btn-success me-2"
+    = link_to 'Cancel', collected_pens_path, class: "btn btn-secondary"
