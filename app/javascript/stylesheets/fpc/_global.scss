@@ -32,12 +32,27 @@
   }
 }
 
+.fpc-skip-link {
+  position: relative;
+
+  & a {
+    position: absolute;
+    top: 60px;
+    left: 0;
+    background: var(--fpc-bright-background);
+    padding: b.$spacer;
+    border: 3px solid var(--fpc-text-color);
+  }
+}
+
 .fpc-main {
   padding: 10px;
   padding-top: 20px;
 }
 
 .fpc-header {
+  background-color: b.$black;
+
   &__capybara {
     img {
       height: 48px;
@@ -58,6 +73,8 @@
 }
 
 .fpc-footer {
+  background-color: b.$black;
+
   margin-top: auto;
   margin-bottom: 0px;
 }
