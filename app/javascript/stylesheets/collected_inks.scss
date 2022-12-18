@@ -1,14 +1,6 @@
 @use "~bootstrap/scss/bootstrap" as b;
 
 #collected-inks {
-  .loader {
-    text-align: center;
-    i {
-      font-size: 200px !important;
-    }
-    margin-bottom: 20px;
-    margin-top: 20px;
-  }
   .buttons {
     display: flex;
     flex-direction: column;

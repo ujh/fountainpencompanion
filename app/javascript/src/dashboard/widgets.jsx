@@ -6,23 +6,47 @@ import { getRequest } from "../fetch";
 export const WidgetDataContext = React.createContext();
 export const WidgetWidthContext = React.createContext();
 
-export const Widget = ({ withLinks, ...rest }) => {
+const Loader = ({ withLinks }) => (
+  <div className=" placeholder-glow">
+    <p className="card-text">
+      <span className="placeholder col-12" />
+      <span className="placeholder col-12" />
+      <span className="placeholder col-12" />
+    </p>
+    {withLinks && (
+      <span
+        className="placeholder col-4 bg-primary"
+        style={{ marginBottom: "-58px" }}
+      />
+    )}
+  </div>
+);
+
+export const Widget = ({ header, subtitle, withLinks, ...rest }) => {
   return (
-    <div
-      className={`card fpc-dashboard-widget ${
-        withLinks ? "fpc-dashboard-widget--with-links" : ""
-      }`}
-    >
-      <div className="card-body">
-        <TrackVisibility once>
-          {({ isVisible }) => isVisible && <WidgetContent {...rest} />}
-        </TrackVisibility>
-      </div>
-    </div>
+    <TrackVisibility once>
+      {({ isVisible }) => (
+        <div
+          className={`card fpc-dashboard-widget ${
+            withLinks ? "fpc-dashboard-widget--with-links" : ""
+          }`}
+        >
+          <div className="card-body">
+            <h2 className="h4 card-title">{header}</h2>
+            {subtitle && <p className="card-subtitle text-muted">{subtitle}</p>}
+            {isVisible ? (
+              <WidgetContent withLinks={withLinks} {...rest} />
+            ) : (
+              <Loader withLinks={withLinks} />
+            )}
+          </div>
+        </div>
+      )}
+    </TrackVisibility>
   );
 };
 
-const WidgetContent = ({ header, subtitle, children, path }) => {
+const WidgetContent = ({ children, path, withLinks }) => {
   const [data, setData] = useState(null);
   useEffect(() => {
     async function fetchData() {
@@ -33,7 +57,8 @@ const WidgetContent = ({ header, subtitle, children, path }) => {
     fetchData();
   }, []);
   const [elementWidth, setElementWidth] = useState(0);
-  let content = <Loader />;
+  let content = <Loader withLinks={withLinks} />;
+
   if (data) {
     content = (
       <WidgetDataContext.Provider value={data}>
@@ -44,18 +69,8 @@ const WidgetContent = ({ header, subtitle, children, path }) => {
     );
   }
   return (
-    <>
-      <h2 className="h4 card-title">{header}</h2>
-      {subtitle && <p className="card-subtitle text-muted">{subtitle}</p>}
-      <ResizeObserver onResize={({ width }) => setElementWidth(width)}>
-        <div className="mt-2">{content}</div>
-      </ResizeObserver>
-    </>
+    <ResizeObserver onResize={({ width }) => setElementWidth(width)}>
+      <div className="mt-2">{content}</div>
+    </ResizeObserver>
   );
 };
-
-const Loader = () => (
-  <div className="fpc-widget__loader">
-    <i className="fa fa-spin fa-refresh" />
-  </div>
-);

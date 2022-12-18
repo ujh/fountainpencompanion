@@ -9,6 +9,7 @@
 
 .fpc-dashboard-widget {
   background: var(--fpc-bright-background);
+  min-height: 200px;
 
   &--with-links {
     position: relative;
@@ -19,14 +20,6 @@
     position: absolute;
     bottom: b.$spacer;
     left: b.$spacer;
-  }
-
-  &__loader {
-    text-align: center;
-    margin-top: 20px;
-    i {
-      font-size: 50px !important;
-    }
   }
 }
 
