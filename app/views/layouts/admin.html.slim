@@ -11,6 +11,10 @@ html
     meta name="viewport" content="width=device-width, initial-scale=1"
   body
     div class="fpc" id="admin"
+      div class="fpc-skip-link container"
+        a class="visually-hidden-focusable" href="#content"
+          | Skip to main content
+
       = render partial: "layouts/admin/header"
       = render partial: "layouts/breadcrumbs"
       = render partial: "layouts/main"
