@@ -1,4 +1,5 @@
 class UsersController < ApplicationController
+  add_breadcrumb "Users", "/users"
 
   def index
     @users = User.public.order('lower(name), id')
@@ -6,6 +7,9 @@ class UsersController < ApplicationController
 
   def show
     @user = User.find(params[:id])
+
+    add_breadcrumb "#{@user.name}", user_path(@user)
+
     respond_to do |format|
       format.html
       format.jsonapi {

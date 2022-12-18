@@ -17,6 +17,7 @@ html
   body
     div class="fpc"
       = render partial: "layouts/header"
+      = render partial: "layouts/breadcrumbs"
       = render partial: "layouts/main"
       = render partial: "layouts/footer"
       - if current_user && current_user.time_zone.blank?

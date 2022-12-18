@@ -1,5 +1,12 @@
 - content_for :title, "Usage records leaderboard"
 
+- content_for :breadcrumbs
+  ol class="breadcrumb"
+    li class="breadcrumb-item"
+      = link_to "Leaderboards", page_path("leaderboards")
+    li class="breadcrumb-item active" aria-current="page"
+      | Usage records leaderboard
+
 ol class="fpc-leaderboard"
   - LeaderBoard.usage_records.each do |user_data|
     = render partial: "leaderboard_row", locals: { user_data: user_data }

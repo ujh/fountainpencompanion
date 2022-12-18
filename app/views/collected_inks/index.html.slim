@@ -1,5 +1,11 @@
 - if archive?
   - content_for :title, "Ink archive"
+  - content_for :breadcrumbs
+    ol class="breadcrumb"
+      li class="breadcrumb-item"
+        = link_to "Inks", collected_inks_path
+      li class="breadcrumb-item active" aria-current="page"
+        | Archive
 - else
   - content_for :title, "Inks"
 

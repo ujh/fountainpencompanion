@@ -4,6 +4,14 @@
   = number_to_percentage(AdminStats.new.collected_inks_with_macro_cluster_percentage, precision: 2)
   |  percent of the data
 
+
+- content_for :breadcrumbs
+  ol class="breadcrumb"
+    li class="breadcrumb-item"
+      = link_to "Leaderboards", page_path("leaderboards")
+    li class="breadcrumb-item active" aria-current="page"
+      | Inks by popularity
+
 ol class="fpc-leaderboard"
   - LeaderBoard.inks_by_popularity.each do |macro_cluster|
     li

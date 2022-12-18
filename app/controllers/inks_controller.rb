@@ -15,6 +15,11 @@ class InksController < ApplicationController
 
   def show
     @ink = MacroCluster.find(params[:id])
+
+    add_breadcrumb "Inks", "/brands"
+    add_breadcrumb "#{@ink.brand_cluster.name}", brand_path(@ink.brand_cluster)
+    add_breadcrumb "#{@ink.name}", brand_ink_path(@ink.brand_cluster, @ink)
+
     redirect_to brand_ink_path(@ink.brand_cluster, @ink) unless params[:brand_id]
   end
 

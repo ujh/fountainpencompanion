@@ -1,5 +1,12 @@
 - content_for :title, "Review submissions leaderboard"
 
+- content_for :breadcrumbs
+  ol class="breadcrumb"
+    li class="breadcrumb-item"
+      = link_to "Leaderboards", page_path("leaderboards")
+    li class="breadcrumb-item active" aria-current="page"
+      | Review submissions leaderboard
+
 div class="fpc-hint alert alert-secondary"
   p
     ' You can add reviews for all inks in the system. The most useful reviews to

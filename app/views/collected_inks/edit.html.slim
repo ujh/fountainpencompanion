@@ -1,2 +1,13 @@
 - content_for :title, "Edit ink"
+
+- if archive?
+  - content_for :breadcrumbs
+    ol class="breadcrumb"
+      li class="breadcrumb-item"
+        = link_to "Inks", collected_inks_path
+      li class="breadcrumb-item"
+        = link_to "Archive",  "/collected_inks?search[archive]=true"
+      li class="breadcrumb-item active" aria-current="page"
+        = @ink.short_name
+
 = render partial: "form", locals: { ink: @ink }
