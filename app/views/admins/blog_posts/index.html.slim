@@ -18,13 +18,13 @@
           = link_to "Publish",
                     publish_admins_blog_post_path(post),
                     method: :put,
-                    class: 'btn btn-primary',
+                    class: 'btn btn-primary me-2',
                     data: { confirm: 'Really publish?' }
         = link_to "Edit", edit_admins_blog_post_path(post), class: 'btn btn-secondary me-2'
         = link_to "Delete",
                   admins_blog_post_path(post),
                   method: :delete,
-                  class: 'btn btn-danger me-2',
+                  class: 'btn btn-danger',
                   data: { confirm: 'Really delete?' }
 
   = paginate @blog_posts
