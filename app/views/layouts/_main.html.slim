@@ -6,6 +6,11 @@ main class="fpc-main container" id="main"
       | This site uses cookies to make some of it's functionality possible and to improve the
       |  service.&nbsp;
       = link_to "Go to this page to find out more.", page_path('cookies')
+  - if content_for?(:title)
+    h1.fpc-title= content_for :title
+  - if content_for?(:subtitle)
+    div.fpc-subtitle= content_for :subtitle
+
   - if flash[:notice]
     div class="alert alert-success"= flash[:notice]
   - if flash[:alert]
@@ -29,9 +34,6 @@ main class="fpc-main container" id="main"
         b= reading_status.blog_post.title
         p= truncate(reading_status.blog_post.body, length: 100) { link_to " continue reading", blog_path(reading_status.blog_post)}
         button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"
-  - if content_for?(:title)
-    h1.fpc-title= content_for :title
-  - if content_for?(:subtitle)
-    div.fpc-subtitle= content_for :subtitle
+
   div class="fpc-content content"
     = yield
