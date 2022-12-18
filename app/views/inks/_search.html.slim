@@ -1,7 +1,5 @@
 div.fpc-ink-search
   = form_tag('/inks', method: :get) do
-    label for='search' class="form-label"
-      | Search for inks
     div.input-group.mb-3
-      = text_field_tag :q, params[:q], placeholder: 'Try an ink line like Edelstein, or name like Carbon', class: 'form-control', id: 'search'
+      = text_field_tag :q, params[:q], placeholder: 'Try an ink line like Edelstein, or name like Carbon', class: 'form-control', id: 'search', 'aria-label': 'Search'
       = submit_tag 'Search', class: 'btn btn-success'
