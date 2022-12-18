@@ -6,19 +6,23 @@ import { getRequest } from "../fetch";
 export const WidgetDataContext = React.createContext();
 export const WidgetWidthContext = React.createContext();
 
-export const Widget = (props) => {
+export const Widget = ({ withLinks, ...rest }) => {
   return (
-    <div className="col-md-12 col-lg-6">
-      <div className="fpc-dashboard-widget">
+    <div
+      className={`card fpc-dashboard-widget ${
+        withLinks ? "fpc-dashboard-widget--with-links" : ""
+      }`}
+    >
+      <div className="card-body">
         <TrackVisibility once>
-          {({ isVisible }) => isVisible && <WidgetContent {...props} />}
+          {({ isVisible }) => isVisible && <WidgetContent {...rest} />}
         </TrackVisibility>
       </div>
     </div>
   );
 };
 
-const WidgetContent = ({ header, children, path }) => {
+const WidgetContent = ({ header, subtitle, children, path }) => {
   const [data, setData] = useState(null);
   useEffect(() => {
     async function fetchData() {
@@ -41,9 +45,10 @@ const WidgetContent = ({ header, children, path }) => {
   }
   return (
     <>
-      <h4>{header}</h4>
+      <h2 className="h4 card-title">{header}</h2>
+      {subtitle && <p className="card-subtitle text-muted">{subtitle}</p>}
       <ResizeObserver onResize={({ width }) => setElementWidth(width)}>
-        <div>{content}</div>
+        <div className="mt-2">{content}</div>
       </ResizeObserver>
     </>
   );

@@ -3,41 +3,49 @@ import { useContext } from "react";
 import { Widget, WidgetDataContext } from "./widgets";
 
 export const InksSummaryWidget = () => (
-  <Widget
-    header={<a href="/collected_inks">Inks</a>}
-    path="/dashboard/widgets/inks_summary.json"
-  >
+  <Widget header="Inks" path="/dashboard/widgets/inks_summary.json" withLinks>
     <InksSummaryWidgetContent />
   </Widget>
 );
 
 const InksSummaryWidgetContent = () => {
   const { data } = useContext(WidgetDataContext);
-  const { count, used, swabbed, archived, inks_without_reviews } =
-    data.attributes;
+  const { count, used, swabbed, archived } = data.attributes;
   return (
     <>
-      <p>
-        Your collection currently contains <b>{count}</b> inks. You have used{" "}
-        <b>{used}</b> of them and you've swabbed <b>{swabbed}</b>.
-      </p>
-      <p>
-        You have archived <b>{archived}</b> inks.
-      </p>
-      <InksWithoutReviews inks_without_reviews={inks_without_reviews} />
+      <table className="mt-4 table table-borderless table-sm card-text">
+        <tbody>
+          <tr>
+            <th className="fw-normal" scope="row">
+              Collection
+            </th>
+            <td className="text-end">{count}</td>
+          </tr>
+          <tr>
+            <th className="fw-normal" scope="row">
+              Used
+            </th>
+            <td className="text-end">{used}</td>
+          </tr>
+          <tr>
+            <th className="fw-normal" scope="row">
+              Swabbed
+            </th>
+            <td className="text-end">{swabbed}</td>
+          </tr>
+          <tr>
+            <th className="fw-normal" scope="row">
+              Archived
+            </th>
+            <td className="text-end">{archived}</td>
+          </tr>
+        </tbody>
+      </table>
+      <div className="fpc-dashboard-widget__links">
+        <a className="card-link" href="/collected_inks">
+          Inks
+        </a>
+      </div>
     </>
   );
-};
-
-const InksWithoutReviews = ({ inks_without_reviews }) => {
-  if (inks_without_reviews) {
-    return (
-      <p>
-        <b>{inks_without_reviews}</b> of your inks don't have a review. You can
-        add reviews for them <a href="/reviews/my_missing">here</a>.
-      </p>
-    );
-  } else {
-    return <p></p>;
-  }
 };

@@ -3,10 +3,7 @@ import { useContext } from "react";
 import { Widget, WidgetDataContext } from "./widgets";
 
 export const PensSummaryWidget = () => (
-  <Widget
-    header={<a href="/collected_pens">Pens</a>}
-    path="/dashboard/widgets/pens_summary.json"
-  >
+  <Widget header="Pens" path="/dashboard/widgets/pens_summary.json" withLinks>
     <PensSummaryWidgetContent />
   </Widget>
 );
@@ -16,12 +13,27 @@ const PensSummaryWidgetContent = () => {
   const { count, archived } = data.attributes;
   return (
     <>
-      <p>
-        Your collection currently contains <b>{count}</b> pens.
-      </p>
-      <p>
-        You have archived <b>{archived}</b> pens.
-      </p>
+      <table className="mt-4 table table-borderless table-sm card-text">
+        <tbody>
+          <tr>
+            <th className="fw-normal" scope="row">
+              Collection
+            </th>
+            <td className="text-end">{count}</td>
+          </tr>
+          <tr>
+            <th className="fw-normal" scope="row">
+              Archived
+            </th>
+            <td className="text-end">{archived}</td>
+          </tr>
+        </tbody>
+      </table>
+      <div className="fpc-dashboard-widget__links">
+        <a className="card-link" href="/collected_pens">
+          Pens
+        </a>
+      </div>
     </>
   );
 };
