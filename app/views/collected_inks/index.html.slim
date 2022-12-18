@@ -9,13 +9,14 @@
 - else
   - content_for :title, "Inks"
 
-- if current_user.inks_without_reviews?
-  div class="alert alert-warning alert-dismissible fade show"
-    b= MacroCluster.without_review_of_user(current_user).count
-    '  of your inks don't have a review. You can add reviews for them
-    = link_to "here", my_missing_reviews_path
-    ' .
-    button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"
+- unless cookies["my-inks-help-add-reviews"]
+  - if current_user.inks_without_reviews?
+    div id="my-inks-help-add-reviews" class="alert alert-warning alert-dismissible fade show"
+      b= MacroCluster.without_review_of_user(current_user).count
+      '  of your inks don't have a review. You can add reviews for them
+      = link_to "here", my_missing_reviews_path
+      ' .
+      button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"
 
 div id="collected-inks"
   div class="app" data-archive="#{archive?}"

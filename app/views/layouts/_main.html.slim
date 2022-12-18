@@ -1,11 +1,10 @@
 main class="fpc-main container" id="main"
   - unless cookies['cookie-alert']
     div id="cookie-alert" class="alert alert-info alert-dismissible"
-      button type="button" class="close" data-dismiss="alert"
-        span &times;
       | This site uses cookies to make some of it's functionality possible and to improve the
       |  service.&nbsp;
       = link_to "Go to this page to find out more.", page_path('cookies')
+      button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"
   - if content_for?(:title)
     h1.fpc-title= content_for :title
   - if content_for?(:subtitle)
