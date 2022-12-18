@@ -377,7 +377,7 @@ const Actions = ({
       )}
       <div className="ms-2 search me-2">
         <input
-          class="form-control"
+          className="form-control"
           type="text"
           value={globalFilter || ""}
           onChange={(e) => {
