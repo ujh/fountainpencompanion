@@ -1,4 +1,4 @@
-- content_for :title, "#{@brand.name} - #{@brand.public_ink_count} inks"
+- content_for :title, @brand.name
 - content_for :head
   meta property="og:title" content=@brand.name
   meta property="og:url" content=brand_url(@brand)
@@ -6,6 +6,8 @@
 
 div class="fpc-table fpc-table--full-width fpc-inks-table"
   table class="table table-striped"
+    caption
+      = "#{@brand.name} - #{@brand.public_ink_count} inks"
     thead
       tr
         th Count
