@@ -6,7 +6,7 @@
 
 div class="row fpc-ink-details"
   div class="col-sm-12 col-md-6"
-    h4 Details
+    h2 class="h4" Details
     div class="fpc-table fpc-table--full-width"
       table class="table"
         tbody
@@ -29,14 +29,14 @@ div class="row fpc-ink-details"
       div class="fpc-add-ink-button" data={ "macro-cluster-id" => @ink.id }
 
   div class="col-sm-12 col-md-6"
-    h4 Colors for this ink
+    h3 class="h4" Colors for this ink
     div
       - @ink.collected_inks.pluck(:color).uniq.each do |c|
         - next if c.blank?
         div class="fpc-ink-details__color-tile" style="background-color:#{c}"
     div style="clear: both;"
     div class="fpc-ink-details__error-reporting"
-      h4 Errors
+      h3 class="h5" Errors
       p
         ' If there are any inks that don't belong here or if there is anything
         ' else that is wrong, feel free to report this using the button below.
@@ -46,7 +46,7 @@ div class="row fpc-ink-details"
 
     div class="fpc-ink-details__submit-review"
       - if user_signed_in?
-        h4 Submit a review
+        h3 class="h5" Submit a review
         = simple_form_for InkReviewSubmission.new, url: brand_ink_ink_review_submissions_path(params[:brand_id], params[:id]), remote: true do |f|
           = f.input :url, as: :string, hint: "Enter the URL of the review you would like to submit", label: false
           = f.submit "Submit a review", class: "btn btn-success mb-3"
