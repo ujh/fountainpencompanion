@@ -1,9 +1,9 @@
 GIT
   remote: https://github.com/sidekiq-scheduler/sidekiq-scheduler.git
-  revision: 76573dbc46c73afa213331049cfc5657582dc376
+  revision: f664996648f4b5b12ab4ba1747d9d50875faea84
   branch: master
   specs:
-    sidekiq-scheduler (4.0.3)
+    sidekiq-scheduler (5.0.0.beta1)
       rufus-scheduler (~> 3.2)
       sidekiq (>= 4, < 8)
       tilt (>= 1.4.0)
@@ -173,7 +173,7 @@ GEM
     ffi (1.15.5)
     font-awesome-rails (4.7.0.8)
       railties (>= 3.2, < 8.0)
-    fugit (1.7.2)
+    fugit (1.8.0)
       et-orbi (~> 1, >= 1.2.7)
       raabro (~> 1.4)
     get_process_mem (0.2.7)
