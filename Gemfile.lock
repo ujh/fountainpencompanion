@@ -1,9 +1,9 @@
 GIT
   remote: https://github.com/sidekiq-scheduler/sidekiq-scheduler.git
-  revision: f664996648f4b5b12ab4ba1747d9d50875faea84
+  revision: fa293cec9c95ccf6a4e4455b12071b30e664eb07
   branch: master
   specs:
-    sidekiq-scheduler (5.0.0.beta1)
+    sidekiq-scheduler (5.0.0.beta2)
       rufus-scheduler (~> 3.2)
       sidekiq (>= 4, < 8)
       tilt (>= 1.4.0)
@@ -303,7 +303,7 @@ GEM
       puma (>= 2.7)
     raabro (1.4.0)
     racc (1.6.1)
-    rack (2.2.4)
+    rack (2.2.5)
     rack-proxy (0.7.0)
       rack
     rack-test (2.0.2)
