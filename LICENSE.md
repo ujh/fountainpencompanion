@@ -3,6 +3,8 @@ Copyright 2018 Urban Hafner, David J Parrott (“Licensor”)
 Copyright 2019 Urban Hafner (“Licensor”)
 Copyright 2020 Urban Hafner (“Licensor”)
 Copyright 2021 Urban Hafner (“Licensor”)
+Copyright 2022 Urban Hafner (“Licensor”)
+Copyright 2023 Urban Hafner (“Licensor”)
 
 Hippocratic License Version Number: 2.1.
 
@@ -35,4 +37,3 @@ Permission and Conditions. The Licensor grants permission by this license (“Li
 * Disclaimer. TO THE FULL EXTENT ALLOWED BY LAW, THIS SOFTWARE COMES “AS IS,” WITHOUT ANY WARRANTY, EXPRESS OR IMPLIED, AND LICENSOR AND ANY OTHER CONTRIBUTOR SHALL NOT BE LIABLE TO ANYONE FOR ANY DAMAGES OR OTHER LIABILITY ARISING FROM, OUT OF, OR IN CONNECTION WITH THE SOFTWARE OR THIS LICENSE, UNDER ANY KIND OF LEGAL CLAIM.
 
 This Hippocratic License is an Ethical Source license (https://ethicalsource.dev) and is offered for use by licensors and licensees at their own risk, on an “AS IS” basis, and with no warranties express or implied, to the maximum extent permitted by Laws.
-
