@@ -33,3 +33,4 @@ exceptions:
     - ActionDispatch::Http::Parameters::ParseError
     - ActiveRecord::RecordNotUnique
     - ActionController::BadRequest
+    - Redis::ConnectionError
