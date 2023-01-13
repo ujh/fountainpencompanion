@@ -1,19 +1,11 @@
-nav class="navbar navbar-default" id="footer"
+nav class="fpc-footer navbar navbar-dark navbar-expand-sm" id="footer"
   div class="container"
-    div class="navbar-header"
-      button type="button" class="navbar-toggle collapsed pull-left" data-toggle="collapse" data-target="#footer-menu"
-        span class="icon-bar"
-        span class="icon-bar"
-        span class="icon-bar"
-      a class="navbar-brand" href="#"
-
-    div class="collapse navbar-collapse" id="footer-menu"
-      ul class="nav navbar-nav"
-        li= link_to "Impressum", page_path('legal')
-        li= link_to "Cookies", page_path('cookies')
-        li= link_to "Privacy Policy", page_path('privacy-policy')
-        li= link_to "Guide", page_path('guide')
-        li= link_to "FAQ", page_path('faq')
-        li= link_to "Donate", page_path('donate')
-        li
-          a href="https://github.com/ujh/fountainpencompanion/" target="_blank" Code
+    ul class="navbar-nav me-auto mb-2 mb-lg-0"
+      li.nav-item= link_to "Impressum", page_path('legal'), class: "nav-link"
+      li.nav-item= link_to "Cookies", page_path('cookies'), class: "nav-link"
+      li.nav-item= link_to "Privacy Policy", page_path('privacy-policy'), class: "nav-link"
+      li.nav-item= link_to "Guide", page_path('guide'), class: "nav-link"
+      li.nav-item= link_to "FAQ", page_path('faq'), class: "nav-link"
+      li.nav-item= link_to "Donate", page_path('donate'), class: "nav-link"
+      li.nav-item
+        a.nav-link href="https://github.com/ujh/fountainpencompanion/" target="_blank" Code

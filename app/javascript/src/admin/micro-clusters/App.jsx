@@ -94,7 +94,7 @@ const BrandSelector = () => {
     "label"
   );
   return (
-    <div>
+    <div className="mb-3">
       <Select
         options={options}
         onChange={(selected) => {

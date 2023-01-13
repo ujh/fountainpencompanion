@@ -66,12 +66,12 @@ class FriendButton extends React.Component {
       return (
         <div>
           <a
-            className="btn btn-default"
+            className="btn btn-danger"
             onClick={() => this.deleteFriendRequest()}
           >
             Delete Friend Request
           </a>
-          <a className="btn btn-primary" onClick={() => this.onClick()}>
+          <a className="btn btn-secondary" onClick={() => this.onClick()}>
             {this.buttonText()}
           </a>
         </div>
@@ -79,7 +79,7 @@ class FriendButton extends React.Component {
     }
     return (
       <div>
-        <a className="btn btn-primary" onClick={() => this.onClick()}>
+        <a className="btn btn-secondary" onClick={() => this.onClick()}>
           {this.buttonText()}
         </a>
       </div>

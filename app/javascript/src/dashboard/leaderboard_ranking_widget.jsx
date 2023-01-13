@@ -4,8 +4,10 @@ import { Widget, WidgetDataContext } from "./widgets";
 
 export const LeaderboardRankingWidget = ({ renderWhenInvisible }) => (
   <Widget
-    header={<a href="/pages/leaderboards">Leaderboards</a>}
+    header="Leaderboards"
+    subtitle="Your rank on the leaderboards"
     path="/dashboard/widgets/leaderboard_ranking.json"
+    withLinks
     renderWhenInvisible={renderWhenInvisible}
   >
     <LeaderboardRankingWidgetContent />
@@ -18,50 +20,45 @@ const LeaderboardRankingWidgetContent = () => {
     data.attributes;
   return (
     <>
-      <p>
-        You are in <b>{inks}.</b> place in the{" "}
-        <a href="/pages/inks_leaderboard">inks</a> leaderboard.
-      </p>
-      <p>
-        You are in <b>{bottles}.</b> place in the{" "}
-        <a href="/pages/bottles_leaderboard">bottles</a> leaderboard.
-      </p>
-      <p>
-        You are in <b>{samples}.</b> place in the{" "}
-        <a href="/pages/samples_leaderboard">samples</a> leaderboard.
-      </p>
-      <p>
-        You are in <b>{brands}.</b> place in the{" "}
-        <a href="/pages/brands_leaderboard">brands</a> leaderboard.
-      </p>
-      <InkReviewSubmissionsContent rank={ink_review_submissions} />
+      <table className="mt-4 table table-borderless table-sm card-text">
+        <tbody>
+          <tr>
+            <th className="fw-normal" scope="row">
+              Inks
+            </th>
+            <td className="text-end">{inks}</td>
+          </tr>
+          <tr>
+            <th className="fw-normal" scope="row">
+              Bottles
+            </th>
+            <td className="text-end">{bottles}</td>
+          </tr>
+          <tr>
+            <th className="fw-normal" scope="row">
+              Samples
+            </th>
+            <td className="text-end">{samples}</td>
+          </tr>
+          <tr>
+            <th className="fw-normal" scope="row">
+              Brands
+            </th>
+            <td className="text-end">{brands}</td>
+          </tr>
+          <tr>
+            <th className="fw-normal" scope="row">
+              Review submissions
+            </th>
+            <td className="text-end">{ink_review_submissions || "Unranked"}</td>
+          </tr>
+        </tbody>
+      </table>
+      <div className="fpc-dashboard-widget__links">
+        <a className="card-link" href="/pages/leaderboards">
+          Leaderboards
+        </a>
+      </div>
     </>
   );
-};
-
-const InkReviewSubmissionsContent = ({ rank }) => {
-  if (rank) {
-    return (
-      <p>
-        You are in <b>{rank}.</b> place in the{" "}
-        <a href="/pages/ink_review_submissions_leaderboard">
-          ink review submissions
-        </a>{" "}
-        leaderboard.
-      </p>
-    );
-  } else {
-    return (
-      <p>
-        <b>
-          Submit at least one ink review to appear on the{" "}
-          <a href="/pages/ink_review_submissions_leaderboard">
-            ink review submissions
-          </a>{" "}
-          leaderboard. You can either submit a review to any ink you own or pick
-          <a href="/reviews/missing"> one of the inks that have no reviews</a>.
-        </b>
-      </p>
-    );
-  }
 };

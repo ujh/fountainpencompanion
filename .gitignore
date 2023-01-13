@@ -12,6 +12,10 @@
 /tmp/*
 !/log/.keep
 !/tmp/.keep
+# The pids folder is required to run
+!/tmp/pids/
+/tmp/pids/*
+!/tmp/pids/.keep
 
 # Ignore Byebug command history file.
 .byebug_history

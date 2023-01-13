@@ -1,8 +1,11 @@
-.leaderboard {
-  text-align: center;
+.fpc-leaderboard {
+  column-count: 4;
+  column-width: 29ch;
+}
+
+.fpc-leaderboards__board {
   ol {
     list-style-position: inside;
-    margin: auto;
     padding: 0;
   }
 }

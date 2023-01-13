@@ -12,6 +12,8 @@ require.context("../images", true);
 
 import "core-js/stable";
 import "regenerator-runtime/runtime";
+import { Tooltip, Dropdown } from "bootstrap";
+import "@popperjs/core";
 
 import "../src/color-picker";
 import "../src/collected_inks";
@@ -25,3 +27,11 @@ import setTimeZone from "../src/setTimeZone";
 window.renderPublicInks = renderPublicInks;
 window.renderFriendButton = renderFriendButton;
 window.setTimeZone = setTimeZone;
+
+[...document.querySelectorAll('[data-bs-toggle="tooltip"]')].map(
+  (triggerEl) => new Tooltip(triggerEl)
+);
+
+[...document.querySelectorAll('[data-bs-toggle="dropdown"]')].map(
+  (triggerEl) => new Dropdown(triggerEl)
+);

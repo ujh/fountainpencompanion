@@ -6,14 +6,13 @@
   meta property="og:description" content=truncate(@post.body, length: 200, separator: ' ')
   meta property="og:image" content=@post.first_image
 
-div.post
-  h2.title= @post.title
-  div.published-at=l @post.published_at, format: :long
-  p.body= @post.html_body
+div.fpc-blog-post
+  p.fpc-blog-post__published-at=l @post.published_at, format: :long
+  p.fpc-blog-post__body= @post.html_body
 
   - unless current_user&.patron?
-    div.fundraiser
-      p
+    hr.fpc-blog-post__fundraiser
+      p.text-muted
         ' Thank you for reading this article. If you are using this service and
         ' enjoy it please consider becoming a
         a href="https://www.patreon.com/bePatron?u=6900241"

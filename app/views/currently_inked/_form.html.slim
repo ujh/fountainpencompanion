@@ -1,12 +1,14 @@
 = simple_form_for record do |f|
-  div class="row"
-    div class="col-sm-12 col-md-6"
-      = f.association :collected_pen, collection: record.collected_pens_for_active_select, prompt: '(Pick a pen)'
-      = f.association :collected_ink, collection: record.collected_inks_for_active_select, prompt: '(Pick an ink)'
-    div class="col-sm-12 col-md-6"
+  div style="max-width: 650px"
+      = f.association :collected_pen, collection: record.collected_pens_for_active_select, prompt: "(Pick a pen)"
+      = f.association :collected_ink, collection: record.collected_inks_for_active_select, prompt: "(Pick an ink)"
+
+  div style="max-width: 190px"
       = f.input :inked_on, as: :string, required: false
+
+  div style="max-width: 850px"
       = f.input :comment, as: :string
-  div class="row"
-    div class="col-sm-12 col-md-6"
-      = f.submit 'Save', class: "btn btn-default"
-      = link_to 'Cancel', currently_inked_index_path, class: "btn btn-default"
+
+  div class="pt-2 mb-5"
+      = f.submit "Save", class: "btn btn-success"
+      = link_to "Cancel", currently_inked_index_path, class: "btn btn-secondary"

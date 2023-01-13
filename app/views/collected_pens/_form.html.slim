@@ -1,13 +1,14 @@
 = simple_form_for pen do |f|
-  div class="row"
-    div class="col-sm-12 col-md-6"
-      = f.input :brand, required: true, hint: "e.g. Pilot, Parker, Waterman"
-      = f.input :model, required: true, hint: "e.g. 51, Kakuno"
-    div class="col-sm-12 col-md-6"
-      = f.input :nib, hint: "e.g. M, B, architect"
-      = f.input :color
-      = f.input :comment
-  div class="row"
-    div class="col-sm-12 col-md-6"
-      = f.submit 'Save', class: "btn btn-default"
-      = link_to 'Cancel', collected_pens_path, class: "btn btn-default"
+  div style="max-width: 450px"
+    = f.input :brand, required: true, hint: "e.g. Pilot, Parker, Waterman"
+  div style="max-width: 650px"
+    = f.input :model, required: true, hint: "e.g. 51, Kakuno"
+    = f.input :nib, hint: "e.g. M, B, architect"
+    = f.input :color
+
+  div style="max-width: 850px"
+    = f.input :comment
+
+  div class="pt-2 mb-5"
+    = f.submit 'Save', class: "btn btn-success"
+    = link_to 'Cancel', collected_pens_path, class: "btn btn-secondary"

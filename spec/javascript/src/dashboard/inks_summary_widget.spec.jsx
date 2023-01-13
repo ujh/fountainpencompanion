@@ -30,6 +30,6 @@ describe("InksSummaryWidget", () => {
 
   it("renders the widget", async () => {
     render(<InksSummaryWidget renderWhenInvisible />);
-    await screen.findByText(/Your collection currently contains/);
+    await screen.findByText(/Collection/);
   });
 });

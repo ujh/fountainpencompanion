@@ -1,57 +1,14 @@
-#collected-pens,
-#collected-pens-archive {
-  td {
-    vertical-align: middle;
-  }
-
-  i {
-    font-size: 18px;
-    margin: 0;
-  }
-}
-
-#collected-pens {
-  .export {
-    text-align: right;
-    margin-bottom: 20px;
-    .btn {
-      margin-left: 10px;
-    }
-  }
-  .buttons {
-    .btn {
-      width: 100%;
-    }
-  }
-  .row {
-    box-shadow: none;
-  }
-}
-
-#collected-pens-archive {
-  h1 {
-    text-align: center;
-  }
-}
-
-.pen-collection {
-  .actions {
-    white-space: nowrap;
-  }
-}
+@use "~bootstrap/scss/bootstrap" as b;
 
 form.edit_collected_pen,
 form.new_collected_pen {
-  .row {
-    box-shadow: none !important;
-  }
   input[type="submit"] {
     margin-right: 15px;
   }
-  .boolean .help-block {
+  .boolean .form-text {
     margin-top: -10px;
   }
-  .help-block {
+  .form-text {
     font-size: smaller;
     line-height: 15px;
   }

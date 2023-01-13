@@ -8,17 +8,17 @@
   meta property="og:image" content=profile_image_url(@user, size: 500)
 
 
-div id="account"
-  div class="col-xs-12 col-sm-3 image"
+div id="account" class="row"
+  div class="col-sm-12 col-md-3 fpc-account-image"
     = profile_image_for(@user)
     - if user_signed_in?
       div class="friend-button" data-state=current_user.friendship_state_for(@user) data-id=@user.id
-  div class="col-xs-12 col-sm-9 data"
+  div class="col-sm-12 col-md-9 data"
     - if @user.blurb.present?
       div class="row"
-        div class="col-xs-12 blurb"= Slodown::Formatter.new(@user.blurb).complete.to_s.html_safe
+        div class="col-sm-12 blurb"= Slodown::Formatter.new(@user.blurb).complete.to_s.html_safe
 - unless user_signed_in?
-  div class="col-xs-12"
+  div class="col-sm-12"
     div class="alert alert-success"
       | Did you know that you can compare the inks listed here with your own (i.e. only show those that the other owns
       |  that you don't) if you create an account on the site and enter your inks?
@@ -26,4 +26,4 @@ div id="account"
         |  You can sign up&nbsp;
         = link_to "here", new_user_registration_path
         | .
-div id="new-public-inks" class="col-xs-12"
+div id="new-public-inks" class="col-sm-12"

@@ -1,32 +1,36 @@
+div id="ink-search-hint"
+
 = simple_form_for ink do |f|
   - if archive?
     = hidden_field_tag :archive, 'true'
-  div class="row"
-    div class="col-sm-12 col-md-6"
-      = f.input :brand_name, required: true, hint: "e.g. Pilot, Parker, Waterman"
-      = f.input :line_name, hint: "e.g. Iroshizuku, Edelstein"
-      = f.input :ink_name, required: true
-      div id="ink-search-hint"
-      = f.input :maker, as: :string, hint: "e.g. Sailor or Diamine (the big two when it comes to making inks for other brands)"
-    div class="col-sm-12 col-md-6"
-      = f.input :kind, as: :select, collection: CollectedInk::KINDS, label: 'Type'
-      = f.input :color, hint: "HTML hex code, or leave blank and have the system fill it in for you"
-      div class="color-picker" data-input="collected_ink_color"
-      = f.input :swabbed, hint: "Check this box if you made a swab card of the ink"
-      = f.input :used, hint: "Check this box if you've used this ink. Also gets set automatically when you create a currently inked entry with this ink"
-      = f.input :private, hint: "Check this box if do not want to share this ink on your public profile."
-      = f.input :comment, hint: "Will be visible to everyone if the ink is public. Use the private comment field below for private data."
-      = f.input :private_comment, hint: "Will only be visible to you even if you've made the ink itself public."
-      = f.input :tags_as_string, label: "Tags", hint: "A comma separated list of tags to classify your inks"
-  - if ink.new_record?
-    div class="row"
-      div class="col-sm-12 col-md-6"
-        div class="form-group boolean optional"
-          div class="checkbox"
-            label for='redo'
-              = check_box_tag 'redo', 'yes', params[:redo].present?
-              | Add another ink
-  div class="row"
-    div class="col-sm-12 col-md-6"
-      = f.submit 'Save', class: "btn btn-default"
-      = link_to 'Cancel', collected_inks_path, class: "btn btn-default"
+
+  div style="max-width: 450px"
+    = f.input :brand_name, required: true, hint: "e.g. Pilot, Parker, Waterman", autofocus: params[:redo].present?
+    = f.input :line_name, hint: "e.g. Iroshizuku, Edelstein"
+    = f.input :ink_name, required: true
+  div style="max-width: 190px"
+    = f.input :kind, as: :select, collection: CollectedInk::KINDS, label: 'Type'
+  div class="pt-2"
+    = f.input :swabbed
+    = f.input :used, hint: "Also gets set when you create a Currently inked entry"
+  div style="max-width: 450px"
+    = f.input :maker, as: :string, hint: "e.g. Sailor or Diamine (the big two when it comes to making inks for other brands)"
+  = f.input :color, as: :hidden
+  div class="color-picker mb-3" data-input="collected_ink_color"
+  div style="max-width: 850px"
+    = f.input :comment, hint: "Will be visible to everyone if the ink is public. Use the private comment field below for private data."
+    = f.input :private_comment, hint: "Will only be visible to you even if you've made the ink itself public."
+
+  div style="max-width: 450px"
+    = f.input :tags_as_string, label: "Tags", hint: "A comma separated list of tags to classify your inks"
+    = f.input :private, hint: "Check this box if do not want to share this ink on your public profile."
+
+    - if ink.new_record?
+      fieldset class="mb-3 boolean optional"
+        div class="form-check"
+          = check_box_tag 'redo', 'yes', params[:redo].present?, class: "form-check-input"
+          label for='redo' class="form-check-label" Add another ink
+
+  div class="pt-2 mb-5"
+    = f.submit 'Save', class: "btn btn-success"
+    = link_to 'Cancel', collected_inks_path, class: "btn btn-secondary"

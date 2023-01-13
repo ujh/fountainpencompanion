@@ -1,58 +1,23 @@
+@use "~bootstrap/scss/bootstrap" as b;
+
 #collected-inks {
-  .loader {
-    text-align: center;
-    i {
-      font-size: 200px !important;
-    }
-    margin-bottom: 20px;
-    margin-top: 20px;
-  }
-  @media (min-width: 992px) {
-    .add-button {
-      display: none;
-    }
-  }
-  .add-button {
-    position: fixed;
-    bottom: 15px;
-    right: 15px;
-    font-size: 36px;
-    text-decoration: none;
-    border: 2px solid #2e6da4;
-    border-radius: 5px;
-    color: #fff;
-    background-color: #337ab7;
-    padding-top: 5px;
-    padding-bottom: 5px;
-    padding-left: 10px;
-    padding-right: 9px;
-    background-image: url(../images/bg-btn.png) !important;
-    background-repeat: repeat;
-    z-index: 1000;
-    &:hover {
-      background-color: #286090;
-      border-color: #204d74;
-    }
-  }
   .buttons {
-    .btn {
-      width: 100%;
-    }
-    .search {
-      input {
-        width: 100%;
-        border-radius: 4px;
-        border-width: 1px;
-        padding-left: 10px;
-        padding-top: 2px;
-        padding-bottom: 2px;
-      }
-      padding-top: 3px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+
+    @include b.media-breakpoint-up("sm") {
+      flex-direction: row;
     }
   }
   .export {
     text-align: right;
-    margin-bottom: 20px;
+    margin-bottom: 10px;
+
+    @include b.media-breakpoint-up("sm") {
+      float: right;
+    }
+
     .btn {
       margin-left: 10px;
     }
@@ -61,31 +26,26 @@
     box-shadow: none;
   }
   .table {
-    .actions {
-      white-space: nowrap;
-      text-align: right;
-    }
     i {
       font-size: 18px;
       margin: 0;
       &.fa-check {
-        color: green;
+        color: b.$success;
       }
       &.fa-times {
-        color: red;
+        color: b.$secondary;
       }
     }
     th {
       white-space: nowrap;
       &[role="columnheader"] {
         &:hover {
-          background-color: #ddd;
+          background-color: var(--fpc-bright-background);
         }
       }
     }
-    td,
-    th {
-      vertical-align: middle !important;
+    tbody td {
+      vertical-align: middle;
     }
     tfoot {
       font-weight: bold;
@@ -104,10 +64,10 @@ form.new_collected_ink {
   input[type="submit"] {
     margin-right: 15px;
   }
-  .boolean .help-block {
+  .boolean .form-text {
     margin-top: -10px;
   }
-  .help-block {
+  .form-text {
     font-size: smaller;
     line-height: 15px;
   }
@@ -119,8 +79,9 @@ form.new_collected_ink {
   overflow-x: hidden;
 }
 
-.pick-kind span {
-  margin-right: 5px;
+.pick-kind {
+  display: flex;
+  gap: 5px;
 }
 
 ul.tags {

@@ -1,4 +1,9 @@
 #posts {
+  .post {
+    width: 100%;
+    overflow-x: auto;
+  }
+
   .notification_stats {
     font-size: small;
   }

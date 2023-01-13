@@ -22,11 +22,48 @@ I've collected a lot of issues. Most of them are not yet concretely thought out,
 
 ## Local development
 
-This app currently _does not_ have a Docker setup, but is meant to be used for "bare bones" development. You will need a Postgres as well as Redis running (see `.env` for the redis vars).
+This app currently _does not_ have a Docker setup, but is meant to be used for "bare bones" development.
+
+### Prerequisites
+
+These must either be installed locally or running in a container:
+
+- PostgreSQL 14
+- Redis 6
+
+A convenience `docker-compose` file is available for the two services. Run them with `docker-compose up`.
+
+**Environment variables**
+
+- See `.env` for relevant Redis variables.
+- Create `.env.local` and add `DATABASE_URL` pointing at your PostgreSQL database (example: `DATABASE_URL=postgres://fpc:fpc@localhost/fpc_develop`)
+
+Other prerequesites include:
+
+- `libpq` if `postgres` is not installed locally (`brew install libpq`).
+- [rbenv](https://github.com/rbenv/rbenv) to manage Ruby version and virtual environment.
+- [nvm](https://github.com/nvm-sh/nvm) to manage Node version and virtual environment.
+- Yarn Classic installed in the Node environment (`npm install -g yarn`).
+- Bundle installed in the Ruby environment (`gem install bundle`).
+- (Optional) [Heroku CLI](https://devcenter.heroku.com/articles/heroku-cli)
+
+### Install dependencies
+
+- Run `bundle install` to install Ruby dependencies.
+- Run `yarn` to install Node dependencies.
+
+Note for users on Arm (for instance M1-or-greater Mac): `bundle install` will fail. A workaround for now is to delete the lockfile.
+
+### Create database
+
+- `./bin/rails db:create`
+- `./bin/rails db:reset`
+
+### Running
 
 Once you've set up everything you can run the whole thing with:
 
-1. `heroku local` in one terminal (runs puma and Sidekiq)
+1. `bundle exec puma` in one terminal.
 2. `./bin/webpack-dev-server` in another terminal to speed up the JavaScript recompilation process during development.
 
 Use `rake` (without any arguments) to run the rspec tests.

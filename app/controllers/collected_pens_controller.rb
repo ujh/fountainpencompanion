@@ -4,6 +4,8 @@ class CollectedPensController < ApplicationController
   before_action :retrieve_collected_pens, only: [:index]
   before_action :retrieve_collected_pen, only: [:edit, :update, :destroy, :archive]
 
+  add_breadcrumb "My pens", :collected_pens_path
+
   def index
     respond_to do |format|
       format.html
@@ -15,10 +17,14 @@ class CollectedPensController < ApplicationController
   end
 
   def new
+    add_breadcrumb "Add pen", "#{collected_pens_path}/new"
+
     @collected_pen = current_user.collected_pens.build
   end
 
   def edit
+    @pen = CollectedPen.find(params[:id])
+    add_breadcrumb "Edit #{@pen.name}", "#{collected_pen_path(@pen)}/edit"
   end
 
   def import

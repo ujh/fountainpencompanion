@@ -1,14 +1,13 @@
 - content_for :title, "Missing reviews"
 
-= paginate @clusters
-
-table class="table table-striped"
-  tr
-    th User count
-    th Ink
-  - @clusters.each do |cluster|
+div class="fpc-table fpc-table--full-width"
+  table class="fpc-review-table table table-striped"
     tr
-      td= cluster.ci_count
-      td= link_to cluster.name, admins_reviews_missing_path(cluster), target: "_blank"
+      th User count
+      th Ink
+    - @clusters.each do |cluster|
+      tr
+        td= cluster.ci_count
+        td= link_to cluster.name, admins_reviews_missing_path(cluster), target: "_blank"
 
 = paginate @clusters

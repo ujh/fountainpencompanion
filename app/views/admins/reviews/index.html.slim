@@ -1,31 +1,28 @@
 - content_for :title, "#{InkReview.queued.count} reviews to check"
 
-= paginate @ink_reviews
-
 - @ink_reviews.each do |ink_review|
-  table class="table" id="admin_ink_review"
-    tr
-      th Ink
-      th = link_to ink_review.macro_cluster.name, ink_path(ink_review.macro_cluster)
-    tr
-      td Title
-      td= ink_review.title
-    tr
-      td Description
-      td= truncate(ink_review.description, length: 200)
-    tr
-      td URL
-      td= link_to ink_review.url, ink_review.url, target: "_blank"
-    tr
-      td Author
-      td= ink_review.author
-    tr
-      td Image
-      td= image_tag(ink_review.image)
-    tr
-      td
-      td
-        = link_to "Approve",  admins_review_path(ink_review, page: params[:page]), method: :put, class: 'btn btn-default'
-        = link_to "Reject", admins_review_path(ink_review, page: params[:page]), method: :delete, class: 'btn btn-default'
+  dl class="row" id="admin_ink_review"
+    dt class="col-sm-3" Ink
+    dd class="col-sm-9" = link_to ink_review.macro_cluster.name, ink_path(ink_review.macro_cluster)
+
+    dt class="col-sm-3" Title
+    dd class="col-sm-9"= ink_review.title
+
+    dt class="col-sm-3" Description
+    dd class="col-sm-9"= truncate(ink_review.description, length: 200)
+
+    dt class="col-sm-3" URL
+    dd class="col-sm-9"= link_to ink_review.url, ink_review.url, target: "_blank"
+
+    dt class="col-sm-3" Author
+    dd class="col-sm-9"= ink_review.author
+
+    dt class="col-sm-3" Image
+    dd class="col-sm-9"= image_tag(ink_review.image)
+
+    dt class="col-sm-3" Actions
+    dd class="col-sm-9"
+      = link_to "Approve",  admins_review_path(ink_review, page: params[:page]), method: :put, class: 'btn btn-success me-2'
+      = link_to "Reject", admins_review_path(ink_review, page: params[:page]), method: :delete, class: 'btn btn-secondary'
 
 = paginate @ink_reviews

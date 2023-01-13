@@ -1,19 +1,20 @@
-table class="table table-striped"
-  thead
-    tr
-      th ID
-      th Brand
-      th Line
-      th Name
-  tbody
-    - @clusters.each do |cluster|
+div class="fpc-table fpc-table--full-width"
+  table class="table align-middle table-striped"
+    thead
       tr
-        td= cluster.id
-        td= cluster.count
-        td= cluster.simplified_brand_name
-        td= cluster.simplified_line_name
-        td= cluster.simplified_ink_name
-        td
-          = simple_form_for [:admins, cluster] do |f|
-            = f.input :ignored, as: :hidden, input_html: { value: '0' }
-            = f.submit "remove"
+        th ID
+        th Brand
+        th Line
+        th Name
+    tbody
+      - @clusters.each do |cluster|
+        tr
+          td= cluster.id
+          td= cluster.count
+          td= cluster.simplified_brand_name
+          td= cluster.simplified_line_name
+          td= cluster.simplified_ink_name
+          td
+            = simple_form_for [:admins, cluster] do |f|
+              = f.input :ignored, as: :hidden, input_html: { value: '0' }
+              = f.submit "Unignore", class: "btn btn-sm btn-warning"

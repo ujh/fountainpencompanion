@@ -30,6 +30,6 @@ describe("LeaderboardRankingWidget", () => {
 
   it("renders the widget", async () => {
     render(<LeaderboardRankingWidget renderWhenInvisible />);
-    await screen.findAllByText(/You are in/);
+    await screen.findAllByText(/Review submissions/);
   });
 });

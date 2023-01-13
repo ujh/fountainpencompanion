@@ -24,7 +24,10 @@ const ColorPicker = ({ input }) => {
   }, [input]);
   return (
     <div className="row">
-      <div className="col-xs-8 col-sm-7">
+      <div className="col-sm-12">
+        <p className="form-label">Color</p>
+      </div>
+      <div className="col-sm-8 col-md-4">
         <ChromePicker
           color={color}
           disableAlpha={true}
@@ -35,7 +38,7 @@ const ColorPicker = ({ input }) => {
         />
       </div>
       <div
-        className="col-xs-4 col-sm-5"
+        className="col-sm-4 col-md-8"
         style={{ height: "225px", backgroundColor: color }}
       ></div>
     </div>

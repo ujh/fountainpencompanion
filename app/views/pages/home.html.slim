@@ -1,38 +1,58 @@
-- content_for :title, "Home"
-div id="home"
-  div class="row"
-    div class="col-xs-12 col-sm-4 home"
+picture class="fpc-home-capybara"
+  img width="325px" sizes="(max-width: 1400px) 100vw, 1400px" srcset="/images/capybara/capybara_square,w_200.png 200w, /images/capybara/capybara_square,w_441.png 441w, /images/capybara/capybara_square,w_596.png 596w, /images/capybara/capybara_square,w_727.png 727w, /images/capybara/capybara_square,w_862.png 862w, /images/capybara/capybara_square,w_979.png 979w, /images/capybara/capybara_square,w_1051.png 1051w, /images/capybara/capybara_square,w_1161.png 1161w, /images/capybara/capybara_square,w_1251.png 1251w, /images/capybara/capybara_square,w_1390.png 1390w, /images/capybara/capybara_square,w_1378.png 1378w, /images/capybara/capybara_square,w_1400.png 1400w" src="/images/capybara/capybara_square,w_1400.png" alt=""
+
+div class="d-flex justify-content-center mb-5"
+  h1 class="fpc-title fpc-title--cta" Fountain Pen Companion
+
+div class="fpc-cta"
+  = link_to "Sign up", new_user_registration_path, class: "btn btn-lg btn-success me-2"
+  = link_to "Log in", new_user_session_path, class: "btn btn-lg btn-secondary"
+
+div class="fpc-features"
+  div class="fpc-feature"
+    div class="fpc-feature__icon" aria-hidden="true"
       = fa_icon("bar-chart")
-      h4 Tracking
+    div class="fpc-feature__descriptions"
+      p class="h4" Keep track
       p Track your inks, pens, currently inked, and daily usage.
-    div class="col-xs-12 col-sm-4 home"
+  div class="fpc-feature"
+    div class="fpc-feature__icon" aria-hidden="true"
       = fa_icon("exchange")
-      h4 Facilitate sample sharing
+    div class="fpc-feature__descriptions"
+      p class="h4" Facilitate sharing
       p
-        | A public list of your inks (you control which inks are shown) and the ability to compare your
-        |  collection with that of other users to facilitate sharing samples.
-    div class="col-xs-12 col-sm-4 home"
+      | A public list of your inks (you control which inks are shown) and the ability to compare your
+      |  collection with that of other users to facilitate sharing samples.
+  div class="fpc-feature"
+    div class="fpc-feature__icon" aria-hidden="true"
       = fa_icon("list")
-      h4 Brand index
+    div class="fpc-feature__descriptions"
+      p class="h4" Brand index
       p A list of all inks grouped by brand that have been added to the site.
-  div class="row"
-    div class="col-xs-12 col-sm-4 home"
+  div class="fpc-feature"
+    div class="fpc-feature__icon" aria-hidden="true"
       = fa_icon("trophy")
-      h4 Leader boards
+    div class="fpc-feature__descriptions"
+      p class="h4" Leaderboards
       p Everyone's collections ranked by varying criteria
-    div class="col-xs-12 col-sm-4 home"
+  div class="fpc-feature"
+    div class="fpc-feature__icon" aria-hidden="true"
       = fa_icon("group")
-      h4 Community project
+    div class="fpc-feature__descriptions"
+      p class="h4" Community
       p
         | This is a free service from the community for the community. We are supported
         |  through Patreon by our awesome community.
-    div class="col-xs-12 col-sm-4 home"
+  div class="fpc-feature"
+    div class="fpc-feature__icon" aria-hidden="true"
       = fa_icon("lock")
-      h4 Full control
+    div class="fpc-feature__descriptions"
+      p class="h4" Full control
       p
         | You have full control over your data. You are able to export at any time and
         |  leave the service at any time. You can also make your ink collection private if you don't want
-        |  to share what you own with anyone.
-  div class="row"
-    div class="col-xs-12 home"
-      = link_to "Sign Up Now!", new_user_registration_path, class: "btn btn-primary"
+        |  to share what  you own with anyone.
+
+
+div class="fpc-cta"
+  = link_to "Sign up", new_user_registration_path, class: "btn btn-lg btn-success"

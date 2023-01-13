@@ -1,4 +1,4 @@
-$(function() {
+$(function () {
   $(
     "#currently_inked_collected_pen_id, #currently_inked_collected_ink_id"
   ).select2({
@@ -9,7 +9,7 @@ $(function() {
     dateFormat: "yy-mm-dd"
   });
 
-  $("#currently-inked .actions .usage").bind("ajax:complete", function() {
+  $("#currently-inked .actions .usage").bind("ajax:complete", function () {
     $(this)
       .find("i")
       .addClass("fa-bookmark-o")

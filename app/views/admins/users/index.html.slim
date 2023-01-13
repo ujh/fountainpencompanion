@@ -1,23 +1,24 @@
-table class="table table-striped" id="users-table"
-  tr
-    th ID
-    th Email
-    th Name
-    th Inks
-    th Pens
-    th CI
-    th Last Login
-    th
-  - @users.each do |user|
-    tr class="#{user.patron? ? 'patron' : ''}"
-      td= user.id
-      td
-        = user.email
-        - unless user.confirmed?
-          |  (unconfirmed)
-      td= user.public_name
-      td= @ink_counts[user.id] || 0
-      td= @pen_counts[user.id] || 0
-      td= @ci_counts[user.id] || 0
-      td= user.current_sign_in_at ? l(user.current_sign_in_at, format: :long) : ''
-      td= link_to "Details", admins_user_path(user)
+div class="fpc-table fpc-table--full-width"
+  table class="table table-striped" id="users-table"
+    tr
+      th ID
+      th Email
+      th Name
+      th Inks
+      th Pens
+      th CI
+      th Last Login
+      th
+    - @users.each do |user|
+      tr class="#{user.patron? ? 'patron' : ''}"
+        td= user.id
+        td
+          = user.email
+          - unless user.confirmed?
+            |  (unconfirmed)
+        td= user.public_name
+        td= @ink_counts[user.id] || 0
+        td= @pen_counts[user.id] || 0
+        td= @ci_counts[user.id] || 0
+        td= user.current_sign_in_at ? l(user.current_sign_in_at, format: :long) : ''
+        td= link_to "Details", admins_user_path(user)

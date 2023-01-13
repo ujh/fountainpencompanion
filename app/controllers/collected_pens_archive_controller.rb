@@ -3,10 +3,15 @@ class CollectedPensArchiveController < ApplicationController
   before_action :retrieve_collected_pens, only: [:index]
   before_action :retrieve_collected_pen, only: [:edit, :update, :destroy, :unarchive]
 
+  add_breadcrumb "My pens", :collected_pens_path
+  add_breadcrumb "Archive", :collected_pens_archive_index_path
+
   def index
   end
 
   def edit
+    @pen = CollectedPen.find(params[:id])
+    add_breadcrumb "Edit #{@pen.name}", "#{collected_pens_archive_path(@pen)}/edit"
   end
 
   def update

@@ -1,6 +1,7 @@
 - content_for :title, "Users"
-- @users.each_with_index do |user, i|
-  div class="col-xs-12 col-sm-6 col-md-4 col-lg-3"
-    = "#{i+1}. "
-    = link_to user.public_name, user_path(user)
-    = patron_tiny(user)
+
+ol class="fpc-users-list"
+  - @users.each_with_index do |user|
+    li
+      = link_to user.public_name, user_path(user)
+      = patron_tiny(user)

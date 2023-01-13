@@ -1,13 +1,17 @@
 = simple_form_for record, url: currently_inked_archive_path(record) do |f|
-  div class="row"
-    div class="col-sm-12 col-md-6"
-      = f.association :collected_pen, collection: record.collected_pens_for_select, prompt: '(Pick a pen)'
-      = f.association :collected_ink, collection: record.collected_inks_for_select, prompt: '(Pick an ink)'
-    div class="col-sm-12 col-md-6"
+  div style="max-width: 650px"
+    = f.association :collected_pen, collection: record.collected_pens_for_select, prompt: "(Pick a pen)"
+    = f.association :collected_ink, collection: record.collected_inks_for_select, prompt: "(Pick an ink)"
+
+  div class="d-flex g-2"
+    div style="max-width: 190px" class="me-3"
       = f.input :inked_on, as: :string, required: false
+    div style="max-width: 190px"
       = f.input :archived_on, as: :string
-      = f.input :comment, as: :string
-  div class="row"
-    div class="col-sm-12 col-md-6"
-      = f.submit 'Save', class: "btn btn-default"
-      = link_to 'Cancel', currently_inked_archive_index_path, class: "btn btn-default"
+
+  div style="max-width: 850px"
+    = f.input :comment, as: :string
+
+  div class="pt-2 mb-5"
+    = f.submit "Save", class: "btn btn-success"
+    = link_to "Cancel", currently_inked_archive_index_path, class: "btn btn-secondary"

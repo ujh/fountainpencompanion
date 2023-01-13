@@ -34,8 +34,9 @@ const InkSearchHint = ({ form }) => {
     listener();
   }, []);
   return (
-    <div className="hint">
-      Did you know that you can add inks via the <a href={href}>ink search?</a>
+    <div className="fpc-hint alert alert-secondary">
+      Did you know that you can add inks via the <a href={href}>ink search</a>{" "}
+      for less manual entry?
     </div>
   );
 };

@@ -1,26 +1,27 @@
 - content_for :title, "#{MacroCluster.unassigned.count} clusters to assign"
 
-table class="table"
-  thead
-    tr
-      th Brand
-      th Line
-      th Ink
-      th
-  tbody
-    tr
-      td= @macro_cluster.brand_name
-      td= @macro_cluster.line_name
-      td= @macro_cluster.ink_name
-      td
-        = link_to "Create",
-                  admins_brand_clusters_path(macro_cluster_id: @macro_cluster.id),
-                  method: :post,
-                  class: "btn btn-default"
-        = link_to "Create All",
-                  admins_brand_clusters_path(macro_cluster_id: @macro_cluster.id, all: true),
-                  method: :post,
-                  class: "btn btn-default"
+div class="fpc-table fpc-table--full-width"
+  table class="table"
+    thead
+      tr
+        th Brand
+        th Line
+        th Ink
+        th
+    tbody
+      tr
+        td= @macro_cluster.brand_name
+        td= @macro_cluster.line_name
+        td= @macro_cluster.ink_name
+        td
+          = link_to "Create",
+                    admins_brand_clusters_path(macro_cluster_id: @macro_cluster.id),
+                    method: :post,
+                    class: "btn btn-sm btn-success me-2"
+          = link_to "Create All",
+                    admins_brand_clusters_path(macro_cluster_id: @macro_cluster.id, all: true),
+                    method: :post,
+                    class: "btn btn-sm btn-secondary"
 
 h2 Existing clusters
 table class="table table-striped"
@@ -38,8 +39,8 @@ table class="table table-striped"
           = link_to "Assign",
                     admins_brand_cluster_path(@macro_cluster, brand_cluster_id: brand_cluster.id),
                     method: :put,
-                    class: "btn btn-default"
+                    class: "btn btn-sm btn-success me-2"
           = link_to "Assign All",
                     admins_brand_cluster_path(@macro_cluster, brand_cluster_id: brand_cluster.id, all: true),
                     method: :put,
-                    class: "btn btn-default"
+                    class: "btn btn-sm btn-secondary"

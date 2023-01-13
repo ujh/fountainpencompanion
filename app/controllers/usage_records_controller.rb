@@ -2,6 +2,9 @@ class UsageRecordsController < ApplicationController
   before_action :authenticate_user!
   before_action :retrieve_currently_inked, only: [:create]
 
+  add_breadcrumb "Currently inked", :currently_inked_index_path
+  add_breadcrumb "Usage records", :usage_records_path
+
   def index
     @usage_records = current_user.usage_records.order('used_on DESC, currently_inked_id')
     respond_to do |format|

@@ -14,12 +14,7 @@
 //= require jquery_ujs
 //= require jquery-ui
 //= require select2
-//= require bootstrap-sprockets
 //= require_tree .
-
-$(function () {
-  $('[data-toggle="tooltip"]').tooltip();
-});
 
 $(function () {
   $("#new-public-inks").each(function () {
@@ -66,7 +61,7 @@ $(function () {
   ink_review_submission_form.on("ajax:success", (event) => {
     ink_review_submission_form.find("input").val("");
     ink_review_submission_form
-      .find(".help-block")
+      .find(".form-text")
       .text("URL successful submitted!");
   });
 });

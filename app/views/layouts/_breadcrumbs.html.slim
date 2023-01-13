@@ -1,0 +1,6 @@
+div class="container"
+  nav class="fpc-breadcrumbs mt-2 mb-2" aria-label="breadcrumbs"
+    - if content_for?(:breadcrumbs)
+      = yield :breadcrumbs
+    - else
+      = render_breadcrumbs builder: ::BootstrapBreadcrumbs

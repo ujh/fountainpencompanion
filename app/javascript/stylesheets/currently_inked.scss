@@ -1,4 +1,37 @@
-#currently-inked, #currently-inked-archive {
+@use "~bootstrap/scss/bootstrap" as b;
+
+.fpc-currently-inked-table {
+  td {
+    vertical-align: middle;
+  }
+  .inked_on {
+    white-space: nowrap;
+  }
+  i {
+    font-size: 18px;
+    margin: 0;
+  }
+  .links {
+    text-align: left;
+    .btn {
+      margin-bottom: 7px;
+    }
+    nav {
+      font-size: 24px;
+      .page {
+        margin-left: 5px;
+        margin-right: 5px;
+      }
+    }
+  }
+
+  @media (max-width: 991px) {
+    display: none;
+  }
+}
+
+#currently-inked,
+#currently-inked-archive {
   @media (min-width: 992px) {
     .swabs {
       display: none;
@@ -11,42 +44,13 @@
   }
   .export {
     text-align: right;
-    margin-bottom: 20px;
-  }
-  .table {
-    .ci-form td {
-      vertical-align: middle;
-    }
-    .inked_on {
-      white-space: nowrap;
-    }
-    .actions {
-      white-space: nowrap;
-      text-align: right;
-    }
-    i {
-      font-size: 18px;
-      margin: 0;
+    margin-bottom: 10px;
 
-    }
-    .links {
-      text-align: center;
-      .btn {
-        width: 100%;
-        margin-bottom: 7px;
-      }
-      nav {
-        font-size: 24px;
-        .page {
-          margin-left: 5px;
-          margin-right: 5px;
-        }
-      }
-    }
-    .row {
-      box-shadow: none;
+    @include b.media-breakpoint-up("sm") {
+      float: right;
     }
   }
+
   .swabs {
     .stats {
       text-align: center;
@@ -68,9 +72,9 @@
     .entry {
       border: 1px solid #ccc;
       border-radius: 10px;
-      padding-left: 5px;
-      padding-right: 5px;
+      padding: 5px;
       margin-top: 15px;
+      margin-bottom: 15px;
       img {
         width: 50%;
         float: left;
@@ -87,21 +91,30 @@
         }
       }
     }
-    .row {
-      box-shadow: none;
-    }
   }
 }
 
-form.edit_currently_inked, form.new_currently_inked {
+form.edit_currently_inked,
+form.new_currently_inked {
   .row {
     box-shadow: none !important;
   }
-  input[type=submit] {
+  input[type="submit"] {
     margin-right: 15px;
   }
-  .select2-container {
-    margin-top: 3px;
-    margin-bottom: 3px;
+
+  $_form-field-height: 38px;
+
+  .select2-selection,
+  .select2-container--default
+    .select2-selection--single
+    .select2-selection__arrow {
+    height: $_form-field-height;
+  }
+
+  .select2-container--default
+    .select2-selection--single
+    .select2-selection__rendered {
+    line-height: $_form-field-height;
   }
 }

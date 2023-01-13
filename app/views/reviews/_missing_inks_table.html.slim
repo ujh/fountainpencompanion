@@ -1,12 +1,10 @@
-= paginate @macro_clusters
-
-table class="table table-striped"
+table class="fpc-review-table table table-striped"
   tr
     th User count
     th Ink
   - macro_clusters.each do |macro_cluster|
     tr
       td= macro_cluster.ci_count
-      td= link_to macro_cluster.name, ink_path(macro_cluster), target: "_blank"
+      td= link_to macro_cluster.name, ink_path(macro_cluster)
 
-= paginate macro_clusters
+= paginate @macro_clusters

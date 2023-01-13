@@ -1,32 +1,56 @@
-nav class="navbar navbar-default" id="header"
+nav class="fpc-header navbar navbar-dark navbar-expand-lg" id="header"
   div class="container"
-    div class="navbar-header"
-      button type="button" class="navbar-toggle collapsed pull-left" data-toggle="collapse" data-target="#header-menu"
-        span class="icon-bar"
-        span class="icon-bar"
-        span class="icon-bar"
-      a class="navbar-brand" href="#"
+    a class="fpc-header__capybara navbar-brand" aria-label="Dashboard" href=root_path
+      img src="/images/capybara/capybara_square,w_200.png" alt=""
+
+    button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#header-menu" aria-controls="#header-menu" aria-expanded="false" aria-label="Toggle navigation"
+      span class="navbar-toggler-icon"
 
     div class="collapse navbar-collapse" id="header-menu"
-      ul class="nav navbar-nav"
-        li= link_to "Home", root_path
-        li= link_to "Users", users_path
-        li= link_to "Brands", brands_path
-        li= link_to "Leaderboards", page_path("leaderboards")
-        li= link_to "Blog", blog_index_path
-        li class="dropdown"
-          a href="#" class="dropdown-toggle" data-toggle="dropdown" Community
+      ul class="navbar-nav me-auto flex-grow-1 mb-2 mb-lg-0"
+        li class="nav-item dropdown"
+          a href="#" class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false" Discover
           ul class="dropdown-menu"
-            li= link_to "Forum", "https://community.fpc.ink"
-            li= link_to "Missing Reviews", missing_reviews_path
-      ul class="nav navbar-nav navbar-right"
+            li= link_to "Inks", brands_path, class: "dropdown-item"
+            li= link_to "Missing reviews", missing_reviews_path, class: "dropdown-item"
+
+        li class="nav-item dropdown"
+          a href="#" class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false" Community
+          ul class="dropdown-menu"
+            li= link_to "Leaderboards", page_path("leaderboards"), class: "dropdown-item"
+            li= link_to "Users", users_path, class: "dropdown-item"
+            li= link_to "Forum ↗", "https://community.fpc.ink", class: "dropdown-item", target: "_blank"
+
+        li= link_to "Blog", blog_index_path, class: "nav-link"
+
+
+      ul class="navbar-nav me-auto mb-2 mb-lg-0 align-self-right"
         - if user_signed_in?
-          li= link_to "Currently Inked", currently_inked_index_path
-          li= link_to "My Pens", collected_pens_path
-          li= link_to "My Inks", collected_inks_path
-          li= link_to "Account", account_path
-          li= link_to "Logout", destroy_user_session_path, method: :delete
-          li= profile_image(size: 100)
+          li= link_to "Dashboard", dashboard_path, class: "nav-link"
+          li= link_to "Currently inked", currently_inked_index_path, class: "nav-link"
+          li class="nav-item dropdown"
+            a href="#" class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false" My collection
+            ul class="dropdown-menu"
+              li= link_to "My pens", collected_pens_path, class: "dropdown-item"
+              li= link_to "My inks", collected_inks_path, class: "dropdown-item"
+
+
+
+          li class="nav-item dropdown"
+            a href="#" class="fpc-header__account-dropdown nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false"
+              = profile_image(size: 100)
+            ul class="dropdown-menu"
+              li= link_to "Account", account_path, class: "dropdown-item"
+              li
+                hr class="dropdown-divider"
+                span class="dropdown-header" Archives
+              li= link_to "Inks", "/collected_inks?search[archive]=true", class: "dropdown-item"
+              li= link_to "Pens", collected_pens_archive_index_path, class: "dropdown-item"
+              li= link_to "Currently inked", currently_inked_archive_index_path, class: "dropdown-item"
+              li= link_to "Usage records", usage_records_path, class: "dropdown-item"
+              li
+                hr class="dropdown-divider"
+              li= link_to "Log out", destroy_user_session_path, method: :delete, class: "dropdown-item"
         - else
-          li= link_to "Sign Up", new_user_registration_path
-          li= link_to "Login", new_user_session_path
+          li= link_to "Sign up", new_user_registration_path, class: "nav-link"
+          li= link_to "Login", new_user_session_path, class: "nav-link"

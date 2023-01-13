@@ -75,6 +75,9 @@ const MacroClusterRows = ({ afterAssign }) => {
     <tr key="search-box">
       <td colSpan="8">
         <input
+          className="form-control"
+          aria-label="Filter"
+          placeholder="Filter existing"
           type="text"
           value={search}
           onChange={(e) => {
@@ -193,24 +196,27 @@ const MacroClusterRow = ({ macroCluster, afterAssign, selected }) => {
         <td onClick={onClick}>{macroCluster.line_name}</td>
         <td onClick={onClick}>{macroCluster.ink_name}</td>
         <td onClick={onClick}></td>
-        <td
-          style={{
-            backgroundColor: macroCluster.color,
-            width: "30px",
-          }}
-          onClick={onClick}
-        ></td>
+        <td onClick={onClick}>
+          <div
+            style={{
+              backgroundColor: macroCluster.color,
+              height: "45px",
+              width: "45px",
+            }}
+          />
+        </td>
         <td>
           <SearchLink ci={macroCluster} />
         </td>
         <td>
-          <input
-            className="btn btn-default"
+          <button
+            className="btn btn-secondary"
             type="submit"
             disabled={updating}
-            value="Assign"
             onClick={assign}
-          />
+          >
+            Assign
+          </button>
         </td>
       </tr>
       {(showInks || selected) && (

@@ -22,10 +22,11 @@ const InksVisualizationWidgetContent = () => {
   const width = useContext(WidgetWidthContext);
   return (
     <>
-      <div className="form-group">
-        <div className="checkbox">
+      <div className="container">
+        <div className="form-check mb-3">
           <label
             htmlFor="include-archived"
+            className="form-check-label"
             onClick={() => setIncludeArchived(!includeArchived)}
           >
             <input
@@ -33,12 +34,13 @@ const InksVisualizationWidgetContent = () => {
               type="checkbox"
               checked={includeArchived}
               onChange={() => {}}
+              className="form-check-input"
             />
             Include archived inks
           </label>
         </div>
       </div>
-      <div className="inks-visualization" style={{ height: width }}>
+      <div className="fpc-inks-visualization" style={{ height: width }}>
         {inksToDisplay(data, includeArchived).map((ink) => (
           <div
             key={ink.id}

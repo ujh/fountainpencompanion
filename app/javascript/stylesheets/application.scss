@@ -1,59 +1,17 @@
-@import "react-table-6/react-table";
+@use "~react-table-6/react-table";
 
-@import "vesper";
+@use "./fpc";
 
-@import "account";
-@import "collected_inks";
-@import "header";
-@import "home";
-@import "ink-collection";
-@import "leaderboard";
-@import "public-inks";
-@import "collected_pens";
-@import "currently_inked";
-@import "usage-records";
-@import "dashboards";
-@import "friends";
-@import "brands";
-@import "blog";
-
-#wrapper {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-}
-
-#admin {
-  #wrap {
-    margin-top: 70px;
-  }
-}
-#footer {
-  margin-top: auto;
-}
-
-.patron-tiny {
-  width: 15px;
-  margin-left: 5px;
-  margin-top: -3px;
-}
-
-.table-wrapper {
-  width: 100%;
-}
-
-.user_bot_field {
-  position: absolute;
-  left: 30000px;
-}
-
-.hint {
-  background-color: #ddd;
-  padding: 3px 6px;
-  text-align: center;
-  border-radius: 5px;
-  margin-bottom: 15px;
-  p:last-child {
-    margin-bottom: 0;
-  }
-}
+@use "./account";
+@use "./blog";
+@use "./brands";
+@use "./collected_inks";
+@use "./collected_pens";
+@use "./currently_inked";
+@use "./dashboards";
+@use "./form";
+@use "./friends";
+@use "./home";
+@use "./leaderboard";
+@use "./reviews";
+@use "./users";

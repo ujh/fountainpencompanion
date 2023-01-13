@@ -17,13 +17,13 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 const Dashboard = () => (
-  <div className="row">
+  <div className="fpc-dashboard">
+    <CurrentlyInkedSummaryWidget />
     <InksSummaryWidget />
     <PensSummaryWidget />
-    <CurrentlyInkedSummaryWidget />
-    <LeaderboardRankingWidget />
     <InksGroupedByBrandWidget />
     <PensGroupedByBrandWidget />
     <InksVisualizationWidget />
+    <LeaderboardRankingWidget />
   </div>
 );

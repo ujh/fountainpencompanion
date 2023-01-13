@@ -4,6 +4,8 @@ class CurrentlyInkedController < ApplicationController
   before_action :retrieve_record, only: [:edit, :update, :destroy, :archive, :refill]
   before_action :set_empty_record, only: [:new, :index]
 
+  add_breadcrumb "Currently inked", :currently_inked_index_path
+
   def index
     respond_to do |format|
       format.html
@@ -15,6 +17,8 @@ class CurrentlyInkedController < ApplicationController
   end
 
   def edit
+    @inked = CurrentlyInked.find(params[:id])
+    add_breadcrumb "Edit #{@inked.name}", "#{currently_inked_path(@inked)}/edit"
   end
 
   def update
@@ -38,6 +42,7 @@ class CurrentlyInkedController < ApplicationController
   end
 
   def new
+    add_breadcrumb "Add currently inked", "#{currently_inked_index_path}/new"
   end
 
   def create

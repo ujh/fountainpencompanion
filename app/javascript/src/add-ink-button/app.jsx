@@ -47,39 +47,49 @@ const ActualInkAddButton = ({ macro_cluster_id }) => {
   switch (state) {
     case "added":
       return (
-        <div className="btn btn-default">
+        <button disabled className="btn btn-outline-success">
           <i className="fa fa-check" />
-        </div>
+        </button>
       );
     case "adding":
       return (
-        <div className="btn btn-default">
+        <button disabled className="btn btn-secondary">
           <Loader />
-        </div>
+        </button>
       );
     case "pick-kind":
       return (
         <div className="pick-kind">
-          <span>Type:</span>
-          <span>
-            <select value={kind} onChange={(e) => setKind(e.target.value)}>
-              <option value="bottle">bottle</option>
-              <option value="sample">sample</option>
-              <option value="cartridge">cartridge</option>
-              <option value="swab">swab</option>
-            </select>
-          </span>
-          <span className="btn btn-primary" onClick={add}>
+          <select
+            aria-label="Type"
+            className="form-select"
+            style={{ minWidth: "100px" }}
+            value={kind}
+            onChange={(e) => setKind(e.target.value)}
+          >
+            <option value="bottle">bottle</option>
+            <option value="sample">sample</option>
+            <option value="cartridge">cartridge</option>
+            <option value="swab">swab</option>
+          </select>
+          <button type="button" className="btn btn-success" onClick={add}>
             Add
-          </span>
-          <span className="btn btn-default" onClick={() => setState(null)}>
+          </button>
+          <button
+            type="button"
+            className="btn btn-secondary"
+            onClick={() => setState(null)}
+          >
             <i className="fa fa-times" />
-          </span>
+          </button>
         </div>
       );
     default:
       return (
-        <div className="btn btn-default" onClick={() => setState("pick-kind")}>
+        <div
+          className="btn btn-secondary"
+          onClick={() => setState("pick-kind")}
+        >
           Add to collection
         </div>
       );

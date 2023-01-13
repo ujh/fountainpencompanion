@@ -47,20 +47,22 @@ export const CreateRow = ({ afterCreate }) => {
       <th></th>
       <th></th>
       <th>
-        <input
-          className="btn btn-default"
-          type="submit"
+        <button
+          className="btn btn-success me-2"
+          type="button"
           disabled={updating}
-          value="Create"
           onClick={create}
-        />
-        <input
-          className="btn btn-default"
-          type="submit"
+        >
+          Create
+        </button>
+        <button
+          className="btn btn-secondary"
+          type="button"
           disabled={updating}
-          value="Ignore"
           onClick={ignore}
-        />
+        >
+          Ignore
+        </button>
       </th>
     </tr>
   );

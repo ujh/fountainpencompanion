@@ -36,8 +36,20 @@ const CollectedInks = ({ archive }) => {
     return <CollectedInksTable data={visibleInks} archive={archive} />;
   } else {
     return (
-      <div className="loader">
-        <i className="fa fa-spin fa-refresh" />
+      <div className="placeholder-glow">
+        <div className="d-flex flex-wrap justify-content-end align-items-center mb-3">
+          <div className="placeholder bg-primary col-2 me-1" />
+          <div className="placeholder bg-primary col-2 me-1" />
+          <div className="placeholder bg-primary col-2" />
+          <div className="placeholder placeholder-lg col-6 m-2" />
+          <div className="placeholder placeholder-lg bg-success col-3" />
+        </div>
+        <div className="placeholder placeholder-lg col-12" />
+        <div className="placeholder placeholder-lg bg-secondary col-12" />
+        <div className="placeholder placeholder-lg col-12" />
+        <div className="placeholder placeholder-lg bg-secondary col-12" />
+        <div className="placeholder placeholder-lg col-12" />
+        <div className="placeholder placeholder-lg bg-secondary col-12" />
       </div>
     );
   }
@@ -72,9 +84,19 @@ const CollectedInksTable = ({ data, archive }) => {
         accessor: "private",
         Cell: ({ cell: { value } }) => {
           if (value) {
-            return <i className="fa fa-lock" />;
+            return (
+              <i
+                title="Private, hidden from your profile"
+                className="fa fa-lock"
+              />
+            );
           } else {
-            return <i className="fa fa-unlock" />;
+            return (
+              <i
+                title="Publicly visible on your profile"
+                className="fa fa-unlock"
+              />
+            );
           }
         },
       },
@@ -228,12 +250,7 @@ const CollectedInksTable = ({ data, archive }) => {
   );
   return (
     <div>
-      {!archive && (
-        <a className="add-button" href="/collected_inks/new">
-          <i className="fa fa-plus" />
-        </a>
-      )}
-      <Buttons
+      <Actions
         archive={archive}
         preGlobalFilteredRows={preGlobalFilteredRows}
         globalFilter={state.globalFilter}
@@ -246,12 +263,6 @@ const CollectedInksTable = ({ data, archive }) => {
         rows={rows}
         prepareRow={prepareRow}
         footerGroups={footerGroups}
-      />
-      <Buttons
-        archive={archive}
-        preGlobalFilteredRows={preGlobalFilteredRows}
-        globalFilter={state.globalFilter}
-        setGlobalFilter={setGlobalFilter}
       />
     </div>
   );
@@ -279,8 +290,8 @@ const Table = ({
   rows,
   prepareRow,
 }) => (
-  <div className="table-wrapper">
-    <table {...getTableProps()} className="table table-striped table-condensed">
+  <div className="fpc-table fpc-table--full-width">
+    <table {...getTableProps()} className="table table-striped">
       <thead>
         {headerGroups.map((headerGroup) => (
           <tr {...headerGroup.getHeaderGroupProps()}>
@@ -313,9 +324,19 @@ const Table = ({
               {row.cells.map((cell) => {
                 let additionalProps = {};
                 if (cell.column.id == "color" && cell.value) {
-                  additionalProps = {
-                    style: { backgroundColor: cell.value, width: "30px" },
-                  };
+                  return (
+                    <td {...cell.getCellProps()} {...additionalProps}>
+                      <div
+                        style={{
+                          backgroundColor: cell.value,
+                          width: "45px",
+                          height: "45px",
+                        }}
+                      >
+                        {cell.render("Cell")}
+                      </div>
+                    </td>
+                  );
                 }
                 return (
                   <td {...cell.getCellProps()} {...additionalProps}>
@@ -330,7 +351,7 @@ const Table = ({
       </tbody>
       <tfoot>
         {footerGroups.map((group) => (
-          <tr {...group.getFooterGroupProps()}>
+          <tr className="align-top" {...group.getFooterGroupProps()}>
             {group.headers.map((column) => (
               <td {...column.getFooterProps()}>{column.render("Footer")}</td>
             ))}
@@ -342,42 +363,49 @@ const Table = ({
   </div>
 );
 
-const Buttons = ({
+const Actions = ({
   archive,
   preGlobalFilteredRows,
   setGlobalFilter,
   globalFilter,
 }) => {
   return (
-    <div className="row buttons">
+    <div className="d-flex flex-wrap justify-content-end align-items-center mb-3">
       {!archive && (
         <>
-          <div className="col-xs-12 col-sm-2 col-md-2">
-            <a className="btn btn-primary" href="/collected_inks/new">
-              Add Ink
-            </a>
-          </div>
-          <div className="col-xs-12 col-sm-2 col-md-2">
-            <a
-              className="btn btn-default"
-              href="/collected_inks?search[archive]=true"
-            >
-              Archive
-            </a>
-          </div>
+          <a className="btn btn-sm btn-link" href="/collected_inks/import">
+            Import
+          </a>
+          <a className="btn btn-sm btn-link" href="/collected_inks.csv">
+            Export
+          </a>
+          <a
+            className="btn btn-sm btn-link"
+            href="/collected_inks?search[archive]=true"
+          >
+            Archive
+          </a>
         </>
       )}
-      <div className={archive ? "col-xs-12" : "col-xs-12 col-sm-8 col-md-8"}>
-        <div className="search">
-          <input
-            value={globalFilter || ""}
-            onChange={(e) => {
-              setGlobalFilter(e.target.value || undefined); // Set undefined to remove the filter entirely
-            }}
-            placeholder={`Type to search in ${preGlobalFilteredRows.length} inks`}
-          />
-        </div>
+      <div className="m-2 search" style={{ minWidth: "190px" }}>
+        <input
+          className="form-control"
+          type="text"
+          value={globalFilter || ""}
+          onChange={(e) => {
+            setGlobalFilter(e.target.value || undefined); // Set undefined to remove the filter entirely
+          }}
+          placeholder={`Type to search in ${preGlobalFilteredRows.length} inks`}
+          aria-label="Search"
+        />
       </div>
+      {!archive && (
+        <>
+          <a className="btn btn-success" href="/collected_inks/new">
+            Add ink
+          </a>
+        </>
+      )}
     </div>
   );
 };
@@ -412,7 +440,7 @@ const EditButton = ({ name, id, archived }) => {
   if (archived) href += "?search[archive]=true";
   return (
     <span>
-      <a className="btn btn-default" href={href} title={`Edit ${name}`}>
+      <a className="btn btn-secondary" href={href} title={`Edit ${name}`}>
         <i className="fa fa-pencil" />
       </a>
     </span>
@@ -422,11 +450,11 @@ const EditButton = ({ name, id, archived }) => {
 const DeleteButton = ({ name, id, deletable, archived }) => {
   let href = `/collected_inks/${id}`;
   if (archived) href += "?search[archive]=true";
-  if (!deletable) return null;
+  if (!deletable || !archived) return null;
   return (
     <span>
       <a
-        className="btn btn-default"
+        className="btn btn-danger"
         data-confirm={`Really delete ${name}?`}
         title={`Delete ${name}`}
         data-method="delete"
@@ -443,12 +471,12 @@ const ArchiveButton = ({ name, id, archived }) => {
     return (
       <span>
         <a
-          className="btn btn-default"
+          className="btn btn-secondary"
           title={`Unarchive ${name}`}
           href={`/collected_inks/${id}/unarchive`}
           data-method="post"
         >
-          <i className="fa fa-archive" />
+          <i className="fa fa-folder-open" />
         </a>
       </span>
     );
@@ -456,7 +484,7 @@ const ArchiveButton = ({ name, id, archived }) => {
     return (
       <span>
         <a
-          className="btn btn-default"
+          className="btn btn-secondary"
           title={`Archive ${name}`}
           href={`/collected_inks/${id}/archive`}
           data-method="post"

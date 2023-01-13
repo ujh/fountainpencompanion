@@ -1,15 +1,30 @@
-table class="table"
-  tbody
-    - @brand_clusters.each do |brand_cluster|
-      tr
-        td= brand_cluster.id
-        td= brand_cluster.name
-        td
-          table class="table"
-            tbody
-              - brand_cluster.macro_clusters.order(:brand_name, :line_name, :ink_name).each do |macro_cluster|
-                tr
+div class="fpc-table fpc-table--full-width"
+  table class="table"
+    thead
+      tr class="table-secondary"
+        th colspan="2" scope="colgroup" Brand cluster
+        th colspan="4" scope="colgroup" Macro cluster
+      tr class="table-secondary"
+        th scope="col" ID
+        th scope="col" Name
+        th scope="col" ID
+        th scope="col" Brand
+        th scope="col" Line
+        th scope="col" Ink
+    tbody
+      - @brand_clusters.each_with_index do |brand_cluster, i|
+        tr class="#{i % 2 != 0 ? "table-secondary" : ""}"
+          td rowspan=brand_cluster.macro_clusters.length = brand_cluster.id
+          td rowspan=brand_cluster.macro_clusters.length = brand_cluster.name
+          - brand_cluster.macro_clusters.order(:brand_name, :line_name, :ink_name).each_with_index do |macro_cluster, j|
+              - if j != 0
+                tr class="#{i % 2 != 0 ? "table-secondary" : ""}"
                   td= macro_cluster.id
                   td= macro_cluster.brand_name
                   td= macro_cluster.line_name
                   td= macro_cluster.ink_name
+              - else
+                td= macro_cluster.id
+                td= macro_cluster.brand_name
+                td= macro_cluster.line_name
+                td= macro_cluster.ink_name

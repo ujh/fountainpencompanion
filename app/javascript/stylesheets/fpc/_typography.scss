@@ -1,0 +1,25 @@
+@use "sass:map";
+@use "~bootstrap/scss/bootstrap" as b;
+
+.fpc-title {
+  font-size: map.get(b.$display-font-sizes, 6);
+
+  &--cta {
+    font-family: b.$display-font-family;
+    font-style: b.$display-font-style;
+    font-size: map.get(b.$display-font-sizes, 6);
+    font-weight: b.$display-font-weight;
+    line-height: b.$display-line-height;
+    text-align: center;
+
+    @include b.media-breakpoint-up("md") {
+      font-size: map.get(b.$display-font-sizes, 3);
+    }
+  }
+}
+
+.fpc-subtitle {
+  font-size: b.$h3-font-size;
+  line-height: b.$line-height-lg;
+  color: var(--fpc-muted-text-color);
+}

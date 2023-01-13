@@ -6,30 +6,55 @@ import { getRequest } from "../fetch";
 export const WidgetDataContext = React.createContext();
 export const WidgetWidthContext = React.createContext();
 
-export const Widget = (props) => {
+const Loader = ({ withLinks }) => (
+  <div className=" placeholder-glow">
+    <p className="card-text">
+      <span className="placeholder col-12" />
+      <span className="placeholder col-12" />
+      <span className="placeholder col-12" />
+    </p>
+    {withLinks && (
+      <span
+        className="placeholder col-4 bg-primary"
+        style={{ marginBottom: "-58px" }}
+      />
+    )}
+  </div>
+);
+
+export const Widget = ({ renderWhenInvisible, ...rest }) => {
+  if (renderWhenInvisible) {
+    return <WidgetCard {...rest} isVisible={true} />;
+  }
+
   return (
-    <div className="col-sm-12 col-md-6">
-      <div className="widget">
-        <WidgetContentVisibility {...props} />
+    <TrackVisibility once>
+      {({ isVisible }) => <WidgetCard {...rest} isVisible={isVisible} />}
+    </TrackVisibility>
+  );
+};
+
+const WidgetCard = ({ withLinks, header, subtitle, isVisible, ...rest }) => {
+  return (
+    <div
+      className={`card fpc-dashboard-widget ${
+        withLinks ? "fpc-dashboard-widget--with-links" : ""
+      }`}
+    >
+      <div className="card-body">
+        <h2 className="h4 card-title">{header}</h2>
+        {subtitle && <p className="card-subtitle text-muted">{subtitle}</p>}
+        {isVisible ? (
+          <WidgetContent withLinks={withLinks} {...rest} />
+        ) : (
+          <Loader withLinks={withLinks} />
+        )}
       </div>
     </div>
   );
 };
 
-// Workaround as the tests as the TrackVisibility component never detects that something is visible during the tests
-const WidgetContentVisibility = (props) => {
-  if (props.renderWhenInvisible) {
-    return <WidgetContent {...props} />;
-  } else {
-    return (
-      <TrackVisibility once>
-        {({ isVisible }) => isVisible && <WidgetContent {...props} />}
-      </TrackVisibility>
-    );
-  }
-};
-
-const WidgetContent = ({ header, children, path }) => {
+const WidgetContent = ({ children, path, withLinks }) => {
   const [data, setData] = useState(null);
   useEffect(() => {
     async function fetchData() {
@@ -40,7 +65,8 @@ const WidgetContent = ({ header, children, path }) => {
     fetchData();
   }, []);
   const [elementWidth, setElementWidth] = useState(0);
-  let content = <Loader />;
+  let content = <Loader withLinks={withLinks} />;
+
   if (data) {
     content = (
       <WidgetDataContext.Provider value={data}>
@@ -51,17 +77,8 @@ const WidgetContent = ({ header, children, path }) => {
     );
   }
   return (
-    <>
-      <h4>{header}</h4>
-      <ResizeObserver onResize={({ width }) => setElementWidth(width)}>
-        <div>{content}</div>
-      </ResizeObserver>
-    </>
+    <ResizeObserver onResize={({ width }) => setElementWidth(width)}>
+      <div className="mt-2">{content}</div>
+    </ResizeObserver>
   );
 };
-
-const Loader = () => (
-  <div className="loader">
-    <i className="fa fa-spin fa-refresh" />
-  </div>
-);

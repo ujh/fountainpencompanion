@@ -1,12 +1,7 @@
-div class="links row"
-  div class="col-xs-12 col-sm-4"
-    = link_to "Add entry", new_currently_inked_path, class: "btn btn-primary"
-  div class="col-xs-12 col-sm-4"
-    = link_to 'Show Archived Entries', currently_inked_archive_index_path, class: "btn btn-default"
-  div class="col-xs-12 col-sm-4"
-    = link_to "Show Usage Records", usage_records_path, class: "btn btn-default"
-div class="table-wrapper"
-  table class="table table-striped table-condensed"
+= render partial: "actions"
+
+div class="fpc-table fpc-table--full-width"
+  table class="table table-striped"
     thead
       tr
         th Pen
@@ -19,7 +14,8 @@ div class="table-wrapper"
       - collection.each do |ci|
         tr id="#{ci.id}"
           td= ci.pen_name
-          td style="background-color:#{ci.ink_color};width:30px;"
+          td
+            div style="background-color: #{ci.ink_color}; width: 45px; height: 45px;"
           td
             = ci.ink_name
             | &nbsp;
@@ -30,38 +26,37 @@ div class="table-wrapper"
             - if ci.used_today?
               | today
             - elsif ci.last_used_on
-              span data-toggle="tooltip" title="#{l ci.last_used_on}" style="white-space:nowrap;"
+              span data-bs-toggle="tooltip" title="#{l ci.last_used_on}" style="white-space:nowrap;"
                 ="#{distance_of_time_in_words(ci.last_used_on, Date.today)} ago"
           td= ci.comment
           td class="actions"
-            span
-              - if ci.refillable?
-                = link_to refill_currently_inked_path(ci),
-                          class: "btn btn-default",
-                          method: :post,
-                          title: "Refill this pen",
-                          data: { confirm: "Really refill #{ci.name}?"}
-                  = fa_icon("rotate-right")
-              - if ci.used_today?
-                div class="btn btn-default" title="Already recorded usage for today"
+            - if ci.used_today?
+              span
+                div class="btn btn-secondary" title="Already recorded usage for today"
                   = fa_icon("bookmark-o")
-              - else
+            - else
+              span
                 = link_to currently_inked_usage_record_path(ci),
-                          class: "usage btn btn-default",
+                          class: "usage btn btn-secondary",
                           method: :post,
                           remote: true,
                           title: "Record usage for today"
                   = fa_icon("bookmark")
-              = link_to edit_currently_inked_path(ci), class: "btn btn-default", title: "Edit #{ci.name}"
+            - if ci.refillable?
+              span
+                = link_to refill_currently_inked_path(ci),
+                          class: "btn btn-secondary",
+                          method: :post,
+                          title: "Refill this pen",
+                          data: { confirm: "Really refill #{ci.name}?"}
+                  = fa_icon("rotate-right")
+            span
+              = link_to edit_currently_inked_path(ci), class: "btn btn-secondary", title: "Edit #{ci.name}"
                 = fa_icon("pencil")
-              = link_to archive_currently_inked_path(ci), class: "btn btn-default", method: :post, title: "Archive #{ci.name}"
+            span
+              = link_to archive_currently_inked_path(ci), class: "btn btn-secondary", method: :post, title: "Archive #{ci.name}"
                 = fa_icon("archive")
-              = link_to currently_inked_path(ci),
-                        class: "btn btn-default",
-                        method: :delete,
-                        data: { confirm: "Really delete #{ci.name}?" },
-                        title: "Delete #{ci.name}"
-                = fa_icon("trash")
+
     tfoot
       tr
         th= "#{collection.size} pens"
@@ -71,10 +66,3 @@ div class="table-wrapper"
         th
         th
         th
-div class="links row"
-  div class="col-xs-12 col-sm-4"
-    = link_to "Add entry", new_currently_inked_path, class: "btn btn-primary"
-  div class="col-xs-12 col-sm-4"
-    = link_to 'Show Archived Entries', currently_inked_archive_index_path, class: "btn btn-default"
-  div class="col-xs-12 col-sm-4"
-    = link_to "Show Usage Records", usage_records_path, class: "btn btn-default"

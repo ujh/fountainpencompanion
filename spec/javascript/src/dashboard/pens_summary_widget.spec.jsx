@@ -18,6 +18,6 @@ describe("PensSummaryWidget", () => {
 
   it("renders the widget", async () => {
     render(<PensSummaryWidget renderWhenInvisible />);
-    await screen.findByText(/Your collection currently contains/);
+    await screen.findByText(/Collection/);
   });
 });

@@ -2,6 +2,7 @@ class CollectedInksController < ApplicationController
   before_action :authenticate_user!
   before_action :find_ink, only: [:edit, :update, :destroy, :archive, :unarchive]
 
+  add_breadcrumb "My inks", :collected_inks_path
 
   def index
     if current_user.collected_inks.empty?
@@ -25,6 +26,8 @@ class CollectedInksController < ApplicationController
   end
 
   def new
+    add_breadcrumb "Add ink", "#{collected_inks_path}/new"
+
     self.ink = current_user.collected_inks.build
   end
 
@@ -47,6 +50,8 @@ class CollectedInksController < ApplicationController
   end
 
   def edit
+    @ink = CollectedInk.find(params[:id])
+    add_breadcrumb "Edit #{@ink.short_name}", "#{collected_ink_path(@ink)}/edit"
   end
 
   def update

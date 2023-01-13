@@ -1,13 +1,20 @@
-- content_for :title, "Review Submissions Leaderboard"
-div class="leaderboard"
-  div class="hint"
-    p
-      ' You can add reviews for all inks in the system. The most useful reviews to
-      ' add would however be those from
-      = link_to 'this list', missing_reviews_path
-      '  as none of the inks listed there have any review.
-    p Note that you need to be logged in if you want to add reviews.
+- content_for :title, "Review submissions leaderboard"
 
-  ol
-    - LeaderBoard.ink_review_submissions.each do |user_data|
-      = render partial: "leaderboard_row", locals: { user_data: user_data }
+- content_for :breadcrumbs
+  ol class="breadcrumb"
+    li class="breadcrumb-item"
+      = link_to "Leaderboards", page_path("leaderboards")
+    li class="breadcrumb-item active" aria-current="page"
+      | Review submissions leaderboard
+
+div class="fpc-hint alert alert-secondary"
+  p
+    ' You can add reviews for all inks in the system. The most useful reviews to
+    ' add would however be those from
+    = link_to 'this list', missing_reviews_path
+    '  as none of the inks listed there have any review.
+  p Note that you need to be logged in if you want to add reviews.
+
+ol class="fpc-leaderboard"
+  - LeaderBoard.ink_review_submissions.each do |user_data|
+    = render partial: "leaderboard_row", locals: { user_data: user_data }

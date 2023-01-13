@@ -1,8 +1,6 @@
-- content_for :title, "Currently Inked"
+- content_for :title, "Currently inked"
 div id="currently-inked"
-  div class="export"
-    = link_to "Export data", currently_inked_index_path(format: 'csv'), class: "btn btn-primary"
-  div class="table"
+  div class="fpc-currently-inked-table"
     = render partial: "table", locals: { collection: @collection }
   div class="swabs"
     = render partial: "swabs", locals: { collection: @collection }

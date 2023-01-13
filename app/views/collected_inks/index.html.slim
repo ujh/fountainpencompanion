@@ -1,20 +1,22 @@
 - if archive?
-  - content_for :title, "Ink Archive"
+  - content_for :title, "Ink archive"
+  - content_for :breadcrumbs
+    ol class="breadcrumb"
+      li class="breadcrumb-item"
+        = link_to "Inks", collected_inks_path
+      li class="breadcrumb-item active" aria-current="page"
+        | Archive
 - else
   - content_for :title, "Inks"
 
-- if current_user.inks_without_reviews?
-  div class="alert alert-warning alert-dismissible"
-    button type="button" class="close" data-dismiss="alert"
-      span &times;
-    p
+- unless cookies["my-inks-help-add-reviews"]
+  - if current_user.inks_without_reviews?
+    div id="my-inks-help-add-reviews" class="alert alert-warning alert-dismissible fade show"
       b= MacroCluster.without_review_of_user(current_user).count
       '  of your inks don't have a review. You can add reviews for them
       = link_to "here", my_missing_reviews_path
       ' .
+      button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"
 
 div id="collected-inks"
-  div class="export"
-    = link_to "Import data", import_collected_inks_path, class: "btn btn-default"
-    = link_to "Export data", collected_inks_path(format: 'csv'), class: "btn btn-primary"
   div class="app" data-archive="#{archive?}"

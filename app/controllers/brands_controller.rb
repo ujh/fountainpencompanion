@@ -1,4 +1,6 @@
 class BrandsController < ApplicationController
+  add_breadcrumb "Inks", "/brands"
+
   def index
     respond_to do |format|
       format.json {
@@ -14,6 +16,9 @@ class BrandsController < ApplicationController
 
   def show
     @brand = BrandCluster.find(params[:id])
+
+    add_breadcrumb "#{@brand.name}", brand_path(@brand)
+
     respond_to do |format|
       format.html {
         @inks = @brand.macro_clusters.public.order(

@@ -8,17 +8,19 @@ import { CreateRow } from "./CreateRow";
 export const DisplayMicroCluster = ({ afterCreate }) => {
   const { activeCluster } = useContext(StateContext);
   return (
-    <table className="table">
-      <thead>
-        <CreateRow afterCreate={afterCreate} />
-      </thead>
-      <tbody>
-        <CollectedInksList collectedInks={activeCluster.collected_inks} />
-        <tr>
-          <td colSpan="8" style={{ backgroundColor: "black" }}></td>
-        </tr>
-        <DisplayMacroClusters afterAssign={afterCreate} />
-      </tbody>
-    </table>
+    <div className="fpc-table fpc-table--full-width">
+      <table className="table">
+        <thead>
+          <CreateRow afterCreate={afterCreate} />
+        </thead>
+        <tbody>
+          <CollectedInksList collectedInks={activeCluster.collected_inks} />
+          <tr>
+            <td colSpan="8" style={{ backgroundColor: "black" }}></td>
+          </tr>
+          <DisplayMacroClusters afterAssign={afterCreate} />
+        </tbody>
+      </table>
+    </div>
   );
 };
