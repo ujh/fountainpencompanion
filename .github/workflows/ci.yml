@@ -1,11 +1,4 @@
-# This workflow uses actions that are not certified by GitHub.
-# They are provided by a third-party and are governed by
-# separate terms of service, privacy policy, and support
-# documentation.
-# This workflow will download a prebuilt Ruby version, install dependencies and run tests with Rake
-# For more information see: https://github.com/marketplace/actions/setup-ruby-jruby-and-truffleruby
-
-name: Ruby
+name: CI
 
 on:
   push:
@@ -39,9 +32,9 @@ jobs:
         ports:
           - 5432:5432
     steps:
-    - uses: actions/checkout@v3.2.0
+    - uses: actions/checkout@v3.3.0
     - name: Install correct Node version
-      uses: actions/setup-node@v3.5.1
+      uses: actions/setup-node@v3.6.0
       with:
         node-version: '14.17.6'
     - name: Set up Ruby
@@ -59,9 +52,9 @@ jobs:
   jest:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3.2.0
+    - uses: actions/checkout@v3.3.0
     - name: Install correct Node version
-      uses: actions/setup-node@v3.5.1
+      uses: actions/setup-node@v3.6.0
       with:
         node-version: '14.17.6'
     - name: Install JS dependencies

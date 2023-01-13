@@ -130,7 +130,8 @@ describe CollectedInk do
         ink_name: 'Fire & Ice',
         kind: 'bottle',
         color: '#cdcdcd',
-        tags_as_string: "one, two"
+        tags_as_string: "one, two",
+        created_at: Time.now
       )
     end
     let(:csv) do
@@ -139,7 +140,7 @@ describe CollectedInk do
     let(:entry) { csv.first }
 
     it 'has a header row' do
-      expect(CollectedInk.none.to_csv).to eq("Brand;Line;Name;Type;Color;Swabbed;Used;Comment;Private Comment;Archived;Usage;Tags\n")
+      expect(CollectedInk.none.to_csv).to eq("Brand;Line;Name;Type;Color;Swabbed;Used;Comment;Private Comment;Archived;Usage;Tags;Date Added\n")
     end
 
     it 'has the correct brand' do
@@ -200,6 +201,10 @@ describe CollectedInk do
 
     it 'has the correct tags' do
       expect(entry['Tags']).to eq('one, two')
+    end
+
+    it 'has the correct value for Date Added' do
+      expect(entry['Date Added']).to eq(Time.now.to_date.to_s)
     end
   end
 

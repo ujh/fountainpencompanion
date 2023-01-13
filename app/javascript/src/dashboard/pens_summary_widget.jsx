@@ -2,8 +2,13 @@ import React from "react";
 import { useContext } from "react";
 import { Widget, WidgetDataContext } from "./widgets";
 
-export const PensSummaryWidget = () => (
-  <Widget header="Pens" path="/dashboard/widgets/pens_summary.json" withLinks>
+export const PensSummaryWidget = ({ renderWhenInvisible }) => (
+  <Widget
+    header="Pens"
+    path="/dashboard/widgets/pens_summary.json"
+    withLinks
+    renderWhenInvisible={renderWhenInvisible}
+  >
     <PensSummaryWidgetContent />
   </Widget>
 );

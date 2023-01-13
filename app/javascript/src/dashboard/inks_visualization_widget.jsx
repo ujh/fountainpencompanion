@@ -4,8 +4,12 @@ import { useContext } from "react";
 import { colorSort } from "../color-sorting";
 import { Widget, WidgetDataContext, WidgetWidthContext } from "./widgets";
 
-export const InksVisualizationWidget = () => (
-  <Widget header={"Ink visualization"} path={dataPath}>
+export const InksVisualizationWidget = ({ renderWhenInvisible }) => (
+  <Widget
+    header={"Ink visualization"}
+    path={dataPath}
+    renderWhenInvisible={renderWhenInvisible}
+  >
     <InksVisualizationWidgetContent />
   </Widget>
 );

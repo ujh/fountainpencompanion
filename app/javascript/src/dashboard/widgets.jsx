@@ -22,27 +22,35 @@ const Loader = ({ withLinks }) => (
   </div>
 );
 
-export const Widget = ({ header, subtitle, withLinks, ...rest }) => {
+export const Widget = ({ renderWhenInvisible, ...rest }) => {
+  if (renderWhenInvisible) {
+    return <WidgetCard {...rest} isVisible={true} />;
+  }
+
   return (
     <TrackVisibility once>
-      {({ isVisible }) => (
-        <div
-          className={`card fpc-dashboard-widget ${
-            withLinks ? "fpc-dashboard-widget--with-links" : ""
-          }`}
-        >
-          <div className="card-body">
-            <h2 className="h4 card-title">{header}</h2>
-            {subtitle && <p className="card-subtitle text-muted">{subtitle}</p>}
-            {isVisible ? (
-              <WidgetContent withLinks={withLinks} {...rest} />
-            ) : (
-              <Loader withLinks={withLinks} />
-            )}
-          </div>
-        </div>
-      )}
+      {({ isVisible }) => <WidgetCard {...rest} isVisible={isVisible} />}
     </TrackVisibility>
+  );
+};
+
+const WidgetCard = ({ withLinks, header, subtitle, isVisible, ...rest }) => {
+  return (
+    <div
+      className={`card fpc-dashboard-widget ${
+        withLinks ? "fpc-dashboard-widget--with-links" : ""
+      }`}
+    >
+      <div className="card-body">
+        <h2 className="h4 card-title">{header}</h2>
+        {subtitle && <p className="card-subtitle text-muted">{subtitle}</p>}
+        {isVisible ? (
+          <WidgetContent withLinks={withLinks} {...rest} />
+        ) : (
+          <Loader withLinks={withLinks} />
+        )}
+      </div>
+    </div>
   );
 };
 
