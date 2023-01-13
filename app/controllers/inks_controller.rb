@@ -26,7 +26,7 @@ class InksController < ApplicationController
   private
 
   def full_text_cluster_search
-    if params[:q].empty?
+    if params[:q].blank?
       redirect_to brands_path
     else
       MacroCluster.full_text_search(params[:q])
