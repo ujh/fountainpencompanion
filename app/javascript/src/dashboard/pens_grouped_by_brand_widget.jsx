@@ -4,10 +4,11 @@ import { Pie, PieChart, Tooltip, Cell } from "recharts";
 import { Widget, WidgetDataContext, WidgetWidthContext } from "./widgets";
 import { generateColors, dataWithOtherEntry } from "./charting";
 
-export const PensGroupedByBrandWidget = () => (
+export const PensGroupedByBrandWidget = ({ renderWhenInvisible }) => (
   <Widget
     header={<a href="/collected_pens">Pens</a>}
     path="/dashboard/widgets/pens_grouped_by_brand.json"
+    renderWhenInvisible={renderWhenInvisible}
   >
     <PensGroupedByBrandWidgetContent />
   </Widget>
