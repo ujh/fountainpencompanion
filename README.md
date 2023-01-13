@@ -33,7 +33,10 @@ These must either be installed locally or running in a container:
 
 A convenience `docker-compose` file is available for the two services. Run them with `docker-compose up`.
 
-See `.env` for relevant Redis and Postgres variables.
+**Environment variables**
+
+- See `.env` for relevant Redis variables.
+- Create `.env.local` and add `DATABASE_URL` pointing at your PostgreSQL database (example: `DATABASE_URL=postgres://fpc:fpc@localhost/fpc_develop`)
 
 Other prerequesites include:
 
