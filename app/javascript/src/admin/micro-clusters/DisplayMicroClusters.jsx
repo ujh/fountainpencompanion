@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from "react";
 import Jsona from "jsona";
 
-import { getRequest } from "src/fetch";
+import { getRequest } from "../../fetch";
 import { DisplayMicroCluster } from "./DisplayMicroCluster";
 import { DispatchContext, groupedInks, StateContext } from "./App";
 import {

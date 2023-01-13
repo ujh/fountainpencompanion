@@ -3,7 +3,7 @@ import Select from "react-select";
 import _ from "lodash";
 import Jsona from "jsona";
 
-import { getRequest } from "src/fetch";
+import { getRequest } from "../../fetch";
 import { Spinner } from "./Spinner";
 import { DisplayMicroClusters } from "./DisplayMicroClusters";
 import { reducer, initalState } from "./reducer";
