@@ -10,12 +10,23 @@ export const Widget = (props) => {
   return (
     <div className="col-sm-12 col-md-6">
       <div className="widget">
-        <TrackVisibility once>
-          {({ isVisible }) => isVisible && <WidgetContent {...props} />}
-        </TrackVisibility>
+        <WidgetContentVisibility {...props} />
       </div>
     </div>
   );
+};
+
+// Workaround as the tests as the TrackVisibility component never detects that something is visible during the tests
+const WidgetContentVisibility = (props) => {
+  if (props.renderWhenInvisible) {
+    return <WidgetContent {...props} />;
+  } else {
+    return (
+      <TrackVisibility once>
+        {({ isVisible }) => isVisible && <WidgetContent {...props} />}
+      </TrackVisibility>
+    );
+  }
 };
 
 const WidgetContent = ({ header, children, path }) => {

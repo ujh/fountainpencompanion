@@ -2,10 +2,11 @@ import React from "react";
 import { useContext } from "react";
 import { Widget, WidgetDataContext } from "./widgets";
 
-export const LeaderboardRankingWidget = () => (
+export const LeaderboardRankingWidget = ({ renderWhenInvisible }) => (
   <Widget
     header={<a href="/pages/leaderboards">Leaderboards</a>}
     path="/dashboard/widgets/leaderboard_ranking.json"
+    renderWhenInvisible={renderWhenInvisible}
   >
     <LeaderboardRankingWidgetContent />
   </Widget>

@@ -2,10 +2,11 @@ import React from "react";
 import { useContext } from "react";
 import { Widget, WidgetDataContext } from "./widgets";
 
-export const InksSummaryWidget = () => (
+export const InksSummaryWidget = ({ renderWhenInvisible }) => (
   <Widget
     header={<a href="/collected_inks">Inks</a>}
     path="/dashboard/widgets/inks_summary.json"
+    renderWhenInvisible={renderWhenInvisible}
   >
     <InksSummaryWidgetContent />
   </Widget>
