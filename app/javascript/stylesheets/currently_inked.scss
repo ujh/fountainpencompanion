@@ -75,9 +75,12 @@
       padding: 5px;
       margin-top: 15px;
       margin-bottom: 15px;
-      img {
-        width: 50%;
+      .swab {
         float: left;
+        height: 220px;
+        width: 50%;
+        mask: url("/images/swab.svg");
+        mask-repeat: no-repeat;
       }
       .actions {
         margin-bottom: 3px;
