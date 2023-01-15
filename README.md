@@ -26,21 +26,17 @@ This app currently _does not_ have a Docker setup, but is meant to be used for "
 
 ### Prerequisites
 
-These must either be installed locally or running in a container:
+- PostgreSQL 14 installed locally (we need a database configured with `trust` for tests).
+- Redis 6 installed locally or running in a container.
 
-- PostgreSQL 14
-- Redis 6
-
-A convenience `docker-compose` file is available for the two services. Run them with `docker-compose up`.
+A convenience `docker-compose` file is available for Redis. Run with `docker-compose up`.
 
 **Environment variables**
 
 - See `.env` for relevant Redis variables.
-- Create `.env.local` and add `DATABASE_URL` pointing at your PostgreSQL database (example: `DATABASE_URL=postgres://fpc:fpc@localhost/fpc_develop`)
 
 Other prerequesites include:
 
-- `libpq` if `postgres` is not installed locally (`brew install libpq`).
 - [rbenv](https://github.com/rbenv/rbenv) to manage Ruby version and virtual environment.
 - [nvm](https://github.com/nvm-sh/nvm) to manage Node version and virtual environment.
 - Yarn Classic installed in the Node environment (`npm install -g yarn`).
@@ -52,11 +48,10 @@ Other prerequesites include:
 - Run `bundle install` to install Ruby dependencies.
 - Run `yarn` to install Node dependencies.
 
-Note for users on Arm (for instance M1-or-greater Mac): `bundle install` will fail. A workaround for now is to delete the lockfile.
-
 ### Create database
 
 - `./bin/rails db:create`
+- `./bin/rails db:environment:set RAILS_ENV=development`
 - `./bin/rails db:reset`
 
 ### Running
@@ -64,9 +59,24 @@ Note for users on Arm (for instance M1-or-greater Mac): `bundle install` will fa
 Once you've set up everything you can run the whole thing with:
 
 1. `bundle exec puma` in one terminal.
-2. `./bin/webpack-dev-server` in another terminal to speed up the JavaScript recompilation process during development.
+2. `bundle exec sidekiq` in another terminal.
+3. `./bin/webpack-dev-server` in another terminal to speed up the JavaScript recompilation process during development.
 
-Use `rake` (without any arguments) to run the rspec tests.
+This is assuming both PostgreSQL and Redis is running.
+
+### Default database seed
+
+By default a user and an admin will be generated (see `db/seeds.rb` for the username), with a random password. Since emails are mocked locally you can use the password reset and resend confirmation features for both the [user-](http://localhost:3000/users/sign_in) and [admin signin](http://localhost:3000/admins/sign_in) to get access to this account on localhost.
+
+To test as a regular user, sign up as you would in production. Create at minimum two regular users to test some of the community features.
+
+**Adding new inks for the first time**
+A fresh database means the first time a regular user inputs a new ink brand or type, a cluster has to be made on the admin side. A mock email will pop up. Sign in as an admin and navigate to Macro clusters -> Clustering app. Create the new cluster(s). When getting started it might be useful to be logged in as an admin in one browser, and a regular user in another.
+
+### Run tests
+
+- Use `rake` (without any arguments) to run the rspec tests.
+- Use `yarn jest` to run the front-end tests.
 
 # Licensing
 

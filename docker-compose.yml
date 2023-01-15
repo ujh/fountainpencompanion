@@ -1,15 +1,6 @@
 version: "3.9"
 
 services:
-  postgres:
-    image: postgres:14
-    volumes:
-      - postgres_14_data:/var/lib/postgresql/data:cached
-    environment:
-      POSTGRES_USER: fpc
-      POSTGRES_PASSWORD: fpc
-    ports:
-      - 5432:5432
   redis:
     image: redis:6-alpine
     command: redis-server
@@ -19,5 +10,4 @@ services:
       - 6379:6379
 
 volumes:
-  postgres_14_data:
   redis_data:
