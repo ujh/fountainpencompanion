@@ -48,7 +48,6 @@ gem 'slodown'
 gem 'sprockets-rails'
 gem 'strong_migrations'
 gem 'uglifier'
-gem 'webpacker'
 
 group :development, :test do
   gem 'byebug', platform: :mri
@@ -70,3 +69,5 @@ group :test do
   gem 'simplecov-lcov', require: false
   gem 'webmock'
 end
+
+gem "shakapacker", "= 6.5"
