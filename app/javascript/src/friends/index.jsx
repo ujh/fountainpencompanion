@@ -1,6 +1,6 @@
 import * as React from "react";
 import { createRoot } from "react-dom/client";
-import { deleteRequest, postRequest, putRequest } from "src/fetch";
+import { deleteRequest, postRequest, putRequest } from "../fetch";
 
 export const renderFriendButton = (el) => {
   const root = createRoot(el);

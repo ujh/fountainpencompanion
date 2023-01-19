@@ -22,6 +22,7 @@ gem 'google-apis-youtube_v3'
 gem 'gutentag'
 gem 'honeybadger'
 gem 'jbuilder'
+gem 'jsbundling-rails'
 gem 'jquery-rails'
 gem 'jquery-ui-rails'
 gem 'jsonapi-rails'
@@ -48,7 +49,6 @@ gem 'slodown'
 gem 'sprockets-rails'
 gem 'strong_migrations'
 gem 'uglifier'
-gem 'webpacker'
 
 group :development, :test do
   gem 'byebug', platform: :mri

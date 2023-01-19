@@ -37,3 +37,6 @@ yarn-debug.log*
 .env.local
 .env.development.local
 .env.test.local
+
+/app/assets/builds/*
+!/app/assets/builds/.keep

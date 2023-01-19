@@ -3,7 +3,7 @@ import { createRoot } from "react-dom/client";
 import { useTable, useSortBy, useGlobalFilter } from "react-table";
 import { matchSorter } from "match-sorter";
 import _ from "lodash";
-import { getRequest } from "src/fetch";
+import { getRequest } from "../fetch";
 import { colorSort } from "../color-sorting";
 import Jsona from "jsona";
 
