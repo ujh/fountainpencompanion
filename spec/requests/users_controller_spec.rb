@@ -16,6 +16,13 @@ describe UsersController do
       expect(response).to be_successful
       expect(response.body).to_not include("/users/#{user.id}")
     end
+
+    it 'shows the patreon logo next to the correct user' do
+      user = create(:user, name: 'the name', patron: true)
+      get '/users'
+      expect(response).to be_successful
+      expect(response.body).to include('fpc-patron-tiny')
+    end
   end
 
   describe '#show' do
