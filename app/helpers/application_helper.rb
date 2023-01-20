@@ -1,12 +1,12 @@
 module ApplicationHelper
   def patron_tiny(user)
     title = "Supports this site with a monthly subscription through Patreon."
-    image_pack_tag("patreon.png", class: 'fpc-patron-tiny', title: title) if user.patron?
+    image_tag("patreon.png", class: 'fpc-patron-tiny', title: title) if user.patron?
   end
 
   def leaderboard_patron_tiny(data)
     title = "Supports this site with a monthly subscription through Patreon."
-    image_pack_tag("patreon.png", class: 'fpc-patron-tiny', title: title) if data[:patron]
+    image_tag("patreon.png", class: 'fpc-patron-tiny', title: title) if data[:patron]
   end
 
   def show_fundraiser?
