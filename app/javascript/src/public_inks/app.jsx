@@ -1,5 +1,5 @@
 import * as React from "react";
-import { getRequest } from "src/fetch";
+import { getRequest } from "../fetch";
 import Table from "./table";
 
 export default class App extends React.Component {

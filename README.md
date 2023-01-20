@@ -60,7 +60,7 @@ Once you've set up everything you can run the whole thing with:
 
 1. `bundle exec puma` in one terminal.
 2. `bundle exec sidekiq` in another terminal.
-3. `./bin/webpack-dev-server` in another terminal to speed up the JavaScript recompilation process during development.
+3. `yarn dev` in another terminal.
 
 This is assuming both PostgreSQL and Redis is running.
 

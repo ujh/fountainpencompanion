@@ -4,12 +4,12 @@ html
     title= [strip_tags(content_for :title)&.gsub('&amp;', '&'), 'Fountain Pen Companion'].compact.join(' - ')
     = csrf_meta_tags
     = auto_discovery_link_tag(:rss, controller: '/blog', action: 'feed')
+    = stylesheet_link_tag 'sprockets-application', media: 'all'
     = stylesheet_link_tag    'application', media: 'all'
-    = stylesheet_pack_tag 'application'
+    = javascript_include_tag 'sprockets'
     = javascript_include_tag 'application'
-    = javascript_pack_tag 'application'
-    = favicon_pack_tag "capybara_square_192.jpeg", type: "image/jpg"
-    = favicon_pack_tag "capybara_square_192.jpeg", type: "image/jpg", rel: "apple-touch-icon"
+    link rel="icon" type="image/jpg" href="/images/capybara/capybara_square_192.png"
+    link rel="apple-touch-icon" type="image/jpg" href="/images/capybara/capybara_square_192.png"
     link href="https://fonts.googleapis.com/css?family=Droid+Serif" rel="stylesheet" type="text/css" media="screen"
     meta name="viewport" content="width=device-width, initial-scale=1"
     = render partial: "layouts/clicky"
