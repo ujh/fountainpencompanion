@@ -17,10 +17,6 @@ div class="fpc-table fpc-table--full-width"
           = link_to "Create",
                     admins_brand_clusters_path(macro_cluster_id: @macro_cluster.id),
                     method: :post,
-                    class: "btn btn-sm btn-success me-2"
-          = link_to "Create All",
-                    admins_brand_clusters_path(macro_cluster_id: @macro_cluster.id, all: true),
-                    method: :post,
                     class: "btn btn-sm btn-secondary"
 
 h2 Existing clusters
@@ -37,10 +33,6 @@ table class="table table-striped"
         td= brand_cluster.macro_clusters.size
         td
           = link_to "Assign",
-                    admins_brand_cluster_path(@macro_cluster, brand_cluster_id: brand_cluster.id),
-                    method: :put,
-                    class: "btn btn-sm btn-success me-2"
-          = link_to "Assign All",
                     admins_brand_cluster_path(@macro_cluster, brand_cluster_id: brand_cluster.id, all: true),
                     method: :put,
                     class: "btn btn-sm btn-secondary"
