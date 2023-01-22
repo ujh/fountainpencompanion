@@ -1,7 +1,7 @@
 class FetchReviews
   class YoutubeChannel
     include Sidekiq::Worker
-    sidekiq_options queue: 'reviews'
+    sidekiq_options queue: "reviews"
 
     def perform(channel_id)
       self.channel = YouTubeChannel.find_by!(channel_id: channel_id)
@@ -12,7 +12,6 @@ class FetchReviews
 
     attr_accessor :channel
     delegate :channel_id, to: :channel
-
 
     def import!
       videos.each do |video|
@@ -39,10 +38,12 @@ class FetchReviews
     end
 
     def match(video)
-      Rails.cache.fetch("youtube:#{video[:url]}", expires_in: 1.year) do
-        cluster = MacroCluster.full_text_search(video[:search_term]).first
-        video.merge(macro_cluster: cluster&.id)
-      end
+      Rails
+        .cache
+        .fetch("youtube:#{video[:url]}", expires_in: 1.year) do
+          cluster = MacroCluster.full_text_search(video[:search_term]).first
+          video.merge(macro_cluster: cluster&.id)
+        end
     end
 
     def client

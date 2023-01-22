@@ -1,30 +1,24 @@
-require 'sidekiq/web'
-require 'sidekiq-scheduler/web'
+require "sidekiq/web"
+require "sidekiq-scheduler/web"
 
 Rails.application.routes.draw do
   devise_for :admins
-  devise_for :users, controllers: {
-    registrations: 'users/registrations'
-  }
+  devise_for :users, controllers: { registrations: "users/registrations" }
 
   resource :dashboard, only: [:show] do
     resources :widgets, only: [:show]
   end
   resources :pages, only: [:show]
-  resources :blog, only: [:index, :show] do
-    collection do
-      get 'feed', defaults: { format: 'rss' }
-    end
+  resources :blog, only: %i[index show] do
+    collection { get "feed", defaults: { format: "rss" } }
   end
 
   resources :reading_statuses, only: [:update]
-  resources :collected_inks, only: [:index, :destroy, :edit, :update, :new, :create] do
-    collection do
-      get 'import'
-    end
+  resources :collected_inks, only: %i[index destroy edit update new create] do
+    collection { get "import" }
     member do
-      post 'archive'
-      post 'unarchive'
+      post "archive"
+      post "unarchive"
     end
   end
   namespace :collected_inks do
@@ -32,33 +26,25 @@ Rails.application.routes.draw do
   end
 
   resources :collected_pens do
-    collection do
-      get 'import'
-    end
-    member do
-      post 'archive'
-    end
+    collection { get "import" }
+    member { post "archive" }
   end
-  resources :collected_pens_archive, only: [:index, :edit, :update, :destroy] do
-    member do
-      post 'unarchive'
-    end
+  resources :collected_pens_archive, only: %i[index edit update destroy] do
+    member { post "unarchive" }
   end
   resources :currently_inked do
     member do
-      post 'archive'
-      post 'refill'
+      post "archive"
+      post "refill"
     end
     resource :usage_record, only: [:create]
   end
-  resources :currently_inked_archive, only: [:index, :edit, :update, :destroy] do
-    member do
-      post 'unarchive'
-    end
+  resources :currently_inked_archive, only: %i[index edit update destroy] do
+    member { post "unarchive" }
   end
 
-  resources :friendships, only: [:create, :update, :destroy]
-  resources :usage_records, only: [:index, :destroy, :edit, :update]
+  resources :friendships, only: %i[create update destroy]
+  resources :usage_records, only: %i[index destroy edit update]
 
   resources :brands, only: [:index] do
     resources :inks, only: [:show] do
@@ -70,58 +56,50 @@ Rails.application.routes.draw do
     resources :brands, only: [:index]
     resources :models, only: [:index]
   end
-  get 'brands/:id', to: "brands#show", as: "brand"
+  get "brands/:id", to: "brands#show", as: "brand"
   resources :lines, only: [:index]
   resources :inks, only: [:index]
-  resource :account, only: [:show, :edit, :update]
+  resource :account, only: %i[show edit update]
 
-  resources :users, only: [:index, :show]
+  resources :users, only: %i[index show]
 
   resources :reviews, only: [] do
     collection do
-      get 'missing'
-      get 'my_missing'
+      get "missing"
+      get "my_missing"
     end
   end
   namespace :admins do
     resource :dashboard, only: [:show]
-    resources :users, only: [:index, :show, :update] do
+    resources :users, only: %i[index show update] do
       member do
-        post 'become'
-        post 'ink_import'
-        post 'pen_import'
-        post 'currently_inked_import'
+        post "become"
+        post "ink_import"
+        post "pen_import"
+        post "currently_inked_import"
       end
     end
     resources :graphs, only: [:show]
-    resources :brand_clusters, only: [:index, :new, :create, :update]
-    resources :macro_clusters, only: [:index, :create, :update, :destroy, :show]
-    resources :micro_clusters, only: [:index, :update] do
-      collection do
-        get 'ignored'
-      end
-      member do
-        delete 'unassign'
-      end
+    resources :brand_clusters, only: %i[index new create update]
+    resources :macro_clusters, only: %i[index create update destroy show]
+    resources :micro_clusters, only: %i[index update] do
+      collection { get "ignored" }
+      member { delete "unassign" }
     end
     resources :blog_posts do
-      member do
-        put 'publish'
-      end
+      member { put "publish" }
     end
-    resources :reviews, only: [:index, :update, :destroy] do
+    resources :reviews, only: %i[index update destroy] do
     end
     namespace :reviews do
-      resources :missing, only: [:index, :show] do
-        member do
-          post 'add'
-        end
+      resources :missing, only: %i[index show] do
+        member { post "add" }
       end
     end
   end
 
   authenticate :admin do
-    mount Sidekiq::Web => '/admins/sidekiq'
+    mount Sidekiq::Web => "/admins/sidekiq"
   end
 
   root "pages#show", id: "home"

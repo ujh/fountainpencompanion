@@ -4,17 +4,21 @@
 class NoNullCounters < ActiveRecord::Migration[6.1]
   def up
     safety_assured do
-      change_column :gutentag_tags, :taggings_count, :integer,
-      :default => 0,
-      :null    => false
+      change_column :gutentag_tags,
+                    :taggings_count,
+                    :integer,
+                    default: 0,
+                    null: false
     end
   end
 
   def down
     safety_assured do
-      change_column :gutentag_tags, :taggings_count, :integer,
-      :default => 0,
-      :null    => true
+      change_column :gutentag_tags,
+                    :taggings_count,
+                    :integer,
+                    default: 0,
+                    null: true
     end
   end
 end

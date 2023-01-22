@@ -16,7 +16,7 @@ const InkSearchHint = ({ form }) => {
     const inkInputs = [
       form.collected_ink_brand_name,
       form.collected_ink_line_name,
-      form.collected_ink_ink_name,
+      form.collected_ink_ink_name
     ];
     inkInputs.forEach((input) => {
       document.addEventListener("change", listener);

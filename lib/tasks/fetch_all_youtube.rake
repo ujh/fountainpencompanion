@@ -5,7 +5,7 @@ task :fetch_all_youtube, [:channel_id] => :environment do |task, args|
   youtube.fetch_videos.each do |video|
     video = postprocess(video)
     submit_video(video)
-    sleep((rand*3).seconds)
+    sleep((rand * 3).seconds)
   end
 end
 
@@ -13,11 +13,12 @@ private
 
 def submit_video(video)
   return unless video[:macro_cluster]
-  sub = CreateInkReviewSubmission.new(
-    url: video[:url],
-    user: User.first,
-    macro_cluster: video[:macro_cluster]
-  ).perform
+  sub =
+    CreateInkReviewSubmission.new(
+      url: video[:url],
+      user: User.first,
+      macro_cluster: video[:macro_cluster]
+    ).perform
 end
 
 def postprocess(video)
@@ -27,4 +28,3 @@ def postprocess(video)
   pp v
   v
 end
-

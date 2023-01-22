@@ -59,9 +59,9 @@ const renderInkWithLink = ({
   cell: {
     value,
     row: {
-      original: { ink_id },
-    },
-  },
+      original: { ink_id }
+    }
+  }
 }) => {
   if (ink_id) {
     return (
@@ -98,7 +98,7 @@ const CollectedInksTable = ({ data, archive }) => {
               />
             );
           }
-        },
+        }
       },
       {
         Header: "Brand",
@@ -109,11 +109,11 @@ const CollectedInksTable = ({ data, archive }) => {
               .length;
           }, [info.rows]);
           return <span>{count} brands</span>;
-        },
+        }
       },
       {
         Header: "Line",
-        accessor: "line_name",
+        accessor: "line_name"
       },
       {
         Header: "Name",
@@ -121,11 +121,11 @@ const CollectedInksTable = ({ data, archive }) => {
         Cell: renderInkWithLink,
         Footer: (info) => {
           return <span>{info.rows.length} inks</span>;
-        },
+        }
       },
       {
         Header: "Maker",
-        accessor: "maker",
+        accessor: "maker"
       },
       {
         Header: "Type",
@@ -142,13 +142,13 @@ const CollectedInksTable = ({ data, archive }) => {
               <Counter data={counters} field="swab" />
             </span>
           );
-        },
+        }
       },
       {
         Header: "Color",
         accessor: "color",
         Cell: () => "",
-        sortType: sortByColor,
+        sortType: sortByColor
       },
       {
         Header: "Swabbed",
@@ -160,7 +160,7 @@ const CollectedInksTable = ({ data, archive }) => {
             return <i className="fa fa-times" />;
           }
         },
-        sortType: booleanSort,
+        sortType: booleanSort
       },
       {
         Header: "Used",
@@ -172,25 +172,25 @@ const CollectedInksTable = ({ data, archive }) => {
             return <i className="fa fa-times" />;
           }
         },
-        sortType: booleanSort,
+        sortType: booleanSort
       },
       {
         Header: "Usage",
         accessor: "usage",
-        sortDescFirst: true,
+        sortDescFirst: true
       },
       {
         Header: "Daily Usage",
         accessor: "daily_usage",
-        sortDescFirst: true,
+        sortDescFirst: true
       },
       {
         Header: "Comment",
-        accessor: "comment",
+        accessor: "comment"
       },
       {
         Header: "Private Comment",
-        accessor: "private_comment",
+        accessor: "private_comment"
       },
       {
         Header: "Tags",
@@ -206,8 +206,8 @@ const CollectedInksTable = ({ data, archive }) => {
               ))}
             </ul>
           );
-        },
-      },
+        }
+      }
     ],
     [data]
   );
@@ -218,7 +218,7 @@ const CollectedInksTable = ({ data, archive }) => {
       "maker",
       "line_name",
       "kind",
-      "daily_usage",
+      "daily_usage"
     ].filter((n) => !data.some((e) => e[n]));
     if (data.every((e) => e.tags.length == 0)) hidden_columns.push("tags");
     return hidden_columns;
@@ -232,18 +232,18 @@ const CollectedInksTable = ({ data, archive }) => {
     prepareRow,
     state,
     preGlobalFilteredRows,
-    setGlobalFilter,
+    setGlobalFilter
   } = useTable(
     {
       columns,
       data,
       initialState: {
-        hiddenColumns,
+        hiddenColumns
       },
       filterTypes: {
-        fuzzyText: fuzzyTextFilterFn,
+        fuzzyText: fuzzyTextFilterFn
       },
-      globalFilter: "fuzzyText",
+      globalFilter: "fuzzyText"
     },
     useGlobalFilter,
     useSortBy
@@ -288,7 +288,7 @@ const Table = ({
   footerGroups,
   getTableBodyProps,
   rows,
-  prepareRow,
+  prepareRow
 }) => (
   <div className="fpc-table fpc-table--full-width">
     <table {...getTableProps()} className="table table-striped">
@@ -330,7 +330,7 @@ const Table = ({
                         style={{
                           backgroundColor: cell.value,
                           width: "45px",
-                          height: "45px",
+                          height: "45px"
                         }}
                       >
                         {cell.render("Cell")}
@@ -367,7 +367,7 @@ const Actions = ({
   archive,
   preGlobalFilteredRows,
   setGlobalFilter,
-  globalFilter,
+  globalFilter
 }) => {
   return (
     <div className="d-flex flex-wrap justify-content-end align-items-center mb-3">
@@ -417,7 +417,7 @@ const ActionsCell = ({
   brand_name,
   line_name,
   ink_name,
-  kind,
+  kind
 }) => {
   let inkName = [brand_name, line_name, ink_name].filter((c) => c).join(" ");
   if (kind) inkName += ` - ${kind}`;
@@ -512,9 +512,9 @@ function fuzzyTextFilterFn(rows, id, filterValue) {
     "ink_name",
     "maker",
     "comment",
-    "private_comment",
+    "private_comment"
   ];
   return matchSorter(rows, filterValue.replace(/\s+/gi, ""), {
-    keys: [(row) => attrs.map((a) => row.values[a]).join("")],
+    keys: [(row) => attrs.map((a) => row.values[a]).join("")]
   });
 }

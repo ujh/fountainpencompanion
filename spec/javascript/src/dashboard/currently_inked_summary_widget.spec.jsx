@@ -12,7 +12,7 @@ describe("CurrentlyInkedSummaryWidget", () => {
       (req, res, ctx) => {
         return res(
           ctx.json({
-            data: { attributes: { active: 1, total: 1, usage_records: 1 } },
+            data: { attributes: { active: 1, total: 1, usage_records: 1 } }
           })
         );
       }

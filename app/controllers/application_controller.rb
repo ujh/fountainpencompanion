@@ -10,11 +10,7 @@ class ApplicationController < ActionController::Base
   end
 
   def after_sign_in_path_for(resource)
-    if resource.admin?
-      admins_dashboard_path
-    else
-      dashboard_path
-    end
+    resource.admin? ? admins_dashboard_path : dashboard_path
   end
 
   private

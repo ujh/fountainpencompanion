@@ -16,9 +16,9 @@ describe("InksSummaryWidget", () => {
               used: 1,
               swabbed: 1,
               archived: 1,
-              inks_without_reviews: 1,
-            },
-          },
+              inks_without_reviews: 1
+            }
+          }
         })
       );
     })

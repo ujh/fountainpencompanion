@@ -1,6 +1,6 @@
 class Admins::ReviewsController < Admins::BaseController
   def index
-    query = InkReview.queued.order('created_at asc')
+    query = InkReview.queued.order("created_at asc")
     @ink_reviews = query.page(params[:page])
     @ink_reviews = query.page(0) if @ink_reviews.empty?
   end
@@ -20,7 +20,7 @@ class Admins::ReviewsController < Admins::BaseController
   private
 
   def redirect_after_change
-    if request.referrer.blank? || request.referrer =~ /\/admins/
+    if request.referrer.blank? || request.referrer =~ %r{/admins}
       if InkReview.queued.exists?
         redirect_to admins_reviews_path(page: params[:page])
       else

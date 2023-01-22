@@ -1,7 +1,7 @@
 class FetchReviews
   class RecalculateOne
     include Sidekiq::Worker
-    sidekiq_options queue: 'reviews'
+    sidekiq_options queue: "reviews"
 
     def perform(ink_review_id)
       self.ink_review = InkReview.find(ink_review_id)

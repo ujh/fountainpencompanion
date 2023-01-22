@@ -1,5 +1,5 @@
 class SerializableCollectedInk < JSONAPI::Serializable::Resource
-  type 'collected_inks'
+  type "collected_inks"
 
   attribute :archived do
     @object.archived?
@@ -29,7 +29,7 @@ class SerializableCollectedInk < JSONAPI::Serializable::Resource
   end
   attribute :daily_usage do
     # To avoid N+1 queries
-    @object.currently_inkeds.map {|ci| ci.usage_records.size}.sum
+    @object.currently_inkeds.map { |ci| ci.usage_records.size }.sum
   end
   attribute :used
 end

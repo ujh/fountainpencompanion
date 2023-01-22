@@ -1,9 +1,7 @@
 module Archivable
-
   extend ActiveSupport::Concern
 
   class_methods do
-
     def active
       where(archived_on: nil)
     end
@@ -11,7 +9,6 @@ module Archivable
     def archived
       where.not(archived_on: nil)
     end
-
   end
 
   def active?

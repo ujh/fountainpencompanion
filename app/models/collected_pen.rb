@@ -1,7 +1,6 @@
-require 'csv'
+require "csv"
 
 class CollectedPen < ApplicationRecord
-
   include Archivable
   include PenName
 
@@ -19,7 +18,18 @@ class CollectedPen < ApplicationRecord
 
   def self.to_csv
     CSV.generate(col_sep: ";") do |csv|
-      csv << ["Brand", "Model", "Nib", "Color", "Comment", "Archived", "Archived On", "Usage", "Last Inked", "Last Cleaned"]
+      csv << [
+        "Brand",
+        "Model",
+        "Nib",
+        "Color",
+        "Comment",
+        "Archived",
+        "Archived On",
+        "Usage",
+        "Last Inked",
+        "Last Cleaned"
+      ]
       all.each do |cp|
         usage_count = cp.currently_inkeds.length
         last_inked = nil
@@ -39,7 +49,7 @@ class CollectedPen < ApplicationRecord
           cp.archived_on,
           usage_count,
           last_inked,
-          last_cleaned,
+          last_cleaned
         ]
       end
     end

@@ -11,7 +11,7 @@ $(function () {
           });
           response(names);
         });
-    },
+    }
   });
 
   $("#collected_ink_line_name").autocomplete({
@@ -26,7 +26,7 @@ $(function () {
           });
           response(names);
         });
-    },
+    }
   });
 
   $("#collected_ink_ink_name").autocomplete({
@@ -44,6 +44,6 @@ $(function () {
           });
           response(names);
         });
-    },
+    }
   });
 });

@@ -13,7 +13,7 @@ import {
   UPDATE_MACRO_CLUSTER,
   NEXT_MACRO_CLUSTER,
   PREVIOUS_MACRO_CLUSTER,
-  SET_LOADING_PERCENTAGE,
+  SET_LOADING_PERCENTAGE
 } from "./actions";
 
 export const initalState = {
@@ -49,7 +49,7 @@ const actualReducer = (state, { type, payload }) => {
     case ASSIGN_TO_MACRO_CLUSTER:
       return {
         ...state,
-        macroClusters: state.macroClusters.map(mc => {
+        macroClusters: state.macroClusters.map((mc) => {
           if (mc.id == payload.macro_cluster.id) {
             return {
               ...mc,
@@ -95,11 +95,11 @@ const actualReducer = (state, { type, payload }) => {
       };
     }
     case SET_LOADING_PERCENTAGE:
-      return { ...state, loadingPercentage: payload }
+      return { ...state, loadingPercentage: payload };
     case UPDATE_MACRO_CLUSTER:
       return {
         ...state,
-        macroClusters: state.macroClusters.map(c => {
+        macroClusters: state.macroClusters.map((c) => {
           if (c.id == payload.id) return payload;
           return c;
         })
@@ -118,7 +118,7 @@ const changeSelectedMacroClusterIndex = (state, newIndex) => {
   return { ...state, selectedMacroClusterIndex: newIndex };
 };
 
-const updateActiveCluster = state => {
+const updateActiveCluster = (state) => {
   let index = state.index;
   if (index >= state.selectedMicroClusters.length) index = 0;
   const activeCluster = state.selectedMicroClusters[index];
@@ -172,15 +172,17 @@ const changeIndex = (state, newIndex) => {
 };
 
 const withoutElement = (element, clusters) => {
-  return clusters.filter(c => !(c.id == element.id && c.type == element.type));
+  return clusters.filter(
+    (c) => !(c.id == element.id && c.type == element.type)
+  );
 };
 
 const selectMicroClusters = (selectedBrands, microClusters) => {
   if (selectedBrands.length) {
     const filtered = _.reverse(
       _.sortBy(
-        microClusters.filter(c =>
-          selectedBrands.map(s => s.value).includes(c.simplified_brand_name)
+        microClusters.filter((c) =>
+          selectedBrands.map((s) => s.value).includes(c.simplified_brand_name)
         ),
         "collected_inks.length"
       )

@@ -5,6 +5,6 @@ class CreateUsageRecords < ActiveRecord::Migration[5.2]
       t.date :used_on, null: false
       t.timestamps
     end
-    add_index :usage_records, [:currently_inked_id, :used_on], unique: true
+    add_index :usage_records, %i[currently_inked_id used_on], unique: true
   end
 end

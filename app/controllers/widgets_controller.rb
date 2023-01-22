@@ -3,17 +3,17 @@ class WidgetsController < ApplicationController
 
   def show
     case params[:id]
-    when 'inks_summary'
+    when "inks_summary"
       render json: inks_summary_data
-    when 'pens_summary'
+    when "pens_summary"
       render json: pens_summary_data
-    when 'currently_inked_summary'
+    when "currently_inked_summary"
       render json: currently_inked_summary_data
-    when 'leaderboard_ranking'
+    when "leaderboard_ranking"
       render json: leaderboard_ranking_data
-    when 'inks_grouped_by_brand'
+    when "inks_grouped_by_brand"
       render json: inks_grouped_by_brand_data
-    when 'pens_grouped_by_brand'
+    when "pens_grouped_by_brand"
       render json: pens_grouped_by_brand_data
     else
       head :unprocessable_entity
@@ -23,7 +23,7 @@ class WidgetsController < ApplicationController
   private
 
   def inks_summary_data
-    as_json_api('inks_summary') do
+    as_json_api("inks_summary") do
       {
         count: current_user.collected_inks.active.count,
         used: current_user.collected_inks.active.where(used: true).count,
@@ -39,7 +39,7 @@ class WidgetsController < ApplicationController
   end
 
   def pens_summary_data
-    as_json_api('pens_summary') do
+    as_json_api("pens_summary") do
       {
         count: current_user.collected_pens.active.count,
         archived: current_user.collected_pens.archived.count
@@ -48,7 +48,7 @@ class WidgetsController < ApplicationController
   end
 
   def currently_inked_summary_data
-    as_json_api('currently_inked_summary') do
+    as_json_api("currently_inked_summary") do
       {
         active: current_user.currently_inkeds.active.count,
         total: current_user.currently_inkeds.count,
@@ -58,49 +58,55 @@ class WidgetsController < ApplicationController
   end
 
   def leaderboard_ranking_data
-    as_json_api('leaderboard_ranking') do
+    as_json_api("leaderboard_ranking") do
       {
         inks: leaderboard_index(:inks),
         bottles: leaderboard_index(:bottles),
         samples: leaderboard_index(:samples),
         brands: leaderboard_index(:brands),
-        ink_review_submissions: leaderboard_index(:ink_review_submissions),
+        ink_review_submissions: leaderboard_index(:ink_review_submissions)
       }
     end
   end
 
   def inks_grouped_by_brand_data
-    brands = current_user.collected_inks.active.group(:brand_name).select("brand_name, count(*) as count").order("count desc")
-    as_json_api('inks_grouped_by_brand') do
+    brands =
+      current_user
+        .collected_inks
+        .active
+        .group(:brand_name)
+        .select("brand_name, count(*) as count")
+        .order("count desc")
+    as_json_api("inks_grouped_by_brand") do
       {
-        brands: brands.map {|ci| {brand_name: ci.brand_name, count: ci.count }}
+        brands:
+          brands.map { |ci| { brand_name: ci.brand_name, count: ci.count } }
       }
     end
   end
 
   def pens_grouped_by_brand_data
-    brands = current_user.collected_pens.active.group(:brand).select("brand, count(*) as count").order("count desc")
-    as_json_api('pens_grouped_by_brand') do
-      {
-        brands: brands.map {|ci| {brand_name: ci.brand, count: ci.count }}
-      }
+    brands =
+      current_user
+        .collected_pens
+        .active
+        .group(:brand)
+        .select("brand, count(*) as count")
+        .order("count desc")
+    as_json_api("pens_grouped_by_brand") do
+      { brands: brands.map { |ci| { brand_name: ci.brand, count: ci.count } } }
     end
   end
 
   def as_json_api(name)
-    {
-      data: {
-        type: 'widget',
-        id: name,
-        attributes: yield
-      }
-    }
+    { data: { type: "widget", id: name, attributes: yield } }
   end
 
   def leaderboard_index(method)
-    index = LeaderBoard.send(method).find_index do |entry|
-      entry[:id] == current_user.id
-    end
+    index =
+      LeaderBoard
+        .send(method)
+        .find_index { |entry| entry[:id] == current_user.id }
     return index.succ if index
   end
 end

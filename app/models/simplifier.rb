@@ -1,14 +1,13 @@
 class Simplifier
-
   def self.simplify(name, too_short: false)
     without_no = name.gsub(/^no\s*\.\s*(\d+)/i, '\1')
     return $1 if without_no =~ /^#?(\d+)$/
     without_no = without_no.gsub(/^#(\d+)/, '\1') unless too_short
     without_initials = remove_initials(without_no)
-    without_ampersand = without_initials.gsub('&', 'and')
-    without_plus = without_ampersand.gsub('+', 'and')
+    without_ampersand = without_initials.gsub("&", "and")
+    without_plus = without_ampersand.gsub("+", "and")
     without_non_english_letters = I18n.transliterate(without_plus)
-    only_letters_and_numbers = without_non_english_letters.gsub(/\W/, '')
+    only_letters_and_numbers = without_non_english_letters.gsub(/\W/, "")
     downcased = only_letters_and_numbers.downcase
     return name unless downcased.present?
     if !too_short && downcased.length < 5
@@ -20,18 +19,20 @@ class Simplifier
 
   def self.remove_initials(name)
     return name if name =~ /^(\w\.\s*){3,}/
-    name.gsub(/^(\w\.\s*)+/, '')
+    name.gsub(/^(\w\.\s*)+/, "")
   end
 
   def self.brand_name(name)
     return "24solar" if name =~ /^24\s+solar/i
-    return "ancientsong" if name =~ /^(ancient\s*(charm|song))|(small\s*endowment)/i
+    if name =~ /^(ancient\s*(charm|song))|(small\s*endowment)/i
+      return "ancientsong"
+    end
     return "andersonpens" if name =~ /^anderson/i
     return "athena" if name =~ /^athena\s*ink$/i
     return "banmi" if name =~ /^ban\s*mi/i
     return "birminghampens" if name =~ /^birmingham/i
     return "bril" if name =~ /^bril/i
-    return "herbin" if name =~/herbin/i
+    return "herbin" if name =~ /herbin/i
     return "kobe" if name =~ /^nagasawa/i
     return "kwz" if name =~ /^kwz/i
     return "kyototag" if name =~ /(^tag\s+)|(\s+tag$)|(^tag$)/i
@@ -66,8 +67,11 @@ class Simplifier
   end
 
   def run
-    @collected_ink.simplified_brand_name = self.class.brand_name(@collected_ink.brand_name)
-    @collected_ink.simplified_line_name = self.class.line_name(@collected_ink.line_name)
-    @collected_ink.simplified_ink_name = self.class.ink_name(@collected_ink.ink_name)
+    @collected_ink.simplified_brand_name =
+      self.class.brand_name(@collected_ink.brand_name)
+    @collected_ink.simplified_line_name =
+      self.class.line_name(@collected_ink.line_name)
+    @collected_ink.simplified_ink_name =
+      self.class.ink_name(@collected_ink.ink_name)
   end
 end

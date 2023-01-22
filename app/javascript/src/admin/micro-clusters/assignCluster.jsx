@@ -6,8 +6,8 @@ export const assignCluster = (microClusterId, macroClusterId) =>
     data: {
       id: microClusterId,
       type: "micro_cluster",
-      attributes: { macro_cluster_id: macroClusterId },
-    },
+      attributes: { macro_cluster_id: macroClusterId }
+    }
   })
     .then((response) => response.json())
     .then((json) => {

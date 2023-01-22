@@ -56,7 +56,7 @@ export default class Table extends React.Component {
       Cell: (row) => (
         <ComparisonCell {...row.original} name={this.props.name} />
       ),
-      Filter: (props) => <ComparisonFilter {...props} name={this.props.name} />,
+      Filter: (props) => <ComparisonFilter {...props} name={this.props.name} />
     };
   }
 
@@ -72,14 +72,14 @@ export default class Table extends React.Component {
             {count} {word}
           </strong>
         );
-      },
+      }
     };
   }
 
   lineConfig() {
     return {
       ...this.defaultConfig("line_name"),
-      minWidth: 50,
+      minWidth: 50
     };
   }
 
@@ -108,14 +108,14 @@ export default class Table extends React.Component {
             {count} {word}
           </strong>
         );
-      },
+      }
     };
   }
 
   makerConfig() {
     return {
       ...this.defaultConfig("maker"),
-      minWidth: 50,
+      minWidth: 50
     };
   }
 
@@ -139,7 +139,7 @@ export default class Table extends React.Component {
             ));
         }
         return <span></span>;
-      },
+      }
     };
   }
 
@@ -151,21 +151,21 @@ export default class Table extends React.Component {
           style={{
             backgroundColor: props.value,
             width: "100%",
-            height: "100%",
+            height: "100%"
           }}
         />
       ),
       style: { padding: 0 },
       width: 37,
       filterable: false,
-      sortable: false,
+      sortable: false
     };
   }
 
   commentConfig() {
     return {
       ...this.defaultConfig("comment"),
-      minWidth: 50,
+      minWidth: 50
     };
   }
 
@@ -174,7 +174,7 @@ export default class Table extends React.Component {
       Header: columnDisplayName(accessor),
       accessor,
       Cell: ({ value }) => <span title={value}>{value}</span>,
-      show: this.showColumn(accessor),
+      show: this.showColumn(accessor)
     };
   }
 
@@ -187,7 +187,7 @@ export default class Table extends React.Component {
       this.makerConfig(),
       this.typeConfig(),
       this.colorConfig(),
-      this.commentConfig(),
+      this.commentConfig()
     ];
   }
 
@@ -203,9 +203,9 @@ export default class Table extends React.Component {
       defaultSorted: [
         { id: "brand_name" },
         { id: "line_name" },
-        { id: "ink_name" },
+        { id: "ink_name" }
       ],
-      filterable: true,
+      filterable: true
     };
     let hidden = this.hiddenColumns();
     if (hidden.length) {
@@ -230,7 +230,7 @@ const columnDisplayName = (accessor) => {
     ink_name: "Ink",
     kind: "Type",
     line_name: "Line",
-    maker: "Maker",
+    maker: "Maker"
   };
   return data[accessor] || accessor;
 };
@@ -245,12 +245,12 @@ const RowSubComponent = ({ row, hidden }) => {
             Header: "Column",
             accessor: "column",
             Cell: (row) => <strong>{columnDisplayName(row.value)}</strong>,
-            minWidth: 20,
+            minWidth: 20
           },
           {
             Header: "Value",
-            accessor: "value",
-          },
+            accessor: "value"
+          }
         ]}
         data={data}
         defaultSorted={[{ id: "column" }]}

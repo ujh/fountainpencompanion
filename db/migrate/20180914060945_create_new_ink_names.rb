@@ -6,7 +6,7 @@ class CreateNewInkNames < ActiveRecord::Migration[5.2]
       t.integer :ink_brand_id, null: false
       t.foreign_key :ink_brands
       t.timestamps
-      t.index [:simplified_name, :ink_brand_id], unique: true
+      t.index %i[simplified_name ink_brand_id], unique: true
     end
   end
 end

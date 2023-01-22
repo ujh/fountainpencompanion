@@ -1,4 +1,4 @@
-require 'barnes'
+require "barnes"
 # Puma can serve each request in a thread from an internal thread pool.
 # The `threads` method setting takes two numbers: a minimum and maximum.
 # Any libraries that use thread pools should be configured to match
@@ -11,7 +11,7 @@ threads min_threads_count, max_threads_count
 
 # Specifies the `port` that Puma will listen on to receive requests; default is 3000.
 #
-port        ENV.fetch("PORT") { 3000 }
+port ENV.fetch("PORT") { 3000 }
 
 # Specifies the `environment` that Puma will run in.
 #
@@ -39,7 +39,7 @@ preload_app!
 plugin :tmp_restart
 
 before_fork do
-  require 'puma_worker_killer'
+  require "puma_worker_killer"
 
   Barnes.start
   PumaWorkerKiller.enable_rolling_restart # Default is every 6 hours

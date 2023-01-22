@@ -18,9 +18,9 @@ export const CollectedInks = () => {
       series: [{ data, name: "Collected Inks" }],
       title: { text: "Collected inks per day" },
       xAxis: {
-        type: "datetime",
+        type: "datetime"
       },
-      yAxis: { title: { text: "" } },
+      yAxis: { title: { text: "" } }
     };
     return (
       <div>

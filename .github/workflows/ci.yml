@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [ master ]
+    branches: [master]
   pull_request:
-    branches: [ master ]
+    branches: [master]
 
 jobs:
   rspec:
@@ -32,38 +32,38 @@ jobs:
         ports:
           - 5432:5432
     steps:
-    - uses: actions/checkout@v3.3.0
-    - name: Install correct Node version
-      uses: actions/setup-node@v3.6.0
-      with:
-        node-version: '18.13.0'
-        cache: yarn
-    - name: Set up Ruby
-      uses: ruby/setup-ruby@v1
-      with:
-        bundler-cache: true # runs 'bundle install' and caches installed gems automatically
-    - name: Install JS dependencies
-      run: yarn install
-    - name: Run tests
-      run: bundle exec rake
-    - name: Report to CodeCov
-      uses: codecov/codecov-action@v3
-      with:
-        flags: ruby
+      - uses: actions/checkout@v3.3.0
+      - name: Install correct Node version
+        uses: actions/setup-node@v3.6.0
+        with:
+          node-version: "18.13.0"
+          cache: yarn
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: true # runs 'bundle install' and caches installed gems automatically
+      - name: Install JS dependencies
+        run: yarn install
+      - name: Run tests
+        run: bundle exec rake
+      - name: Report to CodeCov
+        uses: codecov/codecov-action@v3
+        with:
+          flags: ruby
   jest:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3.3.0
-    - name: Install correct Node version
-      uses: actions/setup-node@v3.6.0
-      with:
-        node-version: '18.13.0'
-        cache: yarn
-    - name: Install JS dependencies
-      run: yarn install
-    - name: Run tests
-      run: yarn jest
-    - name: Report to CodeCov
-      uses: codecov/codecov-action@v3
-      with:
-        flags: javascript
+      - uses: actions/checkout@v3.3.0
+      - name: Install correct Node version
+        uses: actions/setup-node@v3.6.0
+        with:
+          node-version: "18.13.0"
+          cache: yarn
+      - name: Install JS dependencies
+        run: yarn install
+      - name: Run tests
+        run: yarn jest
+      - name: Report to CodeCov
+        uses: codecov/codecov-action@v3
+        with:
+          flags: javascript

@@ -1,7 +1,7 @@
 class CollectedPensArchiveController < ApplicationController
   before_action :authenticate_user!
   before_action :retrieve_collected_pens, only: [:index]
-  before_action :retrieve_collected_pen, only: [:edit, :update, :destroy, :unarchive]
+  before_action :retrieve_collected_pen, only: %i[edit update destroy unarchive]
 
   add_breadcrumb "My pens", :collected_pens_path
   add_breadcrumb "Archive", :collected_pens_archive_index_path
@@ -11,7 +11,8 @@ class CollectedPensArchiveController < ApplicationController
 
   def edit
     @pen = CollectedPen.find(params[:id])
-    add_breadcrumb "Edit #{@pen.name}", "#{collected_pens_archive_path(@pen)}/edit"
+    add_breadcrumb "Edit #{@pen.name}",
+                   "#{collected_pens_archive_path(@pen)}/edit"
   end
 
   def update
@@ -23,7 +24,9 @@ class CollectedPensArchiveController < ApplicationController
   end
 
   def unarchive
-    flash[:notice] = "Successfully unarchived '#{@collected_pen.name}'" if @collected_pen
+    flash[
+      :notice
+    ] = "Successfully unarchived '#{@collected_pen.name}'" if @collected_pen
     @collected_pen&.unarchive!
     redirect_to collected_pens_archive_index_path
   end
@@ -41,7 +44,7 @@ class CollectedPensArchiveController < ApplicationController
       :model,
       :nib,
       :color,
-      :comment,
+      :comment
     )
   end
 
@@ -50,6 +53,10 @@ class CollectedPensArchiveController < ApplicationController
   end
 
   def retrieve_collected_pens
-    @collected_pens = current_user.archived_collected_pens.includes(:currently_inkeds).order('brand, model')
+    @collected_pens =
+      current_user
+        .archived_collected_pens
+        .includes(:currently_inkeds)
+        .order("brand, model")
   end
 end

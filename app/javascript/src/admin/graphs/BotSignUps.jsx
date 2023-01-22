@@ -18,9 +18,9 @@ export const BotSignUps = () => {
       series: data,
       title: { text: "Bot signups per day" },
       xAxis: {
-        type: "datetime",
+        type: "datetime"
       },
-      yAxis: { title: { text: "" } },
+      yAxis: { title: { text: "" } }
     };
     return (
       <div>

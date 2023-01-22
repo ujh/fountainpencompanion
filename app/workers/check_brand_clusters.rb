@@ -3,11 +3,11 @@ class CheckBrandClusters
 
   def perform(ids = nil)
     if ids.present?
-      Array(ids).each {|id| check_cluster(id) }
+      Array(ids).each { |id| check_cluster(id) }
     else
-      MacroCluster.pluck(:id).in_groups_of(50, false) do |ids|
-        CheckBrandClusters.perform_async(ids)
-      end
+      MacroCluster
+        .pluck(:id)
+        .in_groups_of(50, false) { |ids| CheckBrandClusters.perform_async(ids) }
     end
   end
 
@@ -19,9 +19,11 @@ class CheckBrandClusters
     return if brand_cluster.blank?
     return if cluster.brand_name == brand_cluster.name
 
-    new_brand_cluster = BrandCluster.where.not(
-      id: brand_cluster.id
-    ).where(name: cluster.brand_name).first
+    new_brand_cluster =
+      BrandCluster
+        .where.not(id: brand_cluster.id)
+        .where(name: cluster.brand_name)
+        .first
     cluster.update!(brand_cluster: new_brand_cluster) if new_brand_cluster
   end
 end

@@ -12,7 +12,7 @@ import {
   ASSIGN_TO_MACRO_CLUSTER,
   NEXT_MACRO_CLUSTER,
   PREVIOUS_MACRO_CLUSTER,
-  UPDATING,
+  UPDATING
 } from "./actions";
 import { keyDownListener, setInBrandSelector } from "./keyDownListener";
 
@@ -32,7 +32,7 @@ const MacroClusterRows = ({ afterAssign }) => {
     macroClusters,
     activeCluster,
     selectedMacroClusterIndex,
-    updateCounter,
+    updateCounter
   } = useContext(StateContext);
   const [clustersWithDistance, setClustersWithDistance] = useState([]);
   const [computing, setComputing] = useState(true);
@@ -58,7 +58,7 @@ const MacroClusterRows = ({ afterAssign }) => {
     );
   const clustersToRender = search
     ? matchSorter(clustersWithDistance, search, {
-        keys: ["brand_name", "line_name", "ink_name"],
+        keys: ["brand_name", "line_name", "ink_name"]
       })
     : clustersWithDistance;
   const rows = clustersToRender
@@ -103,7 +103,7 @@ const withDistance = (macroClusters, activeCluster) => {
     const macroClusterInks = c.grouped_collected_inks.concat(c);
     return {
       ...c,
-      distance: dist(macroClusterInks, activeGroupedInks),
+      distance: dist(macroClusterInks, activeGroupedInks)
     };
   });
 };
@@ -171,7 +171,7 @@ const MacroClusterRow = ({ macroCluster, afterAssign, selected }) => {
       assignCluster(activeCluster.id, macroCluster.id).then((microCluster) => {
         dispatch({
           type: ASSIGN_TO_MACRO_CLUSTER,
-          payload: microCluster,
+          payload: microCluster
         });
         afterAssign(microCluster);
       });
@@ -201,7 +201,7 @@ const MacroClusterRow = ({ macroCluster, afterAssign, selected }) => {
             style={{
               backgroundColor: macroCluster.color,
               height: "45px",
-              width: "45px",
+              width: "45px"
             }}
           />
         </td>

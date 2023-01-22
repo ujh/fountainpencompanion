@@ -1,13 +1,13 @@
-require 'simplecov'
-require 'simplecov-lcov'
+require "simplecov"
+require "simplecov-lcov"
 
-if ENV['CI']
+if ENV["CI"]
   SimpleCov::Formatter::LcovFormatter.config.report_with_single_file = true
   SimpleCov.formatter = SimpleCov::Formatter::LcovFormatter
 end
-SimpleCov.start('rails')
+SimpleCov.start("rails")
 
-require 'webmock/rspec'
+require "webmock/rspec"
 
 RSpec.configure do |config|
   config.expect_with :rspec do |expectations|
@@ -22,9 +22,7 @@ RSpec.configure do |config|
   config.example_status_persistence_file_path = "spec/examples.txt"
   config.order = :random
 
-  if config.files_to_run.one?
-    config.default_formatter = 'doc'
-  end
+  config.default_formatter = "doc" if config.files_to_run.one?
 
   Kernel.srand config.seed
 end

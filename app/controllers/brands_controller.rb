@@ -3,14 +3,12 @@ class BrandsController < ApplicationController
 
   def index
     respond_to do |format|
-      format.json {
+      format.json do
         clusters = BrandCluster.autocomplete_search(params[:term])
         serializer = BrandClusterSerializer.new(clusters)
         render json: serializer.serializable_hash.to_json
-      }
-      format.html {
-        @brands = BrandCluster.public.order(:name)
-      }
+      end
+      format.html { @brands = BrandCluster.public.order(:name) }
     end
   end
 
@@ -20,15 +18,19 @@ class BrandsController < ApplicationController
     add_breadcrumb "#{@brand.name}", brand_path(@brand)
 
     respond_to do |format|
-      format.html {
-        @inks = @brand.macro_clusters.public.order(
-          "line_name, ink_name"
-        ).select("macro_clusters.*, count(*) as collected_inks_count")
-      }
-      format.csv {
-        send_data @brand.to_csv, type: "text/csv", filename: "#{@brand.name.parameterize}.csv"
-      }
+      format.html do
+        @inks =
+          @brand
+            .macro_clusters
+            .public
+            .order("line_name, ink_name")
+            .select("macro_clusters.*, count(*) as collected_inks_count")
+      end
+      format.csv do
+        send_data @brand.to_csv,
+                  type: "text/csv",
+                  filename: "#{@brand.name.parameterize}.csv"
+      end
     end
   end
-
 end

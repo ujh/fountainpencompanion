@@ -21,7 +21,7 @@ export const dataWithOtherEntry = ({ data, nameKey }) => {
   } else {
     dataWithOther.push({
       [nameKey]: "Other",
-      count: otherEntries.reduce((acc, { count }) => acc + count, 0),
+      count: otherEntries.reduce((acc, { count }) => acc + count, 0)
     });
   }
   return dataWithOther;

@@ -1,4 +1,6 @@
-class AddCounterCacheForCollectedInksAndCurrentlyInkeds < ActiveRecord::Migration[5.2]
+class AddCounterCacheForCollectedInksAndCurrentlyInkeds < ActiveRecord::Migration[
+  5.2
+]
   def change
     add_column :collected_inks, :currently_inked_count, :integer, default: 0
     CollectedInk.reset_column_information

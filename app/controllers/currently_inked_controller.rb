@@ -1,8 +1,8 @@
 class CurrentlyInkedController < ApplicationController
   before_action :authenticate_user!
   before_action :retrieve_collection, only: [:index]
-  before_action :retrieve_record, only: [:edit, :update, :destroy, :archive, :refill]
-  before_action :set_empty_record, only: [:new, :index]
+  before_action :retrieve_record, only: %i[edit update destroy archive refill]
+  before_action :set_empty_record, only: %i[new index]
 
   add_breadcrumb "Currently inked", :currently_inked_index_path
 
@@ -10,7 +10,8 @@ class CurrentlyInkedController < ApplicationController
     respond_to do |format|
       format.html
       format.csv do
-        cis = current_user.currently_inkeds.includes(:collected_pen, :collected_ink)
+        cis =
+          current_user.currently_inkeds.includes(:collected_pen, :collected_ink)
         send_data cis.to_csv, type: "text/csv", filename: "currently_inked.csv"
       end
     end
@@ -37,7 +38,9 @@ class CurrentlyInkedController < ApplicationController
 
   def refill
     @record.refill!
-    flash[:notice] = "Refilled your #{@record.pen_name} with #{@record.ink_name}."
+    flash[
+      :notice
+    ] = "Refilled your #{@record.pen_name} with #{@record.ink_name}."
     redirect_to currently_inked_index_path
   end
 
@@ -72,9 +75,18 @@ class CurrentlyInkedController < ApplicationController
   end
 
   def retrieve_collection
-    @collection = current_user.currently_inkeds.active.includes(
-      :collected_pen, :last_usage, collected_ink: { micro_cluster: :macro_cluster }
-    ).sort_by {|ci| "#{ci.pen_name} #{ci.ink_name}"}
+    @collection =
+      current_user
+        .currently_inkeds
+        .active
+        .includes(
+          :collected_pen,
+          :last_usage,
+          collected_ink: {
+            micro_cluster: :macro_cluster
+          }
+        )
+        .sort_by { |ci| "#{ci.pen_name} #{ci.ink_name}" }
   end
 
   def retrieve_record

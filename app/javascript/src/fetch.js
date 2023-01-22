@@ -24,8 +24,8 @@ function request(path, method, body) {
     headers: {
       Accept: "application/vnd.api+json",
       "Content-Type": "application/vnd.api+json",
-      "X-CSRF-Token": csrfToken(),
-    },
+      "X-CSRF-Token": csrfToken()
+    }
   });
 }
 

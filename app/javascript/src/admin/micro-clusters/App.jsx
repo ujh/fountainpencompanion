@@ -11,7 +11,7 @@ import {
   SET_LOADING_PERCENTAGE,
   SET_MACRO_CLUSTERS,
   SET_MICRO_CLUSTERS,
-  UPDATE_SELECTED_BRANDS,
+  UPDATE_SELECTED_BRANDS
 } from "./actions";
 import { setInBrandSelector } from "./keyDownListener";
 
@@ -67,7 +67,7 @@ const LoadingOverlay = () => {
     height: "100%",
     width: "100%",
     zIndex: 10,
-    backgroundColor: "rgba(0,0,0,0.5)",
+    backgroundColor: "rgba(0,0,0,0.5)"
   };
   return <div style={style}></div>;
 };
@@ -89,7 +89,7 @@ const BrandSelector = () => {
   const options = _.sortBy(
     _.map(values, (value, key) => ({
       value: key,
-      label: `${key} (${value})`,
+      label: `${key} (${value})`
     })),
     "label"
   );
@@ -153,7 +153,7 @@ const loadMacroClusters = (dispatch) => {
         const pagination = json.meta.pagination;
         dispatch({
           type: SET_LOADING_PERCENTAGE,
-          payload: (pagination.current_page * 100) / pagination.total_pages,
+          payload: (pagination.current_page * 100) / pagination.total_pages
         });
         const next_page = json.meta.pagination.next_page;
         const pageData = formatter.deserialize(json).map((c) => {
