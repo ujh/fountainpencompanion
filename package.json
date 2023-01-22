@@ -15,12 +15,14 @@
     "font-awesome": "^4.7.0",
     "highcharts": "^10.3.3",
     "highcharts-react-official": "^3.1.0",
+    "husky": "^8.0.3",
     "jquery": "3.6.3",
     "jquery-ui": "^1.13.2",
     "jquery-ujs": "^1.2.3",
     "js-cookie": "^3.0.1",
     "jsona": "^1.11.0",
     "jstz": "^2.1.1",
+    "lint-staged": "^13.1.0",
     "lodash": "^4.17.21",
     "match-sorter": "^6.3.1",
     "mini-css-extract-plugin": "^2.7.2",
@@ -84,8 +86,12 @@
     ]
   },
   "scripts": {
+    "prepare": "husky install",
     "build": "NODE_ENV=production webpack --config webpack.config.js",
     "dev": "NODE_ENV=development webpack --config webpack.config.js --watch",
     "test": "jest"
+  },
+  "lint-staged": {
+    "*.{css,html,js,json,jsx,md,rb,ru,scss,yml,yaml}": "prettier --write"
   }
 }
