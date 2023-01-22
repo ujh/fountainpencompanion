@@ -59,9 +59,13 @@ group :development, :test do
 end
 
 group :development do
-  gem 'derailed'
-  gem 'listen'
-  gem 'web-console'
+  gem "derailed"
+  gem "listen"
+  gem "prettier_print", "~> 1.2"
+  gem "syntax_tree", "~> 5.2"
+  gem "syntax_tree-haml", "~> 3.0"
+  gem "syntax_tree-rbs", "~> 0.5.1"
+  gem "web-console"
 end
 
 group :test do
