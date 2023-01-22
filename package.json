@@ -89,6 +89,7 @@
     "prepare": "husky install",
     "build": "NODE_ENV=production webpack --config webpack.config.js",
     "dev": "NODE_ENV=development webpack --config webpack.config.js --watch",
+    "lint": "prettier --check .",
     "test": "jest"
   },
   "lint-staged": {

@@ -59,8 +59,14 @@ jobs:
         with:
           node-version: "18.13.0"
           cache: yarn
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: true # runs 'bundle install' and caches installed gems automatically
       - name: Install JS dependencies
         run: yarn install
+      - name: Run lint
+        run: yarn lint
       - name: Run tests
         run: yarn jest
       - name: Report to CodeCov
