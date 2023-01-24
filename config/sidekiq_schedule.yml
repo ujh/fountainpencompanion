@@ -7,3 +7,7 @@ fetch_reviews:
 refresh_leaderboards:
   cron: "0 */4 * * *" # Every four hours
   class: RefreshLeaderBoards
+refresh_inks:
+  class: RefreshInks
+  description: Run this to refresh what is stored as simplified data in the inks
+  enabled: false
