@@ -80,8 +80,4 @@ class CollectedPen < ApplicationRecord
   def color=(value)
     super(value.strip)
   end
-
-  def deletable?
-    currently_inkeds.empty?
-  end
 end

@@ -147,42 +147,6 @@ describe CollectedInksController do
     end
   end
 
-  describe "#destroy" do
-    it "requires authentication" do
-      delete :destroy, params: { id: 1 }
-      expect(response).to redirect_to(new_user_session_path)
-    end
-
-    context "signed in" do
-      before { sign_in(user) }
-
-      it "deletes the collected ink" do
-        ink = create(:collected_ink, user: user)
-        expect do
-          delete :destroy, params: { id: ink.id }
-          expect(response).to redirect_to(collected_inks_path)
-        end.to change { user.collected_inks.count }.by(-1)
-      end
-
-      it "does not delete inks from other users" do
-        ink = create(:collected_ink)
-        expect do
-          expect do delete :destroy, params: { id: ink.id } end.to raise_error(
-            ActiveRecord::RecordNotFound
-          )
-        end.to_not change { user.collected_inks.count }
-      end
-
-      it "does not delete inks that have currently inkeds" do
-        ink = create(:collected_ink, user: user, currently_inked_count: 1)
-        expect do
-          delete :destroy, params: { id: ink.id }
-          expect(response).to redirect_to(collected_inks_path)
-        end.to_not change { user.collected_inks.count }
-      end
-    end
-  end
-
   describe "#archive" do
     it "requires authentication" do
       post :archive, params: { id: 1 }

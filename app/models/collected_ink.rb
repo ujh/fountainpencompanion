@@ -173,10 +173,6 @@ class CollectedInk < ApplicationRecord
     super(value.strip)
   end
 
-  def deletable?
-    currently_inked_count == 0
-  end
-
   def simplified_name
     "#{simplified_brand_name}#{simplified_ink_name}"
   end

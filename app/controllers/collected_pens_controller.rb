@@ -51,11 +51,6 @@ class CollectedPensController < ApplicationController
     end
   end
 
-  def destroy
-    @collected_pen&.destroy
-    redirect_to collected_pens_path
-  end
-
   def archive
     flash[
       :notice

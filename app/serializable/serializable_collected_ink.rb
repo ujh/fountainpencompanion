@@ -8,9 +8,6 @@ class SerializableCollectedInk < JSONAPI::Serializable::Resource
   attribute :brand_name
   attribute :color
   attribute :comment
-  attribute :deletable do
-    @object.deletable?
-  end
   attribute :ink_id do
     @object.micro_cluster&.macro_cluster_id
   end

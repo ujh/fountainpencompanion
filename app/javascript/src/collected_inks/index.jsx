@@ -413,7 +413,6 @@ const Actions = ({
 const ActionsCell = ({
   id,
   archived,
-  deletable,
   brand_name,
   line_name,
   ink_name,
@@ -425,12 +424,6 @@ const ActionsCell = ({
     <td className="actions">
       <EditButton name={inkName} id={id} archived={archived} />
       <ArchiveButton name={inkName} id={id} archived={archived} />
-      <DeleteButton
-        name={inkName}
-        id={id}
-        deletable={deletable}
-        archived={archived}
-      />
     </td>
   );
 };
@@ -442,25 +435,6 @@ const EditButton = ({ name, id, archived }) => {
     <span>
       <a className="btn btn-secondary" href={href} title={`Edit ${name}`}>
         <i className="fa fa-pencil" />
-      </a>
-    </span>
-  );
-};
-
-const DeleteButton = ({ name, id, deletable, archived }) => {
-  let href = `/collected_inks/${id}`;
-  if (archived) href += "?search[archive]=true";
-  if (!deletable || !archived) return null;
-  return (
-    <span>
-      <a
-        className="btn btn-danger"
-        data-confirm={`Really delete ${name}?`}
-        title={`Delete ${name}`}
-        data-method="delete"
-        href={href}
-      >
-        <i className="fa fa-trash" />
       </a>
     </span>
   );
