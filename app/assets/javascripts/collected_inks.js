@@ -16,7 +16,10 @@ $(function () {
 
   $("#collected_ink_line_name").autocomplete({
     source: function (request, response) {
-      fetch("/lines.json?term=" + encodeURIComponent(request.term))
+      var brandName = encodeURIComponent($("#collected_ink_brand_name").val());
+      var term = encodeURIComponent(request.term);
+      var url = "/api/v1/lines?term=" + term + "&brand_name=" + brandName;
+      fetch(url)
         .then(function (r) {
           return r.json();
         })
