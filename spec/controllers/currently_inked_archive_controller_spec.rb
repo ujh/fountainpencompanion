@@ -1,7 +1,6 @@
-require 'rails_helper'
+require "rails_helper"
 
 describe CurrentlyInkedArchiveController do
-
   render_views
 
   let(:user) { create(:user) }
@@ -16,19 +15,16 @@ describe CurrentlyInkedArchiveController do
     )
   end
 
-  describe '#index' do
-    it 'requires authentication' do
+  describe "#index" do
+    it "requires authentication" do
       get :index
       expect(response).to redirect_to(new_user_session_path)
     end
 
-    context 'signed in' do
+    context "signed in" do
+      before(:each) { sign_in(user) }
 
-      before(:each) do
-        sign_in(user)
-      end
-
-      it 'renders the currently inkeds' do
+      it "renders the currently inkeds" do
         get :index
         expect(response).to be_successful
         expect(response.body).to include(collected_pen.name)
@@ -37,19 +33,16 @@ describe CurrentlyInkedArchiveController do
     end
   end
 
-  describe '#unarchive' do
-    it 'requires authentication' do
+  describe "#unarchive" do
+    it "requires authentication" do
       post :unarchive, params: { id: currently_inked.id }
       expect(response).to redirect_to(new_user_session_path)
     end
 
-    context 'signed in' do
+    context "signed in" do
+      before(:each) { sign_in(user) }
 
-      before(:each) do
-        sign_in(user)
-      end
-
-      it 'unarchives the entry' do
+      it "unarchives the entry" do
         post :unarchive, params: { id: currently_inked.id }
         expect(response).to redirect_to(currently_inked_archive_index_path)
         currently_inked.reload
@@ -58,18 +51,16 @@ describe CurrentlyInkedArchiveController do
     end
   end
 
-  describe '#edit' do
-    it 'requires authentication' do
+  describe "#edit" do
+    it "requires authentication" do
       get :edit, params: { id: currently_inked.id }
       expect(response).to redirect_to(new_user_session_path)
     end
 
-    context 'signed in' do
-      before(:each) do
-        sign_in(user)
-      end
+    context "signed in" do
+      before(:each) { sign_in(user) }
 
-      it 'renders correctly' do
+      it "renders correctly" do
         get :edit, params: { id: currently_inked.id }
         expect(response).to be_successful
         expect(response).to render_template(:edit)
@@ -77,37 +68,56 @@ describe CurrentlyInkedArchiveController do
     end
   end
 
-  describe '#update' do
-    let(:new_collected_ink) { create(:collected_ink, brand_name: 'Robert Oster', ink_name: 'Fire and Ice', user: user) }
+  describe "#update" do
+    let(:new_collected_ink) do
+      create(
+        :collected_ink,
+        brand_name: "Robert Oster",
+        ink_name: "Fire and Ice",
+        user: user
+      )
+    end
 
-    it 'requires authentication' do
+    it "requires authentication" do
       expect do
-        put :update, params: { id: currently_inked.id, currently_inked: {
-          collected_ink_id: new_collected_ink.id
-        } }
+        put :update,
+            params: {
+              id: currently_inked.id,
+              currently_inked: {
+                collected_ink_id: new_collected_ink.id
+              }
+            }
         expect(response).to redirect_to(new_user_session_path)
       end.to_not change { collected_pen.reload }
     end
 
-    context 'signed in' do
-      before(:each) do
-        sign_in(user)
-      end
+    context "signed in" do
+      before(:each) { sign_in(user) }
 
-      it 'updates the data' do
+      it "updates the data" do
         expect do
-          put :update, params: { id: currently_inked.id, currently_inked: {
-            collected_ink_id: new_collected_ink.id
-          }}
+          put :update,
+              params: {
+                id: currently_inked.id,
+                currently_inked: {
+                  collected_ink_id: new_collected_ink.id
+                }
+              }
           expect(response).to redirect_to(currently_inked_archive_index_path)
-        end.to change { currently_inked.reload.collected_ink }.from(collected_ink).to(new_collected_ink)
+        end.to change { currently_inked.reload.collected_ink }.from(
+          collected_ink
+        ).to(new_collected_ink)
       end
 
-      it 'renders the index when invalid' do
+      it "renders the index when invalid" do
         expect do
-          put :update, params: { id: currently_inked.id, currently_inked: {
-            collected_ink_id: -1
-          }}
+          put :update,
+              params: {
+                id: currently_inked.id,
+                currently_inked: {
+                  collected_ink_id: -1
+                }
+              }
         end.to_not change { currently_inked.reload.collected_ink_id }
         expect(response).to be_successful
         expect(response).to render_template(:edit)
@@ -115,30 +125,29 @@ describe CurrentlyInkedArchiveController do
     end
   end
 
-  describe '#destroy' do
-    it 'requires authentication' do
+  describe "#destroy" do
+    it "requires authentication" do
       delete :destroy, params: { id: currently_inked.id }
       expect(response).to redirect_to(new_user_session_path)
     end
 
-    context 'signed in' do
-      before(:each) do
-        sign_in(user)
-      end
+    context "signed in" do
+      before(:each) { sign_in(user) }
 
-      it 'deletes the entry' do
+      it "deletes the entry" do
         expect do
           delete :destroy, params: { id: currently_inked.id }
           expect(response).to redirect_to(currently_inked_archive_index_path)
         end.to change { CurrentlyInked.count }.by(-1)
       end
 
-      it 'does not delete data from other users' do
+      it "does not delete data from other users" do
         other_user = create(:user)
-        other_currently_inked = other_user.currently_inkeds.create!(
+        other_currently_inked =
+          other_user.currently_inkeds.create!(
             collected_ink: create(:collected_ink, user: other_user),
             collected_pen: create(:collected_pen, user: other_user)
-        )
+          )
         expect do
           expect do
             delete :destroy, params: { id: other_currently_inked.id }

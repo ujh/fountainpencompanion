@@ -1,16 +1,22 @@
-require 'rails_helper'
+require "rails_helper"
 
-describe 'sign up' do
-  context 'normal user' do
-    let(:user_params) { { email: 'user@example.com', password: 'password', password_confirmation: 'password' } }
-    it 'creates a user' do
+describe "sign up" do
+  context "normal user" do
+    let(:user_params) do
+      {
+        email: "user@example.com",
+        password: "password",
+        password_confirmation: "password"
+      }
+    end
+    it "creates a user" do
       expect do
         post "/users", params: { user: user_params }
         expect(response).to be_redirect
       end.to change { User.where(bot: false).count }.by(1)
     end
 
-    it 'sends the confirmation email' do
+    it "sends the confirmation email" do
       expect do
         post "/users", params: { user: user_params }
         expect(response).to be_redirect
@@ -18,17 +24,24 @@ describe 'sign up' do
     end
   end
 
-  context 'bot user' do
-    let(:user_params) { { email: 'user@example.com', password: 'password', password_confirmation: 'password', bot_field: '1' } }
+  context "bot user" do
+    let(:user_params) do
+      {
+        email: "user@example.com",
+        password: "password",
+        password_confirmation: "password",
+        bot_field: "1"
+      }
+    end
 
-    it 'creates a bot user' do
+    it "creates a bot user" do
       expect do
         post "/users", params: { user: user_params }
         expect(response).to be_redirect
       end.to change { User.where(bot: true).count }.by(1)
     end
 
-    it 'does not send an email' do
+    it "does not send an email" do
       expect do
         post "/users", params: { user: user_params }
         expect(response).to be_redirect

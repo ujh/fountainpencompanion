@@ -1,36 +1,36 @@
-require 'rails_helper'
+require "rails_helper"
 
 describe CurrentlyInked do
   subject { described_class.new(user: user) }
 
   let(:user) { create(:user) }
 
-  describe 'validations' do
-    it 'fails if the ink belongs to another user' do
+  describe "validations" do
+    it "fails if the ink belongs to another user" do
       subject.collected_ink = create(:collected_ink)
       expect(subject).to be_invalid
       expect(subject.errors).to include(:collected_ink)
     end
 
-    it 'validates if the ink belongs to the same user' do
+    it "validates if the ink belongs to the same user" do
       subject.collected_ink = create(:collected_ink, user: user)
       expect(subject).to be_invalid
       expect(subject.errors).to_not include(:collected_ink)
     end
 
-    it 'fails if the pen belongs to another user' do
+    it "fails if the pen belongs to another user" do
       subject.collected_pen = create(:collected_pen)
       expect(subject).to be_invalid
       expect(subject.errors).to include(:collected_pen)
     end
 
-    it 'validates if the pen belongs to the same user' do
+    it "validates if the pen belongs to the same user" do
       subject.collected_pen = create(:collected_pen, user: user)
       expect(subject).to be_invalid
       expect(subject.errors).to_not include(:collected_pen)
     end
 
-    it 'fails if the pen is already in use' do
+    it "fails if the pen is already in use" do
       pen = create(:collected_pen, user: user)
       user.currently_inkeds.create!(
         collected_pen: pen,
@@ -41,7 +41,7 @@ describe CurrentlyInked do
       expect(subject.errors).to include(:collected_pen_id)
     end
 
-    it 'validates if the pen is only in an archived entry' do
+    it "validates if the pen is only in an archived entry" do
       pen = create(:collected_pen, user: user)
       user.currently_inkeds.create!(
         collected_pen: pen,
@@ -54,19 +54,19 @@ describe CurrentlyInked do
     end
   end
 
-  describe '#initialize' do
-    it 'sets a default inked_on' do
+  describe "#initialize" do
+    it "sets a default inked_on" do
       expect(subject.inked_on).to eq(Date.today)
     end
 
-    it 'does not override an existing inked_on' do
+    it "does not override an existing inked_on" do
       date = Date.yesterday
       ci = CurrentlyInked.new(inked_on: date)
       expect(ci.inked_on).to eq(date)
     end
   end
 
-  it 'marks the attached ink as used after a save' do
+  it "marks the attached ink as used after a save" do
     user = create(:user)
     subject.user = user
     subject.collected_ink = create(:collected_ink, user: user)
@@ -76,30 +76,32 @@ describe CurrentlyInked do
     expect(subject.collected_ink.reload.used).to be_truthy
   end
 
-  describe '#collected_pens_for_active_select' do
+  describe "#collected_pens_for_active_select" do
     let(:pen) { create(:collected_pen, user: user) }
     let(:all_pens) do
       [
         pen,
-        create(:collected_pen, user: user, brand: 'Pilot', model: 'Custom 74')
+        create(:collected_pen, user: user, brand: "Pilot", model: "Custom 74")
       ]
     end
 
     before { all_pens }
 
-    it 'includes pens that are active' do
+    it "includes pens that are active" do
       expect(subject.collected_pens_for_active_select).to match_array(all_pens)
     end
 
-    it 'does not include pens that have an active currently inked' do
+    it "does not include pens that have an active currently inked" do
       user.currently_inkeds.create!(
         collected_pen: pen,
         collected_ink: create(:collected_ink, user: user)
       )
-      expect(subject.collected_pens_for_active_select).to match_array(all_pens - [pen])
+      expect(subject.collected_pens_for_active_select).to match_array(
+        all_pens - [pen]
+      )
     end
 
-    it 'includes pens that have an archived currently inked' do
+    it "includes pens that have an archived currently inked" do
       user.currently_inkeds.create!(
         collected_pen: pen,
         collected_ink: create(:collected_ink, user: user),
@@ -108,7 +110,7 @@ describe CurrentlyInked do
       expect(subject.collected_pens_for_active_select).to match_array(all_pens)
     end
 
-    it 'includes the pen for this currently inked' do
+    it "includes the pen for this currently inked" do
       user.currently_inkeds.create!(
         collected_pen: pen,
         collected_ink: create(:collected_ink, user: user)
@@ -118,7 +120,7 @@ describe CurrentlyInked do
     end
   end
 
-  describe '#refill!' do
+  describe "#refill!" do
     let(:ink) { create(:collected_ink, user: user) }
     let(:pen) { create(:collected_pen, user: user) }
 
@@ -128,10 +130,10 @@ describe CurrentlyInked do
       subject.save!
     end
 
-    it 'archives the entry and creates a new one' do
-      expect do
-        subject.refill!
-      end.to change { user.currently_inkeds.count }.by(1)
+    it "archives the entry and creates a new one" do
+      expect do subject.refill! end.to change {
+        user.currently_inkeds.count
+      }.by(1)
       expect(subject).to be_archived
       newest_ci = user.currently_inkeds.last
       expect(newest_ci.collected_ink).to eq(ink)
@@ -140,26 +142,22 @@ describe CurrentlyInked do
       expect(newest_ci).to be_active
     end
 
-    it 'raises an error if the ink is archived' do
+    it "raises an error if the ink is archived" do
       ink.archive!
       expect do
-        expect do
-          subject.refill!
-        end.to_not change { CurrentlyInked.count }
+        expect do subject.refill! end.to_not change { CurrentlyInked.count }
       end.to raise_error(CurrentlyInked::NotRefillable)
     end
 
-    it 'raises and error if the pen is archived' do
+    it "raises and error if the pen is archived" do
       pen.archive!
       expect do
-        expect do
-          subject.refill!
-        end.to_not change { CurrentlyInked.count }
+        expect do subject.refill! end.to_not change { CurrentlyInked.count }
       end.to raise_error(CurrentlyInked::NotRefillable)
     end
   end
 
-  describe '#refillable?' do
+  describe "#refillable?" do
     let(:ink) { create(:collected_ink, user: user) }
     let(:pen) { create(:collected_pen, user: user) }
 
@@ -168,16 +166,16 @@ describe CurrentlyInked do
       subject.collected_ink = ink
     end
 
-    it 'returns true if both ink and pen are active' do
+    it "returns true if both ink and pen are active" do
       expect(subject).to be_refillable
     end
 
-    it 'returns false if ink archived' do
+    it "returns false if ink archived" do
       ink.archive!
       expect(subject).to_not be_refillable
     end
 
-    it 'returns false if pen archived' do
+    it "returns false if pen archived" do
       pen.archive!
       expect(subject).to_not be_refillable
     end
@@ -185,7 +183,15 @@ describe CurrentlyInked do
 
   describe "nib" do
     let(:ink) { create(:collected_ink, user: user) }
-    let(:pen) { create(:collected_pen, user: user, brand: 'Pilot', model: 'Custom 74', nib: 'M') }
+    let(:pen) do
+      create(
+        :collected_pen,
+        user: user,
+        brand: "Pilot",
+        model: "Custom 74",
+        nib: "M"
+      )
+    end
 
     before do
       subject.collected_pen = pen
@@ -193,87 +199,98 @@ describe CurrentlyInked do
       subject.save!
     end
 
-    it 'sets the nib if entry is archived' do
-      expect do
-        subject.update(archived_on: Date.today)
-      end.to change { subject.nib }.from("").to(pen.nib)
+    it "sets the nib if entry is archived" do
+      expect do subject.update(archived_on: Date.today) end.to change {
+        subject.nib
+      }.from("").to(pen.nib)
     end
 
-    it 'does not change the nib when already archived' do
+    it "does not change the nib when already archived" do
       subject.update(archived_on: Date.today)
       subject.update(nib: "other value")
       expect(subject.nib).to eq("other value")
-      expect do
-        subject.update(comment: 'new comment')
-      end.to_not change { subject.reload; subject.nib }
+      expect do subject.update(comment: "new comment") end.to_not change {
+        subject.reload
+        subject.nib
+      }
     end
 
-    it 'clears the nib when unarchiving' do
+    it "clears the nib when unarchiving" do
       subject.update(archived_on: Date.today)
-      expect do
-        subject.update(archived_on: nil)
-      end.to change { subject.nib }.from(pen.nib).to("")
+      expect do subject.update(archived_on: nil) end.to change {
+        subject.nib
+      }.from(pen.nib).to("")
     end
   end
 
-  describe '#pen_name' do
+  describe "#pen_name" do
     before do
-      subject.collected_pen = create(:collected_pen, user: user, brand: 'Pilot', model: 'Custom 74', nib: 'M', color: 'orange')
+      subject.collected_pen =
+        create(
+          :collected_pen,
+          user: user,
+          brand: "Pilot",
+          model: "Custom 74",
+          nib: "M",
+          color: "orange"
+        )
     end
 
-    it 'uses the nib from the pen' do
-      expect(subject.pen_name).to eq('Pilot Custom 74, orange, M')
+    it "uses the nib from the pen" do
+      expect(subject.pen_name).to eq("Pilot Custom 74, orange, M")
     end
 
-    it 'uses the nib from self' do
-      subject.nib = 'my nib'
-      expect(subject.pen_name).to eq('Pilot Custom 74, orange, my nib')
+    it "uses the nib from self" do
+      subject.nib = "my nib"
+      expect(subject.pen_name).to eq("Pilot Custom 74, orange, my nib")
     end
   end
 
-  describe '#destroy' do
-
+  describe "#destroy" do
     subject { create(:currently_inked) }
 
-    it 'deletes usage records' do
+    it "deletes usage records" do
       usage_record = create(:usage_record, currently_inked: subject)
       expect do
-        expect do
-          subject.destroy
-        end.to change { CurrentlyInked.count }.from(1).to(0)
+        expect do subject.destroy end.to change { CurrentlyInked.count }.from(
+          1
+        ).to(0)
       end.to change { UsageRecord.count }.from(1).to(0)
     end
   end
 
-  describe '#used_today?' do
-
+  describe "#used_today?" do
     subject { create(:currently_inked) }
 
-    it 'returns false if there is no UsageRecord' do
+    it "returns false if there is no UsageRecord" do
       expect(subject).to_not be_used_today
     end
 
-    it 'returns true when there is a UsageRecord for today' do
-      usage_record = create(:usage_record, currently_inked: subject, used_on: Date.today)
+    it "returns true when there is a UsageRecord for today" do
+      usage_record =
+        create(:usage_record, currently_inked: subject, used_on: Date.today)
       expect(subject).to be_used_today
     end
 
-    it 'returns false when there is a UsageRecord for yesterday' do
-      usage_record = create(:usage_record, currently_inked: subject, used_on: Date.yesterday)
+    it "returns false when there is a UsageRecord for yesterday" do
+      usage_record =
+        create(:usage_record, currently_inked: subject, used_on: Date.yesterday)
       expect(subject).to_not be_used_today
     end
 
-    it 'returns false when there is a UsageRecord for another currently inked' do
+    it "returns false when there is a UsageRecord for another currently inked" do
       usage_record = create(:usage_record)
       expect(subject).to_not be_used_today
     end
   end
 
-  describe '#collected_inks_for_active_select' do
-    it 'includes the current ink even if it is archived' do
+  describe "#collected_inks_for_active_select" do
+    it "includes the current ink even if it is archived" do
       currently_inked = create(:currently_inked)
       currently_inked.collected_ink.archive!
-      expect(currently_inked.collected_inks_for_active_select).to include(currently_inked.collected_ink)
+      expect(currently_inked.collected_inks_for_active_select).to include(
+        currently_inked.collected_ink
+      )
     end
   end
 end

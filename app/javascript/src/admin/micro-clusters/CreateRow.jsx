@@ -76,7 +76,7 @@ const computeValues = (activeCluster) => {
   return {
     brand_name: ci.brand_name,
     line_name: ci.line_name,
-    ink_name: ci.ink_name,
+    ink_name: ci.ink_name
   };
 };
 
@@ -92,9 +92,9 @@ const createMacroClusterAndAssign = (
       data: {
         type: "macro_cluster",
         attributes: {
-          ...values,
-        },
-      },
+          ...values
+        }
+      }
     })
       .then((response) => response.json())
       .then((json) =>
@@ -105,7 +105,7 @@ const createMacroClusterAndAssign = (
           );
           dispatch({
             type: ADD_MACRO_CLUSTER,
-            payload: { ...macroCluster, grouped_collected_inks },
+            payload: { ...macroCluster, grouped_collected_inks }
           });
           afterCreate(microCluster);
         })
@@ -117,6 +117,6 @@ const ignoreCluster = ({ id }) =>
   putRequest(`/admins/micro_clusters/${id}.json`, {
     data: {
       type: "micro_cluster",
-      attributes: { ignored: true },
-    },
+      attributes: { ignored: true }
+    }
   });

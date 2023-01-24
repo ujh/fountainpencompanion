@@ -17,13 +17,13 @@ describe("Admin micro clusters app", () => {
               attributes: {},
               relationships: {
                 collected_inks: { data: [] },
-                macro_cluster: { data: null },
-              },
-            },
+                macro_cluster: { data: null }
+              }
+            }
           ],
           meta: {
-            pagination: { current_page: 1, total_pages: 1, next_page: null },
-          },
+            pagination: { current_page: 1, total_pages: 1, next_page: null }
+          }
         })
       );
     }),
@@ -35,12 +35,12 @@ describe("Admin micro clusters app", () => {
               id: 1,
               type: "macro_cluster",
               attributes: {},
-              relationships: { micro_clusters: { data: [] } },
-            },
+              relationships: { micro_clusters: { data: [] } }
+            }
           ],
           meta: {
-            pagination: { current_page: 1, total_pages: 1, next_page: null },
-          },
+            pagination: { current_page: 1, total_pages: 1, next_page: null }
+          }
         })
       );
     })

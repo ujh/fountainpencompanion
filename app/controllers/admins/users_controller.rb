@@ -1,14 +1,42 @@
-require 'csv'
+require "csv"
 
 class Admins::UsersController < Admins::BaseController
-
-  before_action :fetch_user, only: [:become, :ink_import, :pen_import, :currently_inked_import, :show, :update]
+  before_action :fetch_user,
+                only: %i[
+                  become
+                  ink_import
+                  pen_import
+                  currently_inked_import
+                  show
+                  update
+                ]
 
   def index
     @users = User.active.order(:id)
-    @ink_counts = CollectedInk.group(:user_id).select("user_id, count(id)").reduce({}) {|acc, el| acc[el.user_id] = el.count; acc }
-    @pen_counts = CollectedPen.group(:user_id).select("user_id, count(id)").reduce({}) {|acc, el| acc[el.user_id] = el.count; acc }
-    @ci_counts = CurrentlyInked.group(:user_id).select("user_id, max(inked_on) as inked_on, count(id)").reduce({}) {|acc, el| acc[el.user_id] = el.count; acc }
+    @ink_counts =
+      CollectedInk
+        .group(:user_id)
+        .select("user_id, count(id)")
+        .reduce({}) do |acc, el|
+          acc[el.user_id] = el.count
+          acc
+        end
+    @pen_counts =
+      CollectedPen
+        .group(:user_id)
+        .select("user_id, count(id)")
+        .reduce({}) do |acc, el|
+          acc[el.user_id] = el.count
+          acc
+        end
+    @ci_counts =
+      CurrentlyInked
+        .group(:user_id)
+        .select("user_id, max(inked_on) as inked_on, count(id)")
+        .reduce({}) do |acc, el|
+          acc[el.user_id] = el.count
+          acc
+        end
   end
 
   def show
@@ -29,11 +57,11 @@ class Admins::UsersController < Admins::BaseController
 
   def ink_import
     count = 0
-    content = params[:file].read.force_encoding('UTF-8')
+    content = params[:file].read.force_encoding("UTF-8")
     CSV.parse(content, headers: true) do |row|
       row = row.to_hash
       ImportCollectedInk.perform_async(@user.id, row)
-      count +=1
+      count += 1
     end
     flash[:notice] = "#{count} inks scheduled for import for #{@user.email}"
     redirect_to admins_users_path
@@ -41,11 +69,11 @@ class Admins::UsersController < Admins::BaseController
 
   def pen_import
     count = 0
-    content = params[:file].read.force_encoding('UTF-8')
+    content = params[:file].read.force_encoding("UTF-8")
     CSV.parse(content, headers: true) do |row|
       row = row.to_hash
       ImportCollectedPen.perform_async(@user.id, row)
-      count +=1
+      count += 1
     end
     flash[:notice] = "#{count} pens scheduled for import for #{@user.email}"
     redirect_to admins_users_path
@@ -53,13 +81,15 @@ class Admins::UsersController < Admins::BaseController
 
   def currently_inked_import
     count = 0
-    content = params[:file].read.force_encoding('UTF-8')
+    content = params[:file].read.force_encoding("UTF-8")
     CSV.parse(content, headers: true) do |row|
       row = row.to_hash
       ImportCurrentlyInked.perform_async(@user.id, row)
-      count +=1
+      count += 1
     end
-    flash[:notice] = "#{count} currently inked entries scheduled for import for #{@user.email}"
+    flash[
+      :notice
+    ] = "#{count} currently inked entries scheduled for import for #{@user.email}"
     redirect_to admins_users_path
   end
 

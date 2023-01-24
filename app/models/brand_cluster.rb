@@ -4,7 +4,9 @@ class BrandCluster < ApplicationRecord
 
   def self.public
     joins(macro_clusters: { micro_clusters: :collected_inks }).where(
-      collected_inks: { private: false }
+      collected_inks: {
+        private: false
+      }
     ).group("brand_clusters.id")
   end
 
@@ -29,12 +31,13 @@ class BrandCluster < ApplicationRecord
   end
 
   def update_name!
-    grouped = macro_clusters.pluck(:brand_name).map do |n|
-      n.gsub('’',"'").gsub(/\(.*\)/, '').strip
-    end.group_by(&:itself).transform_values(&:count)
-    update!(
-      name: grouped.max_by(&:last).first
-    )
+    grouped =
+      macro_clusters
+        .pluck(:brand_name)
+        .map { |n| n.gsub("’", "'").gsub(/\(.*\)/, "").strip }
+        .group_by(&:itself)
+        .transform_values(&:count)
+    update!(name: grouped.max_by(&:last).first)
   end
 
   def synonyms
@@ -44,7 +47,15 @@ class BrandCluster < ApplicationRecord
   def to_csv
     clusters = macro_clusters.public.order(:line_name, :ink_name)
     CSV.generate(col_sep: ";") do |csv|
-      csv << ['Cluster ID', 'Cluster Brand Name', 'Cluster Line Name', 'Cluster Ink Name', 'Brand Name', 'Line Name', 'Ink Name']
+      csv << [
+        "Cluster ID",
+        "Cluster Brand Name",
+        "Cluster Line Name",
+        "Cluster Ink Name",
+        "Brand Name",
+        "Line Name",
+        "Ink Name"
+      ]
       clusters.each do |macro_cluster|
         macro_cluster.all_names.each do |ink_name|
           csv << [

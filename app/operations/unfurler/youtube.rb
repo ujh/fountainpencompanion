@@ -13,7 +13,7 @@ class Unfurler
     attr_accessor :video_id
 
     def url
-      "https://www.youtube.com/watch?#{{v: video_id}.to_query}"
+      "https://www.youtube.com/watch?#{{ v: video_id }.to_query}"
     end
 
     def channel_id
@@ -30,7 +30,8 @@ class Unfurler
 
     def image
       thumbnails = video.snippet.thumbnails
-      t = [:maxres, :standard, :medium, :high, :default].find {|t| thumbnails.send(t) }
+      t =
+        %i[maxres standard medium high default].find { |t| thumbnails.send(t) }
       thumbnails.send(t).url
     end
 
@@ -39,7 +40,7 @@ class Unfurler
     end
 
     def video
-      @video ||= client.list_videos('snippet', id: video_id).items.first
+      @video ||= client.list_videos("snippet", id: video_id).items.first
     end
 
     def client

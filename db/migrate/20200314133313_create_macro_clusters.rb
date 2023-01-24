@@ -5,7 +5,7 @@ class CreateMacroClusters < ActiveRecord::Migration[6.0]
       t.string :line_name, default: ""
       t.string :ink_name, default: ""
       t.string :color, limit: 7, default: "", null: false
-      t.index [:brand_name, :line_name, :ink_name], unique: true
+      t.index %i[brand_name line_name ink_name], unique: true
       t.timestamps
     end
     safety_assured do

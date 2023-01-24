@@ -13,8 +13,8 @@ describe("PensGroupedByBrandWidget", () => {
         return res(
           ctx.json({
             data: {
-              attributes: { brands: [{ brand_name: "brand", count: 1 }] },
-            },
+              attributes: { brands: [{ brand_name: "brand", count: 1 }] }
+            }
           })
         );
       }

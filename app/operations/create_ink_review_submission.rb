@@ -21,11 +21,12 @@ class CreateInkReviewSubmission
   attr_accessor :automatic
 
   def submission
-    attributes = {url: url, user: user, macro_cluster: macro_cluster}
-    @submission ||= if automatic
-      InkReviewSubmission.create(attributes)
-    else
-      InkReviewSubmission.find_or_create_by(attributes)
-    end
+    attributes = { url: url, user: user, macro_cluster: macro_cluster }
+    @submission ||=
+      if automatic
+        InkReviewSubmission.create(attributes)
+      else
+        InkReviewSubmission.find_or_create_by(attributes)
+      end
   end
 end

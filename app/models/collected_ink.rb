@@ -1,11 +1,10 @@
-require 'csv'
+require "csv"
 
 class CollectedInk < ApplicationRecord
-
   include Archivable
   include PgSearch::Model
 
-  KINDS = %w(bottle sample cartridge swab)
+  KINDS = %w[bottle sample cartridge swab]
 
   validates :kind, inclusion: { in: KINDS, allow_blank: true }
   validates :brand_name, length: { in: 1..100 }
@@ -24,17 +23,14 @@ class CollectedInk < ApplicationRecord
 
   pg_search_scope(
     :search,
-    against: %i(
-      brand_name
-      line_name
-      ink_name
-    ),
+    against: %i[brand_name line_name ink_name],
     using: {
       tsearch: {
         dictionary: "english",
-        tsvector_column: "tsv",
+        tsvector_column: "tsv"
       },
-      trigram: {},
+      trigram: {
+      }
     }
   )
 
@@ -45,7 +41,7 @@ class CollectedInk < ApplicationRecord
   end
 
   def tags_as_string=(string)
-    self.tag_names = string.split(',').map(&:strip)
+    self.tag_names = string.split(",").map(&:strip)
   end
 
   def si
@@ -53,11 +49,11 @@ class CollectedInk < ApplicationRecord
   end
 
   def self.without_color
-    where(color: '')
+    where(color: "")
   end
 
   def self.with_color
-    where.not(color: '')
+    where.not(color: "")
   end
 
   def self.alphabetical
@@ -65,7 +61,10 @@ class CollectedInk < ApplicationRecord
   end
 
   def self.brand_count
-    reorder(:simplified_brand_name).group(:simplified_brand_name).pluck(:simplified_brand_name).size
+    reorder(:simplified_brand_name)
+      .group(:simplified_brand_name)
+      .pluck(:simplified_brand_name)
+      .size
   end
 
   def self.unique_inks_per_brand(name)
@@ -109,8 +108,19 @@ class CollectedInk < ApplicationRecord
   def self.to_csv
     CSV.generate(col_sep: ";") do |csv|
       csv << [
-        "Brand", "Line", "Name", "Type", "Color", "Swabbed", "Used", "Comment", "Private Comment", "Archived", "Usage",
-        "Tags", "Date Added"
+        "Brand",
+        "Line",
+        "Name",
+        "Type",
+        "Color",
+        "Swabbed",
+        "Used",
+        "Comment",
+        "Private Comment",
+        "Archived",
+        "Usage",
+        "Tags",
+        "Date Added"
       ]
       all.each do |ci|
         csv << [
@@ -148,7 +158,7 @@ class CollectedInk < ApplicationRecord
   end
 
   def short_name
-    [brand_name, line_name, ink_name].reject {|f| f.blank? }.join(' ')
+    [brand_name, line_name, ink_name].reject { |f| f.blank? }.join(" ")
   end
 
   def brand_name=(value)
@@ -174,13 +184,20 @@ class CollectedInk < ApplicationRecord
   private
 
   def unique_constraint
-    return unless changed.any? {|c| ['brand_name', 'line_name', 'ink_name'].include?(c)}
-    rel = self.class.where(
-      "LOWER(brand_name) = ? AND LOWER(line_name) = ? AND LOWER(ink_name) = ?",
-      brand_name.to_s.downcase,
-      line_name.to_s.downcase,
-      ink_name.to_s.downcase
-    ).where(user_id: user_id).where(kind: kind)
+    unless changed.any? { |c| %w[brand_name line_name ink_name].include?(c) }
+      return
+    end
+    rel =
+      self
+        .class
+        .where(
+          "LOWER(brand_name) = ? AND LOWER(line_name) = ? AND LOWER(ink_name) = ?",
+          brand_name.to_s.downcase,
+          line_name.to_s.downcase,
+          ink_name.to_s.downcase
+        )
+        .where(user_id: user_id)
+        .where(kind: kind)
     rel = rel.where("id <> ?", id) if persisted?
     errors.add(:ink_name, "Duplicate!") if rel.exists?
   end
@@ -192,12 +209,18 @@ class CollectedInk < ApplicationRecord
   def color_valid
     return if read_attribute(:color).blank?
     if read_attribute(:color) !~ /#[0-9a-f]{3}([0-9a-f][3])?/i
-      errors.add(:color, "Only valid HTML color codes are supported (e.g #fff or #efefef)")
+      errors.add(
+        :color,
+        "Only valid HTML color codes are supported (e.g #fff or #efefef)"
+      )
       return
     end
 
     Color::RGB.from_html(read_attribute(:color))
   rescue ArgumentError
-    errors.add(:color, "Only valid HTML color codes are supported (e.g #fff or #efefef)")
+    errors.add(
+      :color,
+      "Only valid HTML color codes are supported (e.g #fff or #efefef)"
+    )
   end
 end

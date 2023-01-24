@@ -13,27 +13,26 @@ class FetchReviews
     end
 
     def perform
-      reviews = feed.items.map do |item|
-        {
-          url: item.link,
-          title: item.title,
-          search_term: item.title
-        }
-      end
-      reviews = reviews.map {|review| process_review(review) }
+      reviews =
+        feed.items.map do |item|
+          { url: item.link, title: item.title, search_term: item.title }
+        end
+      reviews = reviews.map { |review| process_review(review) }
       reviews = reviews.compact
       reviews = reviews.take(REVIEW_COUNT)
-      reviews = reviews.map {|review| match_review(review) }
-      reviews.map {|review| submit_review(review) }
+      reviews = reviews.map { |review| match_review(review) }
+      reviews.map { |review| submit_review(review) }
     end
 
     private
 
     def match_review(review)
-      Rails.cache.fetch("rss:#{review[:url]}", expires_in: 1.year) do
-        cluster = MacroCluster.full_text_search(review[:search_term]).first
-        review.merge(macro_cluster: cluster&.id)
-      end
+      Rails
+        .cache
+        .fetch("rss:#{review[:url]}", expires_in: 1.year) do
+          cluster = MacroCluster.full_text_search(review[:search_term]).first
+          review.merge(macro_cluster: cluster&.id)
+        end
     end
 
     def submit_review(review)
@@ -44,10 +43,11 @@ class FetchReviews
     end
 
     def feed
-      connection = Faraday.new do |c|
-        c.response :follow_redirects
-        c.response :raise_error
-      end
+      connection =
+        Faraday.new do |c|
+          c.response :follow_redirects
+          c.response :raise_error
+        end
       RSS::Parser.parse(connection.get(feed_url).body)
     end
   end

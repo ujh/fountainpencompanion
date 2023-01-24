@@ -16,9 +16,9 @@ describe("LeaderboardRankingWidget", () => {
               bottles: 1,
               samples: 1,
               brands: 1,
-              ink_review_submissions: 1,
-            },
-          },
+              ink_review_submissions: 1
+            }
+          }
         })
       );
     })

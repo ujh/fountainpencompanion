@@ -6,14 +6,15 @@ class UsageRecordsController < ApplicationController
   add_breadcrumb "Usage records", :usage_records_path
 
   def index
-    @usage_records = current_user.usage_records.order('used_on DESC, currently_inked_id')
+    @usage_records =
+      current_user.usage_records.order("used_on DESC, currently_inked_id")
     respond_to do |format|
-      format.html {
-        @usage_records = @usage_records.page(params[:page])
-      }
-      format.csv {
-        send_data @usage_records.to_csv, type: "text/csv", filename: "usage_records.csv"
-      }
+      format.html { @usage_records = @usage_records.page(params[:page]) }
+      format.csv do
+        send_data @usage_records.to_csv,
+                  type: "text/csv",
+                  filename: "usage_records.csv"
+      end
     end
   end
 
@@ -35,6 +36,7 @@ class UsageRecordsController < ApplicationController
   private
 
   def retrieve_currently_inked
-    @currently_inked = current_user.currently_inkeds.find_by(id: params[:currently_inked_id])
+    @currently_inked =
+      current_user.currently_inkeds.find_by(id: params[:currently_inked_id])
   end
 end

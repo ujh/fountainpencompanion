@@ -1,0 +1,8 @@
+.yarn
+coverage/
+app/assets/builds/
+node_modules/
+public/
+spec/fixtures/
+tmp/
+vendor/

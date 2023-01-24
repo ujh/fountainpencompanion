@@ -1,21 +1,19 @@
-require 'rails_helper'
+require "rails_helper"
 
 describe CollectedInks::AddController do
-  describe '#create' do
-    let(:macro_cluster) { create(:macro_cluster)}
+  describe "#create" do
+    let(:macro_cluster) { create(:macro_cluster) }
 
-    it 'requires authentication' do
+    it "requires authentication" do
       post "/collected_inks/add.json?macro_cluster_id=#{macro_cluster.id}"
       expect(response).to have_http_status(:unauthorized)
     end
 
-    context 'signed in' do
+    context "signed in" do
       let(:user) { create(:user) }
-      before do
-        sign_in(user)
-      end
+      before { sign_in(user) }
 
-      it 'adds the ink to the user' do
+      it "adds the ink to the user" do
         expect do
           post "/collected_inks/add.json?macro_cluster_id=#{macro_cluster.id}&kind=bottle"
           expect(response).to have_http_status(:created)
@@ -24,10 +22,10 @@ describe CollectedInks::AddController do
         expect(ink.brand_name).to eq(macro_cluster.brand_name)
         expect(ink.line_name).to eq(macro_cluster.line_name)
         expect(ink.ink_name).to eq(macro_cluster.ink_name)
-        expect(ink.kind).to eq('bottle')
+        expect(ink.kind).to eq("bottle")
       end
 
-      it 'only adds the ink once' do
+      it "only adds the ink once" do
         expect do
           post "/collected_inks/add.json?macro_cluster_id=#{macro_cluster.id}&kind=bottle"
           post "/collected_inks/add.json?macro_cluster_id=#{macro_cluster.id}&kind=bottle"

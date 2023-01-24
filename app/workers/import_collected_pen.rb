@@ -5,13 +5,12 @@ class ImportCollectedPen
     User.find(user_id).collected_pens.create!(params(row))
   end
 
-
   def params(row)
-    row.keys.each {|k|
-      row[k] = '' if row[k].nil?
+    row.keys.each do |k|
+      row[k] = "" if row[k].nil?
       row[k] = row[k].strip
-    }
+    end
     row["archived_on"] = row["archived"].present? ? Date.current : nil
-    row.slice('brand', 'model', 'comment', 'nib', 'color', 'archived_on')
+    row.slice("brand", "model", "comment", "nib", "color", "archived_on")
   end
 end

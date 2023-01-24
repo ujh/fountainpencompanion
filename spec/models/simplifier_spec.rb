@@ -1,8 +1,7 @@
-require 'rails_helper'
+require "rails_helper"
 
 describe Simplifier do
   describe "#simplify" do
-
     it "transliterates umlauts" do
       expect(described_class.simplify("ä")).to eq("a")
     end
@@ -12,7 +11,9 @@ describe Simplifier do
     end
 
     it "replaces ampersand with and" do
-      expect(described_class.simplify("Rohrer & Klingner")).to eq("rohrerandklingner")
+      expect(described_class.simplify("Rohrer & Klingner")).to eq(
+        "rohrerandklingner"
+      )
     end
 
     it "replaces plus with and" do
@@ -20,11 +21,15 @@ describe Simplifier do
     end
 
     it "keeps numbers from hashtags with numbers at the beginning" do
-      expect(described_class.simplify("#8 Diep-Duinwaterblauw")).to eq("8diepduinwaterblauw")
+      expect(described_class.simplify("#8 Diep-Duinwaterblauw")).to eq(
+        "8diepduinwaterblauw"
+      )
     end
 
     it "keeps numbers at the beginning" do
-      expect(described_class.simplify("05 Shocking Blue")).to eq("05shockingblue")
+      expect(described_class.simplify("05 Shocking Blue")).to eq(
+        "05shockingblue"
+      )
       expect(described_class.simplify("1864 blue black")).to eq("1864blueblack")
     end
 
@@ -33,11 +38,15 @@ describe Simplifier do
     end
 
     it "does not remove stuff in quotes in the middle" do
-      expect(described_class.simplify('something "bla" else')).to eq("somethingblaelse")
+      expect(described_class.simplify('something "bla" else')).to eq(
+        "somethingblaelse"
+      )
     end
 
     it "removes no. N at the beginning" do
-      expect(described_class.simplify("No. 5 Shocking Blue")).to eq("5shockingblue")
+      expect(described_class.simplify("No. 5 Shocking Blue")).to eq(
+        "5shockingblue"
+      )
     end
 
     it "removes initials" do
@@ -85,6 +94,5 @@ describe Simplifier do
         expect(described_class.simplify("#23 - Guan")).to eq("23guan")
       end
     end
-
   end
 end

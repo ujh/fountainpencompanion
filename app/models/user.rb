@@ -1,11 +1,15 @@
 class User < ApplicationRecord
-
-  BLACKLIST = ['51.91.67.153']
+  BLACKLIST = ["51.91.67.153"]
   MAX_SAME_IP_24H = 2
   # Include default devise modules. Others available are:
   # :confirmable, :lockable, :timeoutable and :omniauthable
-  devise :database_authenticatable, :registerable, :confirmable,
-         :recoverable, :rememberable, :trackable, :validatable
+  devise :database_authenticatable,
+         :registerable,
+         :confirmable,
+         :recoverable,
+         :rememberable,
+         :trackable,
+         :validatable
 
   has_many :currently_inkeds, dependent: :destroy
   has_many :collected_inks, dependent: :delete_all
@@ -35,7 +39,7 @@ class User < ApplicationRecord
   def bot_field=(value)
     return if persisted?
 
-    if value.present? && value != '0'
+    if value.present? && value != "0"
       self.bot = true
       self.bot_reason = "bot_field"
     end
@@ -44,12 +48,17 @@ class User < ApplicationRecord
   def sign_up_ip=(value)
     if BLACKLIST.include?(value)
       self.bot = true
-      self.bot_reason = 'sign_up_ip_blacklist'
+      self.bot_reason = "sign_up_ip_blacklist"
     end
-    ip_count = self.class.where('created_at > ?', 24.hours.ago).where(sign_up_ip: value).count
+    ip_count =
+      self
+        .class
+        .where("created_at > ?", 24.hours.ago)
+        .where(sign_up_ip: value)
+        .count
     if ip_count >= MAX_SAME_IP_24H
       self.bot = true
-      self.bot_reason = 'sign_up_ip_24h_timeframe'
+      self.bot_reason = "sign_up_ip_24h_timeframe"
     end
     super
   end
@@ -60,14 +69,15 @@ class User < ApplicationRecord
 
   def friends
     possible_and_approved_friends.where(
-      'friendships.approved = TRUE OR sf.approved = TRUE'
+      "friendships.approved = TRUE OR sf.approved = TRUE"
     )
   end
 
   def friendship_with(friend_id)
     Friendship.where(
-      '(friend_id = :friend_id AND sender_id = :user_id) OR (friend_id = :user_id AND sender_id = :friend_id)',
-      friend_id: friend_id, user_id: id
+      "(friend_id = :friend_id AND sender_id = :user_id) OR (friend_id = :user_id AND sender_id = :friend_id)",
+      friend_id: friend_id,
+      user_id: id
     ).first
   end
 
@@ -84,7 +94,7 @@ class User < ApplicationRecord
 
   def pending_friendships
     possible_and_approved_friends.where(
-      'friendships.approved = FALSE OR sf.approved = FALSE'
+      "friendships.approved = FALSE OR sf.approved = FALSE"
     )
   end
 
@@ -102,13 +112,15 @@ class User < ApplicationRecord
     pending_friendships.where(id: user.id).exists?
   end
 
-
   def admin?
     Admin.find_by(email: email).present?
   end
 
   def public_inks
-    collected_inks.where(private: false).active.order("brand_name, line_name, ink_name")
+    collected_inks
+      .where(private: false)
+      .active
+      .order("brand_name, line_name, ink_name")
   end
 
   def public_count
@@ -156,11 +168,11 @@ class User < ApplicationRecord
   end
 
   def collected_inks_for_select
-    collected_inks.order('brand_name, line_name, ink_name')
+    collected_inks.order("brand_name, line_name, ink_name")
   end
 
   def collected_pens_for_select
-    collected_pens.order('brand, model, nib, color')
+    collected_pens.order("brand, model, nib, color")
   end
 
   def active_collected_pens
@@ -182,11 +194,10 @@ class User < ApplicationRecord
   private
 
   def possible_and_approved_friends
-    User.joins(
-      'LEFT JOIN friendships ON users.id = friendships.friend_id'
-    ).joins(
-      'LEFT JOIN friendships AS sf ON users.id = sf.sender_id'
-    ).where('friendships.sender_id = :id OR sf.friend_id = :id', id: id)
+    User
+      .joins("LEFT JOIN friendships ON users.id = friendships.friend_id")
+      .joins("LEFT JOIN friendships AS sf ON users.id = sf.sender_id")
+      .where("friendships.sender_id = :id OR sf.friend_id = :id", id: id)
   end
 
   def check_if_we_should_skip_confirmation

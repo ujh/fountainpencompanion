@@ -1,23 +1,25 @@
 class Admins::MacroClustersController < Admins::BaseController
-
   def index
     respond_to do |format|
       format.json do
         clusters = index_query.includes(micro_clusters: :collected_inks)
-        render json: MacroClusterSerializer.new(clusters, index_options(clusters)).serializable_hash.to_json
+        render json:
+                 MacroClusterSerializer
+                   .new(clusters, index_options(clusters))
+                   .serializable_hash
+                   .to_json
       end
-      format.html do
-        @clusters = index_query
-      end
+      format.html { @clusters = index_query }
     end
   end
 
   def show
     cluster = MacroCluster.find(params[:id])
-    render json: MacroClusterSerializer.new(
-      cluster,
-      show_options
-    ).serializable_hash.to_json
+    render json:
+             MacroClusterSerializer
+               .new(cluster, show_options)
+               .serializable_hash
+               .to_json
   end
 
   def create
@@ -41,29 +43,52 @@ class Admins::MacroClustersController < Admins::BaseController
   private
 
   def index_query
-    MacroCluster.order(
-      :brand_name, :line_name, :ink_name
-    ).search(params[:q]).page(params[:page]).per(params[:per_page])
+    MacroCluster
+      .order(:brand_name, :line_name, :ink_name)
+      .search(params[:q])
+      .page(params[:page])
+      .per(params[:per_page])
   end
 
   def cluster_params
-    (params['_jsonapi'] || params).require(:data).require(:attributes).permit(
-      :brand_name, :line_name, :ink_name, :color
-    )
+    (params["_jsonapi"] || params)
+      .require(:data)
+      .require(:attributes)
+      .permit(:brand_name, :line_name, :ink_name, :color)
   end
 
   def index_options(rel)
     {
-      include: [:micro_clusters, :'micro_clusters.collected_inks'],
-      fields: { collected_ink: [:brand_name, :line_name, :ink_name, :maker, :color, :micro_cluster] },
-      meta: { pagination: pagination(rel) },
+      include: [:micro_clusters, :"micro_clusters.collected_inks"],
+      fields: {
+        collected_ink: %i[
+          brand_name
+          line_name
+          ink_name
+          maker
+          color
+          micro_cluster
+        ]
+      },
+      meta: {
+        pagination: pagination(rel)
+      }
     }
   end
 
   def show_options
     {
-      include: [:micro_clusters, :'micro_clusters.collected_inks'],
-      fields: { collected_ink: [:brand_name, :line_name, :ink_name, :maker, :color, :micro_cluster] },
+      include: [:micro_clusters, :"micro_clusters.collected_inks"],
+      fields: {
+        collected_ink: %i[
+          brand_name
+          line_name
+          ink_name
+          maker
+          color
+          micro_cluster
+        ]
+      }
     }
   end
 

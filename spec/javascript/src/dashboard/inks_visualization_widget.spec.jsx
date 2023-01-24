@@ -10,7 +10,7 @@ describe("InksVisualizationWidget", () => {
     rest.get("/collected_inks.json", (req, res, ctx) => {
       return res(
         ctx.json({
-          data: [{ id: 1, attributes: { archived: false, color: "#FFF" } }],
+          data: [{ id: 1, attributes: { archived: false, color: "#FFF" } }]
         })
       );
     })

@@ -8,7 +8,7 @@ import {
   PREVIOUS,
   NEXT,
   REMOVE_MICRO_CLUSTER,
-  UPDATE_MACRO_CLUSTER,
+  UPDATE_MACRO_CLUSTER
 } from "./actions";
 import { keyDownListener } from "./keyDownListener";
 

@@ -23,24 +23,30 @@ class UpdateMacroCluster
   end
 
   def popular(field)
-    grouped = cluster.collected_inks.group_by {|ci| ci.send(field) }
-    popular = grouped.values.max_by {|cis| cis.length }.first
+    grouped = cluster.collected_inks.group_by { |ci| ci.send(field) }
+    popular = grouped.values.max_by { |cis| cis.length }.first
     popular.send(field)
   end
 
   def update_color
-    colors = cluster.collected_inks.with_color.pluck(:color).map do |c|
-      Color::RGB.from_html(c)
-    end
+    colors =
+      cluster
+        .collected_inks
+        .with_color
+        .pluck(:color)
+        .map { |c| Color::RGB.from_html(c) }
     return if colors.blank?
 
-    average = Color::RGB.new(*[:red, :green, :blue].map {|f| average_for(colors, f)}).html
+    average =
+      Color::RGB.new(
+        *%i[red green blue].map { |f| average_for(colors, f) }
+      ).html
     cluster.color = average
   end
 
   def average_for(colors, field)
-    sum = (colors.map {|c| c.send(field)**2}.sum)
+    sum = (colors.map { |c| c.send(field)**2 }.sum)
     size = colors.size.to_f
-    Math.sqrt(sum/size).round
+    Math.sqrt(sum / size).round
   end
 end

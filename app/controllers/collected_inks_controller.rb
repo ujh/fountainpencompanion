@@ -1,24 +1,42 @@
 class CollectedInksController < ApplicationController
   before_action :authenticate_user!
-  before_action :find_ink, only: [:edit, :update, :destroy, :archive, :unarchive]
+  before_action :find_ink, only: %i[edit update destroy archive unarchive]
 
   add_breadcrumb "My inks", :collected_inks_path
 
   def index
     if current_user.collected_inks.empty?
-      flash.now[:notice] = "Your ink collection is empty. Check out the <a href='/pages/guide'>documentation</a> on how to add some.".html_safe
+      flash.now[
+        :notice
+      ] = "Your ink collection is empty. Check out the <a href='/pages/guide'>documentation</a> on how to add some.".html_safe
     end
-    inks = current_user.collected_inks.includes(
-      :currently_inkeds, :usage_records, :tags, micro_cluster: :macro_cluster
-    ).order(
-      "brand_name, line_name, ink_name"
-    )
+    inks =
+      current_user
+        .collected_inks
+        .includes(
+          :currently_inkeds,
+          :usage_records,
+          :tags,
+          micro_cluster: :macro_cluster
+        )
+        .order("brand_name, line_name, ink_name")
     if params.dig(:filter, :macro_cluster_id)
-      inks = inks.joins(:micro_cluster).where(micro_clusters: { macro_cluster_id: params.dig(:filter, :macro_cluster_id)})
+      inks =
+        inks.joins(:micro_cluster).where(
+          micro_clusters: {
+            macro_cluster_id: params.dig(:filter, :macro_cluster_id)
+          }
+        )
     end
     respond_to do |format|
       format.html
-      format.json { render json: CollectedInkSerializer.new(inks, index_options).serializable_hash.to_json }
+      format.json do
+        render json:
+                 CollectedInkSerializer
+                   .new(inks, index_options)
+                   .serializable_hash
+                   .to_json
+      end
       format.csv do
         send_data inks.to_csv, type: "text/csv", filename: "collected_inks.csv"
       end
@@ -37,7 +55,7 @@ class CollectedInksController < ApplicationController
   def create
     self.ink = collected_ink = current_user.collected_inks.build
     if SaveCollectedInk.new(ink, collected_ink_params).perform
-      flash[:notice] = 'Successfully created ink'
+      flash[:notice] = "Successfully created ink"
       if params[:redo]
         self.ink = collected_ink = current_user.collected_inks.build
         render :new
@@ -56,7 +74,7 @@ class CollectedInksController < ApplicationController
 
   def update
     if SaveCollectedInk.new(ink, collected_ink_params).perform
-      flash[:notice] = 'Successfully updated ink'
+      flash[:notice] = "Successfully updated ink"
       if archive?
         redirect_to collected_inks_path(search: { archive: true })
       else
@@ -73,7 +91,9 @@ class CollectedInksController < ApplicationController
         ink.destroy
         flash[:notice] = "Ink successfully deleted"
       else
-        flash[:alert] = "'#{ink.name}' has currently inked entries attached and can't be deleted."
+        flash[
+          :alert
+        ] = "'#{ink.name}' has currently inked entries attached and can't be deleted."
       end
     end
     if archive?
@@ -105,7 +125,7 @@ class CollectedInksController < ApplicationController
 
   helper_method :archive?
   def archive?
-    params.dig(:search, :archive) == 'true' || params[:archive]
+    params.dig(:search, :archive) == "true" || params[:archive]
   end
 
   def collected_ink_params
@@ -121,14 +141,16 @@ class CollectedInksController < ApplicationController
       :private_comment,
       :color,
       :private,
-      :tags_as_string,
+      :tags_as_string
     )
   end
 
   def index_options
     options = { include: [:tags] }
     if params.dig(:fields, :collected_ink)
-      options[:fields] = { collected_ink: params.dig(:fields, :collected_ink).split(/\s*,\s*/)}
+      options[:fields] = {
+        collected_ink: params.dig(:fields, :collected_ink).split(/\s*,\s*/)
+      }
     end
     options
   end

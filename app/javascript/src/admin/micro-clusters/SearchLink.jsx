@@ -1,7 +1,7 @@
 import React from "react";
 export const SearchLink = ({ ci }) => {
   const fullName = ["brand_name", "line_name", "ink_name"]
-    .map(a => ci[a])
+    .map((a) => ci[a])
     .join(" ");
   return (
     <a

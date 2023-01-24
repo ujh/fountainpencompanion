@@ -2,10 +2,10 @@ import React from "react";
 import _ from "lodash";
 import { SearchLink } from "./SearchLink";
 export const CollectedInksList = ({ collectedInks }) => {
-  const grouped = _.groupBy(collectedInks, ci =>
-    ["brand_name", "line_name", "ink_name"].map(n => ci[n]).join(",")
+  const grouped = _.groupBy(collectedInks, (ci) =>
+    ["brand_name", "line_name", "ink_name"].map((n) => ci[n]).join(",")
   );
-  const sorted = _.reverse(_.sortBy(_.values(grouped), "length")).map(a => ({
+  const sorted = _.reverse(_.sortBy(_.values(grouped), "length")).map((a) => ({
     count: a.length,
     ci: a[0]
   }));
@@ -22,7 +22,7 @@ export const CollectedInksList = ({ collectedInks }) => {
             style={{
               backgroundColor: ci.color,
               height: "45px",
-              width: "45px",
+              width: "45px"
             }}
           />
         </td>

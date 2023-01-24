@@ -1,5 +1,4 @@
 class Admins::BrandClustersController < Admins::BaseController
-
   def index
     @brand_clusters = BrandCluster.order(:name)
   end

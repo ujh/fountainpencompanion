@@ -1,6 +1,6 @@
 class Friendship < ApplicationRecord
-  belongs_to :friend, class_name: 'User'
-  belongs_to :sender, class_name: 'User'
+  belongs_to :friend, class_name: "User"
+  belongs_to :sender, class_name: "User"
 
   validates :friend, uniqueness: { scope: :sender_id }
   validate :no_duplicate_requests
@@ -9,10 +9,12 @@ class Friendship < ApplicationRecord
   private
 
   def no_duplicate_requests
-    errors.add(:friend, 'Friend already sent request') if self.class.find_by(sender: friend, friend: sender)
+    if self.class.find_by(sender: friend, friend: sender)
+      errors.add(:friend, "Friend already sent request")
+    end
   end
 
   def two_users
-    errors.add(:friend, 'You cannot friend yourself') if sender == friend
+    errors.add(:friend, "You cannot friend yourself") if sender == friend
   end
 end

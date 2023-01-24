@@ -6,7 +6,7 @@ import { App } from "./App";
 document.addEventListener("DOMContentLoaded", () => {
   const el = document.getElementById("micro-clusters-app");
   if (el) {
-    const root = createRoot(el)
+    const root = createRoot(el);
     root.render(<App />);
   }
 });

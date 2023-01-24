@@ -16,7 +16,7 @@ class FriendButton extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      friendshipState: props.friendshipState,
+      friendshipState: props.friendshipState
     };
   }
 

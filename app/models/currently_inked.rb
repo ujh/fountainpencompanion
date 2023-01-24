@@ -1,24 +1,28 @@
-require 'csv'
+require "csv"
 
 class CurrentlyInked < ApplicationRecord
-
   include Archivable
   include PenName
 
-  class NotRefillable < StandardError; end
+  class NotRefillable < StandardError
+  end
 
   belongs_to :collected_ink, counter_cache: true
   belongs_to :collected_pen
   belongs_to :user
 
   has_many :usage_records, dependent: :destroy
-  has_one :last_usage, -> { order('used_on desc') }, class_name: 'UsageRecord'
+  has_one :last_usage, -> { order("used_on desc") }, class_name: "UsageRecord"
 
   delegate :collected_inks_for_select, to: :user
   delegate :collected_pens_for_select, to: :user
-  delegate :name, :short_name, to: :collected_ink, prefix: 'ink', allow_nil: true
-  delegate :simplified_name, to: :collected_ink, prefix: 'ink'
-  delegate :color, to: :collected_ink, prefix: 'ink'
+  delegate :name,
+           :short_name,
+           to: :collected_ink,
+           prefix: "ink",
+           allow_nil: true
+  delegate :simplified_name, to: :collected_ink, prefix: "ink"
+  delegate :color, to: :collected_ink, prefix: "ink"
   delegate :micro_cluster, to: :collected_ink, allow_nil: true
   delegate :macro_cluster, to: :micro_cluster, allow_nil: true
 
@@ -74,11 +78,7 @@ class CurrentlyInked < ApplicationRecord
   end
 
   def pen_name
-    nib = if self.nib.present?
-      self.nib
-    else
-      collected_pen.nib
-    end
+    nib = (self.nib.present? ? self.nib : collected_pen.nib)
     pen_name_generator(
       brand: collected_pen.brand,
       model: collected_pen.model,
@@ -93,7 +93,8 @@ class CurrentlyInked < ApplicationRecord
   end
 
   def collected_pens_for_active_select
-    ids = user.currently_inkeds.active.pluck(:collected_pen_id) - [collected_pen_id]
+    ids =
+      user.currently_inkeds.active.pluck(:collected_pen_id) - [collected_pen_id]
     user.collected_pens.active.where.not(id: ids)
   end
 
@@ -133,7 +134,13 @@ class CurrentlyInked < ApplicationRecord
   def pen_not_already_in_use
     return unless user && collected_pen
     return if archived_on.present?
-    errors.add(:collected_pen_id, "already in use") if user.currently_inkeds.active.where(collected_pen_id: collected_pen.id).where.not(id: id).exists?
+    if user
+         .currently_inkeds
+         .active
+         .where(collected_pen_id: collected_pen.id)
+         .where.not(id: id)
+         .exists?
+      errors.add(:collected_pen_id, "already in use")
+    end
   end
-
 end

@@ -2,7 +2,7 @@ class CollectedPensController < ApplicationController
   before_action :authenticate_user!
   before_action :set_flash, except: [:import]
   before_action :retrieve_collected_pens, only: [:index]
-  before_action :retrieve_collected_pen, only: [:edit, :update, :destroy, :archive]
+  before_action :retrieve_collected_pen, only: %i[edit update destroy archive]
 
   add_breadcrumb "My pens", :collected_pens_path
 
@@ -10,7 +10,11 @@ class CollectedPensController < ApplicationController
     respond_to do |format|
       format.html
       format.csv do
-        pens = current_user.collected_pens.includes(:currently_inkeds).order('brand, model, nib, color, comment')
+        pens =
+          current_user
+            .collected_pens
+            .includes(:currently_inkeds)
+            .order("brand, model, nib, color, comment")
         send_data pens.to_csv, type: "text/csv", filename: "collected_pens.csv"
       end
     end
@@ -53,7 +57,9 @@ class CollectedPensController < ApplicationController
   end
 
   def archive
-    flash[:notice] = "Successfully archived '#{@collected_pen.name}'" if @collected_pen
+    flash[
+      :notice
+    ] = "Successfully archived '#{@collected_pen.name}'" if @collected_pen
     @collected_pen&.archive!
     redirect_to collected_pens_path
   end
@@ -66,7 +72,7 @@ class CollectedPensController < ApplicationController
       :model,
       :nib,
       :color,
-      :comment,
+      :comment
     )
   end
 
@@ -75,10 +81,16 @@ class CollectedPensController < ApplicationController
   end
 
   def retrieve_collected_pens
-    @collected_pens = current_user.active_collected_pens.includes(:currently_inkeds).order('brand, model')
+    @collected_pens =
+      current_user
+        .active_collected_pens
+        .includes(:currently_inkeds)
+        .order("brand, model")
   end
 
   def set_flash
-    flash.now[:notice] = "Your pen collection is private and no one but you can see it. This is because pens can be worth quite a lot and I don't want to provide a list of people to rob. Maybe this will change in the future, but there will always be the possibility to keep this part private."
+    flash.now[
+      :notice
+    ] = "Your pen collection is private and no one but you can see it. This is because pens can be worth quite a lot and I don't want to provide a list of people to rob. Maybe this will change in the future, but there will always be the possibility to keep this part private."
   end
 end

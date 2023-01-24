@@ -18,9 +18,9 @@ export const CurrentlyInked = () => {
       series: [{ data, name: "Currently Inked" }],
       title: { text: "Currently inked per day" },
       xAxis: {
-        type: "datetime",
+        type: "datetime"
       },
-      yAxis: { title: { text: "" } },
+      yAxis: { title: { text: "" } }
     };
     return (
       <div>

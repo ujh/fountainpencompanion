@@ -2,7 +2,11 @@ class FriendshipsController < ApplicationController
   before_action :authenticate_user!
 
   def create
-    friendship = Friendship.new(sender: current_user, friend: User.find(params[:friend_id]))
+    friendship =
+      Friendship.new(
+        sender: current_user,
+        friend: User.find(params[:friend_id])
+      )
     if friendship.save
       head :ok
     else
@@ -22,7 +26,8 @@ class FriendshipsController < ApplicationController
 
   def destroy
     friendship = current_user.friendship_with(params[:id])
-    if friendship and [friendship.sender, friendship.friend].include?(current_user)
+    if friendship and
+         [friendship.sender, friendship.friend].include?(current_user)
       friendship.destroy
       head :ok
     else
