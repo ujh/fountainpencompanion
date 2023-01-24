@@ -69,6 +69,19 @@ class MacroCluster < ApplicationRecord
       .having("count(collected_inks.id) > 2")
   end
 
+  def self.autocomplete_line_search(term, brand_name)
+    simplified_brand_name = Simplifier.brand_name(brand_name.to_s)
+    query = autocomplete_search(term, :line_name)
+    if simplified_brand_name.present?
+      query =
+        query.where(
+          "collected_inks.simplified_brand_name LIKE ?",
+          "%#{simplified_brand_name}%"
+        )
+    end
+    query
+  end
+
   def self.autocomplete_ink_search(term, brand_name)
     simplified_brand_name = Simplifier.brand_name(brand_name)
     query = autocomplete_search(term, :ink_name)

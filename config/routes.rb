@@ -57,7 +57,6 @@ Rails.application.routes.draw do
     resources :models, only: [:index]
   end
   get "brands/:id", to: "brands#show", as: "brand"
-  resources :lines, only: [:index]
   resources :inks, only: [:index]
   resource :account, only: %i[show edit update]
 
@@ -73,6 +72,7 @@ Rails.application.routes.draw do
   namespace :api do
     namespace :v1 do
       resources :brands, only: [:index]
+      resources :lines, only: [:index]
     end
   end
 

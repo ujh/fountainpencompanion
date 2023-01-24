@@ -51,7 +51,7 @@ class Simplifier
   end
 
   def self.line_name(name)
-    self.brand_name(name)
+    self.simplify(name)
   end
 
   def self.ink_name(name)
