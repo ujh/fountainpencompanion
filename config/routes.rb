@@ -73,6 +73,7 @@ Rails.application.routes.draw do
     namespace :v1 do
       resources :brands, only: [:index]
       resources :lines, only: [:index]
+      resources :inks, only: [:index]
     end
   end
 

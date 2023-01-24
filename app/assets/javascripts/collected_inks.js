@@ -36,7 +36,7 @@ $(function () {
     source: function (request, response) {
       var brandName = encodeURIComponent($("#collected_ink_brand_name").val());
       var term = encodeURIComponent(request.term);
-      var url = "/inks.json?term=" + term + "&brand_name=" + brandName;
+      var url = "/api/v1/inks?term=" + term + "&brand_name=" + brandName;
       fetch(url)
         .then(function (r) {
           return r.json();
