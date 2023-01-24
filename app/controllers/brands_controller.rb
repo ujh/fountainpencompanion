@@ -2,14 +2,7 @@ class BrandsController < ApplicationController
   add_breadcrumb "Inks", "/brands"
 
   def index
-    respond_to do |format|
-      format.json do
-        clusters = BrandCluster.autocomplete_search(params[:term])
-        serializer = BrandClusterSerializer.new(clusters)
-        render json: serializer.serializable_hash.to_json
-      end
-      format.html { @brands = BrandCluster.public.order(:name) }
-    end
+    @brands = BrandCluster.public.order(:name)
   end
 
   def show
