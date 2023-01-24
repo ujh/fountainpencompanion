@@ -1,7 +1,7 @@
 $(function () {
   $("#collected_ink_brand_name").autocomplete({
     source: function (request, response) {
-      fetch("/brands.json?term=" + encodeURIComponent(request.term))
+      fetch("/api/v1/brands?term=" + encodeURIComponent(request.term))
         .then(function (r) {
           return r.json();
         })

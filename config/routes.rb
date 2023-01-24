@@ -69,6 +69,13 @@ Rails.application.routes.draw do
       get "my_missing"
     end
   end
+
+  namespace :api do
+    namespace :v1 do
+      resources :brands, only: [:index]
+    end
+  end
+
   namespace :admins do
     resource :dashboard, only: [:show]
     resources :users, only: %i[index show update] do

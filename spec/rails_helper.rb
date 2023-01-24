@@ -19,6 +19,7 @@ RSpec.configure do |config|
   config.filter_rails_from_backtrace!
   config.include Devise::Test::ControllerHelpers, type: :controller
   config.include Devise::Test::IntegrationHelpers, type: :request
+  config.include ApiHelpers, type: :request
 
   config.before(:each) { Sidekiq::Worker.clear_all }
 end
