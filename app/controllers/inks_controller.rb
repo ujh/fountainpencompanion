@@ -1,24 +1,6 @@
 class InksController < ApplicationController
   def index
-    respond_to do |format|
-      format.all { @clusters = full_text_cluster_search }
-      format.json do
-        clusters =
-          MacroCluster.autocomplete_ink_search(
-            params[:term],
-            params[:brand_name]
-          )
-        serializer =
-          MacroClusterSerializer.new(
-            clusters,
-            fields: {
-              macro_cluster: [:ink_name]
-            }
-          )
-        render json: serializer.serializable_hash.to_json
-      end
-      format.html { @clusters = full_text_cluster_search }
-    end
+    @clusters = full_text_cluster_search
   end
 
   def show

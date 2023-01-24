@@ -83,7 +83,7 @@ class MacroCluster < ApplicationRecord
   end
 
   def self.autocomplete_ink_search(term, brand_name)
-    simplified_brand_name = Simplifier.brand_name(brand_name)
+    simplified_brand_name = Simplifier.brand_name(brand_name.to_s)
     query = autocomplete_search(term, :ink_name)
     if simplified_brand_name.present?
       query =
