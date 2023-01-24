@@ -31,11 +31,6 @@ class CollectedPensArchiveController < ApplicationController
     redirect_to collected_pens_archive_index_path
   end
 
-  def destroy
-    @collected_pen&.destroy
-    redirect_to collected_pens_archive_index_path
-  end
-
   private
 
   def collected_pen_params

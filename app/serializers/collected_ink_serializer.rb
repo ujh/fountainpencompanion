@@ -23,9 +23,6 @@ class CollectedInkSerializer
   attribute :archived do |object|
     object.archived?
   end
-  attribute :deletable do |object|
-    object.deletable?
-  end
   attribute :ink_id do |object|
     object.micro_cluster&.macro_cluster_id
   end

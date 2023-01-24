@@ -26,9 +26,6 @@ div class="pen-collection"
                 = fa_icon("pencil")
               = link_to unarchive_collected_pens_archive_path(cp), class: "btn btn-secondary", method: :post, title: "Unarchive #{cp.name}" do
                 = fa_icon("folder-open")
-              - if cp.deletable?
-                = link_to collected_pens_archive_path(cp), class: "btn btn-danger", method: :delete, data: { confirm: "Really delete #{cp.name}" }, title: "Delete #{cp.name}"
-                  = fa_icon("trash")
       tfoot
         tr
           th

@@ -85,24 +85,6 @@ class CollectedInksController < ApplicationController
     end
   end
 
-  def destroy
-    if ink
-      if ink.deletable?
-        ink.destroy
-        flash[:notice] = "Ink successfully deleted"
-      else
-        flash[
-          :alert
-        ] = "'#{ink.name}' has currently inked entries attached and can't be deleted."
-      end
-    end
-    if archive?
-      redirect_to collected_inks_path(search: { archive: true })
-    else
-      redirect_to collected_inks_path
-    end
-  end
-
   def archive
     flash[:notice] = "Successfully archived '#{ink.name}'" if ink
     ink&.archive!

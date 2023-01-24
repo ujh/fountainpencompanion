@@ -129,35 +129,4 @@ describe CollectedPensArchiveController do
       end
     end
   end
-
-  describe "#destroy" do
-    let!(:collected_pen) do
-      create(:collected_pen, user: user, archived_on: Date.today)
-    end
-
-    it "requires authentication" do
-      delete "/collected_pens_archive/#{collected_pen.id}"
-      expect(response).to redirect_to(new_user_session_path)
-    end
-
-    context "signed in" do
-      before(:each) { sign_in(user) }
-
-      it "correctly deletes the pen" do
-        expect do
-          delete "/collected_pens_archive/#{collected_pen.id}"
-        end.to change { user.collected_pens.count }.by(-1)
-        expect(response).to redirect_to(collected_pens_archive_index_path)
-      end
-
-      it "does not delete pens from other users" do
-        pen = create(:collected_pen, archived_on: Date.today)
-        expect do
-          expect do
-            delete "/collected_pens_archive/#{pen.id}"
-          end.to raise_error(ActiveRecord::RecordNotFound)
-        end.to_not change { CollectedPen.count }
-      end
-    end
-  end
 end

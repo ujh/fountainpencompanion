@@ -60,7 +60,6 @@ describe AccountsController do
                 "color" => ink.color,
                 "comment" => ink.comment,
                 "daily_usage" => 0,
-                "deletable" => true,
                 "ink_id" => nil,
                 "ink_name" => ink.ink_name,
                 "kind" => ink.kind,
