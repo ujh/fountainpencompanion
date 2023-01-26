@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/sidekiq-scheduler/sidekiq-scheduler.git
-  revision: b772f4bc03525a7140ee51099a709bd254c54455
+  revision: cf3f5cdaf6b74675fb5a46ce74204836d4fcb813
   branch: master
   specs:
     sidekiq-scheduler (5.0.0)
