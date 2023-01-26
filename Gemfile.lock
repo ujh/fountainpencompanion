@@ -89,7 +89,7 @@ GEM
     bcrypt (3.1.18)
     benchmark-ips (2.8.4)
     bindex (0.8.1)
-    bootsnap (1.15.0)
+    bootsnap (1.16.0)
       msgpack (~> 1.2)
     breadcrumbs_on_rails (4.1.0)
       railties (>= 5.0)
