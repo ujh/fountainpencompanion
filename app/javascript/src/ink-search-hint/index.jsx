@@ -18,9 +18,7 @@ const InkSearchHint = ({ form }) => {
       form.collected_ink_line_name,
       form.collected_ink_ink_name
     ];
-    inkInputs.forEach((input) => {
-      document.addEventListener("change", listener);
-    });
+    document.addEventListener("change", listener);
     function listener() {
       const ink_string = inkInputs
         .map((input) => input.value)
@@ -32,7 +30,15 @@ const InkSearchHint = ({ form }) => {
       setHref(`/inks?q=${search_string}`);
     }
     listener();
-  }, []);
+
+    return () => {
+      document.removeEventListener(listener);
+    };
+  }, [
+    form.collected_ink_brand_name,
+    form.collected_ink_ink_name,
+    form.collected_ink_line_name
+  ]);
   return (
     <div className="fpc-hint alert alert-secondary">
       Did you know that you can add inks via the <a href={href}>ink search</a>{" "}
