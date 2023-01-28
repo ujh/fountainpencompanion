@@ -212,6 +212,7 @@ export default class Table extends React.Component {
       props.SubComponent = (row) => (
         <RowSubComponent row={row} hidden={hidden} />
       );
+      props.SubComponent.displayName = "RowSubComponent";
     } else {
       // Necessary to clear out the previous value on resize
       props.SubComponent = null;
@@ -278,7 +279,7 @@ class ComparisonFilter extends React.Component {
         style={{ width: "100%" }}
         value={this.value()}
       >
-        <option value="all">All of {this.props.name}'s inks</option>
+        <option value="all">All of {this.props.name}&apos;s inks</option>
         <option value="you">Inks only you own</option>
         <option value="other">Inks only {this.props.name} owns</option>
       </select>

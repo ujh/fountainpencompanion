@@ -16,12 +16,6 @@
 //= require select2
 //= require_tree .
 
-$(function () {
-  $("#new-public-inks").each(function () {
-    renderPublicInks(this);
-  });
-});
-
 // $(function() {
 //   $(".friend-button").each(function() {
 //     renderFriendButton(this);
@@ -32,7 +26,7 @@ $(function () {
   $(".admin-macro-cluster-row, .admin-micro-cluster-row").on(
     "ajax:success",
     function () {
-      location.href = location.href;
+      location.reload();
     }
   );
 });
@@ -57,8 +51,8 @@ $(function () {
 });
 
 $(function () {
-  ink_review_submission_form = $("#new_ink_review_submission");
-  ink_review_submission_form.on("ajax:success", (event) => {
+  var ink_review_submission_form = $("#new_ink_review_submission");
+  ink_review_submission_form.on("ajax:success", () => {
     ink_review_submission_form.find("input").val("");
     ink_review_submission_form
       .find(".form-text")

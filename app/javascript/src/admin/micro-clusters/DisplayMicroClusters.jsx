@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useEffect, useContext } from "react";
 import Jsona from "jsona";
 
 import { getRequest } from "../../fetch";
@@ -11,6 +11,7 @@ import {
   UPDATE_MACRO_CLUSTER
 } from "./actions";
 import { keyDownListener } from "./keyDownListener";
+import { useCallback } from "react";
 
 export const DisplayMicroClusters = () => {
   const dispatch = useContext(DispatchContext);
@@ -59,13 +60,13 @@ const updateMacroCluster = (id, dispatch) => {
 };
 
 const useNavigation = (dispatch) => {
-  const next = () => dispatch({ type: NEXT });
-  const prev = () => dispatch({ type: PREVIOUS });
+  const next = useCallback(() => dispatch({ type: NEXT }), [dispatch]);
+  const prev = useCallback(() => dispatch({ type: PREVIOUS }), [dispatch]);
   useEffect(() => {
     return keyDownListener((e) => {
       if (e.keyCode == 39) next();
       if (e.keyCode == 37) prev();
     });
-  }, []);
+  }, [next, prev]);
   return { prev, next };
 };

@@ -7,6 +7,7 @@ export const SearchLink = ({ ci }) => {
     <a
       href={`https://google.com/search?q=${encodeURIComponent(fullName)}`}
       target="_blank"
+      rel="noreferrer"
     >
       <i className="fa fa-external-link"></i>
     </a>

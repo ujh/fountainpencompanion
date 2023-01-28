@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect, useMemo } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import _ from "lodash";
 import levenshtein from "fast-levenshtein";
 import ScrollIntoViewIfNeeded from "react-scroll-into-view-if-needed";
@@ -15,6 +15,7 @@ import {
   UPDATING
 } from "./actions";
 import { keyDownListener, setInBrandSelector } from "./keyDownListener";
+import { useCallback } from "react";
 
 export const DisplayMacroClusters = ({ afterAssign }) => {
   const dispatch = useContext(DispatchContext);
@@ -23,17 +24,13 @@ export const DisplayMacroClusters = ({ afterAssign }) => {
       if (keyCode == 74) dispatch({ type: NEXT_MACRO_CLUSTER });
       if (keyCode == 75) dispatch({ type: PREVIOUS_MACRO_CLUSTER });
     });
-  }, []);
+  }, [dispatch]);
   return <MacroClusterRows afterAssign={afterAssign} />;
 };
 
 const MacroClusterRows = ({ afterAssign }) => {
-  const {
-    macroClusters,
-    activeCluster,
-    selectedMacroClusterIndex,
-    updateCounter
-  } = useContext(StateContext);
+  const { macroClusters, activeCluster, selectedMacroClusterIndex } =
+    useContext(StateContext);
   const [clustersWithDistance, setClustersWithDistance] = useState([]);
   const [computing, setComputing] = useState(true);
   const [search, setSearch] = useState("");
@@ -45,7 +42,7 @@ const MacroClusterRows = ({ afterAssign }) => {
       );
       setComputing(false);
     }, 0);
-  }, [activeCluster.id, updateCounter]);
+  }, [activeCluster, macroClusters]);
   // Reset search for each new cluster
   useEffect(() => {
     setSearch("");
@@ -165,7 +162,7 @@ const MacroClusterRow = ({ macroCluster, afterAssign, selected }) => {
   const dispatch = useContext(DispatchContext);
   const [showInks, setShowInks] = useState(false);
   const onClick = () => setShowInks(!showInks);
-  const assign = () => {
+  const assign = useCallback(() => {
     dispatch({ type: UPDATING });
     setTimeout(() => {
       assignCluster(activeCluster.id, macroCluster.id).then((microCluster) => {
@@ -176,14 +173,14 @@ const MacroClusterRow = ({ macroCluster, afterAssign, selected }) => {
         afterAssign(microCluster);
       });
     }, 10);
-  };
+  }, [activeCluster.id, afterAssign, dispatch, macroCluster.id]);
   useEffect(() => {
     if (!selected) return;
 
     return keyDownListener(({ keyCode }) => {
       if (keyCode == 65) assign();
     });
-  }, [macroCluster.id, activeCluster.id, selected]);
+  }, [macroCluster.id, activeCluster.id, selected, assign]);
   return (
     <>
       <tr className={selected ? "selected" : ""}>

@@ -10,10 +10,9 @@ import "./src/dashboard";
 import "./src/add-ink-button";
 import "./src/ink-search-hint";
 import { renderFriendButton } from "./src/friends";
-import renderPublicInks from "./src/public_inks";
+import "./src/public_inks";
 import setTimeZone from "./src/setTimeZone";
 
-window.renderPublicInks = renderPublicInks;
 window.renderFriendButton = renderFriendButton;
 window.setTimeZone = setTimeZone;
 

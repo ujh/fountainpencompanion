@@ -22,6 +22,7 @@ const hexToSortArray = (hex) => {
   const repetitions = 8;
   const [r, g, b] = convert.hex.rgb(hex);
   const lum = Math.sqrt(0.241 * r + 0.691 * g + 0.068 * b);
+  // eslint-disable-next-line no-unused-vars
   const [h, s, v] = convert.hex.hsv(hex);
   const h2 = Math.round(h * repetitions);
   let lum2 = Math.round(lum * repetitions);
