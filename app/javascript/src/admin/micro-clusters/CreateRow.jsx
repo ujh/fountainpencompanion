@@ -1,11 +1,10 @@
-import React, { useContext, useEffect } from "react";
+import React, { useCallback, useContext, useEffect } from "react";
 import _ from "lodash";
 import { postRequest, putRequest } from "../../fetch";
 import { StateContext, DispatchContext, groupedInks } from "./App";
 import { UPDATING, ADD_MACRO_CLUSTER, REMOVE_MICRO_CLUSTER } from "./actions";
 import { assignCluster } from "./assignCluster";
 import { keyDownListener } from "./keyDownListener";
-import { useCallback } from "react";
 
 export const CreateRow = ({ afterCreate }) => {
   const { updating, activeCluster } = useContext(StateContext);

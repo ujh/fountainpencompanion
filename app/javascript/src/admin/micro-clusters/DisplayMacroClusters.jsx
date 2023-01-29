@@ -29,8 +29,12 @@ export const DisplayMacroClusters = ({ afterAssign }) => {
 };
 
 const MacroClusterRows = ({ afterAssign }) => {
-  const { macroClusters, activeCluster, selectedMacroClusterIndex } =
-    useContext(StateContext);
+  const {
+    macroClusters,
+    activeCluster,
+    selectedMacroClusterIndex,
+    updateCounter
+  } = useContext(StateContext);
   const [clustersWithDistance, setClustersWithDistance] = useState([]);
   const [computing, setComputing] = useState(true);
   const [search, setSearch] = useState("");
@@ -42,7 +46,8 @@ const MacroClusterRows = ({ afterAssign }) => {
       );
       setComputing(false);
     }, 0);
-  }, [activeCluster, macroClusters]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeCluster.id, updateCounter]);
   // Reset search for each new cluster
   useEffect(() => {
     setSearch("");
