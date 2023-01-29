@@ -290,7 +290,7 @@ const Table = ({
   rows,
   prepareRow
 }) => (
-  <div className="fpc-table fpc-table--full-width">
+  <div className="fpc-table fpc-table--full-width fpc-scroll-shadow">
     <table {...getTableProps()} className="table table-striped">
       <thead>
         {headerGroups.map((headerGroup) => (
