@@ -2,6 +2,8 @@ import React, { useState, useEffect, useMemo } from "react";
 import { createRoot } from "react-dom/client";
 import Jsona from "jsona";
 import { getRequest } from "../fetch";
+import { useScreen } from "../useScreen";
+import { CollectedInksCardsPlaceholder } from "./cards";
 import { CollectedInksTable, CollectedInksTablePlaceholder } from "./table";
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -37,9 +39,14 @@ const CollectedInks = ({ archive }) => {
     [inks, archive]
   );
 
-  if (inks) {
-    return <CollectedInksTable data={visibleInks} archive={archive} />;
+  const screen = useScreen();
+  if (screen.isSmall) {
+    return <CollectedInksCardsPlaceholder />;
   } else {
-    return <CollectedInksTablePlaceholder />;
+    if (inks) {
+      return <CollectedInksTable data={visibleInks} archive={archive} />;
+    } else {
+      return <CollectedInksTablePlaceholder />;
+    }
   }
 };
