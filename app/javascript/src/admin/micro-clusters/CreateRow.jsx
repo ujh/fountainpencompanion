@@ -5,19 +5,20 @@ import { StateContext, DispatchContext, groupedInks } from "./App";
 import { UPDATING, ADD_MACRO_CLUSTER, REMOVE_MICRO_CLUSTER } from "./actions";
 import { assignCluster } from "./assignCluster";
 import { keyDownListener } from "./keyDownListener";
+import { useCallback } from "react";
 
 export const CreateRow = ({ afterCreate }) => {
   const { updating, activeCluster } = useContext(StateContext);
   const dispatch = useContext(DispatchContext);
   const values = computeValues(activeCluster);
-  const create = () => {
+  const create = useCallback(() => {
     createMacroClusterAndAssign(
       values,
       activeCluster.id,
       dispatch,
       afterCreate
     );
-  };
+  }, [activeCluster.id, afterCreate, dispatch, values]);
   const ignore = () => {
     ignoreCluster(activeCluster).then(
       dispatch({ type: REMOVE_MICRO_CLUSTER, payload: activeCluster })
@@ -36,7 +37,7 @@ export const CreateRow = ({ afterCreate }) => {
         window.open(url, "_blank");
       }
     });
-  }, [activeCluster.id]);
+  }, [create, values]);
   return (
     <tr>
       <th></th>

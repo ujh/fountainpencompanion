@@ -30,7 +30,7 @@ const CollectedInks = ({ archive }) => {
   }, []);
   const visibleInks = useMemo(
     () => (inks || []).filter((i) => i.archived == archive),
-    [inks]
+    [inks, archive]
   );
   if (inks) {
     return <CollectedInksTable data={visibleInks} archive={archive} />;
@@ -133,7 +133,7 @@ const CollectedInksTable = ({ data, archive }) => {
         Footer: (info) => {
           const counters = useMemo(() => {
             return _.countBy(info.rows, (row) => row.values["kind"]);
-          });
+          }, [info.rows]);
           return (
             <span>
               <Counter data={counters} field="bottle" />
@@ -209,7 +209,7 @@ const CollectedInksTable = ({ data, archive }) => {
         }
       }
     ],
-    [data]
+    []
   );
   const hiddenColumns = useMemo(() => {
     let hidden_columns = [
@@ -222,7 +222,7 @@ const CollectedInksTable = ({ data, archive }) => {
     ].filter((n) => !data.some((e) => e[n]));
     if (data.every((e) => e.tags.length == 0)) hidden_columns.push("tags");
     return hidden_columns;
-  }, []);
+  }, [data]);
   const {
     getTableProps,
     getTableBodyProps,
@@ -293,10 +293,13 @@ const Table = ({
   <div className="fpc-table fpc-table--full-width fpc-scroll-shadow">
     <table {...getTableProps()} className="table table-striped">
       <thead>
-        {headerGroups.map((headerGroup) => (
-          <tr {...headerGroup.getHeaderGroupProps()}>
-            {headerGroup.headers.map((column) => (
-              <th {...column.getHeaderProps(column.getSortByToggleProps())}>
+        {headerGroups.map((headerGroup, i) => (
+          <tr key={`thead-tr-${i}`} {...headerGroup.getHeaderGroupProps()}>
+            {headerGroup.headers.map((column, j) => (
+              <th
+                key={`thead-th-${i}-${j}`}
+                {...column.getHeaderProps(column.getSortByToggleProps())}
+              >
                 {column.render("Header")}
                 <span>
                   &nbsp;
@@ -320,12 +323,16 @@ const Table = ({
         {rows.map((row, i) => {
           prepareRow(row);
           return (
-            <tr {...row.getRowProps()}>
-              {row.cells.map((cell) => {
+            <tr key={`tbody-tr-${i}`} {...row.getRowProps()}>
+              {row.cells.map((cell, j) => {
                 let additionalProps = {};
                 if (cell.column.id == "color" && cell.value) {
                   return (
-                    <td {...cell.getCellProps()} {...additionalProps}>
+                    <td
+                      key={`thead-td-${i}-${j}`}
+                      {...cell.getCellProps()}
+                      {...additionalProps}
+                    >
                       <div
                         style={{
                           backgroundColor: cell.value,
@@ -339,7 +346,11 @@ const Table = ({
                   );
                 }
                 return (
-                  <td {...cell.getCellProps()} {...additionalProps}>
+                  <td
+                    key={`thead-td-${i}-${j}`}
+                    {...cell.getCellProps()}
+                    {...additionalProps}
+                  >
                     {cell.render("Cell")}
                   </td>
                 );
@@ -350,10 +361,16 @@ const Table = ({
         })}
       </tbody>
       <tfoot>
-        {footerGroups.map((group) => (
-          <tr className="align-top" {...group.getFooterGroupProps()}>
-            {group.headers.map((column) => (
-              <td {...column.getFooterProps()}>{column.render("Footer")}</td>
+        {footerGroups.map((group, i) => (
+          <tr
+            key={`tfoot-tr-${i}`}
+            className="align-top"
+            {...group.getFooterGroupProps()}
+          >
+            {group.headers.map((column, j) => (
+              <td key={`tfoot-td-${i}-${j}`} {...column.getFooterProps()}>
+                {column.render("Footer")}
+              </td>
             ))}
             <td></td>
           </tr>

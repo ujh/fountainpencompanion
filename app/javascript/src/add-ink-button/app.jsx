@@ -14,7 +14,7 @@ export const App = ({ macro_cluster_id }) => {
         setInCollection(json.data.length > 0);
         setLoading(false);
       });
-  }, []);
+  }, [macro_cluster_id]);
   if (loading) {
     return <Loader />;
   } else if (inCollection) {

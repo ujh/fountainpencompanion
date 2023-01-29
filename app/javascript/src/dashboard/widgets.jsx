@@ -63,7 +63,7 @@ const WidgetContent = ({ children, path, withLinks }) => {
       setData(data);
     }
     fetchData();
-  }, []);
+  }, [path]);
   const [elementWidth, setElementWidth] = useState(0);
   let content = <Loader withLinks={withLinks} />;
 

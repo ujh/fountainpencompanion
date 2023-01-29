@@ -138,6 +138,8 @@ const removeMicroCluster = (state, payload) => {
     state.selectedMicroClusters
   );
   if (selectedMicroClusters.length > 0) {
+    // TODO: figure out the intended behavior here
+    // eslint-disable-next-line no-self-assign
     selectedBrands = selectedBrands;
   } else {
     selectedBrands = [];

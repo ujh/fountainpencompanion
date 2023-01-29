@@ -24,7 +24,9 @@ export const App = () => {
   useEffect(() => {
     loadMicroClusters(dispatch);
   }, []);
-  loadMacroClusters(dispatch);
+  useEffect(() => {
+    loadMacroClusters(dispatch);
+  }, []);
   useEffect(() => {
     if (
       loadingMicroClusters ||
@@ -145,33 +147,31 @@ const loadMicroClusterPage = (page) => {
 };
 
 const loadMacroClusters = (dispatch) => {
-  useEffect(() => {
-    let data = [];
-    const formatter = new Jsona();
-    function run(page = 1) {
-      loadMacroClusterPage(page).then((json) => {
-        const pagination = json.meta.pagination;
-        dispatch({
-          type: SET_LOADING_PERCENTAGE,
-          payload: (pagination.current_page * 100) / pagination.total_pages
-        });
-        const next_page = json.meta.pagination.next_page;
-        const pageData = formatter.deserialize(json).map((c) => {
-          const grouped_collected_inks = groupedInks(
-            c.micro_clusters.map((c) => c.collected_inks).flat()
-          );
-          return { ...c, grouped_collected_inks };
-        });
-        data = [...data, ...pageData];
-        if (next_page) {
-          run(next_page);
-        } else {
-          dispatch({ type: SET_MACRO_CLUSTERS, payload: data });
-        }
+  let data = [];
+  const formatter = new Jsona();
+  function run(page = 1) {
+    loadMacroClusterPage(page).then((json) => {
+      const pagination = json.meta.pagination;
+      dispatch({
+        type: SET_LOADING_PERCENTAGE,
+        payload: (pagination.current_page * 100) / pagination.total_pages
       });
-    }
-    run();
-  }, []);
+      const next_page = json.meta.pagination.next_page;
+      const pageData = formatter.deserialize(json).map((c) => {
+        const grouped_collected_inks = groupedInks(
+          c.micro_clusters.map((c) => c.collected_inks).flat()
+        );
+        return { ...c, grouped_collected_inks };
+      });
+      data = [...data, ...pageData];
+      if (next_page) {
+        run(next_page);
+      } else {
+        dispatch({ type: SET_MACRO_CLUSTERS, payload: data });
+      }
+    });
+  }
+  run();
 };
 
 const loadMacroClusterPage = (page) => {
