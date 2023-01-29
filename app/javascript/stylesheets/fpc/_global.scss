@@ -10,6 +10,7 @@
   --fpc-muted-text-color: #{b.$gray-700};
   --fpc-background: #{b.$gray-100};
   --fpc-bright-background: #{b.$white};
+  --fpc-shadow-color: #{b.$black};
 
   background: var(--fpc-background);
   color: var(--fpc-text-color);
@@ -28,6 +29,7 @@
       --fpc-muted-text-color: #{b.$gray-300};
       --fpc-background: #{b.$gray-900};
       --fpc-bright-background: #{b.$black};
+      --fpc-shadow-color: #{b.$white};
     }
   }
 }
@@ -105,6 +107,16 @@
       margin-left: 5px;
     }
   }
+}
+
+.fpc-scroll-shadow {
+  overflow: auto;
+  max-width: 100%;
+  background: linear-gradient(to right, var(--fpc-background) 20%, transparent),
+    linear-gradient(to right, transparent, var(--fpc-background) 80%) 0 100%,
+    linear-gradient(to right, var(--fpc-shadow-color), transparent 20%),
+    linear-gradient(to left, var(--fpc-shadow-color), transparent 20%);
+  background-attachment: local, local, scroll, scroll;
 }
 
 .fpc-hint {
