@@ -8,7 +8,7 @@ import { CreateRow } from "./CreateRow";
 export const DisplayMicroCluster = ({ afterCreate }) => {
   const { activeCluster } = useContext(StateContext);
   return (
-    <div className="fpc-table fpc-table--full-width">
+    <div className="fpc-table fpc-table--full-width fpc-scroll-shadow">
       <table className="table">
         <thead>
           <CreateRow afterCreate={afterCreate} />
