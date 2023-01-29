@@ -1,7 +1,7 @@
 // @ts-check
 import React from "react";
 import { render } from "@testing-library/react";
-import { ActionsCell } from "../ActionsCell";
+import { ActionsCell } from "./ActionsCell";
 
 const setup = (jsx, options) => {
   return render(

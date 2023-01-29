@@ -1,7 +1,7 @@
 // @ts-check
 import React from "react";
 import { render } from "@testing-library/react";
-import { InkWithLink } from "../InkWithLink";
+import { InkWithLink } from "./InkWithLink";
 
 describe("<InkWithLink />", () => {
   it("renders a link if original ink ID is present", () => {

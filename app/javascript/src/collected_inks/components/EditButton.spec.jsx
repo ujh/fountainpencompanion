@@ -1,7 +1,7 @@
 // @ts-check
 import React from "react";
 import { render } from "@testing-library/react";
-import { EditButton } from "../EditButton";
+import { EditButton } from "./EditButton";
 
 describe("<EditButton />", () => {
   it("renders a button to archive if archived equals false", () => {

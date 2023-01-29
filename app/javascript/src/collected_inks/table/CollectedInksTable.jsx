@@ -1,11 +1,12 @@
 import React, { useMemo } from "react";
 import { useTable, useSortBy, useGlobalFilter } from "react-table";
 import _ from "lodash";
-import { booleanSort, colorSort, fuzzyMatch } from "./utils";
+import { InkWithLink } from "../components";
+import { fuzzyMatch } from "../match";
 import { Actions } from "./Actions";
 import { Counter } from "./Counter";
-import { InkWithLink } from "./InkWithLink";
 import { Table } from "./Table";
+import { booleanSort, colorSort } from "./sort";
 
 export const CollectedInksTable = ({ data, archive }) => {
   const columns = useMemo(

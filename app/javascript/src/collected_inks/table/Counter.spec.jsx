@@ -1,7 +1,7 @@
 // @ts-check
 import React from "react";
 import { render } from "@testing-library/react";
-import { Counter } from "../Counter";
+import { Counter } from "./Counter";
 
 describe("<Counter />", () => {
   it("renders the result if non-zero", () => {
