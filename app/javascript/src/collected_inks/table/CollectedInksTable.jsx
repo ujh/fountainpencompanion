@@ -131,7 +131,7 @@ export const CollectedInksTable = ({ data, archive }) => {
           return (
             <ul className="tags">
               {value.map((tag) => (
-                <li key={tag.id} className="tag">
+                <li key={tag.id} className="tag badge text-bg-secondary">
                   {tag.name}
                 </li>
               ))}
