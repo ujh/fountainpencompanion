@@ -144,6 +144,7 @@ export const CollectedInksTable = ({ data, archive }) => {
   );
   const hiddenColumns = useMemo(() => {
     let hidden_columns = [
+      "private",
       "private_comment",
       "comment",
       "maker",
