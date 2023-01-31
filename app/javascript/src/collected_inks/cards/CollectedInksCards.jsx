@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import {} from "react";
 import { Actions } from "../components";
 import { Cards } from "./Cards";
 import { fuzzyMatch } from "./match";
