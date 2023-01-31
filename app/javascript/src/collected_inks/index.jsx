@@ -1,8 +1,9 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useCallback, useState, useEffect, useMemo } from "react";
 import { createRoot } from "react-dom/client";
 import Jsona from "jsona";
 import { getRequest } from "../fetch";
 import { useScreen } from "../useScreen";
+import * as storage from "../localStorage";
 import { CollectedInksCards, CollectedInksCardsPlaceholder } from "./cards";
 import { CollectedInksTable, CollectedInksTablePlaceholder } from "./table";
 
@@ -44,15 +45,39 @@ const CollectedInks = ({ archive }) => {
   );
 
   const screen = useScreen();
-  if (screen.isSmall) {
+
+  const storageKey = "fpc-collected-inks-layout";
+  const [layout, setLayout] = useState(storage.getItem(storageKey));
+  const onLayoutChange = useCallback(
+    (e) => {
+      const nextLayout = e.target.value;
+      setLayout(nextLayout);
+      storage.setItem(storageKey, nextLayout);
+    },
+    [setLayout]
+  );
+
+  if (layout ? layout === "card" : screen.isSmall) {
     if (inks) {
-      return <CollectedInksCards data={visibleInks} archive={archive} />;
+      return (
+        <CollectedInksCards
+          data={visibleInks}
+          archive={archive}
+          onLayoutChange={onLayoutChange}
+        />
+      );
     } else {
       return <CollectedInksCardsPlaceholder />;
     }
   } else {
     if (inks) {
-      return <CollectedInksTable data={visibleInks} archive={archive} />;
+      return (
+        <CollectedInksTable
+          data={visibleInks}
+          archive={archive}
+          onLayoutChange={onLayoutChange}
+        />
+      );
     } else {
       return <CollectedInksTablePlaceholder />;
     }

@@ -79,6 +79,9 @@
     "modulePaths": [
       "<rootDir>/app/javascript/src"
     ],
+    "moduleNameMapper": {
+      "^.+\\.(css|scss)$": "<rootDir>/spec/javascript/support/identity-mapper.js"
+    },
     "setupFilesAfterEnv": [
       "<rootDir>/spec/javascript/support/setup.js"
     ],

@@ -16,8 +16,12 @@ describe("<Actions />", () => {
     const { getAllByRole } = setup(
       <Actions
         archive={false}
-        preGlobalFilteredRows={[]}
-        setGlobalFilter={() => {
+        activeLayout="table"
+        numberOfInks={0}
+        onFilterChange={() => {
+          return;
+        }}
+        onLayoutChange={() => {
           return;
         }}
       />
@@ -37,8 +41,12 @@ describe("<Actions />", () => {
     const { queryAllByRole } = setup(
       <Actions
         archive={true}
-        preGlobalFilteredRows={[]}
-        setGlobalFilter={() => {
+        activeLayout="card"
+        numberOfInks={0}
+        onFilterChange={() => {
+          return;
+        }}
+        onLayoutChange={() => {
           return;
         }}
       />
@@ -49,19 +57,23 @@ describe("<Actions />", () => {
     expect(links).toHaveLength(0);
   });
 
-  it("calls setGlobalFilter on change for the ink filter input field", async () => {
-    const setGlobalFilter = jest.fn();
+  it("calls onFilterChange on change for the ink filter input field", async () => {
+    const onFilterChange = jest.fn();
     const { user, getByRole } = setup(
       <Actions
         archive={true}
-        preGlobalFilteredRows={[]}
-        setGlobalFilter={setGlobalFilter}
+        activeLayout="table"
+        numberOfInks={0}
+        onFilterChange={onFilterChange}
+        onLayoutChange={() => {
+          return;
+        }}
       />
     );
 
     const input = getByRole("textbox");
     await user.type(input, "p");
 
-    expect(setGlobalFilter).toHaveBeenCalledWith("p");
+    expect(onFilterChange).toHaveBeenCalledWith("p");
   });
 });

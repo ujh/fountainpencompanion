@@ -2,13 +2,13 @@ import React, { useMemo } from "react";
 import { useTable, useSortBy, useGlobalFilter } from "react-table";
 import _ from "lodash";
 import { fuzzyMatch } from "./match";
-import { Actions } from "./Actions";
+import { Actions } from "../components";
 import { Counter } from "./Counter";
 import { InkWithLink } from "./InkWithLink";
 import { Table } from "./Table";
 import { booleanSort, colorSort } from "./sort";
 
-export const CollectedInksTable = ({ data, archive }) => {
+export const CollectedInksTable = ({ data, archive, onLayoutChange }) => {
   const columns = useMemo(
     () => [
       {
@@ -162,7 +162,6 @@ export const CollectedInksTable = ({ data, archive }) => {
     footerGroups,
     rows,
     prepareRow,
-    state,
     preGlobalFilteredRows,
     setGlobalFilter
   } = useTable(
@@ -184,9 +183,10 @@ export const CollectedInksTable = ({ data, archive }) => {
     <div>
       <Actions
         archive={archive}
-        preGlobalFilteredRows={preGlobalFilteredRows}
-        globalFilter={state.globalFilter}
-        setGlobalFilter={setGlobalFilter}
+        activeLayout="table"
+        numberOfInks={preGlobalFilteredRows.length}
+        onFilterChange={setGlobalFilter}
+        onLayoutChange={onLayoutChange}
       />
       <Table
         getTableProps={getTableProps}
