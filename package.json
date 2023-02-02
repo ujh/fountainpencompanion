@@ -53,6 +53,7 @@
     "@prettier/plugin-ruby": "^3.2.2",
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^13.4.0",
+    "@testing-library/user-event": "^14.4.3",
     "eslint": "^8.33.0",
     "eslint-plugin-prettier": "^4.2.1",
     "eslint-plugin-react": "^7.32.2",
@@ -78,6 +79,9 @@
     "modulePaths": [
       "<rootDir>/app/javascript/src"
     ],
+    "moduleNameMapper": {
+      "^.+\\.(css|scss)$": "<rootDir>/spec/javascript/support/identity-mapper.js"
+    },
     "setupFilesAfterEnv": [
       "<rootDir>/spec/javascript/support/setup.js"
     ],

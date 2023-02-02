@@ -85,16 +85,13 @@ form.new_collected_ink {
 }
 
 ul.tags {
-  display: inline;
   list-style: none;
   padding: 0px;
   li.tag {
-    display: inline;
-    &::after {
-      content: ", ";
-    }
-    &:last-child::after {
-      content: "";
-    }
+    display: inline-flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 4px;
+    text-transform: capitalize;
   }
 }

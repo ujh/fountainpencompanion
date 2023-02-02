@@ -1,5 +1,11 @@
 import convert from "color-convert";
 
+/**
+ *
+ * @param {string} colorARGB
+ * @param {string} colorBRGB
+ * @returns {number}
+ */
 export const colorSort = (colorARGB, colorBRGB) => {
   if (!colorARGB) return 1;
   if (!colorBRGB) return -1;
