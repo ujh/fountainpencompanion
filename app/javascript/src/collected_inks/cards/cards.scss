@@ -1,8 +1,6 @@
-@use "~bootstrap/scss/bootstrap" as b;
-
 .fpc-ink-cards {
   display: grid;
-  gap: b.$spacer;
+  gap: 1rem;
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
   grid-template-rows: masonry;
 }
