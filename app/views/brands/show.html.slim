@@ -23,7 +23,8 @@ div class="fpc-table fpc-table--full-width fpc-inks-table fpc-scroll-shadow"
           td= ink.collected_inks_count
           td= ink.brand_name
           td= ink.line_name
-          td style="background-color:#{ink.color};width: 37px;"
+          td
+            div style="background-color:#{ink.color};width:45px;height:45px;"
           td= ink.ink_name
           td= link_to "Details", brand_ink_url(@brand, ink)
           - if user_signed_in?

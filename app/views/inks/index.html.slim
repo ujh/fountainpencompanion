@@ -2,7 +2,7 @@
 
 = render partial: 'inks/search'
 
-div class="fpc-table fpc-table--full-width fpc-scroll-shadow"
+div class="fpc-table fpc-table--full-width fpc-inks-table fpc-scroll-shadow"
   table class="table table-striped"
     thead
       tr
@@ -17,7 +17,8 @@ div class="fpc-table fpc-table--full-width fpc-scroll-shadow"
         tr
           td= ink.brand_name
           td= ink.line_name
-          td style="background-color:#{ink.color};width: 37px;"
+          td
+            div style="background-color:#{ink.color};width:45px;height:45px;"
           td= ink.ink_name
           td
             - if ink.brand_cluster.present?
