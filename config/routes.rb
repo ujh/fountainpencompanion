@@ -74,6 +74,7 @@ Rails.application.routes.draw do
       resources :brands, only: [:index]
       resources :lines, only: [:index]
       resources :inks, only: [:index]
+      resources :collected_pens, only: [:index]
     end
   end
 

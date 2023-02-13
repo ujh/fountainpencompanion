@@ -80,7 +80,7 @@ describe CollectedPen do
 
     it "has a header row" do
       expect(described_class.none.to_csv).to eq(
-        "Brand;Model;Nib;Color;Comment;Archived;Archived On;Usage;Last Inked;Last Cleaned\n"
+        "Brand;Model;Nib;Color;Comment;Archived;Archived On;Usage;Daily Usage;Last Inked;Last Cleaned;Last Used;Inked\n"
       )
     end
 
@@ -140,6 +140,126 @@ describe CollectedPen do
         archived_on: Date.today
       )
       expect(entry["Usage"]).to eq("2")
+    end
+  end
+
+  describe "#usage_count" do
+    subject(:pen) { create(:collected_pen) }
+
+    it "returns the correct number" do
+      ci = create(:currently_inked, collected_pen: pen)
+      expect(pen.usage_count).to eq(1)
+    end
+
+    it "works when there are no entries" do
+      expect(pen.usage_count).to eq(0)
+    end
+  end
+
+  describe "#daily_usage_count" do
+    subject(:pen) { create(:collected_pen) }
+
+    it "returns the correct number" do
+      ci = create(:currently_inked, collected_pen: pen)
+      create(:usage_record, currently_inked: ci)
+      expect(pen.daily_usage_count).to eq(1)
+    end
+
+    it "works when there are no entries" do
+      expect(pen.daily_usage_count).to eq(0)
+    end
+  end
+
+  describe "#last_inked" do
+    subject(:pen) { create(:collected_pen) }
+
+    it "returns the correct date" do
+      ci =
+        create(
+          :currently_inked,
+          collected_pen: pen,
+          inked_on: 10.days.ago,
+          archived_on: 3.days.ago
+        )
+      ci = create(:currently_inked, collected_pen: pen, inked_on: 2.days.ago)
+
+      expect(pen.last_inked).to eq(2.days.ago.to_date)
+    end
+
+    it "works when there are no entries" do
+      expect(pen.last_inked).to eq(nil)
+    end
+  end
+
+  describe "#last_cleaned" do
+    subject(:pen) { create(:collected_pen) }
+
+    it "returns the correct date" do
+      ci =
+        create(
+          :currently_inked,
+          collected_pen: pen,
+          inked_on: 10.days.ago,
+          archived_on: 3.days.ago
+        )
+      ci =
+        create(
+          :currently_inked,
+          collected_pen: pen,
+          inked_on: 2.days.ago,
+          archived_on: 1.day.ago
+        )
+
+      expect(pen.last_cleaned).to eq(1.day.ago.to_date)
+    end
+
+    it "returns nil when still inked" do
+      ci = create(:currently_inked, collected_pen: pen, inked_on: 2.days.ago)
+      expect(pen.last_cleaned).to eq(nil)
+    end
+
+    it "works when there are no entries" do
+      expect(pen.last_cleaned).to eq(nil)
+    end
+  end
+
+  describe "#last_used_on" do
+    subject(:pen) { create(:collected_pen) }
+
+    it "returns the correct date" do
+      ci = create(:currently_inked, collected_pen: pen)
+      create(:usage_record, currently_inked: ci, used_on: 2.days.ago)
+
+      expect(pen.last_used_on).to eq(2.days.ago.to_date)
+    end
+
+    it "works when there are no entries" do
+      expect(pen.last_used_on).to eq(nil)
+    end
+  end
+
+  describe "#inked?" do
+    subject(:pen) { create(:collected_pen) }
+
+    it "returns true when there is an active currently inked entry" do
+      create(:currently_inked, collected_pen: pen)
+
+      expect(pen).to be_inked
+    end
+
+    it "returns false when there is an archived currently inked entry" do
+      create(
+        :currently_inked,
+        collected_pen: pen,
+        inked_on: 2.days.ago,
+        archived_on: 1.day.ago
+      )
+
+      expect(pen).not_to be_inked
+    end
+
+    it "works when there are no entries" do
+      expect(pen).not_to be_inked
     end
   end
 end

@@ -6,11 +6,17 @@ class CollectedPen < ApplicationRecord
 
   belongs_to :user
   has_many :currently_inkeds
+  has_many :usage_records, through: :currently_inkeds
+  has_one :newest_currently_inked,
+          -> { order("inked_on desc") },
+          class_name: "CurrentlyInked"
 
   validates :brand, length: { in: 1..100 }
   validates :color, length: { in: 0..100, allow_blank: true }
   validates :model, length: { in: 1..100 }
   validates :nib, length: { in: 1..100, allow_blank: true }
+
+  paginates_per 500
 
   def self.search(field, term)
     where("#{field} like ?", "%#{term}%").order(field).pluck(field).uniq
@@ -27,18 +33,13 @@ class CollectedPen < ApplicationRecord
         "Archived",
         "Archived On",
         "Usage",
+        "Daily Usage",
         "Last Inked",
-        "Last Cleaned"
+        "Last Cleaned",
+        "Last Used",
+        "Inked"
       ]
       all.each do |cp|
-        usage_count = cp.currently_inkeds.length
-        last_inked = nil
-        last_cleaned = nil
-        if usage_count > 0
-          entry = cp.currently_inkeds.order(:inked_on).last
-          last_inked = entry.inked_on
-          last_cleaned = entry.archived_on
-        end
         csv << [
           cp.brand,
           cp.model,
@@ -47,12 +48,39 @@ class CollectedPen < ApplicationRecord
           cp.comment,
           cp.archived?,
           cp.archived_on,
-          usage_count,
-          last_inked,
-          last_cleaned
+          cp.usage_count,
+          cp.daily_usage_count,
+          cp.last_inked,
+          cp.last_cleaned,
+          cp.last_used_on,
+          cp.inked?
         ]
       end
     end
+  end
+
+  def usage_count
+    currently_inkeds.size
+  end
+
+  def daily_usage_count
+    usage_records.size
+  end
+
+  def last_inked
+    newest_currently_inked&.inked_on
+  end
+
+  def last_cleaned
+    newest_currently_inked&.archived_on
+  end
+
+  def last_used_on
+    newest_currently_inked&.last_used_on
+  end
+
+  def inked?
+    newest_currently_inked&.active?
   end
 
   def name
