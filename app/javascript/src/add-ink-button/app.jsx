@@ -2,7 +2,7 @@ import React from "react";
 import { useState, useEffect } from "react";
 import { getRequest, postRequest } from "../fetch";
 
-export const App = ({ macro_cluster_id }) => {
+export const App = ({ macro_cluster_id, details }) => {
   const [loading, setLoading] = useState(true);
   const [inCollection, setInCollection] = useState(false);
   useEffect(() => {
@@ -17,23 +17,18 @@ export const App = ({ macro_cluster_id }) => {
   }, [macro_cluster_id]);
   if (loading) {
     return <Loader />;
-  } else if (inCollection) {
-    // Add a hidden button to make the table row the same height as the others
-    return (
-      <div
-        className="btn"
-        style={{ visibility: "hidden" }}
-        data-testid="ink-in-collection"
-      >
-        &nbsp;
-      </div>
-    );
   } else {
-    return <ActualInkAddButton macro_cluster_id={macro_cluster_id} />;
+    return (
+      <ActualInkAddButton
+        macro_cluster_id={macro_cluster_id}
+        inCollection={inCollection}
+        detailView={details}
+      />
+    );
   }
 };
 
-const ActualInkAddButton = ({ macro_cluster_id }) => {
+const ActualInkAddButton = ({ macro_cluster_id, inCollection, detailView }) => {
   const [state, setState] = useState(null);
   const [kind, setKind] = useState("bottle");
   const add = () => {
@@ -85,14 +80,29 @@ const ActualInkAddButton = ({ macro_cluster_id }) => {
         </div>
       );
     default:
-      return (
-        <div
-          className="btn btn-secondary"
-          onClick={() => setState("pick-kind")}
-        >
-          Add to collection
-        </div>
-      );
+      if (inCollection) {
+        return (
+          <div
+            className="btn btn-success"
+            onClick={() => setState("pick-kind")}
+          >
+            <i className="fa fa-check" />
+            &nbsp;{" "}
+            {detailView
+              ? "Add additional entries to collection?"
+              : "Add again?"}
+          </div>
+        );
+      } else {
+        return (
+          <div
+            className="btn btn-secondary"
+            onClick={() => setState("pick-kind")}
+          >
+            Add to collection
+          </div>
+        );
+      }
   }
 };
 

@@ -26,7 +26,7 @@ div class="row fpc-ink-details"
             td Average Color
             td style="background-color:#{@ink.color};"
     - if user_signed_in?
-      div class="fpc-add-ink-button" data={ "macro-cluster-id" => @ink.id }
+      div class="fpc-add-ink-button" data={ "macro-cluster-id" => @ink.id, "details" => "true" }
 
   div class="col-sm-12 col-md-6"
     h3 class="h4" Colors for this ink
