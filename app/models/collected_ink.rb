@@ -12,9 +12,9 @@ class CollectedInk < ApplicationRecord
   validates :line_name, length: { in: 1..100, allow_blank: true }
 
   validate :color_valid
-  validate :unique_constraint
 
   before_save :simplify
+  before_save :add_comment
 
   belongs_to :user
   has_many :currently_inkeds
@@ -179,23 +179,32 @@ class CollectedInk < ApplicationRecord
 
   private
 
-  def unique_constraint
+  def add_comment
     unless changed.any? { |c| %w[brand_name line_name ink_name].include?(c) }
       return
     end
+    return unless comment.blank?
+
     rel =
       self
-        .class
+        .user
+        .collected_inks
         .where(
           "LOWER(brand_name) = ? AND LOWER(line_name) = ? AND LOWER(ink_name) = ?",
           brand_name.to_s.downcase,
           line_name.to_s.downcase,
           ink_name.to_s.downcase
         )
-        .where(user_id: user_id)
         .where(kind: kind)
     rel = rel.where("id <> ?", id) if persisted?
-    errors.add(:ink_name, "Duplicate!") if rel.exists?
+
+    if rel.exists?
+      self.comment = [
+        kind.capitalize.presence,
+        "no.",
+        rel.count + 1
+      ].compact.join(" ")
+    end
   end
 
   def simplify
