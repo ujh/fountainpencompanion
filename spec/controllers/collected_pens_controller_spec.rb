@@ -49,8 +49,11 @@ describe CollectedPensController do
               "Archived",
               "Archived On",
               "Usage",
+              "Daily Usage",
               "Last Inked",
-              "Last Cleaned"
+              "Last Cleaned",
+              "Last Used",
+              "Inked"
             ]
             [custom74, wing_sung].each do |cp|
               csv << [
@@ -62,6 +65,9 @@ describe CollectedPensController do
                 cp.archived?,
                 cp.archived_on,
                 0,
+                0,
+                nil,
+                nil,
                 nil,
                 nil
               ]

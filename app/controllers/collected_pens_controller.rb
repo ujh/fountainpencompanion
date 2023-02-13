@@ -13,7 +13,11 @@ class CollectedPensController < ApplicationController
         pens =
           current_user
             .collected_pens
-            .includes(:currently_inkeds)
+            .includes(
+              :currently_inkeds,
+              :usage_records,
+              newest_currently_inked: :last_usage
+            )
             .order("brand, model, nib, color, comment")
         send_data pens.to_csv, type: "text/csv", filename: "collected_pens.csv"
       end
