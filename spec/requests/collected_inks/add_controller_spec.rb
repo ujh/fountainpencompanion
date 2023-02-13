@@ -25,12 +25,14 @@ describe CollectedInks::AddController do
         expect(ink.kind).to eq("bottle")
       end
 
-      it "only adds the ink once" do
+      it "adds the second ink with a comment" do
         expect do
           post "/collected_inks/add.json?macro_cluster_id=#{macro_cluster.id}&kind=bottle"
           post "/collected_inks/add.json?macro_cluster_id=#{macro_cluster.id}&kind=bottle"
           expect(response).to have_http_status(:created)
-        end.to change { user.collected_inks.count }.by(1)
+        end.to change { user.collected_inks.count }.by(2)
+        ink = CollectedInk.last
+        expect(ink.comment).to be_present
       end
     end
   end

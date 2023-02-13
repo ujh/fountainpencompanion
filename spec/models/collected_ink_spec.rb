@@ -31,55 +31,79 @@ describe CollectedInk do
     end
   end
 
-  describe "uniqueness" do
-    let(:existing_ink) { create(:collected_ink, ink_name: "Syrah") }
+  describe "comment" do
+    let(:existing_ink) do
+      create(:collected_ink, kind: "bottle", ink_name: "Syrah")
+    end
 
-    it "is not allowed to create a duplicate collected ink for the same user" do
+    it "adds a comment for the new ink" do
       new_ink =
-        CollectedInk.new(
+        CollectedInk.create!(
           user_id: existing_ink.user_id,
           brand_name: existing_ink.brand_name,
           line_name: existing_ink.line_name,
           ink_name: existing_ink.ink_name,
           kind: existing_ink.kind
         )
-      expect(new_ink).to_not be_valid
+      expect(new_ink.comment).to eq("Bottle no. 2")
     end
 
-    it "is allowed to have the same ink with a different kind" do
-      existing_ink.update!(kind: "bottle")
+    it "does not add a comment for another kind" do
       new_ink =
-        CollectedInk.new(
+        CollectedInk.create!(
           user_id: existing_ink.user_id,
           brand_name: existing_ink.brand_name,
           line_name: existing_ink.line_name,
           ink_name: existing_ink.ink_name,
           kind: "sample"
         )
-      expect(new_ink).to be_valid
+      expect(new_ink.comment).to be_blank
     end
 
-    it "is allowed to create the same ink for another user" do
+    it "does not add a comment for a different user" do
       new_ink =
-        CollectedInk.new(
+        CollectedInk.create!(
           user_id: create(:user).id,
           brand_name: existing_ink.brand_name,
           line_name: existing_ink.line_name,
           ink_name: existing_ink.ink_name
         )
-      expect(new_ink).to be_valid
+      expect(new_ink.comment).to be_blank
     end
 
-    it "is not allowed to create a collected ink that only differs in case" do
+    it "adds a comment if the only difference is in the case" do
       new_ink =
-        CollectedInk.new(
+        CollectedInk.create!(
           user_id: existing_ink.user_id,
           brand_name: existing_ink.brand_name.upcase,
           line_name: existing_ink.line_name,
           ink_name: existing_ink.ink_name,
           kind: existing_ink.kind
         )
-      expect(new_ink).to_not be_valid
+      expect(new_ink.comment).to eq("Bottle no. 2")
+    end
+
+    it "adds a comment if the name gets changed to be a duplicate" do
+      new_ink = create(:collected_ink, user: existing_ink.user, comment: "")
+      new_ink.update!(
+        brand_name: existing_ink.brand_name,
+        line_name: existing_ink.line_name,
+        ink_name: existing_ink.ink_name
+      )
+      expect(new_ink.comment).to eq("Bottle no. 2")
+    end
+
+    it "does not add a comment if there is already a comment" do
+      new_ink =
+        CollectedInk.create!(
+          user_id: existing_ink.user_id,
+          brand_name: existing_ink.brand_name,
+          line_name: existing_ink.line_name,
+          ink_name: existing_ink.ink_name,
+          kind: existing_ink.kind,
+          comment: "existing comment"
+        )
+      expect(new_ink.comment).to eq("existing comment")
     end
   end
 
