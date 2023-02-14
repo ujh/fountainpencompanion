@@ -170,6 +170,40 @@ describe Api::V1::CurrentlyInkedController do
           }
         )
       end
+
+      it "can return only archived entries" do
+        archived = create(:currently_inked, user: user, archived_on: 1.day.ago)
+        active = create(:currently_inked, user: user)
+
+        get "/api/v1/currently_inked",
+            params: {
+              filter: {
+                archived: "true"
+              }
+            },
+            headers: {
+              "ACCEPT" => "application/json"
+            }
+
+        expect(json).to include(data: [hash_including(id: archived.id.to_s)])
+      end
+
+      it "can return only active entries" do
+        archived = create(:currently_inked, user: user, archived_on: 1.day.ago)
+        active = create(:currently_inked, user: user)
+
+        get "/api/v1/currently_inked",
+            params: {
+              filter: {
+                archived: "false"
+              }
+            },
+            headers: {
+              "ACCEPT" => "application/json"
+            }
+
+        expect(json).to include(data: [hash_including(id: active.id.to_s)])
+      end
     end
   end
 end
