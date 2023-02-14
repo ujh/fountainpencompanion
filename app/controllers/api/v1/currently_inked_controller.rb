@@ -11,16 +11,26 @@ class Api::V1::CurrentlyInkedController < Api::V1::BaseController
 
   def currently_inkeds
     @currently_inkeds ||=
-      current_user
-        .currently_inkeds
-        .includes(
-          :usage_records,
-          :collected_pen,
-          :last_usage,
-          collected_ink: :micro_cluster
-        )
-        .page(params.dig(:page, :number))
-        .per(params.dig(:page, :size))
+      begin
+        relation =
+          current_user.currently_inkeds.includes(
+            :usage_records,
+            :collected_pen,
+            :last_usage,
+            collected_ink: :micro_cluster
+          )
+        relation = filter(relation)
+        relation.page(params.dig(:page, :number)).per(params.dig(:page, :size))
+      end
+  end
+
+  def filter(rel)
+    relation = rel
+    if archived = params.dig(:filter, :archived)
+      relation = relation.archived if archived == "true"
+      relation = relation.active if archived == "false"
+    end
+    relation
   end
 
   def options

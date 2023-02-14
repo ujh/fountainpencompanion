@@ -114,6 +114,40 @@ describe Api::V1::CollectedPensController do
           ]
         )
       end
+
+      it "can return only archived entries" do
+        active = create(:collected_pen, user: user)
+        archived = create(:collected_pen, user: user, archived_on: 2.days.ago)
+
+        get "/api/v1/collected_pens",
+            params: {
+              filter: {
+                archived: "true"
+              }
+            },
+            headers: {
+              "ACCEPT" => "application/json"
+            }
+
+        expect(json).to include(data: [hash_including(id: archived.id.to_s)])
+      end
+
+      it "can return only active entries" do
+        active = create(:collected_pen, user: user)
+        archived = create(:collected_pen, user: user, archived_on: 2.days.ago)
+
+        get "/api/v1/collected_pens",
+            params: {
+              filter: {
+                archived: "false"
+              }
+            },
+            headers: {
+              "ACCEPT" => "application/json"
+            }
+
+        expect(json).to include(data: [hash_including(id: active.id.to_s)])
+      end
     end
   end
 end

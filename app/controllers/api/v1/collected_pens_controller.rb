@@ -11,16 +11,28 @@ class Api::V1::CollectedPensController < Api::V1::BaseController
 
   def collected_pens
     @collected_pens ||=
-      current_user
-        .collected_pens
-        .includes(
-          :currently_inkeds,
-          :usage_records,
-          newest_currently_inked: :last_usage
-        )
-        .order("brand, model, nib, color, comment")
-        .page(params.dig(:page, :number))
-        .per(params.dig(:page, :size))
+      begin
+        relation =
+          current_user
+            .collected_pens
+            .includes(
+              :currently_inkeds,
+              :usage_records,
+              newest_currently_inked: :last_usage
+            )
+            .order("brand, model, nib, color, comment")
+        relation = filter(relation)
+        relation.page(params.dig(:page, :number)).per(params.dig(:page, :size))
+      end
+  end
+
+  def filter(rel)
+    relation = rel
+    if archived = params.dig(:filter, :archived)
+      relation = relation.archived if archived == "true"
+      relation = relation.active if archived == "false"
+    end
+    relation
   end
 
   def options
