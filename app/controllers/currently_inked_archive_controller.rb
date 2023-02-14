@@ -1,7 +1,6 @@
 class CurrentlyInkedArchiveController < ApplicationController
   before_action :authenticate_user!
   before_action :retrieve_record, only: %i[edit update destroy unarchive]
-  before_action :set_used_pen_ids, only: [:index]
 
   add_breadcrumb "Currently inked", :currently_inked_index_path
   add_breadcrumb "Archive", :currently_inked_archive_index_path
@@ -11,7 +10,12 @@ class CurrentlyInkedArchiveController < ApplicationController
       current_user
         .currently_inkeds
         .archived
-        .includes(:collected_pen, :collected_ink)
+        .includes(
+          :collected_pen,
+          collected_ink: {
+            micro_cluster: :macro_cluster
+          }
+        )
         .order("archived_on DESC, created_at DESC")
         .page(params[:page])
         .per(50)
@@ -56,10 +60,5 @@ class CurrentlyInkedArchiveController < ApplicationController
 
   def retrieve_record
     @record = current_user.currently_inkeds.find(params[:id])
-  end
-
-  def set_used_pen_ids
-    @used_pen_ids =
-      current_user.currently_inkeds.active.pluck(:collected_pen_id)
   end
 end

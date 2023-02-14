@@ -75,6 +75,7 @@ Rails.application.routes.draw do
       resources :lines, only: [:index]
       resources :inks, only: [:index]
       resources :collected_pens, only: [:index]
+      resources :currently_inked, only: [:index]
     end
   end
 

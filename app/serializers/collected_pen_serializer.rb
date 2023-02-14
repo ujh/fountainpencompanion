@@ -1,6 +1,8 @@
 class CollectedPenSerializer
   include JSONAPI::Serializer
 
+  has_many :currently_inkeds
+
   attribute :brand
   attribute :model
   attribute :nib
