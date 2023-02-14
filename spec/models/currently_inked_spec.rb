@@ -293,4 +293,40 @@ describe CurrentlyInked do
       )
     end
   end
+
+  describe "#daily_usage_count" do
+    subject(:currently_inked) { create(:currently_inked) }
+
+    it "returns the correct number" do
+      create(:usage_record, currently_inked: currently_inked)
+
+      expect(currently_inked.daily_usage_count).to eq(1)
+    end
+
+    it "works when there are no records" do
+      expect(currently_inked.daily_usage_count).to eq(0)
+    end
+  end
+
+  describe "#unarchivable?" do
+    subject(:currently_inked) do
+      create(:currently_inked, archived_on: 1.day.ago)
+    end
+
+    it "returns true if the pen is unused and in the collection" do
+      expect(currently_inked).to be_unarchivable
+    end
+
+    it "returns false if the pen has been archived" do
+      currently_inked.collected_pen.archive!
+
+      expect(currently_inked).not_to be_unarchivable
+    end
+
+    it "returns false if the pen is in use in another currently inked entry" do
+      create(:currently_inked, collected_pen: currently_inked.collected_pen)
+
+      expect(currently_inked).not_to be_unarchivable
+    end
+  end
 end

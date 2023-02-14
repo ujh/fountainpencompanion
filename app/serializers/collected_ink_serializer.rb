@@ -3,6 +3,7 @@ class CollectedInkSerializer
 
   belongs_to :micro_cluster
   has_many :tags
+  has_many :currently_inkeds
 
   attribute :brand_name
   attribute :line_name

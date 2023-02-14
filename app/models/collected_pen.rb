@@ -17,6 +17,7 @@ class CollectedPen < ApplicationRecord
   validates :nib, length: { in: 1..100, allow_blank: true }
 
   paginates_per 500
+  max_paginates_per 500
 
   def self.search(field, term)
     where("#{field} like ?", "%#{term}%").order(field).pluck(field).uniq

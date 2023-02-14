@@ -7,6 +7,9 @@ class CurrentlyInked < ApplicationRecord
   class NotRefillable < StandardError
   end
 
+  paginates_per 100
+  max_paginates_per 100
+
   belongs_to :collected_ink, counter_cache: true
   belongs_to :collected_pen
   belongs_to :user
@@ -61,6 +64,10 @@ class CurrentlyInked < ApplicationRecord
     )
   end
 
+  def daily_usage_count
+    usage_records.size
+  end
+
   def refillable?
     collected_ink.active? && collected_pen.active?
   end
@@ -88,8 +95,9 @@ class CurrentlyInked < ApplicationRecord
     )
   end
 
-  def unarchivable?(ids)
-    !ids.include?(collected_pen_id)
+  def unarchivable?
+    ids ||= user.currently_inkeds.active.pluck(:collected_pen_id)
+    !ids.include?(collected_pen_id) && collected_pen.active?
   end
 
   def collected_pens_for_active_select
