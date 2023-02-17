@@ -52,7 +52,7 @@
     "@babel/eslint-parser": "^7.19.1",
     "@prettier/plugin-ruby": "^3.2.2",
     "@testing-library/jest-dom": "^5.16.5",
-    "@testing-library/react": "^13.4.0",
+    "@testing-library/react": "^14.0.0",
     "@testing-library/user-event": "^14.4.3",
     "eslint": "^8.34.0",
     "eslint-plugin-prettier": "^4.2.1",
