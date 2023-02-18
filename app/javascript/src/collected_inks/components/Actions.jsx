@@ -2,14 +2,17 @@ import _ from "lodash";
 import React, { useCallback, useState } from "react";
 import { LayoutToggle } from "../../components";
 import "./actions.scss";
+import { Switch } from "./Switch";
 
 /**
- * @param {{ archive: boolean; activeLayout: "card" | "table"; numberOfInks: number; onFilterChange: (val: string | undefined) => void; onLayoutChange: (e: import('react').ChangeEvent) => void; }} props
+ * @param {{ archive: boolean; activeLayout: "card" | "table"; numberOfInks: number; hiddenFields: string[]; onHiddenFieldsChange: (newValues: string[]) => void; onFilterChange: (val: string | undefined) => void; onLayoutChange: (e: import('react').ChangeEvent) => void; }} props
  */
 export const Actions = ({
   archive,
   activeLayout,
   numberOfInks,
+  hiddenFields,
+  onHiddenFieldsChange,
   onFilterChange,
   onLayoutChange
 }) => {
@@ -25,10 +28,115 @@ export const Actions = ({
     [onFilterChange, numberOfInks]
   );
 
+  const isSwitchedOn = useCallback(
+    (field) => !hiddenFields.includes(field),
+    [hiddenFields]
+  );
+
+  const onSwitchChange = useCallback(
+    (checked, field) => {
+      if (checked) {
+        const newHiddenFields = hiddenFields.filter((f) => f !== field);
+        onHiddenFieldsChange(newHiddenFields);
+      } else {
+        const newHiddenFields = [...hiddenFields, field];
+        onHiddenFieldsChange(newHiddenFields);
+      }
+    },
+    [hiddenFields, onHiddenFieldsChange]
+  );
+
   return (
     <div>
       <div className="fpc-inks-actions">
         <LayoutToggle activeLayout={activeLayout} onChange={onLayoutChange} />
+        <div className="dropdown">
+          <button
+            type="button"
+            title="Configure visible fields"
+            className="btn btn-sm btn-outline-secondary dropdown-toggle"
+            data-bs-toggle="dropdown"
+            aria-expanded="false"
+            data-bs-auto-close="outside"
+          >
+            <i className="fa fa-cog"></i>
+          </button>
+          <form className="dropdown-menu p-4">
+            <div className="mb-2">
+              <Switch
+                checked={isSwitchedOn("private")}
+                onChange={(e) => onSwitchChange(e.target.checked, "private")}
+              >
+                Show&nbsp;private
+              </Switch>
+              <Switch
+                checked={isSwitchedOn("maker")}
+                onChange={(e) => onSwitchChange(e.target.checked, "maker")}
+              >
+                Show&nbsp;maker
+              </Switch>
+              <Switch
+                checked={isSwitchedOn("kind")}
+                onChange={(e) => onSwitchChange(e.target.checked, "kind")}
+              >
+                Show&nbsp;type
+              </Switch>
+              <Switch
+                checked={isSwitchedOn("swabbed")}
+                onChange={(e) => onSwitchChange(e.target.checked, "swabbed")}
+              >
+                Show&nbsp;swabbed
+              </Switch>
+              <Switch
+                checked={isSwitchedOn("used")}
+                onChange={(e) => onSwitchChange(e.target.checked, "used")}
+              >
+                Show&nbsp;used
+              </Switch>
+              <Switch
+                checked={isSwitchedOn("usage")}
+                onChange={(e) => onSwitchChange(e.target.checked, "usage")}
+              >
+                Show&nbsp;usage
+              </Switch>
+              <Switch
+                checked={isSwitchedOn("daily_usage")}
+                onChange={(e) =>
+                  onSwitchChange(e.target.checked, "daily_usage")
+                }
+              >
+                Show&nbsp;daily&nbsp;usage
+              </Switch>
+              <Switch
+                checked={isSwitchedOn("comment")}
+                onChange={(e) => onSwitchChange(e.target.checked, "comment")}
+              >
+                Show&nbsp;comment
+              </Switch>
+              <Switch
+                checked={isSwitchedOn("private_comment")}
+                onChange={(e) =>
+                  onSwitchChange(e.target.checked, "private_comment")
+                }
+              >
+                Show&nbsp;private&nbsp;comment
+              </Switch>
+              <Switch
+                checked={isSwitchedOn("tags")}
+                onChange={(e) => onSwitchChange(e.target.checked, "tags")}
+              >
+                Show&nbsp;tags
+              </Switch>
+            </div>
+            <button
+              type="button"
+              className="btn btn-sm btn-link p-0 mt-2"
+              onClick={() => onHiddenFieldsChange(null)}
+            >
+              Restore defaults
+            </button>
+          </form>
+        </div>
       </div>
       <div className="d-flex flex-wrap justify-content-end align-items-center mb-3">
         {!archive && (

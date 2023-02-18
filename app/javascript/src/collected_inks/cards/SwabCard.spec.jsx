@@ -20,6 +20,7 @@ describe("<SwabCard />", () => {
         brand_name="Pilot"
         ink_name="Blue"
         private={true}
+        hiddenFields={[]}
       />
     );
 
@@ -28,7 +29,13 @@ describe("<SwabCard />", () => {
 
   it("renders no Private-badge if public", () => {
     const { queryByText } = setup(
-      <SwabCard id="1" archived={false} brand_name="Pilot" ink_name="Black" />
+      <SwabCard
+        id="1"
+        archived={false}
+        brand_name="Pilot"
+        ink_name="Black"
+        hiddenFields={[]}
+      />
     );
 
     expect(queryByText("Private")).not.toBeInTheDocument();
@@ -42,6 +49,7 @@ describe("<SwabCard />", () => {
         brand_name="Pilot"
         ink_name="Blue"
         swabbed={true}
+        hiddenFields={[]}
       />
     );
 
@@ -50,7 +58,13 @@ describe("<SwabCard />", () => {
 
   it("renders no Swabbed-badge if not swabbed", () => {
     const { queryByText } = setup(
-      <SwabCard id="1" archived={false} brand_name="Pilot" ink_name="Black" />
+      <SwabCard
+        id="1"
+        archived={false}
+        brand_name="Pilot"
+        ink_name="Black"
+        hiddenFields={[]}
+      />
     );
 
     expect(queryByText("Swabbed")).not.toBeInTheDocument();
@@ -64,6 +78,7 @@ describe("<SwabCard />", () => {
         brand_name="Pilot"
         ink_name="Blue"
         used={true}
+        hiddenFields={[]}
       />
     );
 
@@ -72,7 +87,13 @@ describe("<SwabCard />", () => {
 
   it("renders no Used-badge if unused", () => {
     const { queryByText } = setup(
-      <SwabCard id="1" archived={false} brand_name="Pilot" ink_name="Black" />
+      <SwabCard
+        id="1"
+        archived={false}
+        brand_name="Pilot"
+        ink_name="Black"
+        hiddenFields={[]}
+      />
     );
 
     expect(queryByText("Used")).not.toBeInTheDocument();
@@ -87,6 +108,7 @@ describe("<SwabCard />", () => {
         ink_name="Blue"
         kind="bottle"
         used={true}
+        hiddenFields={[]}
       />
     );
 
@@ -95,7 +117,13 @@ describe("<SwabCard />", () => {
 
   it("doesn't render the kind-badge if not set", () => {
     const { queryByText } = setup(
-      <SwabCard id="1" archived={false} brand_name="Pilot" ink_name="Black" />
+      <SwabCard
+        id="1"
+        archived={false}
+        brand_name="Pilot"
+        ink_name="Black"
+        hiddenFields={[]}
+      />
     );
 
     expect(queryByText("bottle")).not.toBeInTheDocument();
@@ -116,6 +144,7 @@ describe("<SwabCard />", () => {
           { id: "2", name: "bespoke" },
           { id: "3", name: "personal" }
         ]}
+        hiddenFields={[]}
       />
     );
 
@@ -133,6 +162,7 @@ describe("<SwabCard />", () => {
         archived={false}
         brand_name="Pilot"
         ink_name="Black"
+        hiddenFields={[]}
       />
     );
 
@@ -151,6 +181,7 @@ describe("<SwabCard />", () => {
         brand_name="Pilot"
         maker="Pilot"
         ink_name="Black"
+        hiddenFields={[]}
       />
     );
 
@@ -166,6 +197,7 @@ describe("<SwabCard />", () => {
         archived={false}
         brand_name="Pilot"
         ink_name="Black"
+        hiddenFields={[]}
       />
     );
 
@@ -182,6 +214,7 @@ describe("<SwabCard />", () => {
         brand_name="Pilot"
         comment="This is a comment"
         ink_name="Black"
+        hiddenFields={[]}
       />
     );
 
@@ -199,6 +232,7 @@ describe("<SwabCard />", () => {
         daily_usage={10}
         usage={1}
         ink_name="Black"
+        hiddenFields={[]}
       />
     );
 
@@ -215,6 +249,7 @@ describe("<SwabCard />", () => {
         archived={false}
         brand_name="Pilot"
         ink_name="Black"
+        hiddenFields={[]}
       />
     );
 
@@ -231,6 +266,7 @@ describe("<SwabCard />", () => {
         brand_name="Pilot"
         private_comment="Secret"
         ink_name="Black"
+        hiddenFields={[]}
       />
     );
 
@@ -247,9 +283,55 @@ describe("<SwabCard />", () => {
         archived={false}
         brand_name="Pilot"
         ink_name="Black"
+        hiddenFields={[]}
       />
     );
 
     expect(queryByText("Maker")).not.toBeInTheDocument();
+  });
+
+  it("hides as expected if given hidden fields", () => {
+    const { queryByText } = setup(
+      <SwabCard
+        id="1"
+        ink_id="1"
+        color="#000"
+        archived={false}
+        brand_name="Pilot"
+        ink_name="Black"
+        kind="bottle"
+        maker="Maker"
+        comment="Public"
+        private_comment="Secret"
+        tags={[
+          { id: "1", name: "custom" },
+          { id: "2", name: "bespoke" },
+          { id: "3", name: "personal" }
+        ]}
+        used={true}
+        swabbed={true}
+        hiddenFields={[
+          "maker",
+          "kind",
+          "usage",
+          "used",
+          "swabbed",
+          "comment",
+          "private_comment",
+          "tags"
+        ]}
+      />
+    );
+
+    expect(queryByText("Maker")).not.toBeInTheDocument();
+    expect(queryByText("Secret")).not.toBeInTheDocument();
+    expect(queryByText("Maker")).not.toBeInTheDocument();
+    expect(queryByText("Public")).not.toBeInTheDocument();
+    expect(queryByText("custom")).not.toBeInTheDocument();
+    expect(queryByText("bespoke")).not.toBeInTheDocument();
+    expect(queryByText("personal")).not.toBeInTheDocument();
+    expect(queryByText("bottle")).not.toBeInTheDocument();
+    expect(queryByText("Used")).not.toBeInTheDocument();
+    expect(queryByText("Swabbed")).not.toBeInTheDocument();
   });
 });

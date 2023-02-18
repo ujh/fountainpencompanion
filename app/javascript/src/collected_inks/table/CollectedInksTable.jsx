@@ -1,12 +1,15 @@
-import React, { useMemo } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useTable, useSortBy, useGlobalFilter } from "react-table";
 import _ from "lodash";
-import { fuzzyMatch } from "./match";
+import * as storage from "../../localStorage";
 import { Actions } from "../components";
+import { fuzzyMatch } from "./match";
 import { Counter } from "./Counter";
 import { InkWithLink } from "./InkWithLink";
 import { Table } from "./Table";
 import { booleanSort, colorSort } from "./sort";
+
+export const storageKeyHiddenFields = "fpc-collected-inks-table-hidden-fields";
 
 export const CollectedInksTable = ({ data, archive, onLayoutChange }) => {
   const columns = useMemo(
@@ -142,8 +145,11 @@ export const CollectedInksTable = ({ data, archive, onLayoutChange }) => {
     ],
     []
   );
-  const hiddenColumns = useMemo(() => {
-    let hidden_columns = [
+
+  const [hiddenFields, setHiddenFields] = useState([]);
+
+  const getDefaultHiddenFields = useCallback(() => {
+    let hideIfNoInksWithValue = [
       "private",
       "private_comment",
       "comment",
@@ -152,9 +158,41 @@ export const CollectedInksTable = ({ data, archive, onLayoutChange }) => {
       "kind",
       "daily_usage"
     ].filter((n) => !data.some((e) => e[n]));
-    if (data.every((e) => e.tags.length == 0)) hidden_columns.push("tags");
-    return hidden_columns;
+
+    if (data.every((e) => e.tags.length == 0)) {
+      hideIfNoInksWithValue.push("tags");
+    }
+    return hideIfNoInksWithValue;
   }, [data]);
+
+  useEffect(() => {
+    const fromLocalStorage = JSON.parse(
+      storage.getItem(storageKeyHiddenFields)
+    );
+    if (fromLocalStorage) {
+      setHiddenFields(fromLocalStorage);
+      return;
+    }
+
+    setHiddenFields(getDefaultHiddenFields());
+  }, [getDefaultHiddenFields, setHiddenFields]);
+
+  const onHiddenFieldsChange = useCallback(
+    (nextHiddenFields) => {
+      if (nextHiddenFields === null) {
+        storage.removeItem(storageKeyHiddenFields);
+
+        setHiddenFields(getDefaultHiddenFields());
+
+        return;
+      }
+
+      setHiddenFields(nextHiddenFields);
+      storage.setItem(storageKeyHiddenFields, JSON.stringify(nextHiddenFields));
+    },
+    [setHiddenFields, getDefaultHiddenFields]
+  );
+
   const {
     getTableProps,
     getTableBodyProps,
@@ -163,13 +201,14 @@ export const CollectedInksTable = ({ data, archive, onLayoutChange }) => {
     rows,
     prepareRow,
     preGlobalFilteredRows,
-    setGlobalFilter
+    setGlobalFilter,
+    setHiddenColumns
   } = useTable(
     {
       columns,
       data,
       initialState: {
-        hiddenColumns
+        hiddenColumns: hiddenFields
       },
       filterTypes: {
         fuzzyText: fuzzyMatch
@@ -179,6 +218,11 @@ export const CollectedInksTable = ({ data, archive, onLayoutChange }) => {
     useGlobalFilter,
     useSortBy
   );
+
+  useEffect(() => {
+    setHiddenColumns(hiddenFields);
+  }, [hiddenFields, setHiddenColumns]);
+
   return (
     <div>
       <Actions
@@ -187,8 +231,11 @@ export const CollectedInksTable = ({ data, archive, onLayoutChange }) => {
         numberOfInks={preGlobalFilteredRows.length}
         onFilterChange={setGlobalFilter}
         onLayoutChange={onLayoutChange}
+        hiddenFields={hiddenFields}
+        onHiddenFieldsChange={onHiddenFieldsChange}
       />
       <Table
+        hiddenFields={hiddenFields}
         getTableProps={getTableProps}
         headerGroups={headerGroups}
         getTableBodyProps={getTableBodyProps}

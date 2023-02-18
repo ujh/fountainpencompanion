@@ -34,7 +34,7 @@ export const Table = ({
                 </span>
               </th>
             ))}
-            <th>Actions</th>
+            <th style={{ textAlign: "right" }}>Actions</th>
           </tr>
         ))}
       </thead>

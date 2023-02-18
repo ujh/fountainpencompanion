@@ -5,6 +5,7 @@ import "./swab-card.scss";
 
 /**
  * @param {{
+ *    hiddenFields: string[];
  *    archived: boolean;
  *    id: string;
  *    ink_id?: string;
@@ -33,20 +34,20 @@ export const SwabCard = (props) => {
     maker,
     kind,
     color,
-    swabbed = false,
-    used = false,
     usage = 0,
     daily_usage = 0,
     comment,
     private_comment,
-    tags
+    tags,
+    hiddenFields
   } = props;
 
   const fullName = ["brand_name", "line_name", "ink_name"]
     .map((a) => props[a])
     .join(" ");
 
-  const hasUsage = usage || daily_usage;
+  const isVisible = (field) => props[field] && !hiddenFields.includes(field);
+  const hasUsage = isVisible("usage") || isVisible("daily_usage");
 
   return (
     <Card className="fpc-swab-card">
@@ -68,14 +69,14 @@ export const SwabCard = (props) => {
             </>
           ) : null}
         </Card.Title>
-        {comment ? <Card.Text>{comment}</Card.Text> : null}
-        {private_comment ? (
+        {isVisible("comment") ? <Card.Text>{comment}</Card.Text> : null}
+        {isVisible("private_comment") ? (
           <>
             <div className="small text-secondary">Private comment</div>
             <Card.Text>{private_comment}</Card.Text>
           </>
         ) : null}
-        {maker ? (
+        {isVisible("maker") ? (
           <>
             <div className="small text-secondary">Maker</div>
             <Card.Text>{maker}</Card.Text>
@@ -94,14 +95,16 @@ export const SwabCard = (props) => {
             {isPrivate ? (
               <span className="badge text-bg-info">Private</span>
             ) : null}
-            {swabbed ? (
+            {isVisible("swabbed") ? (
               <span className="badge text-bg-success">Swabbed</span>
             ) : null}
-            {used ? <span className="badge text-bg-success">Used</span> : null}
-            {kind ? (
+            {isVisible("used") ? (
+              <span className="badge text-bg-success">Used</span>
+            ) : null}
+            {isVisible("kind") ? (
               <span className="badge text-bg-secondary">{kind}</span>
             ) : null}
-            {Array.isArray(tags)
+            {isVisible("tags") && Array.isArray(tags)
               ? tags.map(({ id, name }) => (
                   <span
                     key={`ink-tag-${id}`}

@@ -25,11 +25,15 @@ describe("booleanSort", () => {
   it("sorts the given bool column in order of false to true", () => {
     const input = [
       { values: { swabbed: true } },
-      { values: { swabbed: false } }
+      { values: { swabbed: false } },
+      { values: { swabbed: true } },
+      { values: { swabbed: true } }
     ];
 
     const expected = [
       { values: { swabbed: false } },
+      { values: { swabbed: true } },
+      { values: { swabbed: true } },
       { values: { swabbed: true } }
     ];
 
