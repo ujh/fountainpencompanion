@@ -24,3 +24,15 @@ export function setItem(key, value) {
     // Err on the side of caution.
   }
 }
+
+/**
+ * @param {string} key
+ */
+export function removeItem(key) {
+  try {
+    return localStorage.removeItem(key);
+  } catch (e) {
+    // In private browsing interacting with localStorage may raise an error in certain browsers.
+    // Err on the side of caution.
+  }
+}

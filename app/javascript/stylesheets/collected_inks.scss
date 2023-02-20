@@ -87,11 +87,11 @@ form.new_collected_ink {
 ul.tags {
   list-style: none;
   padding: 0px;
+  display: inline-flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 4px;
   li.tag {
-    display: inline-flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    gap: 4px;
     text-transform: capitalize;
   }
 }
