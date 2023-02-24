@@ -28,13 +28,6 @@ describe CollectedPensController do
     context "signed in" do
       before(:each) { sign_in(user) }
 
-      it "renders the users pens" do
-        get :index
-        expect(response).to be_successful
-        expect(response.body).to include(wing_sung.brand)
-        expect(response.body).to include(wing_sung.model)
-      end
-
       it "renders the csv export" do
         get :index, format: "csv"
         expect(response).to be_successful

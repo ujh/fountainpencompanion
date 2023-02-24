@@ -3,20 +3,9 @@ import React from "react";
 import { render } from "@testing-library/react";
 import { ActionsCell } from "./ActionsCell";
 
-const setup = (jsx, options) => {
-  return render(
-    <table>
-      <tbody>
-        <tr>{jsx}</tr>
-      </tbody>
-    </table>,
-    options
-  );
-};
-
 describe("<ActionsCell />", () => {
   it("combines brand, line and ink names", () => {
-    const { getAllByRole } = setup(
+    const { getAllByRole } = render(
       <ActionsCell
         id="1"
         brand_name="Pilot"
@@ -36,8 +25,8 @@ describe("<ActionsCell />", () => {
     );
   });
 
-  it("inkludes kind if set", () => {
-    const { getAllByRole } = setup(
+  it("includes kind if set", () => {
+    const { getAllByRole } = render(
       <ActionsCell
         id="1"
         brand_name="Pilot"

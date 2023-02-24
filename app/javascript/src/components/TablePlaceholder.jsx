@@ -1,6 +1,6 @@
 import React from "react";
 
-export const CollectedInksTablePlaceholder = () => {
+export const TablePlaceholder = () => {
   return (
     <div className="placeholder-glow">
       <div className="d-flex flex-wrap justify-content-end align-items-center mb-3">
