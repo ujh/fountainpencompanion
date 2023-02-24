@@ -6,8 +6,9 @@ import { Actions } from "../components";
 import { fuzzyMatch } from "./match";
 import { Counter } from "./Counter";
 import { InkWithLink } from "./InkWithLink";
-import { Table } from "./Table";
+import { Table } from "../../components/Table";
 import { booleanSort, colorSort } from "./sort";
+import { ActionsCell } from "./ActionsCell";
 
 export const storageKeyHiddenFields = "fpc-collected-inks-table-hidden-fields";
 
@@ -81,7 +82,15 @@ export const CollectedInksTable = ({ data, archive, onLayoutChange }) => {
       {
         Header: "Color",
         accessor: "color",
-        Cell: () => "",
+        Cell: ({ cell: { value } }) => (
+          <div
+            style={{
+              backgroundColor: value,
+              width: "45px",
+              height: "45px"
+            }}
+          ></div>
+        ),
         sortType: colorSort
       },
       {
@@ -140,6 +149,12 @@ export const CollectedInksTable = ({ data, archive, onLayoutChange }) => {
               ))}
             </ul>
           );
+        }
+      },
+      {
+        Header: "Actions",
+        Cell: ({ cell: { row } }) => {
+          return <ActionsCell {...row.original} id={row.original.id} />;
         }
       }
     ],

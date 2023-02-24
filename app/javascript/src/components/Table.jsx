@@ -1,5 +1,4 @@
 import React from "react";
-import { ActionsCell } from "./ActionsCell";
 
 export const Table = ({
   getTableProps,
@@ -34,7 +33,6 @@ export const Table = ({
                 </span>
               </th>
             ))}
-            <th style={{ textAlign: "right" }}>Actions</th>
           </tr>
         ))}
       </thead>
@@ -44,37 +42,12 @@ export const Table = ({
           return (
             <tr key={`tbody-tr-${i}`} {...row.getRowProps()}>
               {row.cells.map((cell, j) => {
-                let additionalProps = {};
-                if (cell.column.id == "color" && cell.value) {
-                  return (
-                    <td
-                      key={`thead-td-${i}-${j}`}
-                      {...cell.getCellProps()}
-                      {...additionalProps}
-                    >
-                      <div
-                        style={{
-                          backgroundColor: cell.value,
-                          width: "45px",
-                          height: "45px"
-                        }}
-                      >
-                        {cell.render("Cell")}
-                      </div>
-                    </td>
-                  );
-                }
                 return (
-                  <td
-                    key={`thead-td-${i}-${j}`}
-                    {...cell.getCellProps()}
-                    {...additionalProps}
-                  >
+                  <td key={`thead-td-${i}-${j}`} {...cell.getCellProps()}>
                     {cell.render("Cell")}
                   </td>
                 );
               })}
-              <ActionsCell {...row.original} id={row.original.id} />
             </tr>
           );
         })}

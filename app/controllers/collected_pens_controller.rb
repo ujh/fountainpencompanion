@@ -1,7 +1,6 @@
 class CollectedPensController < ApplicationController
   before_action :authenticate_user!
   before_action :set_flash, except: [:import]
-  before_action :retrieve_collected_pens, only: [:index]
   before_action :retrieve_collected_pen, only: %i[edit update destroy archive]
 
   add_breadcrumb "My pens", :collected_pens_path

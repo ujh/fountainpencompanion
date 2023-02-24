@@ -3,8 +3,9 @@ import Jsona from "jsona";
 import { getRequest } from "../fetch";
 import { useScreen } from "../useScreen";
 import * as storage from "../localStorage";
+import { TablePlaceholder } from "../components/TablePlaceholder";
 import { CollectedInksCards, CollectedInksCardsPlaceholder } from "./cards";
-import { CollectedInksTable, CollectedInksTablePlaceholder } from "./table";
+import { CollectedInksTable } from "./table";
 
 const formatter = new Jsona();
 
@@ -21,10 +22,6 @@ export const CollectedInks = ({ archive }) => {
       const response = await getRequest("/collected_inks.json");
       const json = await response.json();
       const inks = formatter.deserialize(json);
-      // let mountainOfInks = [];
-      // while (mountainOfInks.length < 5000) {
-      //   mountainOfInks = mountainOfInks.concat(inks);
-      // }
       setInks(inks);
     }
     getCollectedInks();
@@ -69,7 +66,7 @@ export const CollectedInks = ({ archive }) => {
         />
       );
     } else {
-      return <CollectedInksTablePlaceholder />;
+      return <TablePlaceholder />;
     }
   }
 };
