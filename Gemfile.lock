@@ -191,7 +191,7 @@ GEM
     hashdiff (1.0.1)
     heapy (0.2.0)
       thor
-    honeybadger (5.1.0)
+    honeybadger (5.2.0)
     httpclient (2.8.3)
     i18n (1.12.0)
       concurrent-ruby (~> 1.0)
