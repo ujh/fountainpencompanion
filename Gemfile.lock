@@ -367,7 +367,7 @@ GEM
     rss (0.2.9)
       rexml
     ruby-oembed (0.15.0)
-    ruby-progressbar (1.11.0)
+    ruby-progressbar (1.12.0)
     ruby-statistics (2.1.3)
     ruby2_keywords (0.0.5)
     rufus-scheduler (3.8.2)
