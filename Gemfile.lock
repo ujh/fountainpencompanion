@@ -432,10 +432,10 @@ GEM
       activerecord (>= 5.2)
     syntax_tree (6.0.2)
       prettier_print (>= 1.2.0)
-    syntax_tree-haml (3.0.0)
-      haml (>= 5.2, != 6.0.0)
+    syntax_tree-haml (4.0.1)
+      haml (>= 5.2)
       prettier_print (>= 1.0.0)
-      syntax_tree (>= 5.0.1)
+      syntax_tree (>= 6.0.0)
     syntax_tree-rbs (0.5.1)
       prettier_print
       rbs
@@ -526,7 +526,7 @@ DEPENDENCIES
   sprockets-rails
   strong_migrations
   syntax_tree (~> 6.0)
-  syntax_tree-haml (~> 3.0)
+  syntax_tree-haml (~> 4.0)
   syntax_tree-rbs (~> 0.5.1)
   uglifier
   web-console
