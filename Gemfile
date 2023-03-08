@@ -64,7 +64,7 @@ group :development do
   gem "prettier_print", "~> 1.2"
   gem "syntax_tree", "~> 6.0"
   gem "syntax_tree-haml", "~> 4.0"
-  gem "syntax_tree-rbs", "~> 0.5.1"
+  gem "syntax_tree-rbs", "~> 1.0.0"
   gem "web-console"
 end
 
