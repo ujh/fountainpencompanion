@@ -8,7 +8,7 @@
     "babel-loader": "^9.1.2",
     "bootstrap": "^5.2.3",
     "color-convert": "^2.0.1",
-    "core-js": "^3.29.0",
+    "core-js": "^3.29.1",
     "css-loader": "^6.7.3",
     "d3-scale-chromatic": "^3.0.0",
     "fast-levenshtein": "^3.0.0",
