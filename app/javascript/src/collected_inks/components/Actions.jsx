@@ -1,8 +1,8 @@
 import _ from "lodash";
 import React, { useCallback, useState } from "react";
-import { LayoutToggle } from "../../components";
+import { LayoutToggle } from "../../components/LayoutToggle";
+import { Switch } from "../../components/Switch";
 import "./actions.scss";
-import { Switch } from "./Switch";
 
 /**
  * @param {{ archive: boolean; activeLayout: "card" | "table"; numberOfInks: number; hiddenFields: string[]; onHiddenFieldsChange: (newValues: string[]) => void; onFilterChange: (val: string | undefined) => void; onLayoutChange: (e: import('react').ChangeEvent) => void; }} props

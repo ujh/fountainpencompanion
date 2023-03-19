@@ -1,12 +1,15 @@
-import React, { useMemo } from "react";
-import { useTable, useSortBy } from "react-table";
+import React, { useMemo, useState, useEffect, useCallback } from "react";
+import { useTable, useSortBy, useGlobalFilter } from "react-table";
 import _ from "lodash";
-
+import * as storage from "../../localStorage";
 import { Table } from "../../components/Table";
 import { Actions } from "../components/Actions";
 import { ActionsCell } from "./ActionsCell";
+import { fuzzyMatch } from "./match";
 
-export const CollectedPensTable = ({ pens }) => {
+export const storageKeyHiddenFields = "fpc-collected-pens-table-hidden-fields";
+
+export const CollectedPensTable = ({ pens, onLayoutChange }) => {
   const columns = useMemo(
     () => [
       {
@@ -58,24 +61,87 @@ export const CollectedPensTable = ({ pens }) => {
     []
   );
 
+  const [hiddenFields, setHiddenFields] = useState([]);
+
+  const getDefaultHiddenFields = useCallback(() => {
+    let hideIfNoneWithValue = [
+      "nib",
+      "color",
+      "comment",
+      "usage",
+      "daily_usage"
+    ].filter((n) => !pens.some((e) => e[n]));
+    return hideIfNoneWithValue;
+  }, [pens]);
+
+  useEffect(() => {
+    const fromLocalStorage = JSON.parse(
+      storage.getItem(storageKeyHiddenFields)
+    );
+    if (fromLocalStorage) {
+      setHiddenFields(fromLocalStorage);
+      return;
+    }
+
+    setHiddenFields(getDefaultHiddenFields());
+  }, [getDefaultHiddenFields, setHiddenFields]);
+
+  const onHiddenFieldsChange = useCallback(
+    (nextHiddenFields) => {
+      if (nextHiddenFields === null) {
+        storage.removeItem(storageKeyHiddenFields);
+
+        setHiddenFields(getDefaultHiddenFields());
+
+        return;
+      }
+
+      setHiddenFields(nextHiddenFields);
+      storage.setItem(storageKeyHiddenFields, JSON.stringify(nextHiddenFields));
+    },
+    [setHiddenFields, getDefaultHiddenFields]
+  );
+
   const {
     getTableProps,
     getTableBodyProps,
     headerGroups,
     footerGroups,
     rows,
-    prepareRow
+    prepareRow,
+    preGlobalFilteredRows,
+    setGlobalFilter,
+    setHiddenColumns
   } = useTable(
     {
       columns,
-      data: pens
+      data: pens,
+      initialState: {
+        hiddenColumns: hiddenFields
+      },
+      filterTypes: {
+        fuzzyText: fuzzyMatch
+      },
+      globalFilter: "fuzzyText"
     },
+    useGlobalFilter,
     useSortBy
   );
 
+  useEffect(() => {
+    setHiddenColumns(hiddenFields);
+  }, [hiddenFields, setHiddenColumns]);
+
   return (
     <div>
-      <Actions />
+      <Actions
+        activeLayout="table"
+        numberOfPens={preGlobalFilteredRows.length}
+        onFilterChange={setGlobalFilter}
+        onLayoutChange={onLayoutChange}
+        hiddenFields={hiddenFields}
+        onHiddenFieldsChange={onHiddenFieldsChange}
+      />
       <Table
         getTableProps={getTableProps}
         headerGroups={headerGroups}

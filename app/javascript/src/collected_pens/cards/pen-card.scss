@@ -1,0 +1,18 @@
+.fpc-pen-card {
+  margin-block: 15px;
+  display: flex;
+  flex-direction: column;
+  background: var(--fpc-bright-background);
+
+  .fpc-pen-card__footer {
+    display: flex;
+    flex-direction: row;
+    gap: 8px;
+    justify-content: flex-end;
+    align-items: center;
+  }
+
+  .fpc-pen-card__actions {
+    min-width: 90px;
+  }
+}

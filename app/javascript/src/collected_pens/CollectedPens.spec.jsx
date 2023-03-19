@@ -1,9 +1,16 @@
 import React from "react";
 import { rest } from "msw";
 import { setupServer } from "msw/node";
-import { render, screen } from "@testing-library/react";
+import { render } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { CollectedPens, storageKeyLayout } from "./CollectedPens";
 
-import { CollectedPens } from "./CollectedPens";
+const setup = (jsx, options) => {
+  return {
+    user: userEvent.setup(),
+    ...render(jsx, options)
+  };
+};
 
 describe("<CollectedPens />", () => {
   const server = setupServer(
@@ -24,7 +31,6 @@ describe("<CollectedPens />", () => {
           }
         }
       ];
-      console.log({ data, meta });
       return res(ctx.json({ data, meta }));
     })
   );
@@ -34,9 +40,31 @@ describe("<CollectedPens />", () => {
   afterAll(() => server.close());
 
   it("renders all active pens", async () => {
-    render(<CollectedPens />);
-    await screen.findByText("Brand");
+    const { findByText, queryAllByRole } = setup(<CollectedPens />);
+    await findByText("Brand");
     // Header + Footer + 2 entries
-    expect(screen.queryAllByRole("row")).toHaveLength(4);
+    expect(queryAllByRole("row")).toHaveLength(4);
+  });
+
+  it("swaps to card layout when clicked", async () => {
+    const { findByText, getByTitle, queryByTestId, user } = setup(
+      <CollectedPens />
+    );
+
+    await findByText("Brand");
+    const cardLayoutButton = getByTitle("Card layout");
+    await user.click(cardLayoutButton);
+
+    expect(queryByTestId("card-layout")).toBeInTheDocument();
+  });
+
+  it("remembers layout from localStorage", async () => {
+    localStorage.setItem(storageKeyLayout, "card");
+
+    const { findAllByText, queryByTestId } = setup(<CollectedPens />);
+
+    await findAllByText("Faber-Castell Loom");
+
+    expect(queryByTestId("card-layout")).toBeInTheDocument();
   });
 });
