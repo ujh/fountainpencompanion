@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import Jsona from "jsona";
 import { getRequest } from "../fetch";
 import { TablePlaceholder } from "../components/TablePlaceholder";
-import { CollectedPensTable } from "./CollectedPensTable";
+import { CollectedPensTable } from "./table/CollectedPensTable";
 
 const formatter = new Jsona();
 

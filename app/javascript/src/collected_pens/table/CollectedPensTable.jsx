@@ -2,8 +2,8 @@ import React, { useMemo } from "react";
 import { useTable, useSortBy } from "react-table";
 import _ from "lodash";
 
-import { Table } from "../components/Table";
-import { Actions } from "./Actions";
+import { Table } from "../../components/Table";
+import { Actions } from "../components/Actions";
 import { ActionsCell } from "./ActionsCell";
 
 export const CollectedPensTable = ({ pens }) => {
