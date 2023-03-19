@@ -117,7 +117,7 @@ export const Actions = ({
           </a>
         </>
         <div className="m-2 d-flex">
-          <div className="search" style={{ minWidth: "190px" }}>
+          <div className="search" style={{ minWidth: "205px" }}>
             <input
               className="form-control"
               type="text"
@@ -131,10 +131,10 @@ export const Actions = ({
               aria-label="Search"
             />
           </div>
+          <a className="ms-2 btn btn-success" href="/collected_pens/new">
+            Add&nbsp;pen
+          </a>
         </div>
-        <a className="ms-2 btn btn-success" href="/collected_pens/new">
-          Add&nbsp;pen
-        </a>
       </div>
     </div>
   );
