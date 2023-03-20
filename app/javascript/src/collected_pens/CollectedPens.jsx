@@ -1,10 +1,16 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import Jsona from "jsona";
 import { getRequest } from "../fetch";
+import { useScreen } from "../useScreen";
+import * as storage from "../localStorage";
+import { CardsPlaceholder } from "../components/CardsPlaceholder";
 import { TablePlaceholder } from "../components/TablePlaceholder";
-import { CollectedPensTable } from "./CollectedPensTable";
+import { CollectedPensCards } from "./cards/CollectedPensCards";
+import { CollectedPensTable } from "./table/CollectedPensTable";
 
 const formatter = new Jsona();
+
+export const storageKeyLayout = "fpc-collected-pens-layout";
 
 export const CollectedPens = () => {
   const [pens, setPens] = useState();
@@ -16,10 +22,30 @@ export const CollectedPens = () => {
     getCollectedPens();
   }, []);
 
-  if (pens) {
-    return <CollectedPensTable pens={pens} />;
+  const screen = useScreen();
+
+  const [layout, setLayout] = useState(storage.getItem(storageKeyLayout));
+  const onLayoutChange = useCallback(
+    (e) => {
+      const nextLayout = e.target.value;
+      setLayout(nextLayout);
+      storage.setItem(storageKeyLayout, nextLayout);
+    },
+    [setLayout]
+  );
+
+  if (layout ? layout === "card" : screen.isSmall) {
+    if (pens) {
+      return <CollectedPensCards pens={pens} onLayoutChange={onLayoutChange} />;
+    } else {
+      return <CardsPlaceholder />;
+    }
   } else {
-    return <TablePlaceholder />;
+    if (pens) {
+      return <CollectedPensTable pens={pens} onLayoutChange={onLayoutChange} />;
+    } else {
+      return <TablePlaceholder />;
+    }
   }
 };
 

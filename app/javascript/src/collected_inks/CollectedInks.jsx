@@ -3,8 +3,9 @@ import Jsona from "jsona";
 import { getRequest } from "../fetch";
 import { useScreen } from "../useScreen";
 import * as storage from "../localStorage";
+import { CardsPlaceholder } from "../components/CardsPlaceholder";
 import { TablePlaceholder } from "../components/TablePlaceholder";
-import { CollectedInksCards, CollectedInksCardsPlaceholder } from "./cards";
+import { CollectedInksCards } from "./cards";
 import { CollectedInksTable } from "./table";
 
 const formatter = new Jsona();
@@ -54,7 +55,7 @@ export const CollectedInks = ({ archive }) => {
         />
       );
     } else {
-      return <CollectedInksCardsPlaceholder />;
+      return <CardsPlaceholder />;
     }
   } else {
     if (inks) {

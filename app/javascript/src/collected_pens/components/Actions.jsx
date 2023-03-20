@@ -5,12 +5,11 @@ import { Switch } from "../../components/Switch";
 import "./actions.scss";
 
 /**
- * @param {{ archive: boolean; activeLayout: "card" | "table"; numberOfInks: number; hiddenFields: string[]; onHiddenFieldsChange: (newValues: string[]) => void; onFilterChange: (val: string | undefined) => void; onLayoutChange: (e: import('react').ChangeEvent) => void; }} props
+ * @param {{ activeLayout: "card" | "table"; numberOfPens: number; hiddenFields: string[]; onHiddenFieldsChange: (newValues: string[]) => void; onFilterChange: (val: string | undefined) => void; onLayoutChange: (e: import('react').ChangeEvent) => void; }} props
  */
 export const Actions = ({
-  archive,
   activeLayout,
-  numberOfInks,
+  numberOfPens,
   hiddenFields,
   onHiddenFieldsChange,
   onFilterChange,
@@ -18,14 +17,13 @@ export const Actions = ({
 }) => {
   const [globalFilter, setGlobalFilter] = useState("");
 
-  // The linter doesn't like our debounce call. We debounce
-  // to not melt mountainofinks' phone when filtering :D
+  // The linter doesn't like our debounce call
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const debouncedOnFilterChange = useCallback(
     _.debounce((value) => {
       onFilterChange(value);
-    }, Math.min(numberOfInks / 10, 500)),
-    [onFilterChange, numberOfInks]
+    }, Math.min(numberOfPens / 10, 500)),
+    [onFilterChange, numberOfPens]
   );
 
   const isSwitchedOn = useCallback(
@@ -48,7 +46,7 @@ export const Actions = ({
 
   return (
     <div>
-      <div className="fpc-inks-actions">
+      <div className="fpc-pens-actions">
         <LayoutToggle activeLayout={activeLayout} onChange={onLayoutChange} />
         <div className="dropdown">
           <button
@@ -64,34 +62,16 @@ export const Actions = ({
           <form className="dropdown-menu p-4">
             <div className="mb-2">
               <Switch
-                checked={isSwitchedOn("private")}
-                onChange={(e) => onSwitchChange(e.target.checked, "private")}
+                checked={isSwitchedOn("nib")}
+                onChange={(e) => onSwitchChange(e.target.checked, "nib")}
               >
-                Show&nbsp;private
+                Show&nbsp;nib
               </Switch>
               <Switch
-                checked={isSwitchedOn("maker")}
-                onChange={(e) => onSwitchChange(e.target.checked, "maker")}
+                checked={isSwitchedOn("color")}
+                onChange={(e) => onSwitchChange(e.target.checked, "color")}
               >
-                Show&nbsp;maker
-              </Switch>
-              <Switch
-                checked={isSwitchedOn("kind")}
-                onChange={(e) => onSwitchChange(e.target.checked, "kind")}
-              >
-                Show&nbsp;type
-              </Switch>
-              <Switch
-                checked={isSwitchedOn("swabbed")}
-                onChange={(e) => onSwitchChange(e.target.checked, "swabbed")}
-              >
-                Show&nbsp;swabbed
-              </Switch>
-              <Switch
-                checked={isSwitchedOn("used")}
-                onChange={(e) => onSwitchChange(e.target.checked, "used")}
-              >
-                Show&nbsp;used
+                Show&nbsp;color
               </Switch>
               <Switch
                 checked={isSwitchedOn("usage")}
@@ -113,20 +93,6 @@ export const Actions = ({
               >
                 Show&nbsp;comment
               </Switch>
-              <Switch
-                checked={isSwitchedOn("private_comment")}
-                onChange={(e) =>
-                  onSwitchChange(e.target.checked, "private_comment")
-                }
-              >
-                Show&nbsp;private&nbsp;comment
-              </Switch>
-              <Switch
-                checked={isSwitchedOn("tags")}
-                onChange={(e) => onSwitchChange(e.target.checked, "tags")}
-              >
-                Show&nbsp;tags
-              </Switch>
             </div>
             <button
               type="button"
@@ -139,24 +105,19 @@ export const Actions = ({
         </div>
       </div>
       <div className="d-flex flex-wrap justify-content-end align-items-center mb-3">
-        {!archive && (
-          <>
-            <a className="btn btn-sm btn-link" href="/collected_inks/import">
-              Import
-            </a>
-            <a className="btn btn-sm btn-link" href="/collected_inks.csv">
-              Export
-            </a>
-            <a
-              className="btn btn-sm btn-link"
-              href="/collected_inks?search[archive]=true"
-            >
-              Archive
-            </a>
-          </>
-        )}
+        <>
+          <a className="btn btn-sm btn-link" href="/collected_pens/import">
+            Import
+          </a>
+          <a className="btn btn-sm btn-link" href="/collected_pens.csv">
+            Export
+          </a>
+          <a className="btn btn-sm btn-link" href="/collected_pens_archive">
+            Archive
+          </a>
+        </>
         <div className="m-2 d-flex">
-          <div className="search" style={{ minWidth: "190px" }}>
+          <div className="search" style={{ minWidth: "205px" }}>
             <input
               className="form-control"
               type="text"
@@ -166,15 +127,13 @@ export const Actions = ({
                 setGlobalFilter(nextValue);
                 debouncedOnFilterChange(nextValue);
               }}
-              placeholder={`Type to search in ${numberOfInks} inks`}
+              placeholder={`Type to search in ${numberOfPens} pens`}
               aria-label="Search"
             />
           </div>
-          {!archive && (
-            <a className="ms-2 btn btn-success" href="/collected_inks/new">
-              Add&nbsp;ink
-            </a>
-          )}
+          <a className="ms-2 btn btn-success" href="/collected_pens/new">
+            Add&nbsp;pen
+          </a>
         </div>
       </div>
     </div>
