@@ -28,7 +28,7 @@ export const Widget = ({ renderWhenInvisible, ...rest }) => {
   }
 
   return (
-    <TrackVisibility once>
+    <TrackVisibility once partialVisibility>
       {({ isVisible }) => <WidgetCard {...rest} isVisible={isVisible} />}
     </TrackVisibility>
   );
