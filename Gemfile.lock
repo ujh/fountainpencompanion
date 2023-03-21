@@ -430,7 +430,7 @@ GEM
     statsd-ruby (1.5.0)
     strong_migrations (1.4.4)
       activerecord (>= 5.2)
-    syntax_tree (6.0.2)
+    syntax_tree (6.1.0)
       prettier_print (>= 1.2.0)
     syntax_tree-haml (4.0.3)
       haml (>= 5.2)
@@ -525,7 +525,7 @@ DEPENDENCIES
   slodown
   sprockets-rails
   strong_migrations
-  syntax_tree (~> 6.0)
+  syntax_tree (~> 6.1)
   syntax_tree-haml (~> 4.0)
   syntax_tree-rbs (~> 1.0.0)
   uglifier
