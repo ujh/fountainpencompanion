@@ -16,6 +16,12 @@ describe CollectedInk do
     expect(subject.errors).to include(:brand_name)
   end
 
+  it "deletes all linked currently inked entries when deleting a model" do
+    ink = create(:collected_ink)
+    create_list(:currently_inked, 2, collected_ink: ink)
+    expect { ink.destroy }.to change(CurrentlyInked, :count).by(-2)
+  end
+
   describe "tags" do
     it "adds new tags" do
       ink = create(:collected_ink)
