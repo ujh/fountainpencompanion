@@ -14,7 +14,7 @@ Rails.application.routes.draw do
   end
 
   resources :reading_statuses, only: [:update]
-  resources :collected_inks, only: %i[index edit update new create] do
+  resources :collected_inks, only: %i[index edit update new create destroy] do
     collection { get "import" }
     member do
       post "archive"
@@ -29,7 +29,7 @@ Rails.application.routes.draw do
     collection { get "import" }
     member { post "archive" }
   end
-  resources :collected_pens_archive, only: %i[index edit update] do
+  resources :collected_pens_archive, only: %i[index edit update destroy] do
     member { post "unarchive" }
   end
   resources :currently_inked do

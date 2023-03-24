@@ -17,7 +17,7 @@ class CollectedInk < ApplicationRecord
   before_save :add_comment
 
   belongs_to :user
-  has_many :currently_inkeds
+  has_many :currently_inkeds, dependent: :destroy
   has_many :usage_records, through: :currently_inkeds
   belongs_to :micro_cluster, optional: true
 

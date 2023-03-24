@@ -1,6 +1,7 @@
 class CollectedInksController < ApplicationController
   before_action :authenticate_user!
-  before_action :find_ink, only: %i[edit update destroy archive unarchive]
+  before_action :find_ink,
+                only: %i[edit update destroy archive unarchive destroy]
 
   add_breadcrumb "My inks", :collected_inks_path
 
@@ -94,6 +95,12 @@ class CollectedInksController < ApplicationController
   def unarchive
     flash[:notice] = "Successfully unarchived '#{ink.name}'" if ink
     ink&.unarchive!
+    redirect_to collected_inks_path(search: { archive: true })
+  end
+
+  def destroy
+    flash[:notice] = "Successfully deleted '#{ink.name}'" if ink
+    ink&.destroy
     redirect_to collected_inks_path(search: { archive: true })
   end
 

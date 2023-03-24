@@ -1,6 +1,6 @@
 import React from "react";
 import { Card } from "../../components";
-import { ArchiveButton, EditButton } from "../components";
+import { ArchiveButton, EditButton, DeleteButton } from "../components";
 import "./swab-card.scss";
 
 /**
@@ -122,7 +122,13 @@ export const SwabCard = (props) => {
               id={id}
               archived={archived}
             />
-            <ArchiveButton name={fullName} id={id} archived={archived} />
+            <ArchiveButton
+              className="me-2"
+              name={fullName}
+              id={id}
+              archived={archived}
+            />
+            <DeleteButton name={fullName} id={id} archived={archived} />
           </div>
         </div>
       </Card.Body>

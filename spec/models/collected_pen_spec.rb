@@ -32,6 +32,13 @@ describe CollectedPen do
     end
   end
 
+  it "deletes all linked currently inked entries when deleting a model" do
+    pen = create(:collected_pen)
+    create(:currently_inked, collected_pen: pen)
+    create(:currently_inked, collected_pen: pen, archived_on: Date.today)
+    expect { pen.destroy }.to change(CurrentlyInked, :count).by(-2)
+  end
+
   describe "#search" do
     let(:pens) do
       [
