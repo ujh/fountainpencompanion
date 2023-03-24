@@ -29,7 +29,7 @@ Rails.application.routes.draw do
     collection { get "import" }
     member { post "archive" }
   end
-  resources :collected_pens_archive, only: %i[index edit update, destroy] do
+  resources :collected_pens_archive, only: %i[index edit update destroy] do
     member { post "unarchive" }
   end
   resources :currently_inked do
