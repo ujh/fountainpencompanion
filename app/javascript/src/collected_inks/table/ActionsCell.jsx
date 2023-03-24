@@ -1,5 +1,5 @@
 import React from "react";
-import { ArchiveButton, EditButton } from "../components";
+import { ArchiveButton, EditButton, DeleteButton } from "../components";
 
 /**
  * @typedef {"bottle" | "sample" | "cartridge" | "swab"} InkType
@@ -19,6 +19,7 @@ export const ActionsCell = ({
     <div className="actions">
       <EditButton name={inkName} id={id} archived={archived} />
       <ArchiveButton name={inkName} id={id} archived={archived} />
+      <DeleteButton name={inkName} id={id} archived={archived} />
     </div>
   );
 };

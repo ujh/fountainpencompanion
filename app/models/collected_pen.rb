@@ -3,10 +3,9 @@ require "csv"
 class CollectedPen < ApplicationRecord
   include Archivable
   include PenName
-  include SoftDeletable
 
   belongs_to :user
-  has_many :currently_inkeds
+  has_many :currently_inkeds, dependent: :destroy
   has_many :usage_records, through: :currently_inkeds
   has_one :newest_currently_inked,
           -> { order("inked_on desc") },
