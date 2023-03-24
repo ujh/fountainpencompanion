@@ -10,6 +10,13 @@ SET client_min_messages = warning;
 SET row_security = off;
 
 --
+-- Name: public; Type: SCHEMA; Schema: -; Owner: -
+--
+
+-- *not* creating schema, since initdb creates it
+
+
+--
 -- Name: fuzzystrmatch; Type: EXTENSION; Schema: -; Owner: -
 --
 
@@ -190,6 +197,7 @@ CREATE TABLE public.collected_inks (
     micro_cluster_id bigint,
     cluster_color character varying(7) DEFAULT ''::character varying,
     tsv tsvector,
+    deleted_at timestamp without time zone,
     CONSTRAINT collected_inks_cluster_color_null CHECK ((cluster_color IS NOT NULL))
 );
 
@@ -227,7 +235,8 @@ CREATE TABLE public.collected_pens (
     comment text,
     nib character varying(100),
     color character varying(100),
-    archived_on date
+    archived_on date,
+    deleted_at timestamp without time zone
 );
 
 
@@ -1628,6 +1637,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20211217111324'),
 ('20211222103755'),
 ('20220410080853'),
-('20220410081621');
+('20220410081621'),
+('20230324103427');
 
 
