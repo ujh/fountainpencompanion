@@ -3,6 +3,7 @@ require "csv"
 class CollectedPen < ApplicationRecord
   include Archivable
   include PenName
+  include SoftDeletable
 
   belongs_to :user
   has_many :currently_inkeds

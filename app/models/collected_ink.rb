@@ -3,6 +3,7 @@ require "csv"
 class CollectedInk < ApplicationRecord
   include Archivable
   include PgSearch::Model
+  include SoftDeletable
 
   KINDS = %w[bottle sample cartridge swab]
 
