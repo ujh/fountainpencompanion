@@ -4,7 +4,7 @@
   display: grid;
   gap: b.$spacer;
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  grid-template-rows: masonry;
+  grid-template-rows: auto;
 }
 
 .fpc-dashboard-widget {
