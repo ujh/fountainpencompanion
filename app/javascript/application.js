@@ -7,6 +7,7 @@ import "@popperjs/core";
 import "./src/color-picker";
 import "./src/collected_inks";
 import "./src/collected_pens";
+import "./src/currently_inked";
 import "./src/dashboard";
 import "./src/add-ink-button";
 import "./src/ink-search-hint";

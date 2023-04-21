@@ -8,6 +8,11 @@ class CurrentlyInkedSerializer
   attribute :archived_on
   attribute :comment
   attribute :last_used_on
+  attribute :pen_name
+  attribute :ink_name
+  attribute :used_today do |object|
+    object.used_today?
+  end
   attribute :daily_usage do |object|
     object.daily_usage_count
   end
