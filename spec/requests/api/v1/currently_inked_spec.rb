@@ -49,7 +49,10 @@ describe Api::V1::CurrentlyInkedController do
                 daily_usage: anything,
                 refillable: anything,
                 unarchivable: anything,
-                archived: anything
+                archived: anything,
+                ink_name: anything,
+                pen_name: anything,
+                used_today: anything
               },
               relationships: {
                 collected_ink: anything,
