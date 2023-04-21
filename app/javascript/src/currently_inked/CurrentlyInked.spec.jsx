@@ -109,14 +109,7 @@ describe("<CurrentlyInked />", () => {
               id: "13148",
               type: "micro_cluster",
               attributes: {},
-              relationships: {
-                macro_cluster: {
-                  data: {
-                    id: "614",
-                    type: "macro_cluster"
-                  }
-                }
-              }
+              relationships: {}
             },
             {
               id: "18809",

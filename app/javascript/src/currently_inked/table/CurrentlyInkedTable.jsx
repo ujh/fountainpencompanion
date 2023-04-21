@@ -35,20 +35,21 @@ export const CurrentlyInkedTable = ({ currentlyInked }) => {
         accessor: "ink_name",
         Cell: ({ cell }) => {
           const micro_cluster = cell.row.original.collected_ink.micro_cluster;
-          if (micro_cluster) {
-            const public_id = micro_cluster.macro_cluster.id;
-            const link = `/inks/${public_id}`;
-            return (
-              <>
-                {cell.value}{" "}
-                <a href={link}>
-                  <i className="fa fa-external-link"></i>
-                </a>
-              </>
-            );
-          } else {
-            return cell.value;
-          }
+          if (!micro_cluster) return cell.value;
+
+          const macro_cluster = micro_cluster.macro_cluster;
+          if (!macro_cluster) return cell.value;
+
+          const public_id = macro_cluster.id;
+          const link = `/inks/${public_id}`;
+          return (
+            <>
+              {cell.value}{" "}
+              <a href={link}>
+                <i className="fa fa-external-link"></i>
+              </a>
+            </>
+          );
         },
         Footer: ({ rows }) => {
           const count = useMemo(() => {
