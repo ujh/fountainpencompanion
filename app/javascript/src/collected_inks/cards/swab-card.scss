@@ -18,10 +18,11 @@
     left: 1px;
     right: 1px;
     bottom: 1px;
-
-    mask: url(../../../images/swab.svg);
-    mask-repeat: no-repeat;
     background-color: var(--swab-color);
+    -webkit-mask: url(../../../images/swab.svg);
+    mask: url(../../../images/swab.svg);
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
   }
 
   .fpc-swab-card__footer {
