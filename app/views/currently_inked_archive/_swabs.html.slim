@@ -3,21 +3,21 @@ div class="row"
     div class="col-sm-12 col-md-6"
       div class="entry"
         div
-          div.swab style="background-color:#{ci.ink_color};"
+          div.swab style="--swab-color:#{ci.ink_color};"
         div
-          b
-            'Pen:
+          div.small.text-secondary
+            'Pen
           = ci.pen_name
         div
-          b
-            'Ink:
+          div.small.text-secondary
+            'Ink
           = ci.ink_short_name
           | &nbsp;
           - if ci.macro_cluster
             = link_to fa_icon("external-link"), ink_path(ci.macro_cluster)
         div
-          b
-            'Date inked:
+          div.small.text-secondary
+            'Date inked
           = ci.inked_on
         - if ci.comment.present?
           div= ci.comment
