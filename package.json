@@ -49,7 +49,7 @@
     "whatwg-fetch": "^3.6.2"
   },
   "devDependencies": {
-    "@babel/eslint-parser": "^7.21.3",
+    "@babel/eslint-parser": "^7.21.8",
     "@prettier/plugin-ruby": "^3.2.2",
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^14.0.0",
