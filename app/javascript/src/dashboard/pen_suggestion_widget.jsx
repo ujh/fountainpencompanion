@@ -63,7 +63,7 @@ const filterPens = (pens) =>
 
 const scorePens = (pens) => {
   const usageMedian = calculateUsageMedian(pens);
-  const USAGE_FACTOR = 1;
+  const USAGE_FACTOR = 5;
   const DAYS_SINCE_FACTOR = 1;
   return pens.map((pen) => {
     const usageScore = Math.abs(pen.usage - usageMedian);
