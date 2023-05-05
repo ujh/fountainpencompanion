@@ -1,7 +1,11 @@
 import React, { useEffect, useState } from "react";
 import ResizeObserver from "rc-resize-observer";
 import TrackVisibility from "react-on-screen";
+import Jsona from "jsona";
+
 import { getRequest } from "../fetch";
+
+const formatter = new Jsona();
 
 export const WidgetDataContext = React.createContext();
 export const WidgetWidthContext = React.createContext();
@@ -54,16 +58,18 @@ const WidgetCard = ({ withLinks, header, subtitle, isVisible, ...rest }) => {
   );
 };
 
-const WidgetContent = ({ children, path, withLinks }) => {
+const WidgetContent = ({ children, path, withLinks, paginated }) => {
   const [data, setData] = useState(null);
   useEffect(() => {
     async function fetchData() {
-      const response = await getRequest(path);
-      const data = await response.json();
-      setData(data);
+      if (paginated) {
+        setData(await getPaginatedData(path));
+      } else {
+        setData(await getData(path));
+      }
     }
     fetchData();
-  }, [path]);
+  }, [path, paginated]);
   const [elementWidth, setElementWidth] = useState(0);
   let content = <Loader withLinks={withLinks} />;
 
@@ -81,4 +87,26 @@ const WidgetContent = ({ children, path, withLinks }) => {
       <div className="mt-2">{content}</div>
     </ResizeObserver>
   );
+};
+
+const getData = async (path) => {
+  const response = await getRequest(path);
+  return response.json();
+};
+
+const getPaginatedData = async (path) => {
+  let receivedData = [];
+  let page = 1;
+  do {
+    const json = await getPage(path, page);
+    page = json.meta.pagination.next_page;
+    receivedData.push(...formatter.deserialize(json));
+  } while (page);
+  return receivedData;
+};
+
+const getPage = async (path, page) => {
+  const response = await getRequest(`${path}?page[number]=${page}`);
+  const json = await response.json();
+  return json;
 };
