@@ -1,5 +1,5 @@
 class User < ApplicationRecord
-  BLACKLIST = ["51.91.67.153"]
+  BLACKLIST = ["test"]
   MAX_SAME_IP_24H = 2
   # Include default devise modules. Others available are:
   # :confirmable, :lockable, :timeoutable and :omniauthable
@@ -61,6 +61,10 @@ class User < ApplicationRecord
       self.bot_reason = "sign_up_ip_24h_timeframe"
     end
     super
+  end
+
+  def after_confirmation
+    update_attribute(:bot, false)
   end
 
   def unread
