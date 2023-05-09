@@ -1,10 +1,6 @@
 namespace :clean_up do
   desc "Run all clean up tasks"
-  task all: %i[
-         unused_accounts
-         unconfirmed_accounts
-         anonymize_sign_up_ip
-       ]
+  task all: %i[unused_accounts unconfirmed_accounts anonymize_sign_up_ip]
 
   desc "Remove users that have never logged in and created their account more than two years ago"
   task unused_accounts: :environment do
