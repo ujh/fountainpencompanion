@@ -3,7 +3,6 @@ namespace :clean_up do
   task all: %i[
          unused_accounts
          unconfirmed_accounts
-         old_bot_accounts
          anonymize_sign_up_ip
        ]
 
@@ -23,10 +22,12 @@ namespace :clean_up do
       .destroy_all
   end
 
-  desc "Remove bot accounts that are 8 weeks old"
-  task old_bot_accounts: :environment do
-    User.where(bot: true).where("created_at < ?", 8.weeks.ago).destroy_all
-  end
+  # TODO: Sometimes this seems to catch real accounts that were just marked as bot in the
+  #       beginning. Let's disable this deletion for now.
+  # desc "Remove bot accounts that are 8 weeks old"
+  # task old_bot_accounts: :environment do
+  #   User.where(bot: true).where("created_at < ?", 8.weeks.ago).destroy_all
+  # end
 
   desc "Anonymize IP addresses used for sign up"
   task anonymize_sign_up_ip: :environment do
