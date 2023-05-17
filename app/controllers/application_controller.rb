@@ -10,7 +10,7 @@ class ApplicationController < ActionController::Base
   end
 
   def after_sign_in_path_for(resource)
-    resource.admin? ? admins_dashboard_path : dashboard_path
+    admin_signed_in? ? admins_dashboard_path : dashboard_path
   end
 
   private
