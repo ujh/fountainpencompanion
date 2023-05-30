@@ -4,7 +4,7 @@
     "@babel/core": "^7.21.8",
     "@babel/preset-env": "^7.22.4",
     "@babel/preset-react": "^7.22.3",
-    "@popperjs/core": "^2.11.7",
+    "@popperjs/core": "^2.11.8",
     "babel-loader": "^9.1.2",
     "bootstrap": "^5.2.3",
     "color-convert": "^2.0.1",
