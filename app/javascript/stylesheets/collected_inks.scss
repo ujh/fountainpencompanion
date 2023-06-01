@@ -71,12 +71,12 @@ form.new_collected_ink {
     font-size: smaller;
     line-height: 15px;
   }
-}
 
-.ui-autocomplete {
-  max-height: 200px;
-  overflow-y: auto;
-  overflow-x: hidden;
+  .chrome-picker {
+    input {
+      background-color: #fff; // fixes a bug in dark mode where text is invisible
+    }
+  }
 }
 
 .pick-kind {
