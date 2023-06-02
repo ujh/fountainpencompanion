@@ -5,13 +5,29 @@
   $primary: rgb(13, 110, 253)
 );
 
-.fpc {
+html {
+  // See also: https://getbootstrap.com/docs/5.3/customize/color/#colors
   --fpc-text-color: #{b.$gray-900};
+  --bs-body-color: var(--fpc-text-color);
   --fpc-muted-text-color: #{b.$gray-700};
   --fpc-background: #{b.$gray-100};
   --fpc-bright-background: #{b.$white};
   --fpc-shadow-color: #{b.$black};
+  --fpc-active-color: #{b.$blue-300};
+}
 
+html[data-bs-theme="dark"] {
+  --fpc-text-color: #{b.$gray-100};
+  --bs-body-color: var(--fpc-text-color);
+  --fpc-muted-text-color: #{b.$gray-300};
+  --fpc-background: #{b.$gray-900};
+  --fpc-bright-background: #{b.$black};
+  --fpc-shadow-color: #{b.$white};
+  --fpc-active-text-color: #{b.$black};
+  --fpc-active-background: #{b.$blue-800};
+}
+
+.fpc {
   background: var(--fpc-background);
   color: var(--fpc-text-color);
 
@@ -22,16 +38,6 @@
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-
-  @media (prefers-color-scheme: dark) {
-    & {
-      --fpc-text-color: #{b.$gray-100};
-      --fpc-muted-text-color: #{b.$gray-300};
-      --fpc-background: #{b.$gray-900};
-      --fpc-bright-background: #{b.$black};
-      --fpc-shadow-color: #{b.$white};
-    }
-  }
 }
 
 .fpc-skip-link {
@@ -161,7 +167,7 @@
   @include b.visually-hidden;
 }
 
-@media (prefers-color-scheme: dark) {
+[data-bs-theme="dark"] {
   $_table-dark-border-color: rgba(255, 255, 255, 0.1);
   $_table-dark-border: solid 1px $_table-dark-border-color;
 
@@ -170,6 +176,20 @@
 
     .-pagination .-btn {
       color: var(--fpc-text-color);
+    }
+
+    .-pagination input,
+    .-pagination select,
+    .rt-thead.-filters input,
+    .rt-thead.-filters select {
+      color: var(--fpc-text-color);
+      background-color: var(--fpc-body);
+      border-color: var(--bs-border-color);
+
+      &:hover,
+      &:focus {
+        border-color: var(--bs-primary-border-subtle);
+      }
     }
 
     .rt-thead,
@@ -188,6 +208,8 @@
 
   .table {
     --bs-table-color: var(--fpc-text-color);
+    --bs-table-bg: transparent;
+    --bs-table-accent-bg: transparent;
     --bs-table-striped-color: var(--fpc-text-color);
     --bs-table-striped-bg: var(--fpc-bright-background);
 

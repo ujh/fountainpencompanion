@@ -4,6 +4,7 @@ import "regenerator-runtime/runtime";
 import { Tooltip, Dropdown } from "bootstrap";
 import "@popperjs/core";
 
+import "./color-mode";
 import "./src/color-picker";
 import "./src/collected_inks";
 import "./src/collected_pens";
