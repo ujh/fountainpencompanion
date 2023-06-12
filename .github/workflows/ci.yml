@@ -32,7 +32,7 @@ jobs:
         ports:
           - 5432:5432
     steps:
-      - uses: actions/checkout@v3.5.2
+      - uses: actions/checkout@v3.5.3
       - name: Install correct Node version
         uses: actions/setup-node@v3.6.0
         with:
@@ -55,7 +55,7 @@ jobs:
     env:
       PRETTIER_RUBY_TIMEOUT_MS: 50000
     steps:
-      - uses: actions/checkout@v3.5.2
+      - uses: actions/checkout@v3.5.3
       - name: Install correct Node version
         uses: actions/setup-node@v3.6.0
         with:
