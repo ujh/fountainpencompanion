@@ -24,13 +24,8 @@
       }
     }
   }
-
-  @media (max-width: 991px) {
-    display: none;
-  }
 }
 
-#currently-inked,
 #currently-inked-archive {
   @media (min-width: 992px) {
     .swabs {

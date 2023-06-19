@@ -1,8 +1,16 @@
 import React from "react";
 import { rest } from "msw";
 import { setupServer } from "msw/node";
-import { render, screen } from "@testing-library/react";
-import { CurrentlyInked } from "./CurrentlyInked";
+import { render } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { CurrentlyInked, storageKeyLayout } from "./CurrentlyInked";
+
+const setup = (jsx, options) => {
+  return {
+    user: userEvent.setup(),
+    ...render(jsx, options)
+  };
+};
 
 describe("<CurrentlyInked />", () => {
   const server = setupServer(
@@ -220,11 +228,36 @@ describe("<CurrentlyInked />", () => {
   afterAll(() => server.close());
 
   it("renders the app", async () => {
-    render(<CurrentlyInked />);
+    const { findByText } = setup(<CurrentlyInked />);
 
-    const entry = await screen.findByText(
-      "Giants' Pens Pocket Pen, M (Magna Carta)"
-    );
+    const entry = await findByText("Giants' Pens Pocket Pen, M (Magna Carta)");
     expect(entry).toBeInTheDocument();
+  });
+
+  it("swaps to card layout when clicked", async () => {
+    const { findByText, getByTitle, queryByText, user } = setup(
+      <CurrentlyInked />
+    );
+
+    // Actions heading from the table should be visible
+    const heading = await findByText("Actions");
+    expect(heading).toBeInTheDocument();
+
+    const cardLayoutButton = getByTitle("Card layout");
+    await user.click(cardLayoutButton);
+
+    // Actions heading from the table should not be visible anymore
+    expect(queryByText("Actions")).not.toBeInTheDocument();
+  });
+
+  it("remembers layout from localStorage", async () => {
+    localStorage.setItem(storageKeyLayout, "card");
+
+    const { findByText, queryByText } = setup(<CurrentlyInked />);
+
+    await findByText("Giants' Pens Pocket Pen, M (Magna Carta)");
+
+    // Actions heading from the table should not be visible
+    expect(queryByText("Actions")).not.toBeInTheDocument();
   });
 });

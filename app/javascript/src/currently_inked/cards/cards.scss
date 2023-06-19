@@ -1,0 +1,6 @@
+.fpc-currently-inked-cards {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  grid-template-rows: auto;
+}
