@@ -1,8 +1,8 @@
-import React, { useCallback, useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import Jsona from "jsona";
 import { getRequest } from "../fetch";
+import { useLayout } from "../useLayout";
 import { useScreen } from "../useScreen";
-import * as storage from "../localStorage";
 import { CardsPlaceholder } from "../components/CardsPlaceholder";
 import { TablePlaceholder } from "../components/TablePlaceholder";
 import { CollectedInksCards } from "./cards";
@@ -34,16 +34,7 @@ export const CollectedInks = ({ archive }) => {
   );
 
   const screen = useScreen();
-
-  const [layout, setLayout] = useState(storage.getItem(storageKeyLayout));
-  const onLayoutChange = useCallback(
-    (e) => {
-      const nextLayout = e.target.value;
-      setLayout(nextLayout);
-      storage.setItem(storageKeyLayout, nextLayout);
-    },
-    [setLayout]
-  );
+  const { layout, onLayoutChange } = useLayout(storageKeyLayout);
 
   if (layout ? layout === "card" : screen.isSmall) {
     if (inks) {
