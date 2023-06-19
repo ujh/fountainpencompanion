@@ -1,7 +1,7 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo } from "react";
 import { useTable, useSortBy, useGlobalFilter } from "react-table";
 import _ from "lodash";
-import * as storage from "../../localStorage";
+import { useHiddenFields } from "../../useHiddenFields";
 import { Actions } from "../components";
 import { fuzzyMatch } from "./match";
 import { Counter } from "./Counter";
@@ -161,9 +161,7 @@ export const CollectedInksTable = ({ data, archive, onLayoutChange }) => {
     []
   );
 
-  const [hiddenFields, setHiddenFields] = useState([]);
-
-  const getDefaultHiddenFields = useCallback(() => {
+  const defaultHiddenFields = useMemo(() => {
     let hideIfNoInksWithValue = [
       "private",
       "private_comment",
@@ -180,32 +178,9 @@ export const CollectedInksTable = ({ data, archive, onLayoutChange }) => {
     return hideIfNoInksWithValue;
   }, [data]);
 
-  useEffect(() => {
-    const fromLocalStorage = JSON.parse(
-      storage.getItem(storageKeyHiddenFields)
-    );
-    if (fromLocalStorage) {
-      setHiddenFields(fromLocalStorage);
-      return;
-    }
-
-    setHiddenFields(getDefaultHiddenFields());
-  }, [getDefaultHiddenFields, setHiddenFields]);
-
-  const onHiddenFieldsChange = useCallback(
-    (nextHiddenFields) => {
-      if (nextHiddenFields === null) {
-        storage.removeItem(storageKeyHiddenFields);
-
-        setHiddenFields(getDefaultHiddenFields());
-
-        return;
-      }
-
-      setHiddenFields(nextHiddenFields);
-      storage.setItem(storageKeyHiddenFields, JSON.stringify(nextHiddenFields));
-    },
-    [setHiddenFields, getDefaultHiddenFields]
+  const { hiddenFields, onHiddenFieldsChange } = useHiddenFields(
+    storageKeyHiddenFields,
+    defaultHiddenFields
   );
 
   const {

@@ -1,5 +1,5 @@
-import React, { useCallback, useEffect, useState } from "react";
-import * as storage from "../../localStorage";
+import React, { useState } from "react";
+import { useHiddenFields } from "../../useHiddenFields";
 import { Actions } from "../components/Actions";
 import { Cards } from "./Cards";
 import { fuzzyMatch } from "./match";
@@ -10,34 +10,8 @@ export const CollectedPensCards = ({ pens, onLayoutChange }) => {
   const [matchOn, setMatchOn] = useState("");
   const visible = fuzzyMatch(pens, matchOn);
 
-  const [hiddenFields, setHiddenFields] = useState([]);
-
-  useEffect(() => {
-    const fromLocalStorage = JSON.parse(
-      storage.getItem(storageKeyHiddenFields)
-    );
-    if (fromLocalStorage) {
-      setHiddenFields(fromLocalStorage);
-      return;
-    }
-
-    setHiddenFields([]);
-  }, [setHiddenFields]);
-
-  const onHiddenFieldsChange = useCallback(
-    (nextHiddenFields) => {
-      if (nextHiddenFields === null) {
-        storage.removeItem(storageKeyHiddenFields);
-
-        setHiddenFields([]);
-
-        return;
-      }
-
-      setHiddenFields(nextHiddenFields);
-      storage.setItem(storageKeyHiddenFields, JSON.stringify(nextHiddenFields));
-    },
-    [setHiddenFields]
+  const { hiddenFields, onHiddenFieldsChange } = useHiddenFields(
+    storageKeyHiddenFields
   );
 
   return (
