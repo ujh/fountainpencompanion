@@ -1,8 +1,7 @@
 class CurrentlyInkedController < ApplicationController
   before_action :authenticate_user!
-  before_action :retrieve_collection, only: [:index]
   before_action :retrieve_record, only: %i[edit update destroy archive refill]
-  before_action :set_empty_record, only: %i[new index]
+  before_action :set_empty_record, only: %i[new]
 
   add_breadcrumb "Currently inked", :currently_inked_index_path
 
@@ -72,21 +71,6 @@ class CurrentlyInkedController < ApplicationController
       :inked_on,
       :comment
     )
-  end
-
-  def retrieve_collection
-    @collection =
-      current_user
-        .currently_inkeds
-        .active
-        .includes(
-          :collected_pen,
-          :last_usage,
-          collected_ink: {
-            micro_cluster: :macro_cluster
-          }
-        )
-        .sort_by { |ci| "#{ci.pen_name} #{ci.ink_name}" }
   end
 
   def retrieve_record
