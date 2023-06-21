@@ -1,11 +1,16 @@
 import React, { useState, useEffect } from "react";
 import Jsona from "jsona";
 import { getRequest } from "../fetch";
-
+import { useLayout } from "../useLayout";
+import { useScreen } from "../useScreen";
+import { CardsPlaceholder } from "../components/CardsPlaceholder";
 import { TablePlaceholder } from "../components/TablePlaceholder";
+import { CurrentlyInkedCards } from "./cards/CurrentlyInkedCards";
 import { CurrentlyInkedTable } from "./table/CurrentlyInkedTable";
 
 const formatter = new Jsona();
+
+export const storageKeyLayout = "fpc-currently-inked-layout";
 
 export const CurrentlyInked = () => {
   const [currentlyInked, setCurrentlyInked] = useState();
@@ -17,18 +22,31 @@ export const CurrentlyInked = () => {
     getData();
   }, []);
 
-  if (currentlyInked) {
-    return (
-      <div>
-        <CurrentlyInkedTable currentlyInked={currentlyInked} />
-      </div>
-    );
+  const screen = useScreen();
+  const { layout, onLayoutChange } = useLayout(storageKeyLayout);
+
+  if (layout ? layout === "card" : screen.isSmall) {
+    if (currentlyInked) {
+      return (
+        <CurrentlyInkedCards
+          currentlyInked={currentlyInked}
+          onLayoutChange={onLayoutChange}
+        />
+      );
+    } else {
+      return <CardsPlaceholder />;
+    }
   } else {
-    return (
-      <div>
-        <TablePlaceholder />
-      </div>
-    );
+    if (currentlyInked) {
+      return (
+        <CurrentlyInkedTable
+          currentlyInked={currentlyInked}
+          onLayoutChange={onLayoutChange}
+        />
+      );
+    } else {
+      return <TablePlaceholder />;
+    }
   }
 };
 

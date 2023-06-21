@@ -1,5 +1,6 @@
 import _ from "lodash";
 import React, { useCallback, useState } from "react";
+import { useFieldSwitcher } from "../../useFieldSwitcher";
 import { LayoutToggle } from "../../components/LayoutToggle";
 import { Switch } from "../../components/Switch";
 import "./actions.scss";
@@ -28,22 +29,9 @@ export const Actions = ({
     [onFilterChange, numberOfInks]
   );
 
-  const isSwitchedOn = useCallback(
-    (field) => !hiddenFields.includes(field),
-    [hiddenFields]
-  );
-
-  const onSwitchChange = useCallback(
-    (checked, field) => {
-      if (checked) {
-        const newHiddenFields = hiddenFields.filter((f) => f !== field);
-        onHiddenFieldsChange(newHiddenFields);
-      } else {
-        const newHiddenFields = [...hiddenFields, field];
-        onHiddenFieldsChange(newHiddenFields);
-      }
-    },
-    [hiddenFields, onHiddenFieldsChange]
+  const { isSwitchedOn, onSwitchChange } = useFieldSwitcher(
+    hiddenFields,
+    onHiddenFieldsChange
   );
 
   return (

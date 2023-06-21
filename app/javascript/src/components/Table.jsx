@@ -64,7 +64,6 @@ export const Table = ({
                 {column.render("Footer")}
               </td>
             ))}
-            <td></td>
           </tr>
         ))}
       </tfoot>

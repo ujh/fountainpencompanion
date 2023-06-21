@@ -1,16 +1,16 @@
-.fpc-swab-card {
+.fpc-currently-inked-card {
   display: flex;
   flex-direction: column;
   background: var(--fpc-bright-background);
 
-  .fpc-swab-card__swab {
+  &__swab {
     margin-inline: auto;
     height: 180px;
     width: 180px;
     position: relative;
   }
 
-  .fpc-swab-card__swab::before {
+  &__swab::before {
     content: " ";
     position: absolute;
     top: 1px;
@@ -24,27 +24,15 @@
     mask-repeat: no-repeat;
   }
 
-  .fpc-swab-card__footer {
+  &__footer {
     display: flex;
     flex-direction: row;
     gap: 8px;
-    justify-content: space-between;
+    justify-content: flex-end;
     align-items: center;
   }
 
-  .fpc-swab-card__badges {
-    display: flex;
-    flex-direction: row;
-    gap: 4px;
-    flex-wrap: wrap;
-    max-width: 220px;
-
-    .badge {
-      text-transform: capitalize;
-    }
-  }
-
-  .fpc-swab-card__actions {
+  &__actions {
     min-width: 90px;
   }
 }

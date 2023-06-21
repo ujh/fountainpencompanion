@@ -1,0 +1,11 @@
+.fpc-currently-inked-actions {
+  float: left;
+  display: flex;
+  gap: 4px;
+
+  // This is when the search field starts being on the same line as the actions,
+  // increasing height. Set margin-top to offset.
+  @media (min-width: 768px) {
+    margin-top: 12px;
+  }
+}

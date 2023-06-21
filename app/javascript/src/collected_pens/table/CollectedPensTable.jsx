@@ -1,7 +1,7 @@
-import React, { useMemo, useState, useEffect, useCallback } from "react";
+import React, { useMemo, useEffect } from "react";
 import { useTable, useSortBy, useGlobalFilter } from "react-table";
 import _ from "lodash";
-import * as storage from "../../localStorage";
+import { useHiddenFields } from "../../useHiddenFields";
 import { Table } from "../../components/Table";
 import { Actions } from "../components/Actions";
 import { ActionsCell } from "./ActionsCell";
@@ -61,9 +61,7 @@ export const CollectedPensTable = ({ pens, onLayoutChange }) => {
     []
   );
 
-  const [hiddenFields, setHiddenFields] = useState([]);
-
-  const getDefaultHiddenFields = useCallback(() => {
+  const defaultHiddenFields = useMemo(() => {
     let hideIfNoneWithValue = [
       "nib",
       "color",
@@ -74,32 +72,9 @@ export const CollectedPensTable = ({ pens, onLayoutChange }) => {
     return hideIfNoneWithValue;
   }, [pens]);
 
-  useEffect(() => {
-    const fromLocalStorage = JSON.parse(
-      storage.getItem(storageKeyHiddenFields)
-    );
-    if (fromLocalStorage) {
-      setHiddenFields(fromLocalStorage);
-      return;
-    }
-
-    setHiddenFields(getDefaultHiddenFields());
-  }, [getDefaultHiddenFields, setHiddenFields]);
-
-  const onHiddenFieldsChange = useCallback(
-    (nextHiddenFields) => {
-      if (nextHiddenFields === null) {
-        storage.removeItem(storageKeyHiddenFields);
-
-        setHiddenFields(getDefaultHiddenFields());
-
-        return;
-      }
-
-      setHiddenFields(nextHiddenFields);
-      storage.setItem(storageKeyHiddenFields, JSON.stringify(nextHiddenFields));
-    },
-    [setHiddenFields, getDefaultHiddenFields]
+  const { hiddenFields, onHiddenFieldsChange } = useHiddenFields(
+    storageKeyHiddenFields,
+    defaultHiddenFields
   );
 
   const {

@@ -1,14 +1,16 @@
-import React, { useMemo, useState, useEffect, useCallback } from "react";
+import React, { useMemo, useEffect } from "react";
 import { useTable, useSortBy, useGlobalFilter } from "react-table";
 import _ from "lodash";
-
-import { colorSort as genericColorSort } from "../../color-sorting";
+import { useHiddenFields } from "../../useHiddenFields";
 import { Actions } from "../components/Actions";
+import { fuzzyMatch } from "./match";
 import { Table } from "../../components/Table";
-
+import { colorSort } from "./sort";
 import { ActionsCell } from "./ActionsCell";
 
-export const CurrentlyInkedTable = ({ currentlyInked }) => {
+export const storageKeyHiddenFields = "fpc-currently-inked-table-hidden-fields";
+
+export const CurrentlyInkedTable = ({ currentlyInked, onLayoutChange }) => {
   const columns = useMemo(
     () => [
       {
@@ -89,17 +91,17 @@ export const CurrentlyInkedTable = ({ currentlyInked }) => {
     []
   );
 
-  const [hiddenFields, setHiddenFields] = useState([]);
-  const getDefaultHiddenFields = useCallback(() => {
+  const defaultHiddenFields = useMemo(() => {
     let hideIfNoneWithValue = ["comment"].filter(
       (n) => !currentlyInked.some((e) => e[n])
     );
     return hideIfNoneWithValue;
   }, [currentlyInked]);
 
-  useEffect(() => {
-    setHiddenFields(getDefaultHiddenFields());
-  }, [getDefaultHiddenFields, setHiddenFields]);
+  const { hiddenFields, onHiddenFieldsChange } = useHiddenFields(
+    storageKeyHiddenFields,
+    defaultHiddenFields
+  );
 
   const {
     getTableProps,
@@ -108,8 +110,8 @@ export const CurrentlyInkedTable = ({ currentlyInked }) => {
     footerGroups,
     rows,
     prepareRow,
-    // preGlobalFilteredRows,
-    // setGlobalFilter,
+    preGlobalFilteredRows,
+    setGlobalFilter,
     setHiddenColumns
   } = useTable(
     {
@@ -118,11 +120,11 @@ export const CurrentlyInkedTable = ({ currentlyInked }) => {
       initialState: {
         hiddenColumns: hiddenFields,
         sortBy: [{ id: "pen_name" }]
-      }
-      // filterTypes: {
-      //   fuzzyText: fuzzyMatch
-      // },
-      // globalFilter: "fuzzyText"
+      },
+      filterTypes: {
+        fuzzyText: fuzzyMatch
+      },
+      globalFilter: "fuzzyText"
     },
     useGlobalFilter,
     useSortBy
@@ -134,7 +136,14 @@ export const CurrentlyInkedTable = ({ currentlyInked }) => {
 
   return (
     <div className="fpc-currently-inked-table">
-      <Actions />
+      <Actions
+        activeLayout="table"
+        numberOfEntries={preGlobalFilteredRows.length}
+        onFilterChange={setGlobalFilter}
+        onLayoutChange={onLayoutChange}
+        hiddenFields={hiddenFields}
+        onHiddenFieldsChange={onHiddenFieldsChange}
+      />
       <Table
         getTableProps={getTableProps}
         headerGroups={headerGroups}
@@ -146,6 +155,3 @@ export const CurrentlyInkedTable = ({ currentlyInked }) => {
     </div>
   );
 };
-
-const colorSort = (rowA, rowB, columnId) =>
-  genericColorSort(rowA.values[columnId], rowB.values[columnId]);

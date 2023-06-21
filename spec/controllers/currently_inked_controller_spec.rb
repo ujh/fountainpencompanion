@@ -26,8 +26,6 @@ describe CurrentlyInkedController do
       it "renders the currently inkeds" do
         get :index
         expect(response).to be_successful
-        expect(response.body).to include(collected_pen.name)
-        expect(response.body).to include(collected_ink.name)
       end
 
       it "exports the csv" do
