@@ -7,6 +7,7 @@ import { CardsPlaceholder } from "../components/CardsPlaceholder";
 import { TablePlaceholder } from "../components/TablePlaceholder";
 import { CurrentlyInkedCards } from "./cards/CurrentlyInkedCards";
 import { CurrentlyInkedTable } from "./table/CurrentlyInkedTable";
+import _ from "lodash";
 
 const formatter = new Jsona();
 
@@ -17,7 +18,10 @@ export const CurrentlyInked = () => {
 
   useEffect(() => {
     async function getData() {
-      setCurrentlyInked(await getCurrentlyInked());
+      // Hack to keep the default sort order of the table and the card view the same.
+      // Will eventually (ha!) be replaced by a sorting capability for the card view.
+      const data = await getCurrentlyInked();
+      setCurrentlyInked(_.sortBy(data, "pen_name"));
     }
     getData();
   }, []);
