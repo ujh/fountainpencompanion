@@ -24,7 +24,8 @@ describe("CurrentlyInkedSummaryWidget", () => {
   afterAll(() => server.close());
 
   it("renders the widget", async () => {
-    render(<CurrentlyInkedSummaryWidget renderWhenInvisible />);
+    const wrapper = render(<CurrentlyInkedSummaryWidget renderWhenInvisible />);
     await screen.findByText(/Currently inked pens/);
+    wrapper.unmount();
   });
 });
