@@ -198,7 +198,8 @@ export const CollectedInksTable = ({ data, archive, onLayoutChange }) => {
       columns,
       data,
       initialState: {
-        hiddenColumns: hiddenFields
+        hiddenColumns: hiddenFields,
+        sortBy: [{ id: "brand_name" }, { id: "line_name" }, { id: "ink_name" }]
       },
       filterTypes: {
         fuzzyText: fuzzyMatch

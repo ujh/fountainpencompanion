@@ -92,7 +92,13 @@ export const CollectedPensTable = ({ pens, onLayoutChange }) => {
       columns,
       data: pens,
       initialState: {
-        hiddenColumns: hiddenFields
+        hiddenColumns: hiddenFields,
+        sortBy: [
+          { id: "brand" },
+          { id: "model" },
+          { id: "nib" },
+          { id: "color" }
+        ]
       },
       filterTypes: {
         fuzzyText: fuzzyMatch
