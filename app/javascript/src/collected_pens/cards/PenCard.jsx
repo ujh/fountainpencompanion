@@ -1,6 +1,7 @@
 import React from "react";
 import { Card } from "../../components/Card";
 import "./pen-card.scss";
+import { RelativeDate } from "../../components/RelativeDate";
 
 /**
  * @param {{
@@ -28,7 +29,8 @@ export const PenCard = (props) => {
     color,
     comment,
     usage,
-    daily_usage
+    daily_usage,
+    last_used_on
   } = props;
 
   const fullName = `${brand} ${model}`;
@@ -56,7 +58,9 @@ export const PenCard = (props) => {
           <>
             <div className="small text-secondary">Usage</div>
             <Card.Text>
-              {String(usage)} inked ({String(daily_usage)} daily usages)
+              {String(usage)} inked - last used{" "}
+              <RelativeDate date={last_used_on} /> ({String(daily_usage)} daily
+              usages)
             </Card.Text>
           </>
         ) : null}
