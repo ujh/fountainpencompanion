@@ -108,7 +108,7 @@ export const SwabCard = (props) => {
               ? tags.map(({ id, name }) => (
                   <span
                     key={`ink-tag-${id}`}
-                    className="badge text-bg-secondary"
+                    className="tag badge text-bg-secondary"
                   >
                     {name}
                   </span>
