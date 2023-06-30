@@ -7,6 +7,7 @@ import { fuzzyMatch } from "./match";
 import { Table } from "../../components/Table";
 import { colorSort } from "./sort";
 import { ActionsCell } from "./ActionsCell";
+import { RelativeDate } from "../../components/RelativeDate";
 
 export const storageKeyHiddenFields = "fpc-currently-inked-table-hidden-fields";
 
@@ -70,12 +71,16 @@ export const CurrentlyInkedTable = ({ currentlyInked, onLayoutChange }) => {
       },
       {
         Header: "Date Inked",
-        accessor: "inked_on"
+        accessor: "inked_on",
+        Cell: ({ cell: { value } }) => (
+          <RelativeDate date={value} relativeAsDefault={false} />
+        )
       },
       {
         Header: "Last Used",
         accessor: "last_used_on",
-        sortDescFirst: true
+        sortDescFirst: true,
+        Cell: ({ cell: { value } }) => <RelativeDate date={value} />
       },
       {
         Header: "Comment",
