@@ -3,6 +3,7 @@ import React from "react";
 import { render } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { PenCard } from "./PenCard";
+import { formatISO9075 } from "date-fns";
 
 const setup = (jsx, options) => {
   return {
@@ -29,7 +30,7 @@ describe("<PenCard />", () => {
   });
 
   it("renders usage stats", () => {
-    const { getByText } = setup(
+    const { getByText, getByTestId } = setup(
       <PenCard
         id="1"
         brand="Pilot"
@@ -38,12 +39,17 @@ describe("<PenCard />", () => {
         nib="F"
         usage={1}
         daily_usage={10}
+        last_used_on={formatISO9075(new Date(), { representation: "date" })}
         hiddenFields={[]}
       />
     );
 
     expect(getByText("Usage")).toBeInTheDocument();
-    expect(getByText("1 inked (10 daily usages)")).toBeInTheDocument();
+    expect(getByTestId("usage")).toBeInTheDocument();
+    const usageElement = getByTestId("usage");
+    expect(usageElement.textContent).toBe(
+      "1 inked - last used today (10 daily usages)"
+    );
   });
 
   it("doesn't render a usage header if there are no stats", () => {

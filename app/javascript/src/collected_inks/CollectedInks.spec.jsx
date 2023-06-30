@@ -125,7 +125,7 @@ describe("<CollectedInks />", () => {
   });
 
   it("swaps to card layout when clicked", async () => {
-    const { findByText, getByTitle, queryByText, user } = setup(
+    const { findByText, getByTitle, getByTestId, user } = setup(
       <CollectedInks archive={false} />
     );
 
@@ -134,20 +134,20 @@ describe("<CollectedInks />", () => {
     await user.click(cardLayoutButton);
 
     // Mock response data from Yozakura, formated as in a card
-    expect(queryByText("2 inked (1 daily usages)")).toBeInTheDocument();
+    expect(getByTestId("usage")).toBeInTheDocument();
   });
 
   it("remembers layout from localStorage", async () => {
     localStorage.setItem(storageKeyLayout, "card");
 
-    const { findByText, queryByText } = setup(
+    const { findByText, getByTestId } = setup(
       <CollectedInks archive={false} />
     );
 
     await findByText("Sailor Shikiori Yozakura");
 
     // Mock response data from Yozakura, formated as in a card
-    expect(queryByText("2 inked (1 daily usages)")).toBeInTheDocument();
+    expect(getByTestId("usage")).toBeInTheDocument();
   });
 
   it("renders the archive", async () => {

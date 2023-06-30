@@ -6,6 +6,7 @@ import { Table } from "../../components/Table";
 import { Actions } from "../components/Actions";
 import { ActionsCell } from "./ActionsCell";
 import { fuzzyMatch } from "./match";
+import { RelativeDate } from "../../components/RelativeDate";
 
 export const storageKeyHiddenFields = "fpc-collected-pens-table-hidden-fields";
 
@@ -52,6 +53,12 @@ export const CollectedPensTable = ({ pens, onLayoutChange }) => {
         sortDescFirst: true
       },
       {
+        Header: "Last Usage",
+        accessor: "last_used_on",
+        sortDescFirst: true,
+        Cell: ({ cell: { value } }) => <RelativeDate date={value} />
+      },
+      {
         Header: "Actions",
         Cell: ({ cell: { row } }) => {
           return <ActionsCell {...row.original} id={row.original.id} />;
@@ -67,7 +74,8 @@ export const CollectedPensTable = ({ pens, onLayoutChange }) => {
       "color",
       "comment",
       "usage",
-      "daily_usage"
+      "daily_usage",
+      "last_used_on"
     ].filter((n) => !pens.some((e) => e[n]));
     return hideIfNoneWithValue;
   }, [pens]);

@@ -1,4 +1,5 @@
 import React from "react";
+import { RelativeDate } from "../../components/RelativeDate";
 import { Card } from "../../components";
 import { ArchiveButton, EditButton, DeleteButton } from "../components";
 import "./swab-card.scss";
@@ -20,6 +21,7 @@ import "./swab-card.scss";
  *    used?: boolean;
  *    usage?: number;
  *    daily_usage?: number;
+ *    last_used_on?: string;
  *    comment?: string;
  *    private_comment?: string;
  *    tags?: Array<{ id: string; name: string }>;
@@ -39,6 +41,7 @@ export const SwabCard = (props) => {
     comment,
     private_comment,
     tags,
+    last_used_on,
     hiddenFields
   } = props;
 
@@ -47,7 +50,8 @@ export const SwabCard = (props) => {
     .join(" ");
 
   const isVisible = (field) => props[field] && !hiddenFields.includes(field);
-  const hasUsage = isVisible("usage") || isVisible("daily_usage");
+  const hasUsage =
+    isVisible("usage") || isVisible("daily_usage") || isVisible("last_used_on");
 
   return (
     <Card className="fpc-swab-card">
@@ -85,8 +89,10 @@ export const SwabCard = (props) => {
         {hasUsage ? (
           <>
             <div className="small text-secondary">Usage</div>
-            <Card.Text>
-              {String(usage)} inked ({String(daily_usage)} daily usages)
+            <Card.Text data-testid="usage">
+              {String(usage)} inked -{" "}
+              <LastUsageDisplay last_used_on={last_used_on} /> (
+              {String(daily_usage)} daily usages)
             </Card.Text>
           </>
         ) : null}
@@ -134,4 +140,16 @@ export const SwabCard = (props) => {
       </Card.Body>
     </Card>
   );
+};
+
+const LastUsageDisplay = ({ last_used_on }) => {
+  if (last_used_on) {
+    return (
+      <>
+        last used <RelativeDate date={last_used_on} />
+      </>
+    );
+  } else {
+    return <>never used</>;
+  }
 };

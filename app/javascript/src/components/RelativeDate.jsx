@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from "react";
-import { formatDistance, startOfToday, parseISO } from "date-fns";
+import { startOfToday, parseISO, formatDistanceStrict } from "date-fns";
 
 export const RelativeDate = ({ date, relativeAsDefault = true }) => {
   const relativeDate = useMemo(() => relativeDateString(date), [date]);
@@ -28,7 +28,7 @@ const relativeDateString = (date) => {
   const parsedDate = parseISO(date);
   const today = startOfToday();
   if (parsedDate.getTime() == today.getTime()) return "today";
-  return formatDistance(parsedDate, today, {
+  return formatDistanceStrict(parsedDate, today, {
     addSuffix: true
   });
 };

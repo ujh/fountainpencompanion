@@ -1,6 +1,7 @@
 import React from "react";
 import { Card } from "../../components/Card";
 import "./pen-card.scss";
+import { RelativeDate } from "../../components/RelativeDate";
 
 /**
  * @param {{
@@ -28,12 +29,14 @@ export const PenCard = (props) => {
     color,
     comment,
     usage,
-    daily_usage
+    daily_usage,
+    last_used_on
   } = props;
 
   const fullName = `${brand} ${model}`;
   const isVisible = (field) => props[field] && !hiddenFields.includes(field);
-  const hasUsage = isVisible("usage") || isVisible("daily_usage");
+  const hasUsage =
+    isVisible("usage") || isVisible("daily_usage") || isVisible("last_used_on");
 
   return (
     <Card className="fpc-pen-card">
@@ -55,8 +58,10 @@ export const PenCard = (props) => {
         {hasUsage ? (
           <>
             <div className="small text-secondary">Usage</div>
-            <Card.Text>
-              {String(usage)} inked ({String(daily_usage)} daily usages)
+            <Card.Text data-testid="usage">
+              {String(usage)} inked -{" "}
+              <LastUsageDisplay last_used_on={last_used_on} /> (
+              {String(daily_usage)} daily usages)
             </Card.Text>
           </>
         ) : null}
@@ -82,4 +87,16 @@ export const PenCard = (props) => {
       </Card.Body>
     </Card>
   );
+};
+
+const LastUsageDisplay = ({ last_used_on }) => {
+  if (last_used_on) {
+    return (
+      <>
+        last used <RelativeDate date={last_used_on} />
+      </>
+    );
+  } else {
+    return <>never used</>;
+  }
 };

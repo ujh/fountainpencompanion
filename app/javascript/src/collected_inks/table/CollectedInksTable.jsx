@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo } from "react";
 import { useTable, useSortBy, useGlobalFilter } from "react-table";
 import _ from "lodash";
+import { RelativeDate } from "../../components/RelativeDate";
 import { useHiddenFields } from "../../useHiddenFields";
 import { Actions } from "../components";
 import { fuzzyMatch } from "./match";
@@ -128,6 +129,12 @@ export const CollectedInksTable = ({ data, archive, onLayoutChange }) => {
         sortDescFirst: true
       },
       {
+        Header: "Last Usage",
+        accessor: "last_used_on",
+        sortDescFirst: true,
+        Cell: ({ cell: { value } }) => <RelativeDate date={value} />
+      },
+      {
         Header: "Comment",
         accessor: "comment"
       },
@@ -169,7 +176,8 @@ export const CollectedInksTable = ({ data, archive, onLayoutChange }) => {
       "maker",
       "line_name",
       "kind",
-      "daily_usage"
+      "daily_usage",
+      "last_used_on"
     ].filter((n) => !data.some((e) => e[n]));
 
     if (data.every((e) => e.tags.length == 0)) {

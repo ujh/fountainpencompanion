@@ -65,7 +65,7 @@ describe("<CollectedPensCards />", () => {
   });
 
   it("updates hidden fields when clicked", async () => {
-    const { getByTitle, getByLabelText, queryByText, user } = setup(
+    const { getByTitle, getByLabelText, queryAllByTestId, user } = setup(
       <CollectedPensCards
         pens={pens}
         onLayoutChange={() => {
@@ -74,34 +74,37 @@ describe("<CollectedPensCards />", () => {
       />
     );
 
-    expect(queryByText("1 inked (2 daily usages)")).toBeInTheDocument();
+    expect(queryAllByTestId("usage")).not.toEqual([]);
 
     await user.click(getByTitle("Configure visible fields"));
     await user.click(getByLabelText("Show usage"));
     await user.click(getByLabelText("Show daily usage"));
+    await user.click(getByLabelText("Show last usage"));
 
-    expect(queryByText("1 inked (2 daily usages)")).not.toBeInTheDocument();
+    expect(queryAllByTestId("usage")).toEqual([]);
   });
 
   it("resets hidden fields when restore defaults is clicked", async () => {
-    const { getByText, getByTitle, getByLabelText, queryByText, user } = setup(
-      <CollectedPensCards
-        pens={pens}
-        onLayoutChange={() => {
-          return;
-        }}
-      />
-    );
+    const { getByText, getByTitle, getByLabelText, queryAllByTestId, user } =
+      setup(
+        <CollectedPensCards
+          pens={pens}
+          onLayoutChange={() => {
+            return;
+          }}
+        />
+      );
 
     await user.click(getByTitle("Configure visible fields"));
     await user.click(getByLabelText("Show usage"));
     await user.click(getByLabelText("Show daily usage"));
+    await user.click(getByLabelText("Show last usage"));
 
-    expect(queryByText("1 inked (2 daily usages)")).not.toBeInTheDocument();
+    expect(queryAllByTestId("usage")).toEqual([]);
 
     await user.click(getByText("Restore defaults"));
 
-    expect(queryByText("1 inked (2 daily usages)")).toBeInTheDocument();
+    expect(queryAllByTestId("usage")).not.toEqual([]);
   });
 
   it("renders with hidden fields restored from localStorage", () => {
