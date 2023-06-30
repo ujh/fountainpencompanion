@@ -28,7 +28,9 @@ describe("<UsageButton />", () => {
   });
 
   it("shows the correct button after clicking on it", async () => {
-    const { user, findByTitle } = setup(<UsageButton used={false} id={1} />);
+    const { user, findByTitle } = setup(
+      <UsageButton used={false} id={1} testingMode={true} />
+    );
     const button = await findByTitle("Record usage for today");
     await user.click(button);
     const newButton = await findByTitle("Already recorded usage for today");

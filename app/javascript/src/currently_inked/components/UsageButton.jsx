@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-export const UsageButton = ({ used, id }) => {
+export const UsageButton = ({ used, id, testingMode = false }) => {
   const [displayAsUsed, setDisplayAsUsed] = useState(used);
   if (displayAsUsed) {
     return (
@@ -20,7 +20,10 @@ export const UsageButton = ({ used, id }) => {
         data-remote="true"
         data-method="post"
         // Hack, until we have some global way of tracking the state
-        onClick={() => setDisplayAsUsed(true)}
+        onClick={(event) => {
+          setDisplayAsUsed(true);
+          if (testingMode) event.preventDefault();
+        }}
       >
         <i className="fa fa-bookmark"></i>
       </a>
