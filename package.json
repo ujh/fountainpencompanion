@@ -11,6 +11,7 @@
     "core-js": "^3.31.0",
     "css-loader": "^6.8.1",
     "d3-scale-chromatic": "^3.0.0",
+    "date-fns": "^2.30.0",
     "fast-levenshtein": "^3.0.0",
     "font-awesome": "^4.7.0",
     "highcharts": "^11.1.0",
