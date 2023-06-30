@@ -42,6 +42,10 @@
     .badge {
       text-transform: capitalize;
     }
+
+    .badge.tag {
+      text-transform: none;
+    }
   }
 
   .fpc-swab-card__actions {
