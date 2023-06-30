@@ -20,27 +20,36 @@ const PenSuggestionWidgetContent = () => {
   const [pickedPen, setPickedPen] = useState();
 
   if (pickedPen) {
+    console.log(pickedPen);
     return (
-      <>
-        <div className="picked-pen">
+      <div className="picked-pen-content">
+        <div className="pen">
           {pickedPen.brand} {pickedPen.model} {pickedPen.nib} {pickedPen.color}
         </div>
-        <Button onClick={() => setPickedPen(pickPen(pens))}>Pick a pen!</Button>
-      </>
+        <div className="buttons">
+          <PickPenButton onClick={() => setPickedPen(pickPen(pens))} />
+          <a
+            className="btn btn-success"
+            href={`/currently_inked/new?collected_pen_id=${pickedPen.id}`}
+          >
+            Ink in up!
+          </a>
+        </div>
+      </div>
     );
   } else {
     return (
-      <Button onClick={() => setPickedPen(pickPen(pens))}>Pick a pen!</Button>
+      <div className="picked-pen-content">
+        <PickPenButton onClick={() => setPickedPen(pickPen(pens))} />
+      </div>
     );
   }
 };
 
-const Button = ({ onClick, children }) => (
-  <div className="pick-button">
-    <a className="btn btn-success" onClick={onClick}>
-      {children}
-    </a>
-  </div>
+const PickPenButton = ({ onClick }) => (
+  <a className="btn btn-success" onClick={onClick}>
+    Pick a pen!
+  </a>
 );
 
 const pickPen = (pens) => {
