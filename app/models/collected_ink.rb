@@ -19,6 +19,10 @@ class CollectedInk < ApplicationRecord
   belongs_to :user
   has_many :currently_inkeds, dependent: :destroy
   has_many :usage_records, through: :currently_inkeds
+  has_one :newest_currently_inked,
+          -> { order("inked_on desc") },
+          class_name: "CurrentlyInked"
+
   belongs_to :micro_cluster, optional: true
 
   pg_search_scope(
@@ -175,6 +179,10 @@ class CollectedInk < ApplicationRecord
 
   def simplified_name
     "#{simplified_brand_name}#{simplified_ink_name}"
+  end
+
+  def last_used_on
+    newest_currently_inked&.last_used_on
   end
 
   private

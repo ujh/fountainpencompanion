@@ -1,6 +1,7 @@
 import React from "react";
 import { Card } from "../../components/Card";
 import { UsageButton } from "../components/UsageButton";
+import { RelativeDate } from "../../components/RelativeDate";
 import "./currently-inked-card.scss";
 
 /**
@@ -71,13 +72,17 @@ export const CurrentlyInkedCard = (props) => {
         {isVisible("inked_on") ? (
           <>
             <div className="small text-secondary">Inked</div>
-            <Card.Text>{String(inked_on)}</Card.Text>
+            <Card.Text>
+              <RelativeDate date={inked_on} relativeAsDefault={false} />
+            </Card.Text>
           </>
         ) : null}
         {isVisible("last_used_on") ? (
           <>
             <div className="small text-secondary">Last used</div>
-            <Card.Text>{String(last_used_on)}</Card.Text>
+            <Card.Text>
+              <RelativeDate date={last_used_on} />
+            </Card.Text>
           </>
         ) : null}
         <div className="fpc-currently-inked-card__footer">

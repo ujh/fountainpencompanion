@@ -1,4 +1,5 @@
 import React from "react";
+import { RelativeDate } from "../../components/RelativeDate";
 import { Card } from "../../components";
 import { ArchiveButton, EditButton, DeleteButton } from "../components";
 import "./swab-card.scss";
@@ -39,6 +40,7 @@ export const SwabCard = (props) => {
     comment,
     private_comment,
     tags,
+    last_used_on,
     hiddenFields
   } = props;
 
@@ -86,7 +88,9 @@ export const SwabCard = (props) => {
           <>
             <div className="small text-secondary">Usage</div>
             <Card.Text>
-              {String(usage)} inked ({String(daily_usage)} daily usages)
+              {String(usage)} inked - last used{" "}
+              <RelativeDate date={last_used_on} /> ({String(daily_usage)} daily
+              usages)
             </Card.Text>
           </>
         ) : null}
