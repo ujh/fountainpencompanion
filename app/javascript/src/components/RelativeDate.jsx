@@ -5,6 +5,8 @@ export const RelativeDate = ({ date, relativeAsDefault = true }) => {
   const relativeDate = useMemo(() => relativeDateString(date), [date]);
   const [showRelative, setShowRelative] = useState(relativeAsDefault);
 
+  if (!date) return;
+
   if (showRelative) {
     return (
       <span title={date} onClick={() => setShowRelative(false)}>
