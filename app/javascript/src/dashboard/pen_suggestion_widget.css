@@ -1,9 +1,10 @@
-.pick-button,
-.picked-pen {
+.picked-pen-content {
   text-align: center;
-}
-
-.picked-pen {
-  padding-bottom: 20px;
   padding-top: 20px;
+  .pen {
+    padding-bottom: 20px;
+  }
+  .buttons .btn {
+    margin-right: 20px;
+  }
 }
