@@ -21,6 +21,7 @@ import "./swab-card.scss";
  *    used?: boolean;
  *    usage?: number;
  *    daily_usage?: number;
+ *    last_used_on?: string;
  *    comment?: string;
  *    private_comment?: string;
  *    tags?: Array<{ id: string; name: string }>;
@@ -88,7 +89,7 @@ export const SwabCard = (props) => {
         {hasUsage ? (
           <>
             <div className="small text-secondary">Usage</div>
-            <Card.Text>
+            <Card.Text data-testid="usage">
               {String(usage)} inked -{" "}
               <LastUsageDisplay last_used_on={last_used_on} /> (
               {String(daily_usage)} daily usages)

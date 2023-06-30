@@ -66,7 +66,7 @@ describe("<CollectedInksCards />", () => {
   });
 
   it("updates hidden fields when clicked", async () => {
-    const { getByTitle, getByLabelText, queryByText, user } = setup(
+    const { getByTitle, getByLabelText, queryByTestId, user } = setup(
       <CollectedInksCards
         archive={false}
         data={data}
@@ -76,17 +76,24 @@ describe("<CollectedInksCards />", () => {
       />
     );
 
-    expect(queryByText("2 inked (1 daily usages)")).toBeInTheDocument();
+    expect(queryByTestId("usage")).toBeInTheDocument();
 
     await user.click(getByTitle("Configure visible fields"));
     await user.click(getByLabelText("Show usage"));
     await user.click(getByLabelText("Show daily usage"));
 
-    expect(queryByText("2 inked (1 daily usages)")).not.toBeInTheDocument();
+    expect(queryByTestId("usage")).not.toBeInTheDocument();
   });
 
   it("resets hidden fields when restore defaults is clicked", async () => {
-    const { getByText, getByTitle, getByLabelText, queryByText, user } = setup(
+    const {
+      getByText,
+      getByTitle,
+      getByLabelText,
+      queryByText,
+      getByTestId,
+      user
+    } = setup(
       <CollectedInksCards
         archive={false}
         data={data}
@@ -104,7 +111,7 @@ describe("<CollectedInksCards />", () => {
 
     await user.click(getByText("Restore defaults"));
 
-    expect(queryByText("2 inked (1 daily usages)")).toBeInTheDocument();
+    expect(getByTestId("usage")).toBeInTheDocument();
   });
 
   it("renders with hidden fields restored from localStorage", () => {
