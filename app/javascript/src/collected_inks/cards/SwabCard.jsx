@@ -49,7 +49,8 @@ export const SwabCard = (props) => {
     .join(" ");
 
   const isVisible = (field) => props[field] && !hiddenFields.includes(field);
-  const hasUsage = isVisible("usage") || isVisible("daily_usage");
+  const hasUsage =
+    isVisible("usage") || isVisible("daily_usage") || isVisible("last_used_on");
 
   return (
     <Card className="fpc-swab-card">
@@ -88,9 +89,9 @@ export const SwabCard = (props) => {
           <>
             <div className="small text-secondary">Usage</div>
             <Card.Text>
-              {String(usage)} inked - last used{" "}
-              <RelativeDate date={last_used_on} /> ({String(daily_usage)} daily
-              usages)
+              {String(usage)} inked -{" "}
+              <LastUsageDisplay last_used_on={last_used_on} /> (
+              {String(daily_usage)} daily usages)
             </Card.Text>
           </>
         ) : null}
@@ -138,4 +139,16 @@ export const SwabCard = (props) => {
       </Card.Body>
     </Card>
   );
+};
+
+const LastUsageDisplay = ({ last_used_on }) => {
+  if (last_used_on) {
+    return (
+      <>
+        last used <RelativeDate date={last_used_on} />
+      </>
+    );
+  } else {
+    return <>never used</>;
+  }
 };
