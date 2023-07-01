@@ -18,7 +18,8 @@ class CollectedInksController < ApplicationController
           :currently_inkeds,
           :usage_records,
           :tags,
-          micro_cluster: :macro_cluster
+          micro_cluster: :macro_cluster,
+          newest_currently_inked: :last_usage
         )
         .order("brand_name, line_name, ink_name")
     if params.dig(:filter, :macro_cluster_id)
