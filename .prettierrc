@@ -11,5 +11,6 @@
   "bracketSameLine": false,
   "arrowParens": "always",
   "endOfLine": "lf",
-  "singleAttributePerLine": false
+  "singleAttributePerLine": false,
+  "plugins": ["@prettier/plugin-ruby"]
 }

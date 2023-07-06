@@ -55,6 +55,7 @@ Rails.application.routes.draw do
   namespace :pens do
     resources :brands, only: [:index]
     resources :models, only: [:index]
+    resources :nibs, only: [:index]
   end
   get "brands/:id", to: "brands#show", as: "brand"
   resources :inks, only: [:index]
