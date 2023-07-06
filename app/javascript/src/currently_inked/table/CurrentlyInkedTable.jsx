@@ -123,8 +123,7 @@ export const CurrentlyInkedTable = ({ currentlyInked, onLayoutChange }) => {
       columns,
       data: currentlyInked,
       initialState: {
-        hiddenColumns: hiddenFields,
-        sortBy: [{ id: "pen_name" }]
+        hiddenColumns: hiddenFields
       },
       filterTypes: {
         fuzzyText: fuzzyMatch
