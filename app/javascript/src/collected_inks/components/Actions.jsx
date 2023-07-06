@@ -23,9 +23,12 @@ export const Actions = ({
   // to not melt mountainofinks' phone when filtering :D
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const debouncedOnFilterChange = useCallback(
-    _.debounce((value) => {
-      onFilterChange(value);
-    }, Math.min(numberOfInks / 10, 500)),
+    _.debounce(
+      (value) => {
+        onFilterChange(value);
+      },
+      Math.min(numberOfInks / 10, 500)
+    ),
     [onFilterChange, numberOfInks]
   );
 
