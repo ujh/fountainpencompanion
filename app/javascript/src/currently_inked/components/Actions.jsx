@@ -21,9 +21,12 @@ export const Actions = ({
   // The linter doesn't like our debounce call
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const debouncedOnFilterChange = useCallback(
-    _.debounce((value) => {
-      onFilterChange(value);
-    }, Math.min(numberOfEntries / 10, 500)),
+    _.debounce(
+      (value) => {
+        onFilterChange(value);
+      },
+      Math.min(numberOfEntries / 10, 500)
+    ),
     [onFilterChange, numberOfEntries]
   );
 

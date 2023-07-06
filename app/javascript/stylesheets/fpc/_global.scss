@@ -122,7 +122,8 @@ html[data-bs-theme="dark"] {
 .fpc-scroll-shadow {
   overflow: auto;
   max-width: 100%;
-  background: linear-gradient(to right, var(--fpc-background) 20%, transparent),
+  background:
+    linear-gradient(to right, var(--fpc-background) 20%, transparent),
     linear-gradient(to right, transparent, var(--fpc-background) 80%) 0 100%,
     linear-gradient(to right, var(--fpc-shadow-color), transparent 20%),
     linear-gradient(to left, var(--fpc-shadow-color), transparent 20%);
