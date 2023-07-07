@@ -2,7 +2,17 @@ require "sidekiq/web"
 require "sidekiq-scheduler/web"
 
 Rails.application.routes.draw do
-  devise_for :users, controllers: { registrations: "users/registrations" }
+  devise_for :users,
+             controllers: {
+               registrations: "users/registrations",
+               sessions: "devise/passwordless/sessions"
+             }
+
+  devise_scope :user do
+    get "/users/magic_link",
+        to: "devise/passwordless/magic_links#show",
+        as: "users_magic_link"
+  end
 
   resource :dashboard, only: [:show] do
     resources :widgets, only: [:show]

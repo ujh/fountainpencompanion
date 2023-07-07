@@ -6,10 +6,10 @@
       <%= f.input :email, required: false, autofocus: true %>
     </div>
     <div class="mb-4">
-      <%= f.input :password, required: false %>
+      <%= f.input :password, required: false, hint: "Leave blank to receive a magic logic link to the email address provided" %>
     </div>
     <div class="mb-3">
-      <%= f.input :remember_me, as: :boolean if devise_mapping.rememberable? %>
+      <%= f.input :remember_me, as: :boolean, :input_html => { :checked => true } if devise_mapping.rememberable? %>
     </div>
 
     <div>

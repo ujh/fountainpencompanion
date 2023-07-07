@@ -114,6 +114,8 @@ GEM
       railties (>= 4.1.0)
       responders
       warden (~> 1.2.3)
+    devise-passwordless (0.7.1)
+      devise
     diff-lcs (1.5.0)
     docile (1.4.0)
     dotenv (2.8.1)
@@ -483,6 +485,7 @@ DEPENDENCIES
   color
   derailed
   devise
+  devise-passwordless
   dotenv-rails
   factory_bot_rails
   faraday
