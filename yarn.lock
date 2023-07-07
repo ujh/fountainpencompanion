@@ -1617,12 +1617,12 @@
   resolved "https://registry.yarnpkg.com/@popperjs/core/-/core-2.11.8.tgz#6b79032e760a0899cd4204710beede972a3a185f"
   integrity sha512-P1st0aksCrn9sGZhp8GMYwBnQsbvAWsZAX44oXNNvLHGqAOcoVxmjZiohstwQ7SqKnbR47akdNi+uleWD8+g6A==
 
-"@prettier/plugin-ruby@^3.2.2":
-  version "3.2.2"
-  resolved "https://registry.yarnpkg.com/@prettier/plugin-ruby/-/plugin-ruby-3.2.2.tgz#43c9d85349032f74d34c4f57e6a77487d5c5bdc1"
-  integrity sha512-Vc7jVE39Fgswl517ET4kPtpnoRWE6XTi1Sivd84rZyomYnHYUmvUsEeoOf6tVhzTuIXE5XVQB1YCG2hulrwR3Q==
+"@prettier/plugin-ruby@^4.0.0":
+  version "4.0.0"
+  resolved "https://registry.yarnpkg.com/@prettier/plugin-ruby/-/plugin-ruby-4.0.0.tgz#afa75da34cbfafa97c64039c1e9dbb6065babe46"
+  integrity sha512-MpHt4p3WjqiP/NNH2WnscTbQW1urbKmVV29iVlZcICx3bHt3qE8NE4ZvcPb67WkthIHhhB35vWmetAIh4laJlQ==
   dependencies:
-    prettier ">=2.3.0"
+    prettier ">=3.0.0"
 
 "@sinclair/typebox@^0.27.8":
   version "0.27.8"
@@ -6068,7 +6068,7 @@ prettier-linter-helpers@^1.0.0:
   dependencies:
     fast-diff "^1.1.2"
 
-prettier@>=2.3.0, prettier@^3.0.0:
+prettier@>=3.0.0, prettier@^3.0.0:
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/prettier/-/prettier-3.0.0.tgz#e7b19f691245a21d618c68bc54dc06122f6105ae"
   integrity sha512-zBf5eHpwHOGPC47h0zrPyNn+eAEIdEzfywMoYn2XPi0P44Zp0tSq64rq0xAREh4auw2cJZHo9QUob+NqCQky4g==
