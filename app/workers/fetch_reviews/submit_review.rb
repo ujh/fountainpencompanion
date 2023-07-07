@@ -20,7 +20,7 @@ class FetchReviews
     end
 
     def user
-      @user ||= User.find_by(email: Admin.first.email)
+      @user ||= User.find_by(email: "urban@bettong.net")
     end
   end
 end
