@@ -19,6 +19,6 @@ module ApplicationHelper
   end
 
   def admin?
-    current_user&.admin? || admin_signed_in?
+    current_user&.admin?
   end
 end

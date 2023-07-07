@@ -13,7 +13,7 @@ class Admins::Reviews::MissingController < Admins::BaseController
     data = Unfurler::Youtube.new(params[:video_id]).perform
     CreateInkReviewSubmission.new(
       url: data.url,
-      user: User.find_by(email: current_admin.email),
+      user: User.find_by(email: current_user.email),
       macro_cluster: cluster,
       automatic: true
     ).perform

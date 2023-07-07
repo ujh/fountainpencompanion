@@ -9,10 +9,6 @@ class ApplicationController < ActionController::Base
     end
   end
 
-  def after_sign_in_path_for(resource)
-    admin_signed_in? ? admins_dashboard_path : dashboard_path
-  end
-
   private
 
   def configure_permitted_parameters

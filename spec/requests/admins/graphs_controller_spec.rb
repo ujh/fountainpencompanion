@@ -1,12 +1,12 @@
 require "rails_helper"
 
 describe Admins::GraphsController do
-  let(:admin) { create(:admin) }
+  let(:admin) { create(:user, :admin, created_at: 1.year.ago) }
 
   describe "#show" do
     it "requires authentication" do
       get "/admins/graphs/signups"
-      expect(response).to redirect_to(new_admin_session_path)
+      expect(response).to redirect_to(new_user_session_path)
     end
 
     context "signed in" do

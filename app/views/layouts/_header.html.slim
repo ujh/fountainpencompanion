@@ -22,6 +22,8 @@ nav class="fpc-header navbar navbar-dark navbar-expand-lg" id="header"
             li= link_to "Forum ↗", "https://community.fpc.ink", class: "dropdown-item", target: "_blank"
 
         li= link_to "Blog", blog_index_path, class: "nav-link"
+        - if admin?
+          li= link_to "Admin", admins_dashboard_path, class: "nav-link"
 
 
       ul class="navbar-nav me-auto mb-2 mb-lg-0 align-self-right"

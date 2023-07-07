@@ -116,10 +116,6 @@ class User < ApplicationRecord
     pending_friendships.where(id: user.id).exists?
   end
 
-  def admin?
-    Admin.find_by(email: email).present?
-  end
-
   def public_inks
     collected_inks
       .where(private: false)
