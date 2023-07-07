@@ -9,7 +9,8 @@ class User < ApplicationRecord
          :recoverable,
          :rememberable,
          :trackable,
-         :validatable
+         :validatable,
+         :magic_link_authenticatable
 
   has_many :currently_inkeds, dependent: :destroy
   has_many :collected_inks, dependent: :delete_all
