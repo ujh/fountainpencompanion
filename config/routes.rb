@@ -2,7 +2,6 @@ require "sidekiq/web"
 require "sidekiq-scheduler/web"
 
 Rails.application.routes.draw do
-  devise_for :admins
   devise_for :users, controllers: { registrations: "users/registrations" }
 
   resource :dashboard, only: [:show] do

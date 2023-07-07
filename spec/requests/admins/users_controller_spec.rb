@@ -2,12 +2,12 @@ require "rails_helper"
 require "csv"
 
 describe Admins::UsersController do
-  let(:admin) { create(:admin) }
+  let(:admin) { create(:user, :admin) }
 
   describe "#index" do
     it "requires authentication" do
       get "/admins/users"
-      expect(response).to redirect_to(new_admin_session_path)
+      expect(response).to redirect_to(new_user_session_path)
     end
 
     context "signed in" do
@@ -38,7 +38,7 @@ describe Admins::UsersController do
 
     it "requires authentication" do
       post "/admins/users/#{user.id}/ink_import", params: { file: file_upload }
-      expect(response).to redirect_to(new_admin_session_path)
+      expect(response).to redirect_to(new_user_session_path)
     end
 
     context "signed in" do
@@ -83,7 +83,7 @@ describe Admins::UsersController do
 
     it "requires authentication" do
       post "/admins/users/#{user.id}/pen_import", params: { file: file_upload }
-      expect(response).to redirect_to(new_admin_session_path)
+      expect(response).to redirect_to(new_user_session_path)
     end
 
     context "signed in" do

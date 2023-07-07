@@ -1,12 +1,12 @@
 require "rails_helper"
 
 describe Admins::BrandClustersController do
-  let(:admin) { create(:admin) }
+  let(:admin) { create(:user, :admin) }
 
   describe "#new" do
     it "requires authentication" do
       get "/admins/brand_clusters/new"
-      expect(response).to redirect_to(new_admin_session_path)
+      expect(response).to redirect_to(new_user_session_path)
     end
 
     context "signed in" do
@@ -25,7 +25,7 @@ describe Admins::BrandClustersController do
 
     it "requires authentication" do
       post "/admins/brand_clusters?macro_cluster_id=#{macro_cluster.id}"
-      expect(response).to redirect_to(new_admin_session_path)
+      expect(response).to redirect_to(new_user_session_path)
     end
 
     context "signed in" do
@@ -48,7 +48,7 @@ describe Admins::BrandClustersController do
 
     it "requires authentication" do
       put "/admins/brand_clusters/#{macro_cluster.id}?brand_cluster_id=#{brand_cluster.id}"
-      expect(response).to redirect_to(new_admin_session_path)
+      expect(response).to redirect_to(new_user_session_path)
     end
 
     context "signed in" do

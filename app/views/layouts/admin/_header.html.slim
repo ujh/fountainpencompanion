@@ -1,6 +1,6 @@
 nav class="fpc-header navbar navbar-dark navbar-expand-md" id="header"
   div class="container"
-    a class="fpc-header__capybara navbar-brand" aria-label="Dashboard" href=admins_dashboard_path
+    a class="fpc-header__capybara navbar-brand" aria-label="Dashboard" href=root_path
       img src="/images/capybara/capybara_square,w_200.png" alt=""
 
     button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#header-menu" aria-controls="#header-menu" aria-expanded="false" aria-label="Toggle navigation"
@@ -29,4 +29,4 @@ nav class="fpc-header navbar navbar-dark navbar-expand-md" id="header"
             li= link_to "Queue", admins_reviews_path, class: "dropdown-item"
             li= link_to "Missing reviews", admins_reviews_missing_index_path, class: "dropdown-item"
       ul class="navbar-nav me-auto mb-2 mb-lg-0 align-self-right"
-        li= link_to "Log out", destroy_admin_session_path, method: :delete, class: "nav-link"
+        li= link_to "Log out", destroy_user_session_path, method: :delete, class: "nav-link"

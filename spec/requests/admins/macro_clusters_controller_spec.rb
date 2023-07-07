@@ -1,12 +1,12 @@
 require "rails_helper"
 
 describe Admins::MacroClustersController do
-  let(:admin) { create(:admin) }
+  let(:admin) { create(:user, :admin) }
 
   describe "#index" do
     it "requires authentication" do
       get "/admins/macro_clusters"
-      expect(response).to redirect_to(new_admin_session_path)
+      expect(response).to redirect_to(new_user_session_path)
     end
 
     context "signed in" do
@@ -227,7 +227,7 @@ describe Admins::MacroClustersController do
     it "requires authentication" do
       expect do
         post "/admins/macro_clusters", params: params
-        expect(response).to redirect_to(new_admin_session_path)
+        expect(response).to redirect_to(new_user_session_path)
       end.to_not change { MacroCluster.count }
     end
 
@@ -286,7 +286,7 @@ describe Admins::MacroClustersController do
 
     it "requires authentication" do
       put "/admins/macro_clusters/#{macro_cluster.id}", params: params
-      expect(response).to redirect_to(new_admin_session_path)
+      expect(response).to redirect_to(new_user_session_path)
     end
 
     context "signed in" do
@@ -329,7 +329,7 @@ describe Admins::MacroClustersController do
     it "requires authentication" do
       expect do
         delete "/admins/macro_clusters/#{macro_cluster.id}"
-        expect(response).to redirect_to(new_admin_session_path)
+        expect(response).to redirect_to(new_user_session_path)
       end.to_not change { MacroCluster.count }
     end
 

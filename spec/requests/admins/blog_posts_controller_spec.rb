@@ -1,12 +1,12 @@
 require "rails_helper"
 
 describe Admins::BlogPostsController do
-  let(:admin) { create(:admin) }
+  let(:admin) { create(:user, :admin) }
 
   describe "#index" do
     it "requires authentication" do
       get "/admins/blog_posts"
-      expect(response).to redirect_to(new_admin_session_path)
+      expect(response).to redirect_to(new_user_session_path)
     end
 
     context "signed in" do
@@ -22,7 +22,7 @@ describe Admins::BlogPostsController do
   describe "#new" do
     it "requires authentication" do
       get "/admins/blog_posts/new"
-      expect(response).to redirect_to(new_admin_session_path)
+      expect(response).to redirect_to(new_user_session_path)
     end
 
     context "signed in" do
@@ -38,7 +38,7 @@ describe Admins::BlogPostsController do
   describe "#create" do
     it "requires authentication" do
       post "/admins/blog_posts"
-      expect(response).to redirect_to(new_admin_session_path)
+      expect(response).to redirect_to(new_user_session_path)
     end
 
     context "signed in" do
@@ -80,7 +80,7 @@ describe Admins::BlogPostsController do
 
     it "requires authentication" do
       get "/admins/blog_posts/#{blog_post.id}/edit"
-      expect(response).to redirect_to(new_admin_session_path)
+      expect(response).to redirect_to(new_user_session_path)
     end
 
     context "signed in" do
@@ -98,7 +98,7 @@ describe Admins::BlogPostsController do
 
     it "requires authentication" do
       put "/admins/blog_posts/#{blog_post.id}"
-      expect(response).to redirect_to(new_admin_session_path)
+      expect(response).to redirect_to(new_user_session_path)
     end
 
     context "signed in" do
@@ -137,7 +137,7 @@ describe Admins::BlogPostsController do
 
     it "requires authentication" do
       delete "/admins/blog_posts/#{blog_post.id}"
-      expect(response).to redirect_to(new_admin_session_path)
+      expect(response).to redirect_to(new_user_session_path)
     end
 
     context "signed in" do
@@ -157,7 +157,7 @@ describe Admins::BlogPostsController do
 
     it "requires authentication" do
       put "/admins/blog_posts/#{blog_post.id}/publish"
-      expect(response).to redirect_to(new_admin_session_path)
+      expect(response).to redirect_to(new_user_session_path)
     end
 
     context "signed in" do

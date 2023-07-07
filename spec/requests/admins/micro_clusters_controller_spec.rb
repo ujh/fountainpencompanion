@@ -1,12 +1,12 @@
 require "rails_helper"
 
 describe Admins::MicroClustersController do
-  let(:admin) { create(:admin) }
+  let(:admin) { create(:user, :admin) }
 
   describe "#index" do
     it "requires authentication" do
       get "/admins/micro_clusters"
-      expect(response).to redirect_to(new_admin_session_path)
+      expect(response).to redirect_to(new_user_session_path)
     end
 
     context "signed in" do
@@ -109,7 +109,7 @@ describe Admins::MicroClustersController do
 
     it "requires authentication" do
       put "/admins/micro_clusters/#{micro_cluster.id}"
-      expect(response).to redirect_to(new_admin_session_path)
+      expect(response).to redirect_to(new_user_session_path)
     end
 
     context "signed in" do

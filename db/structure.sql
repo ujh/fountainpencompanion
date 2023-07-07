@@ -49,50 +49,6 @@ SET default_tablespace = '';
 SET default_table_access_method = heap;
 
 --
--- Name: admins; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.admins (
-    id bigint NOT NULL,
-    email character varying DEFAULT ''::character varying NOT NULL,
-    encrypted_password character varying DEFAULT ''::character varying NOT NULL,
-    reset_password_token character varying,
-    reset_password_sent_at timestamp without time zone,
-    remember_created_at timestamp without time zone,
-    sign_in_count integer DEFAULT 0 NOT NULL,
-    current_sign_in_at timestamp without time zone,
-    last_sign_in_at timestamp without time zone,
-    current_sign_in_ip inet,
-    last_sign_in_ip inet,
-    confirmation_token character varying,
-    confirmed_at timestamp without time zone,
-    confirmation_sent_at timestamp without time zone,
-    unconfirmed_email character varying,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL
-);
-
-
---
--- Name: admins_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE public.admins_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: admins_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE public.admins_id_seq OWNED BY public.admins.id;
-
-
---
 -- Name: ar_internal_metadata; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -710,7 +666,8 @@ CREATE TABLE public.users (
     bot boolean DEFAULT false,
     sign_up_user_agent text,
     sign_up_ip character varying,
-    bot_reason character varying
+    bot_reason character varying,
+    admin boolean DEFAULT false
 );
 
 
@@ -763,13 +720,6 @@ CREATE SEQUENCE public.you_tube_channels_id_seq
 --
 
 ALTER SEQUENCE public.you_tube_channels_id_seq OWNED BY public.you_tube_channels.id;
-
-
---
--- Name: admins id; Type: DEFAULT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.admins ALTER COLUMN id SET DEFAULT nextval('public.admins_id_seq'::regclass);
 
 
 --
@@ -896,14 +846,6 @@ ALTER TABLE ONLY public.users ALTER COLUMN id SET DEFAULT nextval('public.users_
 --
 
 ALTER TABLE ONLY public.you_tube_channels ALTER COLUMN id SET DEFAULT nextval('public.you_tube_channels_id_seq'::regclass);
-
-
---
--- Name: admins admins_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.admins
-    ADD CONSTRAINT admins_pkey PRIMARY KEY (id);
 
 
 --
@@ -1064,20 +1006,6 @@ ALTER TABLE ONLY public.users
 
 ALTER TABLE ONLY public.you_tube_channels
     ADD CONSTRAINT you_tube_channels_pkey PRIMARY KEY (id);
-
-
---
--- Name: index_admins_on_email; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE UNIQUE INDEX index_admins_on_email ON public.admins USING btree (email);
-
-
---
--- Name: index_admins_on_reset_password_token; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE UNIQUE INDEX index_admins_on_reset_password_token ON public.admins USING btree (reset_password_token);
 
 
 --
@@ -1635,6 +1563,9 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20211217111324'),
 ('20211222103755'),
 ('20220410080853'),
-('20220410081621');
+('20220410081621'),
+('20230707093023'),
+('20230707093107'),
+('20230707095306');
 
 

@@ -1,12 +1,12 @@
 require "rails_helper"
 
 describe "Admins::Reviews" do
-  let(:admin) { create(:admin) }
+  let(:admin) { create(:user, :admin) }
 
   describe "GET /admins/reviews" do
     it "requires authentication" do
       get "/admins/reviews"
-      expect(response).to redirect_to(new_admin_session_path)
+      expect(response).to redirect_to(new_user_session_path)
     end
 
     context "signed in" do
@@ -24,7 +24,7 @@ describe "Admins::Reviews" do
 
     it "requires authentication" do
       put "/admins/reviews/#{ink_review.id}"
-      expect(response).to redirect_to(new_admin_session_path)
+      expect(response).to redirect_to(new_user_session_path)
     end
 
     context "signed in" do
@@ -49,7 +49,7 @@ describe "Admins::Reviews" do
 
     it "requires authentication" do
       delete "/admins/reviews/#{ink_review.id}"
-      expect(response).to redirect_to(new_admin_session_path)
+      expect(response).to redirect_to(new_user_session_path)
     end
 
     context "signed in" do
