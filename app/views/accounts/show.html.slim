@@ -9,7 +9,7 @@ div id="account" class="row"
       div style="max-width: 450px"
         = f.input :name, wrapper: :vertical_form
       div style="max-width: 650px"
-        = f.input :email, disabled: true, wrapper: :vertical_form, hint: link_to("Change Email Address", edit_user_registration_path)
+        = f.input :email, disabled: true, wrapper: :vertical_form, hint: link_to("Change Email Address Or Password", edit_user_registration_path)
       div style="max-width: 450px"
         = f.input :time_zone, wrapper: :vertical_select, input_html: { class: 'form-control' }, collection: ActiveSupport::TimeZone.all.map {|tz| [tz.to_s, tz.tzinfo.identifier] }
 
