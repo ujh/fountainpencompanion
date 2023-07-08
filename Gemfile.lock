@@ -298,6 +298,8 @@ GEM
     raabro (1.4.0)
     racc (1.7.1)
     rack (2.2.7)
+    rack-attack (6.6.1)
+      rack (>= 1.0, < 3)
     rack-test (2.1.0)
       rack (>= 1.3)
     rails (7.0.6)
@@ -510,6 +512,7 @@ DEPENDENCIES
   prettier_print (~> 1.2)
   puma
   puma_worker_killer
+  rack-attack
   rails (~> 7.0.6)
   rails-assets-select2 (= 4.0.8)!
   rails-controller-testing
