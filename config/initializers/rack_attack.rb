@@ -1,4 +1,5 @@
-# Higher limit, to avoid having the dashboard with it's many requests rate limited
-Rack::Attack.throttle("general rate limit", limit: 10, period: 5) do |request|
-  request.ip
+Rack::Attack.throttle("inks limit", limit: 3, period: 1) do |request|
+  if request.path.starts_with?("/brands") || request.path.starts_with?("/inks")
+    request.ip
+  end
 end
