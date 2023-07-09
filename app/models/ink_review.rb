@@ -39,6 +39,10 @@ class InkReview < ApplicationRecord
     rejected_at.present?
   end
 
+  def user
+    ink_review_submissions.first.user
+  end
+
   private
 
   def set_host!(value)

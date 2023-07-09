@@ -17,6 +17,9 @@
     dt class="col-sm-3" Author
     dd class="col-sm-9"= ink_review.author
 
+    dt class="col-sm-3" Submitted by
+    dd class="col-sm-9"= ink_review.user.admin? ? "System" : user.name
+
     dt class="col-sm-3" Image
     dd class="col-sm-9"= image_tag(ink_review.image)
 
