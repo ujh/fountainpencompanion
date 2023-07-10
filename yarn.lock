@@ -1616,10 +1616,10 @@
   resolved "https://registry.yarnpkg.com/@popperjs/core/-/core-2.11.8.tgz#6b79032e760a0899cd4204710beede972a3a185f"
   integrity sha512-P1st0aksCrn9sGZhp8GMYwBnQsbvAWsZAX44oXNNvLHGqAOcoVxmjZiohstwQ7SqKnbR47akdNi+uleWD8+g6A==
 
-"@prettier/plugin-ruby@^4.0.0":
-  version "4.0.0"
-  resolved "https://registry.yarnpkg.com/@prettier/plugin-ruby/-/plugin-ruby-4.0.0.tgz#afa75da34cbfafa97c64039c1e9dbb6065babe46"
-  integrity sha512-MpHt4p3WjqiP/NNH2WnscTbQW1urbKmVV29iVlZcICx3bHt3qE8NE4ZvcPb67WkthIHhhB35vWmetAIh4laJlQ==
+"@prettier/plugin-ruby@^4.0.1":
+  version "4.0.1"
+  resolved "https://registry.yarnpkg.com/@prettier/plugin-ruby/-/plugin-ruby-4.0.1.tgz#69e4f214e7c3355951832266cd49c9566fcfd925"
+  integrity sha512-j1xdHARMfKpIvgKOENiuiWY/W9wcuyS3KB87r3ZYCTUzmOuE1leGebaFuZZpsYSS59Pnbcs666MyVQxvw58k3A==
   dependencies:
     prettier ">=3.0.0"
 
