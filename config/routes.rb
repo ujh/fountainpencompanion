@@ -118,7 +118,7 @@ Rails.application.routes.draw do
     end
   end
 
-  authenticate :admin do
+  authenticate :user, lambda { |user| user.admin? } do
     mount Sidekiq::Web => "/admins/sidekiq"
   end
 
