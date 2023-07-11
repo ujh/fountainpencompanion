@@ -182,7 +182,7 @@ class CollectedInk < ApplicationRecord
   end
 
   def last_used_on
-    newest_currently_inked&.last_used_on
+    newest_currently_inked&.last_used_on || newest_currently_inked&.inked_on
   end
 
   private
