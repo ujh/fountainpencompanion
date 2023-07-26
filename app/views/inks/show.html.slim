@@ -61,6 +61,9 @@ div class="row fpc-ink-details"
               div class="fpc-ink-review row"
                 div class="col-sm-12 col-md-6"
                   = link_to ink_review.title, ink_review.url
+                  - if admin?
+                    | &nbsp;
+                    = link_to "❌", admins_review_path(ink_review), method: :delete, data: { confirm: 'Reject?' }
                   div class="fpc-ink-review__source"
                     = URI(ink_review.url).host
                     - if ink_review.author
@@ -68,8 +71,6 @@ div class="row fpc-ink-details"
                   div class="description"= truncate(ink_review.description, length: 200)
                 div class="col-sm-12 col-md-6"
                   = image_tag ink_review.image
-                - if admin?
-                  = link_to "Reject", admins_review_path(ink_review), method: :delete, class: 'btn btn-secondary', data: { confirm: 'Reject?' }
 
   h2 Names for this ink
 
