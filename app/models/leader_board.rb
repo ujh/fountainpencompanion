@@ -28,7 +28,7 @@ class LeaderBoard
           c.versions.each { |v| count[v.whodunnit] += 1 if v.whodunnit }
         end
         ordered = count.to_a.sort_by(&:last).reverse
-        without_nil = ordered.find_all { |data| data[:id] }
+        without_nil = ordered.find_all { |user_id, counter| user_id.present? }
         without_nil.map do |user_id, counter|
           user = User.find_by(id: user_id)
           {

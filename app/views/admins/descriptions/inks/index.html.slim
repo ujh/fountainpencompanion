@@ -1,0 +1,8 @@
+- content_for :title, "Ink descriptions"
+
+- @ink_clusters.each do |ink_cluster|
+  div class="cluster"
+    div class="name"= ink_cluster.name
+    div class="description"= ink_cluster.description
+    div class="user"= User.find_by(id: ink_cluster.versions.last.whodunnit)&.public_name
+    div class="edit"= ink_cluster.updated_at
