@@ -4,6 +4,27 @@
   meta property="og:url" content=ink_url(@ink)
   meta property="og:description" content="This ink is owned by #{@ink.public_collected_inks_count} users"
 
+div class='ink-description'
+  div class="content"
+    = Slodown::Formatter.new(@ink.description).complete.to_s.html_safe
+  - if @ink.description.present?
+    div class="meta-data"
+      - latest_version = @ink.versions.last
+      - user = User.find_by(id: latest_version.whodunnit)
+      ' Latest edit
+      = time_ago_in_words(latest_version.created_at)
+      '  ago
+      - if user
+        ' by
+        = link_to user.public_name, user_path(user)
+        = patron_tiny(user)
+  - if user_signed_in?
+    div class="buttons"
+      - if @ink.description.present?
+        = link_to "Edit brand description", edit_brand_ink_path(@ink.brand_cluster, @ink), class: 'btn btn-success'
+      - else
+        = link_to "Add brand description", edit_brand_ink_path(@ink.brand_cluster, @ink), class: 'btn btn-success'
+
 div class="row fpc-ink-details"
   div class="col-sm-12 col-md-6"
     h2 class="h4" Details

@@ -56,7 +56,7 @@ Rails.application.routes.draw do
   resources :usage_records, only: %i[index destroy edit update]
 
   resources :brands, only: %i[index edit update show] do
-    resources :inks, only: [:show] do
+    resources :inks, only: %i[show edit update] do
       resources :ink_review_submissions, only: [:create]
     end
   end
