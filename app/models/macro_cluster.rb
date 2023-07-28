@@ -1,4 +1,6 @@
 class MacroCluster < ApplicationRecord
+  has_paper_trail
+
   has_many :micro_clusters, dependent: :nullify
   has_many :collected_inks, through: :micro_clusters
   has_many :ink_reviews, dependent: :destroy
