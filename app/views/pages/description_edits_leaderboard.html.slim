@@ -1,0 +1,12 @@
+- content_for :title, "Brand and ink description edits leaderboard"
+
+- content_for :breadcrumbs
+  ol class="breadcrumb"
+    li class="breadcrumb-item"
+      = link_to "Leaderboards", page_path("leaderboards")
+    li class="breadcrumb-item active" aria-current="page"
+      | Brand and ink description edits leaderboard
+
+ol class="fpc-leaderboard"
+  - LeaderBoard.description_edits.each do |user_data|
+    = render partial: "leaderboard_row", locals: { user_data: user_data }
