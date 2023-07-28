@@ -8,5 +8,5 @@
       | Brand and ink description edits leaderboard
 
 ol class="fpc-leaderboard"
-  - LeaderBoard.description_edits.each do |user_data|
+  - LeaderBoard.users_by_description_edits.each do |user_data|
     = render partial: "leaderboard_row", locals: { user_data: user_data }

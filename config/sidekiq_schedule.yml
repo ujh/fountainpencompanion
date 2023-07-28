@@ -5,7 +5,7 @@ fetch_reviews:
   cron: "0 */6 * * *" # Every six hours
   class: FetchReviews
 refresh_leaderboards:
-  cron: "0 */4 * * *" # Every four hours
+  cron: "0 */1 * * *" # Every hour
   class: RefreshLeaderBoards
 refresh_inks:
   class: RefreshInks
