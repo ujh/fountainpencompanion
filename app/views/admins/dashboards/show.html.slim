@@ -13,14 +13,27 @@ table class="table table-striped"
             td= "(#{@stats.patron_count} Patrons)"
     tr
       td Number of ink brands
-      td= BrandCluster.public_count
+      td
+        = BrandCluster.public_count
+        |  (
+        = BrandCluster.where.not(description: '').count
+        |  with description)
     tr
       td Number of macro clusters
       td
-        = @stats.macro_cluster_count
-        |   (
-        = @stats.unassigned_macro_cluster_count
-        |  unassigned macro clusters)
+        table
+          tr
+            td= @stats.macro_cluster_count
+            td
+              |   (
+              = @stats.unassigned_macro_cluster_count
+              |  unassigned macro clusters)
+          tr
+            td
+            td
+              |  (
+              = MacroCluster.where.not(description: '').count
+              |  with description)
     tr
       td Number of micro clusters
       td
