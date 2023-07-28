@@ -1,4 +1,6 @@
 class BrandCluster < ApplicationRecord
+  has_paper_trail
+
   has_many :macro_clusters, dependent: :nullify
   has_many :collected_inks, through: :macro_clusters
 

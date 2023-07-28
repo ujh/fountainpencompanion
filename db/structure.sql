@@ -101,7 +101,8 @@ CREATE TABLE public.brand_clusters (
     id bigint NOT NULL,
     name character varying,
     created_at timestamp(6) without time zone NOT NULL,
-    updated_at timestamp(6) without time zone NOT NULL
+    updated_at timestamp(6) without time zone NOT NULL,
+    description text DEFAULT ''::text
 );
 
 
@@ -469,7 +470,8 @@ CREATE TABLE public.macro_clusters (
     color character varying(7) DEFAULT ''::character varying NOT NULL,
     created_at timestamp(6) without time zone NOT NULL,
     updated_at timestamp(6) without time zone NOT NULL,
-    brand_cluster_id bigint
+    brand_cluster_id bigint,
+    description text DEFAULT ''::text
 );
 
 
@@ -691,6 +693,41 @@ ALTER SEQUENCE public.users_id_seq OWNED BY public.users.id;
 
 
 --
+-- Name: versions; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.versions (
+    id bigint NOT NULL,
+    item_type character varying NOT NULL,
+    item_id bigint NOT NULL,
+    event character varying NOT NULL,
+    whodunnit character varying,
+    object text,
+    created_at timestamp(6) without time zone,
+    object_changes text
+);
+
+
+--
+-- Name: versions_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.versions_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: versions_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.versions_id_seq OWNED BY public.versions.id;
+
+
+--
 -- Name: you_tube_channels; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -839,6 +876,13 @@ ALTER TABLE ONLY public.usage_records ALTER COLUMN id SET DEFAULT nextval('publi
 --
 
 ALTER TABLE ONLY public.users ALTER COLUMN id SET DEFAULT nextval('public.users_id_seq'::regclass);
+
+
+--
+-- Name: versions id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.versions ALTER COLUMN id SET DEFAULT nextval('public.versions_id_seq'::regclass);
 
 
 --
@@ -998,6 +1042,14 @@ ALTER TABLE ONLY public.usage_records
 
 ALTER TABLE ONLY public.users
     ADD CONSTRAINT users_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: versions versions_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.versions
+    ADD CONSTRAINT versions_pkey PRIMARY KEY (id);
 
 
 --
@@ -1251,6 +1303,13 @@ CREATE UNIQUE INDEX index_users_on_email ON public.users USING btree (email);
 --
 
 CREATE UNIQUE INDEX index_users_on_reset_password_token ON public.users USING btree (reset_password_token);
+
+
+--
+-- Name: index_versions_on_item_type_and_item_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_versions_on_item_type_and_item_id ON public.versions USING btree (item_type, item_id);
 
 
 --
@@ -1566,6 +1625,10 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20220410081621'),
 ('20230707093023'),
 ('20230707093107'),
-('20230707095306');
+('20230707095306'),
+('20230728091234'),
+('20230728091314'),
+('20230728091424'),
+('20230728091425');
 
 
