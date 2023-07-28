@@ -58,6 +58,15 @@ div.row.mb-3
     p= link_to "Show all", page_path("ink_review_submissions_leaderboard")
 
   div class="col-sm-12 col-md-6 fpc-leaderboards__board"
+    h2 class="h4" Brand and ink description edits
+    p.text-muted Ranked by the number of edits made to brand and ink descriptions
+    ol
+      - LeaderBoard.top_description_edits.each do |user_data|
+        = render partial: "leaderboard_row", locals: { user_data: user_data }
+    p= link_to "Show all", page_path("description_edits_leaderboard")
+
+div.row.mb-3
+  div class="col-sm-12 col-md-6 fpc-leaderboards__board"
     h2 class="h4" Popular inks
     p.text-muted Ranked by number of people who own this
     ol
@@ -70,7 +79,6 @@ div.row.mb-3
           = " (#{macro_cluster.ci_count})"
     p= link_to "Show all", page_path("inks_by_popularity")
 
-div.row.mb-3
   div class="col-sm-12 fpc-leaderboards__board"
     h2 class="h4" Popular pens
     p.text-muted Ranked by number of people who own this
