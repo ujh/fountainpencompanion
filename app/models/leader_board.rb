@@ -9,10 +9,43 @@ class LeaderBoard
     usage_records
     pens_by_popularity
     ink_review_submissions
+    description_edits
   ]
 
   def self.refresh!(type)
     self.send(type, force: true)
+  end
+
+  def self.description_edits(force: false)
+    Rails
+      .cache
+      .fetch("LeaderBoard#description_edits", force: force) do
+        count = Hash.new { |h, k| h[k] = 0 }
+        BrandCluster.find_each do |c|
+          c.versions.each { |v| count[v.whodunnit] += 1 if v.whodunnit }
+        end
+        MacroCluster.find_each do |c|
+          c.versions.each { |v| count[v.whodunnit] += 1 if v.whodunnit }
+        end
+        count
+          .to_a
+          .sort_by(&:last)
+          .reverse
+          .map do |user_id, counter|
+            user = User.find_by(id: user_id)
+            {
+              id: user&.id,
+              public_name: user&.public_name,
+              counter: counter,
+              patron: user&.patron
+            }
+          end
+          .find_all { |data| data[:id] }
+      end
+  end
+
+  def self.top_description_edits
+    description_edits.take(10)
   end
 
   def self.pens_by_popularity(force: false)
