@@ -55,7 +55,7 @@ Rails.application.routes.draw do
   resources :friendships, only: %i[create update destroy]
   resources :usage_records, only: %i[index destroy edit update]
 
-  resources :brands, only: [:index] do
+  resources :brands, only: %i[index edit update show] do
     resources :inks, only: [:show] do
       resources :ink_review_submissions, only: [:create]
     end
@@ -66,7 +66,6 @@ Rails.application.routes.draw do
     resources :models, only: [:index]
     resources :nibs, only: [:index]
   end
-  get "brands/:id", to: "brands#show", as: "brand"
   resources :inks, only: [:index]
   resource :account, only: %i[show edit update]
 

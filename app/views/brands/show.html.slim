@@ -4,6 +4,27 @@
   meta property="og:url" content=brand_url(@brand)
   meta property="og:description" content="#{@brand.public_ink_count} distinct inks. #{@brand.public_collected_inks_count} entries in total."
 
+div class='brand-description'
+  div class="content"
+    = Slodown::Formatter.new(@brand.description).complete.to_s.html_safe
+  - if @brand.description.present?
+    div class="meta-data"
+      - latest_version = @brand.versions.last
+      - user = User.find_by(id: latest_version.whodunnit)
+      ' Latest edit
+      = time_ago_in_words(latest_version.created_at)
+      '  ago
+      - if user
+        ' by
+        = link_to user.public_name, user_path(user)
+        = patron_tiny(user)
+  - if user_signed_in?
+    div class="buttons"
+      - if @brand.description.present?
+        = link_to "Edit brand description", edit_brand_path(@brand), class: 'btn btn-success'
+      - else
+        = link_to "Add brand description", edit_brand_path(@brand), class: 'btn btn-success'
+
 div class="fpc-table fpc-table--full-width fpc-inks-table fpc-scroll-shadow"
   table class="table table-striped"
     caption

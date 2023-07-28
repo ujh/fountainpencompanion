@@ -1,6 +1,9 @@
 class BrandsController < ApplicationController
   add_breadcrumb "Inks", "/brands"
 
+  before_action :authenticate_user!, only: %i[edit update]
+  before_action :set_paper_trail_whodunnit, only: %i[edit update]
+
   def index
     @brands = BrandCluster.public.order(:name)
   end
@@ -25,5 +28,16 @@ class BrandsController < ApplicationController
                   filename: "#{@brand.name.parameterize}.csv"
       end
     end
+  end
+
+  def edit
+    @brand = BrandCluster.find(params[:id])
+  end
+
+  def update
+    @brand = BrandCluster.find(params[:id])
+    @brand.update(description: params[:brand_cluster][:description])
+
+    redirect_to brand_path(@brand)
   end
 end
