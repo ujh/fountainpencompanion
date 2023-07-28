@@ -115,6 +115,10 @@ Rails.application.routes.draw do
         member { post "add" }
       end
     end
+    namespace :descriptions do
+      resources :brands, only: [:index]
+      resources :inks, only: [:index]
+    end
   end
 
   authenticate :user, lambda { |user| user.admin? } do
