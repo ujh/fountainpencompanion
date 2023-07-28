@@ -1,4 +1,7 @@
 class InksController < ApplicationController
+  before_action :authenticate_user!, only: %i[edit update]
+  before_action :set_paper_trail_whodunnit, only: %i[edit update]
+
   def index
     @clusters = full_text_cluster_search
   end
@@ -13,6 +16,17 @@ class InksController < ApplicationController
     unless params[:brand_id]
       redirect_to brand_ink_path(@ink.brand_cluster, @ink)
     end
+  end
+
+  def edit
+    @ink = MacroCluster.find(params[:id])
+  end
+
+  def update
+    @ink = MacroCluster.find(params[:id])
+    @ink.update(description: params[:macro_cluster][:description])
+
+    redirect_to ink_path(@ink)
   end
 
   private
