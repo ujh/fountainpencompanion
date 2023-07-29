@@ -20,14 +20,15 @@ const PenSuggestionWidgetContent = () => {
   const [pickedPen, setPickedPen] = useState();
 
   if (pickedPen) {
-    console.log(pickedPen);
     return (
       <div className="picked-pen-content">
         <div className="pen">
           {pickedPen.brand} {pickedPen.model} {pickedPen.nib} {pickedPen.color}
         </div>
         <div className="buttons">
-          <PickPenButton onClick={() => setPickedPen(pickPen(pens))} />
+          <PickPenButton
+            onClick={() => setPickedPen(pickPen(pens, pickedPen))}
+          />
           <a
             className="btn btn-success"
             href={`/currently_inked/new?collected_pen_id=${pickedPen.id}`}
@@ -40,7 +41,7 @@ const PenSuggestionWidgetContent = () => {
   } else {
     return (
       <div className="picked-pen-content">
-        <PickPenButton onClick={() => setPickedPen(pickPen(pens))} />
+        <PickPenButton onClick={() => setPickedPen(pickPen(pens, pickedPen))} />
       </div>
     );
   }
@@ -52,19 +53,26 @@ const PickPenButton = ({ onClick }) => (
   </a>
 );
 
-const pickPen = (pens) => {
+const pickPen = (pens, currenPick) => {
   const totalScore = pens.reduce((acc, pen) => acc + pen.score, 0);
-  const randomValue = Math.floor(Math.random() * totalScore);
 
-  let index = 0;
-  let runningValue = pens[0].score;
+  let newPick = null;
+  let tries = 0;
+  do {
+    const randomValue = Math.floor(Math.random() * totalScore);
+    let index = 0;
+    let runningValue = pens[0].score;
 
-  while (runningValue < randomValue) {
-    index += 1;
-    runningValue += pens[index].score;
-  }
+    while (runningValue < randomValue) {
+      index += 1;
+      runningValue += pens[index].score;
+    }
 
-  return pens[index];
+    newPick = pens[index];
+    tries++;
+  } while (newPick == currenPick && tries < 10);
+
+  return newPick;
 };
 
 const filterPens = (pens) =>
