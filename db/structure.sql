@@ -1061,6 +1061,13 @@ ALTER TABLE ONLY public.you_tube_channels
 
 
 --
+-- Name: index_brand_clusters_on_description; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_brand_clusters_on_description ON public.brand_clusters USING btree (description);
+
+
+--
 -- Name: index_brand_clusters_on_name; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -1226,6 +1233,13 @@ CREATE INDEX index_macro_clusters_on_brand_cluster_id ON public.macro_clusters U
 --
 
 CREATE UNIQUE INDEX index_macro_clusters_on_brand_name_and_line_name_and_ink_name ON public.macro_clusters USING btree (brand_name, line_name, ink_name);
+
+
+--
+-- Name: index_macro_clusters_on_description; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_macro_clusters_on_description ON public.macro_clusters USING btree (description);
 
 
 --
@@ -1629,6 +1643,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20230728091234'),
 ('20230728091314'),
 ('20230728091424'),
-('20230728091425');
+('20230728091425'),
+('20230729172114');
 
 
