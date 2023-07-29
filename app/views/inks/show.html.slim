@@ -2,7 +2,7 @@
 - content_for :head
   meta property="og:title" content=@ink.name
   meta property="og:url" content=ink_url(@ink)
-  meta property="og:description" content="This ink is owned by #{@ink.public_collected_inks_count} users"
+  meta property="og:description" content=@description
 
 div class='ink-description'
   div class="content"

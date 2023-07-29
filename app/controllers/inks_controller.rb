@@ -8,7 +8,7 @@ class InksController < ApplicationController
 
   def show
     @ink = MacroCluster.find(params[:id])
-
+    @description = build_description
     add_breadcrumb "Inks", "/brands"
     add_breadcrumb "#{@ink.brand_cluster.name}", brand_path(@ink.brand_cluster)
     add_breadcrumb "#{@ink.name}", brand_ink_path(@ink.brand_cluster, @ink)
@@ -36,6 +36,14 @@ class InksController < ApplicationController
       redirect_to brands_path
     else
       MacroCluster.full_text_search(params[:q])
+    end
+  end
+
+  def build_description
+    if @ink.description.present?
+      @ink.description.truncate(100)
+    else
+      "This ink is owned by #{@ink.public_collected_inks_count} users"
     end
   end
 end

@@ -2,7 +2,7 @@
 - content_for :head
   meta property="og:title" content=@brand.name
   meta property="og:url" content=brand_url(@brand)
-  meta property="og:description" content="#{@brand.public_ink_count} distinct inks. #{@brand.public_collected_inks_count} entries in total."
+  meta property="og:description" content=@description
 
 div class='brand-description'
   div class="content"
