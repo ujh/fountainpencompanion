@@ -21,9 +21,9 @@ div class='ink-description'
   - if user_signed_in?
     div class="buttons"
       - if @ink.description.present?
-        = link_to "Edit brand description", edit_brand_ink_path(@ink.brand_cluster, @ink), class: 'btn btn-success'
+        = link_to "Edit ink description", edit_brand_ink_path(@ink.brand_cluster, @ink), class: 'btn btn-success'
       - else
-        = link_to "Add brand description", edit_brand_ink_path(@ink.brand_cluster, @ink), class: 'btn btn-success'
+        = link_to "Add ink description", edit_brand_ink_path(@ink.brand_cluster, @ink), class: 'btn btn-success'
 
 div class="row fpc-ink-details"
   div class="col-sm-12 col-md-6"
