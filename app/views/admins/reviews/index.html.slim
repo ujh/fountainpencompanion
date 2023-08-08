@@ -15,7 +15,7 @@
     dd class="col-sm-9"= link_to ink_review.url, ink_review.url, target: "_blank"
 
     dt class="col-sm-3" Author
-    dd class="col-sm-9"= ink_review.author
+    dd class="col-sm-9"= ink_review.author.presence || "-"
 
     dt class="col-sm-3" Submitted by
     dd class="col-sm-9"= ink_review.user.admin? ? "System" : (ink_review.user.name.presence || ink_review.user.email)
