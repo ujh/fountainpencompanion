@@ -1,6 +1,6 @@
 - content_for :title, "Edit description of #{@brand.name}"
 
 = simple_form_for @brand, url: brand_path(@brand) do |f|
-  = f.input :description, hint: 'Markdown syntax supported', label: false, input_html: { rows: [10, @brand.description.split.length].max}
+  = f.input :description, hint: 'Markdown syntax supported', label: false, input_html: { rows: [10, @brand.description.lines.length].max}
   = f.submit 'Save', class: "btn btn-success"
   = link_to 'Cancel', brand_path(@brand), class: "btn btn-secondary"

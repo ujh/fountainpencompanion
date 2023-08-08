@@ -1,6 +1,6 @@
 - content_for :title, "Edit description of #{@ink.name}"
 
 = simple_form_for @ink, url: brand_ink_path(@ink.brand_cluster, @ink) do |f|
-  = f.input :description, hint: 'Markdown syntax supported', label: false, input_html: { rows: [10, @ink.description.split.length].max}
+  = f.input :description, hint: 'Markdown syntax supported', label: false, input_html: { rows: [10, @ink.description.lines.length].max}
   = f.submit 'Save', class: "btn btn-success"
   = link_to 'Cancel', brand_ink_path(@ink.brand_cluster, @ink), class: "btn btn-secondary"
