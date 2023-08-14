@@ -356,7 +356,7 @@ GEM
       actionpack (>= 5.2)
       railties (>= 5.2)
     retriable (3.1.2)
-    rexml (3.2.5)
+    rexml (3.2.6)
     rinku (2.0.6)
     rspec-core (3.12.2)
       rspec-support (~> 3.12.0)
@@ -375,7 +375,7 @@ GEM
       rspec-mocks (~> 3.12)
       rspec-support (~> 3.12)
     rspec-support (3.12.0)
-    rss (0.2.9)
+    rss (0.3.0)
       rexml
     ruby-oembed (0.15.0)
     ruby-progressbar (1.13.0)
