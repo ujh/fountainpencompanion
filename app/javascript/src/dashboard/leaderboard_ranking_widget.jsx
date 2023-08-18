@@ -16,8 +16,14 @@ export const LeaderboardRankingWidget = ({ renderWhenInvisible }) => (
 
 const LeaderboardRankingWidgetContent = () => {
   const { data } = useContext(WidgetDataContext);
-  const { inks, bottles, samples, brands, ink_review_submissions } =
-    data.attributes;
+  const {
+    inks,
+    bottles,
+    samples,
+    brands,
+    ink_review_submissions,
+    description_edits
+  } = data.attributes;
   return (
     <>
       <table className="mt-4 table table-borderless table-sm card-text">
@@ -51,6 +57,12 @@ const LeaderboardRankingWidgetContent = () => {
               Review submissions
             </th>
             <td className="text-end">{ink_review_submissions || "Unranked"}</td>
+          </tr>
+          <tr>
+            <th className="fw-normal" scope="row">
+              Description edits
+            </th>
+            <td className="text-end">{description_edits || "Unranked"}</td>
           </tr>
         </tbody>
       </table>
