@@ -192,6 +192,11 @@ class User < ApplicationRecord
     MacroCluster.without_review_of_user(self).count > 0
   end
 
+  def brands_or_inks_without_description?
+    BrandCluster.without_description_of_user(self).count > 0 or
+      MacroCluster.without_description_of_user(self).count > 0
+  end
+
   private
 
   def possible_and_approved_friends

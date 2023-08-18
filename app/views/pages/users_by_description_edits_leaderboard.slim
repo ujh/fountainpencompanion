@@ -7,6 +7,14 @@
     li class="breadcrumb-item active" aria-current="page"
       | Brand and ink description edits leaderboard
 
+div class="fpc-hint alert alert-secondary"
+  p
+    ' You can add a description to all brands and inks in the system. The most useful descriptions to
+    ' add would however be those from
+    = link_to 'this list', missing_descriptions_path
+    ' , as none of the brands and inks listed there have one.
+  p Note that you need to be logged in if you want to add a description.
+
 ol class="fpc-leaderboard"
   - LeaderBoard.users_by_description_edits.each do |user_data|
     = render partial: "leaderboard_row", locals: { user_data: user_data }
