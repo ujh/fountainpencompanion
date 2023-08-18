@@ -30,37 +30,41 @@ const LeaderboardRankingWidgetContent = () => {
         <tbody>
           <tr>
             <th className="fw-normal" scope="row">
-              Inks
+              <a href="/pages/inks_leaderboard">Inks</a>
             </th>
             <td className="text-end">{inks}</td>
           </tr>
           <tr>
             <th className="fw-normal" scope="row">
-              Bottles
+              <a href="/pages/bottles_leaderboard">Bottles</a>
             </th>
             <td className="text-end">{bottles}</td>
           </tr>
           <tr>
             <th className="fw-normal" scope="row">
-              Samples
+              <a href="/pages/samples_leaderboard">Samples</a>
             </th>
             <td className="text-end">{samples}</td>
           </tr>
           <tr>
             <th className="fw-normal" scope="row">
-              Brands
+              <a href="/pages/brands_leaderboard">Brands</a>
             </th>
             <td className="text-end">{brands}</td>
           </tr>
           <tr>
             <th className="fw-normal" scope="row">
-              Review submissions
+              <a href="/pages/ink_review_submissions_leaderboard">
+                Review submissions
+              </a>
             </th>
             <td className="text-end">{ink_review_submissions || "Unranked"}</td>
           </tr>
           <tr>
             <th className="fw-normal" scope="row">
-              Description edits
+              <a href="/pages/users_by_description_edits_leaderboard">
+                Description edits
+              </a>
             </th>
             <td className="text-end">{description_edits || "Unranked"}</td>
           </tr>
