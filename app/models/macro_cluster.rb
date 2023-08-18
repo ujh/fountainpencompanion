@@ -9,6 +9,7 @@ class MacroCluster < ApplicationRecord
   paginates_per 100
 
   scope :unassigned, -> { where(brand_cluster_id: nil) }
+  scope :without_description, -> { where(description: "") }
 
   def self.without_review
     MacroCluster.find_by_sql(<<~SQL)
@@ -40,8 +41,13 @@ class MacroCluster < ApplicationRecord
   end
 
   def self.without_review_of_user(user)
-    unreviewed_ids = MacroCluster.without_review.pluck(:id)
-    MacroCluster.where(id: unreviewed_ids).of_user(user)
+    unreviewed_ids = without_review.pluck(:id)
+    where(id: unreviewed_ids).of_user(user)
+  end
+
+  def self.without_description_of_user(user)
+    without_description_ids = without_description.pluck(:id)
+    where(id: without_description_ids).of_user(user)
   end
 
   def self.search(query)

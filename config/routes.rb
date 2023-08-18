@@ -78,6 +78,13 @@ Rails.application.routes.draw do
     end
   end
 
+  resources :descriptions, only: [] do
+    collection do
+      get "missing"
+      get "my_missing"
+    end
+  end
+
   namespace :api do
     namespace :v1 do
       resources :brands, only: [:index]
