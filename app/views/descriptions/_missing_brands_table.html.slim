@@ -1,0 +1,10 @@
+table class="fpc-review-table table table-striped"
+  tr
+    th Ink count
+    th Brand
+  - missing_brands.each do |brand_cluster|
+    tr
+      td= brand_cluster.count
+      td= link_to brand_cluster.name, brand_path(brand_cluster)
+
+= paginate missing_brands, param_name: :brands_page

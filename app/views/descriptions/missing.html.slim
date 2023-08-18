@@ -1,0 +1,25 @@
+- content_for :title, "Missing brand and ink descriptions"
+
+div class='fpc-hint alert alert-secondary'
+  p
+    ' All of the brands listed here do not have a description.
+    ' If you have the time, it would be great if you could add one!
+    - if user_signed_in?
+      b
+        ' You can find a list of brands without descriptions that you own
+        = link_to "here", my_missing_descriptions_path
+        ' .
+
+= render 'missing_brands_table', { missing_brands: @missing_brands }
+
+div class='fpc-hint alert alert-secondary'
+  p
+    ' All of the inks listed here do not have a description.
+    ' If you have the time, it would be great if you could add one!
+    - if user_signed_in?
+      b
+        ' You can find a list of inks without descriptions that you own
+        = link_to "here", my_missing_descriptions_path
+        ' .
+
+= render 'missing_inks_table', { missing_inks: @missing_inks }

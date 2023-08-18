@@ -4,6 +4,22 @@ class BrandCluster < ApplicationRecord
   has_many :macro_clusters, dependent: :nullify
   has_many :collected_inks, through: :macro_clusters
 
+  scope :without_description, -> { where(description: "") }
+
+  def self.without_description_of_user(user)
+    without_description_ids = without_description.pluck(:id)
+    where(id: without_description_ids).of_user(user)
+  end
+
+  def self.of_user(user)
+    joins(:collected_inks).where(
+      collected_inks: {
+        user_id: user.id,
+        archived_on: nil
+      }
+    )
+  end
+
   def self.public
     joins(macro_clusters: { micro_clusters: :collected_inks }).where(
       collected_inks: {
