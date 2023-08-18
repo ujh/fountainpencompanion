@@ -64,7 +64,8 @@ class WidgetsController < ApplicationController
         bottles: leaderboard_index(:bottles),
         samples: leaderboard_index(:samples),
         brands: leaderboard_index(:brands),
-        ink_review_submissions: leaderboard_index(:ink_review_submissions)
+        ink_review_submissions: leaderboard_index(:ink_review_submissions),
+        description_edits: leaderboard_index(:users_by_description_edits)
       }
     end
   end
