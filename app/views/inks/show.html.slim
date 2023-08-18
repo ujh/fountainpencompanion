@@ -18,6 +18,7 @@ div class='ink-description'
         ' by
         = link_to user.public_name, user_path(user)
         = patron_tiny(user)
+      div= link_to "History", ink_history_path(@ink)
   - if user_signed_in?
     div class="buttons"
       - if @ink.description.present?

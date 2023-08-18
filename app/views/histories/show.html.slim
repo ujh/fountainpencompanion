@@ -1,0 +1,21 @@
+- content_for :title, "History for #{@object.name}"
+
+div class='diff'
+  pre class='diff-content'= @diff.html_safe
+  div class='timestamp'
+    = time_ago_in_words(@version.created_at)
+    '  ago
+  - user = User.find_by(id: @version.whodunnit)
+  - if user
+      div class='user'
+        ' by
+        = link_to user.public_name, user_path(user)
+        = patron_tiny(user)
+
+
+div class="pagination"
+  - if @previous_index
+    = link_to "< Previous ", history_path(@object, params: { v: @previous_index })
+  ' &nbsp;
+  - if @next_index
+    = link_to " Next >", history_path(@object, params: { v: @next_index })

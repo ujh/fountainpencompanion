@@ -56,17 +56,19 @@ Rails.application.routes.draw do
   resources :usage_records, only: %i[index destroy edit update]
 
   resources :brands, only: %i[index edit update show] do
+    resource :history, only: [:show]
     resources :inks, only: %i[show edit update] do
       resources :ink_review_submissions, only: [:create]
     end
   end
-  resources :inks, only: [:show]
+  resources :inks, only: %i[index show] do
+    resource :history, only: [:show]
+  end
   namespace :pens do
     resources :brands, only: [:index]
     resources :models, only: [:index]
     resources :nibs, only: [:index]
   end
-  resources :inks, only: [:index]
   resource :account, only: %i[show edit update]
 
   resources :users, only: %i[index show]

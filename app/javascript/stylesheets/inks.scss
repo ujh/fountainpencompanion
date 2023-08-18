@@ -11,3 +11,24 @@
     margin-bottom: 20px;
   }
 }
+
+.diff {
+  .diff-content {
+    margin-bottom: 20px;
+    width: 100%;
+    del {
+      background-color: rgb(255, 235, 233);
+    }
+    ins {
+      background-color: rgb(230, 255, 236);
+    }
+  }
+
+  .timestamp {
+    font-size: smaller;
+  }
+
+  .user {
+    font-size: smaller;
+  }
+}
