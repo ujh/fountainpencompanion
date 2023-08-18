@@ -13,13 +13,21 @@ class HistoriesController < ApplicationController
       )
     @previous_index = @version.previous&.index
     @next_index = @version.next&.index
-    @diff =
-      Differ.diff_by_word(
-        *@version.changeset["description"].reverse.map(&:to_s)
-      ).format_as(:html)
+    @diff = calculate_diff(@version)
   end
 
   private
+
+  def calculate_diff(version)
+    changes =
+      if version.changeset["description"]
+        version.changeset["description"].reverse.map(&:to_s)
+      else
+        # For when other attributes have changed
+        ["", ""]
+      end
+    Differ.diff_by_word(*changes).format_as(:html)
+  end
 
   def set_breadcrumbs!
     case object
