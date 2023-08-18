@@ -18,5 +18,13 @@
       ' .
       button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"
 
+- unless cookies["my-inks-help-add-descriptions"]
+  - if current_user.brands_or_inks_without_description?
+    div id="my-inks-help-add-descriptions" class="alert alert-warning alert-dismissible fade show"
+      ' Some of your inks do not have a description. You can check them out
+      = link_to "here", my_missing_descriptions_path
+      '  and add some.
+      button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"
+
 div id="collected-inks"
   div class="app" data-archive="#{archive?}"
