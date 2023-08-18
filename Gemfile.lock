@@ -117,6 +117,7 @@ GEM
     devise-passwordless (0.7.1)
       devise
     diff-lcs (1.5.0)
+    differ (0.1.2)
     docile (1.4.0)
     dotenv (2.8.1)
     dotenv-rails (2.8.1)
@@ -494,6 +495,7 @@ DEPENDENCIES
   derailed
   devise
   devise-passwordless
+  differ
   dotenv-rails
   factory_bot_rails
   faraday
