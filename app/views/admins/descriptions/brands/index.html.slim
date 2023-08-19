@@ -1,12 +1,21 @@
 - content_for :title, "Brand descriptions"
 
-= paginate @brand_clusters
+= paginate @versions
 
-- @brand_clusters.each do |brand_cluster|
+- @versions.each do |version|
   div class="cluster"
-    div class="name"= link_to brand_cluster.name, brand_path(brand_cluster)
-    div class="description"= brand_cluster.description
-    div class="user"= User.find_by(id: brand_cluster.versions.last.whodunnit)&.public_name
-    div class="edit"= brand_cluster.updated_at.to_fs(:long)
+    div class="name"= link_to version.item.name, brand_path(version.item)
+    div class='diff'
+      pre class='diff-content'= calculate_diff(version)
+      div class='timestamp'
+        = time_ago_in_words(version.created_at)
+        '  ago
+      - user = User.find_by(id: version.whodunnit)
+      - if user
+          div class='user'
+            ' by
+            = link_to user.public_name, user_path(user)
+            = patron_tiny(user)
 
-= paginate @brand_clusters
+
+= paginate @versions

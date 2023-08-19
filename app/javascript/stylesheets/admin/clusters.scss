@@ -1,10 +1,32 @@
 .cluster {
-  margin-bottom: 10px;
+  margin-top: 20px;
   .name {
     font-weight: bold;
+    font-size: x-large;
+    margin-bottom: 5px;
   }
-  .user,
-  .edit {
-    font-size: smaller;
+  .diff {
+    .diff-content {
+      background-color: white;
+      border-radius: 10px;
+      padding: 5px 10px;
+      white-space: pre-wrap;
+      margin-bottom: 20px;
+      width: 100%;
+      del {
+        background-color: rgb(255, 235, 233);
+      }
+      ins {
+        background-color: rgb(230, 255, 236);
+      }
+    }
+
+    .timestamp {
+      font-size: smaller;
+    }
+
+    .user {
+      font-size: smaller;
+    }
   }
 }

@@ -1,12 +1,21 @@
 - content_for :title, "Ink descriptions"
 
-= paginate @ink_clusters
+= paginate @versions
 
-- @ink_clusters.each do |ink_cluster|
+- @versions.each do |version|
   div class="cluster"
-    div class="name"= link_to ink_cluster.name, ink_path(ink_cluster)
-    div class="description"= ink_cluster.description
-    div class="user"= User.find_by(id: ink_cluster.versions.last.whodunnit)&.public_name
-    div class="edit"= ink_cluster.updated_at.to_fs(:long)
+    div class="name"= link_to version.item.name, brand_path(version.item)
+    div class='diff'
+      pre class='diff-content'= calculate_diff(version)
+      div class='timestamp'
+        = time_ago_in_words(version.created_at)
+        '  ago
+      - user = User.find_by(id: version.whodunnit)
+      - if user
+          div class='user'
+            ' by
+            = link_to user.public_name, user_path(user)
+            = patron_tiny(user)
 
-= paginate @ink_clusters
+
+= paginate @versions

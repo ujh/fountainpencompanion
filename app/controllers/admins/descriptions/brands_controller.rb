@@ -1,10 +1,20 @@
 class Admins::Descriptions::BrandsController < Admins::BaseController
+  helper_method :calculate_diff
+
   def index
-    @brand_clusters =
-      BrandCluster
-        .where.not(description: "")
-        .order(updated_at: :desc)
+    @versions =
+      PaperTrail::Version
+        .where(item_type: "BrandCluster")
+        .where("object_changes like ?", "%description%")
+        .order("id desc")
         .page(params[:page])
         .per(100)
+  end
+
+  private
+
+  def calculate_diff(version)
+    changes = version.changeset["description"].reverse.map(&:to_s)
+    Differ.diff_by_word(*changes).format_as(:html).html_safe
   end
 end
