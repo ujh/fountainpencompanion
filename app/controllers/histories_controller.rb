@@ -1,33 +1,12 @@
 class HistoriesController < ApplicationController
-  helper_method :history_path
+  helper_method :calculate_diff
 
   def show
     set_breadcrumbs!
-    @version =
-      (
-        if params[:v]
-          (object.versions[params[:v].to_i] || object.versions.last)
-        else
-          object.versions.last
-        end
-      )
-    @previous_index = @version.previous&.index
-    @next_index = @version.next&.index
-    @diff = calculate_diff(@version)
+    @versions = object.description_versions.page(params[:page]).per(1)
   end
 
   private
-
-  def calculate_diff(version)
-    changes =
-      if version.changeset["description"]
-        version.changeset["description"].reverse.map(&:to_s)
-      else
-        # For when other attributes have changed
-        ["", ""]
-      end
-    Differ.diff_by_word(*changes).format_as(:html)
-  end
 
   def set_breadcrumbs!
     case object
@@ -44,13 +23,9 @@ class HistoriesController < ApplicationController
     end
   end
 
-  def history_path(obj, **kwargs)
-    case obj
-    when MacroCluster
-      ink_history_path(obj, **kwargs)
-    when BrandCluster
-      brand_history_path(obj, **kwargs)
-    end
+  def calculate_diff(version)
+    changes = version.changeset["description"].reverse.map(&:to_s)
+    Differ.diff_by_word(*changes).format_as(:html).html_safe
   end
 
   def object

@@ -1,5 +1,11 @@
 class BrandCluster < ApplicationRecord
   has_paper_trail
+  has_many :description_versions,
+           -> {
+             where("object_changes like ?", "%description%").order("id desc")
+           },
+           class_name: "PaperTrail::Version",
+           as: :item
 
   has_many :macro_clusters, dependent: :nullify
   has_many :collected_inks, through: :macro_clusters
