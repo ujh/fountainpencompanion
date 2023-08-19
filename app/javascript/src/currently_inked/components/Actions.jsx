@@ -78,6 +78,14 @@ export const Actions = ({
               >
                 Show&nbsp;last&nbsp;used
               </Switch>
+              <Switch
+                checked={isSwitchedOn("daily_usage")}
+                onChange={(e) =>
+                  onSwitchChange(e.target.checked, "daily_usage")
+                }
+              >
+                Show&nbsp;usage
+              </Switch>
             </div>
             <button
               type="button"

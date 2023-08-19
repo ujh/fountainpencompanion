@@ -83,6 +83,10 @@ export const CurrentlyInkedTable = ({ currentlyInked, onLayoutChange }) => {
         Cell: ({ cell: { value } }) => <RelativeDate date={value} />
       },
       {
+        Header: "Usage",
+        accessor: "daily_usage"
+      },
+      {
         Header: "Comment",
         accessor: "comment"
       },

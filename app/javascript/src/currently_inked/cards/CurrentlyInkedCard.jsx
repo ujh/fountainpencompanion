@@ -46,6 +46,7 @@ export const CurrentlyInkedCard = (props) => {
     ink_name,
     inked_on,
     last_used_on,
+    daily_usage,
     pen_name,
     refillable,
     used_today,
@@ -83,6 +84,12 @@ export const CurrentlyInkedCard = (props) => {
             <Card.Text>
               <RelativeDate date={last_used_on} />
             </Card.Text>
+          </>
+        ) : null}
+        {isVisible("daily_usage") ? (
+          <>
+            <div className="small text-secondary">Usage</div>
+            <Card.Text>{daily_usage}</Card.Text>
           </>
         ) : null}
         <div className="fpc-currently-inked-card__footer">

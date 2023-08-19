@@ -14,7 +14,9 @@ class CurrentlyInkedSerializer
     object.used_today?
   end
   attribute :daily_usage do |object|
-    object.daily_usage_count
+    v = object.daily_usage_count
+    next if v.zero?
+    v
   end
   attribute :refillable do |object|
     object.refillable?
