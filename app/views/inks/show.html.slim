@@ -9,7 +9,7 @@ div class='ink-description'
     = Slodown::Formatter.new(@ink.description).complete.to_s.html_safe
   - if @ink.description.present?
     div class="meta-data"
-      - latest_version = @ink.versions.last
+      - latest_version = @ink.description_versions.first
       - user = User.find_by(id: latest_version.whodunnit)
       ' Latest edit
       = time_ago_in_words(latest_version.created_at)

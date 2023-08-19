@@ -1,5 +1,11 @@
 class MacroCluster < ApplicationRecord
   has_paper_trail
+  has_many :description_versions,
+           -> {
+             where("object_changes like ?", "%description%").order("id desc")
+           },
+           class_name: "PaperTrail::Version",
+           as: :item
 
   has_many :micro_clusters, dependent: :nullify
   has_many :collected_inks, through: :micro_clusters
