@@ -1,7 +1,7 @@
 {
   "license": "UNLICENSED",
   "dependencies": {
-    "@babel/core": "^7.22.17",
+    "@babel/core": "^7.22.19",
     "@babel/preset-env": "^7.22.15",
     "@babel/preset-react": "^7.22.15",
     "@popperjs/core": "^2.11.8",
