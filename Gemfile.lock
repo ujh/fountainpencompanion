@@ -126,8 +126,9 @@ GEM
       railties (>= 4.1.0)
       responders
       warden (~> 1.2.3)
-    devise-passwordless (0.7.1)
+    devise-passwordless (1.0.0)
       devise
+      globalid
     diff-lcs (1.5.0)
     differ (0.1.2)
     docile (1.4.0)
