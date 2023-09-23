@@ -28,7 +28,7 @@ class Unfurler
   end
 
   def youtube?
-    uri.host =~ /youtube.com/
+    uri.host =~ /youtube.com/ && video_id.present?
   end
 
   def video_id
