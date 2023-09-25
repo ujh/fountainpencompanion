@@ -19,6 +19,9 @@ const PenSuggestionWidgetContent = () => {
   const pens = useMemo(() => scorePens(filterPens(data)), [data]);
   const [pickedPen, setPickedPen] = useState();
 
+  if (!pens.length) {
+    return <div className="picked-pen-content">All pens are in use</div>;
+  }
   if (pickedPen) {
     return (
       <div className="picked-pen-content">
