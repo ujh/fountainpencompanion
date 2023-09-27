@@ -34,4 +34,5 @@ class CollectedInkSerializer
     object.usage_records.size
   end
   attribute :last_used_on
+  attribute :created_at
 end

@@ -108,7 +108,8 @@ describe Api::V1::CollectedPensController do
                   :usage,
                   :daily_usage,
                   :last_inked,
-                  :last_cleaned
+                  :last_cleaned,
+                  :created_at
                 )
             )
           ]
