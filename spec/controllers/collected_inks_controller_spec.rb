@@ -95,6 +95,40 @@ describe CollectedInksController do
         expect(response.body).to include(user_inks.first.brand_name)
       end
 
+      it "includes all attributes by default in the JSON output" do
+        get :index, format: :json
+        expect(response).to be_successful
+        json =
+          JSON.parse(response.body, symbolize_names: true).dig(
+            :data,
+            0,
+            :attributes
+          )
+        expect(json).to include(
+          :brand_name,
+          :line_name,
+          :ink_name,
+          :maker,
+          :color,
+          :archived_on,
+          :comment,
+          :kind,
+          :private,
+          :private_comment,
+          :simplified_brand_name,
+          :simplified_line_name,
+          :simplified_ink_name,
+          :swabbed,
+          :used,
+          :archived,
+          :ink_id,
+          :usage,
+          :daily_usage,
+          :last_used_on,
+          :created_at
+        )
+      end
+
       it "includes the tags" do
         ink = user_inks.first
         ink.tags_as_string = "one"

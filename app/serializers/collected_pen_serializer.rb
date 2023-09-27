@@ -23,4 +23,5 @@ class CollectedPenSerializer
   attribute :inked do |object|
     object.inked?
   end
+  attribute :created_at
 end
