@@ -309,6 +309,7 @@ describe("<SwabCard />", () => {
         maker="Maker"
         comment="Public"
         private_comment="Secret"
+        created_at="2023-01-01"
         tags={[
           { id: "1", name: "custom" },
           { id: "2", name: "bespoke" },
@@ -324,7 +325,8 @@ describe("<SwabCard />", () => {
           "swabbed",
           "comment",
           "private_comment",
-          "tags"
+          "tags",
+          "created_at"
         ]}
       />
     );
@@ -339,5 +341,6 @@ describe("<SwabCard />", () => {
     expect(queryByText("bottle")).not.toBeInTheDocument();
     expect(queryByText("Used")).not.toBeInTheDocument();
     expect(queryByText("Swabbed")).not.toBeInTheDocument();
+    expect(queryByText("Added On")).not.toBeInTheDocument();
   });
 });

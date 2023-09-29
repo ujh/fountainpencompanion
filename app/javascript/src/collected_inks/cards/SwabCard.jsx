@@ -24,6 +24,7 @@ import "./swab-card.scss";
  *    last_used_on?: string;
  *    comment?: string;
  *    private_comment?: string;
+ *    created_at?: string;
  *    tags?: Array<{ id: string; name: string }>;
  * }} props
  */
@@ -42,6 +43,7 @@ export const SwabCard = (props) => {
     private_comment,
     tags,
     last_used_on,
+    created_at,
     hiddenFields
   } = props;
 
@@ -93,6 +95,14 @@ export const SwabCard = (props) => {
               {String(usage)} inked -{" "}
               <LastUsageDisplay last_used_on={last_used_on} /> (
               {String(daily_usage)} daily usages)
+            </Card.Text>
+          </>
+        ) : null}
+        {isVisible("created_at") ? (
+          <>
+            <div className="small text-secondary">Added On</div>
+            <Card.Text>
+              {<RelativeDate date={created_at} relativeAsDefault={false} />}
             </Card.Text>
           </>
         ) : null}
