@@ -135,6 +135,13 @@ export const CollectedInksTable = ({ data, archive, onLayoutChange }) => {
         Cell: ({ cell: { value } }) => <RelativeDate date={value} />
       },
       {
+        Header: "Added On",
+        accessor: "created_at",
+        Cell: ({ cell: { value } }) => (
+          <RelativeDate date={value} relativeAsDefault={false} />
+        )
+      },
+      {
         Header: "Comment",
         accessor: "comment"
       },

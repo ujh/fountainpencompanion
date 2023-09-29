@@ -17,6 +17,7 @@ import { RelativeDate } from "../../components/RelativeDate";
  *   last_inked?: string | null;
  *   last_cleaned?: string | null;
  *   last_used_on?: string | null;
+ *   created_at?: string;
  * }} props
  */
 export const PenCard = (props) => {
@@ -30,7 +31,8 @@ export const PenCard = (props) => {
     comment,
     usage,
     daily_usage,
-    last_used_on
+    last_used_on,
+    created_at
   } = props;
 
   const fullName = `${brand} ${model}`;
@@ -62,6 +64,14 @@ export const PenCard = (props) => {
               {String(usage)} inked -{" "}
               <LastUsageDisplay last_used_on={last_used_on} /> (
               {String(daily_usage)} daily usages)
+            </Card.Text>
+          </>
+        ) : null}
+        {isVisible("created_at") ? (
+          <>
+            <div className="small text-secondary">Added On</div>
+            <Card.Text>
+              {<RelativeDate date={created_at} relativeAsDefault={false} />}
             </Card.Text>
           </>
         ) : null}

@@ -158,6 +158,12 @@ describe("<Actions />", () => {
     await user.click(getByLabelText("Show daily usage"));
     expect(onHiddenFieldsChange).toHaveBeenCalledWith(["daily_usage"]);
 
+    await user.click(getByLabelText("Show last usage"));
+    expect(onHiddenFieldsChange).toHaveBeenCalledWith(["last_used_on"]);
+
+    await user.click(getByLabelText("Show Added On"));
+    expect(onHiddenFieldsChange).toHaveBeenCalledWith(["created_at"]);
+
     await user.click(getByLabelText("Show comment"));
     expect(onHiddenFieldsChange).toHaveBeenCalledWith(["comment"]);
 

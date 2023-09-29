@@ -79,6 +79,7 @@ describe("<PenCard />", () => {
         comment="This is a comment"
         usage={1}
         daily_usage={10}
+        created_at="2023-01-01"
         hiddenFields={[
           "brand",
           "model",
@@ -86,7 +87,8 @@ describe("<PenCard />", () => {
           "color",
           "comment",
           "usage",
-          "daily_usage"
+          "daily_usage",
+          "created_at"
         ]}
       />
     );
@@ -97,5 +99,6 @@ describe("<PenCard />", () => {
     expect(queryByText("Black")).not.toBeInTheDocument();
     expect(queryByText("This is a comment")).not.toBeInTheDocument();
     expect(queryByText("Usage")).not.toBeInTheDocument();
+    expect(queryByText("Added On")).not.toBeInTheDocument();
   });
 });

@@ -107,6 +107,12 @@ export const Actions = ({
                 Show&nbsp;last&nbsp;usage
               </Switch>
               <Switch
+                checked={isSwitchedOn("created_at")}
+                onChange={(e) => onSwitchChange(e.target.checked, "created_at")}
+              >
+                Show&nbsp;Added&nbsp;On
+              </Switch>
+              <Switch
                 checked={isSwitchedOn("comment")}
                 onChange={(e) => onSwitchChange(e.target.checked, "comment")}
               >
