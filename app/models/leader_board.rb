@@ -12,6 +12,8 @@ class LeaderBoard
     users_by_description_edits
   ]
 
+  WORKERS = TYPES.map { |t| "refresh_leader_board/#{t}".camelize.constantize }
+
   def self.refresh!(type)
     self.send(type, force: true)
   end

@@ -4,6 +4,6 @@ class RefreshLeaderBoards
   sidekiq_options queue: "leaderboards"
 
   def perform
-    LeaderBoard::TYPES.each { |type| RefreshLeaderBoard.perform_async(type) }
+    LeaderBoard::WORKERS.each { |worker| worker.perform_async }
   end
 end

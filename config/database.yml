@@ -13,6 +13,7 @@ development:
 
 test:
   <<: *default
+  url: <%= ENV['DATABASE_URL'] %>
   database: fountainpencompanion_test
 
 production:
