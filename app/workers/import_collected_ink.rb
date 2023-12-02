@@ -22,10 +22,11 @@ class ImportCollectedInk
       row[k] = row[k].strip
     end
     row["private"] = !row["private"].blank?
-    row["used"] = row["used"].present?
-    row["swabbed"] = row["swabbed"].present?
-    row["archived_on"] = row["archived"].present? ? Date.current : nil
+    row["used"] = to_b(row["used"])
+    row["swabbed"] = to_b(row["swabbed"])
+    row["archived_on"] = to_b(row["archived"]) ? Date.current : nil
     row["kind"] = "bottle" unless row["kind"].present?
+    row["tags_as_string"] = row["tags"]
     row.slice(
       "brand_name",
       "line_name",
@@ -37,7 +38,13 @@ class ImportCollectedInk
       "used",
       "archived_on",
       "private_comment",
-      "swabbed"
+      "swabbed",
+      "tags_as_string",
+      "color"
     )
+  end
+
+  def to_b(str)
+    str.present? && !%w[false f 0].include?(str.downcase)
   end
 end
