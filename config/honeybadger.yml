@@ -34,3 +34,4 @@ exceptions:
     - ActiveRecord::RecordNotUnique
     - ActionController::BadRequest
     - Redis::ConnectionError
+    - Rack::Timeout::RequestTimeoutException
