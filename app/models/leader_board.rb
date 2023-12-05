@@ -171,22 +171,11 @@ class LeaderBoard
   end
 
   def self.brands(force: false)
-    LeaderBoardRow::Brands
-      .includes(:user)
-      .order(value: :desc)
-      .where("value > 0")
-      .map do |row|
-        {
-          id: row.user.id,
-          public_name: row.user.public_name,
-          counter: row.value,
-          patron: row.user.patron?
-        }
-      end
+    LeaderBoardRow::Brands.to_leader_board
   end
 
   def self.top_brands
-    brands.take(10)
+    LeaderBoardRow::Brands.limit(10).to_leader_board
   end
 
   def self.build(select = "count(*) as counter")
