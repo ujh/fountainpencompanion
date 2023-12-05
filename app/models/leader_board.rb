@@ -3,7 +3,6 @@ class LeaderBoard
     inks
     bottles
     samples
-    brands
     inks_by_popularity
     currently_inked
     usage_records
@@ -172,25 +171,17 @@ class LeaderBoard
   end
 
   def self.brands(force: false)
-    # LeaderBoardRow::Brands.includes(:user)
-    #   .order(value: :desc)
-    #   .where('value > 0')
-    #   .map do |row|
-    #     {
-    #       id: row.user.id,
-    #       public_name: row.user.public_name,
-    #       counter: row.value,
-    #       patron: row.user.patron?
-    #     }
-    #   end
-    Rails
-      .cache
-      .fetch("LeaderBoard#brands", force: force) do
-        extract(
-          build(
-            "(select count(distinct brand_name) from collected_inks where collected_inks.user_id = users.id) as counter"
-          )
-        )
+    LeaderBoardRow::Brands
+      .includes(:user)
+      .order(value: :desc)
+      .where("value > 0")
+      .map do |row|
+        {
+          id: row.user.id,
+          public_name: row.user.public_name,
+          counter: row.value,
+          patron: row.user.patron?
+        }
       end
   end
 
