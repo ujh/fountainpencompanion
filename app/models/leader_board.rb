@@ -172,6 +172,17 @@ class LeaderBoard
   end
 
   def self.brands(force: false)
+    # LeaderBoardRow::Brands.includes(:user)
+    #   .order(value: :desc)
+    #   .where('value > 0')
+    #   .map do |row|
+    #     {
+    #       id: row.user.id,
+    #       public_name: row.user.public_name,
+    #       counter: row.value,
+    #       patron: row.user.patron?
+    #     }
+    #   end
     Rails
       .cache
       .fetch("LeaderBoard#brands", force: force) do

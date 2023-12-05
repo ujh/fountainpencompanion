@@ -5,5 +5,6 @@ class RefreshLeaderBoards
 
   def perform
     LeaderBoard::WORKERS.each { |worker| worker.perform_async }
+    RefreshLeaderBoardRows.perform_async
   end
 end
