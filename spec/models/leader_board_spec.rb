@@ -277,6 +277,8 @@ describe LeaderBoard do
       create(:collected_ink, user: user2, brand_name: "brand 1")
       create(:collected_ink, user: user2, brand_name: "brand 2")
 
+      Sidekiq::Testing.inline! { RefreshLeaderBoardRows.perform_async }
+
       expect(described_class.brands.map { |e| [e[:id], e[:counter]] }).to eq(
         [[user1.id, 3], [user2.id, 2]]
       )
