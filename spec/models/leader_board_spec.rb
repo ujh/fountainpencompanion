@@ -284,11 +284,4 @@ describe LeaderBoard do
       )
     end
   end
-
-  describe "#top_brands" do
-    it "returns the first 10 entries" do
-      allow(described_class).to receive(:brands).and_return((1..20).to_a)
-      expect(described_class.top_brands).to eq((1..10).to_a)
-    end
-  end
 end
