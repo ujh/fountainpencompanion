@@ -4,8 +4,8 @@ class RefreshLeaderBoardRows
   sidekiq_options queue: "leaderboards"
 
   def perform
-    User.active.find_each do |user|
-      RefreshLeaderBoardRowsForUser.perform_async(user.id)
+    User.active.find_each.with_index do |user, index|
+      RefreshLeaderBoardRowsForUser.perform_in(index, user.id)
     end
   end
 end
