@@ -5,7 +5,12 @@ class RefreshLeaderBoardRows
 
   def perform
     User.active.find_each.with_index do |user, index|
-      RefreshLeaderBoardRowsForUser.perform_in(index, user.id)
+      offset = 2.minutes
+      interval = index * 2 # once every two seconds
+      RefreshLeaderBoardRowsForUser.perform_in(
+        (offset + interval).to_i,
+        user.id
+      )
     end
   end
 end
