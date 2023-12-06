@@ -8,7 +8,6 @@ class LeaderBoard
     usage_records
     pens_by_popularity
     ink_review_submissions
-    users_by_description_edits
   ]
 
   WORKERS = TYPES.map { |t| "refresh_leader_board/#{t}".camelize.constantize }
@@ -18,36 +17,11 @@ class LeaderBoard
   end
 
   def self.users_by_description_edits(force: false)
-    Rails
-      .cache
-      .fetch("LeaderBoard#users_by_description_edits", force: force) do
-        count = Hash.new { |h, k| h[k] = 0 }
-        BrandCluster.find_each do |c|
-          c.versions.each { |v| count[v.whodunnit] += 1 if v.whodunnit }
-        end
-        MacroCluster.find_each do |c|
-          c.versions.each { |v| count[v.whodunnit] += 1 if v.whodunnit }
-        end
-        ordered = count.to_a.sort_by(&:last).reverse
-        without_nil = ordered.find_all { |user_id, counter| user_id.present? }
-        without_nil.map do |user_id, counter|
-          user = User.find_by(id: user_id)
-          {
-            id: user&.id,
-            public_name: user&.public_name,
-            counter: counter,
-            patron: user&.patron
-          }
-        end
-      end
-
-    # LeaderBoardRow::DescriptionEdits.to_leader_board
+    LeaderBoardRow::DescriptionEdits.to_leader_board
   end
 
   def self.top_users_by_description_edits
-    users_by_description_edits.take(10)
-
-    # LeaderBoardRow::DescriptionEdits.limit(10).to_leader_board
+    LeaderBoardRow::DescriptionEdits.limit(10).to_leader_board
   end
 
   def self.pens_by_popularity(force: false)
