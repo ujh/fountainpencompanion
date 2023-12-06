@@ -20,9 +20,12 @@ class RefreshLeaderBoardRowsForUser
       user
         .collected_inks
         .where(archived_on: nil, private: false)
-        .select(:brand_name)
-        .distinct
-        .count
+        .pluck(
+          :brand_name
+        )# Intentionally done in Ruby instead of using DISTINCT to put less load on the database
+        .
+        uniq
+        .length
     row.save!
   end
 end
