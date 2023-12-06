@@ -40,10 +40,14 @@ class LeaderBoard
           }
         end
       end
+
+    # LeaderBoardRow::DescriptionEdits.to_leader_board
   end
 
   def self.top_users_by_description_edits
     users_by_description_edits.take(10)
+
+    # LeaderBoardRow::DescriptionEdits.limit(10).to_leader_board
   end
 
   def self.pens_by_popularity(force: false)

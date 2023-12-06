@@ -8,6 +8,7 @@ class RefreshLeaderBoardRowsForUser
     return unless user
 
     update_brands_row
+    update_users_by_description_edits_row
   end
 
   private
@@ -24,6 +25,16 @@ class RefreshLeaderBoardRowsForUser
         .pluck(:brand_name)
         .uniq
         .length
+    row.save!
+  end
+
+  def update_users_by_description_edits_row
+    row = LeaderBoardRow::DescriptionEdits.find_or_initialize_by(user: user)
+    row.value =
+      PaperTrail::Version.where(
+        item_type: %w[MacroCluster BrandCluster],
+        whodunnit: user.id
+      ).count
     row.save!
   end
 end
