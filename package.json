@@ -47,7 +47,7 @@
     "webpack": "^5.89.0",
     "webpack-cli": "^5.1.4",
     "webpack-remove-empty-scripts": "^1.0.4",
-    "whatwg-fetch": "^3.6.19"
+    "whatwg-fetch": "^3.6.20"
   },
   "devDependencies": {
     "@babel/eslint-parser": "^7.23.3",
