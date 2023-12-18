@@ -3,6 +3,7 @@
 = paginate @versions
 
 - @versions.each do |version|
+  - next unless version.item
   div class="cluster"
     div class="name"= link_to version.item.name, brand_path(version.item)
     div class='diff'
