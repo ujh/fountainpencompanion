@@ -40,14 +40,14 @@
     "react-table": "^7.8.0",
     "react-table-6": "^6.11.0",
     "recharts": "1.8.6",
-    "regenerator-runtime": "^0.14.0",
+    "regenerator-runtime": "^0.14.1",
     "sass": "^1.69.5",
     "sass-loader": "^13.3.2",
     "select2": "4.0.13",
     "webpack": "^5.89.0",
     "webpack-cli": "^5.1.4",
     "webpack-remove-empty-scripts": "^1.0.4",
-    "whatwg-fetch": "^3.6.19"
+    "whatwg-fetch": "^3.6.20"
   },
   "devDependencies": {
     "@babel/eslint-parser": "^7.23.3",
@@ -55,7 +55,7 @@
     "@testing-library/jest-dom": "^6.1.5",
     "@testing-library/react": "^14.1.2",
     "@testing-library/user-event": "^14.5.1",
-    "eslint": "^8.55.0",
+    "eslint": "^8.56.0",
     "eslint-plugin-prettier": "^5.0.1",
     "eslint-plugin-react": "^7.33.2",
     "eslint-plugin-react-hooks": "^4.6.0",
