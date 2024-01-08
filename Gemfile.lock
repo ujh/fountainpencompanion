@@ -223,7 +223,7 @@ GEM
       thor (>= 0.14, < 2.0)
     jquery-ui-rails (6.0.1)
       railties (>= 3.2.16)
-    jsbundling-rails (1.2.1)
+    jsbundling-rails (1.2.2)
       railties (>= 6.0.0)
     jsonapi-deserializable (0.2.0)
     jsonapi-parser (0.1.1)
@@ -374,7 +374,7 @@ GEM
       redis-client (>= 0.17.0)
     redis-client (0.18.0)
       connection_pool
-    reline (0.4.1)
+    reline (0.4.2)
       io-console (~> 0.5)
     representable (3.2.0)
       declarative (< 0.1.0)
