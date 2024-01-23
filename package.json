@@ -52,7 +52,7 @@
   "devDependencies": {
     "@babel/eslint-parser": "^7.23.3",
     "@prettier/plugin-ruby": "^4.0.4",
-    "@testing-library/jest-dom": "^6.2.0",
+    "@testing-library/jest-dom": "^6.2.1",
     "@testing-library/react": "^14.1.2",
     "@testing-library/user-event": "^14.5.2",
     "eslint": "^8.56.0",
