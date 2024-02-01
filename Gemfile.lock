@@ -90,7 +90,7 @@ GEM
     benchmark-ips (2.8.4)
     bigdecimal (3.1.6)
     bindex (0.8.1)
-    bootsnap (1.18.1)
+    bootsnap (1.18.3)
       msgpack (~> 1.2)
     breadcrumbs_on_rails (4.1.0)
       railties (>= 5.0)
