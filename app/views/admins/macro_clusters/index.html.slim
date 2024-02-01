@@ -45,7 +45,7 @@ div class="fpc-table fpc-table--full-width fpc-scroll-shadow"
                     td
                       - if params[:q].present?
                         - mc.collected_inks.with_color.each do |ci|
-                          span style="background-color: #{ci.color}; width: 30px; height: 30px;"
+                          div style="background-color: #{ci.color}; width: 30px; height: 30px; float: right;"
                       = link_to "Remove",
                                 unassign_admins_micro_cluster_path(mc),
                                 class: "btn btn-sm btn-danger",
