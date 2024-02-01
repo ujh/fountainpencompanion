@@ -42,3 +42,4 @@ yarn-debug.log*
 !/app/assets/builds/.keep
 
 .vscode
+.DS_Store
