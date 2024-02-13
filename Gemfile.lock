@@ -99,7 +99,8 @@ GEM
     color (1.8)
     concurrent-ruby (1.2.3)
     connection_pool (2.4.1)
-    crack (0.4.5)
+    crack (0.4.6)
+      bigdecimal
       rexml
     crass (1.0.6)
     date (3.3.4)
@@ -130,10 +131,10 @@ GEM
     diff-lcs (1.5.0)
     differ (0.1.2)
     docile (1.4.0)
-    dotenv (2.8.1)
-    dotenv-rails (2.8.1)
-      dotenv (= 2.8.1)
-      railties (>= 3.2)
+    dotenv (3.0.0)
+    dotenv-rails (3.0.0)
+      dotenv (= 3.0.0)
+      railties (>= 6.1)
     drb (2.2.0)
       ruby2_keywords
     erubi (1.12.0)
@@ -205,15 +206,15 @@ GEM
       temple (>= 0.8.2)
       thor
       tilt
-    hashdiff (1.0.1)
+    hashdiff (1.1.0)
     heapy (0.2.0)
       thor
-    honeybadger (5.4.1)
+    honeybadger (5.5.0)
     httpclient (2.8.3)
     i18n (1.14.1)
       concurrent-ruby (~> 1.0)
     io-console (0.7.2)
-    irb (1.11.1)
+    irb (1.11.2)
       rdoc
       reline (>= 0.4.2)
     jbuilder (2.11.5)
@@ -275,7 +276,7 @@ GEM
     mini_histogram (0.3.1)
     mini_mime (1.1.5)
     mini_portile2 (2.8.5)
-    minitest (5.21.2)
+    minitest (5.22.2)
     msgpack (1.7.2)
     multi_json (1.15.0)
     multipart-post (2.3.0)
@@ -291,14 +292,14 @@ GEM
       net-protocol
     newrelic_rpm (9.7.1)
     nio4r (2.7.0)
-    nokogiri (1.16.0)
+    nokogiri (1.16.2)
       mini_portile2 (~> 2.8.2)
       racc (~> 1.4)
-    nokogiri (1.16.0-arm64-darwin)
+    nokogiri (1.16.2-arm64-darwin)
       racc (~> 1.4)
-    nokogiri (1.16.0-x86_64-darwin)
+    nokogiri (1.16.2-x86_64-darwin)
       racc (~> 1.4)
-    nokogiri (1.16.0-x86_64-linux)
+    nokogiri (1.16.2-x86_64-linux)
       racc (~> 1.4)
     orm_adapter (0.5.0)
     os (1.1.4)
@@ -371,7 +372,7 @@ GEM
     rbs (3.0.3)
     rdoc (6.6.2)
       psych (>= 4.0.0)
-    redis (5.0.8)
+    redis (5.1.0)
       redis-client (>= 0.17.0)
     redis-client (0.19.1)
       connection_pool
@@ -500,7 +501,7 @@ GEM
       activemodel (>= 6.0.0)
       bindex (>= 0.4.0)
       railties (>= 6.0.0)
-    webmock (3.19.1)
+    webmock (3.20.0)
       addressable (>= 2.8.0)
       crack (>= 0.3.2)
       hashdiff (>= 0.4.0, < 2.0.0)
@@ -508,7 +509,7 @@ GEM
     websocket-driver (0.7.6)
       websocket-extensions (>= 0.1.0)
     websocket-extensions (0.1.5)
-    zeitwerk (2.6.12)
+    zeitwerk (2.6.13)
 
 PLATFORMS
   arm64-darwin
