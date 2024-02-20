@@ -42,7 +42,7 @@
     "recharts": "1.8.6",
     "regenerator-runtime": "^0.14.1",
     "sass": "^1.71.0",
-    "sass-loader": "^14.1.0",
+    "sass-loader": "^14.1.1",
     "select2": "4.0.13",
     "webpack": "^5.90.2",
     "webpack-cli": "^5.1.4",
