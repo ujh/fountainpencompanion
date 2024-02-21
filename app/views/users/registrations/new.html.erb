@@ -13,6 +13,10 @@
     <div class="mb-3">
       <%= f.input :password_confirmation, required: true %>
     </div>
+    <script src="https://js.hcaptcha.com/1/api.js" async defer></script>
+    <div class="mb-3">
+      <div class="h-captcha" data-sitekey="<%= ENV['HCAPTCHA_SITE_KEY'] %>"></div>
+    </div>
     <div class="mb-3">
       <%= f.input :bot_field, as: :boolean, label: "Tick this box if you are a bot", input_html: { tabindex: "-1" } %>
     </div>
