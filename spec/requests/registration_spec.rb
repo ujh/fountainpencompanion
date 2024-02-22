@@ -9,6 +9,16 @@ describe "sign up" do
         password_confirmation: "password"
       }
     end
+
+    before do
+      stub_request(:post, "https://api.hcaptcha.com/siteverify").to_return(
+        status: 200,
+        body: { success: true }.to_json,
+        headers: {
+          "Content-Type" => "application/json"
+        }
+      )
+    end
     it "creates a user" do
       expect do
         post "/users", params: { user: user_params }
@@ -29,9 +39,18 @@ describe "sign up" do
       {
         email: "user@example.com",
         password: "password",
-        password_confirmation: "password",
-        bot_field: "1"
+        password_confirmation: "password"
       }
+    end
+
+    before do
+      stub_request(:post, "https://api.hcaptcha.com/siteverify").to_return(
+        status: 200,
+        body: { success: false, "error-codes": %w[not good] }.to_json,
+        headers: {
+          "Content-Type" => "application/json"
+        }
+      )
     end
 
     it "creates a bot user" do
