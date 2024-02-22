@@ -15,13 +15,22 @@
     </div>
     <script src="https://js.hcaptcha.com/1/api.js?onload=disable" async defer></script>
     <script type="text/javascript">
+      var validCaptcha = false;
       function disable() {
         $('form [type=submit]').attr('disabled', 'disabled')
+        validCaptcha = false;
       }
 
       function enable() {
         $('form [type=submit]').removeAttr('disabled')
+        validCaptcha = true;
       }
+
+      $(function() {
+        $('form').on('submit', function(event) {
+          if (!validCaptcha) event.preventDefault();
+        })
+      });
     </script>
     <div class="mb-3">
       <div
