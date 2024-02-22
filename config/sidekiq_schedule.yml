@@ -11,3 +11,6 @@ refresh_inks:
   class: RefreshInks
   description: Run this to refresh what is stored as simplified data in the inks
   enabled: false
+clean_up:
+  cron: "0 0 * * *" # Every day at midnight
+  class: CleanUp
