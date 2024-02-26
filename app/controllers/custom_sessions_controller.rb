@@ -12,10 +12,8 @@ class CustomSessionsController < Devise::SessionsController
       set_flash_message(:alert, :not_found_in_database, now: true)
     end
 
-    redirect_to(
-      after_magic_link_sent_path_for(resource),
-      status: devise_redirect_status
-    )
+    self.resource = resource_class.new(create_params)
+    render :new
   end
 
   protected
