@@ -1151,6 +1151,13 @@ CREATE INDEX index_collected_inks_on_micro_cluster_id ON public.collected_inks U
 
 
 --
+-- Name: index_collected_inks_on_private; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_collected_inks_on_private ON public.collected_inks USING btree (private);
+
+
+--
 -- Name: index_collected_inks_on_simplified_ink_name; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -1584,6 +1591,7 @@ ALTER TABLE ONLY public.collected_inks
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20240227082554'),
 ('20231205152235'),
 ('20230729172114'),
 ('20230728091425'),
