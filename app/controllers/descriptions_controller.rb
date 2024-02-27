@@ -22,7 +22,19 @@ class DescriptionsController < ApplicationController
   end
 
   def clusters_without_descriptions_ids
-    MacroCluster.without_description.pluck(:id)
+    clusters_hash = MacroCluster.without_description.pluck(:id).hash
+    key =
+      "DescriptionsController#clusters_without_descriptions_ids-#{clusters_hash}"
+    Rails
+      .cache
+      .fetch(key, expires_in: 1.hour) do
+        MacroCluster
+          .without_description
+          .joins(micro_clusters: :collected_inks)
+          .where(collected_inks: { private: false })
+          .distinct
+          .pluck(:id)
+      end
   end
 
   def my_clusters_without_descriptions_ids
@@ -32,10 +44,7 @@ class DescriptionsController < ApplicationController
   def sorted_inks(ids)
     MacroCluster
       .where(id: ids)
-      .joins(micro_clusters: :collected_inks)
       .includes(:brand_cluster)
-      .where(collected_inks: { private: false })
-      .group("macro_clusters.id")
       .order(:brand_name, :line_name, :ink_name)
       .page(params[:inks_page])
       .per(10)
