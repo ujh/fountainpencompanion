@@ -14,3 +14,6 @@ refresh_inks:
 clean_up:
   cron: "0 0 * * *" # Every day at midnight
   class: CleanUp
+analyze:
+  cron: "0 6 * * *" # Every day at 6am
+  class: Analyze
