@@ -1123,6 +1123,20 @@ CREATE UNIQUE INDEX index_brand_clusters_on_name ON public.brand_clusters USING 
 
 
 --
+-- Name: index_collected_inks_on_archived_on; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_collected_inks_on_archived_on ON public.collected_inks USING btree (archived_on);
+
+
+--
+-- Name: index_collected_inks_on_archived_on_and_user_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_collected_inks_on_archived_on_and_user_id ON public.collected_inks USING btree (archived_on, user_id);
+
+
+--
 -- Name: index_collected_inks_on_brand_name; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -1605,6 +1619,7 @@ ALTER TABLE ONLY public.collected_inks
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20240227130854'),
 ('20240227125139'),
 ('20240227123255'),
 ('20240227082554'),
