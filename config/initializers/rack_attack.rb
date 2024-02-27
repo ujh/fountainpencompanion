@@ -11,5 +11,5 @@ end
 Rack::Attack.throttle(
   "missing descriptions limit",
   limit: 2,
-  period: 30
+  period: 15
 ) { |request| request.ip if request.path.starts_with?("/descriptions/missing") }
