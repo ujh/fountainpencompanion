@@ -36,8 +36,7 @@ class DescriptionsController < ApplicationController
       .includes(:brand_cluster)
       .where(collected_inks: { private: false })
       .group("macro_clusters.id")
-      .select("macro_clusters.*, count(macro_clusters.id) as ci_count")
-      .order("ci_count desc")
+      .order(:brand_name, :line_name, :ink_name)
       .page(params[:inks_page])
       .per(10)
   end
@@ -47,8 +46,7 @@ class DescriptionsController < ApplicationController
       .where(id: ids)
       .joins(:macro_clusters)
       .group("brand_clusters.id")
-      .select("brand_clusters.*, count(brand_clusters.id) as count")
-      .order("count desc")
+      .order(:name)
       .page(params[:brands_page])
       .per(10)
   end
