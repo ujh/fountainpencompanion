@@ -12,7 +12,19 @@ class ReviewsController < ApplicationController
   private
 
   def unreviewed_ids
-    MacroCluster.without_review.pluck(:id)
+    unfiltered_ids = MacroCluster.without_review.pluck(:id)
+    clusters_hash = unfiltered_ids.hash
+    key = "ReviewsController#unreviewed_ids-#{clusters_hash}"
+    Rails
+      .cache
+      .fetch(key, expires_in: 1.hour) do
+        MacroCluster
+          .where(id: unfiltered_ids)
+          .joins(micro_clusters: :collected_inks)
+          .where(collected_inks: { private: false })
+          .distinct
+          .pluck(:id)
+      end
   end
 
   def my_unreviewed_ids
@@ -22,12 +34,8 @@ class ReviewsController < ApplicationController
   def sorted_clusters(ids)
     MacroCluster
       .where(id: ids)
-      .joins(micro_clusters: :collected_inks)
       .includes(:brand_cluster)
-      .where(collected_inks: { private: false })
-      .group("macro_clusters.id")
-      .select("macro_clusters.*, count(macro_clusters.id) as ci_count")
-      .order("ci_count desc")
+      .order(:brand_name, :line_name, :ink_name)
       .page(params[:page])
       .per(10)
   end
