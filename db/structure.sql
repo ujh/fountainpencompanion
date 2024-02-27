@@ -1291,6 +1291,13 @@ CREATE INDEX index_leader_board_rows_on_user_id ON public.leader_board_rows USIN
 
 
 --
+-- Name: index_leader_board_rows_on_value; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_leader_board_rows_on_value ON public.leader_board_rows USING btree (value);
+
+
+--
 -- Name: index_macro_clusters_on_brand_cluster_id; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -1598,6 +1605,7 @@ ALTER TABLE ONLY public.collected_inks
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20240227125139'),
 ('20240227123255'),
 ('20240227082554'),
 ('20231205152235'),
