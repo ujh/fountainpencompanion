@@ -1277,6 +1277,13 @@ CREATE UNIQUE INDEX index_ink_reviews_on_url_and_macro_cluster_id ON public.ink_
 
 
 --
+-- Name: index_leader_board_rows_on_type; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_leader_board_rows_on_type ON public.leader_board_rows USING btree (type);
+
+
+--
 -- Name: index_leader_board_rows_on_user_id; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -1591,6 +1598,7 @@ ALTER TABLE ONLY public.collected_inks
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20240227123255'),
 ('20240227082554'),
 ('20231205152235'),
 ('20230729172114'),
