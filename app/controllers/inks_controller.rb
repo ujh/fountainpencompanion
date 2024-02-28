@@ -52,7 +52,6 @@ class InksController < ApplicationController
       MacroCluster
         .distinct
         .joins(micro_clusters: :collected_inks)
-        .includes(:brand_cluster, public_collected_inks: { taggings: :tag })
         .where(collected_inks: { id: collected_inks.pluck(:id) })
         .order(:brand_name, :line_name, :ink_name)
     end
