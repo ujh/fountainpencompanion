@@ -1,9 +1,10 @@
 class InksController < ApplicationController
   before_action :authenticate_user!, only: %i[edit update]
   before_action :set_paper_trail_whodunnit, only: %i[edit update]
+  before_action :redirect_if_no_search, only: [:index]
 
   def index
-    @clusters = full_text_cluster_search
+    @clusters = find_clusters
   end
 
   def show
@@ -31,11 +32,25 @@ class InksController < ApplicationController
 
   private
 
-  def full_text_cluster_search
-    if params[:q].blank?
-      redirect_to brands_path
-    else
+  def redirect_if_no_search
+    return if params[:q].present?
+    return if params[:tag].present?
+
+    redirect_to brands_path
+  end
+
+  def find_clusters
+    if params[:q].present?
       MacroCluster.full_text_search(params[:q])
+    else
+      collected_inks =
+        CollectedInk.where(private: false).tagged_with(names: [params[:tag]])
+      MacroCluster
+        .distinct
+        .joins(micro_clusters: :collected_inks)
+        .includes(micro_clusters: :collected_inks)
+        .where(collected_inks: { id: collected_inks.pluck(:id) })
+        .order(:brand_name, :line_name, :ink_name)
     end
   end
 

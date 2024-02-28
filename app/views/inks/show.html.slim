@@ -57,6 +57,12 @@ div class="row fpc-ink-details"
         - next if c.blank?
         div class="fpc-ink-details__color-tile" style="background-color:#{c}"
     div style="clear: both;"
+    div class="fpc-ink-details__tags"
+      h3 class="h5" Tags
+      ul class="tags"
+        - @ink.tags.each do |tag|
+          li class="tag badge text-bg-secondary"
+            a href="#{inks_path(tag: tag)}"= tag
     div class="fpc-ink-details__error-reporting"
       h3 class="h5" Errors
       p
