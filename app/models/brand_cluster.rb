@@ -27,15 +27,21 @@ class BrandCluster < ApplicationRecord
   end
 
   def self.public
-    joins(macro_clusters: { micro_clusters: :collected_inks }).where(
-      collected_inks: {
-        private: false
-      }
-    ).group("brand_clusters.id")
+    hash = BrandCluster.pluck(:id).hash
+    ids =
+      Rails
+        .cache
+        .fetch("BrandCluster#public-#{hash}", expires_in: 1.hour) do
+          joins(macro_clusters: { micro_clusters: :collected_inks })
+            .where(collected_inks: { private: false })
+            .group("brand_clusters.id")
+            .pluck(:id)
+        end
+    where(id: ids)
   end
 
   def self.public_count
-    public.count.count
+    public.count
   end
 
   def self.autocomplete_search(term)
