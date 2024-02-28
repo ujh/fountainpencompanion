@@ -9,6 +9,7 @@ class MacroCluster < ApplicationRecord
 
   has_many :micro_clusters, dependent: :nullify
   has_many :collected_inks, through: :micro_clusters
+  has_many :public_collected_inks, through: :micro_clusters
   has_many :ink_reviews, dependent: :destroy
   belongs_to :brand_cluster, optional: true
 
@@ -134,7 +135,7 @@ class MacroCluster < ApplicationRecord
   end
 
   def public_collected_inks_count
-    collected_inks.where(private: false).count
+    public_collected_inks.count
   end
 
   def all_names
@@ -158,10 +159,6 @@ class MacroCluster < ApplicationRecord
   end
 
   def tags
-    Rails
-      .cache
-      .fetch(cache_key_with_version, expires_in: 1.hour) do
-        Gutentag::Tag.names_for_scope(collected_inks.where(private: false))
-      end
+    public_collected_inks.flat_map(&:taggings).map(&:tag).map(&:name).uniq.sort
   end
 end
