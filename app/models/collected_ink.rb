@@ -32,8 +32,6 @@ class CollectedInk < ApplicationRecord
       tsearch: {
         dictionary: "english",
         tsvector_column: "tsv"
-      },
-      trigram: {
       }
     }
   )
