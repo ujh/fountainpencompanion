@@ -156,4 +156,12 @@ class MacroCluster < ApplicationRecord
   def name
     [brand_name, line_name, ink_name].reject(&:blank?).join(" ")
   end
+
+  def tags
+    Rails
+      .cache
+      .fetch(cache_key_with_version, expires_in: 1.hour) do
+        Gutentag::Tag.names_for_scope(collected_inks.where(private: false))
+      end
+  end
 end

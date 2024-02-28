@@ -91,4 +91,13 @@ ul.tags {
   flex-direction: row;
   flex-wrap: wrap;
   gap: 4px;
+
+  a {
+    color: white;
+    text-decoration-line: none;
+
+    &:hover {
+      text-decoration-line: underline;
+    }
+  }
 }
