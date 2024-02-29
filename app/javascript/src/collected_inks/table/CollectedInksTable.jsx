@@ -152,20 +152,8 @@ export const CollectedInksTable = ({ data, archive, onLayoutChange }) => {
       {
         Header: "Tags",
         accessor: "tags",
-        Cell: ({
-          cell: {
-            value,
-            row: {
-              original: { cluster_tags, ink_id }
-            }
-          }
-        }) => {
-          if (!value.length && !cluster_tags.length) return null;
-          const extraClusterTags = _.difference(
-            cluster_tags,
-            value.map((t) => t.name)
-          );
-          const extraToDisplay = Math.max(0, 5 - value.length);
+        Cell: ({ cell: { value } }) => {
+          if (!value.length) return null;
           return (
             <ul className="tags">
               {value.map((tag) => (
@@ -173,7 +161,18 @@ export const CollectedInksTable = ({ data, archive, onLayoutChange }) => {
                   {tag.name}
                 </li>
               ))}
-              {extraClusterTags.slice(0, extraToDisplay).map((tag) => (
+            </ul>
+          );
+        }
+      },
+      {
+        Header: "Cluster Tags",
+        accessor: "cluster_tags",
+        Cell: ({ cell: { value } }) => {
+          if (!value.length) return null;
+          return (
+            <ul className="tags">
+              {value.map((tag) => (
                 <li
                   key={tag}
                   className="tag badge text-bg-secondary cluster-tag"
@@ -181,11 +180,6 @@ export const CollectedInksTable = ({ data, archive, onLayoutChange }) => {
                   {tag}
                 </li>
               ))}
-              {extraClusterTags.length > extraToDisplay && (
-                <li className="tag badge text-bg-secondary cluster-tag">
-                  <a href={`/inks/${ink_id}`}>...</a>
-                </li>
-              )}
             </ul>
           );
         }
@@ -214,6 +208,9 @@ export const CollectedInksTable = ({ data, archive, onLayoutChange }) => {
 
     if (data.every((e) => e.tags.length == 0)) {
       hideIfNoInksWithValue.push("tags");
+    }
+    if (data.every((e) => e.cluster_tags.length == 0)) {
+      hideIfNoInksWithValue.push("cluster_tags");
     }
     return hideIfNoInksWithValue;
   }, [data]);

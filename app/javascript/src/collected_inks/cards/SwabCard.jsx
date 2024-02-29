@@ -132,7 +132,7 @@ export const SwabCard = (props) => {
                   </span>
                 ))
               : null}
-            {isVisible("tags") && Array.isArray(cluster_tags)
+            {isVisible("cluster_tags") && Array.isArray(cluster_tags)
               ? _.difference(
                   cluster_tags,
                   tags.map((t) => t.name)

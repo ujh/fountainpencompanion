@@ -132,6 +132,14 @@ export const Actions = ({
               >
                 Show&nbsp;tags
               </Switch>
+              <Switch
+                checked={isSwitchedOn("cluster_tags")}
+                onChange={(e) =>
+                  onSwitchChange(e.target.checked, "cluster_tags")
+                }
+              >
+                Show&nbsp;cluster&nbsp;tags
+              </Switch>
             </div>
             <button
               type="button"
