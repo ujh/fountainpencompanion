@@ -13,6 +13,12 @@ import { ActionsCell } from "./ActionsCell";
 
 export const storageKeyHiddenFields = "fpc-collected-inks-table-hidden-fields";
 
+function fixedEncodeURIComponent(str) {
+  return encodeURIComponent(str).replace(/[!'()*]/g, function (c) {
+    return "%" + c.charCodeAt(0).toString(16);
+  });
+}
+
 export const CollectedInksTable = ({ data, archive, onLayoutChange }) => {
   const columns = useMemo(
     () => [
@@ -158,7 +164,9 @@ export const CollectedInksTable = ({ data, archive, onLayoutChange }) => {
             <ul className="tags">
               {value.map((tag) => (
                 <li key={tag.id} className="tag badge text-bg-secondary">
-                  {tag.name}
+                  <a href={`/inks?tag=${fixedEncodeURIComponent(tag.name)}`}>
+                    {tag.name}
+                  </a>
                 </li>
               ))}
             </ul>
@@ -177,7 +185,9 @@ export const CollectedInksTable = ({ data, archive, onLayoutChange }) => {
                   key={tag}
                   className="tag badge text-bg-secondary cluster-tag"
                 >
-                  {tag}
+                  <a href={`/inks?tag=${fixedEncodeURIComponent(tag)}`}>
+                    {tag}
+                  </a>
                 </li>
               ))}
             </ul>

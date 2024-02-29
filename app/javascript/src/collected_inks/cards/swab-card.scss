@@ -49,6 +49,15 @@
       &.cluster-tag {
         opacity: 0.4;
       }
+
+      a {
+        color: white;
+        text-decoration-line: none;
+
+        &:hover {
+          text-decoration-line: underline;
+        }
+      }
     }
   }
 

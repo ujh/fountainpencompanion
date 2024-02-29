@@ -5,6 +5,12 @@ import { Card } from "../../components";
 import { ArchiveButton, EditButton, DeleteButton } from "../components";
 import "./swab-card.scss";
 
+function fixedEncodeURIComponent(str) {
+  return encodeURIComponent(str).replace(/[!'()*]/g, function (c) {
+    return "%" + c.charCodeAt(0).toString(16);
+  });
+}
+
 /**
  * @param {{
  *    hiddenFields: string[];
@@ -128,7 +134,9 @@ export const SwabCard = (props) => {
                     key={`ink-tag-${id}`}
                     className="tag badge text-bg-secondary"
                   >
-                    {name}
+                    <a href={`/inks?tag=${fixedEncodeURIComponent(name)}`}>
+                      {name}
+                    </a>
                   </span>
                 ))
               : null}
@@ -141,7 +149,9 @@ export const SwabCard = (props) => {
                     key={`ink-tag-${tag}`}
                     className="tag badge text-bg-secondary cluster-tag"
                   >
-                    {tag}
+                    <a href={`/inks?tag=${fixedEncodeURIComponent(tag)}`}>
+                      {tag}
+                    </a>
                   </span>
                 ))
               : null}
