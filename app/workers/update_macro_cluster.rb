@@ -7,6 +7,7 @@ class UpdateMacroCluster
 
     update_color
     update_names
+    update_tags
     cluster.save
     cluster.collected_inks.update_all(cluster_color: cluster.color)
     CheckBrandClusters.perform_async(id)
@@ -15,6 +16,10 @@ class UpdateMacroCluster
   private
 
   attr_accessor :cluster
+
+  def update_tags
+    cluster.tags = Gutentag::Tag.names_for_scope(cluster.public_collected_inks)
+  end
 
   def update_names
     cluster.brand_name = popular(:brand_name)

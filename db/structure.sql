@@ -504,7 +504,8 @@ CREATE TABLE public.macro_clusters (
     created_at timestamp(6) without time zone NOT NULL,
     updated_at timestamp(6) without time zone NOT NULL,
     brand_cluster_id bigint,
-    description text DEFAULT ''::text
+    description text DEFAULT ''::text,
+    tags text[] DEFAULT '{}'::text[]
 );
 
 
@@ -1333,6 +1334,13 @@ CREATE INDEX index_macro_clusters_on_description ON public.macro_clusters USING 
 
 
 --
+-- Name: index_macro_clusters_on_tags; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_macro_clusters_on_tags ON public.macro_clusters USING gin (tags);
+
+
+--
 -- Name: index_micro_clusters_on_macro_cluster_id; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -1619,6 +1627,7 @@ ALTER TABLE ONLY public.collected_inks
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20240229065535'),
 ('20240227130854'),
 ('20240227125139'),
 ('20240227123255'),
