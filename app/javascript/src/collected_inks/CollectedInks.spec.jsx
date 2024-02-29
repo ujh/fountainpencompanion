@@ -42,7 +42,8 @@ describe("<CollectedInks />", () => {
                 archived: false,
                 ink_id: 3,
                 usage: 2,
-                daily_usage: 1
+                daily_usage: 1,
+                cluster_tags: []
               },
               relationships: {
                 micro_cluster: { data: { id: "3", type: "micro_cluster" } },
@@ -82,7 +83,8 @@ describe("<CollectedInks />", () => {
                 archived: true,
                 ink_id: 49,
                 usage: 0,
-                daily_usage: 0
+                daily_usage: 0,
+                cluster_tags: []
               },
               relationships: {
                 micro_cluster: { data: { id: "8", type: "micro_cluster" } },
