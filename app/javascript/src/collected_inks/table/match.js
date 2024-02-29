@@ -16,6 +16,12 @@ export function fuzzyMatch(rows, _, filterValue) {
     "private_comment"
   ];
   return matchSorter(rows, filterValue.replace(/\s+/gi, ""), {
-    keys: [(row) => attrs.map((a) => row.values[a]).join("")]
+    keys: [
+      (row) => {
+        const v = attrs.map((a) => row.values[a]).join(" ");
+        const tags = row.values.tags.map((t) => t.name).join(" ");
+        return [v, tags].join(" ");
+      }
+    ]
   });
 }
