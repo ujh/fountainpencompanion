@@ -42,6 +42,7 @@ export const SwabCard = (props) => {
     comment,
     private_comment,
     tags,
+    cluster_tags,
     last_used_on,
     created_at,
     hiddenFields
@@ -127,6 +128,16 @@ export const SwabCard = (props) => {
                     className="tag badge text-bg-secondary"
                   >
                     {name}
+                  </span>
+                ))
+              : null}
+            {isVisible("tags") && Array.isArray(cluster_tags)
+              ? cluster_tags.map((tag) => (
+                  <span
+                    key={`ink-tag-${tag}`}
+                    className="tag badge text-bg-secondary cluster-tag"
+                  >
+                    {tag}
                   </span>
                 ))
               : null}

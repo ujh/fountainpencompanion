@@ -152,8 +152,22 @@ export const CollectedInksTable = ({ data, archive, onLayoutChange }) => {
       {
         Header: "Tags",
         accessor: "tags",
-        Cell: ({ cell: { value } }) => {
-          if (!value.length) return null;
+        Cell: ({
+          cell: {
+            value,
+            row: {
+              original: { cluster_tags, ink_id }
+            }
+          }
+        }) => {
+          if (!value.length && !cluster_tags.length) return null;
+          const extraClusterTags = _.difference(
+            cluster_tags,
+            value.map((t) => t.name)
+          );
+          const extraToDisplay = Math.max(0, 5 - value.length);
+          if (extraClusterTags.length >= 5 && value.length)
+            console.log(value, extraClusterTags);
           return (
             <ul className="tags">
               {value.map((tag) => (
@@ -161,6 +175,19 @@ export const CollectedInksTable = ({ data, archive, onLayoutChange }) => {
                   {tag.name}
                 </li>
               ))}
+              {extraClusterTags.slice(0, extraToDisplay).map((tag) => (
+                <li
+                  key={tag}
+                  className="tag badge text-bg-secondary cluster-tag"
+                >
+                  {tag}
+                </li>
+              ))}
+              {extraClusterTags.length > extraToDisplay && (
+                <li className="tag badge text-bg-secondary cluster-tag">
+                  <a href={`/inks/${ink_id}`}>...</a>
+                </li>
+              )}
             </ul>
           );
         }

@@ -45,6 +45,10 @@
 
     .badge.tag {
       text-transform: none;
+
+      &.cluster-tag {
+        opacity: 0.4;
+      }
     }
   }
 

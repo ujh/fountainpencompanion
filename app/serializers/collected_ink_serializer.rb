@@ -10,7 +10,7 @@ class CollectedInkSerializer
   attribute :ink_name
   attribute :maker
   attribute :color
-
+  attribute :cluster_tags
   attribute :archived_on
   attribute :comment
   attribute :kind

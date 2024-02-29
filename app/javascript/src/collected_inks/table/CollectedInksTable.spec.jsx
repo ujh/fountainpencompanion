@@ -38,6 +38,7 @@ describe("<CollectedInksTable />", () => {
       ink_id: 3,
       usage: 2,
       daily_usage: 1,
+      cluster_tags: [],
       tags: [
         { id: "1", type: "tag", name: "maximum" },
         { id: "2", type: "tag", name: "taggage" }
@@ -64,6 +65,7 @@ describe("<CollectedInksTable />", () => {
       ink_id: 2,
       usage: 1,
       daily_usage: 1,
+      cluster_tags: [],
       tags: []
     }
   ];

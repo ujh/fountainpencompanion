@@ -38,6 +38,14 @@ class CollectedInk < ApplicationRecord
 
   Gutentag::ActiveRecord.call self
 
+  delegate :macro_cluster, to: :micro_cluster, allow_nil: true
+
+  def cluster_tags
+    return [] unless macro_cluster
+
+    macro_cluster.tags
+  end
+
   def tags_as_string
     tag_names.join(", ")
   end
