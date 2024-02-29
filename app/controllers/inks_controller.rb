@@ -8,11 +8,7 @@ class InksController < ApplicationController
   end
 
   def show
-    @ink =
-      MacroCluster
-        .where(id: params[:id])
-        .includes(public_collected_inks: { taggings: :tag })
-        .first
+    @ink = MacroCluster.find(params[:id])
     @description = build_description
     add_breadcrumb "Inks", "/brands"
     add_breadcrumb "#{@ink.brand_cluster.name}", brand_path(@ink.brand_cluster)
@@ -47,12 +43,9 @@ class InksController < ApplicationController
     if params[:q].present?
       MacroCluster.full_text_search(params[:q])
     else
-      collected_inks =
-        CollectedInk.where(private: false).tagged_with(names: [params[:tag]])
       MacroCluster
-        .distinct
-        .joins(micro_clusters: :collected_inks)
-        .where(collected_inks: { id: collected_inks.pluck(:id) })
+        .where("? = ANY(tags)", params[:tag])
+        .includes(:brand_cluster)
         .order(:brand_name, :line_name, :ink_name)
     end
   end

@@ -18,7 +18,8 @@ class UpdateMacroCluster
   attr_accessor :cluster
 
   def update_tags
-    cluster.tags = Gutentag::Tag.names_for_scope(cluster.public_collected_inks)
+    cluster.tags =
+      Gutentag::Tag.names_for_scope(cluster.public_collected_inks).to_a
   end
 
   def update_names

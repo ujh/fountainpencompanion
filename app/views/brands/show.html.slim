@@ -36,6 +36,7 @@ div class="fpc-table fpc-table--full-width fpc-inks-table fpc-scroll-shadow"
         th Brand
         th Line
         th colspan="2" Ink
+        th Tags
         th
         - if user_signed_in?
           th
@@ -48,6 +49,11 @@ div class="fpc-table fpc-table--full-width fpc-inks-table fpc-scroll-shadow"
           td
             div style="background-color:#{ink.color};width:45px;height:45px;"
           td= ink.ink_name
+          td
+            ul class="tags"
+              - ink.tags.each do |tag|
+                li class="tag badge text-bg-secondary"
+                  a href="#{inks_path(tag: tag)}"= tag
           td= link_to "Details", brand_ink_url(@brand, ink)
           - if user_signed_in?
             td

@@ -157,8 +157,4 @@ class MacroCluster < ApplicationRecord
   def name
     [brand_name, line_name, ink_name].reject(&:blank?).join(" ")
   end
-
-  def tags
-    public_collected_inks.flat_map(&:taggings).map(&:tag).map(&:name).uniq.sort
-  end
 end
