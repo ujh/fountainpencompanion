@@ -166,8 +166,6 @@ export const CollectedInksTable = ({ data, archive, onLayoutChange }) => {
             value.map((t) => t.name)
           );
           const extraToDisplay = Math.max(0, 5 - value.length);
-          if (extraClusterTags.length >= 5 && value.length)
-            console.log(value, extraClusterTags);
           return (
             <ul className="tags">
               {value.map((tag) => (

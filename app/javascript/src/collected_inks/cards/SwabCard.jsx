@@ -1,4 +1,5 @@
 import React from "react";
+import _ from "lodash";
 import { RelativeDate } from "../../components/RelativeDate";
 import { Card } from "../../components";
 import { ArchiveButton, EditButton, DeleteButton } from "../components";
@@ -132,7 +133,10 @@ export const SwabCard = (props) => {
                 ))
               : null}
             {isVisible("tags") && Array.isArray(cluster_tags)
-              ? cluster_tags.map((tag) => (
+              ? _.difference(
+                  cluster_tags,
+                  tags.map((t) => t.name)
+                ).map((tag) => (
                   <span
                     key={`ink-tag-${tag}`}
                     className="tag badge text-bg-secondary cluster-tag"

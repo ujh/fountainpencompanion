@@ -20,6 +20,12 @@ export function fuzzyMatch(rows, filterValue) {
   ];
 
   return matchSorter(rows, filterValue.replace(/\s+/gi, ""), {
-    keys: [(row) => attrs.map((a) => row[a]).join("")]
+    keys: [
+      (row) => {
+        const v = attrs.map((a) => row[a]).join(" ");
+        const tags = (row.tags || []).map((t) => t.name).join(" ");
+        return [v, tags].join(" ");
+      }
+    ]
   });
 }
