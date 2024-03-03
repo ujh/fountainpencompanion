@@ -18,56 +18,54 @@ table class="table table-striped"
       td Number of macro clusters
       td
         = @stats.macro_cluster_count
-        |   (
-        = @stats.unassigned_macro_cluster_count
-        |  unassigned macro clusters)
+        - if @stats.unassigned_macro_cluster_count.positive?
+          b
+            |   (
+            = @stats.unassigned_macro_cluster_count
+            |  unassigned macro clusters)
     tr
       td Number of micro clusters
       td
         = @stats.micro_cluster_count
-        |   (
-        = @stats.micro_clusters_to_assign_count
-        |  waiting to be assigned)
+        - if @stats.micro_clusters_to_assign_count.positive?
+          b
+            |   (
+            = @stats.micro_clusters_to_assign_count
+            |  waiting to be assigned)
     tr
       td Number of collected inks
       td= @stats.collected_inks_count
 
     tr
       td Number of collected pens
-      td
-        = CollectedPen.count
-        |  (
-        = number_to_percentage(@stats.users_using_collected_pens_percentage, precision: 2)
-        |  of active users use this feature)
+      td= CollectedPen.count
     tr
       td Number of "Currently Inked"
-      td
-        = CurrentlyInked.count
-        |  (
-        = number_to_percentage(@stats.users_using_currently_inked_percentage, precision: 2)
-        |  of active users use this feature)
+      td= CurrentlyInked.count
     tr
       td Number of usage records
-      td
-        = UsageRecord.count
-        |  (
-        = number_to_percentage(@stats.users_using_usage_records_percentage, precision: 2)
-        |  of active users use this feature)
+      td= UsageRecord.count
     tr
       td Number of ink reviews
-      td= "#{InkReview.count} (#{InkReview.queued.count} queued)"
+      td
+        = InkReview.count
+        - if InkReview.queued.count.positive?
+          b
+            |  (
+            = InkReview.queued.count
+            |  queued)
 
-div#graphs
-  div.row
-    div.col-sm-12.col-lg-6
-      div#collected-inks-graph
-    div.col-sm-12.col-lg-6
-      div#collected-pens-graph
-    div.col-sm-12.col-lg-6
-      div#currently-inked-graph
-    div.col-sm-12.col-lg-6
-      div#usage-records-graph
-    div.col-sm-12.col-lg-6
-      div#signups-graph
-    div.col-sm-12.col-lg-6
-      div#bot-signups-graph
+/ div#graphs
+/   div.row
+/     div.col-sm-12.col-lg-6
+/       div#collected-inks-graph
+/     div.col-sm-12.col-lg-6
+/       div#collected-pens-graph
+/     div.col-sm-12.col-lg-6
+/       div#currently-inked-graph
+/     div.col-sm-12.col-lg-6
+/       div#usage-records-graph
+/     div.col-sm-12.col-lg-6
+/       div#signups-graph
+/     div.col-sm-12.col-lg-6
+/       div#bot-signups-graph
