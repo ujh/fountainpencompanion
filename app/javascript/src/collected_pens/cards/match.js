@@ -10,7 +10,17 @@ export function fuzzyMatch(rows, filterValue) {
     return rows;
   }
 
-  const attrs = ["brand", "model", "nib", "color", "comment"];
+  const attrs = [
+    "brand",
+    "model",
+    "nib",
+    "color",
+    "material",
+    "trim_color",
+    "filling_system",
+    "price",
+    "comment"
+  ];
 
   return matchSorter(rows, filterValue.replace(/\s+/gi, ""), {
     keys: [(row) => attrs.map((a) => row[a]).join("")]

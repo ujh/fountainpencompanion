@@ -7,6 +7,10 @@ class CollectedPenSerializer
   attribute :model
   attribute :nib
   attribute :color
+  attribute :material
+  attribute :price
+  attribute :trim_color
+  attribute :filling_system
   attribute :comment
   attribute :archived do |object|
     object.archived?

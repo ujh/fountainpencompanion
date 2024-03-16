@@ -70,6 +70,10 @@ class CollectedPensController < ApplicationController
       :model,
       :nib,
       :color,
+      :material,
+      :price,
+      :trim_color,
+      :filling_system,
       :comment
     )
   end

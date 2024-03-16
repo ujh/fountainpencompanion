@@ -39,6 +39,22 @@ export const CollectedPensTable = ({ pens, onLayoutChange }) => {
         accessor: "color"
       },
       {
+        Header: "Material",
+        accessor: "material"
+      },
+      {
+        Header: "Trim Color",
+        accessor: "trim_color"
+      },
+      {
+        Header: "Filling System",
+        accessor: "filling_system"
+      },
+      {
+        Header: "Price",
+        accessor: "price"
+      },
+      {
         Header: "Comment",
         accessor: "comment"
       },
@@ -82,7 +98,11 @@ export const CollectedPensTable = ({ pens, onLayoutChange }) => {
       "comment",
       "usage",
       "daily_usage",
-      "last_used_on"
+      "last_used_on",
+      "material",
+      "price",
+      "trim_color",
+      "filling_system"
     ].filter((n) => !pens.some((e) => e[n]));
     return hideIfNoneWithValue;
   }, [pens]);

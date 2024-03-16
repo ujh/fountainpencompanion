@@ -11,6 +11,10 @@ import { RelativeDate } from "../../components/RelativeDate";
  *   model: string;
  *   nib?: string;
  *   color?: string;
+ *   material?: string;
+ *   trim_color?: string;
+ *   filling_system?: string
+ *   price?: string;
  *   comment?: string;
  *   usage?: number;
  *   daily_usage?: number;
@@ -28,6 +32,10 @@ export const PenCard = (props) => {
     model,
     nib,
     color,
+    material,
+    trim_color,
+    filling_system,
+    price,
     comment,
     usage,
     daily_usage,
@@ -55,6 +63,30 @@ export const PenCard = (props) => {
           <>
             <div className="small text-secondary">Nib</div>
             <Card.Text>{nib}</Card.Text>
+          </>
+        ) : null}
+        {isVisible("material") ? (
+          <>
+            <div className="small text-secondary">Material</div>
+            <Card.Text>{material}</Card.Text>
+          </>
+        ) : null}
+        {isVisible("trim_color") ? (
+          <>
+            <div className="small text-secondary">Trim Color</div>
+            <Card.Text>{trim_color}</Card.Text>
+          </>
+        ) : null}
+        {isVisible("filling_system") ? (
+          <>
+            <div className="small text-secondary">Filling System</div>
+            <Card.Text>{filling_system}</Card.Text>
+          </>
+        ) : null}
+        {isVisible("price") ? (
+          <>
+            <div className="small text-secondary">Price</div>
+            <Card.Text>{price}</Card.Text>
           </>
         ) : null}
         {hasUsage ? (

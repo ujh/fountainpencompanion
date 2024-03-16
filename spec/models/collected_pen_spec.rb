@@ -87,7 +87,7 @@ describe CollectedPen do
 
     it "has a header row" do
       expect(described_class.none.to_csv).to eq(
-        "Brand;Model;Nib;Color;Comment;Archived;Archived On;Usage;Daily Usage;Last Inked;Last Cleaned;Last Used;Inked\n"
+        "Brand;Model;Nib;Color;Material;Trim Color;Filling System;Price;Comment;Archived;Archived On;Usage;Daily Usage;Last Inked;Last Cleaned;Last Used;Inked\n"
       )
     end
 

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { useHiddenFields } from "../../useHiddenFields";
 import { Actions } from "../components/Actions";
 import { Cards } from "./Cards";
@@ -10,8 +10,25 @@ export const CollectedPensCards = ({ pens, onLayoutChange }) => {
   const [matchOn, setMatchOn] = useState("");
   const visible = fuzzyMatch(pens, matchOn);
 
+  const defaultHiddenFields = useMemo(() => {
+    let hideIfNoneWithValue = [
+      "nib",
+      "color",
+      "comment",
+      "usage",
+      "daily_usage",
+      "last_used_on",
+      "material",
+      "price",
+      "trim_color",
+      "filling_system"
+    ].filter((n) => !pens.some((e) => e[n]));
+    return hideIfNoneWithValue;
+  }, [pens]);
+
   const { hiddenFields, onHiddenFieldsChange } = useHiddenFields(
-    storageKeyHiddenFields
+    storageKeyHiddenFields,
+    defaultHiddenFields
   );
 
   return (
