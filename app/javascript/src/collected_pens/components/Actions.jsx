@@ -65,6 +65,38 @@ export const Actions = ({
                 Show&nbsp;color
               </Switch>
               <Switch
+                checked={isSwitchedOn("material")}
+                onChange={(e) => onSwitchChange(e.target.checked, "material")}
+              >
+                Show&nbsp;material
+              </Switch>
+              <Switch
+                checked={isSwitchedOn("trim_color")}
+                onChange={(e) => onSwitchChange(e.target.checked, "trim_color")}
+              >
+                Show&nbsp;trim&nbsp;color
+              </Switch>
+              <Switch
+                checked={isSwitchedOn("filling_system")}
+                onChange={(e) =>
+                  onSwitchChange(e.target.checked, "filling_system")
+                }
+              >
+                Show&nbsp;filling&nbsp;system
+              </Switch>
+              <Switch
+                checked={isSwitchedOn("price")}
+                onChange={(e) => onSwitchChange(e.target.checked, "price")}
+              >
+                Show&nbsp;price
+              </Switch>
+              <Switch
+                checked={isSwitchedOn("comment")}
+                onChange={(e) => onSwitchChange(e.target.checked, "comment")}
+              >
+                Show&nbsp;comment
+              </Switch>
+              <Switch
                 checked={isSwitchedOn("usage")}
                 onChange={(e) => onSwitchChange(e.target.checked, "usage")}
               >
@@ -91,12 +123,6 @@ export const Actions = ({
                 onChange={(e) => onSwitchChange(e.target.checked, "created_at")}
               >
                 Show&nbsp;Added&nbsp;On
-              </Switch>
-              <Switch
-                checked={isSwitchedOn("comment")}
-                onChange={(e) => onSwitchChange(e.target.checked, "comment")}
-              >
-                Show&nbsp;comment
               </Switch>
             </div>
             <button
