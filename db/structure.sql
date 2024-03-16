@@ -191,7 +191,11 @@ CREATE TABLE public.collected_pens (
     comment text,
     nib character varying(100),
     color character varying(100),
-    archived_on date
+    archived_on date,
+    material text DEFAULT ''::text,
+    price text DEFAULT ''::text,
+    trim_color text DEFAULT ''::text,
+    filling_system text DEFAULT ''::text
 );
 
 
@@ -1627,6 +1631,7 @@ ALTER TABLE ONLY public.collected_inks
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20240316093246'),
 ('20240229065535'),
 ('20240227130854'),
 ('20240227125139'),
