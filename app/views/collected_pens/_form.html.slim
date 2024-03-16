@@ -5,6 +5,10 @@
     = f.input :model, required: true, hint: "e.g. 51, Kakuno"
     = f.input :nib, hint: "e.g. M, B, architect <br /><br /><b>Tip:</b> If you change the nib, archived currently inked entries will not change. They always remember what nib was used when they were still active. This means, that you can change nibs around as often as you want and the system will keep track of it.".html_safe
     = f.input :color, hint: "e.g. blue with sparkles"
+    = f.input :material, as: :string, hint: "e.g. ebonite, aluminium"
+    = f.input :trim_color, as: :string, hint: "e.g. silver, gold, ruthenium"
+    = f.input :filling_system, as: :string, hint: "e.g. piston filler, vac filler"
+    = f.input :price, as: :string, hint: "e.g. 1 million dollars!"
 
   div style="max-width: 850px"
     = f.input :comment, hint: "Anything that doesn't fit into dedicated columns goes here."
