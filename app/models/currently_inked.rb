@@ -91,6 +91,8 @@ class CurrentlyInked < ApplicationRecord
       model: collected_pen.model,
       nib: nib,
       color: collected_pen.color,
+      material: collected_pen.material,
+      trim_color: collected_pen.trim_color,
       archived: collected_pen.archived?
     )
   end

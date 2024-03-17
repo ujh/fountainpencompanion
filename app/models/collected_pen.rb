@@ -98,6 +98,8 @@ class CollectedPen < ApplicationRecord
       model: model,
       nib: nib,
       color: color,
+      material: material,
+      trim_color: trim_color,
       archived: archived?
     )
   end

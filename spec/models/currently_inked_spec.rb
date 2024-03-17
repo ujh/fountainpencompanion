@@ -237,12 +237,16 @@ describe CurrentlyInked do
     end
 
     it "uses the nib from the pen" do
-      expect(subject.pen_name).to eq("Pilot Custom 74, orange, M")
+      expect(subject.pen_name).to eq(
+        "Pilot Custom 74, orange, plastic, gold, M"
+      )
     end
 
     it "uses the nib from self" do
       subject.nib = "my nib"
-      expect(subject.pen_name).to eq("Pilot Custom 74, orange, my nib")
+      expect(subject.pen_name).to eq(
+        "Pilot Custom 74, orange, plastic, gold, my nib"
+      )
     end
   end
 
