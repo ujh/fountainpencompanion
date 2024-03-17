@@ -176,11 +176,20 @@ export const CollectedInksTable = ({ data, archive, onLayoutChange }) => {
       {
         Header: "Cluster Tags",
         accessor: "cluster_tags",
-        Cell: ({ cell: { value } }) => {
+        Cell: ({
+          cell: { value },
+          row: {
+            values: { tags }
+          }
+        }) => {
           if (!value.length) return null;
+          const clusterOnlyTags = _.difference(
+            value,
+            tags.map((t) => t.name)
+          );
           return (
             <ul className="tags">
-              {value.map((tag) => (
+              {clusterOnlyTags.map((tag) => (
                 <li
                   key={tag}
                   className="tag badge text-bg-secondary cluster-tag"
