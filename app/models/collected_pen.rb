@@ -20,7 +20,9 @@ class CollectedPen < ApplicationRecord
   max_paginates_per 500
 
   def self.search(field, term)
-    where("#{field} like ?", "%#{term}%").order(field).pluck(field).uniq
+    results =
+      where("#{field} like ?", "%#{term}%").order(field).pluck(field).uniq
+    results.length > 100 ? [] : results
   end
 
   def self.to_csv
