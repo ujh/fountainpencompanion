@@ -33,6 +33,7 @@ class Admins::GraphsController < Admins::BaseController
 
   def bot_signups
     User
+      .where("created_at > ?", 2.months.ago)
       .select(:bot_reason)
       .distinct
       .pluck(:bot_reason)
