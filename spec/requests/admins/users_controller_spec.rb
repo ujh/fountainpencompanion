@@ -105,6 +105,29 @@ describe Admins::UsersController do
         expect(pen.color).to eq("blue") # strips whitespace
         expect(pen.comment).to eq("comment")
       end
+
+      it "updates an existing pen" do
+        pen =
+          create(
+            :collected_pen,
+            user: user,
+            brand: "PenBBS",
+            model: "456",
+            nib: "F",
+            color: "blue"
+          )
+
+        expect do
+          post "/admins/users/#{user.id}/pen_import",
+               params: {
+                 file: file_upload
+               }
+          expect(ImportCollectedPen.jobs.size).to eq(1)
+          ImportCollectedPen.drain
+        end.not_to change { user.collected_pens.count }
+
+        expect(pen.reload.comment).to eq("comment")
+      end
     end
   end
 end
