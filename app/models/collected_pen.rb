@@ -5,6 +5,9 @@ class CollectedPen < ApplicationRecord
   include PenName
 
   belongs_to :user
+  belongs_to :pens_micro_cluster,
+             optional: true,
+             class_name: "Pens::MicroCluster"
   has_many :currently_inkeds, dependent: :destroy
   has_many :usage_records, through: :currently_inkeds
   has_one :newest_currently_inked,
@@ -96,12 +99,12 @@ class CollectedPen < ApplicationRecord
 
   def name
     pen_name_generator(
-      brand: brand,
-      model: model,
-      nib: nib,
-      color: color,
-      material: material,
-      trim_color: trim_color,
+      brand:,
+      model:,
+      nib:,
+      color:,
+      material:,
+      trim_color:,
       archived: archived?
     )
   end

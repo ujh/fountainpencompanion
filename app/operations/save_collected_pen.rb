@@ -5,8 +5,9 @@ class SaveCollectedPen
   end
 
   def perform
-    collected_pen.update(collected_pen_params)
-    # TODO: Do some additional work here
+    updated = collected_pen.update(collected_pen_params)
+    Pens::AssignMicroCluster.perform_async(collected_pen.id) if updated
+    updated
   end
 
   private
