@@ -39,7 +39,7 @@ class CollectedPensController < ApplicationController
 
   def create
     @collected_pen = current_user.collected_pens.build(collected_pen_params)
-    if @collected_pen.save
+    if SaveCollectedPen.new(@collected_pen, collected_pen_params).perform
       redirect_to collected_pens_path
     else
       render :new
@@ -47,7 +47,7 @@ class CollectedPensController < ApplicationController
   end
 
   def update
-    if @collected_pen.update(collected_pen_params)
+    if SaveCollectedPen.new(@collected_pen, collected_pen_params).perform
       redirect_to collected_pens_path
     else
       render :edit
@@ -55,9 +55,9 @@ class CollectedPensController < ApplicationController
   end
 
   def archive
-    flash[
-      :notice
-    ] = "Successfully archived '#{@collected_pen.name}'" if @collected_pen
+    if @collected_pen
+      flash[:notice] = "Successfully archived '#{@collected_pen.name}'"
+    end
     @collected_pen&.archive!
     redirect_to collected_pens_path
   end
