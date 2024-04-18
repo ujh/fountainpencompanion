@@ -38,7 +38,12 @@ table class="table table-striped"
 
     tr
       td Number of collected pens
-      td= CollectedPen.count
+      td
+        table
+          tr
+            td= CollectedPen.count
+          tr
+            td= "#{Pens::MicroCluster.count} (micro clusters)"
     tr
       td Number of "Currently Inked"
       td= CurrentlyInked.count
