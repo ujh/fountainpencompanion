@@ -28,7 +28,6 @@
     "match-sorter": "^6.3.4",
     "mini-css-extract-plugin": "^2.9.0",
     "postcss-preset-env": "^9.5.5",
-    "postcss-smart-import": "^0.7.6",
     "prop-types": "^15.8.1",
     "rc-resize-observer": "^1.4.0",
     "react": "^18.2.0",
