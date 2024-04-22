@@ -49,11 +49,6 @@ describe Admins::MacroClustersController do
                     "id" => micro_cluster.id.to_s,
                     "type" => "micro_cluster",
                     "attributes" => {
-                      "simplified_brand_name" =>
-                        micro_cluster.simplified_brand_name,
-                      "simplified_line_name" =>
-                        micro_cluster.simplified_line_name,
-                      "simplified_ink_name" => micro_cluster.simplified_ink_name
                     },
                     "relationships" => {
                       "macro_cluster" => {
@@ -141,11 +136,6 @@ describe Admins::MacroClustersController do
                     "id" => micro_cluster.id.to_s,
                     "type" => "micro_cluster",
                     "attributes" => {
-                      "simplified_brand_name" =>
-                        micro_cluster.simplified_brand_name,
-                      "simplified_line_name" =>
-                        micro_cluster.simplified_line_name,
-                      "simplified_ink_name" => micro_cluster.simplified_ink_name
                     },
                     "relationships" => {
                       "macro_cluster" => {

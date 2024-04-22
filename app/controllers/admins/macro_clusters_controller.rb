@@ -59,7 +59,7 @@ class Admins::MacroClustersController < Admins::BaseController
 
   def index_options(rel)
     {
-      include: [:micro_clusters, :"micro_clusters.collected_inks"],
+      include: %i[micro_clusters micro_clusters.collected_inks],
       fields: {
         collected_ink: %i[
           brand_name
@@ -68,7 +68,8 @@ class Admins::MacroClustersController < Admins::BaseController
           maker
           color
           micro_cluster
-        ]
+        ],
+        micro_cluster: %i[collected_inks macro_cluster]
       },
       meta: {
         pagination: pagination(rel)
@@ -78,7 +79,7 @@ class Admins::MacroClustersController < Admins::BaseController
 
   def show_options
     {
-      include: [:micro_clusters, :"micro_clusters.collected_inks"],
+      include: %i[micro_clusters micro_clusters.collected_inks],
       fields: {
         collected_ink: %i[
           brand_name
