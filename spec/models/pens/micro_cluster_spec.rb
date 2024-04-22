@@ -37,4 +37,15 @@ describe Pens::MicroCluster do
       expect(described_class.without_ignored).not_to include(cluster)
     end
   end
+
+  it "eager loading of collected_pens is properly configured" do
+    cluster = create(:pens_micro_cluster)
+    collected_pen = create(:collected_pen, pens_micro_cluster: cluster)
+
+    expect(cluster.reload.collected_pens).to eq([collected_pen])
+    # Requires stuff to be properly set up for eager loading to work
+    expect(
+      described_class.includes(:collected_pens).first.collected_pens
+    ).to eq([collected_pen])
+  end
 end
