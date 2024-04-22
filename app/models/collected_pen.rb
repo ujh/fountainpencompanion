@@ -7,7 +7,8 @@ class CollectedPen < ApplicationRecord
   belongs_to :user
   belongs_to :pens_micro_cluster,
              optional: true,
-             class_name: "Pens::MicroCluster"
+             class_name: "Pens::MicroCluster",
+             inverse_of: :collected_pens
   has_many :currently_inkeds, dependent: :destroy
   has_many :usage_records, through: :currently_inkeds
   has_one :newest_currently_inked,
