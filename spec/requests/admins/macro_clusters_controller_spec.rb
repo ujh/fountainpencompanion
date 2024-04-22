@@ -14,8 +14,8 @@ describe Admins::MacroClustersController do
 
       it "renders the clusters" do
         macro_cluster = create(:macro_cluster)
-        micro_cluster = create(:micro_cluster, macro_cluster: macro_cluster)
-        collected_ink = create(:collected_ink, micro_cluster: micro_cluster)
+        micro_cluster = create(:micro_cluster, macro_cluster:)
+        collected_ink = create(:collected_ink, micro_cluster:)
         get "/admins/macro_clusters.json"
         expect(response).to be_successful
         expect(JSON.parse(response.body)).to match(
@@ -107,7 +107,7 @@ describe Admins::MacroClustersController do
 
       it "includes micro clusters without collected inks" do
         macro_cluster = create(:macro_cluster)
-        micro_cluster = create(:micro_cluster, macro_cluster: macro_cluster)
+        micro_cluster = create(:micro_cluster, macro_cluster:)
         get "/admins/macro_clusters.json"
         expect(response).to be_successful
         expect(JSON.parse(response.body)).to match(
@@ -226,9 +226,9 @@ describe Admins::MacroClustersController do
 
     it "requires authentication" do
       expect do
-        post "/admins/macro_clusters", params: params
+        post("/admins/macro_clusters", params:)
         expect(response).to redirect_to(new_user_session_path)
-      end.to_not change { MacroCluster.count }
+      end.to_not(change { MacroCluster.count })
     end
 
     context "signed in" do
@@ -236,7 +236,7 @@ describe Admins::MacroClustersController do
 
       it "creates the cluster" do
         expect do
-          post "/admins/macro_clusters", params: params
+          post("/admins/macro_clusters", params:)
           expect(response).to be_successful
         end.to change { MacroCluster.count }.by(1)
         cluster = MacroCluster.last
@@ -285,7 +285,7 @@ describe Admins::MacroClustersController do
     end
 
     it "requires authentication" do
-      put "/admins/macro_clusters/#{macro_cluster.id}", params: params
+      put("/admins/macro_clusters/#{macro_cluster.id}", params:)
       expect(response).to redirect_to(new_user_session_path)
     end
 
@@ -293,7 +293,7 @@ describe Admins::MacroClustersController do
       before(:each) { sign_in(admin) }
 
       it "updates the cluster" do
-        put "/admins/macro_clusters/#{macro_cluster.id}", params: params
+        put("/admins/macro_clusters/#{macro_cluster.id}", params:)
         expect(response).to be_successful
         macro_cluster.reload
         expect(macro_cluster.brand_name).to eq("new brand_name")
@@ -330,7 +330,7 @@ describe Admins::MacroClustersController do
       expect do
         delete "/admins/macro_clusters/#{macro_cluster.id}"
         expect(response).to redirect_to(new_user_session_path)
-      end.to_not change { MacroCluster.count }
+      end.to_not(change { MacroCluster.count })
     end
 
     context "signed in" do

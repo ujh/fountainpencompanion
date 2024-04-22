@@ -1,10 +1,10 @@
 require "rails_helper"
 
-describe Admins::Pens::MicroClustersController do
+describe Admins::Pens::ModelVariantsController do
   let(:admin) { create(:user, :admin) }
 
   it "requires authentication" do
-    get "/admins/pens/micro_clusters"
+    get "/admins/pens/model_variants"
     expect(response).to redirect_to(new_user_session_path)
   end
 
@@ -12,37 +12,33 @@ describe Admins::Pens::MicroClustersController do
     before(:each) { sign_in(admin) }
 
     it "renders the json" do
-      pens_cluster = create(:pens_micro_cluster)
-      cp1 = create(:collected_pen, pens_micro_cluster: pens_cluster)
-      cp2 = create(:collected_pen, pens_micro_cluster: pens_cluster)
-      get "/admins/pens/micro_clusters.json"
+      model_variant = create(:pens_model_variant)
+      pens_micro_cluster = create(:pens_micro_cluster, model_variant:)
+      collected_pen = create(:collected_pen, pens_micro_cluster:)
+      get "/admins/pens/model_variants.json"
       expect(response).to be_successful
       json = JSON.parse(response.body)
       expect(json).to match(
         "data" => [
           {
-            "id" => pens_cluster.id.to_s,
-            "type" => "pens_micro_cluster",
+            "id" => model_variant.id.to_s,
+            "type" => "pens_model_variant",
             "attributes" => {
-              "simplified_brand" => "brand",
-              "simplified_model" => "model",
-              "simplified_color" => "color",
-              "simplified_material" => "material",
-              "simplified_trim_color" => "trim",
-              "simplified_filling_system" => "fillingsystem"
+              "brand" => "Brand",
+              "model" => "Model",
+              "color" => "",
+              "material" => "",
+              "trim_color" => "",
+              "filling_system" => ""
             },
             "relationships" => {
-              "collected_pens" => {
-                "data" =>
-                  match_array(
-                    [
-                      { "id" => cp1.id.to_s, "type" => "collected_pen" },
-                      { "id" => cp2.id.to_s, "type" => "collected_pen" }
-                    ]
-                  )
-              },
-              "model_variant" => {
-                "data" => nil
+              "micro_clusters" => {
+                "data" => [
+                  {
+                    "id" => pens_micro_cluster.id.to_s,
+                    "type" => "pens_micro_cluster"
+                  }
+                ]
               }
             }
           }
@@ -51,7 +47,7 @@ describe Admins::Pens::MicroClustersController do
           match_array(
             [
               {
-                "id" => cp1.id.to_s,
+                "id" => collected_pen.id.to_s,
                 "type" => "collected_pen",
                 "attributes" => {
                   "brand" => "Wing Sung",
@@ -64,28 +60,22 @@ describe Admins::Pens::MicroClustersController do
                 "relationships" => {
                   "pens_micro_cluster" => {
                     "data" => {
-                      "id" => pens_cluster.id.to_s,
+                      "id" => pens_micro_cluster.id.to_s,
                       "type" => "pens_micro_cluster"
                     }
                   }
                 }
               },
               {
-                "id" => cp2.id.to_s,
-                "type" => "collected_pen",
+                "id" => pens_micro_cluster.id.to_s,
+                "type" => "pens_micro_cluster",
                 "attributes" => {
-                  "brand" => "Wing Sung",
-                  "model" => "618",
-                  "color" => "black",
-                  "material" => "plastic",
-                  "trim_color" => "gold",
-                  "filling_system" => "piston filler"
                 },
                 "relationships" => {
-                  "pens_micro_cluster" => {
+                  "model_variant" => {
                     "data" => {
-                      "id" => pens_cluster.id.to_s,
-                      "type" => "pens_micro_cluster"
+                      "id" => model_variant.id.to_s,
+                      "type" => "pens_model_variant"
                     }
                   }
                 }
