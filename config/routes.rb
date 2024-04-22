@@ -108,6 +108,11 @@ Rails.application.routes.draw do
       collection { get "ignored" }
       member { delete "unassign" }
     end
+
+    namespace :pens do
+      resources :micro_clusters, only: [:index]
+    end
+
     resources :blog_posts do
       member { put "publish" }
     end
@@ -124,7 +129,7 @@ Rails.application.routes.draw do
     end
   end
 
-  authenticate :user, lambda { |user| user.admin? } do
+  authenticate :user, ->(user) { user.admin? } do
     mount Sidekiq::Web => "/admins/sidekiq"
   end
 

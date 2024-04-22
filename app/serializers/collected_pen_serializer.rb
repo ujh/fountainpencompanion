@@ -1,6 +1,7 @@
 class CollectedPenSerializer
   include JSONAPI::Serializer
 
+  belongs_to :pens_micro_cluster
   has_many :currently_inkeds
 
   attribute :brand
