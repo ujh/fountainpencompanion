@@ -1,6 +1,6 @@
 class Pens::MicroCluster < ApplicationRecord
   has_many :collected_pens,
-           foreign_key: :pens_micro_cluster,
+           foreign_key: :pens_micro_cluster_id,
            inverse_of: :pens_micro_cluster
   belongs_to :model_variant,
              optional: true,
