@@ -30,7 +30,8 @@ class Admins::Pens::ModelVariantsController < Admins::BaseController
           trim_color
           filling_system
           pens_micro_cluster
-        ]
+        ],
+        pens_micro_cluster: [:model_variant]
       },
       meta: {
         pagination: pagination(rel)

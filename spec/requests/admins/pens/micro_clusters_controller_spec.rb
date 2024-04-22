@@ -40,6 +40,9 @@ describe Admins::Pens::MicroClustersController do
                       { "id" => cp2.id.to_s, "type" => "collected_pen" }
                     ]
                   )
+              },
+              "model_variant" => {
+                "data" => nil
               }
             }
           }
