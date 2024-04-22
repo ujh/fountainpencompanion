@@ -5,7 +5,11 @@ class Admins::Pens::MicroClustersController < Admins::BaseController
         # FIXME: Adding an includes here breaks the serialization and does not include
         #        the collected pens anymore. This is due to the way the association is
         #        set up and not being really bi-directional.
-        clusters = Pens::MicroCluster.ordered.page(params[:page])
+        clusters =
+          Pens::MicroCluster
+            .includes(:collected_pens)
+            .ordered
+            .page(params[:page])
         clusters = clusters.unassigned if params[:unassigned]
         clusters = clusters.without_ignored if params[:without_ignored]
         render json:
