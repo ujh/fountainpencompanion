@@ -111,6 +111,7 @@ Rails.application.routes.draw do
 
     namespace :pens do
       resources :micro_clusters, only: [:index]
+      resources :model_variants, only: [:index]
     end
 
     resources :blog_posts do

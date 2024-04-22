@@ -2,6 +2,7 @@ class PensMicroClusterSerializer
   include JSONAPI::Serializer
 
   has_many :collected_pens
+  belongs_to :model_variant, serializer: PensModelVariantSerializer
 
   attribute :simplified_brand
   attribute :simplified_model
