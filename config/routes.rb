@@ -111,7 +111,7 @@ Rails.application.routes.draw do
 
     namespace :pens do
       resources :micro_clusters, only: %i[index update]
-      resources :model_variants, only: [:index]
+      resources :model_variants, only: %i[index create show]
     end
 
     resources :blog_posts do

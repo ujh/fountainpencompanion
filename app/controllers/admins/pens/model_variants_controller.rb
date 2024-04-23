@@ -16,9 +16,38 @@ class Admins::Pens::ModelVariantsController < Admins::BaseController
     end
   end
 
+  def show
+    cluster = Pens::ModelVariant.find(params[:id])
+    render json:
+             PensModelVariantSerializer
+               .new(cluster, show_options)
+               .serializable_hash
+               .to_json
+  end
+
+  def create
+    cluster = Pens::ModelVariant.create!(create_params)
+    render json:
+             PensModelVariantSerializer
+               .new(cluster, show_options)
+               .serializable_hash
+               .to_json
+  end
+
   private
 
-  def index_options(rel)
+  def create_params
+    params.dig(:data, :attributes).permit(
+      :brand,
+      :model,
+      :color,
+      :material,
+      :trim_color,
+      :filling_system
+    )
+  end
+
+  def show_options
     {
       include: %i[micro_clusters micro_clusters.collected_pens],
       fields: {
@@ -32,11 +61,12 @@ class Admins::Pens::ModelVariantsController < Admins::BaseController
           pens_micro_cluster
         ],
         pens_micro_cluster: [:model_variant]
-      },
-      meta: {
-        pagination: pagination(rel)
       }
     }
+  end
+
+  def index_options(rel)
+    show_options.merge(meta: { pagination: pagination(rel) })
   end
 
   def pagination(rel)
