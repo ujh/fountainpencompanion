@@ -17,6 +17,13 @@ describe Pens::AssignMicroCluster do
       collected_pen.reload
       expect(collected_pen.pens_micro_cluster).to eq(cluster)
     end
+
+    it "schedules the cluster update job" do
+      expect { subject.perform(collected_pen.id) }.to change(
+        Pens::UpdateMicroCluster.jobs,
+        :length
+      ).by(1)
+    end
   end
 
   context "existing pen" do
@@ -48,6 +55,13 @@ describe Pens::AssignMicroCluster do
       )
       collected_pen.reload
       expect(collected_pen.pens_micro_cluster).to eq(cluster)
+    end
+
+    it "schedules the cluster update job" do
+      expect { subject.perform(collected_pen.id) }.to change(
+        Pens::UpdateMicroCluster.jobs,
+        :length
+      ).by(1)
     end
   end
 end
