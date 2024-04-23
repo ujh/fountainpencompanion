@@ -3,14 +3,15 @@ import Jsona from "jsona";
 
 import { getRequest } from "../../fetch";
 import { DisplayMicroCluster } from "./DisplayMicroCluster";
-import { DispatchContext, groupedInks, StateContext } from "./App";
+import { DispatchContext, StateContext } from "./App";
+import { groupedInks } from "./groupedInks";
 import {
   PREVIOUS,
   NEXT,
   REMOVE_MICRO_CLUSTER,
   UPDATE_MACRO_CLUSTER
-} from "./actions";
-import { keyDownListener } from "./keyDownListener";
+} from "../components/clustering/actions";
+import { keyDownListener } from "../components/clustering/keyDownListener";
 import { useCallback } from "react";
 
 export const DisplayMicroClusters = () => {
