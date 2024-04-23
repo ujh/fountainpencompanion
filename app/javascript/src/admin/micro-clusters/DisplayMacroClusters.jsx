@@ -14,7 +14,10 @@ import {
   PREVIOUS_MACRO_CLUSTER,
   UPDATING
 } from "../components/clustering/actions";
-import { keyDownListener, setInBrandSelector } from "./keyDownListener";
+import {
+  keyDownListener,
+  setInBrandSelector
+} from "../components/clustering/keyDownListener";
 import { useCallback } from "react";
 
 export const DisplayMacroClusters = ({ afterAssign }) => {

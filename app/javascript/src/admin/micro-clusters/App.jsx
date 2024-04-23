@@ -13,7 +13,7 @@ import {
   SET_MICRO_CLUSTERS,
   UPDATE_SELECTED_BRANDS
 } from "../components/clustering/actions";
-import { setInBrandSelector } from "./keyDownListener";
+import { setInBrandSelector } from "../components/clustering/keyDownListener";
 
 export const StateContext = React.createContext();
 export const DispatchContext = React.createContext();

@@ -8,7 +8,7 @@ import {
   REMOVE_MICRO_CLUSTER
 } from "../components/clustering/actions";
 import { assignCluster } from "./assignCluster";
-import { keyDownListener } from "./keyDownListener";
+import { keyDownListener } from "../components/clustering/keyDownListener";
 
 export const CreateRow = ({ afterCreate }) => {
   const { updating, activeCluster } = useContext(StateContext);

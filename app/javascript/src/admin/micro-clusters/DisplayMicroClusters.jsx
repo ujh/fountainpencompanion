@@ -10,7 +10,7 @@ import {
   REMOVE_MICRO_CLUSTER,
   UPDATE_MACRO_CLUSTER
 } from "../components/clustering/actions";
-import { keyDownListener } from "./keyDownListener";
+import { keyDownListener } from "../components/clustering/keyDownListener";
 import { useCallback } from "react";
 
 export const DisplayMicroClusters = () => {
