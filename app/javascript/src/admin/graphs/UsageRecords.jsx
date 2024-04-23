@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import Highcharts from "highcharts";
 import HighchartsReact from "highcharts-react-official";
 
-import { Spinner } from "../micro-clusters/Spinner";
+import { Spinner } from "../components/Spinner";
 
 export const UsageRecords = () => {
   const [data, setData] = useState(null);

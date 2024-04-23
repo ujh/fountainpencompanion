@@ -4,7 +4,7 @@ import _ from "lodash";
 import Jsona from "jsona";
 
 import { getRequest } from "../../fetch";
-import { Spinner } from "./Spinner";
+import { Spinner } from "../components/Spinner";
 import { DisplayMicroClusters } from "./DisplayMicroClusters";
 import { reducer, initalState } from "../components/clustering/reducer";
 import {
