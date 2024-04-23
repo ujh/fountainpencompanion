@@ -9,7 +9,7 @@ import {
   NEXT,
   REMOVE_MICRO_CLUSTER,
   UPDATE_MACRO_CLUSTER
-} from "./actions";
+} from "../components/clustering/actions";
 import { keyDownListener } from "./keyDownListener";
 import { useCallback } from "react";
 

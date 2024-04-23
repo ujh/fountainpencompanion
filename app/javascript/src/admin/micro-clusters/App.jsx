@@ -6,13 +6,13 @@ import Jsona from "jsona";
 import { getRequest } from "../../fetch";
 import { Spinner } from "./Spinner";
 import { DisplayMicroClusters } from "./DisplayMicroClusters";
-import { reducer, initalState } from "./reducer";
+import { reducer, initalState } from "../components/clustering/reducer";
 import {
   SET_LOADING_PERCENTAGE,
   SET_MACRO_CLUSTERS,
   SET_MICRO_CLUSTERS,
   UPDATE_SELECTED_BRANDS
-} from "./actions";
+} from "../components/clustering/actions";
 import { setInBrandSelector } from "./keyDownListener";
 
 export const StateContext = React.createContext();

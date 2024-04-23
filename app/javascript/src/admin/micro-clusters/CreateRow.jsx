@@ -2,7 +2,11 @@ import React, { useCallback, useContext, useEffect } from "react";
 import _ from "lodash";
 import { postRequest, putRequest } from "../../fetch";
 import { StateContext, DispatchContext, groupedInks } from "./App";
-import { UPDATING, ADD_MACRO_CLUSTER, REMOVE_MICRO_CLUSTER } from "./actions";
+import {
+  UPDATING,
+  ADD_MACRO_CLUSTER,
+  REMOVE_MICRO_CLUSTER
+} from "../components/clustering/actions";
 import { assignCluster } from "./assignCluster";
 import { keyDownListener } from "./keyDownListener";
 

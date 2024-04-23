@@ -13,7 +13,7 @@ import {
   NEXT_MACRO_CLUSTER,
   PREVIOUS_MACRO_CLUSTER,
   UPDATING
-} from "./actions";
+} from "../components/clustering/actions";
 import { keyDownListener, setInBrandSelector } from "./keyDownListener";
 import { useCallback } from "react";
 
