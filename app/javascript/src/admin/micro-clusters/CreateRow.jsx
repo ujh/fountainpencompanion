@@ -1,7 +1,8 @@
 import React, { useCallback, useContext, useEffect } from "react";
 import _ from "lodash";
 import { postRequest, putRequest } from "../../fetch";
-import { StateContext, DispatchContext, groupedInks } from "./App";
+import { StateContext, DispatchContext } from "./App";
+import { groupedInks } from "./groupedInks";
 import {
   UPDATING,
   ADD_MACRO_CLUSTER,

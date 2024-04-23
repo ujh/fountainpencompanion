@@ -3,7 +3,8 @@ import Jsona from "jsona";
 
 import { getRequest } from "../../fetch";
 import { DisplayMicroCluster } from "./DisplayMicroCluster";
-import { DispatchContext, groupedInks, StateContext } from "./App";
+import { DispatchContext, StateContext } from "./App";
+import { groupedInks } from "./groupedInks";
 import {
   PREVIOUS,
   NEXT,
