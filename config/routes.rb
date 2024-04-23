@@ -110,7 +110,7 @@ Rails.application.routes.draw do
     end
 
     namespace :pens do
-      resources :micro_clusters, only: [:index]
+      resources :micro_clusters, only: %i[index update]
       resources :model_variants, only: [:index]
     end
 

@@ -21,7 +21,39 @@ class Admins::Pens::MicroClustersController < Admins::BaseController
     end
   end
 
+  def update
+    cluster = Pens::MicroCluster.find(params[:id])
+    cluster.update!(update_params)
+    Pens::UpdateMicroCluster.perform_async(cluster.id)
+    render json:
+             PensMicroClusterSerializer
+               .new(cluster, update_options)
+               .serializable_hash
+               .to_json
+  end
+
   private
+
+  def update_params
+    params.dig(:data, :attributes).permit(:ignored, :pens_model_variant_id)
+  end
+
+  def update_options
+    {
+      include: [:collected_pens],
+      fields: {
+        collected_pen: %i[
+          brand
+          model
+          color
+          material
+          trim_color
+          filling_system
+          pens_micro_cluster
+        ]
+      }
+    }
+  end
 
   def index_options(rel)
     {
