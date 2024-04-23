@@ -24,12 +24,13 @@ describe Admins::Pens::MicroClustersController do
             "id" => pens_cluster.id.to_s,
             "type" => "pens_micro_cluster",
             "attributes" => {
-              "simplified_brand" => "brand",
-              "simplified_model" => "model",
-              "simplified_color" => "color",
-              "simplified_material" => "material",
-              "simplified_trim_color" => "trim",
-              "simplified_filling_system" => "fillingsystem"
+              "simplified_brand" => pens_cluster.simplified_brand,
+              "simplified_model" => pens_cluster.simplified_model,
+              "simplified_color" => pens_cluster.simplified_color,
+              "simplified_material" => pens_cluster.simplified_material,
+              "simplified_trim_color" => pens_cluster.simplified_trim_color,
+              "simplified_filling_system" =>
+                pens_cluster.simplified_filling_system
             },
             "relationships" => {
               "collected_pens" => {

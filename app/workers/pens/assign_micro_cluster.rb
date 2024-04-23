@@ -7,6 +7,7 @@ module Pens
       cluster =
         Pens::MicroCluster.find_or_create_by!(cluster_attributes(collected_pen))
       collected_pen.update!(pens_micro_cluster: cluster)
+      Pens::UpdateMicroCluster.perform_async(cluster.id)
     rescue ActiveRecord::RecordNotFound
       # do nothing
     end
