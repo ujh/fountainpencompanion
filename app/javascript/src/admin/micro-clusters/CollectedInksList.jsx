@@ -1,6 +1,6 @@
 import React from "react";
 import _ from "lodash";
-import { SearchLink } from "./SearchLink";
+import { SearchLink } from "../components/clustering/SearchLink";
 export const CollectedInksList = ({ collectedInks }) => {
   const grouped = _.groupBy(collectedInks, (ci) =>
     ["brand_name", "line_name", "ink_name"].map((n) => ci[n]).join(",")
@@ -27,7 +27,10 @@ export const CollectedInksList = ({ collectedInks }) => {
           />
         </td>
         <td>
-          <SearchLink ci={ci} />
+          <SearchLink
+            ci={ci}
+            fields={["brand_name", "line_name", "ink_name"]}
+          />
         </td>
         <td></td>
       </tr>

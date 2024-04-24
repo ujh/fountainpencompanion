@@ -6,7 +6,7 @@ import { matchSorter } from "match-sorter";
 
 import { assignCluster } from "./assignCluster";
 import { CollectedInksList } from "./CollectedInksList";
-import { SearchLink } from "./SearchLink";
+import { SearchLink } from "../components/clustering/SearchLink";
 import { StateContext, DispatchContext } from "./App";
 import {
   ASSIGN_TO_MACRO_CLUSTER,
@@ -211,7 +211,10 @@ const MacroClusterRow = ({ macroCluster, afterAssign, selected }) => {
           />
         </td>
         <td>
-          <SearchLink ci={macroCluster} />
+          <SearchLink
+            ci={macroCluster}
+            fields={["brand_name", "line_name", "ink_name"]}
+          />
         </td>
         <td>
           <button
