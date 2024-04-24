@@ -1,23 +1,18 @@
-import React, { useState, useContext, useEffect } from "react";
-import _ from "lodash";
 import levenshtein from "fast-levenshtein";
-import ScrollIntoViewIfNeeded from "react-scroll-into-view-if-needed";
+import _ from "lodash";
 import { matchSorter } from "match-sorter";
+import React, { useContext, useEffect, useState } from "react";
 
-import { SearchLink } from "../components/clustering/SearchLink";
-import { StateContext, DispatchContext } from "./GenericApp";
+import { MacroClusterRow } from "../components/clustering/MacroClusterRow";
 import {
-  ASSIGN_TO_MACRO_CLUSTER,
   NEXT_MACRO_CLUSTER,
-  PREVIOUS_MACRO_CLUSTER,
-  UPDATING
+  PREVIOUS_MACRO_CLUSTER
 } from "../components/clustering/actions";
 import {
   keyDownListener,
   setInBrandSelector
 } from "../components/clustering/keyDownListener";
-import { useCallback } from "react";
-import { EntriesList } from "../components/clustering/EntriesList";
+import { DispatchContext, StateContext } from "./GenericApp";
 
 export const DisplayMacroClusters = ({ afterAssign, assignCluster }) => {
   const dispatch = useContext(DispatchContext);
@@ -76,6 +71,8 @@ const MacroClusterRows = ({ afterAssign, assignCluster }) => {
         afterAssign={afterAssign}
         assignCluster={assignCluster}
         selected={index == selectedMacroClusterIndex}
+        fields={["brand_name", "line_name", "ink_name"]}
+        extraColumn={extraColumn}
       />
     ));
   const inputRow = (
@@ -167,95 +164,7 @@ const stripped = (str) => {
     .replace(/\s+/i, "");
 };
 
-const MacroClusterRow = ({
-  macroCluster,
-  afterAssign,
-  selected,
-  assignCluster
-}) => {
-  const { activeCluster, updating } = useContext(StateContext);
-  const dispatch = useContext(DispatchContext);
-  const [showInks, setShowInks] = useState(false);
-  const onClick = () => setShowInks(!showInks);
-  const assign = useCallback(() => {
-    dispatch({ type: UPDATING });
-    setTimeout(() => {
-      assignCluster(activeCluster.id, macroCluster.id).then((microCluster) => {
-        dispatch({
-          type: ASSIGN_TO_MACRO_CLUSTER,
-          payload: microCluster
-        });
-        afterAssign(microCluster);
-      });
-    }, 10);
-  }, [activeCluster.id, afterAssign, dispatch, macroCluster.id, assignCluster]);
-  useEffect(() => {
-    if (!selected) return;
-
-    return keyDownListener(({ keyCode }) => {
-      if (keyCode == 65) assign();
-    });
-  }, [macroCluster.id, activeCluster.id, selected, assign]);
-  return (
-    <>
-      <tr className={selected ? "selected" : ""}>
-        <td className="distance" onClick={onClick}>
-          <ScrollIntoViewIfNeeded active={selected}>
-            {macroCluster.distance}
-          </ScrollIntoViewIfNeeded>
-        </td>
-        <td onClick={onClick}>{macroCluster.brand_name}</td>
-        <td onClick={onClick}>{macroCluster.line_name}</td>
-        <td onClick={onClick}>{macroCluster.ink_name}</td>
-        <td onClick={onClick}></td>
-        <td onClick={onClick}>
-          <div
-            style={{
-              backgroundColor: macroCluster.color,
-              height: "45px",
-              width: "45px"
-            }}
-          />
-        </td>
-        <td>
-          <SearchLink
-            e={macroCluster}
-            fields={["brand_name", "line_name", "ink_name"]}
-          />
-        </td>
-        <td>
-          <button
-            className="btn btn-secondary"
-            type="submit"
-            disabled={updating}
-            onClick={assign}
-          >
-            Assign
-          </button>
-        </td>
-      </tr>
-      {(showInks || selected) && (
-        <tr>
-          <td colSpan="7">
-            <table className="table macro-cluster-collected-inks">
-              <tbody>
-                <EntriesList
-                  entries={macroCluster.micro_clusters
-                    .map((c) => c.entries)
-                    .flat()}
-                  fields={["brand_name", "line_name", "ink_name"]}
-                  extraColumn={extraColumn}
-                />
-              </tbody>
-            </table>
-          </td>
-        </tr>
-      )}
-    </>
-  );
-};
-
-const extraColumn = (ci) => (
+export const extraColumn = (ci) => (
   <div
     style={{
       backgroundColor: ci.color,
