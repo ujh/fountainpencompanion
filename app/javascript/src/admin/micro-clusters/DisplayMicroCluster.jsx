@@ -14,7 +14,7 @@ export const DisplayMicroCluster = ({ afterCreate }) => {
           <CreateRow afterCreate={afterCreate} />
         </thead>
         <tbody>
-          <CollectedInksList collectedInks={activeCluster.collected_inks} />
+          <CollectedInksList collectedInks={activeCluster.entries} />
           <tr>
             <td colSpan="8" style={{ backgroundColor: "black" }}></td>
           </tr>

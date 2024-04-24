@@ -74,7 +74,7 @@ export const CreateRow = ({ afterCreate }) => {
 };
 
 const computeValues = (activeCluster) => {
-  const grouped = _.groupBy(activeCluster.collected_inks, (ci) =>
+  const grouped = _.groupBy(activeCluster.entries, (ci) =>
     ["brand_name", "line_name", "ink_name"].map((n) => ci[n]).join(",")
   );
   const ci = _.maxBy(_.values(grouped), (array) => array.length)[0];
@@ -105,12 +105,15 @@ const createMacroClusterAndAssign = (
       .then((json) =>
         assignCluster(microClusterId, json.data.id).then((microCluster) => {
           const macroCluster = microCluster.macro_cluster;
-          const grouped_collected_inks = groupedInks(
-            macroCluster.micro_clusters.map((c) => c.collected_inks).flat()
+          const grouped_entries = groupedInks(
+            macroCluster.micro_clusters.map((c) => c.entries).flat()
           );
           dispatch({
             type: ADD_MACRO_CLUSTER,
-            payload: { ...macroCluster, grouped_collected_inks }
+            payload: {
+              ...macroCluster,
+              grouped_entries
+            }
           });
           afterCreate(microCluster);
         })

@@ -80,9 +80,7 @@ const actualReducer = (state, { type, payload }) => {
     case SET_MACRO_CLUSTERS:
       return { ...state, macroClusters: payload, loadingMacroClusters: false };
     case SET_MICRO_CLUSTERS: {
-      const microClusters = _.reverse(
-        _.sortBy(payload, "collected_inks.length")
-      );
+      const microClusters = _.reverse(_.sortBy(payload, "entries.length"));
       return {
         ...state,
         microClusters,
@@ -185,7 +183,7 @@ const selectMicroClusters = (selectedBrands, microClusters) => {
         microClusters.filter((c) =>
           selectedBrands.map((s) => s.value).includes(c.simplified_brand_name)
         ),
-        "collected_inks.length"
+        "entries.length"
       )
     );
     return filtered.length ? filtered : microClusters;

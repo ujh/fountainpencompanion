@@ -103,9 +103,9 @@ const MacroClusterRows = ({ afterAssign }) => {
 // This is the most expensive computation in this app. Group inks by name first
 // and only compare between those that are really different.
 const withDistance = (macroClusters, activeCluster) => {
-  const activeGroupedInks = activeCluster.grouped_collected_inks;
+  const activeGroupedInks = activeCluster.grouped_entries;
   return macroClusters.map((c) => {
-    const macroClusterInks = c.grouped_collected_inks.concat(c);
+    const macroClusterInks = c.grouped_entries.concat(c);
     return {
       ...c,
       distance: dist(macroClusterInks, activeGroupedInks)
@@ -231,7 +231,7 @@ const MacroClusterRow = ({ macroCluster, afterAssign, selected }) => {
               <tbody>
                 <CollectedInksList
                   collectedInks={macroCluster.micro_clusters
-                    .map((c) => c.collected_inks)
+                    .map((c) => c.entries)
                     .flat()}
                 />
               </tbody>
