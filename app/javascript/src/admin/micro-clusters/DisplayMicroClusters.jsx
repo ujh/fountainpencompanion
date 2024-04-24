@@ -9,7 +9,7 @@ import {
 } from "../components/clustering/actions";
 import { keyDownListener } from "../components/clustering/keyDownListener";
 import { useCallback } from "react";
-import { updateMacroCluster } from "./updateMacroCluster";
+import { updateMacroCluster } from "./macroClusters";
 
 export const DisplayMicroClusters = () => {
   const dispatch = useContext(DispatchContext);

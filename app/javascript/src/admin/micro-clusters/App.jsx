@@ -7,7 +7,8 @@ import { DisplayMicroClusters } from "./DisplayMicroClusters";
 import { reducer, initalState } from "../components/clustering/reducer";
 import { UPDATE_SELECTED_BRANDS } from "../components/clustering/actions";
 import { setInBrandSelector } from "../components/clustering/keyDownListener";
-import { loadMacroClusters, loadMicroClusters } from "./loadClusters";
+import { getMacroClusters } from "./macroClusters";
+import { getMicroClusters } from "./microClusters";
 
 export const StateContext = React.createContext();
 export const DispatchContext = React.createContext();
@@ -16,10 +17,10 @@ export const App = () => {
   const [state, dispatch] = useReducer(reducer, initalState);
   const { loadingMacroClusters, loadingMicroClusters } = state;
   useEffect(() => {
-    loadMicroClusters(dispatch);
+    getMicroClusters(dispatch);
   }, []);
   useEffect(() => {
-    loadMacroClusters(dispatch);
+    getMacroClusters(dispatch);
   }, []);
   useEffect(() => {
     if (
@@ -29,7 +30,7 @@ export const App = () => {
     )
       return;
     const intervalId = setInterval(() => {
-      loadMicroClusters(dispatch);
+      getMicroClusters(dispatch);
     }, 30 * 1000);
     return () => {
       clearInterval(intervalId);
