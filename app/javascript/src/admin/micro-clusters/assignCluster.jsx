@@ -12,5 +12,8 @@ export const assignCluster = (microClusterId, macroClusterId) =>
     .then((response) => response.json())
     .then((json) => {
       const formatter = new Jsona();
-      return formatter.deserialize(json);
+      let microCluster = formatter.deserialize(json);
+      microCluster.entries = microCluster.collected_inks;
+      delete microCluster.collected_inks;
+      return microCluster;
     });

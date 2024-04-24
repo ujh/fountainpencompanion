@@ -93,8 +93,8 @@ describe("loadMicroClusters", () => {
       const payload = arg.payload;
       expect(payload).toHaveLength(1);
       const microCluster = payload[0];
-      expect(microCluster.collected_inks).toHaveLength(2);
-      expect(microCluster.grouped_collected_inks).toHaveLength(1);
+      expect(microCluster.entries).toHaveLength(2);
+      expect(microCluster.grouped_entries).toHaveLength(1);
       done();
     }, 500);
   });
@@ -203,7 +203,9 @@ describe("loadMacroClusters", () => {
       expect(payload).toHaveLength(1);
       const macroCluster = payload[0];
       expect(macroCluster.micro_clusters).toHaveLength(1);
-      expect(macroCluster.grouped_collected_inks).toHaveLength(2);
+      expect(macroCluster.grouped_entries).toHaveLength(2);
+      const microCluster = macroCluster.micro_clusters[0];
+      expect(microCluster.entries).toHaveLength(2);
       done();
     }, 500);
   });

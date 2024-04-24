@@ -49,10 +49,10 @@ const updateMacroCluster = (id, dispatch) => {
       .then((json) => {
         const formatter = new Jsona();
         const macroCluster = formatter.deserialize(json);
-        const grouped_collected_inks = groupedInks(
+        const grouped_entries = groupedInks(
           macroCluster.micro_clusters.map((c) => c.collected_inks).flat()
         );
-        return { ...macroCluster, grouped_collected_inks };
+        return { ...macroCluster, grouped_entries };
       })
       .then((macroCluster) =>
         dispatch({ type: UPDATE_MACRO_CLUSTER, payload: macroCluster })

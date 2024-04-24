@@ -21,7 +21,13 @@ export const loadMicroClusters = (dispatch) => {
         .filter((c) => c.collected_inks.length > 0)
         .map((c) => {
           const grouped_collected_inks = groupedInks(c.collected_inks);
-          return { ...c, grouped_collected_inks };
+          let cluster = {
+            ...c,
+            entries: c.collected_inks,
+            grouped_entries: grouped_collected_inks
+          };
+          delete cluster.collected_inks;
+          return cluster;
         });
       data = [...data, ...pageData];
       if (next_page) {
@@ -55,7 +61,16 @@ export const loadMacroClusters = (dispatch) => {
         const grouped_collected_inks = groupedInks(
           c.micro_clusters.map((c) => c.collected_inks).flat()
         );
-        return { ...c, grouped_collected_inks };
+        const micro_clusters = c.micro_clusters.map((c) => {
+          let adjusted_cluster = { ...c, entries: c.collected_inks };
+          delete adjusted_cluster.collected_inks;
+          return adjusted_cluster;
+        });
+        return {
+          ...c,
+          micro_clusters,
+          grouped_entries: grouped_collected_inks
+        };
       });
       data = [...data, ...pageData];
       if (next_page) {
