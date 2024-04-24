@@ -1,17 +1,16 @@
 import React, { useCallback, useContext, useEffect } from "react";
 import _ from "lodash";
 import { postRequest, putRequest } from "../../fetch";
-import { StateContext, DispatchContext } from "./App";
+import { StateContext, DispatchContext } from "./GenericApp";
 import { groupedInks } from "./groupedInks";
 import {
   UPDATING,
   ADD_MACRO_CLUSTER,
   REMOVE_MICRO_CLUSTER
 } from "../components/clustering/actions";
-import { assignCluster } from "./assignCluster";
 import { keyDownListener } from "../components/clustering/keyDownListener";
 
-export const CreateRow = ({ afterCreate }) => {
+export const CreateRow = ({ afterCreate, assignCluster }) => {
   const { updating, activeCluster } = useContext(StateContext);
   const dispatch = useContext(DispatchContext);
   const values = computeValues(activeCluster);
@@ -20,9 +19,10 @@ export const CreateRow = ({ afterCreate }) => {
       values,
       activeCluster.id,
       dispatch,
-      afterCreate
+      afterCreate,
+      assignCluster
     );
-  }, [activeCluster.id, afterCreate, dispatch, values]);
+  }, [activeCluster.id, afterCreate, dispatch, values, assignCluster]);
   const ignore = () => {
     ignoreCluster(activeCluster).then(
       dispatch({ type: REMOVE_MICRO_CLUSTER, payload: activeCluster })
@@ -89,7 +89,8 @@ const createMacroClusterAndAssign = (
   values,
   microClusterId,
   dispatch,
-  afterCreate
+  afterCreate,
+  assignCluster
 ) => {
   dispatch({ type: UPDATING });
   setTimeout(() => {

@@ -4,10 +4,9 @@ import levenshtein from "fast-levenshtein";
 import ScrollIntoViewIfNeeded from "react-scroll-into-view-if-needed";
 import { matchSorter } from "match-sorter";
 
-import { assignCluster } from "./assignCluster";
 import { CollectedInksList } from "./CollectedInksList";
 import { SearchLink } from "../components/clustering/SearchLink";
-import { StateContext, DispatchContext } from "./App";
+import { StateContext, DispatchContext } from "./GenericApp";
 import {
   ASSIGN_TO_MACRO_CLUSTER,
   NEXT_MACRO_CLUSTER,
@@ -20,7 +19,7 @@ import {
 } from "../components/clustering/keyDownListener";
 import { useCallback } from "react";
 
-export const DisplayMacroClusters = ({ afterAssign }) => {
+export const DisplayMacroClusters = ({ afterAssign, assignCluster }) => {
   const dispatch = useContext(DispatchContext);
   useEffect(() => {
     return keyDownListener(({ keyCode }) => {
@@ -28,10 +27,12 @@ export const DisplayMacroClusters = ({ afterAssign }) => {
       if (keyCode == 75) dispatch({ type: PREVIOUS_MACRO_CLUSTER });
     });
   }, [dispatch]);
-  return <MacroClusterRows afterAssign={afterAssign} />;
+  return (
+    <MacroClusterRows afterAssign={afterAssign} assignCluster={assignCluster} />
+  );
 };
 
-const MacroClusterRows = ({ afterAssign }) => {
+const MacroClusterRows = ({ afterAssign, assignCluster }) => {
   const {
     macroClusters,
     activeCluster,
@@ -73,6 +74,7 @@ const MacroClusterRows = ({ afterAssign }) => {
         key={macroCluster.id}
         macroCluster={macroCluster}
         afterAssign={afterAssign}
+        assignCluster={assignCluster}
         selected={index == selectedMacroClusterIndex}
       />
     ));
@@ -165,7 +167,12 @@ const stripped = (str) => {
     .replace(/\s+/i, "");
 };
 
-const MacroClusterRow = ({ macroCluster, afterAssign, selected }) => {
+const MacroClusterRow = ({
+  macroCluster,
+  afterAssign,
+  selected,
+  assignCluster
+}) => {
   const { activeCluster, updating } = useContext(StateContext);
   const dispatch = useContext(DispatchContext);
   const [showInks, setShowInks] = useState(false);
@@ -181,7 +188,7 @@ const MacroClusterRow = ({ macroCluster, afterAssign, selected }) => {
         afterAssign(microCluster);
       });
     }, 10);
-  }, [activeCluster.id, afterAssign, dispatch, macroCluster.id]);
+  }, [activeCluster.id, afterAssign, dispatch, macroCluster.id, assignCluster]);
   useEffect(() => {
     if (!selected) return;
 

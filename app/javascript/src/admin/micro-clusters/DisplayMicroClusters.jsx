@@ -1,7 +1,7 @@
 import React, { useEffect, useContext } from "react";
 
 import { DisplayMicroCluster } from "./DisplayMicroCluster";
-import { DispatchContext, StateContext } from "./App";
+import { DispatchContext, StateContext } from "./GenericApp";
 import {
   PREVIOUS,
   NEXT,
@@ -9,16 +9,18 @@ import {
 } from "../components/clustering/actions";
 import { keyDownListener } from "../components/clustering/keyDownListener";
 import { useCallback } from "react";
-import { updateMacroCluster } from "./macroClusters";
 
-export const DisplayMicroClusters = () => {
+export const DisplayMicroClusters = ({
+  macroClusterUpdater,
+  assignCluster
+}) => {
   const dispatch = useContext(DispatchContext);
   const { activeCluster } = useContext(StateContext);
   const { prev, next } = useNavigation(dispatch);
   const afterAssign = (newClusterData) => {
     dispatch({ type: REMOVE_MICRO_CLUSTER, payload: newClusterData });
     const id = newClusterData.macro_cluster.id;
-    updateMacroCluster(id, dispatch);
+    macroClusterUpdater(id, dispatch);
   };
   if (activeCluster) {
     return (
@@ -27,7 +29,10 @@ export const DisplayMicroClusters = () => {
           <i className="fa fa-angle-left"></i>
         </div>
         <div className="main">
-          <DisplayMicroCluster afterCreate={afterAssign}></DisplayMicroCluster>
+          <DisplayMicroCluster
+            afterCreate={afterAssign}
+            assignCluster={assignCluster}
+          ></DisplayMicroCluster>
         </div>
         <div className="nav" onClick={next}>
           <i className="fa fa-angle-right"></i>
