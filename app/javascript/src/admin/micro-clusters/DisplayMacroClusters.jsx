@@ -212,7 +212,7 @@ const MacroClusterRow = ({ macroCluster, afterAssign, selected }) => {
         </td>
         <td>
           <SearchLink
-            ci={macroCluster}
+            e={macroCluster}
             fields={["brand_name", "line_name", "ink_name"]}
           />
         </td>

@@ -1,6 +1,6 @@
 import React from "react";
-export const SearchLink = ({ ci, fields }) => {
-  const fullName = fields.map((a) => ci[a]).join(" ");
+export const SearchLink = ({ e, fields }) => {
+  const fullName = fields.map((a) => e[a]).join(" ");
   return (
     <a
       href={`https://google.com/search?q=${encodeURIComponent(fullName)}`}
