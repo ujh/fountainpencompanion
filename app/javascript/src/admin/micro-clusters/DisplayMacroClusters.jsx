@@ -4,7 +4,6 @@ import levenshtein from "fast-levenshtein";
 import ScrollIntoViewIfNeeded from "react-scroll-into-view-if-needed";
 import { matchSorter } from "match-sorter";
 
-import { CollectedInksList } from "./CollectedInksList";
 import { SearchLink } from "../components/clustering/SearchLink";
 import { StateContext, DispatchContext } from "./GenericApp";
 import {
@@ -18,6 +17,7 @@ import {
   setInBrandSelector
 } from "../components/clustering/keyDownListener";
 import { useCallback } from "react";
+import { EntriesList } from "../components/clustering/EntriesList";
 
 export const DisplayMacroClusters = ({ afterAssign, assignCluster }) => {
   const dispatch = useContext(DispatchContext);
@@ -239,10 +239,12 @@ const MacroClusterRow = ({
           <td colSpan="7">
             <table className="table macro-cluster-collected-inks">
               <tbody>
-                <CollectedInksList
-                  collectedInks={macroCluster.micro_clusters
+                <EntriesList
+                  entries={macroCluster.micro_clusters
                     .map((c) => c.entries)
                     .flat()}
+                  fields={["brand_name", "line_name", "ink_name"]}
+                  extraColumn={extraColumn}
                 />
               </tbody>
             </table>
@@ -252,3 +254,13 @@ const MacroClusterRow = ({
     </>
   );
 };
+
+const extraColumn = (ci) => (
+  <div
+    style={{
+      backgroundColor: ci.color,
+      height: "45px",
+      width: "45px"
+    }}
+  />
+);

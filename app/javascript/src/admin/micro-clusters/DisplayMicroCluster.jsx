@@ -2,13 +2,14 @@ import React, { useContext } from "react";
 
 import { StateContext } from "./GenericApp";
 import { DisplayMacroClusters } from "./DisplayMacroClusters";
-import { CollectedInksList } from "./CollectedInksList";
 import { CreateRow } from "../components/clustering/CreateRow";
 import { createMacroClusterAndAssign } from "./createMacroClusterAndAssign";
 import { ignoreCluster } from "./ignoreCluster";
+import { EntriesList } from "../components/clustering/EntriesList";
 
 export const DisplayMicroCluster = ({ afterCreate, assignCluster }) => {
   const { activeCluster } = useContext(StateContext);
+  const fields = ["brand_name", "line_name", "ink_name"];
   return (
     <div className="fpc-table fpc-table--full-width fpc-scroll-shadow">
       <table className="table">
@@ -17,11 +18,15 @@ export const DisplayMicroCluster = ({ afterCreate, assignCluster }) => {
             afterCreate={afterCreate}
             createMacroClusterAndAssign={createMacroClusterAndAssign}
             ignoreCluster={ignoreCluster}
-            fields={["brand_name", "line_name", "ink_name"]}
+            fields={fields}
           />
         </thead>
         <tbody>
-          <CollectedInksList collectedInks={activeCluster.entries} />
+          <EntriesList
+            entries={activeCluster.entries}
+            fields={fields}
+            extraColumn={extraColumn}
+          />
           <tr>
             <td colSpan="8" style={{ backgroundColor: "black" }}></td>
           </tr>
@@ -34,3 +39,13 @@ export const DisplayMicroCluster = ({ afterCreate, assignCluster }) => {
     </div>
   );
 };
+
+const extraColumn = (ci) => (
+  <div
+    style={{
+      backgroundColor: ci.color,
+      height: "45px",
+      width: "45px"
+    }}
+  />
+);
