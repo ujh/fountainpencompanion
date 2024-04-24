@@ -1,18 +1,15 @@
 import React, { useEffect, useContext } from "react";
-import Jsona from "jsona";
 
-import { getRequest } from "../../fetch";
 import { DisplayMicroCluster } from "./DisplayMicroCluster";
 import { DispatchContext, StateContext } from "./App";
-import { groupedInks } from "./groupedInks";
 import {
   PREVIOUS,
   NEXT,
-  REMOVE_MICRO_CLUSTER,
-  UPDATE_MACRO_CLUSTER
+  REMOVE_MICRO_CLUSTER
 } from "../components/clustering/actions";
 import { keyDownListener } from "../components/clustering/keyDownListener";
 import { useCallback } from "react";
+import { updateMacroCluster } from "./updateMacroCluster";
 
 export const DisplayMicroClusters = () => {
   const dispatch = useContext(DispatchContext);
@@ -40,24 +37,6 @@ export const DisplayMicroClusters = () => {
   } else {
     return <div>No clusters to assign.</div>;
   }
-};
-
-const updateMacroCluster = (id, dispatch) => {
-  setTimeout(() => {
-    getRequest(`/admins/macro_clusters/${id}.json`)
-      .then((response) => response.json())
-      .then((json) => {
-        const formatter = new Jsona();
-        const macroCluster = formatter.deserialize(json);
-        const grouped_entries = groupedInks(
-          macroCluster.micro_clusters.map((c) => c.collected_inks).flat()
-        );
-        return { ...macroCluster, grouped_entries };
-      })
-      .then((macroCluster) =>
-        dispatch({ type: UPDATE_MACRO_CLUSTER, payload: macroCluster })
-      );
-  }, 500);
 };
 
 const useNavigation = (dispatch) => {
