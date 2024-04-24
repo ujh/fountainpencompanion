@@ -11,7 +11,7 @@ export const DisplayMicroCluster = ({ afterCreate, assignCluster }) => {
     <div className="fpc-table fpc-table--full-width fpc-scroll-shadow">
       <table className="table">
         <thead>
-          <CreateRow afterCreate={afterCreate} />
+          <CreateRow afterCreate={afterCreate} assignCluster={assignCluster} />
         </thead>
         <tbody>
           <CollectedInksList collectedInks={activeCluster.entries} />
