@@ -1,11 +1,11 @@
 import React, { useContext } from "react";
 
-import { StateContext } from "./App";
+import { StateContext } from "./GenericApp";
 import { DisplayMacroClusters } from "./DisplayMacroClusters";
 import { CollectedInksList } from "./CollectedInksList";
 import { CreateRow } from "./CreateRow";
 
-export const DisplayMicroCluster = ({ afterCreate }) => {
+export const DisplayMicroCluster = ({ afterCreate, assignCluster }) => {
   const { activeCluster } = useContext(StateContext);
   return (
     <div className="fpc-table fpc-table--full-width fpc-scroll-shadow">
@@ -18,7 +18,10 @@ export const DisplayMicroCluster = ({ afterCreate }) => {
           <tr>
             <td colSpan="8" style={{ backgroundColor: "black" }}></td>
           </tr>
-          <DisplayMacroClusters afterAssign={afterCreate} />
+          <DisplayMacroClusters
+            afterAssign={afterCreate}
+            assignCluster={assignCluster}
+          />
         </tbody>
       </table>
     </div>
