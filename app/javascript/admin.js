@@ -6,6 +6,7 @@ import "@popperjs/core";
 
 import "./color-mode";
 import "./src/admin/micro-clusters";
+import "./src/admin/pens-micro-clusters";
 import "./src/admin/graphs";
 
 [...document.querySelectorAll('[data-bs-toggle="tooltip"]')].map(

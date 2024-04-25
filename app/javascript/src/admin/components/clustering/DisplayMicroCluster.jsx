@@ -33,7 +33,10 @@ export const DisplayMicroCluster = ({
             extraColumn={extraColumn}
           />
           <tr>
-            <td colSpan="8" style={{ backgroundColor: "black" }}></td>
+            <td
+              colSpan={fields.length + 5}
+              style={{ backgroundColor: "black" }}
+            ></td>
           </tr>
           <DisplayMacroClusters
             afterAssign={afterCreate}

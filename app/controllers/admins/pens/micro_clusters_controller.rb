@@ -36,12 +36,15 @@ class Admins::Pens::MicroClustersController < Admins::BaseController
   private
 
   def update_params
-    params.dig(:data, :attributes).permit(:ignored, :pens_model_variant_id)
+    (params["_jsonapi"] || params).dig(:data, :attributes).permit(
+      :ignored,
+      :pens_model_variant_id
+    )
   end
 
   def update_options
     {
-      include: [:collected_pens],
+      include: %i[collected_pens model_variant],
       fields: {
         collected_pen: %i[
           brand

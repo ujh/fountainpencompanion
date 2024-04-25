@@ -2,22 +2,27 @@ import React from "react";
 import { createRoot } from "react-dom/client";
 
 import { App } from "../components/clustering/App";
-import { assignCluster } from "./assignCluster";
-import { createMacroClusterAndAssign } from "./createMacroClusterAndAssign";
-import { extraColumn } from "./extraColumn";
-import { ignoreCluster } from "./ignoreCluster";
-import { getMacroClusters, updateMacroCluster } from "./macroClusters";
-import { getMicroClusters } from "./microClusters";
+import { fields } from "./fields";
+import {
+  createMacroClusterAndAssign,
+  getMacroClusters,
+  updateMacroCluster
+} from "./macroClusters";
+import {
+  assignCluster,
+  getMicroClusters,
+  ignoreCluster
+} from "./microClusters";
 import { withDistance } from "./withDistance";
 
 document.addEventListener("DOMContentLoaded", () => {
-  const el = document.getElementById("micro-clusters-app");
+  const el = document.getElementById("pens-micro-clusters-app");
   if (el) {
     const root = createRoot(el);
     root.render(
       <App
-        brandSelectorField="simplified_brand_name"
-        fields={["brand_name", "line_name", "ink_name"]}
+        brandSelectorField="simplified_brand"
+        fields={fields}
         microClusterLoader={getMicroClusters}
         macroClusterLoader={getMacroClusters}
         macroClusterUpdater={updateMacroCluster}
@@ -30,3 +35,5 @@ document.addEventListener("DOMContentLoaded", () => {
     );
   }
 });
+
+const extraColumn = () => {};

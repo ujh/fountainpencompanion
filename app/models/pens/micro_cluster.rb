@@ -7,6 +7,8 @@ class Pens::MicroCluster < ApplicationRecord
              class_name: "Pens::ModelVariant",
              foreign_key: :pens_model_variant_id
 
+  paginates_per 100
+
   scope :unassigned, -> { where(pens_model_variant_id: nil) }
   scope :without_ignored, -> { where(ignored: false) }
   scope :ignored, -> { where(ignored: true) }
