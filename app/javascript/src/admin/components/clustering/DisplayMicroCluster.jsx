@@ -1,17 +1,20 @@
 import React, { useContext } from "react";
 
-import { CreateRow } from "../components/clustering/CreateRow";
-import { EntriesList } from "../components/clustering/EntriesList";
-import { DisplayMacroClusters } from "../components/clustering/DisplayMacroClusters";
-import { StateContext } from "./GenericApp";
-import { createMacroClusterAndAssign } from "./createMacroClusterAndAssign";
-import { extraColumn } from "./extraColumn";
-import { ignoreCluster } from "./ignoreCluster";
-import { withDistance } from "./withDistance";
+import { StateContext } from "../../micro-clusters/GenericApp";
+import { CreateRow } from "./CreateRow";
+import { DisplayMacroClusters } from "./DisplayMacroClusters";
+import { EntriesList } from "./EntriesList";
 
-export const DisplayMicroCluster = ({ afterCreate, assignCluster }) => {
+export const DisplayMicroCluster = ({
+  afterCreate,
+  assignCluster,
+  fields,
+  withDistance,
+  ignoreCluster,
+  extraColumn,
+  createMacroClusterAndAssign
+}) => {
   const { activeCluster } = useContext(StateContext);
-  const fields = ["brand_name", "line_name", "ink_name"];
   return (
     <div className="fpc-table fpc-table--full-width fpc-scroll-shadow">
       <table className="table">
@@ -37,7 +40,7 @@ export const DisplayMicroCluster = ({ afterCreate, assignCluster }) => {
             assignCluster={assignCluster}
             extraColumn={extraColumn}
             withDistance={withDistance}
-            fields={["brand_name", "line_name", "ink_name"]}
+            fields={fields}
           />
         </tbody>
       </table>
