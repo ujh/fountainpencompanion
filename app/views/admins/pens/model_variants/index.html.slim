@@ -1,0 +1,34 @@
+div class="fpc-table fpc-table--full-width fpc-scroll-shadow"
+  table class="table table-striped"
+    thead
+      tr
+        th
+        th Brand
+        th Model
+        th Color
+        th Material
+        th Trim Color
+        th Filling System
+    tbody
+      - @clusters.each do |model_variant|
+        tr
+          td= model_variant.micro_clusters.size
+          td= model_variant.brand
+          td= model_variant.model
+          td= model_variant.color
+          td= model_variant.material
+          td= model_variant.trim_color
+          td= model_variant.filling_system
+        - if model_variant.micro_clusters.size > 1
+          tr
+            td
+            td colspan="7"
+              table class="table"
+                - model_variant.micro_clusters.each do |mc|
+                  tr class="pens-admin-micro-cluster-row"
+                    td= mc.simplified_brand
+                    td= mc.simplified_model
+                    td= mc.simplified_color
+                    td= mc.simplified_material
+                    td= mc.simplified_trim_color
+                    td= mc.simplified_filling_system
