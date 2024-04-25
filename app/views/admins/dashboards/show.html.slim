@@ -22,7 +22,7 @@ table class="table table-striped"
           b
             |   (
             = @stats.unassigned_macro_cluster_count
-            | without brand)
+            |  without brand)
     tr
       td Number of micro clusters
       td
@@ -30,8 +30,8 @@ table class="table table-striped"
         - if @stats.micro_clusters_to_assign_count.positive?
           b
             |   (
-            = @stats.micro_clusters_to_assign_count
-            |  waiting to be assigned)
+            = link_to " #{@stats.micro_clusters_to_assign_count} waiting to be assigned", admins_micro_clusters_path
+            |  )
     tr
       td Number of collected inks
       td= @stats.collected_inks_count
