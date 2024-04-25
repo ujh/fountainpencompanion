@@ -1,7 +1,7 @@
 import React, { useCallback, useContext, useEffect } from "react";
 import _ from "lodash";
 
-import { StateContext, DispatchContext } from "../../micro-clusters/GenericApp";
+import { StateContext, DispatchContext } from "./App";
 import { REMOVE_MICRO_CLUSTER } from "./actions";
 import { keyDownListener } from "./keyDownListener";
 

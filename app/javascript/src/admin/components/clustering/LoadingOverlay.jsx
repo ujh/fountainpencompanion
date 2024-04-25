@@ -1,6 +1,6 @@
 import React, { useContext } from "react";
 
-import { StateContext } from "../../micro-clusters/GenericApp";
+import { StateContext } from "./App";
 
 export const LoadingOverlay = () => {
   const { updating } = useContext(StateContext);

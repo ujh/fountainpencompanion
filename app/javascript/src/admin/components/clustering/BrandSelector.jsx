@@ -2,7 +2,7 @@ import React, { useContext } from "react";
 import Select from "react-select";
 import _ from "lodash";
 
-import { DispatchContext, StateContext } from "../../micro-clusters/GenericApp";
+import { DispatchContext, StateContext } from "./App";
 import { UPDATE_SELECTED_BRANDS } from "./actions";
 import { setInBrandSelector } from "./keyDownListener";
 

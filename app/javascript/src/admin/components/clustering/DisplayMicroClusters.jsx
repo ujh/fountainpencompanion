@@ -1,18 +1,18 @@
-import React, { useEffect, useContext } from "react";
+import React, { useContext, useEffect, useCallback } from "react";
 
+import { DispatchContext, StateContext } from "./App";
 import { DisplayMicroCluster } from "./DisplayMicroCluster";
-import { DispatchContext, StateContext } from "./GenericApp";
-import {
-  PREVIOUS,
-  NEXT,
-  REMOVE_MICRO_CLUSTER
-} from "../components/clustering/actions";
-import { keyDownListener } from "../components/clustering/keyDownListener";
-import { useCallback } from "react";
+import { NEXT, PREVIOUS, REMOVE_MICRO_CLUSTER } from "./actions";
+import { keyDownListener } from "./keyDownListener";
 
 export const DisplayMicroClusters = ({
   macroClusterUpdater,
-  assignCluster
+  assignCluster,
+  fields,
+  withDistance,
+  ignoreCluster,
+  extraColumn,
+  createMacroClusterAndAssign
 }) => {
   const dispatch = useContext(DispatchContext);
   const { activeCluster } = useContext(StateContext);
@@ -32,6 +32,11 @@ export const DisplayMicroClusters = ({
           <DisplayMicroCluster
             afterCreate={afterAssign}
             assignCluster={assignCluster}
+            fields={fields}
+            withDistance={withDistance}
+            ignoreCluster={ignoreCluster}
+            extraColumn={extraColumn}
+            createMacroClusterAndAssign={createMacroClusterAndAssign}
           ></DisplayMicroCluster>
         </div>
         <div className="nav" onClick={next}>
