@@ -18,6 +18,7 @@ class Admins::Pens::MicroClustersController < Admins::BaseController
                    .serializable_hash
                    .to_json
       end
+      format.html
     end
   end
 

@@ -43,7 +43,14 @@ table class="table table-striped"
           tr
             td= CollectedPen.count
           tr
-            td= "#{Pens::MicroCluster.count} (micro clusters)"
+            td
+              = "#{Pens::MicroCluster.count} micro clusters"
+              - if @stats.pens_micro_clusters_to_assign_count.positive?
+                b
+                  |   (
+                  | &nbsp;
+                  = link_to "#{@stats.pens_micro_clusters_to_assign_count} to assign", admins_pens_micro_clusters_path
+                  |  )
     tr
       td Number of "Currently Inked"
       td= CurrentlyInked.count

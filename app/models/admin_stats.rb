@@ -13,6 +13,10 @@ class AdminStats
       .count
   end
 
+  def pens_micro_clusters_to_assign_count
+    Pens::MicroCluster.unassigned.without_ignored.count
+  end
+
   def macro_cluster_count
     @macro_cluster_count ||= MacroCluster.count
   end
