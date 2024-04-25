@@ -13,6 +13,9 @@ class Admins::Pens::ModelVariantsController < Admins::BaseController
                    .serializable_hash
                    .to_json
       end
+      format.html do
+        @clusters = Pens::ModelVariant.includes(:micro_clusters).ordered
+      end
     end
   end
 
