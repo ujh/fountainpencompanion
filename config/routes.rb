@@ -110,7 +110,9 @@ Rails.application.routes.draw do
     end
 
     namespace :pens do
-      resources :micro_clusters, only: %i[index update]
+      resources :micro_clusters, only: %i[index update] do
+        collection { get "ignored" }
+      end
       resources :model_variants, only: %i[index create show]
     end
 
