@@ -1,11 +1,15 @@
 import React, { useEffect, useReducer } from "react";
 
 import { Spinner } from "../components/Spinner";
-import { DisplayMicroClusters } from "./DisplayMicroClusters";
-import { reducer, initalState } from "../components/clustering/reducer";
-import { Summary } from "../components/clustering/Summary";
-import { LoadingOverlay } from "../components/clustering/LoadingOverlay";
 import { BrandSelector } from "../components/clustering/BrandSelector";
+import { LoadingOverlay } from "../components/clustering/LoadingOverlay";
+import { Summary } from "../components/clustering/Summary";
+import { initalState, reducer } from "../components/clustering/reducer";
+import { DisplayMicroClusters } from "../components/clustering/DisplayMicroClusters";
+import { createMacroClusterAndAssign } from "./createMacroClusterAndAssign";
+import { extraColumn } from "./extraColumn";
+import { ignoreCluster } from "./ignoreCluster";
+import { withDistance } from "./withDistance";
 
 export const StateContext = React.createContext();
 export const DispatchContext = React.createContext();
@@ -52,12 +56,15 @@ export const GenericApp = ({
             <LoadingOverlay />
             <Summary />
             <BrandSelector field={brandSelectorField} />
-            {/*** TODO:  DisplayMicroClusters is not yet generic ***/}
             <DisplayMicroClusters
               macroClusterUpdater={macroClusterUpdater}
               assignCluster={assignCluster}
+              fields={["brand_name", "line_name", "ink_name"]}
+              withDistance={withDistance}
+              ignoreCluster={ignoreCluster}
+              extraColumn={extraColumn}
+              createMacroClusterAndAssign={createMacroClusterAndAssign}
             />
-            {/*** TODO:  DisplayMicroClusters is not yet generic ***/}
           </div>
         </StateContext.Provider>
       </DispatchContext.Provider>

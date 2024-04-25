@@ -1,22 +1,18 @@
-import React, { useContext, useEffect } from "react";
+import React, { useContext, useEffect, useCallback } from "react";
 
-import { useCallback } from "react";
-import { DisplayMicroCluster } from "../components/clustering/DisplayMicroCluster";
-import {
-  NEXT,
-  PREVIOUS,
-  REMOVE_MICRO_CLUSTER
-} from "../components/clustering/actions";
-import { keyDownListener } from "../components/clustering/keyDownListener";
-import { DispatchContext, StateContext } from "./GenericApp";
-import { createMacroClusterAndAssign } from "./createMacroClusterAndAssign";
-import { extraColumn } from "./extraColumn";
-import { ignoreCluster } from "./ignoreCluster";
-import { withDistance } from "./withDistance";
+import { DispatchContext, StateContext } from "../../micro-clusters/GenericApp";
+import { DisplayMicroCluster } from "./DisplayMicroCluster";
+import { NEXT, PREVIOUS, REMOVE_MICRO_CLUSTER } from "./actions";
+import { keyDownListener } from "./keyDownListener";
 
 export const DisplayMicroClusters = ({
   macroClusterUpdater,
-  assignCluster
+  assignCluster,
+  fields,
+  withDistance,
+  ignoreCluster,
+  extraColumn,
+  createMacroClusterAndAssign
 }) => {
   const dispatch = useContext(DispatchContext);
   const { activeCluster } = useContext(StateContext);
@@ -36,7 +32,7 @@ export const DisplayMicroClusters = ({
           <DisplayMicroCluster
             afterCreate={afterAssign}
             assignCluster={assignCluster}
-            fields={["brand_name", "line_name", "ink_name"]}
+            fields={fields}
             withDistance={withDistance}
             ignoreCluster={ignoreCluster}
             extraColumn={extraColumn}
