@@ -1,11 +1,13 @@
 import React, { useContext } from "react";
 
-import { StateContext } from "./GenericApp";
-import { DisplayMacroClusters } from "./DisplayMacroClusters";
 import { CreateRow } from "../components/clustering/CreateRow";
-import { createMacroClusterAndAssign } from "./createMacroClusterAndAssign";
-import { ignoreCluster } from "./ignoreCluster";
 import { EntriesList } from "../components/clustering/EntriesList";
+import { DisplayMacroClusters } from "../components/clustering/DisplayMacroClusters";
+import { StateContext } from "./GenericApp";
+import { createMacroClusterAndAssign } from "./createMacroClusterAndAssign";
+import { extraColumn } from "./extraColumn";
+import { ignoreCluster } from "./ignoreCluster";
+import { withDistance } from "./withDistance";
 
 export const DisplayMicroCluster = ({ afterCreate, assignCluster }) => {
   const { activeCluster } = useContext(StateContext);
@@ -33,19 +35,12 @@ export const DisplayMicroCluster = ({ afterCreate, assignCluster }) => {
           <DisplayMacroClusters
             afterAssign={afterCreate}
             assignCluster={assignCluster}
+            extraColumn={extraColumn}
+            withDistance={withDistance}
+            fields={["brand_name", "line_name", "ink_name"]}
           />
         </tbody>
       </table>
     </div>
   );
 };
-
-const extraColumn = (ci) => (
-  <div
-    style={{
-      backgroundColor: ci.color,
-      height: "45px",
-      width: "45px"
-    }}
-  />
-);

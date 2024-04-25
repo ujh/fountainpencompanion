@@ -1,32 +1,4 @@
 import levenshtein from "fast-levenshtein";
-import React, { useContext, useEffect } from "react";
-
-import {
-  NEXT_MACRO_CLUSTER,
-  PREVIOUS_MACRO_CLUSTER
-} from "../components/clustering/actions";
-import { keyDownListener } from "../components/clustering/keyDownListener";
-import { DispatchContext } from "./GenericApp";
-import { MacroClusterRows } from "../components/clustering/MacroClusterRows";
-
-export const DisplayMacroClusters = ({ afterAssign, assignCluster }) => {
-  const dispatch = useContext(DispatchContext);
-  useEffect(() => {
-    return keyDownListener(({ keyCode }) => {
-      if (keyCode == 74) dispatch({ type: NEXT_MACRO_CLUSTER });
-      if (keyCode == 75) dispatch({ type: PREVIOUS_MACRO_CLUSTER });
-    });
-  }, [dispatch]);
-  return (
-    <MacroClusterRows
-      afterAssign={afterAssign}
-      assignCluster={assignCluster}
-      fields={["brand_name", "line_name", "ink_name"]}
-      withDistance={withDistance}
-      extraColumn={extraColumn}
-    />
-  );
-};
 
 // This is the most expensive computation in this app. Group inks by name first
 // and only compare between those that are really different.
@@ -92,13 +64,3 @@ const stripped = (str) => {
     .replace(/(\([^)]*\))/i, "")
     .replace(/\s+/i, "");
 };
-
-export const extraColumn = (ci) => (
-  <div
-    style={{
-      backgroundColor: ci.color,
-      height: "45px",
-      width: "45px"
-    }}
-  />
-);
