@@ -26,7 +26,7 @@ export const getMicroClusters = (dispatch) => {
           return cluster;
         });
       data = [...data, ...pageData];
-      if (next_page && next_page < 100) {
+      if (next_page) {
         run(next_page);
       } else {
         dispatch({ type: SET_MICRO_CLUSTERS, payload: data });
