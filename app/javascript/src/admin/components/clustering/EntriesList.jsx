@@ -20,6 +20,7 @@ export const EntriesList = ({ entries, fields, extraColumn }) => {
           <SearchLink e={e} fields={fields} />
         </td>
         <td></td>
+        <td></td>
       </tr>
     );
   });

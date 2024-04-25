@@ -37,7 +37,7 @@ class Admins::Pens::ModelVariantsController < Admins::BaseController
   private
 
   def create_params
-    params.dig(:data, :attributes).permit(
+    (params["_jsonapi"] || params).dig(:data, :attributes).permit(
       :brand,
       :model,
       :color,
@@ -60,7 +60,7 @@ class Admins::Pens::ModelVariantsController < Admins::BaseController
           filling_system
           pens_micro_cluster
         ],
-        pens_micro_cluster: [:model_variant]
+        pens_micro_cluster: %i[model_variant collected_pens]
       }
     }
   end

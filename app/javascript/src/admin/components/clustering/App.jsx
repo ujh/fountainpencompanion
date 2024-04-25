@@ -19,7 +19,8 @@ export const App = ({
   createMacroClusterAndAssign,
   extraColumn,
   ignoreCluster,
-  withDistance
+  withDistance,
+  fields
 }) => {
   const [state, dispatch] = useReducer(reducer, initalState);
   const { loadingMacroClusters, loadingMicroClusters } = state;
@@ -59,7 +60,7 @@ export const App = ({
             <DisplayMicroClusters
               macroClusterUpdater={macroClusterUpdater}
               assignCluster={assignCluster}
-              fields={["brand_name", "line_name", "ink_name"]}
+              fields={fields}
               withDistance={withDistance}
               ignoreCluster={ignoreCluster}
               extraColumn={extraColumn}

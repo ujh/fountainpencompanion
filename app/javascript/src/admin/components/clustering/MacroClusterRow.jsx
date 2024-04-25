@@ -69,7 +69,7 @@ export const MacroClusterRow = ({
       </tr>
       {(showInks || selected) && (
         <tr>
-          <td colSpan="7">
+          <td colSpan={fields.length + 5}>
             <table className="table macro-cluster-collected-inks">
               <tbody>
                 <EntriesList

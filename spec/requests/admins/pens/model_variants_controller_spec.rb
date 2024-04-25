@@ -78,6 +78,14 @@ describe Admins::Pens::ModelVariantsController do
                         "id" => model_variant.id.to_s,
                         "type" => "pens_model_variant"
                       }
+                    },
+                    "collected_pens" => {
+                      "data" => [
+                        {
+                          "id" => collected_pen.id.to_s,
+                          "type" => "collected_pen"
+                        }
+                      ]
                     }
                   }
                 }

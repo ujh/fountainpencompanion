@@ -38,7 +38,7 @@ export const MacroClusterRows = ({
   if (computing)
     return (
       <tr className="loading">
-        <td colSpan="8">Computing ...</td>
+        <td colSpan={fields.length + 5}>Computing ...</td>
       </tr>
     );
   const clustersToRender = search
@@ -61,7 +61,7 @@ export const MacroClusterRows = ({
     ));
   const inputRow = (
     <tr key="search-box">
-      <td colSpan="8">
+      <td colSpan={fields.length + 5}>
         <input
           className="form-control"
           aria-label="Filter"

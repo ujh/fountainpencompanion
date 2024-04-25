@@ -51,10 +51,7 @@ export const CreateRow = ({
       {fields.map((field) => (
         <th key={field}>{values[field]}</th>
       ))}
-      <th></th>
-      <th></th>
-      <th></th>
-      <th>
+      <th colSpan="4">
         <button
           className="btn btn-success me-2"
           type="button"
@@ -80,10 +77,8 @@ const computeValues = (activeCluster, fields) => {
   const grouped = _.groupBy(activeCluster.entries, (ci) =>
     fields.map((n) => ci[n]).join(",")
   );
-  const ci = _.maxBy(_.values(grouped), (array) => array.length)[0];
-  return {
-    brand_name: ci.brand_name,
-    line_name: ci.line_name,
-    ink_name: ci.ink_name
-  };
+  const entry = _.maxBy(_.values(grouped), (array) => array.length)[0];
+  let values = {};
+  fields.forEach((field) => (values[field] = entry[field]));
+  return values;
 };
