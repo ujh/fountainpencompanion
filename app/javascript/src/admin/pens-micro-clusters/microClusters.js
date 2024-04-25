@@ -1,7 +1,10 @@
 import Jsona from "jsona";
 
 import { getRequest, putRequest } from "../../fetch";
-import { SET_MICRO_CLUSTERS } from "../components/clustering/actions";
+import {
+  SET_LOADING_PERCENTAGE,
+  SET_MICRO_CLUSTERS
+} from "../components/clustering/actions";
 import { groupedPens } from "./groupedPens";
 
 export const getMicroClusters = (dispatch) => {
@@ -9,6 +12,11 @@ export const getMicroClusters = (dispatch) => {
   let data = [];
   function run(page = 1) {
     loadMicroClusterPage(page).then((json) => {
+      const pagination = json.meta.pagination;
+      dispatch({
+        type: SET_LOADING_PERCENTAGE,
+        payload: (pagination.current_page * 100) / pagination.total_pages
+      });
       const next_page = json.meta.pagination.next_page;
       // Remove clusters without collected inks
       // Group collected inks
