@@ -95,6 +95,9 @@ export const updateMacroCluster = (id, dispatch) => {
         const grouped_entries = groupedPens(
           macroCluster.micro_clusters.map((c) => c.collected_pens).flat()
         );
+        macroCluster.micro_clusters.forEach(
+          (mc) => (mc.entries = mc.collected_pens)
+        );
         return { ...macroCluster, grouped_entries };
       })
       .then((macroCluster) =>
