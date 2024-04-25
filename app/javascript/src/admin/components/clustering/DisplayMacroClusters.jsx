@@ -3,7 +3,7 @@ import React, { useContext, useEffect } from "react";
 import { MacroClusterRows } from "./MacroClusterRows";
 import { NEXT_MACRO_CLUSTER, PREVIOUS_MACRO_CLUSTER } from "./actions";
 import { keyDownListener } from "./keyDownListener";
-import { DispatchContext } from "../../micro-clusters/GenericApp";
+import { DispatchContext } from "./App";
 
 export const DisplayMacroClusters = ({
   afterAssign,

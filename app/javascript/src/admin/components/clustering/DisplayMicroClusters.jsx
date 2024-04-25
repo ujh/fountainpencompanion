@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useCallback } from "react";
 
-import { DispatchContext, StateContext } from "../../micro-clusters/GenericApp";
+import { DispatchContext, StateContext } from "./App";
 import { DisplayMicroCluster } from "./DisplayMicroCluster";
 import { NEXT, PREVIOUS, REMOVE_MICRO_CLUSTER } from "./actions";
 import { keyDownListener } from "./keyDownListener";

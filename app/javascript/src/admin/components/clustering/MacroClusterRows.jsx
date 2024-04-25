@@ -3,7 +3,7 @@ import { matchSorter } from "match-sorter";
 import React, { useContext, useEffect, useState } from "react";
 import { MacroClusterRow } from "./MacroClusterRow";
 import { setInBrandSelector } from "./keyDownListener";
-import { StateContext } from "../../micro-clusters/GenericApp";
+import { StateContext } from "./App";
 
 export const MacroClusterRows = ({
   afterAssign,

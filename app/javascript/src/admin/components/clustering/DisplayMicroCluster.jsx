@@ -1,6 +1,6 @@
 import React, { useContext } from "react";
 
-import { StateContext } from "../../micro-clusters/GenericApp";
+import { StateContext } from "./App";
 import { CreateRow } from "./CreateRow";
 import { DisplayMacroClusters } from "./DisplayMacroClusters";
 import { EntriesList } from "./EntriesList";

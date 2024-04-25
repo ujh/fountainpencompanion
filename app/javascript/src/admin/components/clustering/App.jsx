@@ -1,25 +1,25 @@
 import React, { useEffect, useReducer } from "react";
 
-import { Spinner } from "../components/Spinner";
-import { BrandSelector } from "../components/clustering/BrandSelector";
-import { LoadingOverlay } from "../components/clustering/LoadingOverlay";
-import { Summary } from "../components/clustering/Summary";
-import { initalState, reducer } from "../components/clustering/reducer";
-import { DisplayMicroClusters } from "../components/clustering/DisplayMicroClusters";
-import { createMacroClusterAndAssign } from "./createMacroClusterAndAssign";
-import { extraColumn } from "./extraColumn";
-import { ignoreCluster } from "./ignoreCluster";
-import { withDistance } from "./withDistance";
+import { Spinner } from "../Spinner";
+import { BrandSelector } from "./BrandSelector";
+import { LoadingOverlay } from "./LoadingOverlay";
+import { Summary } from "./Summary";
+import { initalState, reducer } from "./reducer";
+import { DisplayMicroClusters } from "./DisplayMicroClusters";
 
 export const StateContext = React.createContext();
 export const DispatchContext = React.createContext();
 
-export const GenericApp = ({
+export const App = ({
   brandSelectorField,
   microClusterLoader,
   macroClusterLoader,
   macroClusterUpdater,
-  assignCluster
+  assignCluster,
+  createMacroClusterAndAssign,
+  extraColumn,
+  ignoreCluster,
+  withDistance
 }) => {
   const [state, dispatch] = useReducer(reducer, initalState);
   const { loadingMacroClusters, loadingMicroClusters } = state;

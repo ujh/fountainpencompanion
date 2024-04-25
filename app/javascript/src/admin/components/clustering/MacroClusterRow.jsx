@@ -1,7 +1,7 @@
 import React, { useCallback, useContext, useEffect, useState } from "react";
 import ScrollIntoViewIfNeeded from "react-scroll-into-view-if-needed";
 
-import { DispatchContext, StateContext } from "../../micro-clusters/GenericApp";
+import { DispatchContext, StateContext } from "./App";
 import { EntriesList } from "./EntriesList";
 import { SearchLink } from "./SearchLink";
 import { ASSIGN_TO_MACRO_CLUSTER, UPDATING } from "./actions";
