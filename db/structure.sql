@@ -190,7 +190,7 @@ CREATE TABLE public.collected_pens (
     updated_at timestamp without time zone NOT NULL,
     comment text,
     nib character varying(100),
-    color character varying(100),
+    color character varying(100) DEFAULT ''::character varying NOT NULL,
     archived_on date,
     material text DEFAULT ''::text,
     price text DEFAULT ''::text,
@@ -1780,6 +1780,10 @@ ALTER TABLE ONLY public.collected_inks
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20240426054336'),
+('20240426054203'),
+('20240426054034'),
+('20240426053842'),
 ('20240419133046'),
 ('20240419132642'),
 ('20240419132458'),
