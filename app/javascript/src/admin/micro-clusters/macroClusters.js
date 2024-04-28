@@ -55,6 +55,9 @@ export const updateMacroCluster = (id, dispatch) => {
         const grouped_entries = groupedInks(
           macroCluster.micro_clusters.map((c) => c.collected_inks).flat()
         );
+        macroCluster.micro_clusters.forEach(
+          (mc) => (mc.entries = mc.collected_inks)
+        );
         return { ...macroCluster, grouped_entries };
       })
       .then((macroCluster) =>
