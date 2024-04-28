@@ -43,7 +43,13 @@ export const MacroClusterRows = ({
     );
   const clustersToRender = search
     ? matchSorter(clustersWithDistance, search, {
-        keys: fields
+        keys: [
+          (row) => {
+            const v = fields.map((a) => row[a]).join(" ");
+            const tags = (row.tags || []).map((t) => t.name).join(" ");
+            return [v, tags].join(" ");
+          }
+        ]
       })
     : clustersWithDistance;
   const rows = clustersToRender
