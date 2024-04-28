@@ -17,6 +17,7 @@ module Pens
     def cluster_attributes(collected_pen)
       attrs = default_attributes(collected_pen)
       attrs["simplified_model"].delete_suffix!(attrs["simplified_color"])
+      attrs["simplified_model"].delete_prefix!(attrs["simplified_brand"])
       attrs
     end
 

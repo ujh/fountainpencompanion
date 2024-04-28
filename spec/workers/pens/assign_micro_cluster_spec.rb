@@ -95,4 +95,35 @@ describe Pens::AssignMicroCluster do
       expect(cluster.collected_pens).to match_array([pen1, pen2])
     end
   end
+
+  context "when brand repeated in model" do
+    it "assigns the same cluster to both" do
+      pen1 =
+        create(
+          :collected_pen,
+          brand: "Lamy",
+          model: "Safari",
+          color: "Red",
+          material: "",
+          trim_color: "",
+          filling_system: ""
+        )
+      pen2 =
+        create(
+          :collected_pen,
+          brand: "Lamy",
+          model: "Lamy Safari",
+          color: "Red",
+          material: "",
+          trim_color: "",
+          filling_system: ""
+        )
+      expect do
+        subject.perform(pen1.id)
+        subject.perform(pen2.id)
+      end.to change(Pens::MicroCluster, :count).by(1)
+      cluster = Pens::MicroCluster.last
+      expect(cluster.collected_pens).to match_array([pen1, pen2])
+    end
+  end
 end
