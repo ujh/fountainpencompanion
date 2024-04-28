@@ -3,7 +3,6 @@ namespace :clusters do
     Pens::MicroCluster
       .unassigned
       .without_ignored
-      .limit(10)
       .includes(:collected_pens)
       .find_each { |pmc| pmc.destroy if pmc.collected_pens.size.zero? }
   end
