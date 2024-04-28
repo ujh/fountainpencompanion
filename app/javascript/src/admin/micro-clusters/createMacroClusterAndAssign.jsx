@@ -24,7 +24,7 @@ export const createMacroClusterAndAssign = (
         assignCluster(microClusterId, json.data.id).then((microCluster) => {
           const macroCluster = microCluster.macro_cluster;
           const grouped_entries = groupedInks(
-            macroCluster.micro_clusters.map((c) => c.collected_inks).flat()
+            macroCluster.micro_clusters.map((c) => c.entries).flat()
           );
           dispatch({
             type: ADD_MACRO_CLUSTER,
