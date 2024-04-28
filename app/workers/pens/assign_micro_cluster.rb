@@ -15,6 +15,29 @@ module Pens
     private
 
     def cluster_attributes(collected_pen)
+      attrs = default_attributes(collected_pen)
+      handle_clear!(attrs)
+      handle_synonyms!(attrs)
+      attrs["simplified_model"].delete_suffix!(attrs["simplified_color"])
+      attrs["simplified_model"].delete_prefix!(attrs["simplified_brand"])
+      attrs
+    end
+
+    def handle_clear!(attrs)
+      %i[model color].each do |attribute|
+        key = "simplified_#{attribute}"
+        attrs[key].gsub!("transparent", "clear")
+        attrs[key].gsub!("demonstrator", "clear")
+        attrs[key].gsub!("demo", "clear")
+      end
+    end
+
+    def handle_synonyms!(attrs)
+      attrs["simplified_brand"].gsub!("namiki", "pilot")
+      attrs["simplified_model"].gsub!("capless", "vanishingpoint")
+    end
+
+    def default_attributes(collected_pen)
       %i[brand model color material trim_color filling_system].each_with_object(
         {}
       ) do |attribute, hash|

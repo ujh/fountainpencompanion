@@ -64,4 +64,170 @@ describe Pens::AssignMicroCluster do
       ).by(1)
     end
   end
+
+  context "when color duplicated in model" do
+    it "assigns the same cluster to both" do
+      pen1 =
+        create(
+          :collected_pen,
+          brand: "TWSBI",
+          model: "Eco",
+          color: "Clear",
+          material: "",
+          trim_color: "",
+          filling_system: ""
+        )
+      pen2 =
+        create(
+          :collected_pen,
+          brand: "TWSBI",
+          model: "Eco Clear",
+          color: "Clear",
+          material: "",
+          trim_color: "",
+          filling_system: ""
+        )
+      expect do
+        subject.perform(pen1.id)
+        subject.perform(pen2.id)
+      end.to change(Pens::MicroCluster, :count).by(1)
+      cluster = Pens::MicroCluster.last
+      expect(cluster.collected_pens).to match_array([pen1, pen2])
+    end
+  end
+
+  context "when brand repeated in model" do
+    it "assigns the same cluster to both" do
+      pen1 =
+        create(
+          :collected_pen,
+          brand: "Lamy",
+          model: "Safari",
+          color: "Red",
+          material: "",
+          trim_color: "",
+          filling_system: ""
+        )
+      pen2 =
+        create(
+          :collected_pen,
+          brand: "Lamy",
+          model: "Lamy Safari",
+          color: "Red",
+          material: "",
+          trim_color: "",
+          filling_system: ""
+        )
+      expect do
+        subject.perform(pen1.id)
+        subject.perform(pen2.id)
+      end.to change(Pens::MicroCluster, :count).by(1)
+      cluster = Pens::MicroCluster.last
+      expect(cluster.collected_pens).to match_array([pen1, pen2])
+    end
+  end
+
+  context "when different versions are used for clear/demo/transparent" do
+    it "assigns the same cluster to them all" do
+      pen1 =
+        create(
+          :collected_pen,
+          brand: "TWSBI",
+          model: "Eco",
+          color: "Clear",
+          material: "",
+          trim_color: "",
+          filling_system: ""
+        )
+      pen2 =
+        create(
+          :collected_pen,
+          brand: "TWSBI",
+          model: "Eco Demo",
+          color: "Clear",
+          material: "",
+          trim_color: "",
+          filling_system: ""
+        )
+      pen3 =
+        create(
+          :collected_pen,
+          brand: "TWSBI",
+          model: "Eco Demo",
+          color: "Transparent",
+          material: "",
+          trim_color: "",
+          filling_system: ""
+        )
+      expect do
+        subject.perform(pen1.id)
+        subject.perform(pen2.id)
+        subject.perform(pen3.id)
+      end.to change(Pens::MicroCluster, :count).by(1)
+      cluster = Pens::MicroCluster.last
+      expect(cluster.collected_pens).to match_array([pen1, pen2, pen3])
+    end
+  end
+
+  context "when Capless or Vanishing Point is used" do
+    it "assigns the same cluster to them all" do
+      pen1 =
+        create(
+          :collected_pen,
+          brand: "Pilot",
+          model: "Capless",
+          color: "Black",
+          material: "",
+          trim_color: "",
+          filling_system: ""
+        )
+      pen2 =
+        create(
+          :collected_pen,
+          brand: "Pilot",
+          model: "Vanishing Point",
+          color: "Black",
+          material: "",
+          trim_color: "",
+          filling_system: ""
+        )
+      expect do
+        subject.perform(pen1.id)
+        subject.perform(pen2.id)
+      end.to change(Pens::MicroCluster, :count).by(1)
+      cluster = Pens::MicroCluster.last
+      expect(cluster.collected_pens).to match_array([pen1, pen2])
+    end
+  end
+
+  context "when Pilot or Namiki is used" do
+    it "assigns the same cluster to them all" do
+      pen1 =
+        create(
+          :collected_pen,
+          brand: "Namiki",
+          model: "Vanishing Point",
+          color: "Black",
+          material: "",
+          trim_color: "",
+          filling_system: ""
+        )
+      pen2 =
+        create(
+          :collected_pen,
+          brand: "Pilot",
+          model: "Vanishing Point",
+          color: "Black",
+          material: "",
+          trim_color: "",
+          filling_system: ""
+        )
+      expect do
+        subject.perform(pen1.id)
+        subject.perform(pen2.id)
+      end.to change(Pens::MicroCluster, :count).by(1)
+      cluster = Pens::MicroCluster.last
+      expect(cluster.collected_pens).to match_array([pen1, pen2])
+    end
+  end
 end
