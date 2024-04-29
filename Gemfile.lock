@@ -127,7 +127,7 @@ GEM
       railties (>= 4.1.0)
       responders
       warden (~> 1.2.3)
-    devise-passwordless (1.0.1)
+    devise-passwordless (1.0.2)
       devise
       globalid
     diff-lcs (1.5.1)
@@ -278,7 +278,7 @@ GEM
     memory_profiler (1.0.0)
     mini_histogram (0.3.1)
     mini_mime (1.1.5)
-    mini_portile2 (2.8.5)
+    mini_portile2 (2.8.6)
     minitest (5.22.3)
     msgpack (1.7.2)
     multi_json (1.15.0)
@@ -379,7 +379,7 @@ GEM
       redis-client (>= 0.22.0)
     redis-client (0.22.1)
       connection_pool
-    reline (0.5.1)
+    reline (0.5.3)
       io-console (~> 0.5)
     representable (3.2.0)
       declarative (< 0.1.0)
