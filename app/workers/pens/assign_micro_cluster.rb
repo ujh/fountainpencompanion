@@ -19,7 +19,9 @@ module Pens
       handle_clear!(attrs)
       handle_synonyms!(attrs)
       attrs["simplified_model"].delete_suffix!(attrs["simplified_color"])
-      attrs["simplified_model"].delete_prefix!(attrs["simplified_brand"])
+      unless attrs["simplified_model"] == attrs["simplified_brand"]
+        attrs["simplified_model"].delete_prefix!(attrs["simplified_brand"])
+      end
       attrs
     end
 

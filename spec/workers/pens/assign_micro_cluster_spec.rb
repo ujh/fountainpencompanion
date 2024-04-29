@@ -230,4 +230,17 @@ describe Pens::AssignMicroCluster do
       expect(cluster.collected_pens).to match_array([pen1, pen2])
     end
   end
+
+  context "brand and model are the same" do
+    it "does not remove brand from simplified model" do
+      pen = create(:collected_pen, brand: "?", model: "?")
+      expect do subject.perform(pen.id) end.to change(
+        Pens::MicroCluster,
+        :count
+      ).by(1)
+      cluster = Pens::MicroCluster.last
+      expect(cluster.simplified_brand).to eq("?")
+      expect(cluster.simplified_model).to eq("?")
+    end
+  end
 end
