@@ -14,7 +14,12 @@ class Admins::Pens::ModelVariantsController < Admins::BaseController
                    .to_json
       end
       format.html do
-        @clusters = Pens::ModelVariant.includes(:micro_clusters).ordered
+        @clusters =
+          Pens::ModelVariant
+            .includes(:micro_clusters)
+            .search(params[:q])
+            .ordered
+            .page(params[:page])
       end
     end
   end
@@ -35,6 +40,12 @@ class Admins::Pens::ModelVariantsController < Admins::BaseController
                .new(cluster, show_options)
                .serializable_hash
                .to_json
+  end
+
+  def destroy
+    cluster = Pens::ModelVariant.find(params[:id])
+    cluster.destroy!
+    redirect_to(request.referrer || admins_pens_model_variants_path)
   end
 
   private

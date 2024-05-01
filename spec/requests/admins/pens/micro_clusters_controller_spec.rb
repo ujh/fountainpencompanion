@@ -171,4 +171,35 @@ describe Admins::Pens::MicroClustersController do
       end
     end
   end
+
+  describe "#unassign" do
+    let(:cluster) { create(:pens_micro_cluster, model_variant:) }
+    let(:model_variant) { create(:pens_model_variant) }
+
+    it "requires authentication" do
+      delete "/admins/pens/micro_clusters/#{cluster.id}/unassign"
+      expect(response).to redirect_to(new_user_session_path)
+    end
+
+    context "signed in" do
+      before(:each) { sign_in(admin) }
+
+      it "unassigns the micro cluster from the model variant" do
+        expect do
+          delete "/admins/pens/micro_clusters/#{cluster.id}/unassign"
+          expect(response).to redirect_to(admins_pens_model_variants_path)
+        end.to change { cluster.reload.model_variant }.from(model_variant).to(
+          nil
+        )
+      end
+
+      it "triggers the recalculation background job for the model variant" do
+        expect do
+          delete "/admins/pens/micro_clusters/#{cluster.id}/unassign"
+        end.to change(Pens::UpdateModelVariant.jobs, :length).by(1)
+        job = Pens::UpdateModelVariant.jobs.last
+        expect(job["args"].first).to eq(model_variant.id)
+      end
+    end
+  end
 end
