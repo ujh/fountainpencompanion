@@ -41,6 +41,12 @@ class Admins::Pens::ModelVariantsController < Admins::BaseController
                .to_json
   end
 
+  def destroy
+    cluster = Pens::ModelVariant.find(params[:id])
+    cluster.destroy!
+    redirect_to request.referrer
+  end
+
   private
 
   def create_params

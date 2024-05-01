@@ -21,7 +21,10 @@ div class="fpc-table fpc-table--full-width fpc-scroll-shadow"
           td= model_variant.material
           td= model_variant.trim_color
           td= model_variant.filling_system
-          td
+          td= link_to "Remove",
+                      admins_pens_model_variant_path(model_variant),
+                      class: "btn btn-sm btn-danger",
+                      method: :delete
         - if model_variant.micro_clusters.size > 1
           tr
             td
