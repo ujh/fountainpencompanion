@@ -11,4 +11,16 @@ class Pens::ModelVariant < ApplicationRecord
         lambda {
           order(:brand, :model, :color, :material, :trim_color, :filling_system)
         }
+
+  def self.search(query)
+    return self if query.blank?
+
+    query = query.split(/\s+/).join("%")
+    joins(micro_clusters: :collected_pens).where(<<~SQL, "%#{query}%").group(
+      CONCAT(collected_pens.brand, collected_pens.model, collected_pens.color, collected_pens.material)
+      ILIKE ?
+    SQL
+      "pens_model_variants.id"
+    )
+  end
 end

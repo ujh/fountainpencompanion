@@ -1,3 +1,11 @@
+= form_tag admins_pens_model_variants_path, method: :get do
+  div class="row"
+    div class="col-sm-3"
+      label for="search" class="visually-hidden"
+        | Search for inks
+      div.input-group.mb-3
+        = text_field_tag :q, params[:q], placeholder: "Search", class: 'form-control', id: 'search'
+
 div class="fpc-table fpc-table--full-width fpc-scroll-shadow"
   = paginate @clusters
   table class="table table-striped"

@@ -17,6 +17,7 @@ class Admins::Pens::ModelVariantsController < Admins::BaseController
         @clusters =
           Pens::ModelVariant
             .includes(:micro_clusters)
+            .search(params[:q])
             .ordered
             .page(params[:page])
       end
