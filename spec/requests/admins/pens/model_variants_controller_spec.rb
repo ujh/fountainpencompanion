@@ -190,4 +190,33 @@ describe Admins::Pens::ModelVariantsController do
       end
     end
   end
+
+  describe "#destroy" do
+    let!(:model_variant) { create(:pens_model_variant) }
+
+    it "requires authentication" do
+      delete "/admins/pens/model_variants/#{model_variant.id}"
+      expect(response).to redirect_to(new_user_session_path)
+    end
+
+    context "signed in" do
+      before(:each) { sign_in(admin) }
+
+      it "deletes the model variant" do
+        expect do
+          delete "/admins/pens/model_variants/#{model_variant.id}"
+          expect(response).to redirect_to(admins_pens_model_variants_path)
+        end.to change(Pens::ModelVariant, :count).by(-1)
+      end
+
+      it "unassigns all assigned micro clusters" do
+        micro_cluster = create(:pens_micro_cluster, model_variant:)
+        expect do
+          delete "/admins/pens/model_variants/#{model_variant.id}"
+        end.to change { micro_cluster.reload.model_variant }.from(
+          model_variant
+        ).to(nil)
+      end
+    end
+  end
 end

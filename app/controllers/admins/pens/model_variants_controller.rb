@@ -45,7 +45,7 @@ class Admins::Pens::ModelVariantsController < Admins::BaseController
   def destroy
     cluster = Pens::ModelVariant.find(params[:id])
     cluster.destroy!
-    redirect_to request.referrer
+    redirect_to(request.referrer || admins_pens_model_variants_path)
   end
 
   private
