@@ -26,7 +26,7 @@ describe Admins::Pens::ModelVariantsController do
               "type" => "pens_model_variant",
               "attributes" => {
                 "brand" => "Brand",
-                "model" => "Model",
+                "model" => model_variant.model,
                 "color" => "",
                 "material" => "",
                 "trim_color" => "",
@@ -125,7 +125,7 @@ describe Admins::Pens::ModelVariantsController do
             "type" => "pens_model_variant",
             "attributes" => {
               "brand" => "Brand",
-              "model" => "Model",
+              "model" => model_variant.model,
               "color" => "",
               "material" => "",
               "trim_color" => "",
