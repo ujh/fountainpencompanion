@@ -10,6 +10,7 @@ div class="fpc-table fpc-table--full-width fpc-scroll-shadow"
         th Material
         th Trim Color
         th Filling System
+        th
     tbody
       - @clusters.each do |model_variant|
         tr
@@ -20,10 +21,11 @@ div class="fpc-table fpc-table--full-width fpc-scroll-shadow"
           td= model_variant.material
           td= model_variant.trim_color
           td= model_variant.filling_system
+          td
         - if model_variant.micro_clusters.size > 1
           tr
             td
-            td colspan="7"
+            td colspan="8"
               table class="table"
                 - model_variant.micro_clusters.each do |mc|
                   tr class="pens-admin-micro-cluster-row"
@@ -33,4 +35,8 @@ div class="fpc-table fpc-table--full-width fpc-scroll-shadow"
                     td= mc.simplified_material
                     td= mc.simplified_trim_color
                     td= mc.simplified_filling_system
+                    td= link_to "Remove",
+                                unassign_admins_pens_micro_cluster_path(mc),
+                                class: "btn btn-sm btn-danger",
+                                method: :delete
   = paginate @clusters

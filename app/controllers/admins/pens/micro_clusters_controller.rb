@@ -45,6 +45,16 @@ class Admins::Pens::MicroClustersController < Admins::BaseController
                .to_json
   end
 
+  def unassign
+    cluster = Pens::MicroCluster.find(params[:id])
+    model_variant_id = cluster.pens_model_variant_id
+    cluster.update!(pens_model_variant_id: nil)
+    if model_variant_id.present?
+      Pens::UpdateModelVariant.perform_async(model_variant_id)
+    end
+    redirect_to request.referrer
+  end
+
   private
 
   def update_params
