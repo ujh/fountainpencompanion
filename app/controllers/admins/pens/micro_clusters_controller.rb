@@ -52,7 +52,7 @@ class Admins::Pens::MicroClustersController < Admins::BaseController
     if model_variant_id.present?
       Pens::UpdateModelVariant.perform_async(model_variant_id)
     end
-    redirect_to request.referrer
+    redirect_to(request.referrer || admins_pens_model_variants_path)
   end
 
   private
