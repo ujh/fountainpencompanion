@@ -14,7 +14,11 @@ class Admins::Pens::ModelVariantsController < Admins::BaseController
                    .to_json
       end
       format.html do
-        @clusters = Pens::ModelVariant.includes(:micro_clusters).ordered
+        @clusters =
+          Pens::ModelVariant
+            .includes(:micro_clusters)
+            .ordered
+            .page(params[:page])
       end
     end
   end
