@@ -12,10 +12,11 @@ describe Admins::Pens::ModelVariantsController do
     context "signed in" do
       before(:each) { sign_in(admin) }
 
+      let!(:model_variant) { create(:pens_model_variant) }
+      let!(:pens_micro_cluster) { create(:pens_micro_cluster, model_variant:) }
+      let!(:collected_pen) { create(:collected_pen, pens_micro_cluster:) }
+
       it "renders the json" do
-        model_variant = create(:pens_model_variant)
-        pens_micro_cluster = create(:pens_micro_cluster, model_variant:)
-        collected_pen = create(:collected_pen, pens_micro_cluster:)
         get "/admins/pens/model_variants.json"
         expect(response).to be_successful
         json = JSON.parse(response.body)
@@ -100,6 +101,12 @@ describe Admins::Pens::ModelVariantsController do
             }
           }
         )
+      end
+
+      it "renders the HTML" do
+        get "/admins/pens/model_variants.html"
+        expect(response).to be_successful
+        expect(response.body).to include(model_variant.model)
       end
     end
   end
