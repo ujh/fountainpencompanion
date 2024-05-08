@@ -14,12 +14,21 @@ class AdminStats
   end
 
   def pens_micro_clusters_to_assign_count
-    # The JOIN is there to remove clusters without pens
     Pens::MicroCluster
       .unassigned
       .without_ignored
       .joins(:collected_pens)
       .group("pens_micro_clusters.id")
+      .having("count(*) > 1")
+      .count
+      .count
+  end
+
+  def relevant_pens_micro_clusters_count
+    Pens::MicroCluster
+      .joins(:collected_pens)
+      .group("pens_micro_clusters.id")
+      .having("count(*) > 1")
       .count
       .count
   end
