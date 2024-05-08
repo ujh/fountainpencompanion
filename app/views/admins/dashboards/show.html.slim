@@ -48,6 +48,11 @@ table class="table table-striped"
             td
               | &nbsp;
               | micro clusters
+          tr
+            td style="text-align:right"= @stats.relevant_pens_micro_clusters_count
+            td
+              | &nbsp;
+              | micro clusters with more than one collected pen
               - if @stats.pens_micro_clusters_to_assign_count.positive?
                 b
                   |   (
