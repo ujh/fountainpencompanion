@@ -1,4 +1,7 @@
 class Youtube
+  class NoChannelError < StandardError
+  end
+
   def initialize(channel_id:, client: Youtube::Client.new)
     self.channel_id = channel_id
     self.client = client
@@ -27,12 +30,13 @@ class Youtube
         end
       end
       .lazy
+  rescue NoChannelError
+    []
   end
 
   private
 
-  attr_accessor :channel_id
-  attr_accessor :client
+  attr_accessor :channel_id, :client
 
   def transform_item(item)
     snippet = item.snippet
@@ -47,5 +51,7 @@ class Youtube
         channel = result.items.first
         channel.content_details.related_playlists.uploads
       end
+  rescue StandardError
+    raise NoChannelError
   end
 end
