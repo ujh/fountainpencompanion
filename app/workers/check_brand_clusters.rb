@@ -14,7 +14,9 @@ class CheckBrandClusters
   private
 
   def check_cluster(id)
-    cluster = MacroCluster.find(id)
+    cluster = MacroCluster.find_by(id:)
+    return unless cluster
+
     brand_cluster = cluster.brand_cluster
     return if brand_cluster.blank?
     return if cluster.brand_name == brand_cluster.name
