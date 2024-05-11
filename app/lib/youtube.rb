@@ -28,10 +28,10 @@ class Youtube
               page_token: next_page_token
             )
         end
+      rescue NoChannelError
+        break
       end
       .lazy
-  rescue NoChannelError
-    []
   end
 
   private
