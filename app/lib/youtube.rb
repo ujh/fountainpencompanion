@@ -29,7 +29,6 @@ class Youtube
             )
         end
       rescue NoChannelError
-        break
       end
       .lazy
   end
