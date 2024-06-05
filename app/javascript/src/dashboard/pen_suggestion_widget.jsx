@@ -36,7 +36,7 @@ const PenSuggestionWidgetContent = () => {
             className="btn btn-success"
             href={`/currently_inked/new?collected_pen_id=${pickedPen.id}`}
           >
-            Ink in up!
+            Ink it up!
           </a>
         </div>
       </div>
