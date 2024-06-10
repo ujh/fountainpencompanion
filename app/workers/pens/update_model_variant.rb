@@ -7,6 +7,7 @@ module Pens
       return if model_variant.collected_pens.empty?
 
       update_attributes!
+      Pens::AssignModelMicroCluster.perform_async(model_variant_id)
     end
 
     private
