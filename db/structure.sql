@@ -642,6 +642,38 @@ ALTER SEQUENCE public.pens_micro_clusters_id_seq OWNED BY public.pens_micro_clus
 
 
 --
+-- Name: pens_model_micro_clusters; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.pens_model_micro_clusters (
+    id bigint NOT NULL,
+    simplified_brand text NOT NULL,
+    simplified_model text NOT NULL,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
+);
+
+
+--
+-- Name: pens_model_micro_clusters_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.pens_model_micro_clusters_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: pens_model_micro_clusters_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.pens_model_micro_clusters_id_seq OWNED BY public.pens_model_micro_clusters.id;
+
+
+--
 -- Name: pens_model_variants; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -654,7 +686,8 @@ CREATE TABLE public.pens_model_variants (
     trim_color text DEFAULT ''::text NOT NULL,
     filling_system text DEFAULT ''::text NOT NULL,
     created_at timestamp(6) without time zone NOT NULL,
-    updated_at timestamp(6) without time zone NOT NULL
+    updated_at timestamp(6) without time zone NOT NULL,
+    pens_model_micro_cluster_id bigint
 );
 
 
@@ -985,6 +1018,13 @@ ALTER TABLE ONLY public.pens_micro_clusters ALTER COLUMN id SET DEFAULT nextval(
 
 
 --
+-- Name: pens_model_micro_clusters id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.pens_model_micro_clusters ALTER COLUMN id SET DEFAULT nextval('public.pens_model_micro_clusters_id_seq'::regclass);
+
+
+--
 -- Name: pens_model_variants id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -1163,6 +1203,14 @@ ALTER TABLE ONLY public.pens_micro_clusters
 
 
 --
+-- Name: pens_model_micro_clusters pens_model_micro_clusters_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.pens_model_micro_clusters
+    ADD CONSTRAINT pens_model_micro_clusters_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: pens_model_variants pens_model_variants_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1223,6 +1271,13 @@ ALTER TABLE ONLY public.you_tube_channels
 --
 
 CREATE UNIQUE INDEX idx_on_brand_model_color_material_trim_color_fillin_c4996a6771 ON public.pens_model_variants USING btree (brand, model, color, material, trim_color, filling_system);
+
+
+--
+-- Name: idx_on_simplified_brand_simplified_model_70c232c961; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX idx_on_simplified_brand_simplified_model_70c232c961 ON public.pens_model_micro_clusters USING btree (simplified_brand, simplified_model);
 
 
 --
@@ -1506,6 +1561,13 @@ CREATE INDEX index_pens_micro_clusters_on_pens_model_variant_id ON public.pens_m
 
 
 --
+-- Name: index_pens_model_variants_on_pens_model_micro_cluster_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_pens_model_variants_on_pens_model_micro_cluster_id ON public.pens_model_variants USING btree (pens_model_micro_cluster_id);
+
+
+--
 -- Name: index_reading_statuses_on_blog_post_id; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -1678,6 +1740,14 @@ ALTER TABLE ONLY public.collected_inks
 
 
 --
+-- Name: pens_model_variants fk_rails_9098e51c82; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.pens_model_variants
+    ADD CONSTRAINT fk_rails_9098e51c82 FOREIGN KEY (pens_model_micro_cluster_id) REFERENCES public.pens_model_micro_clusters(id);
+
+
+--
 -- Name: micro_clusters fk_rails_9c1c47af02; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1780,6 +1850,8 @@ ALTER TABLE ONLY public.collected_inks
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20240610132220'),
+('20240610132035'),
 ('20240426054336'),
 ('20240426054203'),
 ('20240426054034'),

@@ -19,4 +19,13 @@ describe Pens::ModelVariant do
       expect(described_class.search("twsbi")).to eq([mv1])
     end
   end
+
+  describe "associations" do
+    it "has a properly set up model micro cluster assiociation" do
+      mmc = create(:pens_model_micro_cluster)
+      mv = create(:pens_model_variant, model_micro_cluster: mmc)
+
+      expect(mv.model_micro_cluster).to eq(mmc)
+    end
+  end
 end
