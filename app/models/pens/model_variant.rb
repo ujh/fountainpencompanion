@@ -5,6 +5,11 @@ class Pens::ModelVariant < ApplicationRecord
            dependent: :nullify
   has_many :collected_pens, through: :micro_clusters
 
+  belongs_to :model_micro_cluster,
+             optional: true,
+             class_name: "Pens::ModelMicroCluster",
+             foreign_key: :pens_model_micro_cluster_id
+
   paginates_per 100
 
   scope :ordered,
