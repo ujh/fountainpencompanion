@@ -71,4 +71,27 @@ describe Pens::UpdateModelVariant do
     expect(model_variant.trim_color).to eq("")
     expect(model_variant.filling_system).to eq("")
   end
+
+  it "schedules the correct follow up job" do
+    model_variant = create(:pens_model_variant)
+    mc = create(:pens_micro_cluster, model_variant:)
+    create(
+      :collected_pen,
+      pens_micro_cluster: mc,
+      brand: "Brand",
+      model: "Model",
+      color: "",
+      material: nil,
+      trim_color: nil,
+      filling_system: nil
+    )
+
+    expect do subject.perform(model_variant.id) end.to change(
+      Pens::AssignModelMicroCluster.jobs,
+      :length
+    ).by(1)
+
+    job = Pens::AssignModelMicroCluster.jobs.last
+    expect(job["args"]).to eq([model_variant.id])
+  end
 end
