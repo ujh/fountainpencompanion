@@ -10,4 +10,11 @@ RSpec.describe Pens::ModelMicroCluster do
       expect(mmc.model_variants).to match_array([mv1, mv2])
     end
   end
+
+  it "has a properly set up model association" do
+    model = create(:pens_model)
+    mmc = create(:pens_model_micro_cluster, model:)
+
+    expect(mmc.model).to eq(model)
+  end
 end
