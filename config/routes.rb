@@ -116,6 +116,10 @@ Rails.application.routes.draw do
       end
       resources :model_variants, only: %i[index create show destroy]
       resources :models, only: %i[index create show destroy]
+      resources :model_micro_clusters, only: %i[index update] do
+        collection { get "ignored" }
+        member { delete "unassign" }
+      end
     end
 
     resources :blog_posts do

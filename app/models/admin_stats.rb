@@ -13,6 +13,17 @@ class AdminStats
       .count
   end
 
+  def pens_model_micro_clusters_to_assign_count
+    # The JOIN is there to remove clusters without variants
+    Pens::ModelMicroCluster
+      .unassigned
+      .without_ignored
+      .joins(:model_variants)
+      .group("pens_model_micro_clusters.id")
+      .count
+      .count
+  end
+
   def pens_micro_clusters_to_assign_count
     Pens::MicroCluster
       .unassigned
