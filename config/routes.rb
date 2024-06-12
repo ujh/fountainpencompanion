@@ -115,6 +115,7 @@ Rails.application.routes.draw do
         member { delete "unassign" }
       end
       resources :model_variants, only: %i[index create show destroy]
+      resources :models, only: %i[index create show destroy]
     end
 
     resources :blog_posts do
