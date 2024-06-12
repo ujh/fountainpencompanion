@@ -1,0 +1,15 @@
+div class="fpc-table fpc-table--full-width fpc-scroll-shadow"
+  table class="table align-middle table-striped"
+    thead
+      tr
+        th ID
+        th Count
+        th Brand
+        th Model
+    tbody
+      - @clusters.each do |cluster|
+        tr
+          td= cluster.id
+          td= cluster.count
+          td= cluster.simplified_brand
+          td= cluster.simplified_model

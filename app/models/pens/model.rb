@@ -3,6 +3,7 @@ class Pens::Model < ApplicationRecord
            foreign_key: :pens_model_id,
            class_name: "Pens::ModelMicroCluster",
            dependent: :nullify
+  has_many :model_variants, through: :model_micro_clusters
 
   paginates_per 100
 
@@ -14,7 +15,7 @@ class Pens::Model < ApplicationRecord
     query = query.split(/\s+/).join("%")
     joins(model_micro_clusters: :model_variants).where(
       <<~SQL,
-      CONCAT(model_variants.brand, model_variants.model, model_variants.color, model_variants.material)
+      CONCAT(pens_model_variants.brand, pens_model_variants.model)
       ILIKE ?
     SQL
       "%#{query}%"
