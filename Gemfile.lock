@@ -419,7 +419,7 @@ GEM
     ruby2_keywords (0.0.5)
     rufus-scheduler (3.8.2)
       fugit (~> 1.1, >= 1.1.6)
-    sanitize (6.1.0)
+    sanitize (6.1.1)
       crass (~> 1.0.2)
       nokogiri (>= 1.12.0)
     sass-rails (6.0.0)
@@ -567,7 +567,7 @@ DEPENDENCIES
   rspec-rails
   rss
   ruby-progressbar
-  sanitize (~> 6.1.0)
+  sanitize (~> 6.1.1)
   sass-rails
   scenic
   sidekiq
