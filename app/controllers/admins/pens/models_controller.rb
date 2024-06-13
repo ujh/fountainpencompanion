@@ -4,7 +4,7 @@ class Admins::Pens::ModelsController < Admins::BaseController
       format.json do
         clusters =
           Pens::Model
-            .includes(model_micro_clusters: :model_variants)
+            .includes(model_micro_clusters: { model_variants: :micro_clusters })
             .ordered
             .page(params[:page])
         render json:

@@ -4,7 +4,7 @@ class Admins::Pens::ModelMicroClustersController < Admins::BaseController
       format.json do
         clusters =
           Pens::ModelMicroCluster
-            .includes(:model_variants)
+            .includes(model_variants: :micro_clusters)
             .ordered
             .page(params[:page])
         clusters = clusters.unassigned if params[:unassigned]
