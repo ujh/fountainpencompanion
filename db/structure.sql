@@ -651,7 +651,8 @@ CREATE TABLE public.pens_model_micro_clusters (
     simplified_model text NOT NULL,
     created_at timestamp(6) without time zone NOT NULL,
     updated_at timestamp(6) without time zone NOT NULL,
-    pens_model_id bigint
+    pens_model_id bigint,
+    ignored boolean DEFAULT false
 );
 
 
@@ -1920,6 +1921,7 @@ ALTER TABLE ONLY public.collected_inks
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20240612132332'),
 ('20240612105817'),
 ('20240612105640'),
 ('20240610132220'),

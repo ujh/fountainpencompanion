@@ -1,0 +1,41 @@
+= form_tag admins_pens_models_path, method: :get do
+  div class="row"
+    div class="col-sm-3"
+      label for="search" class="visually-hidden"
+        | Search for inks
+      div.input-group.mb-3
+        = text_field_tag :q, params[:q], placeholder: "Search", class: 'form-control', id: 'search'
+
+div class="fpc-table fpc-table--full-width fpc-scroll-shadow"
+  = paginate @clusters
+  table class="table table-striped"
+    thead
+      tr
+        th
+        th Brand
+        th Model
+        th
+    tbody
+      - @clusters.each do |model|
+        tr
+          td= model.model_micro_clusters.size
+          td= model.brand
+          td= model.model
+          td= link_to "Remove",
+                      admins_pens_model_path(model),
+                      class: "btn btn-sm btn-danger",
+                      method: :delete
+        - if model.model_micro_clusters.size > 1
+          tr
+            td
+            td colspan="4"
+              table class="table"
+                - model.model_micro_clusters.each do |mc|
+                  tr class="pens-admin-micro-cluster-row"
+                    td= mc.simplified_brand
+                    td= mc.simplified_model
+                    td= link_to "Remove",
+                                unassign_admins_pens_model_micro_cluster_path(mc),
+                                class: "btn btn-sm btn-danger",
+                                method: :delete
+  = paginate @clusters

@@ -69,6 +69,18 @@ table class="table table-striped"
             td
               | &nbsp;
               | model micro clusters
+              - if @stats.pens_model_micro_clusters_to_assign_count.positive?
+                b
+                  |   (
+                  | &nbsp;
+                  = link_to "#{@stats.pens_model_micro_clusters_to_assign_count} to assign", admins_pens_model_micro_clusters_path
+                  |  )
+          tr
+            td style="text-align:right"= Pens::Model.count
+            td
+              | &nbsp;
+              | models
+
 
     tr
       td Number of "Currently Inked"

@@ -41,6 +41,9 @@ describe Admins::Pens::ModelVariantsController do
                       "type" => "pens_micro_cluster"
                     }
                   ]
+                },
+                "model_micro_cluster" => {
+                  "data" => nil
                 }
               }
             }
@@ -141,6 +144,9 @@ describe Admins::Pens::ModelVariantsController do
             "relationships" => {
               "micro_clusters" => {
                 "data" => []
+              },
+              "model_micro_cluster" => {
+                "data" => nil
               }
             }
           },
@@ -188,6 +194,9 @@ describe Admins::Pens::ModelVariantsController do
               "relationships" => {
                 "micro_clusters" => {
                   "data" => []
+                },
+                "model_micro_cluster" => {
+                  "data" => nil
                 }
               }
             },
