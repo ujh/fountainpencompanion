@@ -34,6 +34,8 @@ class LeaderBoard
           .map do |model|
             { name: model.name, count: model.collected_pens.size }
           end
+          .sort_by { |h| h[:count] }
+          .reverse
       end
   end
 
