@@ -79,10 +79,10 @@ div.row.mb-3
           = " (#{macro_cluster.ci_count})"
     p= link_to "Show all", page_path("inks_by_popularity")
 
-  div class="col-sm-12 fpc-leaderboards__board"
+  div class="col-sm-12 col-md-6 fpc-leaderboards__board"
     h2 class="h4" Popular pens
     p.text-muted Ranked by number of people who own this
     ol
       - LeaderBoard.top_pens_by_popularity.each do |pen|
-        li= "#{pen.brand} #{pen.model} (#{pen.count})"
+        li= "#{pen[:name]} (#{pen[:count]})"
     p= link_to "Show all", page_path("pens_by_popularity")

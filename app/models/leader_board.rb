@@ -13,7 +13,7 @@ class LeaderBoard
   WORKERS = TYPES.map { |t| "refresh_leader_board/#{t}".camelize.constantize }
 
   def self.refresh!(type)
-    self.send(type, force: true)
+    send(type, force: true)
   end
 
   def self.users_by_description_edits(force: false)
@@ -27,15 +27,13 @@ class LeaderBoard
   def self.pens_by_popularity(force: false)
     Rails
       .cache
-      .fetch("LeaderBoard#pens_by_popularity", force: force) do
-        CollectedPen
-          .group("lower(concat(brand, model))")
-          .where(archived_on: nil)
-          .select(
-            "initcap(min(brand)) as brand, initcap(min(model)) as model, count(id) as count"
-          )
-          .having("count(distinct user_id) > 1")
-          .order("count desc")
+      .fetch("LeaderBoard#pens_by_popularity", force:) do
+        Pens::Model
+          .includes(:collected_pens)
+          .reject { |model| model.collected_pens.size.zero? }
+          .map do |model|
+            { name: model.name, count: model.collected_pens.size }
+          end
       end
   end
 
@@ -46,7 +44,7 @@ class LeaderBoard
   def self.ink_review_submissions(force: false)
     Rails
       .cache
-      .fetch("LeaderBoard#ink_review_submissions", force: force) do
+      .fetch("LeaderBoard#ink_review_submissions", force:) do
         relation =
           User
             .where("users.id <> 1")
@@ -65,7 +63,7 @@ class LeaderBoard
   def self.usage_records(force: false)
     Rails
       .cache
-      .fetch("LeaderBoard#usage_records", force: force) do
+      .fetch("LeaderBoard#usage_records", force:) do
         relation =
           User
             .joins(currently_inkeds: :usage_records)
@@ -83,7 +81,7 @@ class LeaderBoard
   def self.currently_inked(force: false)
     Rails
       .cache
-      .fetch("LeaderBoard#currently_inked", force: force) do
+      .fetch("LeaderBoard#currently_inked", force:) do
         relation =
           User
             .joins(:currently_inkeds)
@@ -101,7 +99,7 @@ class LeaderBoard
   def self.inks_by_popularity(force: false)
     Rails
       .cache
-      .fetch("LeaderBoard#inks_by_popularity", force: force) do
+      .fetch("LeaderBoard#inks_by_popularity", force:) do
         MacroCluster
           .joins(micro_clusters: :collected_inks)
           .includes(:brand_cluster)
@@ -117,7 +115,7 @@ class LeaderBoard
   end
 
   def self.inks(force: false)
-    Rails.cache.fetch("LeaderBoard#inks", force: force) { extract(build) }
+    Rails.cache.fetch("LeaderBoard#inks", force:) { extract(build) }
   end
 
   def self.top_inks
@@ -127,7 +125,7 @@ class LeaderBoard
   def self.bottles(force: false)
     Rails
       .cache
-      .fetch("LeaderBoard#bottles", force: force) do
+      .fetch("LeaderBoard#bottles", force:) do
         extract(build.where(collected_inks: { kind: "bottle" }))
       end
   end
@@ -139,7 +137,7 @@ class LeaderBoard
   def self.samples(force: false)
     Rails
       .cache
-      .fetch("LeaderBoard#samples", force: force) do
+      .fetch("LeaderBoard#samples", force:) do
         extract(build.where(collected_inks: { kind: "sample" }))
       end
   end
