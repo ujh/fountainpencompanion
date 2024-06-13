@@ -21,7 +21,7 @@ module Pens
     end
 
     def best_attr_value(attr)
-      attr_values = model.model_variants.map { |cp| cp.send(attr) }
+      attr_values = model.collected_pens.map { |cp| cp.send(attr) }
       attr_values.tally.max_by { |_k, v| v }.first || ""
     end
   end
