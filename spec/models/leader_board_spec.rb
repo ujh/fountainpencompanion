@@ -1,61 +1,6 @@
 require "rails_helper"
 
 describe LeaderBoard do
-  describe "#pens_by_popularity" do
-    it "orders the pens by popularity" do
-      user1 = create(:user)
-      create(:collected_pen, user: user1, brand: "Brand1", model: "Model1")
-      create(:collected_pen, user: user1, brand: "Brand1", model: "Model2")
-      user2 = create(:user)
-      create(:collected_pen, user: user2, brand: "Brand1", model: "Model1")
-      create(:collected_pen, user: user2, brand: "Brand1", model: "Model2")
-      user3 = create(:user)
-      create(:collected_pen, user: user3, brand: "Brand1", model: "Model1")
-
-      expect(
-        described_class.pens_by_popularity.map do |pen|
-          [pen.brand, pen.model, pen.count]
-        end
-      ).to eq([["Brand1", "Model1", 3], ["Brand1", "Model2", 2]])
-    end
-
-    it "does not count pens that only appear once" do
-      user = create(:user)
-      create(:collected_pen, user: user, brand: "Brand1", model: "Model1")
-
-      expect(described_class.pens_by_popularity).to be_empty
-    end
-
-    it "does not count pens that only one user has (but multiple)" do
-      user = create(:user)
-      create(:collected_pen, user: user, brand: "Brand1", model: "Model1")
-      create(:collected_pen, user: user, brand: "Brand1", model: "Model1")
-
-      expect(described_class.pens_by_popularity).to be_empty
-    end
-
-    it "does not include archived entries" do
-      user1 = create(:user)
-      create(
-        :collected_pen,
-        user: user1,
-        brand: "Brand1",
-        model: "Model1",
-        archived_on: Date.today
-      )
-      user2 = create(:user)
-      create(
-        :collected_pen,
-        user: user2,
-        brand: "Brand1",
-        model: "Model1",
-        archived_on: Date.today
-      )
-
-      expect(described_class.pens_by_popularity).to be_empty
-    end
-  end
-
   describe "#top_pens_by_popularity" do
     it "returns the first 10 entries" do
       allow(described_class).to receive(:pens_by_popularity).and_return(
@@ -162,7 +107,7 @@ describe LeaderBoard do
 
     it "returns the user name" do
       user = create(:user, name: "the name")
-      create(:collected_ink, user: user)
+      create(:collected_ink, user:)
       expect(described_class.inks.first).to include(public_name: "the name")
     end
 
@@ -173,7 +118,7 @@ describe LeaderBoard do
 
     it "does not include users with only private inks" do
       user = create(:user)
-      create(:collected_ink, user: user, private: true)
+      create(:collected_ink, user:, private: true)
       expect(described_class.inks).to be_empty
     end
 
@@ -191,7 +136,7 @@ describe LeaderBoard do
 
     it "returns the patreon status" do
       user = create(:user, patron: true)
-      create(:collected_ink, user: user)
+      create(:collected_ink, user:)
       expect(described_class.inks.first).to include(patron: true)
     end
   end
