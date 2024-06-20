@@ -86,7 +86,7 @@ describe Pens::UpdateModelVariant do
       filling_system: nil
     )
 
-    expect do subject.perform(model_variant.id) end.to change(
+    expect { subject.perform(model_variant.id) }.to change(
       Pens::AssignModelMicroCluster.jobs,
       :length
     ).by(1)

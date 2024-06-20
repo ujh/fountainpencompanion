@@ -22,8 +22,13 @@ module Pens
     end
 
     def best_attr_value(attr)
-      attr_values = model_variant.collected_pens.map { |cp| cp.send(attr) }
-      attr_values.tally.max_by { |_k, v| v }.first || ""
+      attr_values =
+        model_variant.collected_pens.map { |cp| cp.send(attr) }.tally
+      # When there's more than one value that is the most common, pick the longest
+      # name to avoid duplicates more often.
+      max_count = attr_values.values.max
+      max_attrs = attr_values.find_all { |_k, v| v == max_count }.to_h
+      max_attrs.max_by { |k, v| v + k.to_s.length }.first || ""
     end
   end
 end
