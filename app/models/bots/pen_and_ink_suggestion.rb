@@ -35,8 +35,9 @@ module Bots
         Given the following inks:
         #{ink_data}
 
-        Which combination should I use and why? Prefer items that have either never been used or a long time ago.
-        Be brief and make only one suggestion. Use markdown syntax for highlighting, but no headings.
+        Which combination should I use and why? Slightly prefer items that have either never been used or a
+        long time ago, but keep it random otherwise.
+        Make only one suggestion. Use markdown syntax for highlighting.
       MESSAGE
     end
 
