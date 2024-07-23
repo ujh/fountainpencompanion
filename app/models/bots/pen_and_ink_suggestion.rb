@@ -7,6 +7,23 @@ module Bots
     end
 
     def run
+      suggestion = request_suggestion
+
+      if suggestion[:ink] && suggestion[:pen]
+        suggestion
+      else
+        # Sometimes it picks two inks. In that case we want to try
+        # once more. But only once, as we don't want and endless
+        # loop that also costs us money.
+        request_suggestion
+      end
+    end
+
+    private
+
+    attr_accessor :user
+
+    def request_suggestion
       response =
         client.chat(
           [{ role: "user", content: prompt }],
@@ -18,10 +35,6 @@ module Bots
 
       { message:, ink:, pen: }
     end
-
-    private
-
-    attr_accessor :user
 
     def client
       ChatGPT::Client.new(ENV["OPENAI_PEN_AND_INK_SUGGESTIONS"])
@@ -35,8 +48,10 @@ module Bots
         Given the following inks:
         #{ink_data}
 
-        Which combination should I use and why? Slightly prefer items that have either never been used or a
-        long time ago, but keep it random otherwise.
+        Which combination should I use and why?
+
+        Prefer items that have either never been used or a long time ago.
+        Sometimes also suggest items that have been used a lot.
         Make only one suggestion. Use markdown syntax for highlighting.
       MESSAGE
     end
@@ -44,15 +59,16 @@ module Bots
     def pen_data
       pens
         .map do |pen|
-          usage = pen.last_used_on
-          last_usage =
-            if usage
-              "last used #{ActionController::Base.helpers.time_ago_in_words(usage)} ago"
+          last_usage = pen.last_used_on
+          usage_count = pen.usage_count + pen.daily_usage_count
+          usage =
+            if last_usage
+              "last usage of #{usage_count} total uses #{ActionController::Base.helpers.time_ago_in_words(last_usage)} ago"
             else
               "never used"
             end
           # Quotes around the pen name to for the AI to spit out the full name, so that it can be found again.
-          "#{pen.name.inspect} (last used #{last_usage})"
+          "#{pen.name.inspect} (#{usage})"
         end
         .shuffle
         .join("\n")
@@ -61,14 +77,15 @@ module Bots
     def ink_data
       inks
         .map do |ink|
-          usage = ink.last_used_on
-          last_usage =
-            if usage
-              "last used #{ActionController::Base.helpers.time_ago_in_words(usage)} ago"
+          last_usage = ink.last_used_on
+          usage_count = ink.usage_count + ink.daily_usage_count
+          usage =
+            if last_usage
+              "last usage of #{usage_count} total uses #{ActionController::Base.helpers.time_ago_in_words(last_usage)} ago"
             else
               "never used"
             end
-          "#{ink.short_name.inspect} (#{last_usage})"
+          "#{ink.short_name.inspect} (#{usage})"
         end
         .shuffle
         .join("\n")
@@ -79,13 +96,21 @@ module Bots
         user
           .collected_pens
           .active
-          .includes(newest_currently_inked: :last_usage)
+          .includes(
+            :currently_inkeds,
+            :usage_records,
+            newest_currently_inked: :last_usage
+          )
           .reject { |pen| pen.inked? }
     end
 
     def inks
       @inks ||=
-        user.collected_inks.active.includes(newest_currently_inked: :last_usage)
+        user.collected_inks.active.includes(
+          :currently_inkeds,
+          :usage_records,
+          newest_currently_inked: :last_usage
+        )
     end
   end
 end

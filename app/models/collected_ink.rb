@@ -191,6 +191,14 @@ class CollectedInk < ApplicationRecord
     newest_currently_inked&.last_used_on || newest_currently_inked&.inked_on
   end
 
+  def usage_count
+    currently_inkeds.size
+  end
+
+  def daily_usage_count
+    usage_records.size
+  end
+
   private
 
   def add_comment
