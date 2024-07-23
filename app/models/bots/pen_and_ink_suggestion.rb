@@ -36,7 +36,7 @@ module Bots
         #{ink_data}
 
         Which combination should I use and why? Prefer items that have either never been used or a long time ago.
-        Be brief and make only one suggestion.
+        Be brief and make only one suggestion. Use markdown syntax for highlighting, but no headings.
       MESSAGE
     end
 

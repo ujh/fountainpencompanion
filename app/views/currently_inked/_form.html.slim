@@ -1,7 +1,7 @@
 = simple_form_for record do |f|
   div style="max-width: 650px"
       = f.association :collected_pen, collection: record.collected_pens_for_active_select, selected: record.collected_pen_id || params[:collected_pen_id], prompt: "(Pick a pen)"
-      = f.association :collected_ink, collection: record.collected_inks_for_active_select, prompt: "(Pick an ink)"
+      = f.association :collected_ink, collection: record.collected_inks_for_active_select, selected: record.collected_ink_id || params[:collected_ink_id], prompt: "(Pick an ink)"
 
   div style="max-width: 190px"
       = f.input :inked_on, as: :string, required: false

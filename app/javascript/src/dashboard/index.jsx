@@ -7,7 +7,7 @@ import { PensGroupedByBrandWidget } from "./pens_grouped_by_brand_widget";
 import { PensSummaryWidget } from "./pens_summary_widget";
 import { InksVisualizationWidget } from "./inks_visualization_widget";
 import { createRoot } from "react-dom/client";
-import { PenSuggestionWidget } from "./pen_suggestion_widget";
+import { PenAndInkSuggestionWidget } from "./pen_and_ink_suggestion_widget";
 
 document.addEventListener("DOMContentLoaded", () => {
   const el = document.getElementById("dashboard");
@@ -26,6 +26,6 @@ const Dashboard = () => (
     <PensGroupedByBrandWidget />
     <InksVisualizationWidget />
     <LeaderboardRankingWidget />
-    <PenSuggestionWidget />
+    <PenAndInkSuggestionWidget />
   </div>
 );

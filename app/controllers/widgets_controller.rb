@@ -15,6 +15,8 @@ class WidgetsController < ApplicationController
       render json: inks_grouped_by_brand_data
     when "pens_grouped_by_brand"
       render json: pens_grouped_by_brand_data
+    when "pen_and_ink_suggestion"
+      render json: pen_and_ink_suggestion_data
     else
       head :unprocessable_entity
     end
@@ -109,5 +111,15 @@ class WidgetsController < ApplicationController
         .send(method)
         .find_index { |entry| entry[:id] == current_user.id }
     return index.succ if index
+  end
+
+  def pen_and_ink_suggestion_data
+    suggestion = Bots::PenAndInkSuggestion.new(current_user).run
+    {
+      message:
+        Slodown::Formatter.new(suggestion[:message]).complete.to_s.html_safe,
+      collected_ink_id: suggestion[:ink]&.id,
+      collected_pen_id: suggestion[:pen]&.id
+    }
   end
 end
