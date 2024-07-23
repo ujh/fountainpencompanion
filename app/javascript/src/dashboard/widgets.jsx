@@ -61,6 +61,8 @@ const WidgetCard = ({ withLinks, header, subtitle, isVisible, ...rest }) => {
 const WidgetContent = ({ children, path, withLinks, paginated }) => {
   const [data, setData] = useState(null);
   useEffect(() => {
+    if (!path) return;
+
     async function fetchData() {
       if (paginated) {
         setData(await getPaginatedData(path));
@@ -73,7 +75,7 @@ const WidgetContent = ({ children, path, withLinks, paginated }) => {
   const [elementWidth, setElementWidth] = useState(0);
   let content = <Loader withLinks={withLinks} />;
 
-  if (data) {
+  if (data || !path) {
     content = (
       <WidgetDataContext.Provider value={data}>
         <WidgetWidthContext.Provider value={elementWidth}>

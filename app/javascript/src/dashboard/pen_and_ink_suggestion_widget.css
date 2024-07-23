@@ -1,0 +1,21 @@
+.pen-and-ink-suggestion {
+  .buttons,
+  .loader,
+  .notice {
+    text-align: center;
+  }
+
+  .loader {
+    font-size: xxx-large;
+  }
+
+  .notice {
+    font-size: small;
+    margin-bottom: -15px;
+    margin-top: 15px;
+  }
+
+  .buttons .btn {
+    margin-right: 20px;
+  }
+}
