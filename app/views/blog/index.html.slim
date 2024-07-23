@@ -4,9 +4,6 @@
   div.fpc-blog-post
     h2.fpc-blog-post__title= link_to post.title, blog_path(post)
     div.fpc-blog-post__published-at=l post.published_at, format: :long
-    p.fpc-blog-post__body
-      = Slodown::Formatter.new( \
-          truncate(post.body, length: 500, separator: ' ') { link_to 'more', blog_path(post) } \
-        ).complete.to_s.html_safe
+    p.fpc-blog-post__body= post.html_body
 
 = paginate @posts

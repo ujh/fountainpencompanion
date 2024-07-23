@@ -17,4 +17,15 @@
     margin-top: 20px;
     margin-bottom: 20px;
   }
+
+  .multi {
+    img {
+      width: 50%;
+      float: left;
+    }
+
+    &::after {
+      clear: both;
+    }
+  }
 }
