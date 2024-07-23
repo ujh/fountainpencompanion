@@ -30,7 +30,7 @@ module Bots
           { model: "gpt-4o-mini" }
         )
       message = response.dig("choices", 0, "message", "content")
-      ink = inks.find { |ink| message.include?(ink.short_name) }
+      ink = inks.find { |ink| message.include?(ink.name) }
       pen = pens.find { |pen| message.include?(pen.name) }
 
       { message:, ink:, pen: }
@@ -85,7 +85,7 @@ module Bots
             else
               "never used"
             end
-          "#{ink.short_name.inspect} (#{usage})"
+          "#{ink.name.inspect} (#{usage})"
         end
         .shuffle
         .join("\n")
