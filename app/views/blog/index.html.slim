@@ -1,7 +1,7 @@
 - content_for :title, 'Blog'
 
 - @posts.each do |post|
-  div.fpc-blog-post
+  div.fpc-blog-post.partial
     h2.fpc-blog-post__title= link_to post.title, blog_path(post)
     div.fpc-blog-post__published-at=l post.published_at, format: :long
     p.fpc-blog-post__body= post.html_body

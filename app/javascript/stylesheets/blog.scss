@@ -28,4 +28,15 @@
       clear: both;
     }
   }
+
+  &.partial {
+    max-height: 500px;
+    overflow: hidden;
+    --fade-start: 80%;
+    mask-image: linear-gradient(
+      to bottom,
+      white var(--fade-start),
+      transparent
+    );
+  }
 }
