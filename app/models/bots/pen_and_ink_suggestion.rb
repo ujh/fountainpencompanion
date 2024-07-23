@@ -53,6 +53,7 @@ module Bots
           # Quotes around the pen name to for the AI to spit out the full name, so that it can be found again.
           "#{pen.name.inspect} (last used #{last_usage})"
         end
+        .shuffle
         .join("\n")
     end
 
@@ -68,12 +69,17 @@ module Bots
             end
           "#{ink.short_name.inspect} (#{last_usage})"
         end
+        .shuffle
         .join("\n")
     end
 
     def pens
       @pens ||=
-        user.collected_pens.active.includes(newest_currently_inked: :last_usage)
+        user
+          .collected_pens
+          .active
+          .includes(newest_currently_inked: :last_usage)
+          .reject { |pen| pen.inked? }
     end
 
     def inks
