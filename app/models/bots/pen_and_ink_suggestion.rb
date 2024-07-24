@@ -8,17 +8,22 @@ module Bots
     end
 
     def run
+      remaining_tries = 5
       suggestion = request_suggestion
 
-      if suggestion[:ink] && suggestion[:pen]
-        suggestion
-      else
+      loop do
+        remaining_tries -= 1
+        break if remaining_tries.zero?
+        break if suggestion[:ink] && suggestion[:pen]
+
         Rails.logger.debug("Retrying, as either ink or pen not found")
         # Sometimes it picks two inks. In that case we want to try
         # once more. But only once, as we don't want and endless
         # loop that also costs us money.
-        request_suggestion
+        suggestion = request_suggestion
       end
+
+      suggestion
     end
 
     private
@@ -51,7 +56,7 @@ module Bots
         Given the following inks:
         #{ink_data}
 
-        Which combination should I use and why?
+        Which combination of ink and fountain pen should I use and why?
 
         Prefer items that have either never been used or a long time ago.
         Sometimes also suggest items that have been used a lot.
