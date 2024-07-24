@@ -1,4 +1,5 @@
 require "chatgpt/client"
+require "csv"
 
 module Bots
   class PenAndInkSuggestion
@@ -12,6 +13,7 @@ module Bots
       if suggestion[:ink] && suggestion[:pen]
         suggestion
       else
+        Rails.logger.debug("Retrying, as either ink or pen not found")
         # Sometimes it picks two inks. In that case we want to try
         # once more. But only once, as we don't want and endless
         # loop that also costs us money.
@@ -31,6 +33,7 @@ module Bots
         )
       message = response.dig("choices", 0, "message", "content")
       ink = inks.find { |ink| message.include?(ink.name) }
+      ink ||= inks.find { |ink| message.include?(ink.short_name) }
       pen = pens.find { |pen| message.include?(pen.name) }
 
       { message:, ink:, pen: }
@@ -52,43 +55,63 @@ module Bots
 
         Prefer items that have either never been used or a long time ago.
         Sometimes also suggest items that have been used a lot.
-        Make only one suggestion. Use markdown syntax for highlighting.
+        Make only one suggestion.
+        Use markdown syntax for highlighting.
+        Do not mention usage and daily usage count if they are zero.
+        Use the ink tags as part of the reasoning, but do not mention the tags directly.
       MESSAGE
     end
 
     def pen_data
-      pens
-        .map do |pen|
-          last_usage = pen.last_used_on
-          usage_count = pen.usage_count + pen.daily_usage_count
-          usage =
-            if last_usage
-              "last usage of #{usage_count} total uses #{ActionController::Base.helpers.time_ago_in_words(last_usage)} ago"
+      CSV.generate do |csv|
+        csv << [
+          "fountain pen name",
+          "last usage",
+          "usage count",
+          "daily usage count"
+        ]
+        pens.shuffle.each do |pen|
+          last_usage =
+            if pen.last_used_on
+              ActionController::Base.helpers.time_ago_in_words(pen.last_used_on)
             else
-              "never used"
+              "never"
             end
-          # Quotes around the pen name to for the AI to spit out the full name, so that it can be found again.
-          "#{pen.name.inspect} (#{usage})"
+          csv << [
+            pen.name.inspect,
+            last_usage,
+            pen.usage_count,
+            pen.daily_usage_count
+          ]
         end
-        .shuffle
-        .join("\n")
+      end
     end
 
     def ink_data
-      inks
-        .map do |ink|
-          last_usage = ink.last_used_on
-          usage_count = ink.usage_count + ink.daily_usage_count
-          usage =
-            if last_usage
-              "last usage of #{usage_count} total uses #{ActionController::Base.helpers.time_ago_in_words(last_usage)} ago"
+      CSV.generate do |csv|
+        csv << [
+          "ink name",
+          "last usage",
+          "usage count",
+          "daily usage count",
+          "tags"
+        ]
+        inks.shuffle.each do |ink|
+          last_usage =
+            if ink.last_used_on
+              ActionController::Base.helpers.time_ago_in_words(ink.last_used_on)
             else
-              "never used"
+              "never"
             end
-          "#{ink.name.inspect} (#{usage})"
+          csv << [
+            ink.name.inspect,
+            last_usage,
+            ink.usage_count,
+            ink.daily_usage_count,
+            ink.cluster_tags.join(",")
+          ]
         end
-        .shuffle
-        .join("\n")
+      end
     end
 
     def pens
@@ -109,6 +132,7 @@ module Bots
         user.collected_inks.active.includes(
           :currently_inkeds,
           :usage_records,
+          micro_cluster: :macro_cluster,
           newest_currently_inked: :last_usage
         )
     end
