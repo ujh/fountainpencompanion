@@ -52,6 +52,13 @@ class CollectedInk < ApplicationRecord
     macro_cluster.description
   end
 
+  def brand_description
+    return "" unless macro_cluster
+    return "" unless macro_cluster.brand_cluster
+
+    macro_cluster.brand_cluster.description
+  end
+
   def tags_as_string
     tag_names.join(", ")
   end

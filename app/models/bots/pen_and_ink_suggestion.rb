@@ -63,7 +63,7 @@ module Bots
         Make only one suggestion.
         Use markdown syntax for highlighting.
         Do not mention usage and daily usage count if they are zero.
-        Use the ink tags and description as part of the reasoning, but do not mention them directly.
+        Use the ink tags and descriptions as part of the reasoning, but do not mention them directly.
       MESSAGE
     end
 
@@ -100,8 +100,10 @@ module Bots
           "usage count",
           "daily usage count",
           "tags",
-          "description"
+          "description",
+          "brand description"
         ]
+
         inks.shuffle.each do |ink|
           last_usage =
             if ink.last_used_on
@@ -115,7 +117,8 @@ module Bots
             ink.usage_count,
             ink.daily_usage_count,
             ink.cluster_tags.join(","),
-            ink.cluster_description
+            ink.cluster_description,
+            ink.brand_description
           ]
         end
       end
@@ -139,7 +142,9 @@ module Bots
         user.collected_inks.active.includes(
           :currently_inkeds,
           :usage_records,
-          micro_cluster: :macro_cluster,
+          micro_cluster: {
+            macro_cluster: :brand_cluster
+          },
           newest_currently_inked: :last_usage
         )
     end
