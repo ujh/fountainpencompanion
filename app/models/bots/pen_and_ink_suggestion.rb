@@ -75,20 +75,25 @@ module Bots
           "usage count",
           "daily usage count"
         ]
-        pens.shuffle.each do |pen|
-          last_usage =
-            if pen.last_used_on
-              ActionController::Base.helpers.time_ago_in_words(pen.last_used_on)
-            else
-              "never"
-            end
-          csv << [
-            pen.name.inspect,
-            last_usage,
-            pen.usage_count,
-            pen.daily_usage_count
-          ]
-        end
+        pens
+          .shuffle
+          .take(200)
+          .each do |pen|
+            last_usage =
+              if pen.last_used_on
+                ActionController::Base.helpers.time_ago_in_words(
+                  pen.last_used_on
+                )
+              else
+                "never"
+              end
+            csv << [
+              pen.name.inspect,
+              last_usage,
+              pen.usage_count,
+              pen.daily_usage_count
+            ]
+          end
       end
     end
 
@@ -103,22 +108,27 @@ module Bots
           "description"
         ]
 
-        inks.shuffle.each do |ink|
-          last_usage =
-            if ink.last_used_on
-              ActionController::Base.helpers.time_ago_in_words(ink.last_used_on)
-            else
-              "never"
-            end
-          csv << [
-            ink.name.inspect,
-            last_usage,
-            ink.usage_count,
-            ink.daily_usage_count,
-            ink.cluster_tags.join(","),
-            ink.cluster_description
-          ]
-        end
+        inks
+          .shuffle
+          .take(200)
+          .each do |ink|
+            last_usage =
+              if ink.last_used_on
+                ActionController::Base.helpers.time_ago_in_words(
+                  ink.last_used_on
+                )
+              else
+                "never"
+              end
+            csv << [
+              ink.name.inspect,
+              last_usage,
+              ink.usage_count,
+              ink.daily_usage_count,
+              ink.cluster_tags.join(","),
+              ink.cluster_description
+            ]
+          end
       end
     end
 
