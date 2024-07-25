@@ -46,6 +46,12 @@ class CollectedInk < ApplicationRecord
     macro_cluster.tags
   end
 
+  def cluster_description
+    return "" unless macro_cluster
+
+    macro_cluster.description
+  end
+
   def tags_as_string
     tag_names.join(", ")
   end
