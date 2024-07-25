@@ -63,7 +63,7 @@ module Bots
         Make only one suggestion.
         Use markdown syntax for highlighting.
         Do not mention usage and daily usage count if they are zero.
-        Use the ink tags and descriptions as part of the reasoning, but do not mention them directly.
+        Use the ink tags and description as part of the reasoning, but do not mention them directly.
       MESSAGE
     end
 
@@ -100,8 +100,7 @@ module Bots
           "usage count",
           "daily usage count",
           "tags",
-          "description",
-          "brand description"
+          "description"
         ]
 
         inks.shuffle.each do |ink|
@@ -117,8 +116,7 @@ module Bots
             ink.usage_count,
             ink.daily_usage_count,
             ink.cluster_tags.join(","),
-            ink.cluster_description,
-            ink.brand_description
+            ink.cluster_description
           ]
         end
       end
