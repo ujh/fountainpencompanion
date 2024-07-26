@@ -54,8 +54,18 @@ const AskForSuggestion = ({
       "/dashboard/widgets/pen_and_ink_suggestion.json"
     );
     const json = await response.json();
-    setSuggestion(json);
-    setLoading(false);
+    const suggestion_id = json.suggestion_id;
+    const intervalID = setInterval(async () => {
+      const response = await getRequest(
+        `/dashboard/widgets/pen_and_ink_suggestion.json?suggestion_id=${suggestion_id}`
+      );
+      const json = await response.json();
+      if (json.message) {
+        setSuggestion(json);
+        setLoading(false);
+        clearInterval(intervalID);
+      }
+    }, 1000);
   };
 
   return (
