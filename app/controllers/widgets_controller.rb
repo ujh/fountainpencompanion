@@ -114,12 +114,9 @@ class WidgetsController < ApplicationController
   end
 
   def pen_and_ink_suggestion_data
-    suggestion = Bots::PenAndInkSuggestion.new(current_user).run
-    {
-      message:
-        Slodown::Formatter.new(suggestion[:message]).complete.to_s.html_safe,
-      collected_ink_id: suggestion[:ink]&.id,
-      collected_pen_id: suggestion[:pen]&.id
-    }
+    RequestPenAndInkSuggestion.new(
+      user: current_user,
+      suggestion_id: params[:suggestion_id].presence
+    ).perform
   end
 end

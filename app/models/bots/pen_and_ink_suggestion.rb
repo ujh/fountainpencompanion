@@ -41,7 +41,7 @@ module Bots
       ink ||= inks.find { |ink| message.include?(ink.short_name) }
       pen = pens.find { |pen| message.include?(pen.name) }
 
-      { message:, ink:, pen: }
+      { message:, ink: ink.id, pen: pen.id }
     end
 
     def client
