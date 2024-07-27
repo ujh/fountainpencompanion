@@ -91,7 +91,7 @@ const ShowSuggestion = ({ suggestion, setSuggestion, setLoading }) => {
       <div className="buttons">
         <a
           className="btn btn-success"
-          href={`/currently_inked/new?collected_ink_id=${suggestion.collected_ink_id}&collected_pen_id=${suggestion.collected_pen_id}`}
+          href={`/currently_inked/new?collected_ink_id=${suggestion.ink.id}&collected_pen_id=${suggestion.pen.id}`}
         >
           Ink it Up!
         </a>
