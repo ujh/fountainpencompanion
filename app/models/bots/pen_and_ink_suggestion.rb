@@ -3,6 +3,8 @@ require "csv"
 
 module Bots
   class PenAndInkSuggestion
+    LIMIT = 50
+
     def initialize(user)
       self.user = user
     end
@@ -77,7 +79,7 @@ module Bots
         ]
         pens
           .shuffle
-          .take(200)
+          .take(LIMIT)
           .each do |pen|
             last_usage =
               if pen.last_used_on
@@ -110,7 +112,7 @@ module Bots
 
         inks
           .shuffle
-          .take(200)
+          .take(LIMIT)
           .each do |ink|
             last_usage =
               if ink.last_used_on
