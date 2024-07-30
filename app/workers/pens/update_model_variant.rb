@@ -23,7 +23,13 @@ module Pens
 
     def best_attr_value(attr)
       attr_values =
-        model_variant.collected_pens.map { |cp| cp.send(attr) }.tally
+        model_variant
+          .collected_pens
+          .map { |cp| cp.send(attr) }
+          .find_all { |v| v.present? }
+          .tally
+      return "" if attr_values.empty?
+
       # When there's more than one value that is the most common, pick the longest
       # name to avoid duplicates more often.
       max_count = attr_values.values.max
