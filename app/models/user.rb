@@ -15,7 +15,7 @@ class User < ApplicationRecord
   has_many :collected_pens, dependent: :delete_all
   has_many :usage_records, through: :currently_inkeds
   has_many :reading_statuses, dependent: :destroy
-  has_many :ink_review_submissions, dependent: :nullify
+  has_many :ink_review_submissions, dependent: :destroy
   has_many :leader_board_rows, dependent: :destroy
 
   validates :name, length: { in: 1..100, allow_blank: true }
