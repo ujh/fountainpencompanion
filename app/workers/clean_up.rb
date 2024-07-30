@@ -33,6 +33,6 @@ class CleanUp
   def remove_spam_accounts
     spammers =
       User.where.not(blurb: "").find_all { |u| u.blurb.scan("http").count > 4 }
-    spammers.destroy_all
+    spammers.map(&:destroy)
   end
 end
