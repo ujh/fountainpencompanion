@@ -1,4 +1,6 @@
 class User < ApplicationRecord
+  MAX_SAME_IP_24H = 2
+
   # Include default devise modules. Others available are:
   # :confirmable, :lockable, :timeoutable and :omniauthable
   devise :database_authenticatable,
@@ -32,6 +34,20 @@ class User < ApplicationRecord
 
   def self.bots
     where(bot: true)
+  end
+
+  def sign_up_ip=(value)
+    ip_count =
+      self
+        .class
+        .where("created_at > ?", 24.hours.ago)
+        .where(sign_up_ip: value)
+        .count
+    if ip_count >= MAX_SAME_IP_24H
+      self.bot = true
+      self.bot_reason = "sign_up_ip_24h_timeframe"
+    end
+    super
   end
 
   def after_confirmation
