@@ -60,8 +60,8 @@ module Bots
 
         Which combination of ink and fountain pen should I use and why?
 
-        Prefer items that have either never been used or a long time ago.
-        Sometimes also suggest items that have been used a lot.
+        Prefer items that have either never been used, rarely used, or used a long time ago.
+        Also suggest items that have been used a lot.
         Make only one suggestion.
         Use markdown syntax for highlighting.
         Do not mention usage and daily usage count if they are zero.
