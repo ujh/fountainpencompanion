@@ -3,10 +3,12 @@ class FetchReviews
 
   def perform
     FetchReviews::MountainOfInk.perform_async
-    FetchReviews::PenAddict.perform_async
-    feeds.each { |url| FetchReviews::GenericRss.perform_async(url) }
-    youtube_channels.each do |channel_id|
-      FetchReviews::YoutubeChannel.perform_async(channel_id)
+    FetchReviews::PenAddict.perform_in(1.minute)
+    feeds.each_with_index do |url, i|
+      FetchReviews::GenericRss.perform_in(i.minutes, url)
+    end
+    youtube_channels.each_with_index do |channel_id, i|
+      FetchReviews::YoutubeChannel.perform_in(i.minutes, channel_id)
     end
   end
 
