@@ -118,11 +118,12 @@ class MacroCluster < ApplicationRecord
     ).group("macro_clusters.id")
   end
 
-  def self.full_text_search(term)
+  def self.full_text_search(term, fuzzy: false)
+    search_method = fuzzy ? :kinda_similar_search : :search
     # These are ordered by rank!
     mc_ids =
       CollectedInk
-        .search(term)
+        .send(search_method, term)
         .where(private: false)
         .joins(micro_cluster: :macro_cluster)
         .pluck("macro_clusters.id")

@@ -36,6 +36,19 @@ class CollectedInk < ApplicationRecord
     }
   )
 
+  pg_search_scope(
+    :kinda_similar_search,
+    against: %i[brand_name line_name ink_name],
+    using: {
+      tsearch: {
+        dictionary: "english",
+        tsvector_column: "tsv"
+      },
+      trigram: {
+      }
+    }
+  )
+
   Gutentag::ActiveRecord.call self
 
   delegate :macro_cluster, to: :micro_cluster, allow_nil: true

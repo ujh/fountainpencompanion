@@ -30,7 +30,11 @@ class FetchReviews
       Rails
         .cache
         .fetch("rss:#{review[:url]}", expires_in: 1.year) do
-          cluster = MacroCluster.full_text_search(review[:search_term]).first
+          cluster =
+            MacroCluster.full_text_search(
+              review[:search_term],
+              fuzzy: true
+            ).first
           review.merge(macro_cluster: cluster&.id)
         end
     end
