@@ -18,7 +18,6 @@ class FetchReviews
       https://wondernaut.wordpress.com/category/ink-review/feed/
       https://www.wellappointeddesk.com/category/ink-review/feed/
       https://macchiatoman.com/?format=rss
-      http://www.inkdependence.com/feeds/posts/default?alt=rss
       https://www.inkyinspirations.com/inkreviews?format=rss
     ]
   end
