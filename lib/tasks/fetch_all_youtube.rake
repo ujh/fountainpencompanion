@@ -23,7 +23,7 @@ end
 
 def postprocess(video)
   search_term = video[:title]
-  cluster = MacroCluster.full_text_search(search_term).first
+  cluster = MacroCluster.full_text_search(search_term, fuzzy: true).first
   v = video.merge(macro_cluster: cluster)
   pp v
   v

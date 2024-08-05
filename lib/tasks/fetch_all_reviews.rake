@@ -65,7 +65,7 @@ end
 
 def postprocess(entry)
   search_term = entry.last
-  cluster = MacroCluster.full_text_search(search_term).first
+  cluster = MacroCluster.full_text_search(search_term, fuzzy: true).first
   if cluster
     entry + [cluster]
   else
