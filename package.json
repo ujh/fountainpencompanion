@@ -18,7 +18,7 @@
     "highcharts-react-official": "^3.2.1",
     "husky": "^9.1.4",
     "jquery": "3.7.1",
-    "jquery-ui": "^1.13.3",
+    "jquery-ui": "^1.14.0",
     "jquery-ujs": "^1.2.3",
     "js-cookie": "^3.0.5",
     "jsona": "^1.12.1",
