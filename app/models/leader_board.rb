@@ -34,8 +34,13 @@ class LeaderBoard
           .map do |model|
             { name: model.name, count: model.collected_pens.size }
           end
-          .sort_by { |h| h[:count] }
-          .reverse
+          .sort do |p1, p2|
+            if p1[:count] == p2[:count]
+              p1[:name].downcase <=> p2[:name].downcase
+            else
+              p2[:count] <=> p1[:count]
+            end
+          end
       end
   end
 
