@@ -113,6 +113,12 @@ describe AccountsController do
         expect(response).to be_successful
         expect(user.reload.name).to eq("new name")
       end
+
+      it "fires off a after save job if successful" do
+        expect do
+          put "/account", params: { user: { name: "new name" } }
+        end.to change(AfterUserSaved.jobs, :count).by(1)
+      end
     end
   end
 end

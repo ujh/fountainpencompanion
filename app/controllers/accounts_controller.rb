@@ -13,6 +13,7 @@ class AccountsController < ApplicationController
     respond_to do |format|
       format.html do
         if successful
+          AfterUserSaved.perform_async(current_user.id)
           redirect_to account_path
         else
           render :edit

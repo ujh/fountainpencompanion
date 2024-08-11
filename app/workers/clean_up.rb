@@ -4,7 +4,6 @@ class CleanUp
   def perform
     remove_unused_accounts
     remove_unconfirmed_accounts
-    remove_spam_accounts
     anonymize_sign_up_ip
   end
 
@@ -28,11 +27,5 @@ class CleanUp
 
   def anonymize_sign_up_ip
     User.where("created_at < ?", 1.month.ago).update_all(sign_up_ip: nil)
-  end
-
-  def remove_spam_accounts
-    spammers =
-      User.where.not(blurb: "").find_all { |u| u.blurb.scan("http").count > 4 }
-    spammers.map(&:destroy)
   end
 end
