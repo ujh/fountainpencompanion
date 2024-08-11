@@ -1,0 +1,29 @@
+- content_for :title, "#{User.to_review.count} users to check"
+
+- @users.each do |user|
+  dl class="row" id="admin_ink_review"
+    dt class="col-sm-3" Email
+    dd class="col-sm-9" = user.email
+
+    dt class="col-sm-3" Profile
+    dd class="col-sm-9" = link_to "Profile", user_path(user), target: "_blank"
+
+    dt class="col-sm-3" Update
+    dd class="col-sm-9" = "#{time_ago_in_words user.updated_at} ago"
+
+    dt class="col-sm-3" Ink Count
+    dd class="col-sm-9" = user.collected_inks.count
+
+    dt class="col-sm-3" Pen Count
+    dd class="col-sm-9" = user.collected_pens.count
+
+    dt class="col-sm-3" Blurb
+    dd class="col-sm-9" = sanitize Slodown::Formatter.new(user.blurb).complete.to_s
+
+    dt class="col-sm-3" Blurb (source)
+    dd class="col-sm-9" = Slodown::Formatter.new(user.blurb).complete.to_s
+
+    dt class="col-sm-3" Actions
+    dd class="col-sm-9"
+      = link_to "Approve",  approve_admins_user_path(user), method: :put, class: 'btn btn-success me-2'
+      = link_to "Delete User", admins_user_path(user), method: :delete, class: 'btn btn-secondary'

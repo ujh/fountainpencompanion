@@ -130,4 +130,74 @@ describe Admins::UsersController do
       end
     end
   end
+
+  describe "#to_review" do
+    it "requires authentication" do
+      get "/admins/users/to_review"
+      expect(response).to redirect_to(new_user_session_path)
+    end
+
+    context "signed in" do
+      before(:each) { sign_in(admin) }
+
+      it "shows one user" do
+        users = create_list(:user, 2, review_blurb: true)
+        get "/admins/users/to_review"
+        expect(response).to be_successful
+      end
+
+      it "redirects to the dashboard if no user to review" do
+        get "/admins/users/to_review"
+        expect(response).to redirect_to(admins_dashboard_path)
+      end
+    end
+  end
+
+  describe "approve" do
+    let(:user) { create(:user, review_blurb: true) }
+
+    it "requires authentication" do
+      put "/admins/users/#{user.id}/approve"
+      expect(response).to redirect_to(new_user_session_path)
+    end
+
+    context "signed in" do
+      before(:each) { sign_in(admin) }
+
+      it "sets review_blurb to false" do
+        put "/admins/users/#{user.id}/approve"
+        expect(user.reload.review_blurb).to be false
+      end
+
+      it "redirects to review page" do
+        put "/admins/users/#{user.id}/approve"
+        expect(response).to redirect_to(to_review_admins_users_path)
+      end
+    end
+  end
+
+  describe "#destroy" do
+    let!(:user) { create(:user, review_blurb: true) }
+
+    it "requires authentication" do
+      delete "/admins/users/#{user.id}"
+      expect(response).to redirect_to(new_user_session_path)
+    end
+
+    context "signed in" do
+      before(:each) { sign_in(admin) }
+
+      it "deletes the user" do
+        expect do delete "/admins/users/#{user.id}" end.to change(
+          User,
+          :count
+        ).by(-1)
+      end
+
+      it "redirects to the review page" do
+        delete "/admins/users/#{user.id}"
+        expect(response).to redirect_to(to_review_admins_users_path)
+      end
+    end
+  end
 end

@@ -36,6 +36,10 @@ class User < ApplicationRecord
     where(bot: true)
   end
 
+  def self.to_review
+    where(review_blurb: true)
+  end
+
   def sign_up_ip=(value)
     ip_count =
       self

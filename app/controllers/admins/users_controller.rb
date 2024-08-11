@@ -93,6 +93,25 @@ class Admins::UsersController < Admins::BaseController
     redirect_to admins_users_path
   end
 
+  def to_review
+    @users = User.to_review.order(updated_at: :desc).page(0).per(1)
+    redirect_to admins_dashboard_path if @users.empty?
+  end
+
+  def destroy
+    user = User.find(params[:id])
+    user.destroy!
+    flash[:notice] = "User deleted"
+    redirect_to to_review_admins_users_path
+  end
+
+  def approve
+    user = User.find(params[:id])
+    user.update(review_blurb: false)
+    flash[:notice] = "Blurb reviewed"
+    redirect_to to_review_admins_users_path
+  end
+
   private
 
   def fetch_user

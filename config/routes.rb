@@ -93,12 +93,14 @@ Rails.application.routes.draw do
 
   namespace :admins do
     resource :dashboard, only: [:show]
-    resources :users, only: %i[index show update] do
+    resources :users, only: %i[index show update destroy] do
+      collection { get "to_review" }
       member do
         post "become"
         post "ink_import"
         post "pen_import"
         post "currently_inked_import"
+        put "approve"
       end
     end
     resources :graphs, only: [:show]
