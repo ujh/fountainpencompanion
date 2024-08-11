@@ -849,7 +849,8 @@ CREATE TABLE public.users (
     sign_up_user_agent text,
     sign_up_ip character varying,
     bot_reason character varying,
-    admin boolean DEFAULT false
+    admin boolean DEFAULT false,
+    review_blurb boolean DEFAULT false
 );
 
 
@@ -1921,6 +1922,7 @@ ALTER TABLE ONLY public.collected_inks
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20240811095146'),
 ('20240612132332'),
 ('20240612105817'),
 ('20240612105640'),
