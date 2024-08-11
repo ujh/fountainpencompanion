@@ -8,7 +8,13 @@ table class="table table-striped"
       td
         table
           tr
-            td= "#{@stats.user_count} confirmed users"
+            td
+              = "#{@stats.user_count} confirmed users"
+              - if User.to_review.count.positive?
+                b
+                  |   (
+                  = link_to " #{User.to_review.count} users to review", to_review_admins_users_path
+                  |  )
           tr
             td= "(#{@stats.patron_count} Patrons)"
     tr
