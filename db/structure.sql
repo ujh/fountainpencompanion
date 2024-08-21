@@ -604,6 +604,37 @@ ALTER SEQUENCE public.new_ink_names_id_seq OWNED BY public.new_ink_names.id;
 
 
 --
+-- Name: pens_brands; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.pens_brands (
+    id bigint NOT NULL,
+    name character varying NOT NULL,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
+);
+
+
+--
+-- Name: pens_brands_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.pens_brands_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: pens_brands_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.pens_brands_id_seq OWNED BY public.pens_brands.id;
+
+
+--
 -- Name: pens_micro_clusters; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -721,7 +752,8 @@ CREATE TABLE public.pens_models (
     brand text NOT NULL,
     model text NOT NULL,
     created_at timestamp(6) without time zone NOT NULL,
-    updated_at timestamp(6) without time zone NOT NULL
+    updated_at timestamp(6) without time zone NOT NULL,
+    pens_brand_id bigint
 );
 
 
@@ -1046,6 +1078,13 @@ ALTER TABLE ONLY public.new_ink_names ALTER COLUMN id SET DEFAULT nextval('publi
 
 
 --
+-- Name: pens_brands id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.pens_brands ALTER COLUMN id SET DEFAULT nextval('public.pens_brands_id_seq'::regclass);
+
+
+--
 -- Name: pens_micro_clusters id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -1234,6 +1273,14 @@ ALTER TABLE ONLY public.micro_clusters
 
 ALTER TABLE ONLY public.new_ink_names
     ADD CONSTRAINT new_ink_names_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: pens_brands pens_brands_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.pens_brands
+    ADD CONSTRAINT pens_brands_pkey PRIMARY KEY (id);
 
 
 --
@@ -1604,6 +1651,13 @@ CREATE UNIQUE INDEX index_new_ink_names_on_simplified_name_and_ink_brand_id ON p
 
 
 --
+-- Name: index_pens_brands_on_name; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_pens_brands_on_name ON public.pens_brands USING btree (name);
+
+
+--
 -- Name: index_pens_micro_clusters_on_pens_model_variant_id; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -1629,6 +1683,13 @@ CREATE INDEX index_pens_model_variants_on_pens_model_micro_cluster_id ON public.
 --
 
 CREATE UNIQUE INDEX index_pens_models_on_brand_and_model ON public.pens_models USING btree (brand, model);
+
+
+--
+-- Name: index_pens_models_on_pens_brand_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_pens_models_on_pens_brand_id ON public.pens_models USING btree (pens_brand_id);
 
 
 --
@@ -1796,6 +1857,14 @@ ALTER TABLE ONLY public.collected_inks
 
 
 --
+-- Name: pens_models fk_rails_706cba2d15; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.pens_models
+    ADD CONSTRAINT fk_rails_706cba2d15 FOREIGN KEY (pens_brand_id) REFERENCES public.pens_brands(id);
+
+
+--
 -- Name: ink_reviews fk_rails_7ce1cd1ba7; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1922,6 +1991,7 @@ ALTER TABLE ONLY public.collected_inks
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20240821105438'),
 ('20240811095146'),
 ('20240612132332'),
 ('20240612105817'),
