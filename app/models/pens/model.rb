@@ -15,6 +15,7 @@ class Pens::Model < ApplicationRecord
   paginates_per 100
 
   scope :ordered, -> { order(:brand, :model) }
+  scope :unassigned, -> { where(pens_brand_id: nil) }
 
   def self.search(query)
     return self if query.blank?
