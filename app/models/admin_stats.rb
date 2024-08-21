@@ -3,6 +3,10 @@ class AdminStats
     MicroCluster.count
   end
 
+  def pens_models_to_assign_count
+    @pens_models_to_assign_count ||= Pens::Model.unassigned.count
+  end
+
   def micro_clusters_to_assign_count
     # The JOIN is there to remove clusters without inks
     MicroCluster

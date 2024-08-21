@@ -122,6 +122,7 @@ Rails.application.routes.draw do
         collection { get "ignored" }
         member { delete "unassign" }
       end
+      resources :brand_clusters, only: %i[index new create update]
     end
 
     resources :blog_posts do
