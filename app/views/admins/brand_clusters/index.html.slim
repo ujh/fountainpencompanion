@@ -16,7 +16,7 @@ div class="fpc-table fpc-table--full-width fpc-scroll-shadow"
         tr class="#{i % 2 != 0 ? "table-secondary" : ""}"
           td rowspan=brand_cluster.macro_clusters.length = brand_cluster.id
           td rowspan=brand_cluster.macro_clusters.length = brand_cluster.name
-          - brand_cluster.macro_clusters.order(:brand_name, :line_name, :ink_name).each_with_index do |macro_cluster, j|
+          - brand_cluster.macro_clusters.sort_by(&:name).each_with_index do |macro_cluster, j|
               - if j != 0
                 tr class="#{i % 2 != 0 ? "table-secondary" : ""}"
                   td= macro_cluster.id
