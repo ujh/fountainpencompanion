@@ -76,8 +76,12 @@ export const assignCluster = (microClusterId, macroClusterId) =>
     });
 
 const loadMicroClusterPage = async (page) => {
+  let search = `unassigned=true&without_ignored=true&page=${page}`;
+  if (location.search.includes("prio=true")) {
+    search = `prio=true&${search}`;
+  }
   const response = await getRequest(
-    `/admins/pens/micro_clusters.json?unassigned=true&without_ignored=true&page=${page}`
+    `/admins/pens/micro_clusters.json?${search}`
   );
   return await response.json();
 };

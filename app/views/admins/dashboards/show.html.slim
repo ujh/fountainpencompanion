@@ -54,16 +54,22 @@ table class="table table-striped"
             td
               | &nbsp;
               | micro clusters
-          tr
-            td style="text-align:right"= @stats.relevant_pens_micro_clusters_count
-            td
-              | &nbsp;
-              | micro clusters with more than one collected pen
               - if @stats.pens_micro_clusters_to_assign_count.positive?
                 b
                   |   (
                   | &nbsp;
                   = link_to "#{@stats.pens_micro_clusters_to_assign_count} to assign", admins_pens_micro_clusters_path
+                  |  )
+          tr
+            td style="text-align:right"= @stats.relevant_pens_micro_clusters_count
+            td
+              | &nbsp;
+              | micro clusters with more than one collected pen
+              - if @stats.pens_micro_clusters_prio_to_assign_count.positive?
+                b
+                  |   (
+                  | &nbsp;
+                  = link_to "#{@stats.pens_micro_clusters_prio_to_assign_count} to assign", admins_pens_micro_clusters_path(prio: true)
                   |  )
           tr
             td style="text-align:right"= Pens::ModelVariant.count
