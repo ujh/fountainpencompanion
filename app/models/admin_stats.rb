@@ -39,6 +39,17 @@ class AdminStats
       .count
   end
 
+  def pens_micro_clusters_prio_to_assign_count
+    Pens::MicroCluster
+      .unassigned
+      .without_ignored
+      .joins(:collected_pens)
+      .group("pens_micro_clusters.id")
+      .having("count(*) > 1")
+      .count
+      .count
+  end
+
   def relevant_pens_micro_clusters_count
     Pens::MicroCluster
       .joins(:collected_pens)
