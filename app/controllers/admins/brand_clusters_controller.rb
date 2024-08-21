@@ -1,6 +1,6 @@
 class Admins::BrandClustersController < Admins::BaseController
   def index
-    @brand_clusters = BrandCluster.order(:name)
+    @brand_clusters = BrandCluster.order(:name).includes(:macro_clusters)
   end
 
   def new

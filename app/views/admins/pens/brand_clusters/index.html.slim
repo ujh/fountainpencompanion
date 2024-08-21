@@ -1,0 +1,27 @@
+div class="fpc-table fpc-table--full-width fpc-scroll-shadow"
+  table class="table"
+    thead
+      tr class="table-secondary"
+        th colspan="2" scope="colgroup" Brand cluster
+        th colspan="3" scope="colgroup" Model cluster
+      tr class="table-secondary"
+        th scope="col" ID
+        th scope="col" Name
+        th scope="col" ID
+        th scope="col" Brand
+        th scope="col" Model
+    tbody
+      - @brands.each_with_index do |brand, i|
+        tr class="#{i % 2 != 0 ? "table-secondary" : ""}"
+          td rowspan=brand.models.length = brand.id
+          td rowspan=brand.models.length = brand.name
+          - brand.models.sort_by {|m| "#{m.brand}#{m.model}" }.each_with_index do |model, j|
+              - if j != 0
+                tr class="#{i % 2 != 0 ? "table-secondary" : ""}"
+                  td= model.id
+                  td= model.brand
+                  td= model.model
+              - else
+                td= model.id
+                td= model.brand
+                td= model.model

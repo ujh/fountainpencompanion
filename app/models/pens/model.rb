@@ -7,9 +7,15 @@ class Pens::Model < ApplicationRecord
   has_many :micro_clusters, through: :model_variants
   has_many :collected_pens, through: :micro_clusters
 
+  belongs_to :pen_brand,
+             optional: true,
+             class_name: "Pens::Brand",
+             foreign_key: :pens_brand_id
+
   paginates_per 100
 
   scope :ordered, -> { order(:brand, :model) }
+  scope :unassigned, -> { where(pens_brand_id: nil) }
 
   def self.search(query)
     return self if query.blank?

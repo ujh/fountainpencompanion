@@ -1,0 +1,36 @@
+- content_for :title, "#{Pens::Model.unassigned.count} pen models to assign"
+
+div class="fpc-table fpc-table--full-width fpc-scroll-shadow"
+  table class="table"
+    thead
+      tr
+        th Brand
+        th Model
+        th
+    tbody
+      tr
+        td= @model.brand
+        td= @model.model
+        td
+          = link_to "Create",
+                    admins_pens_brand_clusters_path(model_id: @model.id),
+                    method: :post,
+                    class: "btn btn-sm btn-secondary"
+
+h2 Existing pen brands
+table class="table table-striped"
+  thead
+    tr
+      th Name
+      th Count
+      th
+  tbody
+    - @brands.each do |brand|
+      tr
+        td= "#{brand.name} (#{brand.synonyms.join(', ')})"
+        td= brand.models.size
+        td
+          = link_to "Assign",
+                    admins_pens_brand_cluster_path(@model, brand_id: brand.id),
+                    method: :put,
+                    class: "btn btn-sm btn-secondary"

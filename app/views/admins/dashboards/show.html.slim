@@ -86,6 +86,17 @@ table class="table table-striped"
             td
               | &nbsp;
               | models
+              - if @stats.pens_models_to_assign_count.positive?
+                b
+                  |   (
+                  | &nbsp;
+                  = link_to "#{@stats.pens_models_to_assign_count} to assign", new_admins_pens_brand_cluster_path
+                  |  )
+          tr
+            td style="text-align:right"= Pens::Brand.count
+            td
+              | &nbsp;
+              | brands
 
 
     tr

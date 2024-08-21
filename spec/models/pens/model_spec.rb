@@ -9,6 +9,13 @@ describe Pens::Model do
 
       expect(model.model_micro_clusters).to match_array([mmc1, mmc2])
     end
+
+    it "has a properly set up pen brand association" do
+      brand = create(:pens_brand)
+      model = create(:pens_model, pens_brand_id: brand.id)
+
+      expect(model.pen_brand).to eq(brand)
+    end
   end
 
   describe "search" do
