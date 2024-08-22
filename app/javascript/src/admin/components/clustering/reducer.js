@@ -80,7 +80,12 @@ const actualReducer = (state, { type, payload }) => {
     case SET_MACRO_CLUSTERS:
       return { ...state, macroClusters: payload, loadingMacroClusters: false };
     case SET_MICRO_CLUSTERS: {
-      const microClusters = _.reverse(_.sortBy(payload, "entries.length"));
+      // sortBy is a stable sort. If we just by number of entries we end up with
+      // reverse alphabetical order for all clusters with the same number of entries.
+      // We need to do a reverse first, to get around that.
+      const microClusters = _.reverse(
+        _.sortBy(_.reverse(payload), "entries.length")
+      );
       return {
         ...state,
         microClusters,
