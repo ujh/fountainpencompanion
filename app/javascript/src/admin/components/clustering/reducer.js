@@ -183,9 +183,10 @@ const selectMicroClusters = (selectedBrands, microClusters) => {
   if (selectedBrands.length) {
     const filtered = _.reverse(
       _.sortBy(
-        microClusters.filter((c) =>
-          selectedBrands.map((s) => s.value).includes(c.simplified_brand_name)
-        ),
+        microClusters.filter((c) => {
+          const clusterBrand = c.simplified_brand_name || c.simplified_brand;
+          return selectedBrands.map((s) => s.value).includes(clusterBrand);
+        }),
         "entries.length"
       )
     );
