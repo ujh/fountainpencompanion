@@ -5,7 +5,11 @@ class Pens::Brand < ApplicationRecord
            dependent: :nullify
 
   def synonyms
-    models.pluck(:brand).uniq.sort - [name]
+    names - [name]
+  end
+
+  def names
+    models.pluck(:brand).uniq.sort
   end
 
   def update_name!
