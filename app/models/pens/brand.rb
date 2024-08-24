@@ -9,7 +9,7 @@ class Pens::Brand < ApplicationRecord
   end
 
   def names
-    models.pluck(:brand).uniq.sort
+    ([name] + models.pluck(:brand)).uniq.sort
   end
 
   def update_name!

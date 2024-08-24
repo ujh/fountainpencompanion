@@ -30,4 +30,15 @@ describe Pens::UpdateModel do
     expect(model.brand).to eq("Brand 1")
     expect(model.model).to eq("Model 1")
   end
+
+  it "schedules the brand update job" do
+    model = create(:pens_model)
+    mmc1 = create(:pens_model_micro_cluster, model:)
+    create(:pens_model_variant, model_micro_cluster: mmc1)
+
+    expect do subject.perform(model.id) end.to change(
+      Pens::AssignBrand.jobs,
+      :count
+    ).by(1)
+  end
 end
