@@ -9,6 +9,7 @@ module Pens
           cluster_attributes(model_variant)
         )
       model_variant.update!(model_micro_cluster: cluster)
+      Pens::UpdateModelMicroCluster.perform_async(cluster.id)
     rescue ActiveRecord::RecordNotFound
       # do nothing
     end

@@ -7,6 +7,7 @@ module Pens
       return if model.model_variants.empty?
 
       update_attributes!
+      Pens::AssignBrand.perform_async(model_id)
     end
 
     private
