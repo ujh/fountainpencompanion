@@ -1,5 +1,5 @@
 class User < ApplicationRecord
-  MAX_SAME_IP_24H = 2
+  MAX_SAME_IP_24H = 4
 
   # Include default devise modules. Others available are:
   # :confirmable, :lockable, :timeoutable and :omniauthable
@@ -71,7 +71,7 @@ class User < ApplicationRecord
   def friendship_with(friend_id)
     Friendship.where(
       "(friend_id = :friend_id AND sender_id = :user_id) OR (friend_id = :user_id AND sender_id = :friend_id)",
-      friend_id: friend_id,
+      friend_id:,
       user_id: id
     ).first
   end
@@ -80,6 +80,7 @@ class User < ApplicationRecord
     return "friend" if friend?(user)
     return "to-approve" if to_approve?(user)
     return "waiting-for-approval" if waiting_for_approval?(user)
+
     "no-friend"
   end
 
@@ -193,7 +194,7 @@ class User < ApplicationRecord
     User
       .joins("LEFT JOIN friendships ON users.id = friendships.friend_id")
       .joins("LEFT JOIN friendships AS sf ON users.id = sf.sender_id")
-      .where("friendships.sender_id = :id OR sf.friend_id = :id", id: id)
+      .where("friendships.sender_id = :id OR sf.friend_id = :id", id:)
   end
 
   def check_if_we_should_skip_confirmation
