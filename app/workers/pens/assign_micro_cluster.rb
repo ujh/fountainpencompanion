@@ -44,9 +44,7 @@ module Pens
     end
 
     def default_attributes(collected_pen)
-      %i[brand model color material trim_color filling_system].each_with_object(
-        {}
-      ) do |attribute, hash|
+      %i[brand model color].each_with_object({}) do |attribute, hash|
         search_key = "simplified_#{attribute}"
         search_value = Simplifier.simplify(collected_pen.send(attribute) || "")
         hash[search_key] = search_value

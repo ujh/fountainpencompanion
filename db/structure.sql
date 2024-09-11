@@ -643,9 +643,9 @@ CREATE TABLE public.pens_micro_clusters (
     simplified_brand text NOT NULL,
     simplified_model text NOT NULL,
     simplified_color text NOT NULL,
-    simplified_material text NOT NULL,
-    simplified_trim_color text NOT NULL,
-    simplified_filling_system text NOT NULL,
+    simplified_material text,
+    simplified_trim_color text,
+    simplified_filling_system text,
     created_at timestamp(6) without time zone NOT NULL,
     updated_at timestamp(6) without time zone NOT NULL,
     ignored boolean DEFAULT false,
@@ -1991,6 +1991,7 @@ ALTER TABLE ONLY public.collected_inks
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20240911074804'),
 ('20240821105438'),
 ('20240811095146'),
 ('20240612132332'),
