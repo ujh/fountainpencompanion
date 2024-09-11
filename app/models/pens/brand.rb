@@ -12,6 +12,10 @@ class Pens::Brand < ApplicationRecord
     ([name] + models.pluck(:brand)).uniq.sort
   end
 
+  def simplified_names
+    names.map { |n| Simplifier.simplify(n) }
+  end
+
   def update_name!
     grouped =
       models

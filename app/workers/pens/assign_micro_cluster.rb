@@ -26,7 +26,19 @@ module Pens
       unless attrs["simplified_model"] == attrs["simplified_brand"]
         attrs["simplified_model"].delete_prefix!(attrs["simplified_brand"])
       end
+      expand_brand_names!(collected_pen, attrs)
       attrs
+    end
+
+    def expand_brand_names!(collected_pen, attrs)
+      brand =
+        Pens::Model
+          .where.not(pen_brand: nil)
+          .find_by(brand: collected_pen.brand)
+          &.pen_brand
+      return unless brand
+
+      attrs["simplified_brand"] = brand.simplified_names
     end
 
     def handle_clear!(attrs)

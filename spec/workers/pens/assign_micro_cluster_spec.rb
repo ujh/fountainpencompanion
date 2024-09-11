@@ -57,6 +57,26 @@ describe Pens::AssignMicroCluster do
       expect(collected_pen.pens_micro_cluster).to eq(cluster)
     end
 
+    it "finds the cluster even for brand synonym" do
+      collected_pen.update!(
+        brand: "Synonym Brand",
+        model: "Model",
+        color: "Color",
+        material: "Material",
+        trim_color: "Trim Color",
+        filling_system: "Filling System"
+      )
+
+      pen_brand = create(:pens_brand, name: "Brand")
+      pen_model = create(:pens_model, brand: "Synonym Brand", pen_brand:)
+      expect { subject.perform(collected_pen.id) }.not_to change(
+        Pens::MicroCluster,
+        :count
+      )
+      collected_pen.reload
+      expect(collected_pen.pens_micro_cluster).to eq(cluster)
+    end
+
     it "schedules the cluster update job" do
       expect { subject.perform(collected_pen.id) }.to change(
         Pens::UpdateMicroCluster.jobs,
