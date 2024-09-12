@@ -7,9 +7,6 @@ div class="fpc-table fpc-table--full-width fpc-scroll-shadow"
         th Brand
         th Model
         th Color
-        th Material
-        th Trim Color
-        th Filling System
     tbody
       - @clusters.each do |cluster|
         tr
@@ -18,6 +15,3 @@ div class="fpc-table fpc-table--full-width fpc-scroll-shadow"
           td= cluster.simplified_brand
           td= cluster.simplified_model
           td= cluster.simplified_color
-          td= cluster.simplified_material
-          td= cluster.simplified_trim_color
-          td= cluster.simplified_filling_system

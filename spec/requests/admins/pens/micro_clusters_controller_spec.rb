@@ -27,11 +27,7 @@ describe Admins::Pens::MicroClustersController do
               "attributes" => {
                 "simplified_brand" => pens_cluster.simplified_brand,
                 "simplified_model" => pens_cluster.simplified_model,
-                "simplified_color" => pens_cluster.simplified_color,
-                "simplified_material" => pens_cluster.simplified_material,
-                "simplified_trim_color" => pens_cluster.simplified_trim_color,
-                "simplified_filling_system" =>
-                  pens_cluster.simplified_filling_system
+                "simplified_color" => pens_cluster.simplified_color
               },
               "relationships" => {
                 "collected_pens" => {

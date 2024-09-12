@@ -9,7 +9,4 @@ class PensMicroClusterSerializer
   attribute :simplified_brand
   attribute :simplified_model
   attribute :simplified_color
-  attribute :simplified_material
-  attribute :simplified_trim_color
-  attribute :simplified_filling_system
 end

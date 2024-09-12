@@ -643,9 +643,6 @@ CREATE TABLE public.pens_micro_clusters (
     simplified_brand text NOT NULL,
     simplified_model text NOT NULL,
     simplified_color text NOT NULL,
-    simplified_material text,
-    simplified_trim_color text,
-    simplified_filling_system text,
     created_at timestamp(6) without time zone NOT NULL,
     updated_at timestamp(6) without time zone NOT NULL,
     ignored boolean DEFAULT false,
@@ -1378,10 +1375,10 @@ CREATE UNIQUE INDEX idx_on_simplified_brand_simplified_model_70c232c961 ON publi
 
 
 --
--- Name: idx_on_simplified_brand_simplified_model_simplified_567e6ca2e2; Type: INDEX; Schema: public; Owner: -
+-- Name: idx_on_simplified_brand_simplified_model_simplified_b6b51aca41; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE UNIQUE INDEX idx_on_simplified_brand_simplified_model_simplified_567e6ca2e2 ON public.pens_micro_clusters USING btree (simplified_brand, simplified_model, simplified_color, simplified_material, simplified_trim_color, simplified_filling_system);
+CREATE UNIQUE INDEX idx_on_simplified_brand_simplified_model_simplified_b6b51aca41 ON public.pens_micro_clusters USING btree (simplified_brand, simplified_model, simplified_color);
 
 
 --
@@ -1991,6 +1988,8 @@ ALTER TABLE ONLY public.collected_inks
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20240911151651'),
+('20240911151335'),
 ('20240911074804'),
 ('20240821105438'),
 ('20240811095146'),

@@ -32,10 +32,7 @@ describe Pens::AssignMicroCluster do
         :pens_micro_cluster,
         simplified_brand: "brand",
         simplified_model: "model",
-        simplified_color: "color",
-        simplified_material: "material",
-        simplified_trim_color: "trimcolor",
-        simplified_filling_system: "fillingsystem"
+        simplified_color: "color"
       )
     end
 
