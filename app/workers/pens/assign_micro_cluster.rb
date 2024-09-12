@@ -4,8 +4,7 @@ module Pens
 
     def perform(collected_pen_id)
       collected_pen = CollectedPen.find(collected_pen_id)
-      cluster =
-        Pens::MicroCluster.find_or_create_by!(cluster_attributes(collected_pen))
+      cluster = find_or_create_cluster(collected_pen)
       collected_pen.update!(pens_micro_cluster: cluster)
       Pens::UpdateMicroCluster.perform_async(cluster.id)
     rescue ActiveRecord::RecordNotFound
@@ -13,6 +12,18 @@ module Pens
     end
 
     private
+
+    def find_or_create_cluster(collected_pen)
+      # Get the cluster with the lowest ID. Others will get removed eventually
+      cluster =
+        Pens::MicroCluster
+          .where(cluster_attributes(collected_pen))
+          .order(:id)
+          .first
+      return cluster if cluster
+
+      Pens::MicroCluster.create!(cluster_attributes(collected_pen))
+    end
 
     def cluster_attributes(collected_pen)
       attrs = default_attributes(collected_pen)
