@@ -39,7 +39,7 @@ class Admins::Pens::MicroClustersController < Admins::BaseController
         .select("pens_micro_clusters.*, count(*) as count")
         .group("pens_micro_clusters.id")
         .order(
-          "count desc, simplified_brand, simplified_model, simplified_color, simplified_material, simplified_trim_color, simplified_filling_system"
+          "count desc, simplified_brand, simplified_model, simplified_color"
         )
   end
 

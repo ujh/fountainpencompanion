@@ -14,13 +14,6 @@ class Pens::MicroCluster < ApplicationRecord
   scope :ignored, -> { where(ignored: true) }
   scope :ordered,
         lambda {
-          order(
-            :simplified_brand,
-            :simplified_model,
-            :simplified_color,
-            :simplified_material,
-            :simplified_trim_color,
-            :simplified_filling_system
-          )
+          order(:simplified_brand, :simplified_model, :simplified_color)
         }
 end
