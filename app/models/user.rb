@@ -36,6 +36,10 @@ class User < ApplicationRecord
     where(bot: true)
   end
 
+  def self.spammer
+    where(spam: true)
+  end
+
   def self.to_review
     where(review_blurb: true)
   end
