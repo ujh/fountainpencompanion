@@ -40,6 +40,10 @@ class User < ApplicationRecord
     where(spam: true)
   end
 
+  def self.not_spam
+    where(spam: false)
+  end
+
   def self.to_review
     where(review_blurb: true)
   end
