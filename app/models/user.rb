@@ -29,15 +29,23 @@ class User < ApplicationRecord
   end
 
   def self.public
-    where.not(name: [nil, ""])
+    where.not(name: [nil, ""]).where(spam: false)
   end
 
   def self.bots
     where(bot: true)
   end
 
+  def self.spammer
+    where(spam: true)
+  end
+
   def self.to_review
     where(review_blurb: true)
+  end
+
+  def active_for_authentication?
+    super and !spam?
   end
 
   def sign_up_ip=(value)

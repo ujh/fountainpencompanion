@@ -17,6 +17,8 @@ table class="table table-striped"
                   |  )
           tr
             td= "(#{@stats.patron_count} Patrons)"
+          tr
+            td= "(#{User.spammer.count} spam accounts)"
     tr
       td Number of ink brands
       td= BrandCluster.count

@@ -17,26 +17,17 @@ class Admins::UsersController < Admins::BaseController
       CollectedInk
         .group(:user_id)
         .select("user_id, count(id)")
-        .reduce({}) do |acc, el|
-          acc[el.user_id] = el.count
-          acc
-        end
+        .each_with_object({}) { |el, acc| acc[el.user_id] = el.count }
     @pen_counts =
       CollectedPen
         .group(:user_id)
         .select("user_id, count(id)")
-        .reduce({}) do |acc, el|
-          acc[el.user_id] = el.count
-          acc
-        end
+        .each_with_object({}) { |el, acc| acc[el.user_id] = el.count }
     @ci_counts =
       CurrentlyInked
         .group(:user_id)
         .select("user_id, max(inked_on) as inked_on, count(id)")
-        .reduce({}) do |acc, el|
-          acc[el.user_id] = el.count
-          acc
-        end
+        .each_with_object({}) { |el, acc| acc[el.user_id] = el.count }
   end
 
   def show
@@ -100,14 +91,18 @@ class Admins::UsersController < Admins::BaseController
 
   def destroy
     user = User.find(params[:id])
-    user.destroy!
-    flash[:notice] = "User deleted"
+    user.update(
+      review_blurb: false,
+      spam: true,
+      spam_reason: "manually-marked-as-spam"
+    )
+    flash[:notice] = "User marked as spam"
     redirect_to to_review_admins_users_path
   end
 
   def approve
     user = User.find(params[:id])
-    user.update(review_blurb: false)
+    user.update(review_blurb: false, spam: false)
     flash[:notice] = "Blurb reviewed"
     redirect_to to_review_admins_users_path
   end

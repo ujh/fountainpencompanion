@@ -110,7 +110,7 @@ describe Admins::UsersController do
         pen =
           create(
             :collected_pen,
-            user: user,
+            user:,
             brand: "PenBBS",
             model: "456",
             nib: "F",
@@ -124,7 +124,7 @@ describe Admins::UsersController do
                }
           expect(ImportCollectedPen.jobs.size).to eq(1)
           ImportCollectedPen.drain
-        end.not_to change { user.collected_pens.count }
+        end.not_to(change { user.collected_pens.count })
 
         expect(pen.reload.comment).to eq("comment")
       end
@@ -187,11 +187,12 @@ describe Admins::UsersController do
     context "signed in" do
       before(:each) { sign_in(admin) }
 
-      it "deletes the user" do
-        expect do delete "/admins/users/#{user.id}" end.to change(
-          User,
-          :count
-        ).by(-1)
+      it "marks user as spam" do
+        delete "/admins/users/#{user.id}"
+        user.reload
+        expect(user.review_blurb).to be false
+        expect(user).to be_spam
+        expect(user.spam_reason).to eq("manually-marked-as-spam")
       end
 
       it "redirects to the review page" do

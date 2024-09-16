@@ -6,7 +6,7 @@ class UsersController < ApplicationController
   end
 
   def show
-    @user = User.find(params[:id])
+    @user = User.where(spam: false).find(params[:id])
 
     add_breadcrumb "#{@user.name}", user_path(@user)
 
