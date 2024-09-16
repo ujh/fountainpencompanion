@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/ujh/chatgpt-ruby.git
-  revision: 45a4b39c6c306cb45d38e6c5b0e5a94ff36ca08e
+  revision: 0c1e395ec1e08c3a833f680e257a5b07b63c301a
   specs:
     chatgpt-ruby (2.0.0)
       rest-client
