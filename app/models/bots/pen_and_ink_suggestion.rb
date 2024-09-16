@@ -1,8 +1,5 @@
-require "chatgpt/client"
-require "csv"
-
 module Bots
-  class PenAndInkSuggestion
+  class PenAndInkSuggestion < Bots::Base
     LIMIT = 50
 
     def initialize(user)
@@ -33,21 +30,11 @@ module Bots
     attr_accessor :user
 
     def request_suggestion
-      response =
-        client.chat(
-          [{ role: "user", content: prompt }],
-          { model: "gpt-4o-mini" }
-        )
-      message = response.dig("choices", 0, "message", "content")
-      ink = inks.find { |ink| message.include?(ink.name) }
-      ink ||= inks.find { |ink| message.include?(ink.short_name) }
-      pen = pens.find { |pen| message.include?(pen.name) }
+      ink = inks.find { |ink| response_message.include?(ink.name) }
+      ink ||= inks.find { |ink| response_message.include?(ink.short_name) }
+      pen = pens.find { |pen| response_message.include?(pen.name) }
 
-      { message:, ink: ink&.id, pen: pen&.id }
-    end
-
-    def client
-      ChatGPT::Client.new(ENV["OPENAI_PEN_AND_INK_SUGGESTIONS"])
+      { message: response_message, ink: ink&.id, pen: pen&.id }
     end
 
     def prompt
