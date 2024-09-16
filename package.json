@@ -105,6 +105,7 @@
   },
   "lint-staged": {
     "*.{css,html,js,json,jsx,md,rb,ru,scss,yml,yaml,rake}": "prettier --write",
+    "Gemfile": "prettier --write",
     "*.{js,jsx}": "eslint --fix"
   }
 }

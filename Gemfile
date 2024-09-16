@@ -13,7 +13,7 @@ gem "barnes"
 gem "bcrypt"
 gem "bootsnap"
 gem "breadcrumbs_on_rails"
-gem "chatgpt-ruby"
+gem "chatgpt-ruby", github: "ujh/chatgpt-ruby"
 gem "color"
 gem "devise"
 gem "devise-passwordless"
@@ -38,9 +38,9 @@ gem "pg"
 gem "pg_search"
 gem "puma"
 gem "puma_worker_killer"
-gem "rails-assets-select2", "4.0.13", source: "https://rails-assets.org" # Select2 4.0.6 breaks the currently inked page
 gem "rack-attack"
 gem "rack-timeout"
+gem "rails-assets-select2", "4.0.13", source: "https://rails-assets.org" # Select2 4.0.6 breaks the currently inked page
 gem "redis"
 gem "rss"
 gem "ruby-progressbar"
@@ -59,9 +59,9 @@ gem "uglifier"
 group :development, :test do
   gem "byebug", platform: :mri
   gem "dotenv-rails"
+  gem "factory_bot_rails"
   gem "letter_opener"
   gem "rspec-rails"
-  gem "factory_bot_rails"
 end
 
 group :development do
