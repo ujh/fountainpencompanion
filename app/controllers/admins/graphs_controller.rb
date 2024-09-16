@@ -14,6 +14,8 @@ class Admins::GraphsController < Admins::BaseController
         usage_records
       when "bot-signups"
         bot_signups
+      when "spam"
+        spam
       end
     render json: data
   end
@@ -36,19 +38,33 @@ class Admins::GraphsController < Admins::BaseController
   end
 
   def bot_signups
-    bots =
-      User
-        .where("created_at > ?", 2.months.ago)
-        .select(:bot_reason)
-        .distinct
-        .pluck(:bot_reason)
-        .reject { |reason| reason.blank? }
-        .map do |reason|
-          {
-            name: reason,
-            data: build(User.bots.where(bot_reason: reason), range: 2.months)
-          }
-        end
+    User
+      .where("created_at > ?", 2.months.ago)
+      .select(:bot_reason)
+      .distinct
+      .pluck(:bot_reason)
+      .reject { |reason| reason.blank? }
+      .map do |reason|
+        {
+          name: reason,
+          data: build(User.bots.where(bot_reason: reason), range: 2.months)
+        }
+      end
+  end
+
+  def spam
+    User
+      .where("created_at > ?", 2.months.ago)
+      .select(:spam_reason)
+      .distinct
+      .pluck(:spam_reason)
+      .reject { |reason| reason.blank? }
+      .map do |reason|
+        {
+          name: reason,
+          data: build(User.where(spam_reason: reason), range: 2.months)
+        }
+      end
   end
 
   def collected_inks
