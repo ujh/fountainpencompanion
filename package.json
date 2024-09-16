@@ -104,7 +104,7 @@
     "test": "jest"
   },
   "lint-staged": {
-    "*.{css,html,js,json,jsx,md,rb,ru,scss,yml,yaml,rake,Gemfile}": "prettier --write",
+    "*.{css,html,js,json,jsx,md,rb,ru,scss,yml,yaml,rake}": "prettier --write",
     "*.{js,jsx}": "eslint --fix"
   }
 }
