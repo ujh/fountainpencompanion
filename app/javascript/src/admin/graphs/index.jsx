@@ -7,6 +7,7 @@ import { CollectedPens } from "./CollectedPens";
 import { CurrentlyInked } from "./CurrentlyInked";
 import { UsageRecords } from "./UsageRecords";
 import { BotSignUps } from "./BotSignUps";
+import { Spam } from "./Spam";
 
 document.addEventListener("DOMContentLoaded", () => {
   const el = document.getElementById("signups-graph");
@@ -21,6 +22,14 @@ document.addEventListener("DOMContentLoaded", () => {
   if (el) {
     const root = createRoot(el);
     root.render(<BotSignUps />);
+  }
+});
+
+document.addEventListener("DOMContentLoaded", () => {
+  const el = document.getElementById("spam-graph");
+  if (el) {
+    const root = createRoot(el);
+    root.render(<Spam />);
   }
 });
 
