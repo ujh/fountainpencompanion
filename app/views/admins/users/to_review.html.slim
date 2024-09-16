@@ -2,6 +2,12 @@
 
 - @users.each do |user|
   dl class="row" id="admin_ink_review"
+    dt class="col-sm-3" Classification
+    dt class="col-sm-9"
+      - if user.spam?
+        ' 🙅🏻‍♂️🙅🏻‍♂️🙅🏻‍♂️ SPAM 🙅🏻‍♂️🙅🏻‍♂️🙅🏻‍♂️
+      - else
+        ' 🎉🎉🎉 normal user 🎉🎉🎉
     dt class="col-sm-3" Email
     dd class="col-sm-9" = user.email
 

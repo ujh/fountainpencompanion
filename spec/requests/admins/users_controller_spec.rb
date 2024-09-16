@@ -154,7 +154,9 @@ describe Admins::UsersController do
   end
 
   describe "approve" do
-    let(:user) { create(:user, review_blurb: true) }
+    let(:user) do
+      create(:user, review_blurb: true, spam: false, spam_reason: "reason")
+    end
 
     it "requires authentication" do
       put "/admins/users/#{user.id}/approve"
@@ -169,15 +171,40 @@ describe Admins::UsersController do
         expect(user.reload.review_blurb).to be false
       end
 
+      it "marks user as not spam" do
+        put "/admins/users/#{user.id}/approve"
+        user.reload
+        expect(user).not_to be_spam
+        expect(user.spam_reason).to eq("reason")
+      end
+
       it "redirects to review page" do
         put "/admins/users/#{user.id}/approve"
         expect(response).to redirect_to(to_review_admins_users_path)
+      end
+
+      context "user classified as spam" do
+        let(:user) do
+          create(:user, review_blurb: true, spam: true, spam_reason: "reason")
+        end
+
+        it "marks user as not spam" do
+          put "/admins/users/#{user.id}/approve"
+          user.reload
+          expect(user).not_to be_spam
+        end
+
+        it "sets the spam_reason to false positive" do
+          put "/admins/users/#{user.id}/approve"
+          user.reload
+          expect(user.spam_reason).to eq("false-positive")
+        end
       end
     end
   end
 
   describe "#destroy" do
-    let!(:user) { create(:user, review_blurb: true) }
+    let!(:user) { create(:user, review_blurb: true, spam: false) }
 
     it "requires authentication" do
       delete "/admins/users/#{user.id}"
@@ -192,12 +219,24 @@ describe Admins::UsersController do
         user.reload
         expect(user.review_blurb).to be false
         expect(user).to be_spam
-        expect(user.spam_reason).to eq("manually-marked-as-spam")
+        expect(user.spam_reason).to eq("false-negative")
       end
 
       it "redirects to the review page" do
         delete "/admins/users/#{user.id}"
         expect(response).to redirect_to(to_review_admins_users_path)
+      end
+
+      context "when already classified as spam" do
+        let!(:user) do
+          create(:user, review_blurb: true, spam: true, spam_reason: "reason")
+        end
+
+        it "does not change the spam_reason field" do
+          expect { delete "/admins/users/#{user.id}" }.not_to(
+            change { user.reload.spam_reason }
+          )
+        end
       end
     end
   end

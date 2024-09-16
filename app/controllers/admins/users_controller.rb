@@ -91,18 +91,18 @@ class Admins::UsersController < Admins::BaseController
 
   def destroy
     user = User.find(params[:id])
-    user.update(
-      review_blurb: false,
-      spam: true,
-      spam_reason: "manually-marked-as-spam"
-    )
+    reason = user.spam_reason
+    reason = "false-negative" unless user.spam?
+    user.update(review_blurb: false, spam: true, spam_reason: reason)
     flash[:notice] = "User marked as spam"
     redirect_to to_review_admins_users_path
   end
 
   def approve
     user = User.find(params[:id])
-    user.update(review_blurb: false, spam: false)
+    reason = user.spam_reason
+    reason = "false-positive" if user.spam?
+    user.update(review_blurb: false, spam: false, spam_reason: reason)
     flash[:notice] = "Blurb reviewed"
     redirect_to to_review_admins_users_path
   end
