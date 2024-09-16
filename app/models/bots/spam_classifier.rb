@@ -32,11 +32,15 @@ module Bots
     attr_accessor :user
 
     def spam_accounts
-      formatted_as_csv(User.spammer.order(created_at: :desc).limit(50))
+      formatted_as_csv(users.spammer.order(created_at: :desc).limit(50))
     end
 
     def normal_accounts
-      formatted_as_csv(User.not_spam.where.not(blurb: "").shuffle.take(50))
+      formatted_as_csv(users.not_spam.where.not(blurb: "").shuffle.take(50))
+    end
+
+    def users
+      User.where(review_blurb: false)
     end
 
     def unclassified_account
