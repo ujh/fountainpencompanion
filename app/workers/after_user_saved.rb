@@ -14,5 +14,6 @@ class AfterUserSaved
     markdown = Slodown::Formatter.new(user.blurb).complete.to_s
     found_link = markdown.include?("http") || markdown.include?("<a ")
     user.update(review_blurb: found_link)
+    SpamClassifier.perform_async(user.id) if found_link
   end
 end

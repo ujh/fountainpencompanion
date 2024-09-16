@@ -9,6 +9,10 @@ module Bots
 
     private
 
+    def prompt
+      raise NotImplementedError
+    end
+
     def response_message
       @response_message ||=
         begin
