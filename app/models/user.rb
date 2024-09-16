@@ -40,6 +40,10 @@ class User < ApplicationRecord
     where(review_blurb: true)
   end
 
+  def active_for_authentication?
+    super and !spam?
+  end
+
   def sign_up_ip=(value)
     ip_count =
       self
