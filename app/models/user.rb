@@ -29,7 +29,7 @@ class User < ApplicationRecord
   end
 
   def self.public
-    where.not(name: [nil, ""])
+    where.not(name: [nil, ""]).where(spam: false)
   end
 
   def self.bots

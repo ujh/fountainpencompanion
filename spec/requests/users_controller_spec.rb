@@ -17,6 +17,13 @@ describe UsersController do
       expect(response.body).to_not include("/users/#{user.id}")
     end
 
+    it "does not include users marked as spam" do
+      user = create(:user, name: "a name", spam: true)
+      get "/users"
+      expect(response).to be_successful
+      expect(response.body).to_not include("/users/#{user.id}")
+    end
+
     it "shows the patreon logo next to the correct user" do
       user = create(:user, name: "the name", patron: true)
       get "/users"
@@ -86,6 +93,19 @@ describe UsersController do
       expect(response).to be_successful
       json = JSON.parse(response.body)
       expect(json["data"]["relationships"]["collected_inks"]["data"]).to eq([])
+    end
+
+    it "does not work for users marked as spam" do
+      user = create(:user, name: "the name", spam: true)
+      expect do get "/users/#{user.id}" end.to raise_error(
+        ActiveRecord::RecordNotFound
+      )
+    end
+
+    it "works for users without a user name" do
+      user = create(:user, name: "")
+      get "/users/#{user.id}"
+      expect(response).to be_successful
     end
   end
 end
