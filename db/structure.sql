@@ -879,7 +879,9 @@ CREATE TABLE public.users (
     sign_up_ip character varying,
     bot_reason character varying,
     admin boolean DEFAULT false,
-    review_blurb boolean DEFAULT false
+    review_blurb boolean DEFAULT false,
+    spam boolean DEFAULT false,
+    spam_reason character varying DEFAULT ''::character varying
 );
 
 
@@ -1739,6 +1741,20 @@ CREATE UNIQUE INDEX index_users_on_reset_password_token ON public.users USING bt
 
 
 --
+-- Name: index_users_on_spam; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_users_on_spam ON public.users USING btree (spam);
+
+
+--
+-- Name: index_users_on_spam_reason; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_users_on_spam_reason ON public.users USING btree (spam_reason);
+
+
+--
 -- Name: index_versions_on_item_type_and_item_id; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -1988,6 +2004,7 @@ ALTER TABLE ONLY public.collected_inks
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20240916060008'),
 ('20240911151651'),
 ('20240911151335'),
 ('20240911074804'),
