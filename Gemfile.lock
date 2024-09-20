@@ -217,7 +217,8 @@ GEM
     hashdiff (1.1.0)
     heapy (0.2.0)
       thor
-    honeybadger (5.15.6)
+    honeybadger (5.16.0)
+      logger
     http-accept (1.7.0)
     http-cookie (1.0.7)
       domain_name (~> 0.5)
