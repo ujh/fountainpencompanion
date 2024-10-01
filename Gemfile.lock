@@ -214,7 +214,7 @@ GEM
       temple (>= 0.8.2)
       thor
       tilt
-    hashdiff (1.1.0)
+    hashdiff (1.1.1)
     heapy (0.2.0)
       thor
     honeybadger (5.16.0)
@@ -413,8 +413,7 @@ GEM
       mime-types (>= 1.16, < 4.0)
       netrc (~> 0.8)
     retriable (3.1.2)
-    rexml (3.3.6)
-      strscan
+    rexml (3.3.8)
     rinku (2.0.6)
     rspec-core (3.13.1)
       rspec-support (~> 3.13.0)
@@ -502,7 +501,6 @@ GEM
     stringio (3.1.1)
     strong_migrations (2.0.0)
       activerecord (>= 6.1)
-    strscan (3.1.0)
     syntax_tree (6.2.0)
       prettier_print (>= 1.2.0)
     syntax_tree-haml (4.0.3)
@@ -531,7 +529,7 @@ GEM
       activemodel (>= 6.0.0)
       bindex (>= 0.4.0)
       railties (>= 6.0.0)
-    webmock (3.23.1)
+    webmock (3.24.0)
       addressable (>= 2.8.0)
       crack (>= 0.3.2)
       hashdiff (>= 0.4.0, < 2.0.0)
