@@ -1,9 +1,0 @@
-.yarn
-coverage/
-app/assets/builds/
-app/assets/javascripts/js.cookie.js
-node_modules/
-public/
-spec/fixtures/
-tmp/
-vendor/
