@@ -1,5 +1,6 @@
 import React from "react";
 import { useState } from "react";
+import _ from "lodash";
 import { Widget } from "./widgets";
 import { getRequest } from "../fetch";
 import "./pen_and_ink_suggestion_widget.css";
@@ -31,6 +32,15 @@ const PenAndInkSuggestionWidgetContent = () => {
     );
   } else if (!suggestion && loading) {
     return <Spinner />;
+  } else if (_.isEmpty(suggestion)) {
+    return (
+      <div className="buttons">
+        <AskForSuggestion
+          setSuggestion={setSuggestion}
+          setLoading={setLoading}
+        />
+      </div>
+    );
   } else if (suggestion) {
     return (
       <ShowSuggestion
