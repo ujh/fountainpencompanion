@@ -64,7 +64,7 @@
     "prettier": "^3.3.3"
   },
   "engines": {
-    "node": "20.3.1"
+    "node": "v20.18.0"
   },
   "jest": {
     "collectCoverage": true,
@@ -95,7 +95,7 @@
     ]
   },
   "scripts": {
-    "prepare": "husky install",
+    "prepare": "husky",
     "build": "NODE_ENV=production webpack --config webpack.config.js",
     "dev": "NODE_ENV=development webpack --config webpack.config.js --watch",
     "lint": "yarn run prettier && yarn run eslint",
