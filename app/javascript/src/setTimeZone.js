@@ -13,7 +13,7 @@ function findTimeZone() {
     const tz = jstz.determine().name();
     window.Intl = oldIntl;
     return tz;
-  } catch (e) {
+  } catch {
     // sometimes (on android) you can't override intl
     return jstz.determine().name();
   }
