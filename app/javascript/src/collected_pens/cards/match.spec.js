@@ -42,7 +42,7 @@ describe("fuzzyMatch", () => {
   ];
 
   it("matches and sorts by relevance", () => {
-    expect(fuzzyMatch(input, "sail")).toStrictEqual([
+    expect(fuzzyMatch(input, "sailor")).toStrictEqual([
       {
         brand: "Sailor",
         model: "Pro Gear",
