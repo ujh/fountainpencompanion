@@ -55,8 +55,8 @@ class AdminStats
   end
 
   def relevant_pens_micro_clusters_count(count = 1)
-    @pens_micro_clusters_prio_to_assign_count ||= {}
-    @pens_micro_clusters_prio_to_assign_count[count] ||= Pens::MicroCluster
+    @relevant_pens_micro_clusters_count ||= {}
+    @relevant_pens_micro_clusters_count[count] ||= Pens::MicroCluster
       .joins(:collected_pens)
       .group("pens_micro_clusters.id")
       .having("count(*) > ?", count)
