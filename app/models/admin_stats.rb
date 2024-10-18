@@ -9,52 +9,57 @@ class AdminStats
 
   def micro_clusters_to_assign_count
     # The JOIN is there to remove clusters without inks
-    MicroCluster
-      .where(macro_cluster_id: nil, ignored: false)
-      .joins(:collected_inks)
-      .group("micro_clusters.id")
-      .count
-      .count
+    @micro_clusters_to_assign_count ||=
+      MicroCluster
+        .where(macro_cluster_id: nil, ignored: false)
+        .joins(:collected_inks)
+        .group("micro_clusters.id")
+        .count
+        .count
   end
 
   def pens_model_micro_clusters_to_assign_count
     # The JOIN is there to remove clusters without variants
-    Pens::ModelMicroCluster
-      .unassigned
-      .without_ignored
-      .joins(:model_variants)
-      .group("pens_model_micro_clusters.id")
-      .count
-      .count
+    @pens_model_micro_clusters_to_assign_count ||=
+      Pens::ModelMicroCluster
+        .unassigned
+        .without_ignored
+        .joins(:model_variants)
+        .group("pens_model_micro_clusters.id")
+        .count
+        .count
   end
 
   def pens_micro_clusters_to_assign_count
     # The JOIN is there to remove clusters without variants
-    Pens::MicroCluster
+    @pens_micro_clusters_to_assign_count ||=
+      Pens::MicroCluster
+        .unassigned
+        .without_ignored
+        .joins(:collected_pens)
+        .group("pens_micro_clusters.id")
+        .count
+        .count
+  end
+
+  def pens_micro_clusters_prio_to_assign_count(count = 1)
+    @pens_micro_clusters_prio_to_assign_count ||= {}
+    @pens_micro_clusters_prio_to_assign_count[count] ||= Pens::MicroCluster
       .unassigned
       .without_ignored
       .joins(:collected_pens)
       .group("pens_micro_clusters.id")
+      .having("count(*) > ?", count)
       .count
       .count
   end
 
-  def pens_micro_clusters_prio_to_assign_count
-    Pens::MicroCluster
-      .unassigned
-      .without_ignored
+  def relevant_pens_micro_clusters_count(count = 1)
+    @pens_micro_clusters_prio_to_assign_count ||= {}
+    @pens_micro_clusters_prio_to_assign_count[count] ||= Pens::MicroCluster
       .joins(:collected_pens)
       .group("pens_micro_clusters.id")
-      .having("count(*) > 1")
-      .count
-      .count
-  end
-
-  def relevant_pens_micro_clusters_count
-    Pens::MicroCluster
-      .joins(:collected_pens)
-      .group("pens_micro_clusters.id")
-      .having("count(*) > 1")
+      .having("count(*) > ?", count)
       .count
       .count
   end

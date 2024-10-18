@@ -77,8 +77,9 @@ export const assignCluster = (microClusterId, macroClusterId) =>
 
 const loadMicroClusterPage = async (page) => {
   let search = `unassigned=true&without_ignored=true&page=${page}`;
-  if (location.search.includes("prio=true")) {
-    search = `prio=true&${search}`;
+  var match = location.search.match(/count=\d+/);
+  if (match) {
+    search = `${search}&${match[0]}`;
   }
   const response = await getRequest(
     `/admins/pens/micro_clusters.json?${search}`

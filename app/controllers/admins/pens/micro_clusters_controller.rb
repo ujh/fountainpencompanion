@@ -10,14 +10,14 @@ class Admins::Pens::MicroClustersController < Admins::BaseController
             .includes(:collected_pens)
             .ordered
             .page(params[:page])
-        if params[:prio]
+        if params[:count]
           clusters =
             clusters
               .joins(
                 "LEFT JOIN collected_pens AS cps ON cps.pens_micro_cluster_id = pens_micro_clusters.id"
               )
               .group("pens_micro_clusters.id")
-              .having("count(*) > 1")
+              .having("count(*) > ?", params[:count])
         end
         clusters = clusters.unassigned if params[:unassigned]
         clusters = clusters.without_ignored if params[:without_ignored]
