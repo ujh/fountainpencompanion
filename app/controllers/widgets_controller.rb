@@ -25,13 +25,19 @@ class WidgetsController < ApplicationController
   private
 
   def inks_summary_data
+    active_inks = current_user.collected_inks.active
     as_json_api("inks_summary") do
       {
-        count: current_user.collected_inks.active.count,
-        used: current_user.collected_inks.active.where(used: true).count,
-        swabbed: current_user.collected_inks.active.where(swabbed: true).count,
+        count: active_inks.count,
+        used: active_inks.where(used: true).count,
+        swabbed: active_inks.where(swabbed: true).count,
         archived: current_user.collected_inks.archived.count,
-        inks_without_reviews: my_unreviewed_inks.count
+        inks_without_reviews: my_unreviewed_inks.count,
+        by_kind:
+          active_inks
+            .group(:kind)
+            .select("kind, count(*) as count")
+            .each_with_object({}) { |ink, acc| acc[ink.kind] = ink.count }
       }
     end
   end
@@ -110,13 +116,14 @@ class WidgetsController < ApplicationController
       LeaderBoard
         .send(method)
         .find_index { |entry| entry[:id] == current_user.id }
-    return index.succ if index
+    index.succ if index
   end
 
   def pen_and_ink_suggestion_data
     RequestPenAndInkSuggestion.new(
       user: current_user,
-      suggestion_id: params[:suggestion_id].presence
+      suggestion_id: params[:suggestion_id].presence,
+      ink_kind: params[:ink_kind].presence
     ).perform
   end
 end
