@@ -2,8 +2,9 @@ module Bots
   class PenAndInkSuggestion < Bots::Base
     LIMIT = 50
 
-    def initialize(user)
+    def initialize(user, ink_kind)
       self.user = user
+      self.ink_kind = ink_kind
     end
 
     def run
@@ -27,7 +28,7 @@ module Bots
 
     private
 
-    attr_accessor :user
+    attr_accessor :user, :ink_kind
 
     def request_suggestion
       ink = inks.find { |ink| response_message.include?(ink.name) }
@@ -136,14 +137,19 @@ module Bots
 
     def inks
       @inks ||=
-        user.collected_inks.active.includes(
-          :currently_inkeds,
-          :usage_records,
-          micro_cluster: {
-            macro_cluster: :brand_cluster
-          },
-          newest_currently_inked: :last_usage
-        )
+        begin
+          rel =
+            user.collected_inks.active.includes(
+              :currently_inkeds,
+              :usage_records,
+              micro_cluster: {
+                macro_cluster: :brand_cluster
+              },
+              newest_currently_inked: :last_usage
+            )
+          rel = rel.where(kind: ink_kind) if ink_kind.present?
+          rel
+        end
     end
   end
 end

@@ -122,7 +122,8 @@ class WidgetsController < ApplicationController
   def pen_and_ink_suggestion_data
     RequestPenAndInkSuggestion.new(
       user: current_user,
-      suggestion_id: params[:suggestion_id].presence
+      suggestion_id: params[:suggestion_id].presence,
+      ink_kind: params[:ink_kind].presence
     ).perform
   end
 end
