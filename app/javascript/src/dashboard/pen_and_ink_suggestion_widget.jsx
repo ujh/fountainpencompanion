@@ -132,6 +132,12 @@ const ShowSuggestion = ({
   inkKind,
   setInkKind
 }) => {
+  const inkId = suggestion.ink?.id;
+  const penId = suggestion.pen?.id;
+  let params = [];
+  if (inkId) params.push(`collected_ink_id=${inkId}`);
+  if (penId) params.push(`collected_pen_id=${penId}`);
+  const url = `/currently_inked/new?${params.join("&")}`;
   return (
     <div>
       <div
@@ -139,10 +145,7 @@ const ShowSuggestion = ({
         dangerouslySetInnerHTML={{ __html: suggestion.message }}
       ></div>
       <div className="buttons">
-        <a
-          className="btn btn-success"
-          href={`/currently_inked/new?collected_ink_id=${suggestion.ink.id}&collected_pen_id=${suggestion.pen.id}`}
-        >
+        <a className="btn btn-success" href={url}>
           Ink it Up!
         </a>
         <AskForSuggestion
