@@ -73,7 +73,6 @@ const AskForSuggestion = ({
   setInkKind,
   text = "Suggest something!"
 }) => {
-  console.log(inkKind, setInkKind);
   const onClick = async () => {
     setLoading(true);
     setSuggestion(null);
