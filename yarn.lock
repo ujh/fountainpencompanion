@@ -5765,10 +5765,10 @@ makeerror@1.0.12:
   dependencies:
     tmpl "1.0.5"
 
-match-sorter@^7.0.0:
-  version "7.0.0"
-  resolved "https://registry.yarnpkg.com/match-sorter/-/match-sorter-7.0.0.tgz#a85719b30447ce1022203ed4b83320df4e1bc4c6"
-  integrity sha512-J1370vFVhvn81QrUYv54y3IZbsaG1X4otKSwtGZbyfZxgWgjVxdRkASY+uaT2IlQUGeWFBEPbGFVKv1DNnHYKA==
+match-sorter@^8.0.0:
+  version "8.0.0"
+  resolved "https://registry.yarnpkg.com/match-sorter/-/match-sorter-8.0.0.tgz#9120e35ed8aabf45cd40e127b0231f762fb2eec0"
+  integrity sha512-bGJ6Zb+OhzXe+ptP5d80OLVx7AkqfRbtGEh30vNSfjNwllu+hHI+tcbMIT/fbkx/FKN1PmKuDb65+Oofg+XUxw==
   dependencies:
     "@babel/runtime" "^7.23.8"
     remove-accents "0.5.0"

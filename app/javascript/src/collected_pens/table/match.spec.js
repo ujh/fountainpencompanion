@@ -72,17 +72,6 @@ describe("fuzzyMatch", () => {
           usage: 1,
           daily_usage: 0
         }
-      },
-      {
-        values: {
-          brand: "Platinum",
-          model: "#3776 Century",
-          nib: "F",
-          color: "Black Diamond",
-          comment: "",
-          usage: 1,
-          daily_usage: 1
-        }
       }
     ]);
 
