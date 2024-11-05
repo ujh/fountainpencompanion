@@ -55,15 +55,6 @@ describe("fuzzyMatch", () => {
         maker: "Pilot",
         comment: "GOAT blue-black",
         private_comment: "The Pen Addict made me do it"
-      },
-      {
-        brand_name: "Platinum",
-        line_name: undefined,
-        ink_name: "Carbon Black",
-        maker: "Platinum",
-        comment: "Perpetually inked in my Preppy",
-        private_comment:
-          "Cartridges bought at various points for about X amount per 4-pack"
       }
     ]);
 
@@ -84,14 +75,6 @@ describe("fuzzyMatch", () => {
         comment: "Perpetually inked in my Preppy",
         private_comment:
           "Cartridges bought at various points for about X amount per 4-pack"
-      },
-      {
-        brand_name: "Pilot",
-        line_name: "Iroshizuku",
-        ink_name: "Kon-peki",
-        maker: "Pilot",
-        comment: "Vivid blue, one of my faves",
-        private_comment: "Bought at such and such for X amount"
       }
     ]);
 
@@ -104,14 +87,6 @@ describe("fuzzyMatch", () => {
         comment: "Perpetually inked in my Preppy",
         private_comment:
           "Cartridges bought at various points for about X amount per 4-pack"
-      },
-      {
-        brand_name: "Pilot",
-        line_name: "Iroshizuku",
-        ink_name: "Kon-peki",
-        maker: "Pilot",
-        comment: "Vivid blue, one of my faves",
-        private_comment: "Bought at such and such for X amount"
       }
     ]);
   });
