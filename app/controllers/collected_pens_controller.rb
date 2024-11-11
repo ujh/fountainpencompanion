@@ -1,7 +1,7 @@
 class CollectedPensController < ApplicationController
   before_action :authenticate_user!
   before_action :set_flash, except: [:import]
-  before_action :retrieve_collected_pen, only: %i[edit update destroy archive]
+  before_action :retrieve_collected_pen, only: %i[edit update archive]
 
   add_breadcrumb "My pens", :collected_pens_path
 
@@ -55,9 +55,9 @@ class CollectedPensController < ApplicationController
   end
 
   def archive
-    if @collected_pen
-      flash[:notice] = "Successfully archived '#{@collected_pen.name}'"
-    end
+    flash[
+      :notice
+    ] = "Successfully archived '#{@collected_pen.name}'" if @collected_pen
     @collected_pen&.archive!
     redirect_to collected_pens_path
   end

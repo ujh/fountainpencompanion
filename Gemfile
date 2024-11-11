@@ -1,13 +1,13 @@
 source "https://rubygems.org"
 
-ruby "3.2.2"
+ruby "3.3.6"
 
 git_source(:github) do |repo_name|
   repo_name = "#{repo_name}/#{repo_name}" unless repo_name.include?("/")
   "https://github.com/#{repo_name}.git"
 end
 
-gem "rails", "~> 7.2.2"
+gem "rails", "~> 8.0.0"
 
 gem "barnes"
 gem "bcrypt"
@@ -22,7 +22,9 @@ gem "faraday"
 gem "faraday_middleware"
 gem "font-awesome-rails"
 gem "google-apis-youtube_v3"
-gem "gutentag"
+gem "gutentag",
+    github: "ujh/gutentag",
+    ref: "ded5c52ea97d1f2f4d89935d7a87d6fbaed05711"
 gem "honeybadger"
 gem "jbuilder"
 gem "jquery-rails"

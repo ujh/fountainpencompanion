@@ -97,9 +97,8 @@ describe UsersController do
 
     it "does not work for users marked as spam" do
       user = create(:user, name: "the name", spam: true)
-      expect do get "/users/#{user.id}" end.to raise_error(
-        ActiveRecord::RecordNotFound
-      )
+      get "/users/#{user.id}"
+      expect(response).to have_http_status(:not_found)
     end
 
     it "works for users without a user name" do
