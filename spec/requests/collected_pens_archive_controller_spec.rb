@@ -2,9 +2,7 @@ require "rails_helper"
 
 describe CollectedPensArchiveController do
   let(:user) { create(:user) }
-  let(:collected_pen) do
-    create(:collected_pen, user: user, archived_on: Date.today)
-  end
+  let(:collected_pen) { create(:collected_pen, user:, archived_on: Date.today) }
 
   describe "#index" do
     it "requires authentication" do
@@ -48,9 +46,8 @@ describe CollectedPensArchiveController do
 
       it "does not show pens from other users" do
         pen = create(:collected_pen, archived_on: Date.today)
-        expect do
-          get "/collected_pens_archive/#{pen.id}/edit"
-        end.to raise_error(ActiveRecord::RecordNotFound)
+        get "/collected_pens_archive/#{pen.id}/edit"
+        expect(response).to have_http_status(:not_found)
       end
     end
   end
@@ -84,21 +81,20 @@ describe CollectedPensArchiveController do
                   brand: ""
                 }
               }
-        end.to_not change { collected_pen.reload.brand }
+        end.to_not(change { collected_pen.reload.brand })
       end
 
       it "does not update pens from other users" do
         pen = create(:collected_pen, archived_on: Date.today)
         expect do
-          expect do
-            put "/collected_pens_archive/#{pen.id}",
-                params: {
-                  collected_pen: {
-                    brand: "the brand"
-                  }
+          put "/collected_pens_archive/#{pen.id}",
+              params: {
+                collected_pen: {
+                  brand: "the brand"
                 }
-          end.to raise_error(ActiveRecord::RecordNotFound)
-        end.to_not change { pen.reload.brand }
+              }
+          expect(response).to have_http_status(:not_found)
+        end.to_not(change { pen.reload.brand })
       end
     end
   end
@@ -122,10 +118,9 @@ describe CollectedPensArchiveController do
       it "does not unarchive pens from other users" do
         pen = create(:collected_pen, archived_on: Date.today)
         expect do
-          expect do
-            post "/collected_pens_archive/#{pen.id}/unarchive"
-          end.to raise_error(ActiveRecord::RecordNotFound)
-        end.to_not change { pen.reload.archived? }
+          post "/collected_pens_archive/#{pen.id}/unarchive"
+          expect(response).to have_http_status(:not_found)
+        end.to_not(change { pen.reload.archived? })
       end
     end
   end
@@ -152,10 +147,9 @@ describe CollectedPensArchiveController do
       it "does not unarchive pens from other users" do
         pen = create(:collected_pen)
         expect do
-          expect do
-            delete "/collected_pens_archive/#{pen.id}"
-          end.to raise_error(ActiveRecord::RecordNotFound)
-        end.to_not change { CollectedPen.count }
+          delete "/collected_pens_archive/#{pen.id}"
+          expect(response).to have_http_status(:not_found)
+        end.to_not(change { CollectedPen.count })
       end
     end
   end
