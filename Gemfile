@@ -7,7 +7,7 @@ git_source(:github) do |repo_name|
   "https://github.com/#{repo_name}.git"
 end
 
-gem "rails", "~> 7.2.2"
+gem "rails", "~> 8.0.0"
 
 gem "barnes"
 gem "bcrypt"
