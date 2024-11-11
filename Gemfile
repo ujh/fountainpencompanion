@@ -22,7 +22,9 @@ gem "faraday"
 gem "faraday_middleware"
 gem "font-awesome-rails"
 gem "google-apis-youtube_v3"
-gem "gutentag"
+gem "gutentag",
+    github: "ujh/gutentag",
+    ref: "ded5c52ea97d1f2f4d89935d7a87d6fbaed05711"
 gem "honeybadger"
 gem "jbuilder"
 gem "jquery-rails"
