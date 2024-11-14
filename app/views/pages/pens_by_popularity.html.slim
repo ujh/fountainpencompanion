@@ -7,6 +7,7 @@
     li class="breadcrumb-item active" aria-current="page"
       | Pens by popularity
 
-ol class="fpc-leaderboard"
-  - LeaderBoard.pens_by_popularity.each do |pen|
-    li="#{pen[:name]} (#{pen[:count]})"
+= cache params[:id], expires_in: 1.hour do
+  ol class="fpc-leaderboard"
+    - LeaderBoard.pens_by_popularity.each do |pen|
+      li="#{pen[:name]} (#{pen[:count]})"

@@ -15,6 +15,7 @@ div class="fpc-hint alert alert-secondary"
     '  as none of the inks listed there have any review.
   p Note that you need to be logged in if you want to add reviews.
 
-ol class="fpc-leaderboard"
-  - LeaderBoard.ink_review_submissions.each do |user_data|
-    = render partial: "leaderboard_row", locals: { user_data: user_data }
+= cache params[:id], expires_in: 1.hour do
+  ol class="fpc-leaderboard"
+    - LeaderBoard.ink_review_submissions.each do |user_data|
+      = render partial: "leaderboard_row", locals: { user_data: user_data }
