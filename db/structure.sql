@@ -1,6 +1,7 @@
 SET statement_timeout = 0;
 SET lock_timeout = 0;
 SET idle_in_transaction_session_timeout = 0;
+SET transaction_timeout = 0;
 SET client_encoding = 'UTF8';
 SET standard_conforming_strings = on;
 SELECT pg_catalog.set_config('search_path', '', false);
@@ -1580,6 +1581,13 @@ CREATE INDEX index_leader_board_rows_on_type ON public.leader_board_rows USING b
 
 
 --
+-- Name: index_leader_board_rows_on_type_and_user_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_leader_board_rows_on_type_and_user_id ON public.leader_board_rows USING btree (type, user_id);
+
+
+--
 -- Name: index_leader_board_rows_on_user_id; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -2004,6 +2012,7 @@ ALTER TABLE ONLY public.collected_inks
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20241114144808'),
 ('20240916060008'),
 ('20240911151651'),
 ('20240911151335'),
