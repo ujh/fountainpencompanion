@@ -7,6 +7,7 @@
     li class="breadcrumb-item active" aria-current="page"
       | Ink leaderboard
 
-ol class="fpc-leaderboard"
-  - LeaderBoard.inks.each do |user_data|
-    = render partial: "leaderboard_row", locals: { user_data: user_data }
+= cache params[:id], expires_in: 1.hour do
+  ol class="fpc-leaderboard"
+    - LeaderBoard.inks.each do |user_data|
+      = render partial: "leaderboard_row", locals: { user_data: user_data }

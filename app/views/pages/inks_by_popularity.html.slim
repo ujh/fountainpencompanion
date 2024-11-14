@@ -12,11 +12,12 @@
     li class="breadcrumb-item active" aria-current="page"
       | Inks by popularity
 
-ol class="fpc-leaderboard"
-  - LeaderBoard.inks_by_popularity.each do |macro_cluster|
-    li
-      - if macro_cluster.brand_cluster
-        = link_to macro_cluster.name, brand_ink_path(macro_cluster.brand_cluster, macro_cluster)
-      - else
-        = macro_cluster.name
-      = " (#{macro_cluster.ci_count})"
+= cache params[:id], expires_in: 1.hour do
+  ol class="fpc-leaderboard"
+    - LeaderBoard.inks_by_popularity.each do |macro_cluster|
+      li
+        - if macro_cluster.brand_cluster
+          = link_to macro_cluster.name, brand_ink_path(macro_cluster.brand_cluster, macro_cluster)
+        - else
+          = macro_cluster.name
+        = " (#{macro_cluster.ci_count})"

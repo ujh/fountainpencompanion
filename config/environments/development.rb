@@ -23,12 +23,15 @@ Rails.application.configure do
     config.public_file_server.headers = {
       "cache-control" => "public, max-age=#{2.days.to_i}"
     }
+    config.cache_store =
+      :redis_cache_store,
+      { url: ENV.fetch("REDIS_CACHE_URL") }
   else
     config.action_controller.perform_caching = false
+    config.cache_store = :memory_store
   end
 
   # Change to :null_store to avoid any caching.
-  config.cache_store = :memory_store
 
   # Don't care if the mailer can't send.
   config.action_mailer.raise_delivery_errors = false
