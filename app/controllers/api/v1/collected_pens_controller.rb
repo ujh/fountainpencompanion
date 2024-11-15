@@ -18,7 +18,10 @@ class Api::V1::CollectedPensController < Api::V1::BaseController
             .includes(
               :currently_inkeds,
               :usage_records,
-              newest_currently_inked: :last_usage
+              newest_currently_inked: :last_usage,
+              pens_micro_cluster: {
+                model_variant: :model_micro_cluster
+              }
             )
             .order("brand, model, nib, color, comment")
         relation = filter(relation)

@@ -29,4 +29,7 @@ class CollectedPenSerializer
     object.inked?
   end
   attribute :created_at
+  attribute :model_id do |object|
+    object.pens_micro_cluster&.model_variant&.model_micro_cluster&.pens_model_id
+  end
 end
