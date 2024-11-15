@@ -87,7 +87,8 @@ describe Api::V1::CurrentlyInkedController do
                     brand: anything,
                     model: anything,
                     nib: anything,
-                    color: anything
+                    color: anything,
+                    model_id: anything
                   }
                 )
               ]
