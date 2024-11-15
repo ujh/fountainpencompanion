@@ -32,7 +32,7 @@ class LeaderBoard
           .includes(:collected_pens)
           .reject { |model| model.collected_pens.size.zero? }
           .map do |model|
-            { name: model.name, count: model.collected_pens.size }
+            { name: model.name, count: model.collected_pens.size, id: model.id }
           end
           .sort do |p1, p2|
             if p1[:count] == p2[:count]

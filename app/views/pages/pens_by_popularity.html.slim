@@ -10,4 +10,6 @@
 = cache params[:id], expires_in: 1.hour do
   ol class="fpc-leaderboard"
     - LeaderBoard.pens_by_popularity.each do |pen|
-      li="#{pen[:name]} (#{pen[:count]})"
+      li
+        = link_to pen[:name], pen_model_path(pen[:id])
+        = " (#{pen[:count]})"
