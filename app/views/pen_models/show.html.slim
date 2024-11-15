@@ -1,0 +1,54 @@
+- content_for :title, @model.name
+
+div class="row fpc-ink-details"
+  div class="col-sm-12 col-md-6"
+    h2 class="h4" Details
+    div class="fpc-table fpc-table--full-width fpc-scroll-shadow"
+      table class="table"
+        tbody
+          tr
+            td Brand
+            td= link_to @brand.name, pen_brand_path(@brand)
+          tr
+            td Model
+            td= @model.model
+          tr
+            td Variant count
+            td= @model.model_variants_count
+          tr
+            td Owner count
+            td= @model.collected_pens_count
+
+  div class="col-sm-12 col-md-6"
+    div class="fpc-ink-details__error-reporting"
+      h3 class="h5" Errors
+      p
+        ' If there are any pens variants that don't belong here or if there is anything
+        ' else that is wrong, feel free to report this using the button below.
+        ' We will try to fix it as soon as possible.
+      = link_to "Report an error",
+                "mailto:clustering-error@fountainpencompanion.com?subject=#{@model.name}"
+
+  h2 Model variants
+
+  div class="fpc-table fpc-table--full-width fpc-scroll-shadow"
+    table class="table table-striped"
+      thead
+        tr
+          th Count
+          th Brand
+          th Model
+          th Color
+          th Material
+          th Trim Color
+          th Filling System
+      tbody
+        - @variants.each do |variant|
+          tr
+            td= variant.collected_pens_count
+            td= variant.brand
+            td= variant.model
+            td= variant.color
+            td= variant.material
+            td= variant.trim_color
+            td= variant.filling_system

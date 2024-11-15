@@ -55,6 +55,11 @@ Rails.application.routes.draw do
       resources :ink_review_submissions, only: [:create]
     end
   end
+
+  resources :pen_brands, only: %i[index show] do
+    resources :pen_models, only: %i[show]
+  end
+
   resources :inks, only: %i[index show] do
     resource :history, only: [:show]
   end

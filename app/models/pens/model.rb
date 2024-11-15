@@ -33,4 +33,12 @@ class Pens::Model < ApplicationRecord
   def name
     "#{brand} #{model}"
   end
+
+  def collected_pens_count
+    collected_pens.size
+  end
+
+  def model_variants_count
+    model_variants.size
+  end
 end
