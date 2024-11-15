@@ -17,6 +17,29 @@ export const CurrentlyInkedTable = ({ currentlyInked, onLayoutChange }) => {
       {
         Header: "Pen",
         accessor: "pen_name",
+        Cell: ({
+          cell: {
+            value,
+            row: {
+              original: {
+                collected_pen: { model_id }
+              }
+            }
+          }
+        }) => {
+          if (model_id) {
+            return (
+              <span>
+                {value}{" "}
+                <a href={`/pen_models/${model_id}`}>
+                  <i className="fa fa-external-link"></i>
+                </a>
+              </span>
+            );
+          } else {
+            return <span>{value}</span>;
+          }
+        },
         Footer: ({ rows }) => {
           return <span>{rows.length} pens</span>;
         }
