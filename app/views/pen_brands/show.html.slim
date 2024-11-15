@@ -1,0 +1,22 @@
+- content_for :title, @brand.name
+- content_for :head
+  meta property="og:title" content=@brand.name
+  meta property="og:url" content=brand_url(@brand)
+
+div class="fpc-table fpc-table--full-width fpc-inks-table fpc-scroll-shadow"
+  table class="table table-striped"
+    caption
+      = "#{@brand.name} - #{@brand.public_model_count} models"
+    thead
+      tr
+        th Count
+        th Brand
+        th Model
+        th
+    tbody
+      - @models.each do |model|
+        tr
+          td= model.collected_pens_count
+          td= model.brand
+          td= model.model
+          td= link_to "Details", pen_brand_pen_model_path(@brand, model)

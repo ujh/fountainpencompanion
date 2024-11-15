@@ -1,0 +1,8 @@
+- content_for :title, "Pen brands"
+
+h2.mt-5.mb-3 Browse
+p #{Pens::Brand.public_count} brands
+ol class="fpc-brands-list"
+  - @brands.each_with_index do |brand, i|
+    li
+      = link_to brand.name, pen_brand_path(brand)

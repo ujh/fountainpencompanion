@@ -30,6 +30,7 @@ export const PenCard = (props) => {
     id,
     brand,
     model,
+    model_id,
     nib,
     color,
     material,
@@ -51,7 +52,17 @@ export const PenCard = (props) => {
   return (
     <Card className="fpc-pen-card">
       <Card.Body>
-        <Card.Title>{fullName}</Card.Title>
+        <Card.Title>
+          {fullName}
+          {model_id && (
+            <>
+              {" "}
+              <a href={`/pen_models/${model_id}`}>
+                <i className="fa fa-external-link"></i>
+              </a>
+            </>
+          )}
+        </Card.Title>
         {isVisible("comment") ? <Card.Text>{comment}</Card.Text> : null}
         {isVisible("color") ? (
           <>

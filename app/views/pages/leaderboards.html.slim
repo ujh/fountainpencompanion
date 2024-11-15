@@ -85,5 +85,7 @@
       p.text-muted Ranked by number of people who own this
       ol
         - LeaderBoard.top_pens_by_popularity.each do |pen|
-          li= "#{pen[:name]} (#{pen[:count]})"
+          li
+            = link_to pen[:name], pen_model_path(pen[:id])
+            = " (#{pen[:count]})"
       p= link_to "Show all", page_path("pens_by_popularity")

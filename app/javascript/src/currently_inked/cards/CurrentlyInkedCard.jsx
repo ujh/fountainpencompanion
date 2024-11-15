@@ -50,7 +50,8 @@ export const CurrentlyInkedCard = (props) => {
     pen_name,
     refillable,
     used_today,
-    collected_ink: { color }
+    collected_ink: { color },
+    collected_pen: { model_id }
   } = props;
 
   const isVisible = (field) => props[field] && !hiddenFields.includes(field);
@@ -67,7 +68,17 @@ export const CurrentlyInkedCard = (props) => {
         {isVisible("pen_name") ? (
           <>
             <div className="small text-secondary">Pen</div>
-            <Card.Text>{pen_name}</Card.Text>
+            <Card.Text>
+              {pen_name}
+              {model_id && (
+                <>
+                  {" "}
+                  <a href={`/pen_models/${model_id}`}>
+                    <i className="fa fa-external-link"></i>
+                  </a>
+                </>
+              )}
+            </Card.Text>
           </>
         ) : null}
         {isVisible("inked_on") ? (

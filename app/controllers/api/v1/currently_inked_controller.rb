@@ -17,7 +17,12 @@ class Api::V1::CurrentlyInkedController < Api::V1::BaseController
             :usage_records,
             :collected_pen,
             :last_usage,
-            collected_ink: :micro_cluster
+            collected_ink: :micro_cluster,
+            collected_pen: {
+              pens_micro_cluster: {
+                model_variant: :model_micro_cluster
+              }
+            }
           )
         relation = filter(relation)
         relation.page(params.dig(:page, :number)).per(params.dig(:page, :size))
@@ -86,7 +91,7 @@ class Api::V1::CurrentlyInkedController < Api::V1::BaseController
     if params.dig(:fields, :collected_pen).present?
       params[:fields][:collected_pen].split(",").map(&:strip)
     else
-      %i[brand model nib color]
+      %i[brand model nib color model_id]
     end
   end
 

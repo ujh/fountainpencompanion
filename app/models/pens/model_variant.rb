@@ -28,4 +28,8 @@ class Pens::ModelVariant < ApplicationRecord
       "pens_model_variants.id"
     )
   end
+
+  def collected_pens_count
+    collected_pens.size
+  end
 end

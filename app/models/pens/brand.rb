@@ -4,6 +4,30 @@ class Pens::Brand < ApplicationRecord
            class_name: "Pens::Model",
            dependent: :nullify
 
+  def self.public
+    hash = pluck(:id).hash
+    ids =
+      Rails
+        .cache
+        .fetch("#{self.class.name}#public-#{hash}", expires_in: 1.hour) do
+          joins(models: :collected_pens).group("pens_brands.id").pluck(:id)
+        end
+    where(id: ids)
+  end
+
+  def self.public_count
+    public.count
+  end
+
+  def public_models
+    ids = models.joins(:collected_pens).group("pens_models.id").pluck(:id)
+    models.where(id: ids)
+  end
+
+  def public_model_count
+    public_models.count
+  end
+
   def synonyms
     names - [name]
   end
