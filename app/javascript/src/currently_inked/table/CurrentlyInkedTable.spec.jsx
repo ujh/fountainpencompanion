@@ -27,7 +27,8 @@ describe("<CurrentlyInkedTable />", () => {
       refillable: true,
       unarchivable: false,
       archived: false,
-      collected_ink: { color: "#ac54b5" }
+      collected_ink: { color: "#ac54b5" },
+      collected_pen: { model_id: 123 }
     },
     {
       inked_on: "2023-01-15",
@@ -41,7 +42,8 @@ describe("<CurrentlyInkedTable />", () => {
       refillable: true,
       unarchivable: false,
       archived: false,
-      collected_ink: { color: "#000" }
+      collected_ink: { color: "#000" },
+      collected_pen: { model_id: null }
     }
   ];
 
