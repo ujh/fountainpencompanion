@@ -7,7 +7,10 @@ class UsageRecordsController < ApplicationController
 
   def index
     @usage_records =
-      current_user.usage_records.order("used_on DESC, currently_inked_id")
+      current_user
+        .usage_records
+        .includes(currently_inked: %i[collected_ink collected_pen])
+        .order("used_on DESC, currently_inked_id")
     respond_to do |format|
       format.html { @usage_records = @usage_records.page(params[:page]) }
       format.csv do
