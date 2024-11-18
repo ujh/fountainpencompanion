@@ -29,7 +29,7 @@ describe("<CurrentlyInkedCards />", () => {
       unarchivable: false,
       archived: false,
       collected_ink: { color: "#ac54b5" },
-      collected_pen: { model_id: 123 }
+      collected_pen: { model_variant_id: 123 }
     }
   ];
 

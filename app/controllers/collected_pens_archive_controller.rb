@@ -60,7 +60,7 @@ class CollectedPensArchiveController < ApplicationController
     @collected_pens =
       current_user
         .archived_collected_pens
-        .includes(:currently_inkeds)
+        .includes(:currently_inkeds, pens_micro_cluster: :model_variant)
         .order("brand, model")
   end
 end

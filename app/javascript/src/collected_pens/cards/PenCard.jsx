@@ -30,7 +30,7 @@ export const PenCard = (props) => {
     id,
     brand,
     model,
-    model_id,
+    model_variant_id,
     nib,
     color,
     material,
@@ -54,10 +54,10 @@ export const PenCard = (props) => {
       <Card.Body>
         <Card.Title>
           {fullName}
-          {model_id && (
+          {model_variant_id && (
             <>
               {" "}
-              <a href={`/pen_models/${model_id}`}>
+              <a href={`/pen_variants/${model_variant_id}`}>
                 <i className="fa fa-external-link"></i>
               </a>
             </>

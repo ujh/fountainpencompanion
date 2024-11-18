@@ -49,4 +49,8 @@ class Pens::Brand < ApplicationRecord
         .transform_values(&:count)
     update!(name: grouped.max_by(&:last).first)
   end
+
+  def to_param
+    "#{id}-#{name.parameterize}"
+  end
 end
