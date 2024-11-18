@@ -125,4 +125,8 @@ class CollectedPen < ApplicationRecord
   def color=(value)
     super(value.strip)
   end
+
+  def pen_variant
+    pens_micro_cluster&.model_variant
+  end
 end

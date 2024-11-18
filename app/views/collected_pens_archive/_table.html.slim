@@ -16,7 +16,12 @@ div class="pen-collection"
         - pen_collection.each do |cp|
           tr id="#{cp.id}" data-name="entry"
             td data-name="brand"= cp.brand
-            td data-name="model"= cp.model
+            td data-name="model"
+              = cp.model
+              - if cp.pen_variant
+                | &nbsp;
+                = link_to pen_variant_path(cp.pen_variant) do
+                  = fa_icon("external-link")
             td data-name="nib"= cp.nib
             td data-name="color"= cp.color
             td data-name="comment"= cp.comment
