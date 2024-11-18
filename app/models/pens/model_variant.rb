@@ -56,4 +56,8 @@ class Pens::ModelVariant < ApplicationRecord
       )
       .order("collected_pens_count desc")
   end
+
+  def to_param
+    "#{id}-#{name.parameterize}"
+  end
 end

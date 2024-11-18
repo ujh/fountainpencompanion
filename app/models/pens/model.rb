@@ -41,4 +41,8 @@ class Pens::Model < ApplicationRecord
   def model_variants_count
     model_variants.size
   end
+
+  def to_param
+    "#{id}-#{model.parameterize}"
+  end
 end
