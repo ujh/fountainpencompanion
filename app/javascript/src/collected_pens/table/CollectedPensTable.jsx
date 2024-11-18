@@ -30,15 +30,15 @@ export const CollectedPensTable = ({ pens, onLayoutChange }) => {
           cell: {
             value,
             row: {
-              original: { model_id }
+              original: { model_variant_id }
             }
           }
         }) => {
-          if (model_id) {
+          if (model_variant_id) {
             return (
               <span>
                 {value}{" "}
-                <a href={`/pen_models/${model_id}`}>
+                <a href={`/pen_variants/${model_variant_id}`}>
                   <i className="fa fa-external-link"></i>
                 </a>
               </span>

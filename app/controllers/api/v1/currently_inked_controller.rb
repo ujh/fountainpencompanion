@@ -91,7 +91,7 @@ class Api::V1::CurrentlyInkedController < Api::V1::BaseController
     if params.dig(:fields, :collected_pen).present?
       params[:fields][:collected_pen].split(",").map(&:strip)
     else
-      %i[brand model nib color model_id]
+      %i[brand model nib color model_variant_id]
     end
   end
 
