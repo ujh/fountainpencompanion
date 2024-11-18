@@ -88,7 +88,7 @@ describe Api::V1::CurrentlyInkedController do
                     model: anything,
                     nib: anything,
                     color: anything,
-                    model_id: anything
+                    model_variant_id: anything
                   }
                 )
               ]
