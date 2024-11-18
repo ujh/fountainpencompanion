@@ -1,4 +1,4 @@
-- content_for :title, @model.name
+- content_for :title, @variant.name
 
 div class="row fpc-ink-details"
   div class="col-sm-12 col-md-6"
@@ -11,13 +11,10 @@ div class="row fpc-ink-details"
             td= link_to @brand.name, pen_brand_path(@brand)
           tr
             td Model
-            td= @model.model
-          tr
-            td Variant count
-            td= @model.model_variants_count
+            td= link_to @model.model, pen_brand_pen_model_path(@brand, @model)
           tr
             td Owner count
-            td= @model.collected_pens_count
+            td= @variant.collected_pens_count
 
   div class="col-sm-12 col-md-6"
     div class="fpc-ink-details__error-reporting"
@@ -27,7 +24,7 @@ div class="row fpc-ink-details"
         ' else that is wrong, feel free to report this using the button below.
         ' We will try to fix it as soon as possible.
       = link_to "Report an error",
-                "mailto:clustering-error@fountainpencompanion.com?subject=#{@model.name}"
+                "mailto:clustering-error@fountainpencompanion.com?subject=#{@variant.name}"
 
   h2 Model variants
 
@@ -44,13 +41,13 @@ div class="row fpc-ink-details"
           th Filling System
           th
       tbody
-        - @variants.each do |variant|
-          tr
-            td= variant.collected_pens_count
-            td= variant.brand
-            td= variant.model
-            td= variant.color
-            td= variant.material
-            td= variant.trim_color
-            td= variant.filling_system
-            td= link_to "Details", pen_brand_pen_model_pen_variant_path(@brand, @model, variant)
+        - @variant.all_names.each do |collected_pen|
+            tr
+              td= collected_pen.collected_pens_count
+              td= collected_pen.brand
+              td= collected_pen.model
+              td= collected_pen.color
+              td= collected_pen.material
+              td= collected_pen.trim_color
+              td= collected_pen.filling_system
+              td

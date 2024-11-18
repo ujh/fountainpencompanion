@@ -57,7 +57,9 @@ Rails.application.routes.draw do
   end
 
   resources :pen_brands, only: %i[index show] do
-    resources :pen_models, only: %i[show]
+    resources :pen_models, only: %i[show] do
+      resources :pen_variants, only: %i[show]
+    end
   end
   resources :pen_models, only: %i[show]
 
