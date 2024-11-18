@@ -46,9 +46,8 @@ class Pens::ModelVariant < ApplicationRecord
 
   def all_names
     columns =
-      %w[brand model color material trim_color filling_system].map do |c|
-          "collected_pens.#{c}"
-        end
+      %w[brand model color material trim_color filling_system]
+        .map { |c| "collected_pens.#{c}" }
         .join(", ")
     collected_pens
       .group(columns)

@@ -105,6 +105,7 @@
     "lint": "yarn run prettier && yarn run eslint",
     "eslint": "eslint .",
     "prettier": "prettier --check .",
+    "prettier-fix": "prettier --write .",
     "test": "jest"
   },
   "lint-staged": {
