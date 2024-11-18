@@ -32,4 +32,29 @@ class Pens::ModelVariant < ApplicationRecord
   def collected_pens_count
     collected_pens.size
   end
+
+  def pen_model
+    model_micro_cluster.model
+  end
+
+  def name
+    [brand, model, color, material, trim_color, filling_system].reject do |part|
+        part.blank?
+      end
+      .join(" ")
+  end
+
+  def all_names
+    columns =
+      %w[brand model color material trim_color filling_system].map do |c|
+          "collected_pens.#{c}"
+        end
+        .join(", ")
+    collected_pens
+      .group(columns)
+      .select(
+        "min(collected_pens.id), count(*) as collected_pens_count, #{columns}"
+      )
+      .order("collected_pens_count desc")
+  end
 end
