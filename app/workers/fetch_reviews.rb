@@ -15,9 +15,8 @@ class FetchReviews
   private
 
   def feeds
-    # Currently down:
-    # https://fountainpenpharmacist.com/?format=rss
     %w[
+      https://www.fountainpenpharmacist.com/feeds/posts/default?alt=rss
       https://wondernaut.wordpress.com/category/ink-review/feed/
       https://www.wellappointeddesk.com/category/ink-review/feed/
       https://macchiatoman.com/?format=rss
