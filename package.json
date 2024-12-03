@@ -40,7 +40,7 @@
     "react-table-6": "^6.11.0",
     "recharts": "2.12.5",
     "regenerator-runtime": "^0.14.1",
-    "sass": "^1.81.0",
+    "sass": "^1.81.1",
     "sass-loader": "^16.0.3",
     "select2": "4.0.13",
     "webpack": "^5.96.1",
