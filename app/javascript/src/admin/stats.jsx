@@ -5,16 +5,18 @@ document.addEventListener("DOMContentLoaded", () => {
   const elements = document.querySelectorAll(".stats");
   Array.from(elements).forEach((el) => {
     const root = createRoot(el);
-    root.render(<Stat id={el.dataset.id} />);
+    root.render(<Stat id={el.dataset.id} arg={el.dataset.arg} />);
   });
 });
 
-const Stat = ({ id }) => {
+const Stat = ({ id, arg }) => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   useEffect(() => {
     async function load() {
-      const response = await fetch(`/admins/stats/${id}`);
+      let url = `/admins/stats/${id}`;
+      if (arg) url += `?arg=${arg}`;
+      const response = await fetch(url);
       const json = await response.json();
       setData(json);
       setLoading(false);

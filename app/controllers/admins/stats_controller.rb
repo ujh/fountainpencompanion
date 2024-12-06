@@ -6,6 +6,7 @@ class Admins::StatsController < Admins::BaseController
   private
 
   def statistic
-    AdminStats.new.send(params[:id])
+    args = [params[:id], params[:arg]].compact
+    AdminStats.new.send(*args)
   end
 end
