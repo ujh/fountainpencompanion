@@ -9,6 +9,7 @@ import "./src/admin/micro-clusters";
 import "./src/admin/pens-micro-clusters";
 import "./src/admin/pens-model-micro-clusters";
 import "./src/admin/graphs";
+import "./src/admin/stats";
 
 [...document.querySelectorAll('[data-bs-toggle="tooltip"]')].map(
   (triggerEl) => new Tooltip(triggerEl)

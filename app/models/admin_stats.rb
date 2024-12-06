@@ -90,6 +90,50 @@ class AdminStats
     User.where(patron: true).count
   end
 
+  def spammer_count
+    User.spammer.count
+  end
+
+  def brand_cluster_count
+    BrandCluster.count
+  end
+
+  def collected_pens_count
+    CollectedPen.count
+  end
+
+  def pens_micro_clusters_count
+    Pens::MicroCluster.count
+  end
+
+  def pens_model_variants_count
+    Pens::ModelVariant.count
+  end
+
+  def pens_model_micro_clusters_count
+    Pens::ModelMicroCluster.count
+  end
+
+  def pens_models_count
+    Pens::Model.count
+  end
+
+  def pens_brands_count
+    Pens::Brand.count
+  end
+
+  def currently_inked_count
+    CurrentlyInked.count
+  end
+
+  def usage_records_count
+    UsageRecord.count
+  end
+
+  def ink_review_count
+    InkReview.count
+  end
+
   def users_using_collected_pens_count
     @users_using_collected_pens_count ||=
       User.joins(:collected_pens).group("users.id").count.count

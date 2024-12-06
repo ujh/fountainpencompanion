@@ -9,23 +9,31 @@ table class="table table-striped"
         table
           tr
             td
-              = "#{@stats.user_count} confirmed users"
+              span(class="stats" data-id="user_count")
+              | confirmed users
               - if User.to_review.count.positive?
                 b
                   |   (
                   = link_to " #{User.to_review.count} users to review", to_review_admins_users_path
                   |  )
           tr
-            td= "(#{@stats.patron_count} Patrons)"
+            td
+              | (
+              span(class="stats" data-id="patron_count")
+              | Patrons)
           tr
-            td= "(#{User.spammer.count} spam accounts)"
+            td
+              | (
+              span(class="stats" data-id="spammer_count")
+              | spam accounts)
     tr
       td Number of ink brands
-      td= BrandCluster.count
+      td
+        span(class="stats" data-id="brand_cluster_count")
     tr
       td Number of macro clusters
       td
-        = @stats.macro_cluster_count
+        span(class="stats" data-id="macro_cluster_count")
         - if @stats.unassigned_macro_cluster_count.positive?
           b
             |   (
@@ -34,7 +42,7 @@ table class="table table-striped"
     tr
       td Number of micro clusters
       td
-        = @stats.micro_cluster_count
+        span(class="stats" data-id="micro_cluster_count")
         - if @stats.micro_clusters_to_assign_count.positive?
           b
             |   (
@@ -42,17 +50,20 @@ table class="table table-striped"
             |  )
     tr
       td Number of collected inks
-      td= @stats.collected_inks_count
+      td
+        span(class="stats" data-id="collected_inks_count")
 
     tr
       td Number of collected pens
       td
         table
           tr
-            td style="text-align:right"= CollectedPen.count
+            td style="text-align:right"
+              span(class="stats" data-id="collected_pens_count")
             td
           tr
-            td style="text-align:right"= Pens::MicroCluster.count
+            td style="text-align:right"
+              span(class="stats" data-id="pens_micro_clusters_count")
             td
               | &nbsp;
               | micro clusters
@@ -63,7 +74,8 @@ table class="table table-striped"
                   = link_to "#{@stats.pens_micro_clusters_to_assign_count} to assign", admins_pens_micro_clusters_path
                   |  )
           tr
-            td style="text-align:right"= @stats.relevant_pens_micro_clusters_count
+            td style="text-align:right"
+              span(class="stats" data-id="relevant_pens_micro_clusters_count")
             td
               | &nbsp;
               | micro clusters with more than one collected pen
@@ -85,12 +97,14 @@ table class="table table-striped"
                   = link_to "#{@stats.pens_micro_clusters_prio_to_assign_count(2)} to assign", admins_pens_micro_clusters_path(count: 2)
                   |  )
           tr
-            td style="text-align:right"= Pens::ModelVariant.count
+            td style="text-align:right"
+              span(class="stats" data-id="pens_model_variants_count")
             td
               | &nbsp;
               | model variants
           tr
-            td style="text-align:right"= Pens::ModelMicroCluster.count
+            td style="text-align:right"
+              span(class="stats" data-id="pens_model_micro_clusters_count")
             td
               | &nbsp;
               | model micro clusters
@@ -101,7 +115,8 @@ table class="table table-striped"
                   = link_to "#{@stats.pens_model_micro_clusters_to_assign_count} to assign", admins_pens_model_micro_clusters_path
                   |  )
           tr
-            td style="text-align:right"= Pens::Model.count
+            td style="text-align:right"
+              span(class="stats" data-id="pens_models_count")
             td
               | &nbsp;
               | models
@@ -112,7 +127,8 @@ table class="table table-striped"
                   = link_to "#{@stats.pens_models_to_assign_count} to assign", new_admins_pens_brand_cluster_path
                   |  )
           tr
-            td style="text-align:right"= Pens::Brand.count
+            td style="text-align:right"
+              span(class="stats" data-id="pens_brands_count")
             td
               | &nbsp;
               | brands
@@ -120,14 +136,16 @@ table class="table table-striped"
 
     tr
       td Number of "Currently Inked"
-      td= CurrentlyInked.count
+      td
+        span(class="stats" data-id="currently_inked_count")
     tr
       td Number of usage records
-      td= UsageRecord.count
+      td
+        span(class="stats" data-id="usage_records_count")
     tr
       td Number of ink reviews
       td
-        = InkReview.count
+        span(class="stats" data-id="ink_review_count")
         - if InkReview.queued.count.positive?
           b
             |  (
