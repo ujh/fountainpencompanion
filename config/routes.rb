@@ -102,6 +102,7 @@ Rails.application.routes.draw do
 
   namespace :admins do
     resource :dashboard, only: [:show]
+    resources :stats, only: [:show]
     resources :users, only: %i[index show update destroy] do
       collection { get "to_review" }
       member do
