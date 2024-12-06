@@ -5,16 +5,33 @@ document.addEventListener("DOMContentLoaded", () => {
   const elements = document.querySelectorAll(".stats");
   Array.from(elements).forEach((el) => {
     const root = createRoot(el);
-    root.render(<Stat id={el.dataset.id} />);
+    root.render(<Stat id={el.dataset.id} arg={el.dataset.arg} />);
   });
 });
 
-const Stat = ({ id }) => {
+document.addEventListener("DOMContentLoaded", () => {
+  const elements = document.querySelectorAll(".conditional-stats");
+  Array.from(elements).forEach((el) => {
+    const root = createRoot(el);
+    root.render(
+      <ConditionalStat
+        id={el.dataset.id}
+        arg={el.dataset.arg}
+        href={el.dataset.href}
+        template={el.dataset.template}
+      />
+    );
+  });
+});
+
+const Stat = ({ id, arg }) => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   useEffect(() => {
     async function load() {
-      const response = await fetch(`/admins/stats/${id}`);
+      let url = `/admins/stats/${id}`;
+      if (arg) url += `?arg=${arg}`;
+      const response = await fetch(url);
       const json = await response.json();
       setData(json);
       setLoading(false);
@@ -30,5 +47,41 @@ const Stat = ({ id }) => {
     );
   } else {
     return <>{data} </>;
+  }
+};
+
+const ConditionalStat = ({ id, arg, href, template }) => {
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    async function load() {
+      let url = `/admins/stats/${id}`;
+      if (arg) url += `?arg=${arg}`;
+      const response = await fetch(url);
+      const json = await response.json();
+      setData(json);
+      setLoading(false);
+    }
+    load();
+  });
+  if (loading) {
+    return (
+      <>
+        &nbsp;
+        <i className="fa fa-spin fa-refresh" />
+        &nbsp;
+      </>
+    );
+  } else if (data) {
+    return (
+      <>
+        &nbsp;
+        <b>
+          ( <a href={href}>{template.replace("%count%", data)}</a> )
+        </b>
+      </>
+    );
+  } else {
+    return null;
   }
 };

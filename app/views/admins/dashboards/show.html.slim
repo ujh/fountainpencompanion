@@ -11,11 +11,7 @@ table class="table table-striped"
             td
               span(class="stats" data-id="user_count")
               | confirmed users
-              - if User.to_review.count.positive?
-                b
-                  |   (
-                  = link_to " #{User.to_review.count} users to review", to_review_admins_users_path
-                  |  )
+              span(class="conditional-stats" data-id="users_to_review_count" data-href=to_review_admins_users_path data-template="%count% users to review")
           tr
             td
               | (
@@ -34,20 +30,12 @@ table class="table table-striped"
       td Number of macro clusters
       td
         span(class="stats" data-id="macro_cluster_count")
-        - if @stats.unassigned_macro_cluster_count.positive?
-          b
-            |   (
-            = @stats.unassigned_macro_cluster_count
-            |  without brand)
+        span(class="conditional-stats" data-id="unassigned_macro_cluster_count" data-href=new_admins_brand_cluster_path data-template="%count% to assign")
     tr
       td Number of micro clusters
       td
         span(class="stats" data-id="micro_cluster_count")
-        - if @stats.micro_clusters_to_assign_count.positive?
-          b
-            |   (
-            = link_to " #{@stats.micro_clusters_to_assign_count} waiting to be assigned", admins_micro_clusters_path
-            |  )
+        span(class="conditional-stats" data-id="micro_clusters_to_assign_count" data-href=admins_micro_clusters_path data-template="%count% to assign")
     tr
       td Number of collected inks
       td
@@ -67,35 +55,21 @@ table class="table table-striped"
             td
               | &nbsp;
               | micro clusters
-              - if @stats.pens_micro_clusters_to_assign_count.positive?
-                b
-                  |   (
-                  | &nbsp;
-                  = link_to "#{@stats.pens_micro_clusters_to_assign_count} to assign", admins_pens_micro_clusters_path
-                  |  )
+              span(class="conditional-stats" data-id="pens_micro_clusters_to_assign_count" data-href=admins_pens_micro_clusters_path data-template="%count% to assign")
           tr
             td style="text-align:right"
               span(class="stats" data-id="relevant_pens_micro_clusters_count")
             td
               | &nbsp;
               | micro clusters with more than one collected pen
-              - if @stats.pens_micro_clusters_prio_to_assign_count.positive?
-                b
-                  |   (
-                  | &nbsp;
-                  = link_to "#{@stats.pens_micro_clusters_prio_to_assign_count} to assign", admins_pens_micro_clusters_path(count: 1)
-                  |  )
+              span(class="conditional-stats" data-id="pens_micro_clusters_prio_to_assign_count" data-href=admins_pens_micro_clusters_path(count: 1) data-template="%count% to assign")
           tr
-            td style="text-align:right"= @stats.relevant_pens_micro_clusters_count(2)
+            td style="text-align:right"
+              span(class="stats" data-id="relevant_pens_micro_clusters_count" data-arg="2")
             td
               | &nbsp;
               | micro clusters with more than two collected pens
-              - if @stats.pens_micro_clusters_prio_to_assign_count(2).positive?
-                b
-                  |   (
-                  | &nbsp;
-                  = link_to "#{@stats.pens_micro_clusters_prio_to_assign_count(2)} to assign", admins_pens_micro_clusters_path(count: 2)
-                  |  )
+              span(class="conditional-stats" data-id="pens_micro_clusters_prio_to_assign_count" data-arg="2" data-href=admins_pens_micro_clusters_path(count: 2) data-template="%count% to assign")
           tr
             td style="text-align:right"
               span(class="stats" data-id="pens_model_variants_count")
@@ -108,24 +82,14 @@ table class="table table-striped"
             td
               | &nbsp;
               | model micro clusters
-              - if @stats.pens_model_micro_clusters_to_assign_count.positive?
-                b
-                  |   (
-                  | &nbsp;
-                  = link_to "#{@stats.pens_model_micro_clusters_to_assign_count} to assign", admins_pens_model_micro_clusters_path
-                  |  )
+              span(class="conditional-stats" data-id="pens_model_micro_clusters_to_assign_count" data-href=admins_pens_model_micro_clusters_path data-template="%count% to assign")
           tr
             td style="text-align:right"
               span(class="stats" data-id="pens_models_count")
             td
               | &nbsp;
               | models
-              - if @stats.pens_models_to_assign_count.positive?
-                b
-                  |   (
-                  | &nbsp;
-                  = link_to "#{@stats.pens_models_to_assign_count} to assign", new_admins_pens_brand_cluster_path
-                  |  )
+              span(class="conditional-stats" data-id="pens_models_to_assign_count" data-href=new_admins_pens_brand_cluster_path data-template="%count% to assign")
           tr
             td style="text-align:right"
               span(class="stats" data-id="pens_brands_count")
@@ -146,11 +110,7 @@ table class="table table-striped"
       td Number of ink reviews
       td
         span(class="stats" data-id="ink_review_count")
-        - if InkReview.queued.count.positive?
-          b
-            |  (
-            = InkReview.queued.count
-            |  queued)
+        span(class="conditional-stats" data-id="ink_reviews_to_review_count" data-href=admins_reviews_path data-template="%count% to review")
 
 div#graphs
   div.row

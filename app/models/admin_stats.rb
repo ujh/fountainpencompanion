@@ -94,6 +94,10 @@ class AdminStats
     User.spammer.count
   end
 
+  def users_to_review_count
+    User.to_review.count
+  end
+
   def brand_cluster_count
     BrandCluster.count
   end
@@ -132,6 +136,10 @@ class AdminStats
 
   def ink_review_count
     InkReview.count
+  end
+
+  def ink_reviews_to_review_count
+    InkReview.queued.count
   end
 
   def users_using_collected_pens_count
