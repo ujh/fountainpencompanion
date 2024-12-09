@@ -1,6 +1,44 @@
-version: "3.9"
+x-rails: &rails
+  image: master
+  pull_policy: never
+  tty: true
+  stdin_open: true
+  build: .
+  environment:
+    GOOGLE_CLIENT_SECRETS: xxx
+    GOOGLE_CREDENTIALS: xxx
+    HCAPTCHA_SECRET: xxx
+    HCAPTCHA_SITE_KEY: xxx
+    NODE_ENV: development
+    OPENAI_PEN_AND_INK_SUGGESTIONS: xxx
+    PORT: 80
+    POSTGRES_PASSWORD: fpc
+    POSTGRES_USER: fpc
+    RAILS_MAX_THREADS: 5
+    REDIS_CACHE_URL: redis://redis:6379/1
+    REDIS_PROVIDER: REDIS_URL
+    REDIS_URL: redis://redis:6379/0
+  env_file:
+    - path: ./.env.local
+      required: false
+
+  depends_on:
+    - postgres
+    - redis
+  volumes:
+    - .:/app
+    - gem_cache:/usr/local/bundle
 
 services:
+  postgres:
+    image: postgres:16
+    volumes:
+      - postgres_data:/var/lib/postgresql/data:cached
+    environment:
+      POSTGRES_USER: fpc
+      POSTGRES_PASSWORD: fpc
+    ports:
+      - 5432:5432
   redis:
     image: redis:6-alpine
     command: redis-server
@@ -8,6 +46,19 @@ services:
       - redis_data:/data:cached
     ports:
       - 6379:6379
+  app:
+    <<: *rails
+    command: bundle exec puma
+    ports:
+      - 80:80
+  webpack:
+    <<: *rails
+    command: yarn dev
+  sidekiq:
+    <<: *rails
+    command: bundle exec sidekiq
 
 volumes:
+  gem_cache:
+  postgres_data:
   redis_data:

@@ -8,13 +8,17 @@ default: &default
 
 development:
   <<: *default
-  url: <%= ENV['DATABASE_URL'] %>
   database: fountainpencompanion_development
+  host: postgres
+  username: fpc
+  password: fpc
 
 test:
   <<: *default
-  url: <%= ENV['DATABASE_URL'] %>
   database: fountainpencompanion_test
+  host: postgres
+  username: fpc
+  password: fpc
 
 production:
   <<: *default

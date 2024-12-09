@@ -13,7 +13,7 @@ class AddFullTextSearchToCollectedInks < ActiveRecord::Migration[6.0]
         );
       SQL
 
-    now = Time.current.to_s(:db)
+    now = Time.current.to_s
     update("UPDATE collected_inks SET updated_at = '#{now}'")
   end
 
