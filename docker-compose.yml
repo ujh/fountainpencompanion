@@ -1,16 +1,11 @@
 x-rails: &rails
-  image: master
+  image: fpc-dev
   pull_policy: never
   tty: true
   stdin_open: true
   build: .
   environment:
-    GOOGLE_CLIENT_SECRETS: xxx
-    GOOGLE_CREDENTIALS: xxx
-    HCAPTCHA_SECRET: xxx
-    HCAPTCHA_SITE_KEY: xxx
     NODE_ENV: development
-    OPENAI_PEN_AND_INK_SUGGESTIONS: xxx
     PORT: 80
     POSTGRES_PASSWORD: fpc
     POSTGRES_USER: fpc
@@ -19,6 +14,8 @@ x-rails: &rails
     REDIS_PROVIDER: REDIS_URL
     REDIS_URL: redis://redis:6379/0
   env_file:
+    - path: ./.env
+      required: true
     - path: ./.env.local
       required: false
 
