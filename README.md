@@ -22,62 +22,26 @@ I've collected a lot of issues. Most of them are not yet concretely thought out,
 
 ## Local development
 
-This app currently _does not_ have a Docker setup, but is meant to be used for "bare bones" development.
+It's easiest to run the app via [OrbStack](https://orbstack.dev/), a Docker Desktop alternative.
 
-### Prerequisites
+### Initial Setup
 
-- PostgreSQL 14 installed locally (we need a database configured with `trust` for tests).
-- Redis 6 installed locally or running in a container.
+- Run `docker-compose up` with OrbStack already running and wait for the everything to build. _This can take a while the first time around._
+- In a second terminal (while the other is still running Docker), run `docker-compose exec app bundle exec rails db:setup`
+- Go to app.fountainpencompanion.orb.local (or whatever the `app` container in Orbstack has as it's URL)
+- Login with email address `urban@bettong.net` and password `password`
 
-A convenience `docker-compose` file is available for Redis. Run with `docker-compose up`.
+From now on you'll only need to run `docker-compose up` to work on the app.
 
-**Environment variables**
+### Running the tests
 
-- See `.env` for relevant Redis variables.
+- Use `docker-compose exec app bundle exec rspec` to run the backend tests
+- Use `docker-compose exec app yarn test` to run the frontend tests
 
-Other prerequesites include:
+### Receiving emails during development
 
-- [rbenv](https://github.com/rbenv/rbenv) to manage Ruby version and virtual environment.
-- [nvm](https://github.com/nvm-sh/nvm) to manage Node version and virtual environment.
-- Yarn Classic installed in the Node environment (`npm install -g yarn`).
-- Bundle installed in the Ruby environment (`gem install bundle`).
-- (Optional) [Heroku CLI](https://devcenter.heroku.com/articles/heroku-cli)
-
-### Install dependencies
-
-- Run `bundle install` to install Ruby dependencies.
-- Run `yarn` to install Node dependencies.
-
-### Create database
-
-- `./bin/rails db:create`
-- `./bin/rails db:environment:set RAILS_ENV=development`
-- `./bin/rails db:reset`
-
-### Running
-
-Once you've set up everything you can run the whole thing with:
-
-1. `bundle exec puma` in one terminal.
-2. `bundle exec sidekiq` in another terminal.
-3. `yarn dev` in another terminal.
-
-This is assuming both PostgreSQL and Redis is running.
-
-### Default database seed
-
-By default a user and an admin will be generated (see `db/seeds.rb` for the username), with a random password. Since emails are mocked locally you can use the password reset and resend confirmation features for both the [user-](http://localhost:3000/users/sign_in) and [admin signin](http://localhost:3000/admins/sign_in) to get access to this account on localhost.
-
-To test as a regular user, sign up as you would in production. Create at minimum two regular users to test some of the community features.
-
-**Adding new inks for the first time**
-A fresh database means the first time a regular user inputs a new ink brand or type, a cluster has to be made on the admin side. A mock email will pop up. Sign in as an admin and navigate to Macro clusters -> Clustering app. Create the new cluster(s). When getting started it might be useful to be logged in as an admin in one browser, and a regular user in another.
-
-### Run tests
-
-- Use `rake` (without any arguments) to run the rspec tests.
-- Use `yarn jest` to run the front-end tests.
+Emails in development are accessible by going to `/letter_opener`.
 
 # Licensing
 
-The code base is licensed under the MIT license.
+The code base is licensed under the Hippocratic License 2.1
