@@ -17,7 +17,7 @@ WORKDIR /app
 
 # Install base packages
 RUN apt-get update -qq && \
-  apt-get install --no-install-recommends -y curl libjemalloc2 libvips && \
+  apt-get install --no-install-recommends -y curl libjemalloc2 libvips lsb-release gnupg2 && \
   rm -rf /var/lib/apt/lists /var/cache/apt/archives
 
 ENV BUNDLE_PATH="/usr/local/bundle"
@@ -25,9 +25,15 @@ ENV BUNDLE_PATH="/usr/local/bundle"
 # Throw-away build stage to reduce size of final image
 # FROM base AS build
 
+# Install Postgres 16, so that schema dumping works
+RUN echo "deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list
+
+# Trust the PGDG gpg key
+RUN curl -fsSL https://www.postgresql.org/media/keys/ACCC4CF8.asc| gpg --dearmor -o /etc/apt/trusted.gpg.d/postgresql.gpg
+
 # Install packages needed to build gems
 RUN apt-get update -qq && \
-  apt-get install --no-install-recommends -y build-essential git pkg-config libpq-dev postgresql-client nodejs npm && \
+  apt-get install --no-install-recommends -y build-essential git pkg-config libpq-dev postgresql-client-16 && \
   rm -rf /var/lib/apt/lists /var/cache/apt/archives
 
 # Install application gems
@@ -47,10 +53,11 @@ RUN if [ $(uname -m) = "aarch64" ]; then NODE_ARCH=arm64 ; else NODE_ARCH=x64 ; 
   tar -xvzf "$NODE_TAR_FILE" -C /opt/nodejs/ && \
   mv "/opt/nodejs/node-$NODE_VERSION-linux-$NODE_ARCH" "/opt/nodejs/current" && \
   ln -s /opt/nodejs/current/bin/node /usr/local/bin/node && \
+  ln -s /opt/nodejs/current/bin/npm /usr/local/bin/npm && \
   rm "node-$NODE_VERSION-linux-$NODE_ARCH.tar.gz" && \
   node -v
 
-RUN npm install --global yarn
+RUN npm install --global yarn && ln -s /opt/nodejs/current/bin/yarn /usr/local/bin/yarn
 RUN yarn install
 
 # Copy application code

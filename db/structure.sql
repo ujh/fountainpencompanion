@@ -10,13 +10,6 @@ SET client_min_messages = warning;
 SET row_security = off;
 
 --
--- Name: public; Type: SCHEMA; Schema: -; Owner: -
---
-
--- *not* creating schema, since initdb creates it
-
-
---
 -- Name: fuzzystrmatch; Type: EXTENSION; Schema: -; Owner: -
 --
 
@@ -254,39 +247,6 @@ CREATE SEQUENCE public.currently_inked_id_seq
 --
 
 ALTER SEQUENCE public.currently_inked_id_seq OWNED BY public.currently_inked.id;
-
-
---
--- Name: friendships; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.friendships (
-    id bigint NOT NULL,
-    sender_id bigint NOT NULL,
-    friend_id bigint NOT NULL,
-    approved boolean DEFAULT false,
-    created_at timestamp(6) without time zone NOT NULL,
-    updated_at timestamp(6) without time zone NOT NULL
-);
-
-
---
--- Name: friendships_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE public.friendships_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: friendships_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE public.friendships_id_seq OWNED BY public.friendships.id;
 
 
 --
@@ -1007,13 +967,6 @@ ALTER TABLE ONLY public.currently_inked ALTER COLUMN id SET DEFAULT nextval('pub
 
 
 --
--- Name: friendships id; Type: DEFAULT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.friendships ALTER COLUMN id SET DEFAULT nextval('public.friendships_id_seq'::regclass);
-
-
---
 -- Name: gutentag_taggings id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -1195,14 +1148,6 @@ ALTER TABLE ONLY public.currently_inked
 
 
 --
--- Name: friendships friendships_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.friendships
-    ADD CONSTRAINT friendships_pkey PRIMARY KEY (id);
-
-
---
 -- Name: gutentag_taggings gutentag_taggings_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1377,13 +1322,6 @@ CREATE UNIQUE INDEX idx_on_simplified_brand_simplified_model_70c232c961 ON publi
 
 
 --
--- Name: idx_on_simplified_brand_simplified_model_simplified_b6b51aca41; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE UNIQUE INDEX idx_on_simplified_brand_simplified_model_simplified_b6b51aca41 ON public.pens_micro_clusters USING btree (simplified_brand, simplified_model, simplified_color);
-
-
---
 -- Name: index_brand_clusters_on_description; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -1486,20 +1424,6 @@ CREATE INDEX index_currently_inked_on_collected_pen_id ON public.currently_inked
 --
 
 CREATE INDEX index_currently_inked_on_user_id ON public.currently_inked USING btree (user_id);
-
-
---
--- Name: index_friendships_on_friend_id; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX index_friendships_on_friend_id ON public.friendships USING btree (friend_id);
-
-
---
--- Name: index_friendships_on_sender_id; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX index_friendships_on_sender_id ON public.friendships USING btree (sender_id);
 
 
 --
@@ -1829,14 +1753,6 @@ ALTER TABLE ONLY public.reading_statuses
 
 
 --
--- Name: friendships fk_rails_19981bd36e; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.friendships
-    ADD CONSTRAINT fk_rails_19981bd36e FOREIGN KEY (sender_id) REFERENCES public.users(id);
-
-
---
 -- Name: macro_clusters fk_rails_4b634dc145; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1965,14 +1881,6 @@ ALTER TABLE ONLY public.usage_records
 
 
 --
--- Name: friendships fk_rails_d78dc9c7fd; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.friendships
-    ADD CONSTRAINT fk_rails_d78dc9c7fd FOREIGN KEY (friend_id) REFERENCES public.users(id);
-
-
---
 -- Name: pens_micro_clusters fk_rails_d7b7d193b7; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -2011,6 +1919,7 @@ ALTER TABLE ONLY public.collected_inks
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20241211115823'),
 ('20241114144808'),
 ('20240916060008'),
 ('20240911151651'),

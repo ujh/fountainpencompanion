@@ -16,12 +16,6 @@
 //= require select2
 //= require_tree .
 
-// $(function() {
-//   $(".friend-button").each(function() {
-//     renderFriendButton(this);
-//   });
-// });
-
 $(function () {
   $(".admin-macro-cluster-row, .admin-micro-cluster-row").on(
     "ajax:success",
