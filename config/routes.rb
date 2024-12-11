@@ -48,7 +48,6 @@ Rails.application.routes.draw do
     member { post "unarchive" }
   end
 
-  resources :friendships, only: %i[create update destroy]
   resources :usage_records, only: %i[index destroy edit update]
 
   resources :brands, only: %i[index edit update show] do
