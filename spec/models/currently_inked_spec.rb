@@ -120,6 +120,72 @@ describe CurrentlyInked do
     end
   end
 
+  describe "#last_used_on" do
+    subject { create(:currently_inked) }
+
+    it "returns the date of latest usage record" do
+      create(:usage_record, currently_inked: subject, used_on: 1.day.ago)
+      create(:usage_record, currently_inked: subject, used_on: 4.day.ago)
+
+      expect(subject.last_used_on).to eq(1.day.ago.to_date)
+    end
+
+    it "returns the latest usage of the previous CI record if current one blank" do
+      previous_ci =
+        create(
+          :currently_inked,
+          user: subject.user,
+          collected_ink: subject.collected_ink,
+          collected_pen: subject.collected_pen,
+          archived_on: Date.today
+        )
+
+      create(:usage_record, currently_inked: previous_ci, used_on: 1.day.ago)
+      create(:usage_record, currently_inked: previous_ci, used_on: 4.day.ago)
+
+      expect(subject.last_used_on).to eq(1.day.ago.to_date)
+    end
+
+    it "uses the latest usage record if present, even if previous entry has records as well" do
+      create(:usage_record, currently_inked: subject, used_on: 2.day.ago)
+
+      previous_ci =
+        create(
+          :currently_inked,
+          user: subject.user,
+          collected_ink: subject.collected_ink,
+          collected_pen: subject.collected_pen,
+          archived_on: Date.today
+        )
+      create(:usage_record, currently_inked: previous_ci, used_on: 1.day.ago)
+
+      expect(subject.last_used_on).to eq(2.day.ago.to_date)
+    end
+
+    it "does not use the data from two ci entries back" do
+      create(
+        :currently_inked,
+        user: subject.user,
+        collected_ink: subject.collected_ink,
+        collected_pen: subject.collected_pen,
+        archived_on: Date.today,
+        created_at: 2.days.ago
+      )
+      prev_prev_ci =
+        create(
+          :currently_inked,
+          user: subject.user,
+          collected_ink: subject.collected_ink,
+          collected_pen: subject.collected_pen,
+          archived_on: 2.days.ago,
+          created_at: 3.days.ago
+        )
+      create(:usage_record, currently_inked: prev_prev_ci, used_on: 3.day.ago)
+
+      expect(subject.last_used_on).to be nil
+    end
+  end
+
   describe "#refill!" do
     let(:ink) { create(:collected_ink, user: user) }
     let(:pen) { create(:collected_pen, user: user) }
@@ -145,14 +211,14 @@ describe CurrentlyInked do
     it "raises an error if the ink is archived" do
       ink.archive!
       expect do
-        expect do subject.refill! end.to_not change { CurrentlyInked.count }
+        expect { subject.refill! }.to_not(change { CurrentlyInked.count })
       end.to raise_error(CurrentlyInked::NotRefillable)
     end
 
     it "raises and error if the pen is archived" do
       pen.archive!
       expect do
-        expect do subject.refill! end.to_not change { CurrentlyInked.count }
+        expect { subject.refill! }.to_not(change { CurrentlyInked.count })
       end.to raise_error(CurrentlyInked::NotRefillable)
     end
   end
@@ -209,10 +275,12 @@ describe CurrentlyInked do
       subject.update(archived_on: Date.today)
       subject.update(nib: "other value")
       expect(subject.nib).to eq("other value")
-      expect do subject.update(comment: "new comment") end.to_not change {
-        subject.reload
-        subject.nib
-      }
+      expect { subject.update(comment: "new comment") }.to_not(
+        change do
+          subject.reload
+          subject.nib
+        end
+      )
     end
 
     it "clears the nib when unarchiving" do
@@ -254,7 +322,7 @@ describe CurrentlyInked do
     subject { create(:currently_inked) }
 
     it "deletes usage records" do
-      usage_record = create(:usage_record, currently_inked: subject)
+      create(:usage_record, currently_inked: subject)
       expect do
         expect do subject.destroy end.to change { CurrentlyInked.count }.from(
           1
@@ -271,19 +339,17 @@ describe CurrentlyInked do
     end
 
     it "returns true when there is a UsageRecord for today" do
-      usage_record =
-        create(:usage_record, currently_inked: subject, used_on: Date.today)
+      create(:usage_record, currently_inked: subject, used_on: Date.today)
       expect(subject).to be_used_today
     end
 
     it "returns false when there is a UsageRecord for yesterday" do
-      usage_record =
-        create(:usage_record, currently_inked: subject, used_on: Date.yesterday)
+      create(:usage_record, currently_inked: subject, used_on: Date.yesterday)
       expect(subject).to_not be_used_today
     end
 
     it "returns false when there is a UsageRecord for another currently inked" do
-      usage_record = create(:usage_record)
+      create(:usage_record)
       expect(subject).to_not be_used_today
     end
   end

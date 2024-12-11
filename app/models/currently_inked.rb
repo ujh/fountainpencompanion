@@ -77,7 +77,7 @@ class CurrentlyInked < ApplicationRecord
   end
 
   def last_used_on
-    last_usage&.used_on
+    last_usage&.used_on || previous_record&.last_usage&.used_on
   end
 
   def name
@@ -114,17 +114,26 @@ class CurrentlyInked < ApplicationRecord
 
   private
 
+  def previous_record
+    self
+      .class
+      .where(
+        user_id: user_id,
+        collected_ink_id: collected_ink_id,
+        collected_pen_id: collected_pen_id
+      )
+      .where.not(id: id)
+      .order("created_at desc")
+      .first
+  end
+
   def set_default_inked_on
     self.inked_on ||= Date.current
   end
 
   def update_nib
     return unless archived_on_changed?
-    if archived?
-      self.nib = collected_pen.nib
-    else
-      self.nib = ""
-    end
+    self.nib = (archived? ? collected_pen.nib : "")
   end
 
   def mark_ink_used
