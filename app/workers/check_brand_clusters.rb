@@ -1,6 +1,8 @@
 class CheckBrandClusters
   include Sidekiq::Worker
 
+  sidekiq_options queue: "low"
+
   def perform(ids = nil)
     if ids.present?
       Array(ids).each { |id| check_cluster(id) }
