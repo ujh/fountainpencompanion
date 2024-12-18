@@ -4505,10 +4505,10 @@ highcharts-react-official@^3.2.1:
   resolved "https://registry.yarnpkg.com/highcharts-react-official/-/highcharts-react-official-3.2.1.tgz#4b62a7af2969bdebde6b338d36f6b9bf1f1029bc"
   integrity sha512-hyQTX7ezCxl7JqumaWiGsroGWalzh24GedQIgO3vJbkGOZ6ySRAltIYjfxhrq4HszJOySZegotEF7v+haQ75UA==
 
-highcharts@^12.0.2:
-  version "12.0.2"
-  resolved "https://registry.yarnpkg.com/highcharts/-/highcharts-12.0.2.tgz#4f53248d3cd5a50b3042a9ebec309c70dc58f4d1"
-  integrity sha512-DKZFNn2Mk3EUmOfJIvIgPqBjUoKDkDW9WY1nT9zrhfB9SSyg5yVbVEFrw267C4+Hzg4U1H/0i0Z6S3VYJwg6qQ==
+highcharts@^12.1.0:
+  version "12.1.0"
+  resolved "https://registry.yarnpkg.com/highcharts/-/highcharts-12.1.0.tgz#5839985e190b15f9475533f2e1a2d8bb3a0bcdb1"
+  integrity sha512-MIFBU5KMQhNPlceP/8j8YH2I9P3C9j19WDA0HafWWeCK1MJwIQPjcyOfF0byWpbp2i3OBQNKhajejg53NK5oqQ==
 
 hoist-non-react-statics@^3.3.1:
   version "3.3.2"
