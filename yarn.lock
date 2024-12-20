@@ -6692,10 +6692,10 @@ randombytes@^2.1.0:
   dependencies:
     safe-buffer "^5.1.0"
 
-rc-resize-observer@^1.4.1:
-  version "1.4.1"
-  resolved "https://registry.yarnpkg.com/rc-resize-observer/-/rc-resize-observer-1.4.1.tgz#1f6b75ecf27ee900f8a2dbd122c0b222d31aeb49"
-  integrity sha512-JbAeFDsaaZRPwaTlXnCqgeO9c6E7qoaE/hxsub08cdnnPn6767c/j9+r/TifUdfvwXtdcfHygKbZ7ecM/PXo/Q==
+rc-resize-observer@^1.4.3:
+  version "1.4.3"
+  resolved "https://registry.yarnpkg.com/rc-resize-observer/-/rc-resize-observer-1.4.3.tgz#4fd41fa561ba51362b5155a07c35d7c89a1ea569"
+  integrity sha512-YZLjUbyIWox8E9i9C3Tm7ia+W7euPItNWSPX5sCcQTYbnwDb5uNpnLHQCG1f22oZWUhLw4Mv2tFmeWe68CDQRQ==
   dependencies:
     "@babel/runtime" "^7.20.7"
     classnames "^2.2.1"
