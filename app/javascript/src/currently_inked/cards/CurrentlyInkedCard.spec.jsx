@@ -26,7 +26,10 @@ describe("<SwabCard />", () => {
         used_today={true}
         collected_ink={{
           id: "1",
-          color: "#000"
+          color: "#000",
+          micro_cluster: {
+            id: "1"
+          }
         }}
         collected_pen={{
           id: "1"
@@ -51,7 +54,10 @@ describe("<SwabCard />", () => {
         used_today={true}
         collected_ink={{
           id: "1",
-          color: "#000"
+          color: "#000",
+          micro_cluster: {
+            id: "1"
+          }
         }}
         collected_pen={{
           id: "1"
