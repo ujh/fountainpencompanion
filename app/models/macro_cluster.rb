@@ -11,6 +11,7 @@ class MacroCluster < ApplicationRecord
   has_many :collected_inks, through: :micro_clusters
   has_many :public_collected_inks, through: :micro_clusters
   has_many :ink_reviews, dependent: :destroy
+  has_many :ink_review_submissions, dependent: :destroy
   belongs_to :brand_cluster, optional: true
 
   paginates_per 100
