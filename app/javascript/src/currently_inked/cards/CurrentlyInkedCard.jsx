@@ -50,7 +50,10 @@ export const CurrentlyInkedCard = (props) => {
     pen_name,
     refillable,
     used_today,
-    collected_ink: { color },
+    collected_ink: {
+      color,
+      micro_cluster: { macro_cluster }
+    },
     collected_pen: { model_variant_id }
   } = props;
 
@@ -63,7 +66,17 @@ export const CurrentlyInkedCard = (props) => {
         style={{ "--swab-color": color }}
       />
       <Card.Body>
-        <Card.Title>{ink_name}</Card.Title>
+        <Card.Title>
+          {ink_name}
+          {macro_cluster && (
+            <>
+              {" "}
+              <a href={`/inks/${macro_cluster.id}`}>
+                <i className="fa fa-external-link"></i>
+              </a>
+            </>
+          )}
+        </Card.Title>
         {isVisible("comment") ? <Card.Text>{comment}</Card.Text> : null}
         {isVisible("pen_name") ? (
           <>
