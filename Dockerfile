@@ -14,6 +14,7 @@ FROM docker.io/library/ruby:$RUBY_VERSION-slim AS base
 # Rails app lives here
 WORKDIR /app
 
+ENV BUNDLE_PATH="/usr/local/bundle"
 
 # The development stage is used to run the app locally as serves as the base for building the version
 # that will contain the data for prod.
@@ -22,8 +23,6 @@ FROM base AS dev
 RUN apt-get update -qq && \
   apt-get install --no-install-recommends -y curl libjemalloc2 libvips lsb-release gnupg2 && \
   rm -rf /var/lib/apt/lists /var/cache/apt/archives
-
-ENV BUNDLE_PATH="/usr/local/bundle"
 
 # Install Postgres 16, so that schema dumping works
 RUN echo "deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list
@@ -67,20 +66,28 @@ ENTRYPOINT ["/app/config/docker/dev-entrypoint.sh"]
 CMD ["bundle exec puma"]
 
 FROM dev AS build
+
 # Copy application code
-# COPY . .
+COPY . .
+
+# Bundle again, but without dev and test groups
+ENV RAILS_ENV="production" \
+  BUNDLE_DEPLOYMENT="1" \
+  BUNDLE_WITHOUT="development:test"
+
+RUN rm -rf "${BUNDLE_PATH}" && \
+  bundle install && \
+  rm -rf ~/.bundle/ "${BUNDLE_PATH}"/ruby/*/cache "${BUNDLE_PATH}"/ruby/*/bundler/gems/*/.git && \
+  bundle exec bootsnap precompile --gemfile
 
 # Precompile bootsnap code for faster boot times
-# RUN bundle exec bootsnap precompile app/ lib/
+RUN bundle exec bootsnap precompile app/ lib/
 
 # Precompiling assets for production without requiring secret RAILS_MASTER_KEY
-# RUN SECRET_KEY_BASE_DUMMY=1 PRECOMPILING_ASSETS=true ./bin/rails assets:precompile
-
-
-
+RUN SECRET_KEY_BASE_DUMMY=1 PRECOMPILING_ASSETS=true ./bin/rails assets:precompile
 
 # Final stage for app image
-# FROM base
+FROM base AS prod
 
 # Install packages needed to run the app
 RUN apt-get update -qq && \
@@ -88,12 +95,8 @@ RUN apt-get update -qq && \
   rm -rf /var/lib/apt/lists /var/cache/apt/archives
 
 # Copy built artifacts: gems, application
-# COPY --from=build "${BUNDLE_PATH}" "${BUNDLE_PATH}"
-# COPY --from=build /app /app
-
-# Run docker build with --build-arg GIT_SHA=$(git rev-parse HEAD)
-# ARG GIT_SHA
-# ENV GIT_SHA="${GIT_SHA}"
+COPY --from=build "${BUNDLE_PATH}" "${BUNDLE_PATH}"
+COPY --from=build /app /app
 
 EXPOSE 80
 
