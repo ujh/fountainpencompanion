@@ -99,8 +99,9 @@ COPY --from=build "${BUNDLE_PATH}" "${BUNDLE_PATH}"
 COPY --from=build /app /app
 
 RUN rm -rf /app/tmp/cache /app/tmp/pids /app/tmp/sockets /app/log
+RUN mkdir /app/tmp/pids
 
-EXPOSE 80
+EXPOSE 3000
 
 # Entrypoint script always runs, even if command is overwritten
 ENTRYPOINT ["/app/config/docker/entrypoint.sh"]
