@@ -11,6 +11,9 @@ swap_size_mb = 512
 [build]
 build-target = 'prod'
 
+[deploy]
+release_command = 'bundle exec rake db:migrate db:seed'
+
 [env]
 BUNDLE_WITHOUT = "development:test"
 NEW_RELIC_APPLICATION_LOGGING_ENABLED = "false"
