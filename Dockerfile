@@ -15,6 +15,9 @@ FROM docker.io/library/ruby:$RUBY_VERSION-slim AS base
 WORKDIR /app
 
 
+# The development stage is used to run the app locally as serves as the base for building the version
+# that will contain the data for prod.
+FROM base AS dev
 # Install base packages
 RUN apt-get update -qq && \
   apt-get install --no-install-recommends -y curl libjemalloc2 libvips lsb-release gnupg2 && \
@@ -22,15 +25,10 @@ RUN apt-get update -qq && \
 
 ENV BUNDLE_PATH="/usr/local/bundle"
 
-# Throw-away build stage to reduce size of final image
-# FROM base AS build
-
 # Install Postgres 16, so that schema dumping works
 RUN echo "deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list
-
 # Trust the PGDG gpg key
 RUN curl -fsSL https://www.postgresql.org/media/keys/ACCC4CF8.asc| gpg --dearmor -o /etc/apt/trusted.gpg.d/postgresql.gpg
-
 # Install packages needed to build gems
 RUN apt-get update -qq && \
   apt-get install --no-install-recommends -y build-essential git pkg-config libpq-dev postgresql-client-16 && \
@@ -60,6 +58,15 @@ RUN if [ $(uname -m) = "aarch64" ]; then NODE_ARCH=arm64 ; else NODE_ARCH=x64 ; 
 RUN npm install --global yarn && ln -s /opt/nodejs/current/bin/yarn /usr/local/bin/yarn
 RUN yarn install
 
+EXPOSE 80
+
+# Entrypoint script always runs, even if command is overwritten
+ENTRYPOINT ["/app/config/docker/dev-entrypoint.sh"]
+
+# CMD script doesn't run if command is overwritten (e.g. for migrations)
+CMD ["bundle exec puma"]
+
+FROM dev AS build
 # Copy application code
 # COPY . .
 

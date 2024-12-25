@@ -3,7 +3,9 @@ x-rails: &rails
   pull_policy: never
   tty: true
   stdin_open: true
-  build: .
+  build:
+    context: .
+    target: dev
   environment:
     NODE_ENV: development
     PORT: 80
