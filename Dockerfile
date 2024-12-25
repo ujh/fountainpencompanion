@@ -98,6 +98,8 @@ RUN apt-get update -qq && \
 COPY --from=build "${BUNDLE_PATH}" "${BUNDLE_PATH}"
 COPY --from=build /app /app
 
+RUN rm -rf /app/tmp/cache /app/tmp/pids /app/tmp/sockets /app/log
+
 EXPOSE 80
 
 # Entrypoint script always runs, even if command is overwritten
