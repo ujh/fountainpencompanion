@@ -28,7 +28,7 @@ RAILS_MIN_THREADS = "5"
 RAILS_SERVE_STATIC_FILES = "enabled"
 REDIS_PROVIDER = "REDIS_SIDEKIQ_URL"
 SIDEKIQ_CONCURRENCY = "5"
-WEB_CONCURRENCY = "1"
+WEB_CONCURRENCY = "2"
 
 [processes]
 web = "bundle exec puma"
@@ -61,5 +61,5 @@ processes = ["worker"]
 [[vm]]
 memory = '512mb'
 cpu_kind = 'shared'
-cpus = 1
+cpus = 2
 processes = ["web"]
