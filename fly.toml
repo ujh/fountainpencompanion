@@ -16,6 +16,9 @@ release_command = 'bundle exec rake db:migrate db:seed'
 
 [env]
 BUNDLE_WITHOUT = "development:test"
+NEW_RELIC_APPLICATION_LOGGING_ENABLED = "false"
+NEW_RELIC_BROWSER_MONITORING_AUTO_INSTRUMENT = "false"
+NEW_RELIC_LOG = "stdout"
 RACK_ENV = "production"
 RACK_TIMEOUT_SERVICE_TIMEOUT = "25"
 RAILS_ENV = "production"
