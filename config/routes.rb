@@ -154,6 +154,7 @@ Rails.application.routes.draw do
 
   authenticate :user, ->(user) { user.admin? } do
     mount Sidekiq::Web => "/admins/sidekiq"
+    mount PgHero::Engine, at: "/admins/pghero"
   end
 
   root "pages#show", id: "home"

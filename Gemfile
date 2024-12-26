@@ -58,6 +58,8 @@ gem "strong_migrations"
 gem "sentry-ruby"
 gem "sentry-rails"
 gem "sentry-sidekiq"
+gem "pghero"
+gem "pg_query", ">= 2"
 
 group :development, :test do
   gem "byebug", platform: :mri
