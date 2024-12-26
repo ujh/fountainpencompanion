@@ -23,12 +23,12 @@ RACK_ENV = "production"
 RACK_TIMEOUT_SERVICE_TIMEOUT = "60"
 RAILS_ENV = "production"
 RAILS_LOG_TO_STDOUT = "enabled"
-RAILS_MAX_THREADS = "9"
+RAILS_MAX_THREADS = "10"
 RAILS_MIN_THREADS = "5"
 RAILS_SERVE_STATIC_FILES = "enabled"
 REDIS_PROVIDER = "REDIS_SIDEKIQ_URL"
 SIDEKIQ_CONCURRENCY = "5"
-WEB_CONCURRENCY = "3"
+WEB_CONCURRENCY = "4"
 
 [processes]
 web = "bundle exec puma"
@@ -40,7 +40,7 @@ processes = ["web"]
 force_https = true
 auto_stop_machines = "suspend"
 auto_start_machines = true
-min_machines_running = 6
+min_machines_running = 2
 [http_service.concurrency]
 type = "requests"
 soft_limit = 2
