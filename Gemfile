@@ -56,6 +56,9 @@ gem "slim"
 gem "slodown"
 gem "sprockets-rails"
 gem "strong_migrations"
+gem "sentry-ruby"
+gem "sentry-rails"
+gem "sentry-sidekiq"
 
 group :development, :test do
   gem "byebug", platform: :mri
