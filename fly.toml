@@ -28,7 +28,7 @@ RAILS_MIN_THREADS = "5"
 RAILS_SERVE_STATIC_FILES = "enabled"
 REDIS_PROVIDER = "REDIS_SIDEKIQ_URL"
 SIDEKIQ_CONCURRENCY = "5"
-WEB_CONCURRENCY = "3"
+WEB_CONCURRENCY = "1"
 
 [processes]
 web = "bundle exec puma"
@@ -43,10 +43,10 @@ auto_start_machines = true
 min_machines_running = 1
 [http_service.concurrency]
 type = "requests"
-soft_limit = 20
-hard_limit = 40
+soft_limit = 5
+hard_limit = 15
 [[http_service.checks]]
-grace_period = "30s"
+grace_period = "15s"
 interval = "30s"
 method = "GET"
 timeout = "5s"
@@ -59,7 +59,7 @@ cpus = 1
 processes = ["worker"]
 
 [[vm]]
-memory = '1GB'
+memory = '512mb'
 cpu_kind = 'shared'
-cpus = 4
+cpus = 1
 processes = ["web"]
