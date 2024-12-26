@@ -67,7 +67,7 @@ cpus = 1
 processes = ["worker"]
 
 [[vm]]
-memory = '512mb'
+memory = '1GB'
 cpu_kind = 'shared'
 cpus = 4
 processes = ["web"]
