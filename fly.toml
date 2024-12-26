@@ -16,14 +16,12 @@ release_command = 'bundle exec rake db:migrate db:seed'
 
 [env]
 BUNDLE_WITHOUT = "development:test"
-NEW_RELIC_APPLICATION_LOGGING_ENABLED = "false"
-NEW_RELIC_BROWSER_MONITORING_AUTO_INSTRUMENT = "false"
-NEW_RELIC_LOG = "stdout"
+NEW_RELIC_AGENT_ENABLED = "false"
 RACK_ENV = "production"
 RACK_TIMEOUT_SERVICE_TIMEOUT = "25"
 RAILS_ENV = "production"
 RAILS_LOG_TO_STDOUT = "enabled"
-RAILS_MAX_THREADS = "10"
+RAILS_MAX_THREADS = "9"
 RAILS_MIN_THREADS = "5"
 RAILS_SERVE_STATIC_FILES = "enabled"
 REDIS_PROVIDER = "REDIS_SIDEKIQ_URL"
