@@ -9,7 +9,6 @@ end
 
 gem "rails", "~> 8.0.1"
 
-gem "barnes"
 gem "bcrypt"
 gem "bootsnap"
 gem "breadcrumbs_on_rails"
@@ -39,7 +38,6 @@ gem "paper_trail"
 gem "pg"
 gem "pg_search"
 gem "puma"
-gem "puma_worker_killer"
 gem "rack-attack"
 gem "rack-timeout"
 gem "rails-assets-select2", "4.0.13", source: "https://rails-assets.org" # Select2 4.0.6 breaks the currently inked page

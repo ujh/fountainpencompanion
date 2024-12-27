@@ -94,9 +94,6 @@ GEM
       uri (>= 0.13.1)
     addressable (2.8.7)
       public_suffix (>= 2.0.2, < 7.0)
-    barnes (0.0.9)
-      multi_json (~> 1)
-      statsd-ruby (~> 1.1)
     base64 (0.2.0)
     bcrypt (3.1.20)
     benchmark (0.4.0)
@@ -366,10 +363,6 @@ GEM
     public_suffix (6.0.1)
     puma (6.5.0)
       nio4r (~> 2.0)
-    puma_worker_killer (1.0.0)
-      bigdecimal (>= 2.0)
-      get_process_mem (>= 0.2)
-      puma (>= 2.7)
     raabro (1.4.0)
     racc (1.8.1)
     rack (3.1.8)
@@ -535,7 +528,6 @@ GEM
       actionpack (>= 6.1)
       activesupport (>= 6.1)
       sprockets (>= 3.0.0)
-    statsd-ruby (1.5.0)
     stringio (3.1.2)
     strong_migrations (2.1.0)
       activerecord (>= 6.1)
@@ -582,7 +574,6 @@ PLATFORMS
   x86_64-linux
 
 DEPENDENCIES
-  barnes
   bcrypt
   bootsnap
   breadcrumbs_on_rails
@@ -620,7 +611,6 @@ DEPENDENCIES
   pghero
   prettier_print (~> 1.2)
   puma
-  puma_worker_killer
   rack-attack
   rack-timeout
   rails (~> 8.0.1)
