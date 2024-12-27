@@ -17,7 +17,11 @@ export function putRequest(path, body) {
 }
 
 function request(path, method, body) {
-  return fetch(path, {
+  return req(path, method, body);
+}
+
+async function req(path, method, body, retries = 3) {
+  const response = await fetch(path, {
     credentials: "same-origin",
     method: method,
     body: JSON.stringify(body),
@@ -27,6 +31,12 @@ function request(path, method, body) {
       "X-CSRF-Token": csrfToken()
     }
   });
+  if (method === "GET" && response.status >= 500 && retries > 0) {
+    console.log("Retrying", path, method, body, retries);
+    return req(path, method, body, retries - 1);
+  } else {
+    return response;
+  }
 }
 
 const csrfToken = () => {

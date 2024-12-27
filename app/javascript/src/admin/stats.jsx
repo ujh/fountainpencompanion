@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
+import { getRequest } from "../fetch";
 
 document.addEventListener("DOMContentLoaded", () => {
   const elements = document.querySelectorAll(".stats");
@@ -31,7 +32,7 @@ const Stat = ({ id, arg }) => {
     async function load() {
       let url = `/admins/stats/${id}`;
       if (arg) url += `?arg=${arg}`;
-      const response = await fetch(url);
+      const response = await getRequest(url);
       const json = await response.json();
       setData(json);
       setLoading(false);
@@ -57,7 +58,7 @@ const ConditionalStat = ({ id, arg, href, template }) => {
     async function load() {
       let url = `/admins/stats/${id}`;
       if (arg) url += `?arg=${arg}`;
-      const response = await fetch(url);
+      const response = await getRequest(url);
       const json = await response.json();
       setData(json);
       setLoading(false);

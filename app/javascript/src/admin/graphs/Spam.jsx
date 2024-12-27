@@ -3,11 +3,12 @@ import Highcharts from "highcharts";
 import HighchartsReact from "highcharts-react-official";
 
 import { Spinner } from "../components/Spinner";
+import { getRequest } from "../../fetch";
 
 export const Spam = () => {
   const [data, setData] = useState(null);
   useEffect(() => {
-    fetch("/admins/graphs/spam.json")
+    getRequest("/admins/graphs/spam.json")
       .then((res) => res.json())
       .then((json) => setData(json));
   }, []);

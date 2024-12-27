@@ -3,11 +3,12 @@ import Highcharts from "highcharts";
 import HighchartsReact from "highcharts-react-official";
 
 import { Spinner } from "../components/Spinner";
+import { getRequest } from "../../fetch";
 
 export const UsageRecords = () => {
   const [data, setData] = useState(null);
   useEffect(() => {
-    fetch("/admins/graphs/usage-records.json")
+    getRequest("/admins/graphs/usage-records.json")
       .then((res) => res.json())
       .then((json) => setData(json));
   }, []);
