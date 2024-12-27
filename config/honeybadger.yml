@@ -34,3 +34,5 @@ exceptions:
     - ActionController::BadRequest
     - Redis::ConnectionError
     - Rack::Timeout::RequestTimeoutException
+    - Rack::Timeout::RequestExpiryError
+    - Rack::Timeout::RequestTimeoutError
