@@ -46,7 +46,7 @@ type = "requests"
 soft_limit = 4
 hard_limit = 20
 [[http_service.checks]]
-grace_period = "15s"
+grace_period = "10s"
 interval = "30s"
 method = "GET"
 timeout = "5s"
