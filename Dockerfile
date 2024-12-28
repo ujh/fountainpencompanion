@@ -18,7 +18,7 @@ ENV BUNDLE_PATH="/usr/local/bundle"
 
 # The development stage is used to run the app locally as serves as the base for building the version
 # that will contain the data for prod.
-FROM base AS dev
+FROM base AS common-build
 # Install base packages
 RUN apt-get update -qq && \
   apt-get install --no-install-recommends -y curl libjemalloc2 libvips lsb-release gnupg2 && \
@@ -35,9 +35,6 @@ RUN apt-get update -qq && \
 
 # Install application gems
 COPY Gemfile Gemfile.lock ./
-RUN bundle install && \
-  rm -rf ~/.bundle/ "${BUNDLE_PATH}"/ruby/*/cache "${BUNDLE_PATH}"/ruby/*/bundler/gems/*/.git && \
-  bundle exec bootsnap precompile --gemfile
 
 # Install npm packages
 COPY .nvmrc package.json yarn.lock ./
@@ -57,6 +54,13 @@ RUN if [ $(uname -m) = "aarch64" ]; then NODE_ARCH=arm64 ; else NODE_ARCH=x64 ; 
 RUN npm install --global yarn && ln -s /opt/nodejs/current/bin/yarn /usr/local/bin/yarn
 RUN yarn install
 
+FROM common-build AS dev
+
+# Run bundle install with all packages
+RUN bundle install && \
+  rm -rf ~/.bundle/ "${BUNDLE_PATH}"/ruby/*/cache "${BUNDLE_PATH}"/ruby/*/bundler/gems/*/.git && \
+  bundle exec bootsnap precompile --gemfile
+
 EXPOSE 80
 
 # Entrypoint script always runs, even if command is overwritten
@@ -65,12 +69,12 @@ ENTRYPOINT ["/app/config/docker/dev-entrypoint.sh"]
 # CMD script doesn't run if command is overwritten (e.g. for migrations)
 CMD ["bundle exec puma"]
 
-FROM dev AS build
+FROM common-build AS prod-build
 
 # Copy application code
 COPY . .
 
-# Bundle again, but without dev and test groups
+# Bundle but without dev and test groups
 ENV RAILS_ENV="production" \
   BUNDLE_DEPLOYMENT="1" \
   BUNDLE_WITHOUT="development:test"
@@ -95,8 +99,8 @@ RUN apt-get update -qq && \
   rm -rf /var/lib/apt/lists /var/cache/apt/archives
 
 # Copy built artifacts: gems, application
-COPY --from=build "${BUNDLE_PATH}" "${BUNDLE_PATH}"
-COPY --from=build /app /app
+COPY --from=prod-build "${BUNDLE_PATH}" "${BUNDLE_PATH}"
+COPY --from=prod-build /app /app
 
 RUN rm -rf /app/tmp/cache /app/tmp/pids /app/tmp/sockets /app/log
 RUN mkdir /app/tmp/pids
