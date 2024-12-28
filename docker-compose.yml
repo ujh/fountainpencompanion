@@ -7,6 +7,7 @@ x-rails: &rails
     context: .
     target: dev
   environment:
+    NEW_RELIC_LOG: stdout
     NODE_ENV: development
     PORT: 80
     POSTGRES_PASSWORD: fpc

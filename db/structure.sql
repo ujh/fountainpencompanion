@@ -24,6 +24,20 @@ COMMENT ON EXTENSION fuzzystrmatch IS 'determine similarities and distance betwe
 
 
 --
+-- Name: pg_stat_statements; Type: EXTENSION; Schema: -; Owner: -
+--
+
+CREATE EXTENSION IF NOT EXISTS pg_stat_statements WITH SCHEMA public;
+
+
+--
+-- Name: EXTENSION pg_stat_statements; Type: COMMENT; Schema: -; Owner: -
+--
+
+COMMENT ON EXTENSION pg_stat_statements IS 'track planning and execution statistics of all SQL statements executed';
+
+
+--
 -- Name: pg_trgm; Type: EXTENSION; Schema: -; Owner: -
 --
 
@@ -1336,13 +1350,6 @@ CREATE UNIQUE INDEX index_brand_clusters_on_name ON public.brand_clusters USING 
 
 
 --
--- Name: index_collected_inks_on_archived_on; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX index_collected_inks_on_archived_on ON public.collected_inks USING btree (archived_on);
-
-
---
 -- Name: index_collected_inks_on_archived_on_and_user_id; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -1399,10 +1406,31 @@ CREATE INDEX index_collected_inks_on_tsv ON public.collected_inks USING gin (tsv
 
 
 --
+-- Name: index_collected_pens_on_brand; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_collected_pens_on_brand ON public.collected_pens USING gist (brand public.gist_trgm_ops);
+
+
+--
+-- Name: index_collected_pens_on_model; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_collected_pens_on_model ON public.collected_pens USING gist (model public.gist_trgm_ops);
+
+
+--
 -- Name: index_collected_pens_on_pens_micro_cluster_id; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX index_collected_pens_on_pens_micro_cluster_id ON public.collected_pens USING btree (pens_micro_cluster_id);
+
+
+--
+-- Name: index_collected_pens_on_user_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_collected_pens_on_user_id ON public.collected_pens USING btree (user_id);
 
 
 --
@@ -1431,13 +1459,6 @@ CREATE INDEX index_currently_inked_on_user_id ON public.currently_inked USING bt
 --
 
 CREATE INDEX index_gutentag_taggings_on_tag_id ON public.gutentag_taggings USING btree (tag_id);
-
-
---
--- Name: index_gutentag_taggings_on_taggable_type_and_taggable_id; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX index_gutentag_taggings_on_taggable_type_and_taggable_id ON public.gutentag_taggings USING btree (taggable_type, taggable_id);
 
 
 --
@@ -1494,13 +1515,6 @@ CREATE INDEX index_ink_reviews_on_macro_cluster_id ON public.ink_reviews USING b
 --
 
 CREATE UNIQUE INDEX index_ink_reviews_on_url_and_macro_cluster_id ON public.ink_reviews USING btree (url, macro_cluster_id);
-
-
---
--- Name: index_leader_board_rows_on_type; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX index_leader_board_rows_on_type ON public.leader_board_rows USING btree (type);
 
 
 --
@@ -1634,13 +1648,6 @@ CREATE INDEX index_reading_statuses_on_blog_post_id ON public.reading_statuses U
 --
 
 CREATE INDEX index_reading_statuses_on_user_id ON public.reading_statuses USING btree (user_id);
-
-
---
--- Name: index_usage_records_on_currently_inked_id; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX index_usage_records_on_currently_inked_id ON public.usage_records USING btree (currently_inked_id);
 
 
 --
@@ -1919,6 +1926,8 @@ ALTER TABLE ONLY public.collected_inks
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20241228204210'),
+('20241228202733'),
 ('20241211115823'),
 ('20241114144808'),
 ('20240916060008'),
