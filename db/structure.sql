@@ -24,6 +24,20 @@ COMMENT ON EXTENSION fuzzystrmatch IS 'determine similarities and distance betwe
 
 
 --
+-- Name: pg_stat_statements; Type: EXTENSION; Schema: -; Owner: -
+--
+
+CREATE EXTENSION IF NOT EXISTS pg_stat_statements WITH SCHEMA public;
+
+
+--
+-- Name: EXTENSION pg_stat_statements; Type: COMMENT; Schema: -; Owner: -
+--
+
+COMMENT ON EXTENSION pg_stat_statements IS 'track planning and execution statistics of all SQL statements executed';
+
+
+--
 -- Name: pg_trgm; Type: EXTENSION; Schema: -; Owner: -
 --
 
@@ -1399,10 +1413,31 @@ CREATE INDEX index_collected_inks_on_tsv ON public.collected_inks USING gin (tsv
 
 
 --
+-- Name: index_collected_pens_on_brand; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_collected_pens_on_brand ON public.collected_pens USING gist (brand public.gist_trgm_ops);
+
+
+--
+-- Name: index_collected_pens_on_model; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_collected_pens_on_model ON public.collected_pens USING gist (model public.gist_trgm_ops);
+
+
+--
 -- Name: index_collected_pens_on_pens_micro_cluster_id; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX index_collected_pens_on_pens_micro_cluster_id ON public.collected_pens USING btree (pens_micro_cluster_id);
+
+
+--
+-- Name: index_collected_pens_on_user_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_collected_pens_on_user_id ON public.collected_pens USING btree (user_id);
 
 
 --
@@ -1919,6 +1954,7 @@ ALTER TABLE ONLY public.collected_inks
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20241228202733'),
 ('20241211115823'),
 ('20241114144808'),
 ('20240916060008'),
