@@ -24,6 +24,11 @@ RUN apt-get update -qq && \
   apt-get install --no-install-recommends -y curl libjemalloc2 libvips lsb-release gnupg2 && \
   rm -rf /var/lib/apt/lists /var/cache/apt/archives
 
+# Set up jemalloc for better memory management
+RUN ln -s /usr/lib/*-linux-gnu/libjemalloc.so.2 /usr/lib/libjemalloc.so.2
+ENV LD_PRELOAD=/usr/lib/libjemalloc.so.2
+ENV MALLOC_CONF="dirty_decay_ms:1000,narenas:2,background_thread:true"
+
 # Install Postgres 16, so that schema dumping works
 RUN echo "deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list
 # Trust the PGDG gpg key
