@@ -64,4 +64,5 @@ production:
   error_collector:
     ignore_classes:
       - ActionController::InvalidAuthenticityToken
+      - ActionController::RoutingError
       - ActiveRecord::RecordNotFound
