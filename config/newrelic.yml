@@ -61,3 +61,7 @@ staging:
 
 production:
   <<: *default_settings
+  error_collector:
+    ignored_classes:
+      - ActionController::InvalidAuthenticityToken
+      - ActiveRecord::RecordNotFound
