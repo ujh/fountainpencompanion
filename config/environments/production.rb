@@ -64,10 +64,10 @@ Rails.application.configure do
   }
 
   ActionMailer::Base.smtp_settings = {
-    user_name: ENV["SENDGRID_USERNAME"],
-    password: ENV["SENDGRID_PASSWORD"],
-    domain: "fountainpencompanion.com",
-    address: "smtp.sendgrid.net",
+    user_name: "hello@mail.fountainpencompanion.com",
+    password: ENV["MAILGUN_SMTP_PASSWORD"],
+    domain: "mail.fountainpencompanion.com",
+    address: "smtp.mailgun.org",
     port: 587,
     authentication: :plain,
     enable_starttls_auto: true
