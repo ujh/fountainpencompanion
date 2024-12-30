@@ -22,7 +22,7 @@ class AssignMicroCluster
           if micro_cluster
             cluster.macro_cluster_id = micro_cluster.macro_cluster_id
           else
-            AdminMailer.new_cluster.deliver_later
+            Rails.cache.increment("new_cluster_count")
           end
         end
       end

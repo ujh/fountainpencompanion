@@ -13,10 +13,9 @@ describe AssignMicroCluster do
       expect(cluster.macro_cluster).to eq(nil)
     end
 
-    it "sends out an email for a new cluster" do
-      expect(AdminMailer).to receive(:new_cluster).and_call_original
+    it "increments count of new clusters" do
       expect do subject.perform(collected_ink.id) end.to change {
-        MicroCluster.count
+        Rails.cache.read("new_cluster_count", raw: true).to_i
       }.by(1)
     end
   end
