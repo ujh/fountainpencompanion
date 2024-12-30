@@ -22,6 +22,7 @@ RSpec.configure do |config|
   config.include ApiHelpers, type: :request
 
   config.before(:each) { Sidekiq::Worker.clear_all }
+  config.before(:each) { Rails.cache.clear }
 
   config.before(:each, type: :request) do
     Rails.application.reload_routes_unless_loaded

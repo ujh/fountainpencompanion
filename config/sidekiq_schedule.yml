@@ -1,6 +1,9 @@
 check_brand_clusters:
   cron: "30 * * * *" # Every hour
   class: CheckBrandClusters
+check_new_clusters:
+  cron: "*/15 * * * *" # Every 15 minutes
+  class: CheckNewClusters
 fetch_reviews:
   cron: "0 */6 * * *" # Every six hours
   class: FetchReviews

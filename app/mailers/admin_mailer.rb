@@ -1,8 +1,8 @@
 class AdminMailer < ApplicationMailer
-  def new_cluster
+  def new_cluster(new_clusters)
     mail(
       to: "hello@fountainpencompanion.com",
-      subject: "New cluster to assign! "
+      subject: "#{new_clusters} new cluster to assign!"
     )
   end
 end
