@@ -44,7 +44,7 @@ gem "rails-assets-select2", "4.0.13", source: "https://rails-assets.org" # Selec
 gem "redis"
 gem "rss"
 gem "ruby-progressbar"
-gem "sanitize", "~> 6.1.3"
+gem "sanitize", "~> 7.0.0"
 gem "sass-rails"
 gem "scenic"
 gem "sidekiq"
