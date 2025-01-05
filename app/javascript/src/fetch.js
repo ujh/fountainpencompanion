@@ -23,6 +23,12 @@ function request(path, method, body, timeout) {
 async function req(path, method, body, timeout, retries = 3) {
   let response;
   try {
+    let extra = {};
+    try {
+      extra = { signal: AbortSignal.timeout(timeout * 1000) };
+    } catch (_e) {
+      // Ignore the error
+    }
     response = await fetch(path, {
       credentials: "same-origin",
       method: method,
@@ -32,7 +38,7 @@ async function req(path, method, body, timeout, retries = 3) {
         "Content-Type": "application/vnd.api+json",
         "X-CSRF-Token": csrfToken()
       },
-      signal: AbortSignal.timeout(timeout * 1000)
+      ...extra
     });
   } catch (e) {
     console.error("Failed to fetch", e);
