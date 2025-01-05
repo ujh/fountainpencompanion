@@ -67,16 +67,15 @@ export const updateMacroCluster = (id, dispatch) => {
 };
 
 const loadMacroClusterPage = async (page, count = 0) => {
+  const url = `/admins/macro_clusters.json?per_page=25&page=${page}`;
   try {
-    const response = await getRequest(
-      `/admins/macro_clusters.json?per_page=25&page=${page}`
-    );
+    const response = await getRequest(url);
     return await response.json();
   } catch (e) {
     if (count > 3) {
       throw e;
     }
-    console.log("Retrying");
+    console.log("Retrying", url, count);
     return loadMacroClusterPage(page, count + 1);
   }
 };
