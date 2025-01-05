@@ -66,10 +66,17 @@ export const updateMacroCluster = (id, dispatch) => {
   }, 500);
 };
 
-const loadMacroClusterPage = async (page) => {
-  const response = await getRequest(
-    `/admins/macro_clusters.json?per_page=25&page=${page}`,
-    10 // timeout after 10s
-  );
-  return await response.json();
+const loadMacroClusterPage = async (page, count = 0) => {
+  try {
+    const response = await getRequest(
+      `/admins/macro_clusters.json?per_page=25&page=${page}`,
+      10 // timeout after 10s
+    );
+    return await response.json();
+  } catch (e) {
+    if (count > 3) {
+      throw e;
+    }
+    loadMacroClusterPage(page, count + 1);
+  }
 };
