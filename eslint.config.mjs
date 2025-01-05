@@ -44,6 +44,11 @@ export default [
     ignores: ["vendor/"]
   },
   {
+    rules: {
+      "no-unused-vars": ["error", { caughtErrors: "none" }]
+    }
+  },
+  {
     files: ["**/*.js", "**/*.jsx"],
 
     plugins: {
