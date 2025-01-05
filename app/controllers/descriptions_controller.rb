@@ -14,7 +14,12 @@ class DescriptionsController < ApplicationController
   private
 
   def brands_without_descriptions_ids
-    BrandCluster.without_description.pluck(:id)
+    Rails
+      .cache
+      .fetch(
+        "DescriptionsController#brands_without_descriptions_ids",
+        expires_in: 10.minutes
+      ) { BrandCluster.without_description.pluck(:id) }
   end
 
   def my_brands_without_descriptions_ids
@@ -22,12 +27,12 @@ class DescriptionsController < ApplicationController
   end
 
   def clusters_without_descriptions_ids
-    clusters_hash = MacroCluster.without_description.pluck(:id).hash
-    key =
-      "DescriptionsController#clusters_without_descriptions_ids-#{clusters_hash}"
     Rails
       .cache
-      .fetch(key, expires_in: 1.hour) do
+      .fetch(
+        "DescriptionsController#clusters_without_descriptions_ids",
+        expires_in: 10.minutes
+      ) do
         MacroCluster
           .without_description
           .joins(micro_clusters: :collected_inks)
