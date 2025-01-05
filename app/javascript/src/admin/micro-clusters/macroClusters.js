@@ -77,6 +77,6 @@ const loadMacroClusterPage = async (page, count = 0) => {
       throw e;
     }
     console.log("Retrying");
-    loadMacroClusterPage(page, count + 1);
+    return loadMacroClusterPage(page, count + 1);
   }
 };
