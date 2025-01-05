@@ -67,7 +67,7 @@ export const updateMacroCluster = (id, dispatch) => {
 };
 
 const loadMacroClusterPage = async (page, count = 0) => {
-  const url = `/admins/macro_clusters.json?per_page=25&page=${page}`;
+  const url = `/admins/macro_clusters.json?per_page=20&page=${page}`;
   try {
     const response = await getRequest(url);
     return await response.json();
