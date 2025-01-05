@@ -18,7 +18,7 @@ class DescriptionsController < ApplicationController
       .cache
       .fetch(
         "DescriptionsController#brands_without_descriptions_ids",
-        expires_in: 10.minutes
+        expires_in: 1.hour
       ) { BrandCluster.without_description.pluck(:id) }
   end
 
@@ -31,7 +31,7 @@ class DescriptionsController < ApplicationController
       .cache
       .fetch(
         "DescriptionsController#clusters_without_descriptions_ids",
-        expires_in: 10.minutes
+        expires_in: 1.hour
       ) do
         MacroCluster
           .without_description
@@ -51,7 +51,7 @@ class DescriptionsController < ApplicationController
       .cache
       .fetch(
         "DescriptionsController#sorted_inks-#{params[:inks_page]}",
-        expires_in: 10.minutes
+        expires_in: 1.hour
       ) do
         MacroCluster
           .where(id: ids)
@@ -67,7 +67,7 @@ class DescriptionsController < ApplicationController
       .cache
       .fetch(
         "DescriptionsController#sorted_brands-#{params[:brands_page]}",
-        expires_in: 10.minutes
+        expires_in: 1.hour
       ) do
         BrandCluster
           .where(id: ids)
