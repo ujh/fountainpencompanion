@@ -47,21 +47,35 @@ class DescriptionsController < ApplicationController
   end
 
   def sorted_inks(ids)
-    MacroCluster
-      .where(id: ids)
-      .includes(:brand_cluster)
-      .order(:brand_name, :line_name, :ink_name)
-      .page(params[:inks_page])
-      .per(10)
+    Rails
+      .cache
+      .fetch(
+        "DescriptionsController#sorted_inks-#{params[:inks_page]}",
+        expires_in: 10.minutes
+      ) do
+        MacroCluster
+          .where(id: ids)
+          .includes(:brand_cluster)
+          .order(:brand_name, :line_name, :ink_name)
+          .page(params[:inks_page])
+          .per(10)
+      end
   end
 
   def sorted_brands(ids)
-    BrandCluster
-      .where(id: ids)
-      .joins(:macro_clusters)
-      .group("brand_clusters.id")
-      .order(:name)
-      .page(params[:brands_page])
-      .per(10)
+    Rails
+      .cache
+      .fetch(
+        "DescriptionsController#sorted_brands-#{params[:brands_page]}",
+        expires_in: 10.minutes
+      ) do
+        BrandCluster
+          .where(id: ids)
+          .joins(:macro_clusters)
+          .group("brand_clusters.id")
+          .order(:name)
+          .page(params[:brands_page])
+          .per(10)
+      end
   end
 end
