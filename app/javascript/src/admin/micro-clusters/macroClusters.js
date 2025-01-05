@@ -69,14 +69,14 @@ export const updateMacroCluster = (id, dispatch) => {
 const loadMacroClusterPage = async (page, count = 0) => {
   try {
     const response = await getRequest(
-      `/admins/macro_clusters.json?per_page=25&page=${page}`,
-      10 // timeout after 10s
+      `/admins/macro_clusters.json?per_page=25&page=${page}`
     );
     return await response.json();
   } catch (e) {
     if (count > 3) {
       throw e;
     }
+    console.log("Retrying");
     loadMacroClusterPage(page, count + 1);
   }
 };
