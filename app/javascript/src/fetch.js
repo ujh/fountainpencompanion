@@ -20,8 +20,9 @@ function request(path, method, body, timeout) {
   return req(path, method, body, timeout);
 }
 
-async function req(path, method, body, timeout, retries = 3) {
+async function req(path, method, body, timeout, retries = 5) {
   let response;
+  let failed;
   try {
     let extra = {};
     try {
@@ -42,8 +43,9 @@ async function req(path, method, body, timeout, retries = 3) {
     });
   } catch (e) {
     console.error("Failed to fetch", e);
+    failed = true;
   }
-  const failure = !response || response.status >= 500;
+  const failure = failed || !response.ok;
   if (method === "GET" && failure && retries > 0) {
     console.log("Retrying", path, method, body, retries);
     return req(path, method, body, timeout, retries - 1);
