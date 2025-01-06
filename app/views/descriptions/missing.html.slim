@@ -10,7 +10,8 @@ div class='fpc-hint alert alert-secondary'
         = link_to "here", my_missing_descriptions_path
         ' .
 
-= render 'missing_brands_table', { missing_brands: @missing_brands }
+- cache(['missing_brands', params[:brands_page]], expires_in: 6.hours ) do
+  = render 'missing_brands_table', { missing_brands: @missing_brands }
 
 div class='fpc-hint alert alert-secondary'
   p
@@ -22,4 +23,5 @@ div class='fpc-hint alert alert-secondary'
         = link_to "here", my_missing_descriptions_path
         ' .
 
-= render 'missing_inks_table', { missing_inks: @missing_inks }
+- cache(['missing_inks', params[:inks_page]], expires_in: 6.hours ) do
+  = render 'missing_inks_table', { missing_inks: @missing_inks }
