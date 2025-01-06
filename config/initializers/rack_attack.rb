@@ -8,6 +8,10 @@ Rack::Attack.throttle(
   end
 end
 
+Rack::Attack.throttle("missing descriptions", limit: 1, period: 1) do |request|
+  request.ip if request.path.starts_with?("/descriptions/missing")
+end
+
 # See https://social.treehouse.systems/@dee/112524729369220652
 Rack::Attack.blocklist("Misbehaving bots") do |request|
   request.user_agent =~
