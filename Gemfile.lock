@@ -541,6 +541,7 @@ GEM
       concurrent-ruby (~> 1.0)
     uber (0.1.0)
     uri (1.0.2)
+    user_agent_parser (2.18.0)
     useragent (0.16.11)
     warden (1.2.9)
       rack (>= 2.0.9)
@@ -626,6 +627,7 @@ DEPENDENCIES
   syntax_tree (~> 6.2)
   syntax_tree-haml (~> 4.0)
   syntax_tree-rbs (~> 1.0.0)
+  user_agent_parser
   web-console
   webmock
 

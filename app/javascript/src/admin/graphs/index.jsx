@@ -8,12 +8,21 @@ import { CurrentlyInked } from "./CurrentlyInked";
 import { UsageRecords } from "./UsageRecords";
 import { BotSignUps } from "./BotSignUps";
 import { Spam } from "./Spam";
+import { UserAgents } from "./UserAgents";
 
 document.addEventListener("DOMContentLoaded", () => {
   const el = document.getElementById("signups-graph");
   if (el) {
     const root = createRoot(el);
     root.render(<SignUps />);
+  }
+});
+
+document.addEventListener("DOMContentLoaded", () => {
+  const el = document.getElementById("user-agents-graph");
+  if (el) {
+    const root = createRoot(el);
+    root.render(<UserAgents />);
   }
 });
 

@@ -1,6 +1,7 @@
 class ApplicationController < ActionController::Base
   protect_from_forgery with: :exception
   around_action :set_time_zone
+  before_action :save_user_agent
 
   if !Rails.env.development?
     rescue_from ActionView::MissingTemplate do |exception|
@@ -16,5 +17,14 @@ class ApplicationController < ActionController::Base
     else
       yield
     end
+  end
+
+  def save_user_agent
+    user_agent = request.user_agent
+    UserAgent.create(
+      name: UserAgentParser.parse(user_agent).family,
+      raw_name: user_agent,
+      day: Date.current
+    )
   end
 end
