@@ -82,10 +82,14 @@ class Admins::GraphsController < Admins::BaseController
           data:
             base_relation
               .where(name: name)
-              .group(:day)
-              .order(day: :asc)
-              .pluck(Arel.sql("day, count(*)"))
-              .map { |d| [d.first.to_datetime.to_i * 1000, d.last] }
+              .group("date_trunc('hour', created_at)")
+              .order("hour asc")
+              .pluck(
+                Arel.sql(
+                  "date_trunc('hour', created_at) as hour, count(*) as hour_count"
+                )
+              )
+              .map { |d| [d.first.to_i * 1000, d.last] }
         }
       end
       .reject { |data| data[:data].map(&:last).all? { |count| count < 10 } }
