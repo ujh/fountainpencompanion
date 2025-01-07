@@ -5,6 +5,7 @@ class CleanUp
     remove_unused_accounts
     remove_unconfirmed_accounts
     anonymize_sign_up_ip
+    remove_old_user_agents
   end
 
   private
@@ -27,5 +28,9 @@ class CleanUp
 
   def anonymize_sign_up_ip
     User.where("created_at < ?", 1.month.ago).update_all(sign_up_ip: nil)
+  end
+
+  def remove_old_user_agents
+    UserAgent.where("created_at < ?", 3.months.ago).destroy_all
   end
 end
