@@ -5,6 +5,8 @@ user_agent_parsers:
     family_replacement: "Honeybadger Uptime Check"
   - regex: "Reeder"
     family_replacement: "Reeder"
+  - regex: "Mastodon"
+    family_replacement: "Mastodon"
 
 os_parsers: []
 device_parsers: []
