@@ -823,6 +823,39 @@ ALTER SEQUENCE public.usage_records_id_seq OWNED BY public.usage_records.id;
 
 
 --
+-- Name: user_agents; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.user_agents (
+    id bigint NOT NULL,
+    name character varying,
+    raw_name character varying,
+    day date,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
+);
+
+
+--
+-- Name: user_agents_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.user_agents_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: user_agents_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.user_agents_id_seq OWNED BY public.user_agents.id;
+
+
+--
 -- Name: users; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -1093,6 +1126,13 @@ ALTER TABLE ONLY public.usage_records ALTER COLUMN id SET DEFAULT nextval('publi
 
 
 --
+-- Name: user_agents id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.user_agents ALTER COLUMN id SET DEFAULT nextval('public.user_agents_id_seq'::regclass);
+
+
+--
 -- Name: users id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -1295,6 +1335,14 @@ ALTER TABLE ONLY public.schema_migrations
 
 ALTER TABLE ONLY public.usage_records
     ADD CONSTRAINT usage_records_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: user_agents user_agents_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.user_agents
+    ADD CONSTRAINT user_agents_pkey PRIMARY KEY (id);
 
 
 --
@@ -1658,6 +1706,13 @@ CREATE UNIQUE INDEX index_usage_records_on_currently_inked_id_and_used_on ON pub
 
 
 --
+-- Name: index_user_agents_on_name_and_day; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_user_agents_on_name_and_day ON public.user_agents USING btree (name, day);
+
+
+--
 -- Name: index_users_on_confirmation_token; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -1926,6 +1981,7 @@ ALTER TABLE ONLY public.collected_inks
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20250107083051'),
 ('20241228204210'),
 ('20241228202733'),
 ('20241211115823'),

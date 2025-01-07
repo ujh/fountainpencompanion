@@ -1,0 +1,2 @@
+class UserAgent < ApplicationRecord
+end

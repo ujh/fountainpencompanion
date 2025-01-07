@@ -56,6 +56,7 @@ gem "sprockets-rails"
 gem "strong_migrations"
 gem "pghero"
 gem "pg_query", ">= 2"
+gem "user_agent_parser"
 
 group :development, :test do
   gem "byebug", platform: :mri

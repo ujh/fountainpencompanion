@@ -16,6 +16,8 @@ class Admins::GraphsController < Admins::BaseController
         bot_signups
       when "spam"
         spam
+      when "user-agents"
+        user_agents
       end
     render json: data
   end
@@ -63,6 +65,27 @@ class Admins::GraphsController < Admins::BaseController
         {
           name: reason,
           data: build(User.where(spam_reason: reason), range: 2.months)
+        }
+      end
+  end
+
+  def user_agents
+    base_relation = UserAgent.where("day > ?", 2.months.ago)
+    base_relation
+      .select(:name)
+      .distinct
+      .pluck(:name)
+      .reject { |name| name.blank? }
+      .map do |name|
+        {
+          name: name,
+          data:
+            base_relation
+              .where(name: name)
+              .group(:day)
+              .order(day: :asc)
+              .pluck(Arel.sql("day, count(*)"))
+              .map { |d| [d.first.to_datetime.to_i * 1000, d.last] }
         }
       end
   end
