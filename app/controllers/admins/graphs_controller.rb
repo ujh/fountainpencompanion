@@ -92,7 +92,7 @@ class Admins::GraphsController < Admins::BaseController
               .map { |d| [d.first.to_i * 1000, d.last] }
         }
       end
-      .reject { |data| data[:data].map(&:last).all? { |count| count < 10 } }
+      .reject { |data| data[:data].map(&:last).all? { |count| count <= 30 } }
   end
 
   def collected_inks
