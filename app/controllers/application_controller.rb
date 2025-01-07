@@ -19,10 +19,18 @@ class ApplicationController < ActionController::Base
     end
   end
 
+  USER_AGENT_PARSER =
+    UserAgentParser::Parser.new(
+      patterns_paths: [
+        UserAgentParser::DefaultPatternsPath,
+        Rails.root.join("config/user_agents.yml")
+      ]
+    )
+
   def save_user_agent
     user_agent = request.user_agent
     UserAgent.create(
-      name: UserAgentParser.parse(user_agent).family,
+      name: USER_AGENT_PARSER.parse(user_agent).family,
       raw_name: user_agent,
       day: Date.current
     )
