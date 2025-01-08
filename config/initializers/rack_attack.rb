@@ -14,7 +14,7 @@ Rack::Attack.throttle(
   period: 20
 ) { |request| request.ip if request.path.starts_with?("/descriptions/missing") }
 
-Rack::Attack.throttle("Google", limit: 1, period: 1) do |request|
+Rack::Attack.throttle("Google", limit: 1, period: 5) do |request|
   "Google" if request.user_agent =~ /Googlebot/i
 end
 
@@ -29,5 +29,5 @@ end
 # See https://social.treehouse.systems/@dee/112524729369220652
 Rack::Attack.blocklist("Misbehaving bots") do |request|
   request.user_agent =~
-    /AhrefsBot|Baiduspider|SemrushBot|SeekportBot|BLEXBot|Buck|magpie-crawler|ZoominfoBot|HeadlessChrome|istellabot|Sogou|coccocbot|Pinterestbot|moatbot|Mediatoolkitbot|SeznamBot|trendictionbot|MJ12bot|DotBot|PetalBot|YandexBot|bingbot|ClaudeBot|imagesift|GPTBot|Bytespider|Timpibot|meta-externalagent/i
+    /AhrefsBot|Baiduspider|SemrushBot|SeekportBot|BLEXBot|Buck|magpie-crawler|ZoominfoBot|HeadlessChrome|istellabot|Sogou|coccocbot|Pinterestbot|moatbot|Mediatoolkitbot|SeznamBot|trendictionbot|MJ12bot|DotBot|PetalBot|YandexBot|bingbot|ClaudeBot|imagesift|GPTBot|Bytespider|Timpibot|meta-externalagent|facebook/i
 end
