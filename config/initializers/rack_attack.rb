@@ -18,6 +18,14 @@ Rack::Attack.throttle("Google", limit: 1, period: 1) do |request|
   request.user_agent =~ /Googlebot/i
 end
 
+Rack::Attack.throttle("crawler", limit: 1, period: 1) do |request|
+  request.user_agent =~ /crawler/i
+end
+
+Rack::Attack.throttle("Amazonbot", limit: 1, period: 10) do |request|
+  request.user_agent =~ /Amazonbot/i
+end
+
 # See https://social.treehouse.systems/@dee/112524729369220652
 Rack::Attack.blocklist("Misbehaving bots") do |request|
   request.user_agent =~
