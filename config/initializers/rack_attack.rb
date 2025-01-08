@@ -14,11 +14,11 @@ Rack::Attack.throttle(
   period: 20
 ) { |request| request.ip if request.path.starts_with?("/descriptions/missing") }
 
-Rack::Attack.throttle("Google", limit: 1, period: 5) do |request|
+Rack::Attack.throttle("Google", limit: 1, period: 60) do |request|
   "Google" if request.user_agent =~ /Googlebot/i
 end
 
-Rack::Attack.throttle("crawler", limit: 1, period: 1) do |request|
+Rack::Attack.throttle("crawler", limit: 1, period: 60) do |request|
   "crawler" if request.user_agent =~ /crawler/i
 end
 
