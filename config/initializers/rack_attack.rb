@@ -14,6 +14,10 @@ Rack::Attack.throttle(
   period: 20
 ) { |request| request.ip if request.path.starts_with?("/descriptions/missing") }
 
+Rack::Attack.throttle("Google", limit: 1, period: 1) do |request|
+  request.user_agent =~ /Googlebot/i
+end
+
 # See https://social.treehouse.systems/@dee/112524729369220652
 Rack::Attack.blocklist("Misbehaving bots") do |request|
   request.user_agent =~
