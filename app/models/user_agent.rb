@@ -1,5 +1,6 @@
 class UserAgent < ApplicationRecord
   BROWSERS = [
+    "Apple Mail",
     "Avast Secure Browser",
     "Chrome Mobile WebView",
     "Chrome Mobile iOS",
