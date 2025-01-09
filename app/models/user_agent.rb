@@ -6,6 +6,8 @@ class UserAgent < ApplicationRecord
     "Chrome Mobile",
     "Chrome",
     "Consul Health Check",
+    "DuckDuckGo Mobile",
+    "DuckDuckGo",
     "Ecosia iOS",
     "Edge",
     "Firefox Mobile",
