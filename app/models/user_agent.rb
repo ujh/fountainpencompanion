@@ -14,6 +14,7 @@ class UserAgent < ApplicationRecord
     "Firefox Mobile",
     "Firefox iOS",
     "Firefox",
+    "IE",
     "Instagram",
     "Mobile Safari",
     "Opera",
