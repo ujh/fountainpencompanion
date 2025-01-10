@@ -19,7 +19,8 @@ class UserAgent < ApplicationRecord
     "Mobile Safari",
     "Opera",
     "Safari",
-    "Samsung Internet"
+    "Samsung Internet",
+    "Vivaldi"
   ].freeze
 
   scope :non_browser, -> { where.not(name: BROWSERS) }
