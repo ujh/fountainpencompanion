@@ -22,6 +22,11 @@ Rack::Attack.throttle("crawler", limit: 1, period: 60) do |request|
   "crawler" if request.user_agent =~ /crawler/i
 end
 
+# If we detect an unknown bot, we throttle it some anyway
+Rack::Attack.throttle("unknown bot", limit: 1, period: 5) do |request|
+  request.ip if request.user_agent =~ /bot/i
+end
+
 # See https://social.treehouse.systems/@dee/112524729369220652
 Rack::Attack.blocklist("Misbehaving bots") do |request|
   request.user_agent =~
