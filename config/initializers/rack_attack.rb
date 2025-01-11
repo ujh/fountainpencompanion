@@ -27,9 +27,6 @@ Rack::Attack.throttle("unknown bot", limit: 1, period: 5) do |request|
   request.ip if request.user_agent =~ /bot/i
 end
 
-# We throttle everything just to be on the safe side
-Rack::Attack.throttle("all", limit: 10, period: 1) { |request| request.ip }
-
 # See https://social.treehouse.systems/@dee/112524729369220652
 Rack::Attack.blocklist("Misbehaving bots") do |request|
   request.user_agent =~
