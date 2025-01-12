@@ -11,6 +11,8 @@ class UserAgent < ApplicationRecord
     "DuckDuckGo",
     "Ecosia iOS",
     "Edge",
+    "Edge Mobile",
+    "Facebook",
     "Firefox Mobile",
     "Firefox iOS",
     "Firefox",
