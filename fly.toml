@@ -44,7 +44,7 @@ min_machines_running = 5
 [http_service.concurrency]
 type = "requests"
 soft_limit = 1
-hard_limit = 50
+hard_limit = 25
 [[http_service.checks]]
 grace_period = "10s"
 interval = "30s"
