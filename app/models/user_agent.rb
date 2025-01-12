@@ -1,5 +1,6 @@
 class UserAgent < ApplicationRecord
   BROWSERS = [
+    "Amazon Silk",
     "Apple Mail",
     "Avast Secure Browser",
     "Chrome Mobile WebView",
@@ -10,8 +11,8 @@ class UserAgent < ApplicationRecord
     "DuckDuckGo Mobile",
     "DuckDuckGo",
     "Ecosia iOS",
-    "Edge",
     "Edge Mobile",
+    "Edge",
     "Facebook",
     "Firefox Mobile",
     "Firefox iOS",
