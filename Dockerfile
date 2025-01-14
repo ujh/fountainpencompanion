@@ -16,6 +16,11 @@ WORKDIR /app
 
 ENV BUNDLE_PATH="/usr/local/bundle"
 
+# Install packages needed to run the app
+RUN apt-get update -qq && \
+  apt-get install --no-install-recommends -y libyaml-dev && \
+  rm -rf /var/lib/apt/lists /var/cache/apt/archives
+
 # The development stage is used to run the app locally as serves as the base for building the version
 # that will contain the data for prod.
 FROM base AS common-build
