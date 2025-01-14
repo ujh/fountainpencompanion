@@ -230,3 +230,7 @@ html[data-bs-theme="dark"] {
     --bs-link-hover-color: #{b.$blue-600};
   }
 }
+
+#main {
+  max-width: 1800px;
+}
