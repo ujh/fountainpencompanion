@@ -18,6 +18,11 @@ Rack::Attack.throttle("crawler", limit: 1, period: 60) do |request|
   "crawler" if request.user_agent =~ /crawler|Googlebot/i
 end
 
+# Avoid peaks when posting to Mastodon
+Rack::Attack.throttle("Mastodon", limit: 1, period: 1) do |request|
+  "mastodon" if request.user_agent =~ /mastodon/i
+end
+
 # See https://social.treehouse.systems/@dee/112524729369220652
 Rack::Attack.blocklist("Misbehaving bots") do |request|
   request.user_agent =~
