@@ -20,6 +20,7 @@ class UserAgent < ApplicationRecord
     "IE",
     "Instagram",
     "Mobile Safari",
+    "Opera Mobile",
     "Opera",
     "Safari",
     "Samsung Internet",
