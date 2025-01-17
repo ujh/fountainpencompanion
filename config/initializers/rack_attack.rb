@@ -15,7 +15,7 @@ Rack::Attack.throttle(
 ) { |request| request.ip if request.path.starts_with?("/descriptions/missing") }
 
 Rack::Attack.throttle("crawler", limit: 1, period: 60) do |request|
-  "crawler" if request.user_agent =~ /crawler|Googlebot/i
+  "crawler" if request.user_agent =~ /crawler|Googlebot|ccbot/i
 end
 
 # Avoid peaks when posting to Mastodon
