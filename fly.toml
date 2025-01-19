@@ -6,7 +6,7 @@
 app = 'fountainpencompanion'
 primary_region = 'ewr'
 console_command = '/app/bin/rails console'
-swap_size_mb = 512
+# swap_size_mb = 512
 
 [build]
 build-target = 'prod'
@@ -61,13 +61,13 @@ path = "/"
 # url_prefix = "/images"
 
 [[vm]]
-memory = '512mb'
+memory = '420mb'
 cpu_kind = 'shared'
 cpus = 1
 processes = ["worker"]
 
 [[vm]]
-memory = '1GB'
+memory = '1100mb'
 cpu_kind = 'shared'
 cpus = 4
 processes = ["web"]
