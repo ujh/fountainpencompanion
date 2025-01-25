@@ -25,7 +25,7 @@ end
 
 # Global throttle for all requests. This will hopefully help with the spikes.
 Rack::Attack.throttle("req/ip", limit: 120, period: 1.minute) do |request|
-  request.ip
+  request.ip unless request.path.starts_with?("/admins")
 end
 
 # Block misbehaving bots
