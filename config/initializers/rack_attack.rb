@@ -30,7 +30,12 @@ Rack::Attack.blocklist("blocklist for misbehaving clients v2") do |request|
     maxretry: 120,
     findtime: 1.minute,
     bantime: 1.hour
-  ) { !request.path.starts_with?("/admins") }
+  ) do
+    !(
+      request.path.starts_with?("/admins") ||
+        request.path.starts_with?("/assets")
+    )
+  end
 end
 
 # Block misbehaving bots
