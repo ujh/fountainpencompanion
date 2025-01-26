@@ -23,9 +23,14 @@ Rack::Attack.throttle("Mastodon", limit: 1, period: 1) do |request|
   "mastodon" if request.user_agent =~ /mastodon/i
 end
 
-# Global throttle for all requests. This will hopefully help with the spikes.
-Rack::Attack.throttle("req/ip", limit: 120, period: 1.minute) do |request|
-  request.ip unless request.path.starts_with?("/admins")
+# Blocklist for misbehaving clients. The IP gets banned for 12 hours after 120 requests in 1 minute.
+Rack::Attack.blocklist("blocklist for misbehaving clients") do |request|
+  Rack::Attack::Allow2Ban.filter(
+    request.ip,
+    maxretry: 120,
+    findtime: 1.minute,
+    bantime: 12.hour
+  ) { request.ip unless request.path.starts_with?("/admins") }
 end
 
 # Block misbehaving bots
