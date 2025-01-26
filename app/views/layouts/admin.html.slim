@@ -5,8 +5,8 @@ html
     = csrf_meta_tags
     = stylesheet_link_tag 'sprockets-admin', media: 'all'
     = stylesheet_link_tag 'admin', media: 'all'
-    = javascript_include_tag 'sprockets'
-    = javascript_include_tag 'admin'
+    = javascript_include_tag 'sprockets', defer: true
+    = javascript_include_tag 'admin', defer: true
     link href="https://fonts.googleapis.com/css?family=Droid+Serif" rel="stylesheet" type="text/css" media="screen"
     meta name="viewport" content="width=device-width, initial-scale=1"
     link rel="icon" type="image/png" href="/images/icons/icon-192x192.png"

@@ -6,8 +6,8 @@ html
     = auto_discovery_link_tag(:rss, controller: '/blog', action: 'feed')
     = stylesheet_link_tag 'sprockets-application', media: 'all'
     = stylesheet_link_tag    'application', media: 'all'
-    = javascript_include_tag 'sprockets'
-    = javascript_include_tag 'application'
+    = javascript_include_tag 'sprockets', defer: true
+    = javascript_include_tag 'application', defer: true
     link rel="icon" type="image/png" href="/images/icons/icon-192x192.png"
     link rel="apple-touch-icon" type="image/png" href="/images/icons/icon-192x192.png"
     link rel="manifest" href="/application.webmanifest"
