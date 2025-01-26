@@ -52,13 +52,13 @@ method = "GET"
 timeout = "5s"
 path = "/"
 
-# [[statics]]
-# guest_path = "/app/public/assets"
-# url_prefix = "/assets"
+[[statics]]
+guest_path = "/app/public/assets"
+url_prefix = "/assets"
 
-# [[statics]]
-# guest_path = "/app/public/images"
-# url_prefix = "/images"
+[[statics]]
+guest_path = "/app/public/images"
+url_prefix = "/images"
 
 [[vm]]
 memory = '512mb'
