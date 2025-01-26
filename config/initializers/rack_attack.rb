@@ -23,13 +23,13 @@ Rack::Attack.throttle("Mastodon", limit: 1, period: 1) do |request|
   "mastodon" if request.user_agent =~ /mastodon/i
 end
 
-# Blocklist for misbehaving clients. The IP gets banned for 12 hours after 120 requests in 1 minute.
+# Blocklist for misbehaving clients. The IP gets banned for 1 hour after 120 requests in 1 minute.
 Rack::Attack.blocklist("blocklist for misbehaving clients v2") do |request|
   Rack::Attack::Allow2Ban.filter(
     request.ip,
     maxretry: 120,
     findtime: 1.minute,
-    bantime: 12.hour
+    bantime: 1.hour
   ) { !request.path.starts_with?("/admins") }
 end
 
