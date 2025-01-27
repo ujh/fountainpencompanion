@@ -34,7 +34,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4.2.2
       - name: Install correct Node version
-        uses: actions/setup-node@v4.1.0
+        uses: actions/setup-node@v4.2.0
         with:
           node-version: "v20.18.0"
           cache: yarn
@@ -58,7 +58,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4.2.2
       - name: Install correct Node version
-        uses: actions/setup-node@v4.1.0
+        uses: actions/setup-node@v4.2.0
         with:
           node-version: "v20.18.0"
           cache: yarn
