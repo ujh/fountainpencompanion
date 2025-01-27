@@ -7086,10 +7086,10 @@ react-scroll-into-view-if-needed@^3.0.1:
   resolved "https://registry.yarnpkg.com/react-scroll-into-view-if-needed/-/react-scroll-into-view-if-needed-3.0.1.tgz#9de6b42408eef91723ae87651cfca9dbba083895"
   integrity sha512-kMar+uWH9ftsUUA8JTKwGyui5NP1EfAkt/UoodVEsDO81pnWkc8mAN5gLiyVCGmVSHpTQsEcTdqy5rNBUJyUWg==
 
-react-select@^5.9.0:
-  version "5.9.0"
-  resolved "https://registry.yarnpkg.com/react-select/-/react-select-5.9.0.tgz#41325b7bfe8452a8d401b82fc4fb7d44a03e29c5"
-  integrity sha512-nwRKGanVHGjdccsnzhFte/PULziueZxGD8LL2WojON78Mvnq7LdAMEtu2frrwld1fr3geixg3iiMBIc/LLAZpw==
+react-select@^5.10.0:
+  version "5.10.0"
+  resolved "https://registry.yarnpkg.com/react-select/-/react-select-5.10.0.tgz#9b5f4544cfecdfc744184b87651468ee0fb6e172"
+  integrity sha512-k96gw+i6N3ExgDwPIg0lUPmexl1ygPe6u5BdQFNBhkpbwroIgCNXdubtIzHfThYXYYTubwOBafoMnn7ruEP1xA==
   dependencies:
     "@babel/runtime" "^7.12.0"
     "@emotion/cache" "^11.4.0"
