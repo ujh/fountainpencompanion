@@ -377,6 +377,10 @@ GEM
     public_suffix (6.0.1)
     puma (6.6.0)
       nio4r (~> 2.0)
+    puma_worker_killer (1.0.0)
+      bigdecimal (>= 2.0)
+      get_process_mem (>= 0.2)
+      puma (>= 2.7)
     raabro (1.4.0)
     racc (1.8.1)
     rack (3.1.8)
@@ -657,6 +661,7 @@ DEPENDENCIES
   pghero
   prettier_print (~> 1.2)
   puma
+  puma_worker_killer
   rack-attack
   rack-timeout
   rails (~> 8.0.1)
