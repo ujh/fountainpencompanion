@@ -40,5 +40,7 @@ plugin :tmp_restart
 before_fork do
   require "puma_worker_killer"
 
-  PumaWorkerKiller.enable_rolling_restart # Default is every 6 hours
+  # Restart every 6h, with a randomly added maximum of 10min to not restart at
+  # the same time on all machines.
+  PumaWorkerKiller.enable_rolling_restart((6 * 3600) + rand(10 * 60))
 end
