@@ -36,3 +36,7 @@ exceptions:
     - Rack::Timeout::RequestTimeoutException
     - Rack::Timeout::RequestExpiryError
     - Rack::Timeout::RequestTimeoutError
+
+rails:
+  subscriber_ignore_sources:
+    - !ruby/regexp "/redis/"
