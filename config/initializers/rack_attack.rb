@@ -14,8 +14,8 @@ Rack::Attack.throttle(
   period: 20
 ) { |request| request.ip if request.path.starts_with?("/descriptions/missing") }
 
-Rack::Attack.throttle("crawler", limit: 1, period: 60) do |request|
-  "crawler" if request.user_agent =~ /crawler|Googlebot|ccbot/i
+Rack::Attack.throttle("crawler", limit: 1, period: 120) do |request|
+  "crawler" if request.user_agent =~ /Googlebot/i
 end
 
 # Avoid peaks when posting to Mastodon
@@ -31,5 +31,5 @@ end
 # See https://social.treehouse.systems/@dee/112524729369220652
 Rack::Attack.blocklist("Misbehaving bots") do |request|
   request.user_agent =~
-    /AhrefsBot|Baiduspider|SemrushBot|SeekportBot|BLEXBot|Buck|magpie-crawler|ZoominfoBot|HeadlessChrome|istellabot|Sogou|coccocbot|Pinterestbot|moatbot|Mediatoolkitbot|SeznamBot|trendictionbot|MJ12bot|DotBot|PetalBot|YandexBot|bingbot|ClaudeBot|imagesift|GPTBot|Bytespider|Timpibot|meta-externalagent|facebook|Amazonbot|Applebot|AliyunSecBot|DataForSeoBot|serpstatbot/i
+    /AhrefsBot|Baiduspider|SemrushBot|SeekportBot|BLEXBot|Buck|magpie-crawler|ZoominfoBot|HeadlessChrome|istellabot|Sogou|coccocbot|Pinterestbot|moatbot|Mediatoolkitbot|SeznamBot|trendictionbot|MJ12bot|DotBot|PetalBot|YandexBot|bingbot|ClaudeBot|imagesift|GPTBot|Bytespider|Timpibot|meta-externalagent|facebook|Amazonbot|Applebot|AliyunSecBot|DataForSeoBot|serpstatbot|ccbot|crawler|panscient/i
 end
