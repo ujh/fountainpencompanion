@@ -8,9 +8,11 @@ import { getRequest } from "../../fetch";
 export const Spam = () => {
   const [data, setData] = useState(null);
   useEffect(() => {
-    getRequest("/admins/graphs/spam.json")
-      .then((res) => res.json())
-      .then((json) => setData(json));
+    navigator.locks.request("admin-dashboard", async () =>
+      getRequest("/admins/graphs/spam.json")
+        .then((res) => res.json())
+        .then((json) => setData(json))
+    );
   }, []);
   if (data) {
     const options = {
