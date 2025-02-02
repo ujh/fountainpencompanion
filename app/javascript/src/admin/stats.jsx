@@ -29,7 +29,7 @@ const Stat = ({ id, arg }) => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   useEffect(() => {
-    navigator.locks.request("admin-dashboard", async () => {
+    navigator.locks.request("admin-dashboard-stats", async () => {
       let url = `/admins/stats/${id}`;
       if (arg) url += `?arg=${arg}`;
       const response = await getRequest(url);
@@ -54,7 +54,7 @@ const ConditionalStat = ({ id, arg, href, template }) => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   useEffect(() => {
-    navigator.locks.request("admin-dashboard", async () => {
+    navigator.locks.request("admin-dashboard-stats", async () => {
       let url = `/admins/stats/${id}`;
       if (arg) url += `?arg=${arg}`;
       const response = await getRequest(url);
