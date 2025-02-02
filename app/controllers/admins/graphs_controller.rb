@@ -70,7 +70,7 @@ class Admins::GraphsController < Admins::BaseController
   end
 
   def user_agents
-    base_relation = UserAgent.non_browser.where("day > ?", 2.months.ago)
+    base_relation = UserAgent.non_browser.where("day > ?", 2.weeks.ago)
     base_relation
       .select(:name)
       .distinct
