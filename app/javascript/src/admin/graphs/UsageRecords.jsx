@@ -8,9 +8,11 @@ import { getRequest } from "../../fetch";
 export const UsageRecords = () => {
   const [data, setData] = useState(null);
   useEffect(() => {
-    getRequest("/admins/graphs/usage-records.json")
-      .then((res) => res.json())
-      .then((json) => setData(json));
+    navigator.locks.request("admin-dashboard", async () =>
+      getRequest("/admins/graphs/usage-records.json")
+        .then((res) => res.json())
+        .then((json) => setData(json))
+    );
   }, []);
   if (data) {
     const options = {

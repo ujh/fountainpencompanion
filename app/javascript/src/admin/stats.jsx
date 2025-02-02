@@ -29,15 +29,14 @@ const Stat = ({ id, arg }) => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   useEffect(() => {
-    async function load() {
+    navigator.locks.request("admin-dashboard", async () => {
       let url = `/admins/stats/${id}`;
       if (arg) url += `?arg=${arg}`;
       const response = await getRequest(url);
       const json = await response.json();
       setData(json);
       setLoading(false);
-    }
-    load();
+    });
   });
   if (loading) {
     return (
@@ -55,15 +54,14 @@ const ConditionalStat = ({ id, arg, href, template }) => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   useEffect(() => {
-    async function load() {
+    navigator.locks.request("admin-dashboard", async () => {
       let url = `/admins/stats/${id}`;
       if (arg) url += `?arg=${arg}`;
       const response = await getRequest(url);
       const json = await response.json();
       setData(json);
       setLoading(false);
-    }
-    load();
+    });
   });
   if (loading) {
     return (
