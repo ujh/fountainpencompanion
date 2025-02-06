@@ -31,7 +31,7 @@ x-rails: &rails
 
 services:
   postgres:
-    image: postgres:16
+    image: pgvector/pgvector:pg16
     volumes:
       - postgres_data:/var/lib/postgresql/data:cached
     environment:
