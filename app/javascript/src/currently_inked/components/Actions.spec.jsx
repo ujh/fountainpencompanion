@@ -33,9 +33,7 @@ describe("<Actions />", () => {
 
     expect(exportLink.getAttribute("href")).toEqual("/currently_inked.csv");
     expect(usageLink.getAttribute("href")).toEqual("/usage_records");
-    expect(archiveLink.getAttribute("href")).toEqual(
-      "/currently_inked_archive"
-    );
+    expect(archiveLink.getAttribute("href")).toEqual("/currently_inked_archive");
     expect(addLink.getAttribute("href")).toEqual("/currently_inked/new");
   });
 

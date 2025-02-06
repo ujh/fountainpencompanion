@@ -1,10 +1,7 @@
 import { useCallback } from "react";
 
 export const useFieldSwitcher = (hiddenFields, onHiddenFieldsChange) => {
-  const isSwitchedOn = useCallback(
-    (field) => !hiddenFields.includes(field),
-    [hiddenFields]
-  );
+  const isSwitchedOn = useCallback((field) => !hiddenFields.includes(field), [hiddenFields]);
 
   const onSwitchChange = useCallback(
     (checked, field) => {

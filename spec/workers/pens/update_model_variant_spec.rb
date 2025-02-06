@@ -130,9 +130,7 @@ describe Pens::UpdateModelVariant do
       filling_system: "Filling System 1"
     )
 
-    expect do subject.perform(model_variant.id) end.to change {
-      PenEmbedding.count
-    }.by(1)
+    expect do subject.perform(model_variant.id) end.to change { PenEmbedding.count }.by(1)
     pen_embedding = model_variant.pen_embedding
     expect(pen_embedding.content).to eq(
       '"Brand 1 Model 1 Color 1 Material 1 Trim Color 1 Filling System 1" OR "Brand 1 Model 2 Color 1 Material 1 Trim Color 1 Filling System 1" OR "Brand 1 Model 2 Color 2 Material 1 Trim Color 1 Filling System 1"'
@@ -166,9 +164,7 @@ describe Pens::UpdateModelVariant do
     )
 
     expect do
-      expect { subject.perform(model_variant.id) }.not_to(
-        change { PenEmbedding.count }
-      )
+      expect { subject.perform(model_variant.id) }.not_to(change { PenEmbedding.count })
     end.to change { pen_embedding.reload.content }.from("old content").to(
       "\"Brand 1 Model 1 Color 1 Material 1 Trim Color 1 Filling System 1\" OR \"Brand 1 Model 2 Color 1 Material 1 Trim Color 1 Filling System 1\""
     )

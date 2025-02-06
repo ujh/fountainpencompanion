@@ -30,10 +30,7 @@ export const Actions = ({
     [onFilterChange, numberOfPens]
   );
 
-  const { isSwitchedOn, onSwitchChange } = useFieldSwitcher(
-    hiddenFields,
-    onHiddenFieldsChange
-  );
+  const { isSwitchedOn, onSwitchChange } = useFieldSwitcher(hiddenFields, onHiddenFieldsChange);
 
   return (
     <div>
@@ -78,9 +75,7 @@ export const Actions = ({
               </Switch>
               <Switch
                 checked={isSwitchedOn("filling_system")}
-                onChange={(e) =>
-                  onSwitchChange(e.target.checked, "filling_system")
-                }
+                onChange={(e) => onSwitchChange(e.target.checked, "filling_system")}
               >
                 Show&nbsp;filling&nbsp;system
               </Switch>
@@ -104,17 +99,13 @@ export const Actions = ({
               </Switch>
               <Switch
                 checked={isSwitchedOn("daily_usage")}
-                onChange={(e) =>
-                  onSwitchChange(e.target.checked, "daily_usage")
-                }
+                onChange={(e) => onSwitchChange(e.target.checked, "daily_usage")}
               >
                 Show&nbsp;daily&nbsp;usage
               </Switch>
               <Switch
                 checked={isSwitchedOn("last_used_on")}
-                onChange={(e) =>
-                  onSwitchChange(e.target.checked, "last_used_on")
-                }
+                onChange={(e) => onSwitchChange(e.target.checked, "last_used_on")}
               >
                 Show&nbsp;last&nbsp;usage
               </Switch>

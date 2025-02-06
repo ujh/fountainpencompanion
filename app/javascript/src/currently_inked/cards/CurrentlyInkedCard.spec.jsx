@@ -66,9 +66,7 @@ describe("<SwabCard />", () => {
       />
     );
 
-    expect(
-      queryByText("Blacker than the blackest black")
-    ).not.toBeInTheDocument();
+    expect(queryByText("Blacker than the blackest black")).not.toBeInTheDocument();
     expect(queryByText("Pen")).not.toBeInTheDocument();
     expect(queryByText("Pilot Metropolitan")).not.toBeInTheDocument();
     expect(queryByText("Inked")).not.toBeInTheDocument();

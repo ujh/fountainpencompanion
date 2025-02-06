@@ -235,9 +235,7 @@ describe("<CurrentlyInked />", () => {
   });
 
   it("swaps to card layout when clicked", async () => {
-    const { findByText, getByTitle, queryByText, user } = setup(
-      <CurrentlyInked />
-    );
+    const { findByText, getByTitle, queryByText, user } = setup(<CurrentlyInked />);
 
     // Actions heading from the table should be visible
     const heading = await findByText("Actions");

@@ -32,12 +32,7 @@ describe Admins::MacroClustersController do
                 },
                 "relationships" => {
                   "micro_clusters" => {
-                    "data" => [
-                      {
-                        "id" => micro_cluster.id.to_s,
-                        "type" => "micro_cluster"
-                      }
-                    ]
+                    "data" => [{ "id" => micro_cluster.id.to_s, "type" => "micro_cluster" }]
                   }
                 }
               }
@@ -58,12 +53,7 @@ describe Admins::MacroClustersController do
                         }
                       },
                       "collected_inks" => {
-                        "data" => [
-                          {
-                            "id" => collected_ink.id.to_s,
-                            "type" => "collected_ink"
-                          }
-                        ]
+                        "data" => [{ "id" => collected_ink.id.to_s, "type" => "collected_ink" }]
                       }
                     }
                   },
@@ -119,12 +109,7 @@ describe Admins::MacroClustersController do
                 },
                 "relationships" => {
                   "micro_clusters" => {
-                    "data" => [
-                      {
-                        "id" => micro_cluster.id.to_s,
-                        "type" => "micro_cluster"
-                      }
-                    ]
+                    "data" => [{ "id" => micro_cluster.id.to_s, "type" => "micro_cluster" }]
                   }
                 }
               }

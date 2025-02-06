@@ -47,9 +47,7 @@ describe("<PenCard />", () => {
     expect(getByText("Usage")).toBeInTheDocument();
     expect(getByTestId("usage")).toBeInTheDocument();
     const usageElement = getByTestId("usage");
-    expect(usageElement.textContent).toBe(
-      "1 inked - last used today (10 daily usages)"
-    );
+    expect(usageElement.textContent).toBe("1 inked - last used today (10 daily usages)");
   });
 
   it("doesn't render a usage header if there are no stats", () => {

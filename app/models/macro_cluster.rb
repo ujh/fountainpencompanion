@@ -1,9 +1,7 @@
 class MacroCluster < ApplicationRecord
   has_paper_trail
   has_many :description_versions,
-           -> do
-             where("object_changes like ?", "%description%").order("id desc")
-           end,
+           -> { where("object_changes like ?", "%description%").order("id desc") },
            class_name: "PaperTrail::Version",
            as: :item
 
@@ -40,12 +38,7 @@ class MacroCluster < ApplicationRecord
   end
 
   def self.of_user(user)
-    joins(:collected_inks).where(
-      collected_inks: {
-        user_id: user.id,
-        archived_on: nil
-      }
-    )
+    joins(:collected_inks).where(collected_inks: { user_id: user.id, archived_on: nil })
   end
 
   def self.without_review_of_user(user)
@@ -62,22 +55,17 @@ class MacroCluster < ApplicationRecord
     return self if query.blank?
 
     query = query.split(/\s+/).join("%")
-    joins(micro_clusters: :collected_inks).where(<<~SQL, "%#{query}%").group(
+    joins(micro_clusters: :collected_inks).where(<<~SQL, "%#{query}%").group("macro_clusters.id")
       CONCAT(collected_inks.brand_name, collected_inks.line_name, collected_inks.ink_name)
       ILIKE ?
     SQL
-      "macro_clusters.id"
-    )
   end
 
   def self.autocomplete_search(term, field)
     simplified_term = Simplifier.send(field, term.to_s)
     joins(micro_clusters: :collected_inks)
       .where(collected_inks: { private: false })
-      .where(
-        "collected_inks.simplified_#{field} LIKE ?",
-        "%#{simplified_term}%"
-      )
+      .where("collected_inks.simplified_#{field} LIKE ?", "%#{simplified_term}%")
       .where.not(macro_clusters: { field => "" })
       .group("macro_clusters.#{field}")
       .order("macro_clusters.#{field}")
@@ -90,10 +78,7 @@ class MacroCluster < ApplicationRecord
     query = autocomplete_search(term, :line_name)
     if simplified_brand_name.present?
       query =
-        query.where(
-          "collected_inks.simplified_brand_name LIKE ?",
-          "%#{simplified_brand_name}%"
-        )
+        query.where("collected_inks.simplified_brand_name LIKE ?", "%#{simplified_brand_name}%")
     end
     query
   end
@@ -103,20 +88,15 @@ class MacroCluster < ApplicationRecord
     query = autocomplete_search(term, :ink_name)
     if simplified_brand_name.present?
       query =
-        query.where(
-          "collected_inks.simplified_brand_name LIKE ?",
-          "%#{simplified_brand_name}%"
-        )
+        query.where("collected_inks.simplified_brand_name LIKE ?", "%#{simplified_brand_name}%")
     end
     query
   end
 
   def self.public
-    joins(micro_clusters: :collected_inks).where(
-      collected_inks: {
-        private: false
-      }
-    ).group("macro_clusters.id")
+    joins(micro_clusters: :collected_inks).where(collected_inks: { private: false }).group(
+      "macro_clusters.id"
+    )
   end
 
   def self.full_text_search(term, fuzzy: false)
@@ -143,9 +123,7 @@ class MacroCluster < ApplicationRecord
   def all_names
     collected_inks
       .where(private: false)
-      .group(
-        "collected_inks.brand_name, collected_inks.line_name, collected_inks.ink_name"
-      )
+      .group("collected_inks.brand_name, collected_inks.line_name, collected_inks.ink_name")
       .select(
         "min(collected_inks.id), collected_inks.brand_name, collected_inks.line_name, collected_inks.ink_name, count(*) as collected_inks_count"
       )

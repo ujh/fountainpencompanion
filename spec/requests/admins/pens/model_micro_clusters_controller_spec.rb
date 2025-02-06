@@ -191,9 +191,10 @@ describe Admins::Pens::ModelMicroClustersController do
       end
 
       it "triggers the recalculation background job for the model" do
-        expect do
-          delete "/admins/pens/model_micro_clusters/#{cluster.id}/unassign"
-        end.to change(Pens::UpdateModel.jobs, :length).by(1)
+        expect do delete "/admins/pens/model_micro_clusters/#{cluster.id}/unassign" end.to change(
+          Pens::UpdateModel.jobs,
+          :length
+        ).by(1)
         job = Pens::UpdateModel.jobs.last
         expect(job["args"].first).to eq(model.id)
       end

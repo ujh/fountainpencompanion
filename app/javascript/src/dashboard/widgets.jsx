@@ -18,10 +18,7 @@ const Loader = ({ withLinks }) => (
       <span className="placeholder col-12" />
     </p>
     {withLinks && (
-      <span
-        className="placeholder col-4 bg-primary"
-        style={{ marginBottom: "-58px" }}
-      />
+      <span className="placeholder col-4 bg-primary" style={{ marginBottom: "-58px" }} />
     )}
   </div>
 );
@@ -41,9 +38,7 @@ export const Widget = ({ renderWhenInvisible, ...rest }) => {
 const WidgetCard = ({ withLinks, header, subtitle, isVisible, ...rest }) => {
   return (
     <div
-      className={`card fpc-dashboard-widget ${
-        withLinks ? "fpc-dashboard-widget--with-links" : ""
-      }`}
+      className={`card fpc-dashboard-widget ${withLinks ? "fpc-dashboard-widget--with-links" : ""}`}
     >
       <div className="card-body">
         <h2 className="h4 card-title">{header}</h2>
@@ -78,9 +73,7 @@ const WidgetContent = ({ children, path, withLinks, paginated }) => {
   if (data || !path) {
     content = (
       <WidgetDataContext.Provider value={data}>
-        <WidgetWidthContext.Provider value={elementWidth}>
-          {children}
-        </WidgetWidthContext.Provider>
+        <WidgetWidthContext.Provider value={elementWidth}>{children}</WidgetWidthContext.Provider>
       </WidgetDataContext.Provider>
     );
   }

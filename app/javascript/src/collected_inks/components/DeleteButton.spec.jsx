@@ -4,18 +4,14 @@ import { DeleteButton } from "./DeleteButton";
 
 describe("<DeleteButton />", () => {
   it("renders nothing if archived false", () => {
-    const { queryByRole } = render(
-      <DeleteButton name="Pilot Blue" id="1" archived={false} />
-    );
+    const { queryByRole } = render(<DeleteButton name="Pilot Blue" id="1" archived={false} />);
 
     const link = queryByRole("link");
     expect(link).toBeNull();
   });
 
   it("renders a button to delete if archived true", () => {
-    const { getByRole } = render(
-      <DeleteButton name="Pilot Blue" id="1" archived={true} />
-    );
+    const { getByRole } = render(<DeleteButton name="Pilot Blue" id="1" archived={true} />);
 
     const link = getByRole("link");
 

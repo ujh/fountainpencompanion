@@ -15,31 +15,19 @@ class Admins::Pens::ModelsController < Admins::BaseController
       end
       format.html do
         @clusters =
-          Pens::Model
-            .includes(:model_micro_clusters)
-            .search(params[:q])
-            .ordered
-            .page(params[:page])
+          Pens::Model.includes(:model_micro_clusters).search(params[:q]).ordered.page(params[:page])
       end
     end
   end
 
   def show
     cluster = Pens::Model.find(params[:id])
-    render json:
-             PensModelSerializer
-               .new(cluster, show_options)
-               .serializable_hash
-               .to_json
+    render json: PensModelSerializer.new(cluster, show_options).serializable_hash.to_json
   end
 
   def create
     cluster = Pens::Model.create!(create_params)
-    render json:
-             PensModelSerializer
-               .new(cluster, show_options)
-               .serializable_hash
-               .to_json
+    render json: PensModelSerializer.new(cluster, show_options).serializable_hash.to_json
   end
 
   def destroy
@@ -51,10 +39,7 @@ class Admins::Pens::ModelsController < Admins::BaseController
   private
 
   def create_params
-    (params["_jsonapi"] || params).dig(:data, :attributes).permit(
-      :brand,
-      :model
-    )
+    (params["_jsonapi"] || params).dig(:data, :attributes).permit(:brand, :model)
   end
 
   def show_options

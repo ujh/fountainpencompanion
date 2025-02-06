@@ -3,11 +3,7 @@ require "rails_helper"
 describe "sign up" do
   context "normal user" do
     let(:user_params) do
-      {
-        email: "user@example.com",
-        password: "password",
-        password_confirmation: "password"
-      }
+      { email: "user@example.com", password: "password", password_confirmation: "password" }
     end
 
     before do
@@ -36,11 +32,7 @@ describe "sign up" do
 
   context "bot user" do
     let(:user_params) do
-      {
-        email: "user@example.com",
-        password: "password",
-        password_confirmation: "password"
-      }
+      { email: "user@example.com", password: "password", password_confirmation: "password" }
     end
 
     before do

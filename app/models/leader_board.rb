@@ -31,9 +31,7 @@ class LeaderBoard
         Pens::Model
           .includes(:collected_pens)
           .reject { |model| model.collected_pens.size.zero? }
-          .map do |model|
-            { name: model.name, count: model.collected_pens.size, id: model.id }
-          end
+          .map { |model| { name: model.name, count: model.collected_pens.size, id: model.id } }
           .sort do |p1, p2|
             if p1[:count] == p2[:count]
               p1[:name].downcase <=> p2[:name].downcase
@@ -176,12 +174,7 @@ class LeaderBoard
 
   def self.extract(relation)
     relation.map do |i|
-      {
-        id: i.id,
-        public_name: i.public_name,
-        counter: i.counter,
-        patron: i.patron
-      }
+      { id: i.id, public_name: i.public_name, counter: i.counter, patron: i.patron }
     end
   end
 end

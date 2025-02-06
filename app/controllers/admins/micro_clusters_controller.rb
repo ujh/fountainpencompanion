@@ -5,11 +5,7 @@ class Admins::MicroClustersController < Admins::BaseController
         clusters =
           MicroCluster
             .includes(:collected_inks)
-            .order(
-              :simplified_brand_name,
-              :simplified_line_name,
-              :simplified_ink_name
-            )
+            .order(:simplified_brand_name, :simplified_line_name, :simplified_ink_name)
             .page(params[:page])
         clusters = clusters.unassigned if params[:unassigned]
         clusters = clusters.without_ignored if params[:without_ignored]
@@ -30,9 +26,7 @@ class Admins::MicroClustersController < Admins::BaseController
         .joins(:collected_inks)
         .select("micro_clusters.*, count(*) as count")
         .group("micro_clusters.id")
-        .order(
-          "count desc, simplified_brand_name, simplified_line_name, simplified_ink_name"
-        )
+        .order("count desc, simplified_brand_name, simplified_line_name, simplified_ink_name")
   end
 
   def update
@@ -42,11 +36,7 @@ class Admins::MicroClustersController < Admins::BaseController
     if request.referrer == ignored_admins_micro_clusters_url
       redirect_to ignored_admins_micro_clusters_url
     else
-      render json:
-               MicroClusterSerializer
-                 .new(cluster, update_options)
-                 .serializable_hash
-                 .to_json
+      render json: MicroClusterSerializer.new(cluster, update_options).serializable_hash.to_json
     end
   end
 
@@ -70,14 +60,7 @@ class Admins::MicroClustersController < Admins::BaseController
     {
       include: [:collected_inks],
       fields: {
-        collected_ink: %i[
-          brand_name
-          line_name
-          ink_name
-          maker
-          color
-          micro_cluster
-        ]
+        collected_ink: %i[brand_name line_name ink_name maker color micro_cluster]
       },
       meta: {
         pagination: pagination(rel)
@@ -89,14 +72,7 @@ class Admins::MicroClustersController < Admins::BaseController
     {
       include: %i[collected_inks macro_cluster],
       fields: {
-        collected_ink: %i[
-          brand_name
-          line_name
-          ink_name
-          maker
-          color
-          micro_cluster
-        ]
+        collected_ink: %i[brand_name line_name ink_name maker color micro_cluster]
       }
     }
   end

@@ -11,32 +11,17 @@ describe MacroCluster do
     end
 
     it "does not return a cluster with a new ink review" do
-      create(
-        :ink_review,
-        macro_cluster: macro_cluster,
-        approved_at: nil,
-        rejected_at: nil
-      )
+      create(:ink_review, macro_cluster: macro_cluster, approved_at: nil, rejected_at: nil)
       expect(subject).to be_empty
     end
 
     it "does not return a cluster with an approved ink review" do
-      create(
-        :ink_review,
-        macro_cluster: macro_cluster,
-        approved_at: Time.now,
-        rejected_at: nil
-      )
+      create(:ink_review, macro_cluster: macro_cluster, approved_at: Time.now, rejected_at: nil)
       expect(subject).to be_empty
     end
 
     it "returns a cluster with a rejected review" do
-      create(
-        :ink_review,
-        macro_cluster: macro_cluster,
-        approved_at: nil,
-        rejected_at: Time.now
-      )
+      create(:ink_review, macro_cluster: macro_cluster, approved_at: nil, rejected_at: Time.now)
       expect(subject).to eq([macro_cluster])
     end
 
@@ -53,34 +38,14 @@ describe MacroCluster do
     end
 
     it "does not return a cluster with an approved and a reject review" do
-      create(
-        :ink_review,
-        macro_cluster: macro_cluster,
-        approved_at: Time.now,
-        rejected_at: nil
-      )
-      create(
-        :ink_review,
-        macro_cluster: macro_cluster,
-        approved_at: nil,
-        rejected_at: Time.now
-      )
+      create(:ink_review, macro_cluster: macro_cluster, approved_at: Time.now, rejected_at: nil)
+      create(:ink_review, macro_cluster: macro_cluster, approved_at: nil, rejected_at: Time.now)
       expect(subject).to be_empty
     end
 
     it "does not return a cluster with a new and a rejected review" do
-      create(
-        :ink_review,
-        macro_cluster: macro_cluster,
-        approved_at: nil,
-        rejected_at: nil
-      )
-      create(
-        :ink_review,
-        macro_cluster: macro_cluster,
-        approved_at: nil,
-        rejected_at: Time.now
-      )
+      create(:ink_review, macro_cluster: macro_cluster, approved_at: nil, rejected_at: nil)
+      create(:ink_review, macro_cluster: macro_cluster, approved_at: nil, rejected_at: Time.now)
       expect(subject).to be_empty
     end
   end

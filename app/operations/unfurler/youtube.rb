@@ -30,8 +30,7 @@ class Unfurler
 
     def image
       thumbnails = video.snippet.thumbnails
-      t =
-        %i[maxres standard medium high default].find { |t| thumbnails.send(t) }
+      t = %i[maxres standard medium high default].find { |t| thumbnails.send(t) }
       thumbnails.send(t).url
     end
 

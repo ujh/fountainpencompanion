@@ -5,11 +5,7 @@ import { colorSort } from "../color-sorting";
 import { Widget, WidgetDataContext, WidgetWidthContext } from "./widgets";
 
 export const InksVisualizationWidget = ({ renderWhenInvisible }) => (
-  <Widget
-    header={"Ink visualization"}
-    path={dataPath}
-    renderWhenInvisible={renderWhenInvisible}
-  >
+  <Widget header={"Ink visualization"} path={dataPath} renderWhenInvisible={renderWhenInvisible}>
     <InksVisualizationWidgetContent />
   </Widget>
 );
@@ -54,9 +50,6 @@ const InksVisualizationWidgetContent = () => {
 };
 
 const inksToDisplay = (inks, includeArchived) =>
-  inks
-    .filter((ink) => (includeArchived ? true : !ink.attributes.archived))
-    .sort(sortByColor);
+  inks.filter((ink) => (includeArchived ? true : !ink.attributes.archived)).sort(sortByColor);
 
-const sortByColor = (inkA, inkB) =>
-  colorSort(inkA.attributes.color, inkB.attributes.color);
+const sortByColor = (inkA, inkB) => colorSort(inkA.attributes.color, inkB.attributes.color);

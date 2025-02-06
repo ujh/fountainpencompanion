@@ -8,11 +8,7 @@ class CreateMicroClusters < ActiveRecord::Migration[6.0]
       t.timestamps
     end
     add_index :micro_clusters,
-              %i[
-                simplified_brand_name
-                simplified_line_name
-                simplified_ink_name
-              ],
+              %i[simplified_brand_name simplified_line_name simplified_ink_name],
               unique: true,
               name: "unique_micro_clusters"
   end

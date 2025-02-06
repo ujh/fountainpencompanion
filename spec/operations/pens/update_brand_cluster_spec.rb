@@ -23,8 +23,8 @@ describe Pens::UpdateBrandCluster do
     model.update!(brand: "Parker")
     create(:pens_model, brand: "Parker")
 
-    expect do described_class.new(model, brand).perform end.to change {
-      brand.reload.name
-    }.to("Parker")
+    expect do described_class.new(model, brand).perform end.to change { brand.reload.name }.to(
+      "Parker"
+    )
   end
 end

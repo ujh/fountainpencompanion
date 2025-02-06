@@ -37,10 +37,7 @@ const ColorPicker = ({ input }) => {
           }}
         />
       </div>
-      <div
-        className="col-sm-4 col-md-8"
-        style={{ height: "225px", backgroundColor: color }}
-      ></div>
+      <div className="col-sm-4 col-md-8" style={{ height: "225px", backgroundColor: color }}></div>
     </div>
   );
 };

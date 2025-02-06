@@ -61,10 +61,7 @@ export const CurrentlyInkedCard = (props) => {
 
   return (
     <Card className="fpc-currently-inked-card">
-      <Card.Image
-        className="fpc-currently-inked-card__swab"
-        style={{ "--swab-color": color }}
-      />
+      <Card.Image className="fpc-currently-inked-card__swab" style={{ "--swab-color": color }} />
       <Card.Body>
         <Card.Title>
           {ink_name}

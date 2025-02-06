@@ -4,10 +4,7 @@ describe FetchReviews::YoutubeChannel do
   subject { described_class.new }
 
   let(:client) do
-    double(
-      :client,
-      fetch_videos: (0...10).map { |i| { title: "title#{i}", url: "url#{i}" } }
-    )
+    double(:client, fetch_videos: (0...10).map { |i| { title: "title#{i}", url: "url#{i}" } })
   end
 
   before { allow(subject).to receive(:client).and_return(client) }

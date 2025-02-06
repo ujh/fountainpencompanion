@@ -22,11 +22,7 @@ export const Table = ({
                 <span>
                   &nbsp;
                   {column.isSorted ? (
-                    <i
-                      className={`fa fa-arrow-${
-                        column.isSortedDesc ? "down" : "up"
-                      }`}
-                    />
+                    <i className={`fa fa-arrow-${column.isSortedDesc ? "down" : "up"}`} />
                   ) : (
                     ""
                   )}
@@ -54,11 +50,7 @@ export const Table = ({
       </tbody>
       <tfoot>
         {footerGroups.map((group, i) => (
-          <tr
-            key={`tfoot-tr-${i}`}
-            className="align-top"
-            {...group.getFooterGroupProps()}
-          >
+          <tr key={`tfoot-tr-${i}`} className="align-top" {...group.getFooterGroupProps()}>
             {group.headers.map((column, j) => (
               <td key={`tfoot-td-${i}-${j}`} {...column.getFooterProps()}>
                 {column.render("Footer")}

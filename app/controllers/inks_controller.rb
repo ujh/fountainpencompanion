@@ -14,9 +14,7 @@ class InksController < ApplicationController
     add_breadcrumb "#{@ink.brand_cluster.name}", brand_path(@ink.brand_cluster)
     add_breadcrumb "#{@ink.name}", brand_ink_path(@ink.brand_cluster, @ink)
 
-    unless params[:brand_id]
-      redirect_to brand_ink_path(@ink.brand_cluster, @ink)
-    end
+    redirect_to brand_ink_path(@ink.brand_cluster, @ink) unless params[:brand_id]
   end
 
   def edit

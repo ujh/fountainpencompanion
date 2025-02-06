@@ -10,8 +10,7 @@ class CreatePensModelVariants < ActiveRecord::Migration[7.1]
 
       t.timestamps
 
-      t.index %i[brand model color material trim_color filling_system],
-              unique: true
+      t.index %i[brand model color material trim_color filling_system], unique: true
     end
   end
 end

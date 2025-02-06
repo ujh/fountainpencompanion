@@ -17,12 +17,7 @@ class FetchEmbedding
       .cache
       .fetch("embedding:#{digest}") do
         response =
-          client.embeddings(
-            parameters: {
-              model: "text-embedding-3-small",
-              input: model.content
-            }
-          )
+          client.embeddings(parameters: { model: "text-embedding-3-small", input: model.content })
         response.dig("data", 0, "embedding")
       end
   end

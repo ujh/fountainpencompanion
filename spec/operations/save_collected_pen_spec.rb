@@ -22,14 +22,11 @@ describe SaveCollectedPen do
   it "properly updates the embedding content" do
     described_class.new(collected_pen, {}).perform
     embedding = collected_pen.pen_embedding
-    expect(embedding.content).to eq(
-      "brand model color material trim color filling system"
-    )
+    expect(embedding.content).to eq("brand model color material trim color filling system")
   end
 
   it "updates the embedding if it already exists" do
-    embedding =
-      create(:pen_embedding, owner: collected_pen, content: "old content")
+    embedding = create(:pen_embedding, owner: collected_pen, content: "old content")
     expect do
       expect { described_class.new(collected_pen, {}).perform }.not_to(
         change { PenEmbedding.count }

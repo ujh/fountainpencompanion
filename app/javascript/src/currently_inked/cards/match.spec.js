@@ -8,8 +8,7 @@ describe("fuzzyMatch", () => {
       archived_on: null,
       comment: "",
       last_used_on: null,
-      pen_name:
-        "Sailor Profit Casual, Red, Zoom, ground to an architect by Such N'Such",
+      pen_name: "Sailor Profit Casual, Red, Zoom, ground to an architect by Such N'Such",
       ink_name: "Sailor Shikiori Yozakura - bottle",
       used_today: false,
       daily_usage: 0,
@@ -65,8 +64,7 @@ describe("fuzzyMatch", () => {
         archived_on: null,
         comment: "",
         last_used_on: null,
-        pen_name:
-          "Sailor Profit Casual, Red, Zoom, ground to an architect by Such N'Such",
+        pen_name: "Sailor Profit Casual, Red, Zoom, ground to an architect by Such N'Such",
         ink_name: "Sailor Shikiori Yozakura - bottle",
         used_today: false,
         daily_usage: 0,

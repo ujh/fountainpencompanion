@@ -1,10 +1,7 @@
 import Jsona from "jsona";
 
 import { getRequest, putRequest } from "../../fetch";
-import {
-  SET_LOADING_PERCENTAGE,
-  SET_MICRO_CLUSTERS
-} from "../components/clustering/actions";
+import { SET_LOADING_PERCENTAGE, SET_MICRO_CLUSTERS } from "../components/clustering/actions";
 import { groupedPens } from "./groupedPens";
 
 export const getMicroClusters = (dispatch) => {
@@ -81,8 +78,6 @@ const loadMicroClusterPage = async (page) => {
   if (match) {
     search = `${search}&${match[0]}`;
   }
-  const response = await getRequest(
-    `/admins/pens/micro_clusters.json?${search}`
-  );
+  const response = await getRequest(`/admins/pens/micro_clusters.json?${search}`);
   return await response.json();
 };

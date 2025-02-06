@@ -32,37 +32,19 @@ describe BrandsController do
       before(:each) { sign_in(user) }
 
       it "updates successfully" do
-        put :update,
-            params: {
-              id: brand.id,
-              brand_cluster: {
-                description: "description"
-              }
-            }
+        put :update, params: { id: brand.id, brand_cluster: { description: "description" } }
         expect(response).to redirect_to(brand_path(brand))
       end
 
       it "successfully sets the description" do
         expect do
-          put :update,
-              params: {
-                id: brand.id,
-                brand_cluster: {
-                  description: "description"
-                }
-              }
+          put :update, params: { id: brand.id, brand_cluster: { description: "description" } }
         end.to change { brand.reload.description }.to("description")
       end
 
       it "sets the user who made the last change" do
         expect do
-          put :update,
-              params: {
-                id: brand.id,
-                brand_cluster: {
-                  description: "description"
-                }
-              }
+          put :update, params: { id: brand.id, brand_cluster: { description: "description" } }
         end.to change { brand.reload.versions.last.whodunnit }.to(user.id.to_s)
       end
     end

@@ -14,17 +14,13 @@ class UsageRecordsController < ApplicationController
     respond_to do |format|
       format.html { @usage_records = @usage_records.page(params[:page]) }
       format.csv do
-        send_data @usage_records.to_csv,
-                  type: "text/csv",
-                  filename: "usage_records.csv"
+        send_data @usage_records.to_csv, type: "text/csv", filename: "usage_records.csv"
       end
     end
   end
 
   def create
-    if @currently_inked
-      @currently_inked.usage_records.find_or_create_by(used_on: Date.current)
-    end
+    @currently_inked.usage_records.find_or_create_by(used_on: Date.current) if @currently_inked
     head :created
   end
 
@@ -39,7 +35,6 @@ class UsageRecordsController < ApplicationController
   private
 
   def retrieve_currently_inked
-    @currently_inked =
-      current_user.currently_inkeds.find_by(id: params[:currently_inked_id])
+    @currently_inked = current_user.currently_inkeds.find_by(id: params[:currently_inked_id])
   end
 end

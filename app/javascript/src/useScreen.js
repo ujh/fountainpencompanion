@@ -62,10 +62,7 @@ export const useScreen = () => {
     /**
      * @type {[ScreenSize, boolean][]}
      */
-    const queryResults = queries.map(([size, query]) => [
-      size,
-      window.matchMedia(query).matches
-    ]);
+    const queryResults = queries.map(([size, query]) => [size, window.matchMedia(query).matches]);
 
     for (const [size, matches] of queryResults) {
       if (matches) {

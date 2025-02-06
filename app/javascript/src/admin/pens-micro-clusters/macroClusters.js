@@ -48,12 +48,7 @@ export const getMacroClusters = (dispatch) => {
   run();
 };
 
-export const createMacroClusterAndAssign = (
-  values,
-  microClusterId,
-  dispatch,
-  afterCreate
-) => {
+export const createMacroClusterAndAssign = (values, microClusterId, dispatch, afterCreate) => {
   dispatch({ type: UPDATING });
   setTimeout(() => {
     postRequest("/admins/pens/model_variants.json", {
@@ -95,20 +90,14 @@ export const updateMacroCluster = (id, dispatch) => {
         const grouped_entries = groupedPens(
           macroCluster.micro_clusters.map((c) => c.collected_pens).flat()
         );
-        macroCluster.micro_clusters.forEach(
-          (mc) => (mc.entries = mc.collected_pens)
-        );
+        macroCluster.micro_clusters.forEach((mc) => (mc.entries = mc.collected_pens));
         return { ...macroCluster, grouped_entries };
       })
-      .then((macroCluster) =>
-        dispatch({ type: UPDATE_MACRO_CLUSTER, payload: macroCluster })
-      );
+      .then((macroCluster) => dispatch({ type: UPDATE_MACRO_CLUSTER, payload: macroCluster }));
   }, 500);
 };
 
 const loadMacroClusterPage = async (page) => {
-  const response = await getRequest(
-    `/admins/pens/model_variants.json?page=${page}`
-  );
+  const response = await getRequest(`/admins/pens/model_variants.json?page=${page}`);
   return await response.json();
 };

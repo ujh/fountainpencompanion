@@ -87,12 +87,7 @@ describe CollectedPensArchiveController do
       it "does not update pens from other users" do
         pen = create(:collected_pen, archived_on: Date.today)
         expect do
-          put "/collected_pens_archive/#{pen.id}",
-              params: {
-                collected_pen: {
-                  brand: "the brand"
-                }
-              }
+          put "/collected_pens_archive/#{pen.id}", params: { collected_pen: { brand: "the brand" } }
           expect(response).to have_http_status(:not_found)
         end.to_not(change { pen.reload.brand })
       end
@@ -109,9 +104,9 @@ describe CollectedPensArchiveController do
       before(:each) { sign_in(user) }
 
       it "correctly unarchives the pen" do
-        expect do
-          post "/collected_pens_archive/#{collected_pen.id}/unarchive"
-        end.to change { collected_pen.reload.archived? }.from(true).to(false)
+        expect do post "/collected_pens_archive/#{collected_pen.id}/unarchive" end.to change {
+          collected_pen.reload.archived?
+        }.from(true).to(false)
         expect(response).to redirect_to(collected_pens_archive_index_path)
       end
 
@@ -138,9 +133,9 @@ describe CollectedPensArchiveController do
       end
 
       it "correctly deletes the pen" do
-        expect do
-          delete "/collected_pens_archive/#{collected_pen.id}"
-        end.to change { user.collected_pens.count }.by(-1)
+        expect do delete "/collected_pens_archive/#{collected_pen.id}" end.to change {
+          user.collected_pens.count
+        }.by(-1)
         expect(response).to redirect_to(collected_pens_archive_index_path)
       end
 

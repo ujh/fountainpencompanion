@@ -4,9 +4,9 @@ RSpec.describe PenEmbedding do
   let(:owner) { create(:collected_pen) }
 
   it "fetches the embedding when creating the model" do
-    expect do
-      described_class.create!(content: "content", owner: owner)
-    end.to change { FetchEmbedding.jobs.count }.by(1)
+    expect do described_class.create!(content: "content", owner: owner) end.to change {
+      FetchEmbedding.jobs.count
+    }.by(1)
   end
 
   it "fetches the embedding when content has changed" do

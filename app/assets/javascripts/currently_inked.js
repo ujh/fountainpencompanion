@@ -1,7 +1,5 @@
 $(function () {
-  $(
-    "#currently_inked_collected_pen_id, #currently_inked_collected_ink_id"
-  ).select2({
+  $("#currently_inked_collected_pen_id, #currently_inked_collected_ink_id").select2({
     width: "100%"
   });
 

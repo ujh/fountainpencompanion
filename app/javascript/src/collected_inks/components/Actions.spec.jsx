@@ -35,9 +35,7 @@ describe("<Actions />", () => {
 
     expect(importLink.getAttribute("href")).toEqual("/collected_inks/import");
     expect(exportLink.getAttribute("href")).toEqual("/collected_inks.csv");
-    expect(archiveLink.getAttribute("href")).toEqual(
-      "/collected_inks?search[archive]=true"
-    );
+    expect(archiveLink.getAttribute("href")).toEqual("/collected_inks?search[archive]=true");
     expect(addLink.getAttribute("href")).toEqual("/collected_inks/new");
   });
 

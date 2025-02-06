@@ -113,15 +113,11 @@ form.new_currently_inked {
   $_form-field-height: 38px;
 
   .select2-selection,
-  .select2-container--default
-    .select2-selection--single
-    .select2-selection__arrow {
+  .select2-container--default .select2-selection--single .select2-selection__arrow {
     height: $_form-field-height;
   }
 
-  .select2-container--default
-    .select2-selection--single
-    .select2-selection__rendered {
+  .select2-container--default .select2-selection--single .select2-selection__rendered {
     line-height: $_form-field-height;
   }
 }

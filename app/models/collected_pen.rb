@@ -11,9 +11,7 @@ class CollectedPen < ApplicationRecord
              inverse_of: :collected_pens
   has_many :currently_inkeds, dependent: :destroy
   has_many :usage_records, through: :currently_inkeds
-  has_one :newest_currently_inked,
-          -> { order("inked_on desc") },
-          class_name: "CurrentlyInked"
+  has_one :newest_currently_inked, -> { order("inked_on desc") }, class_name: "CurrentlyInked"
   has_one :pen_embedding, dependent: :destroy, as: :owner
 
   validates :brand, length: { in: 1..100 }
@@ -25,8 +23,7 @@ class CollectedPen < ApplicationRecord
   max_paginates_per 500
 
   def self.search(field, term)
-    results =
-      where("#{field} like ?", "%#{term}%").order(field).pluck(field).uniq
+    results = where("#{field} like ?", "%#{term}%").order(field).pluck(field).uniq
     results.length > 100 ? [] : results
   end
 
@@ -100,21 +97,11 @@ class CollectedPen < ApplicationRecord
   end
 
   def name
-    pen_name_generator(
-      brand:,
-      model:,
-      nib:,
-      color:,
-      material:,
-      trim_color:,
-      archived: archived?
-    )
+    pen_name_generator(brand:, model:, nib:, color:, material:, trim_color:, archived: archived?)
   end
 
   def pen_name
-    [brand, model, color, material, trim_color, filling_system].reject do |part|
-        part.blank?
-      end
+    [brand, model, color, material, trim_color, filling_system].reject { |part| part.blank? }
       .join(" ")
   end
 

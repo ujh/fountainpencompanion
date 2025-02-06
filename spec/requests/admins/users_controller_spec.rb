@@ -46,23 +46,14 @@ describe Admins::UsersController do
 
       it "processes the CSV file" do
         expect do
-          post "/admins/users/#{user.id}/ink_import",
-               params: {
-                 file: file_upload
-               }
+          post "/admins/users/#{user.id}/ink_import", params: { file: file_upload }
           expect(ImportCollectedInk.jobs.size).to eq(3)
           ImportCollectedInk.drain
         end.to change { user.collected_inks.count }.by(3)
-        expect(
-          user.collected_inks.find_by(ink_name: "Purple Pazzazz")
-        ).to be_private
-        expect(
-          user.collected_inks.find_by(ink_name: "Vert Olive")
-        ).to_not be_private
+        expect(user.collected_inks.find_by(ink_name: "Purple Pazzazz")).to be_private
+        expect(user.collected_inks.find_by(ink_name: "Vert Olive")).to_not be_private
         # Removes whitespace
-        expect(
-          user.collected_inks.find_by(ink_name: "Aventurine").line_name
-        ).to eq("Edelstein")
+        expect(user.collected_inks.find_by(ink_name: "Aventurine").line_name).to eq("Edelstein")
       end
     end
   end
@@ -91,10 +82,7 @@ describe Admins::UsersController do
 
       it "processes the CSV file" do
         expect do
-          post "/admins/users/#{user.id}/pen_import",
-               params: {
-                 file: file_upload
-               }
+          post "/admins/users/#{user.id}/pen_import", params: { file: file_upload }
           expect(ImportCollectedPen.jobs.size).to eq(1)
           ImportCollectedPen.drain
         end.to change { user.collected_pens.count }.by(1)
@@ -107,21 +95,10 @@ describe Admins::UsersController do
       end
 
       it "updates an existing pen" do
-        pen =
-          create(
-            :collected_pen,
-            user:,
-            brand: "PenBBS",
-            model: "456",
-            nib: "F",
-            color: "blue"
-          )
+        pen = create(:collected_pen, user:, brand: "PenBBS", model: "456", nib: "F", color: "blue")
 
         expect do
-          post "/admins/users/#{user.id}/pen_import",
-               params: {
-                 file: file_upload
-               }
+          post "/admins/users/#{user.id}/pen_import", params: { file: file_upload }
           expect(ImportCollectedPen.jobs.size).to eq(1)
           ImportCollectedPen.drain
         end.not_to(change { user.collected_pens.count })
@@ -154,9 +131,7 @@ describe Admins::UsersController do
   end
 
   describe "approve" do
-    let(:user) do
-      create(:user, review_blurb: true, spam: false, spam_reason: "reason")
-    end
+    let(:user) { create(:user, review_blurb: true, spam: false, spam_reason: "reason") }
 
     it "requires authentication" do
       put "/admins/users/#{user.id}/approve"
@@ -184,9 +159,7 @@ describe Admins::UsersController do
       end
 
       context "user classified as spam" do
-        let(:user) do
-          create(:user, review_blurb: true, spam: true, spam_reason: "reason")
-        end
+        let(:user) { create(:user, review_blurb: true, spam: true, spam_reason: "reason") }
 
         it "marks user as not spam" do
           put "/admins/users/#{user.id}/approve"
@@ -228,14 +201,10 @@ describe Admins::UsersController do
       end
 
       context "when already classified as spam" do
-        let!(:user) do
-          create(:user, review_blurb: true, spam: true, spam_reason: "reason")
-        end
+        let!(:user) { create(:user, review_blurb: true, spam: true, spam_reason: "reason") }
 
         it "does not change the spam_reason field" do
-          expect { delete "/admins/users/#{user.id}" }.not_to(
-            change { user.reload.spam_reason }
-          )
+          expect { delete "/admins/users/#{user.id}" }.not_to(change { user.reload.spam_reason })
         end
       end
     end

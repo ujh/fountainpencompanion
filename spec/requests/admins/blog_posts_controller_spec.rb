@@ -46,13 +46,7 @@ describe Admins::BlogPostsController do
 
       it "creates the blog post" do
         expect do
-          post "/admins/blog_posts",
-               params: {
-                 blog_post: {
-                   title: "title",
-                   body: "body"
-                 }
-               }
+          post "/admins/blog_posts", params: { blog_post: { title: "title", body: "body" } }
           expect(response).to redirect_to(admins_blog_posts_path)
         end.to change { BlogPost.count }.by(1)
         blog_post = BlogPost.last
@@ -62,13 +56,7 @@ describe Admins::BlogPostsController do
 
       it "does not create the blog post when validation fails" do
         expect do
-          post "/admins/blog_posts",
-               params: {
-                 blog_post: {
-                   title: "title",
-                   body: ""
-                 }
-               }
+          post "/admins/blog_posts", params: { blog_post: { title: "title", body: "" } }
           expect(response).to be_successful
         end.to_not change { BlogPost.count }
       end
@@ -106,26 +94,14 @@ describe Admins::BlogPostsController do
 
       it "updates the blog post" do
         expect do
-          put "/admins/blog_posts/#{blog_post.id}",
-              params: {
-                blog_post: {
-                  title: "new title"
-                }
-              }
+          put "/admins/blog_posts/#{blog_post.id}", params: { blog_post: { title: "new title" } }
           expect(response).to redirect_to(admins_blog_posts_path)
-        end.to change { blog_post.reload.title }.from("old title").to(
-          "new title"
-        )
+        end.to change { blog_post.reload.title }.from("old title").to("new title")
       end
 
       it "does not update the blog post when validation fails" do
         expect do
-          put "/admins/blog_posts/#{blog_post.id}",
-              params: {
-                blog_post: {
-                  title: ""
-                }
-              }
+          put "/admins/blog_posts/#{blog_post.id}", params: { blog_post: { title: "" } }
           expect(response).to be_successful
         end.to_not change { blog_post.reload.title }
       end
@@ -171,9 +147,9 @@ describe Admins::BlogPostsController do
       end
 
       it "enqueues the after publishing job" do
-        expect do
-          put "/admins/blog_posts/#{blog_post.id}/publish"
-        end.to change { AfterBlogPostPublished.jobs.size }.by(1)
+        expect do put "/admins/blog_posts/#{blog_post.id}/publish" end.to change {
+          AfterBlogPostPublished.jobs.size
+        }.by(1)
       end
     end
   end

@@ -13,20 +13,13 @@ class ProcessInkReviewSubmission
       end
     if ink_review.save
       ink_review.update(rejected_at: nil)
-      ink_review_submission.update(
-        ink_review:,
-        unfurling_errors: nil,
-        html: nil
-      )
+      ink_review_submission.update(ink_review:, unfurling_errors: nil, html: nil)
       ink_review.auto_approve! if ink_review.ink_review_submissions.size > 1
     else
-      ink_review_submission.update(
-        unfurling_errors: ink_review.errors.messages.to_json
-      )
+      ink_review_submission.update(unfurling_errors: ink_review.errors.messages.to_json)
     end
     if you_tube_channel_id
-      channel =
-        YouTubeChannel.find_or_create_by(channel_id: you_tube_channel_id)
+      channel = YouTubeChannel.find_or_create_by(channel_id: you_tube_channel_id)
       ink_review.update!(you_tube_channel: channel)
     end
   rescue URI::InvalidURIError, Faraday::ForbiddenError
@@ -38,13 +31,7 @@ class ProcessInkReviewSubmission
 
   attr_accessor :ink_review_submission
 
-  delegate :url,
-           :title,
-           :description,
-           :image,
-           :author,
-           :you_tube_channel_id,
-           to: :page_data
+  delegate :url, :title, :description, :image, :author, :you_tube_channel_id, to: :page_data
 
   def macro_cluster
     ink_review_submission.macro_cluster

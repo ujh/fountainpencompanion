@@ -7,12 +7,7 @@ describe CreateInkReviewSubmission do
   let(:automatic) { false }
 
   subject do
-    described_class.new(
-      user: user,
-      macro_cluster: macro_cluster,
-      url: url,
-      automatic: false
-    )
+    described_class.new(user: user, macro_cluster: macro_cluster, url: url, automatic: false)
   end
 
   it "saves the submission" do
@@ -27,10 +22,7 @@ describe CreateInkReviewSubmission do
   end
 
   it "schedules the processing job" do
-    expect do subject.perform end.to change(
-      ProcessInkReviewSubmission.jobs,
-      :count
-    ).by(1)
+    expect do subject.perform end.to change(ProcessInkReviewSubmission.jobs, :count).by(1)
   end
 
   it "passes the submission id to the processing job" do
@@ -64,10 +56,7 @@ describe CreateInkReviewSubmission do
     end
 
     it "schedules the processing job" do
-      expect do subject.perform end.to change(
-        ProcessInkReviewSubmission.jobs,
-        :count
-      ).by(1)
+      expect do subject.perform end.to change(ProcessInkReviewSubmission.jobs, :count).by(1)
     end
 
     it "does not schedule the processing job if the submission already exists" do

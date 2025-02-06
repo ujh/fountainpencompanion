@@ -22,15 +22,11 @@ describe("<UsageButton />", () => {
     const { findByTitle } = setup(<UsageButton used={false} id={1} />);
     const button = await findByTitle("Record usage for today");
     expect(button).toBeInTheDocument();
-    expect(button.getAttribute("href")).toEqual(
-      "/currently_inked/1/usage_record"
-    );
+    expect(button.getAttribute("href")).toEqual("/currently_inked/1/usage_record");
   });
 
   it("shows the correct button after clicking on it", async () => {
-    const { user, findByTitle } = setup(
-      <UsageButton used={false} id={1} testingMode={true} />
-    );
+    const { user, findByTitle } = setup(<UsageButton used={false} id={1} testingMode={true} />);
     const button = await findByTitle("Record usage for today");
     await user.click(button);
     const newButton = await findByTitle("Already recorded usage for today");

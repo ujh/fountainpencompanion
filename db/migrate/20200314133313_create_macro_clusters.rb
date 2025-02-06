@@ -8,8 +8,6 @@ class CreateMacroClusters < ActiveRecord::Migration[6.0]
       t.index %i[brand_name line_name ink_name], unique: true
       t.timestamps
     end
-    safety_assured do
-      add_reference :micro_clusters, :macro_cluster, foreign_key: true
-    end
+    safety_assured { add_reference :micro_clusters, :macro_cluster, foreign_key: true }
   end
 end

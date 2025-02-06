@@ -15,11 +15,7 @@ class Admins::MacroClustersController < Admins::BaseController
 
   def show
     cluster = MacroCluster.find(params[:id])
-    render json:
-             MacroClusterSerializer
-               .new(cluster, show_options)
-               .serializable_hash
-               .to_json
+    render json: MacroClusterSerializer.new(cluster, show_options).serializable_hash.to_json
   end
 
   def create
@@ -61,14 +57,7 @@ class Admins::MacroClustersController < Admins::BaseController
     {
       include: %i[micro_clusters micro_clusters.collected_inks],
       fields: {
-        collected_ink: %i[
-          brand_name
-          line_name
-          ink_name
-          maker
-          color
-          micro_cluster
-        ],
+        collected_ink: %i[brand_name line_name ink_name maker color micro_cluster],
         micro_cluster: %i[collected_inks macro_cluster]
       },
       meta: {
@@ -81,14 +70,7 @@ class Admins::MacroClustersController < Admins::BaseController
     {
       include: %i[micro_clusters micro_clusters.collected_inks],
       fields: {
-        collected_ink: %i[
-          brand_name
-          line_name
-          ink_name
-          maker
-          color
-          micro_cluster
-        ]
+        collected_ink: %i[brand_name line_name ink_name maker color micro_cluster]
       }
     }
   end

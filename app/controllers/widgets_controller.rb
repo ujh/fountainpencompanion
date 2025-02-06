@@ -87,10 +87,7 @@ class WidgetsController < ApplicationController
         .select("brand_name, count(*) as count")
         .order("count desc")
     as_json_api("inks_grouped_by_brand") do
-      {
-        brands:
-          brands.map { |ci| { brand_name: ci.brand_name, count: ci.count } }
-      }
+      { brands: brands.map { |ci| { brand_name: ci.brand_name, count: ci.count } } }
     end
   end
 
@@ -112,10 +109,7 @@ class WidgetsController < ApplicationController
   end
 
   def leaderboard_index(method)
-    index =
-      LeaderBoard
-        .send(method)
-        .find_index { |entry| entry[:id] == current_user.id }
+    index = LeaderBoard.send(method).find_index { |entry| entry[:id] == current_user.id }
     index.succ if index
   end
 

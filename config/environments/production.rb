@@ -16,9 +16,7 @@ Rails.application.configure do
   config.action_controller.perform_caching = true
 
   # Cache assets for far-future expiry since they are all digest stamped.
-  config.public_file_server.headers = {
-    "cache-control" => "public, max-age=#{1.year.to_i}"
-  }
+  config.public_file_server.headers = { "cache-control" => "public, max-age=#{1.year.to_i}" }
 
   # Enable serving of images, stylesheets, and JavaScripts from an asset server.
   # config.asset_host = "http://assets.example.com"
@@ -46,9 +44,7 @@ Rails.application.configure do
   config.active_support.report_deprecations = false
 
   # Replace the default in-process memory cache store with a durable alternative.
-  config.cache_store =
-    :redis_cache_store,
-    { url: ENV.fetch("REDIS_CACHE_URL") } unless ENV[
+  config.cache_store = :redis_cache_store, { url: ENV.fetch("REDIS_CACHE_URL") } unless ENV[
     "PRECOMPILING_ASSETS"
   ].present?
 
@@ -59,9 +55,7 @@ Rails.application.configure do
   # Set this to true and configure the email server for immediate delivery to raise delivery errors.
   # config.action_mailer.raise_delivery_errors = false
 
-  config.action_mailer.default_url_options = {
-    host: "www.fountainpencompanion.com"
-  }
+  config.action_mailer.default_url_options = { host: "www.fountainpencompanion.com" }
 
   ActionMailer::Base.smtp_settings = {
     user_name: "hello@mail.fountainpencompanion.com",

@@ -1,13 +1,5 @@
 class Unfurler
-  Result =
-    Struct.new(
-      :url,
-      :title,
-      :description,
-      :image,
-      :author,
-      :you_tube_channel_id
-    )
+  Result = Struct.new(:url, :title, :description, :image, :author, :you_tube_channel_id)
 
   def initialize(url)
     self.uri = URI(url)

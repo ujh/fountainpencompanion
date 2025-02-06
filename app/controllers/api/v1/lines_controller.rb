@@ -10,11 +10,6 @@ class Api::V1::LinesController < Api::V1::BaseController
   end
 
   def serializer
-    MacroClusterSerializer.new(
-      clusters,
-      fields: {
-        macro_cluster: [:line_name]
-      }
-    )
+    MacroClusterSerializer.new(clusters, fields: { macro_cluster: [:line_name] })
   end
 end

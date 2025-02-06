@@ -3,16 +3,8 @@ import { createRoot } from "react-dom/client";
 
 import { App } from "../components/clustering/App";
 import { fields } from "./fields";
-import {
-  createMacroClusterAndAssign,
-  getMacroClusters,
-  updateMacroCluster
-} from "./macroClusters";
-import {
-  assignCluster,
-  getMicroClusters,
-  ignoreCluster
-} from "./microClusters";
+import { createMacroClusterAndAssign, getMacroClusters, updateMacroCluster } from "./macroClusters";
+import { assignCluster, getMicroClusters, ignoreCluster } from "./microClusters";
 import { withDistance } from "./withDistance";
 
 document.addEventListener("DOMContentLoaded", () => {

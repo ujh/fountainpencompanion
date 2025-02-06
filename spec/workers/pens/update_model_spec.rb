@@ -36,10 +36,7 @@ describe Pens::UpdateModel do
     mmc1 = create(:pens_model_micro_cluster, model:)
     create(:pens_model_variant, model_micro_cluster: mmc1)
 
-    expect do subject.perform(model.id) end.to change(
-      Pens::AssignBrand.jobs,
-      :count
-    ).by(1)
+    expect do subject.perform(model.id) end.to change(Pens::AssignBrand.jobs, :count).by(1)
   end
 
   it "creates the embedding if not present" do
@@ -66,13 +63,9 @@ describe Pens::UpdateModel do
       collected_pens: [create(:collected_pen, brand: "brand", model: "model")]
     )
 
-    expect do subject.perform(model.id) end.to change { PenEmbedding.count }.by(
-      1
-    )
+    expect do subject.perform(model.id) end.to change { PenEmbedding.count }.by(1)
     pen_embedding = model.pen_embedding
-    expect(pen_embedding.content).to eq(
-      '"brand model" OR "brand model green" OR "brand model red"'
-    )
+    expect(pen_embedding.content).to eq('"brand model" OR "brand model green" OR "brand model red"')
   end
 
   it "updates the embedding when present" do
@@ -101,9 +94,7 @@ describe Pens::UpdateModel do
     )
 
     expect do
-      expect do subject.perform(model.id) end.not_to change {
-        PenEmbedding.count
-      }
+      expect do subject.perform(model.id) end.not_to change { PenEmbedding.count }
     end.to change { pen_embedding.reload.content }.from("old content").to(
       '"brand model" OR "brand model green" OR "brand model red"'
     )

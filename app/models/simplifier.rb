@@ -24,9 +24,7 @@ class Simplifier
 
   def self.brand_name(name)
     return "24solar" if name =~ /^24\s+solar/i
-    if name =~ /^(ancient\s*(charm|song))|(small\s*endowment)/i
-      return "ancientsong"
-    end
+    return "ancientsong" if name =~ /^(ancient\s*(charm|song))|(small\s*endowment)/i
     return "andersonpens" if name =~ /^anderson/i
     return "athena" if name =~ /^athena\s*ink$/i
     return "banmi" if name =~ /^ban\s*mi/i
@@ -67,11 +65,8 @@ class Simplifier
   end
 
   def run
-    @collected_ink.simplified_brand_name =
-      self.class.brand_name(@collected_ink.brand_name)
-    @collected_ink.simplified_line_name =
-      self.class.line_name(@collected_ink.line_name)
-    @collected_ink.simplified_ink_name =
-      self.class.ink_name(@collected_ink.ink_name)
+    @collected_ink.simplified_brand_name = self.class.brand_name(@collected_ink.brand_name)
+    @collected_ink.simplified_line_name = self.class.line_name(@collected_ink.line_name)
+    @collected_ink.simplified_ink_name = self.class.ink_name(@collected_ink.ink_name)
   end
 end

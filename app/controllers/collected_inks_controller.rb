@@ -1,7 +1,6 @@
 class CollectedInksController < ApplicationController
   before_action :authenticate_user!
-  before_action :find_ink,
-                only: %i[edit update destroy archive unarchive destroy]
+  before_action :find_ink, only: %i[edit update destroy archive unarchive destroy]
 
   add_breadcrumb "My inks", :collected_inks_path
 
@@ -33,15 +32,9 @@ class CollectedInksController < ApplicationController
     respond_to do |format|
       format.html
       format.json do
-        render json:
-                 CollectedInkSerializer
-                   .new(inks, index_options)
-                   .serializable_hash
-                   .to_json
+        render json: CollectedInkSerializer.new(inks, index_options).serializable_hash.to_json
       end
-      format.csv do
-        send_data inks.to_csv, type: "text/csv", filename: "collected_inks.csv"
-      end
+      format.csv { send_data inks.to_csv, type: "text/csv", filename: "collected_inks.csv" }
     end
   end
 
@@ -138,9 +131,7 @@ class CollectedInksController < ApplicationController
   def index_options
     options = { include: [:tags] }
     if params.dig(:fields, :collected_ink)
-      options[:fields] = {
-        collected_ink: params.dig(:fields, :collected_ink).split(/\s*,\s*/)
-      }
+      options[:fields] = { collected_ink: params.dig(:fields, :collected_ink).split(/\s*,\s*/) }
     end
     options
   end

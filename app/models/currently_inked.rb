@@ -19,11 +19,7 @@ class CurrentlyInked < ApplicationRecord
 
   delegate :collected_inks_for_select, to: :user
   delegate :collected_pens_for_select, to: :user
-  delegate :name,
-           :short_name,
-           to: :collected_ink,
-           prefix: "ink",
-           allow_nil: true
+  delegate :name, :short_name, to: :collected_ink, prefix: "ink", allow_nil: true
   delegate :simplified_name, to: :collected_ink, prefix: "ink"
   delegate :color, to: :collected_ink, prefix: "ink"
   delegate :micro_cluster, to: :collected_ink, allow_nil: true
@@ -41,15 +37,7 @@ class CurrentlyInked < ApplicationRecord
   def self.to_csv
     CSV.generate(col_sep: ";") do |csv|
       csv << ["Pen", "Ink", "Date Inked", "Date Cleaned", "Comment"]
-      all.each do |ci|
-        csv << [
-          ci.pen_name,
-          ci.ink_name,
-          ci.inked_on,
-          ci.archived_on,
-          ci.comment
-        ]
-      end
+      all.each { |ci| csv << [ci.pen_name, ci.ink_name, ci.inked_on, ci.archived_on, ci.comment] }
     end
   end
 
@@ -103,8 +91,7 @@ class CurrentlyInked < ApplicationRecord
   end
 
   def collected_pens_for_active_select
-    ids =
-      user.currently_inkeds.active.pluck(:collected_pen_id) - [collected_pen_id]
+    ids = user.currently_inkeds.active.pluck(:collected_pen_id) - [collected_pen_id]
     user.collected_pens.active.where.not(id: ids)
   end
 

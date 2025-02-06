@@ -42,9 +42,7 @@ export const MacroClusterRow = ({
     <>
       <tr className={selected ? "selected" : ""}>
         <td className="distance" onClick={onClick}>
-          <ScrollIntoViewIfNeeded active={selected}>
-            {macroCluster.distance}
-          </ScrollIntoViewIfNeeded>
+          <ScrollIntoViewIfNeeded active={selected}>{macroCluster.distance}</ScrollIntoViewIfNeeded>
         </td>
         {fields.map((field) => (
           <td key={field} onClick={onClick}>
@@ -57,12 +55,7 @@ export const MacroClusterRow = ({
           <SearchLink e={macroCluster} fields={fields} />
         </td>
         <td>
-          <button
-            className="btn btn-secondary"
-            type="submit"
-            disabled={updating}
-            onClick={assign}
-          >
+          <button className="btn btn-secondary" type="submit" disabled={updating} onClick={assign}>
             Assign
           </button>
         </td>
@@ -73,9 +66,7 @@ export const MacroClusterRow = ({
             <table className="table macro-cluster-collected-inks">
               <tbody>
                 <EntriesList
-                  entries={macroCluster.micro_clusters
-                    .map((c) => c.entries)
-                    .flat()}
+                  entries={macroCluster.micro_clusters.map((c) => c.entries).flat()}
                   fields={fields}
                   extraColumn={extraColumn}
                 />

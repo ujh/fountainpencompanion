@@ -53,12 +53,7 @@ class User < ApplicationRecord
   end
 
   def sign_up_ip=(value)
-    ip_count =
-      self
-        .class
-        .where("created_at > ?", 24.hours.ago)
-        .where(sign_up_ip: value)
-        .count
+    ip_count = self.class.where("created_at > ?", 24.hours.ago).where(sign_up_ip: value).count
     if ip_count >= MAX_SAME_IP_24H
       self.bot = true
       self.bot_reason = "sign_up_ip_24h_timeframe"
@@ -75,10 +70,7 @@ class User < ApplicationRecord
   end
 
   def public_inks
-    collected_inks
-      .where(private: false)
-      .active
-      .order("brand_name, line_name, ink_name")
+    collected_inks.where(private: false).active.order("brand_name, line_name, ink_name")
   end
 
   def public_count

@@ -6,8 +6,6 @@ class CreatePensBrands < ActiveRecord::Migration[7.2]
       t.timestamps
     end
 
-    safety_assured do
-      add_reference :pens_models, :pens_brand, foreign_key: true, null: true
-    end
+    safety_assured { add_reference :pens_models, :pens_brand, foreign_key: true, null: true }
   end
 end

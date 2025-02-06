@@ -70,12 +70,7 @@ describe CurrentlyInkedArchiveController do
 
   describe "#update" do
     let(:new_collected_ink) do
-      create(
-        :collected_ink,
-        brand_name: "Robert Oster",
-        ink_name: "Fire and Ice",
-        user: user
-      )
+      create(:collected_ink, brand_name: "Robert Oster", ink_name: "Fire and Ice", user: user)
     end
 
     it "requires authentication" do
@@ -104,20 +99,14 @@ describe CurrentlyInkedArchiveController do
                 }
               }
           expect(response).to redirect_to(currently_inked_archive_index_path)
-        end.to change { currently_inked.reload.collected_ink }.from(
-          collected_ink
-        ).to(new_collected_ink)
+        end.to change { currently_inked.reload.collected_ink }.from(collected_ink).to(
+          new_collected_ink
+        )
       end
 
       it "renders the index when invalid" do
         expect do
-          put :update,
-              params: {
-                id: currently_inked.id,
-                currently_inked: {
-                  collected_ink_id: -1
-                }
-              }
+          put :update, params: { id: currently_inked.id, currently_inked: { collected_ink_id: -1 } }
         end.to_not change { currently_inked.reload.collected_ink_id }
         expect(response).to be_successful
         expect(response).to render_template(:edit)
@@ -149,9 +138,9 @@ describe CurrentlyInkedArchiveController do
             collected_pen: create(:collected_pen, user: other_user)
           )
         expect do
-          expect do
-            delete :destroy, params: { id: other_currently_inked.id }
-          end.to raise_error(ActiveRecord::RecordNotFound)
+          expect do delete :destroy, params: { id: other_currently_inked.id } end.to raise_error(
+            ActiveRecord::RecordNotFound
+          )
         end.to_not change { CurrentlyInked.count }
       end
     end

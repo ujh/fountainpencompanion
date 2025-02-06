@@ -3,11 +3,7 @@ import React from "react";
 export const ActionsCell = ({ id }) => {
   return (
     <div className="actions">
-      <a
-        className="btn btn-secondary"
-        title="edit"
-        href={`/collected_pens/${id}/edit`}
-      >
+      <a className="btn btn-secondary" title="edit" href={`/collected_pens/${id}/edit`}>
         <i className="fa fa-pencil" />
       </a>
       <a

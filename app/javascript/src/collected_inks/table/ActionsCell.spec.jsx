@@ -17,12 +17,8 @@ describe("<ActionsCell />", () => {
 
     const [edit, archive] = getAllByRole("link");
 
-    expect(edit.getAttribute("title")).toEqual(
-      "Edit Pilot Iroshizuku Kon-peki"
-    );
-    expect(archive.getAttribute("title")).toEqual(
-      "Archive Pilot Iroshizuku Kon-peki"
-    );
+    expect(edit.getAttribute("title")).toEqual("Edit Pilot Iroshizuku Kon-peki");
+    expect(archive.getAttribute("title")).toEqual("Archive Pilot Iroshizuku Kon-peki");
   });
 
   it("includes kind if set", () => {
@@ -39,11 +35,7 @@ describe("<ActionsCell />", () => {
 
     const [edit, archive] = getAllByRole("link");
 
-    expect(edit.getAttribute("title")).toEqual(
-      "Edit Pilot Iroshizuku Kon-peki - bottle"
-    );
-    expect(archive.getAttribute("title")).toEqual(
-      "Archive Pilot Iroshizuku Kon-peki - bottle"
-    );
+    expect(edit.getAttribute("title")).toEqual("Edit Pilot Iroshizuku Kon-peki - bottle");
+    expect(archive.getAttribute("title")).toEqual("Archive Pilot Iroshizuku Kon-peki - bottle");
   });
 });

@@ -9,10 +9,7 @@ describe Pens::AssignMicroCluster do
 
   context "new pen" do
     it "creates a new cluster and assigns it" do
-      expect { subject.perform(collected_pen.id) }.to change(
-        Pens::MicroCluster,
-        :count
-      ).by(1)
+      expect { subject.perform(collected_pen.id) }.to change(Pens::MicroCluster, :count).by(1)
       cluster = Pens::MicroCluster.last
       collected_pen.reload
       expect(collected_pen.pens_micro_cluster).to eq(cluster)
@@ -46,10 +43,7 @@ describe Pens::AssignMicroCluster do
         filling_system: "Filling System"
       )
 
-      expect { subject.perform(collected_pen.id) }.not_to change(
-        Pens::MicroCluster,
-        :count
-      )
+      expect { subject.perform(collected_pen.id) }.not_to change(Pens::MicroCluster, :count)
       collected_pen.reload
       expect(collected_pen.pens_micro_cluster).to eq(cluster)
     end
@@ -66,10 +60,7 @@ describe Pens::AssignMicroCluster do
 
       pen_brand = create(:pens_brand, name: "Brand")
       pen_model = create(:pens_model, brand: "Synonym Brand", pen_brand:)
-      expect { subject.perform(collected_pen.id) }.not_to change(
-        Pens::MicroCluster,
-        :count
-      )
+      expect { subject.perform(collected_pen.id) }.not_to change(Pens::MicroCluster, :count)
       collected_pen.reload
       expect(collected_pen.pens_micro_cluster).to eq(cluster)
     end
@@ -251,10 +242,7 @@ describe Pens::AssignMicroCluster do
   context "brand and model are the same" do
     it "does not remove brand from simplified model" do
       pen = create(:collected_pen, brand: "?", model: "?")
-      expect { subject.perform(pen.id) }.to change(
-        Pens::MicroCluster,
-        :count
-      ).by(1)
+      expect { subject.perform(pen.id) }.to change(Pens::MicroCluster, :count).by(1)
       cluster = Pens::MicroCluster.last
       expect(cluster.simplified_brand).to eq("?")
       expect(cluster.simplified_model).to eq("?")
@@ -264,10 +252,7 @@ describe Pens::AssignMicroCluster do
   context "model and color are the same" do
     it "does not remove the color from the model" do
       pen = create(:collected_pen, model: "?", color: "?")
-      expect { subject.perform(pen.id) }.to change(
-        Pens::MicroCluster,
-        :count
-      ).by(1)
+      expect { subject.perform(pen.id) }.to change(Pens::MicroCluster, :count).by(1)
       cluster = Pens::MicroCluster.last
       expect(cluster.simplified_model).to eq("?")
       expect(cluster.simplified_color).to eq("")

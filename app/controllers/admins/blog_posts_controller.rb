@@ -1,7 +1,6 @@
 class Admins::BlogPostsController < Admins::BaseController
   def index
-    @blog_posts =
-      BlogPost.order("published_at desc, created_at desc").page(params[:page])
+    @blog_posts = BlogPost.order("published_at desc, created_at desc").page(params[:page])
   end
 
   def new

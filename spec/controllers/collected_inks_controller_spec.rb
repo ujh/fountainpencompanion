@@ -16,23 +16,14 @@ describe CollectedInksController do
         [
           create(:collected_ink, user: user, ink_name: "Marine"),
           create(:collected_ink, user: user, ink_name: "Syrah"),
-          create(
-            :collected_ink,
-            user: user,
-            brand_name: "Robert Oster",
-            ink_name: "Fire and Ice"
-          )
+          create(:collected_ink, user: user, brand_name: "Robert Oster", ink_name: "Fire and Ice")
         ]
       end
       let(:other_inks) do
         [
           create(:collected_ink, ink_name: "Pumpkin"),
           create(:collected_ink, ink_name: "Twilight"),
-          create(
-            :collected_ink,
-            brand_name: "Robert Oster",
-            ink_name: "Peppermint"
-          )
+          create(:collected_ink, brand_name: "Robert Oster", ink_name: "Peppermint")
         ]
       end
 
@@ -98,12 +89,7 @@ describe CollectedInksController do
       it "includes all attributes by default in the JSON output" do
         get :index, format: :json
         expect(response).to be_successful
-        json =
-          JSON.parse(response.body, symbolize_names: true).dig(
-            :data,
-            0,
-            :attributes
-          )
+        json = JSON.parse(response.body, symbolize_names: true).dig(:data, 0, :attributes)
         expect(json).to include(
           :brand_name,
           :line_name,
@@ -147,13 +133,7 @@ describe CollectedInksController do
         micro_cluster.collected_inks << ink
         macro_cluster = create(:macro_cluster)
         macro_cluster.micro_clusters << micro_cluster
-        get :index,
-            params: {
-              filter: {
-                macro_cluster_id: macro_cluster.id
-              }
-            },
-            format: :json
+        get :index, params: { filter: { macro_cluster_id: macro_cluster.id } }, format: :json
         expect(response).to be_successful
         json = JSON.parse(response.body)
         expect(json["data"].length).to eq(1)
@@ -164,19 +144,11 @@ describe CollectedInksController do
       end
 
       it "supports sparse fieldsets" do
-        get :index,
-            params: {
-              fields: {
-                collected_ink: "brand_name,line_name"
-              }
-            },
-            format: :json
+        get :index, params: { fields: { collected_ink: "brand_name,line_name" } }, format: :json
         expect(response).to be_successful
         json = JSON.parse(response.body)
         first_ink = json["data"].first
-        expect(first_ink["attributes"].keys).to match_array(
-          %w[brand_name line_name]
-        )
+        expect(first_ink["attributes"].keys).to match_array(%w[brand_name line_name])
       end
     end
   end
@@ -222,9 +194,7 @@ describe CollectedInksController do
         ink = create(:collected_ink, user: user, archived_on: Date.today)
         expect do
           post :unarchive, params: { id: ink.id }
-          expect(response).to redirect_to(
-            collected_inks_path(search: { archive: true })
-          )
+          expect(response).to redirect_to(collected_inks_path(search: { archive: true }))
         end.to change { ink.reload.archived_on }.from(Date.today).to(nil)
       end
 
@@ -252,9 +222,7 @@ describe CollectedInksController do
         ink = create(:collected_ink, user: user)
         expect do
           delete :destroy, params: { id: ink.id }
-          expect(response).to redirect_to(
-            collected_inks_path(search: { archive: true })
-          )
+          expect(response).to redirect_to(collected_inks_path(search: { archive: true }))
         end.to change { user.collected_inks.count }.by(-1)
       end
 
@@ -362,13 +330,7 @@ describe CollectedInksController do
 
       it "creates a new entry" do
         expect do
-          post :create,
-               params: {
-                 collected_ink: {
-                   brand_name: "brand",
-                   ink_name: "ink"
-                 }
-               }
+          post :create, params: { collected_ink: { brand_name: "brand", ink_name: "ink" } }
           expect(response).to redirect_to(collected_inks_path)
         end.to change { user.collected_inks.count }.by(1)
       end

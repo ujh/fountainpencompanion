@@ -34,10 +34,7 @@ class Admins::Pens::ModelMicroClustersController < Admins::BaseController
     cluster.update!(update_params)
     Pens::UpdateModelMicroCluster.perform_async(cluster.id)
     render json:
-             PensModelMicroClusterSerializer
-               .new(cluster, update_options)
-               .serializable_hash
-               .to_json
+             PensModelMicroClusterSerializer.new(cluster, update_options).serializable_hash.to_json
   end
 
   def unassign
@@ -51,10 +48,7 @@ class Admins::Pens::ModelMicroClustersController < Admins::BaseController
   private
 
   def update_params
-    (params["_jsonapi"] || params).dig(:data, :attributes).permit(
-      :ignored,
-      :pens_model_id
-    )
+    (params["_jsonapi"] || params).dig(:data, :attributes).permit(:ignored, :pens_model_id)
   end
 
   def update_options

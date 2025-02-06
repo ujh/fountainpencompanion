@@ -4,10 +4,7 @@ module Pens
 
     def perform(model_variant_id)
       model_variant = Pens::ModelVariant.find(model_variant_id)
-      cluster =
-        Pens::ModelMicroCluster.find_or_create_by!(
-          cluster_attributes(model_variant)
-        )
+      cluster = Pens::ModelMicroCluster.find_or_create_by!(cluster_attributes(model_variant))
       model_variant.update!(model_micro_cluster: cluster)
       Pens::UpdateModelMicroCluster.perform_async(cluster.id)
     rescue ActiveRecord::RecordNotFound

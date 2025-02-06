@@ -2,14 +2,7 @@ require "csv"
 
 class Admins::UsersController < Admins::BaseController
   before_action :fetch_user,
-                only: %i[
-                  become
-                  ink_import
-                  pen_import
-                  currently_inked_import
-                  show
-                  update
-                ]
+                only: %i[become ink_import pen_import currently_inked_import show update]
 
   def index
     @users = User.active.order(:id)
@@ -78,9 +71,7 @@ class Admins::UsersController < Admins::BaseController
       ImportCurrentlyInked.perform_async(@user.id, row)
       count += 1
     end
-    flash[
-      :notice
-    ] = "#{count} currently inked entries scheduled for import for #{@user.email}"
+    flash[:notice] = "#{count} currently inked entries scheduled for import for #{@user.email}"
     redirect_to admins_users_path
   end
 

@@ -38,9 +38,7 @@ describe CollectedInk do
   end
 
   describe "comment" do
-    let(:existing_ink) do
-      create(:collected_ink, kind: "bottle", ink_name: "Syrah")
-    end
+    let(:existing_ink) { create(:collected_ink, kind: "bottle", ink_name: "Syrah") }
 
     it "adds a comment for the new ink" do
       new_ink =
@@ -143,21 +141,9 @@ describe CollectedInk do
 
     before(:each) do
       CollectedInk.delete_all
-      CollectedInk.create!(
-        user_id: user.id,
-        brand_name: "Diamine",
-        ink_name: "A"
-      )
-      CollectedInk.create!(
-        user_id: user.id,
-        brand_name: "diamine",
-        ink_name: "B"
-      )
-      CollectedInk.create!(
-        user_id: user.id,
-        brand_name: "Sailor",
-        ink_name: "C"
-      )
+      CollectedInk.create!(user_id: user.id, brand_name: "Diamine", ink_name: "A")
+      CollectedInk.create!(user_id: user.id, brand_name: "diamine", ink_name: "B")
+      CollectedInk.create!(user_id: user.id, brand_name: "Sailor", ink_name: "C")
     end
 
     it "returns the number of unique brands" do
@@ -179,11 +165,7 @@ describe CollectedInk do
       )
     end
     let(:csv) do
-      CSV.parse(
-        CollectedInk.where(id: [collected_ink.id]).to_csv,
-        headers: true,
-        col_sep: ";"
-      )
+      CSV.parse(CollectedInk.where(id: [collected_ink.id]).to_csv, headers: true, col_sep: ";")
     end
     let(:entry) { csv.first }
 

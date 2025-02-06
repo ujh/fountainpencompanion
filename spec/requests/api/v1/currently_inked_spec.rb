@@ -15,15 +15,9 @@ describe Api::V1::CurrentlyInkedController do
         create(:currently_inked, user: user)
         create(:currently_inked, user: user)
 
-        get "/api/v1/currently_inked",
-            headers: {
-              "ACCEPT" => "application/json"
-            }
+        get "/api/v1/currently_inked", headers: { "ACCEPT" => "application/json" }
         expect(json).to include(
-          data: [
-            hash_including(type: "currently_inked"),
-            hash_including(type: "currently_inked")
-          ]
+          data: [hash_including(type: "currently_inked"), hash_including(type: "currently_inked")]
         )
       end
 
@@ -33,10 +27,7 @@ describe Api::V1::CurrentlyInkedController do
         micro_cluster = create(:micro_cluster, macro_cluster: macro_cluster)
         ci.collected_ink.update!(micro_cluster: micro_cluster)
 
-        get "/api/v1/currently_inked",
-            headers: {
-              "ACCEPT" => "application/json"
-            }
+        get "/api/v1/currently_inked", headers: { "ACCEPT" => "application/json" }
 
         expect(json).to include(
           data: [
@@ -115,9 +106,7 @@ describe Api::V1::CurrentlyInkedController do
             }
 
         expect(json).to include(
-          data: [
-            hash_including(attributes: { comment: anything }, relationships: {})
-          ],
+          data: [hash_including(attributes: { comment: anything }, relationships: {})],
           included:
             match_array(
               [
@@ -129,18 +118,8 @@ describe Api::V1::CurrentlyInkedController do
                     macro_cluster: anything
                   }
                 ),
-                hash_including(
-                  type: "collected_ink",
-                  attributes: {
-                    brand_name: anything
-                  }
-                ),
-                hash_including(
-                  type: "collected_pen",
-                  attributes: {
-                    brand: anything
-                  }
-                )
+                hash_including(type: "collected_ink", attributes: { brand_name: anything }),
+                hash_including(type: "collected_pen", attributes: { brand: anything })
               ]
             )
         )

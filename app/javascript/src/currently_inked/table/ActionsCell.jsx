@@ -16,11 +16,7 @@ export const ActionsCell = ({ id, refillable, ink_name, used_today }) => {
           <i className="fa fa-rotate-right"></i>
         </a>
       )}
-      <a
-        className="btn btn-secondary"
-        title="edit"
-        href={`/currently_inked/${id}/edit`}
-      >
+      <a className="btn btn-secondary" title="edit" href={`/currently_inked/${id}/edit`}>
         <i className="fa fa-pencil" />
       </a>
       <a

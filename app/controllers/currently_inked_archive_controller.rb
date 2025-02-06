@@ -10,12 +10,7 @@ class CurrentlyInkedArchiveController < ApplicationController
       current_user
         .currently_inkeds
         .archived
-        .includes(
-          :collected_pen,
-          collected_ink: {
-            micro_cluster: :macro_cluster
-          }
-        )
+        .includes(:collected_pen, collected_ink: { micro_cluster: :macro_cluster })
         .order("archived_on DESC, created_at DESC")
         .page(params[:page])
         .per(50)
@@ -23,8 +18,7 @@ class CurrentlyInkedArchiveController < ApplicationController
 
   def edit
     @inked = CurrentlyInked.find(params[:id])
-    add_breadcrumb "Edit #{@inked.name}",
-                   "#{currently_inked_archive_path(@inked)}/edit"
+    add_breadcrumb "Edit #{@inked.name}", "#{currently_inked_archive_path(@inked)}/edit"
   end
 
   def unarchive

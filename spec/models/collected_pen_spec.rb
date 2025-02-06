@@ -43,20 +43,8 @@ describe CollectedPen do
     let(:pens) do
       [
         create(:collected_pen),
-        create(
-          :collected_pen,
-          brand: "Platinum",
-          model: "3776",
-          nib: "XF",
-          color: "pink"
-        ),
-        create(
-          :collected_pen,
-          brand: "Pilot",
-          model: "Custom 74",
-          nib: "M",
-          color: "orange"
-        )
+        create(:collected_pen, brand: "Platinum", model: "3776", nib: "XF", color: "pink"),
+        create(:collected_pen, brand: "Pilot", model: "Custom 74", nib: "M", color: "orange")
       ]
     end
 
@@ -68,20 +56,10 @@ describe CollectedPen do
 
   describe "#to_csv" do
     let(:collected_pen) do
-      create(
-        :collected_pen,
-        brand: "Pilot",
-        model: "Custom 74",
-        nib: "M",
-        color: "orange"
-      )
+      create(:collected_pen, brand: "Pilot", model: "Custom 74", nib: "M", color: "orange")
     end
     let(:csv) do
-      CSV.parse(
-        described_class.where(id: [collected_pen.id]).to_csv,
-        headers: true,
-        col_sep: ";"
-      )
+      CSV.parse(described_class.where(id: [collected_pen.id]).to_csv, headers: true, col_sep: ";")
     end
     let(:entry) { csv.first }
 
@@ -130,18 +108,12 @@ describe CollectedPen do
 
     it "has the correct value for Usage" do
       CurrentlyInked.create!(
-        collected_ink:
-          create(
-            :collected_ink,
-            user: collected_pen.user,
-            ink_name: "Twilight"
-          ),
+        collected_ink: create(:collected_ink, user: collected_pen.user, ink_name: "Twilight"),
         collected_pen: collected_pen,
         user: collected_pen.user
       )
       CurrentlyInked.create!(
-        collected_ink:
-          create(:collected_ink, user: collected_pen.user, ink_name: "Pumpkin"),
+        collected_ink: create(:collected_ink, user: collected_pen.user, ink_name: "Pumpkin"),
         collected_pen: collected_pen,
         user: collected_pen.user,
         archived_on: Date.today
@@ -182,12 +154,7 @@ describe CollectedPen do
 
     it "returns the correct date" do
       ci =
-        create(
-          :currently_inked,
-          collected_pen: pen,
-          inked_on: 10.days.ago,
-          archived_on: 3.days.ago
-        )
+        create(:currently_inked, collected_pen: pen, inked_on: 10.days.ago, archived_on: 3.days.ago)
       ci = create(:currently_inked, collected_pen: pen, inked_on: 2.days.ago)
 
       expect(pen.last_inked).to eq(2.days.ago.to_date)
@@ -203,19 +170,9 @@ describe CollectedPen do
 
     it "returns the correct date" do
       ci =
-        create(
-          :currently_inked,
-          collected_pen: pen,
-          inked_on: 10.days.ago,
-          archived_on: 3.days.ago
-        )
+        create(:currently_inked, collected_pen: pen, inked_on: 10.days.ago, archived_on: 3.days.ago)
       ci =
-        create(
-          :currently_inked,
-          collected_pen: pen,
-          inked_on: 2.days.ago,
-          archived_on: 1.day.ago
-        )
+        create(:currently_inked, collected_pen: pen, inked_on: 2.days.ago, archived_on: 1.day.ago)
 
       expect(pen.last_cleaned).to eq(1.day.ago.to_date)
     end
@@ -255,12 +212,7 @@ describe CollectedPen do
     end
 
     it "returns false when there is an archived currently inked entry" do
-      create(
-        :currently_inked,
-        collected_pen: pen,
-        inked_on: 2.days.ago,
-        archived_on: 1.day.ago
-      )
+      create(:currently_inked, collected_pen: pen, inked_on: 2.days.ago, archived_on: 1.day.ago)
 
       expect(pen).not_to be_inked
     end

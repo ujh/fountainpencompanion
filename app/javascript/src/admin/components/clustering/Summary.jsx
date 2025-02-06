@@ -6,8 +6,7 @@ export const Summary = () => {
   const { microClusters, selectedMicroClusters } = useContext(StateContext);
   return (
     <div className="summary">
-      <b>Total:</b> {microClusters.length} <b>In Selection:</b>{" "}
-      {selectedMicroClusters.length}
+      <b>Total:</b> {microClusters.length} <b>In Selection:</b> {selectedMicroClusters.length}
     </div>
   );
 };

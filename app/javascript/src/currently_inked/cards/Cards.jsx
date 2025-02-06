@@ -6,11 +6,7 @@ export const Cards = ({ data, hiddenFields }) => {
   return (
     <div className="fpc-currently-inked-cards">
       {data.map((row, i) => (
-        <CurrentlyInkedCard
-          key={row.id + "i" + i}
-          hiddenFields={hiddenFields}
-          {...row}
-        />
+        <CurrentlyInkedCard key={row.id + "i" + i} hiddenFields={hiddenFields} {...row} />
       ))}
     </div>
   );

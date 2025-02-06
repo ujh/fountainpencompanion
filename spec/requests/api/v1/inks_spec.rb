@@ -17,10 +17,7 @@ RSpec.describe "Api::V1::Inks", type: :request do
           3,
           ink_name: "Aventurine",
           micro_cluster:
-            create(
-              :micro_cluster,
-              macro_cluster: create(:macro_cluster, ink_name: "Aventurine")
-            )
+            create(:micro_cluster, macro_cluster: create(:macro_cluster, ink_name: "Aventurine"))
         )
 
         create_list(
@@ -28,10 +25,7 @@ RSpec.describe "Api::V1::Inks", type: :request do
           3,
           ink_name: "Mandarin",
           micro_cluster:
-            create(
-              :micro_cluster,
-              macro_cluster: create(:macro_cluster, ink_name: "Mandarin")
-            )
+            create(:micro_cluster, macro_cluster: create(:macro_cluster, ink_name: "Mandarin"))
         )
 
         get "/api/v1/inks", headers: { "ACCEPT" => "application/json" }
@@ -49,10 +43,7 @@ RSpec.describe "Api::V1::Inks", type: :request do
           3,
           ink_name: "Aventurine",
           micro_cluster:
-            create(
-              :micro_cluster,
-              macro_cluster: create(:macro_cluster, ink_name: "Aventurine")
-            )
+            create(:micro_cluster, macro_cluster: create(:macro_cluster, ink_name: "Aventurine"))
         )
 
         create_list(
@@ -60,22 +51,11 @@ RSpec.describe "Api::V1::Inks", type: :request do
           3,
           ink_name: "Mandarin",
           micro_cluster:
-            create(
-              :micro_cluster,
-              macro_cluster: create(:macro_cluster, ink_name: "Mandarin")
-            )
+            create(:micro_cluster, macro_cluster: create(:macro_cluster, ink_name: "Mandarin"))
         )
 
-        get "/api/v1/inks",
-            params: {
-              term: "man"
-            },
-            headers: {
-              "ACCEPT" => "application/json"
-            }
-        expect(json).to match(
-          data: [hash_including(attributes: { ink_name: "Mandarin" })]
-        )
+        get "/api/v1/inks", params: { term: "man" }, headers: { "ACCEPT" => "application/json" }
+        expect(json).to match(data: [hash_including(attributes: { ink_name: "Mandarin" })])
       end
 
       it "returns inks from the correct brand if specified" do
@@ -87,12 +67,7 @@ RSpec.describe "Api::V1::Inks", type: :request do
           micro_cluster:
             create(
               :micro_cluster,
-              macro_cluster:
-                create(
-                  :macro_cluster,
-                  brand_name: "Pelikan",
-                  ink_name: "Mandarin"
-                )
+              macro_cluster: create(:macro_cluster, brand_name: "Pelikan", ink_name: "Mandarin")
             )
         )
 
@@ -104,8 +79,7 @@ RSpec.describe "Api::V1::Inks", type: :request do
           micro_cluster:
             create(
               :micro_cluster,
-              macro_cluster:
-                create(:macro_cluster, brand_name: "Other", ink_name: "Manda")
+              macro_cluster: create(:macro_cluster, brand_name: "Other", ink_name: "Manda")
             )
         )
 
@@ -117,9 +91,7 @@ RSpec.describe "Api::V1::Inks", type: :request do
             headers: {
               "ACCEPT" => "application/json"
             }
-        expect(json).to match(
-          data: [hash_including(attributes: { ink_name: "Mandarin" })]
-        )
+        expect(json).to match(data: [hash_including(attributes: { ink_name: "Mandarin" })])
       end
     end
   end

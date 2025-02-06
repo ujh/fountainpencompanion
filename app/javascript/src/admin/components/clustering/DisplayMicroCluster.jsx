@@ -27,16 +27,9 @@ export const DisplayMicroCluster = ({
           />
         </thead>
         <tbody>
-          <EntriesList
-            entries={activeCluster.entries}
-            fields={fields}
-            extraColumn={extraColumn}
-          />
+          <EntriesList entries={activeCluster.entries} fields={fields} extraColumn={extraColumn} />
           <tr>
-            <td
-              colSpan={fields.length + 5}
-              style={{ backgroundColor: "black" }}
-            ></td>
+            <td colSpan={fields.length + 5} style={{ backgroundColor: "black" }}></td>
           </tr>
           <DisplayMacroClusters
             afterAssign={afterCreate}

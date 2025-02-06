@@ -1,10 +1,5 @@
 import React, { useMemo, useState } from "react";
-import {
-  startOfToday,
-  parseISO,
-  formatDistanceStrict,
-  formatISO
-} from "date-fns";
+import { startOfToday, parseISO, formatDistanceStrict, formatISO } from "date-fns";
 
 export const RelativeDate = ({ date, relativeAsDefault = true }) => {
   const relativeDate = useMemo(() => relativeDateString(date), [date]);

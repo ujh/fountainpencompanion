@@ -56,16 +56,12 @@
 
         if (typeof attributes.expires === "number") {
           var expires = new Date();
-          expires.setMilliseconds(
-            expires.getMilliseconds() + attributes.expires * 864e5
-          );
+          expires.setMilliseconds(expires.getMilliseconds() + attributes.expires * 864e5);
           attributes.expires = expires;
         }
 
         // We're using "expires" because "max-age" is not supported by IE
-        attributes.expires = attributes.expires
-          ? attributes.expires.toUTCString()
-          : "";
+        attributes.expires = attributes.expires ? attributes.expires.toUTCString() : "";
 
         try {
           result = JSON.stringify(value);
@@ -127,8 +123,7 @@
           var name = parts[0].replace(rdecode, decodeURIComponent);
           cookie = converter.read
             ? converter.read(cookie, name)
-            : converter(cookie, name) ||
-              cookie.replace(rdecode, decodeURIComponent);
+            : converter(cookie, name) || cookie.replace(rdecode, decodeURIComponent);
 
           if (this.json) {
             try {

@@ -1,18 +1,10 @@
-Rack::Attack.throttle(
-  "full text search limit",
-  limit: 1,
-  period: 3
-) do |request|
-  if request.path.starts_with?("/inks") && request.query_string.include?("q=")
-    request.ip
-  end
+Rack::Attack.throttle("full text search limit", limit: 1, period: 3) do |request|
+  request.ip if request.path.starts_with?("/inks") && request.query_string.include?("q=")
 end
 
-Rack::Attack.throttle(
-  "missing descriptions",
-  limit: 10,
-  period: 20
-) { |request| request.ip if request.path.starts_with?("/descriptions/missing") }
+Rack::Attack.throttle("missing descriptions", limit: 10, period: 20) do |request|
+  request.ip if request.path.starts_with?("/descriptions/missing")
+end
 
 Rack::Attack.throttle("crawler", limit: 1, period: 120) do |request|
   "crawler" if request.user_agent =~ /Googlebot/i

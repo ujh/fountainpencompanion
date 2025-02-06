@@ -10,9 +10,7 @@ export const CurrentlyInkedCards = ({ currentlyInked, onLayoutChange }) => {
   const [matchOn, setMatchOn] = useState("");
   const visible = fuzzyMatch(currentlyInked, matchOn);
 
-  const { hiddenFields, onHiddenFieldsChange } = useHiddenFields(
-    storageKeyHiddenFields
-  );
+  const { hiddenFields, onHiddenFieldsChange } = useHiddenFields(storageKeyHiddenFields);
 
   return (
     <div data-testid="card-layout">

@@ -11,8 +11,7 @@ describe Pens::UpdateMicroCluster do
   end
 
   it "schedules the model variant update job if model variant assigned" do
-    micro_cluster =
-      create(:pens_micro_cluster, model_variant: create(:pens_model_variant))
+    micro_cluster = create(:pens_micro_cluster, model_variant: create(:pens_model_variant))
 
     expect { subject.perform(micro_cluster.id) }.to change(
       Pens::UpdateModelVariant.jobs,

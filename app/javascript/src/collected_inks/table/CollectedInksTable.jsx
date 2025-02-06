@@ -26,19 +26,9 @@ export const CollectedInksTable = ({ data, archive, onLayoutChange }) => {
         accessor: "private",
         Cell: ({ cell: { value } }) => {
           if (value) {
-            return (
-              <i
-                title="Private, hidden from your profile"
-                className="fa fa-lock"
-              />
-            );
+            return <i title="Private, hidden from your profile" className="fa fa-lock" />;
           } else {
-            return (
-              <i
-                title="Publicly visible on your profile"
-                className="fa fa-unlock"
-              />
-            );
+            return <i title="Publicly visible on your profile" className="fa fa-unlock" />;
           }
         }
       },
@@ -47,8 +37,7 @@ export const CollectedInksTable = ({ data, archive, onLayoutChange }) => {
         accessor: "brand_name",
         Footer: (info) => {
           const count = useMemo(() => {
-            return _.uniqBy(info.rows, (row) => row.values["brand_name"])
-              .length;
+            return _.uniqBy(info.rows, (row) => row.values["brand_name"]).length;
           }, [info.rows]);
           return <span>{count} brands</span>;
         }
@@ -143,9 +132,7 @@ export const CollectedInksTable = ({ data, archive, onLayoutChange }) => {
       {
         Header: "Added On",
         accessor: "created_at",
-        Cell: ({ cell: { value } }) => (
-          <RelativeDate date={value} relativeAsDefault={false} />
-        )
+        Cell: ({ cell: { value } }) => <RelativeDate date={value} relativeAsDefault={false} />
       },
       {
         Header: "Comment",
@@ -164,9 +151,7 @@ export const CollectedInksTable = ({ data, archive, onLayoutChange }) => {
             <ul className="tags">
               {value.map((tag) => (
                 <li key={tag.id} className="tag badge text-bg-secondary">
-                  <a href={`/inks?tag=${fixedEncodeURIComponent(tag.name)}`}>
-                    {tag.name}
-                  </a>
+                  <a href={`/inks?tag=${fixedEncodeURIComponent(tag.name)}`}>{tag.name}</a>
                 </li>
               ))}
             </ul>
@@ -190,13 +175,8 @@ export const CollectedInksTable = ({ data, archive, onLayoutChange }) => {
           return (
             <ul className="tags">
               {clusterOnlyTags.map((tag) => (
-                <li
-                  key={tag}
-                  className="tag badge text-bg-secondary cluster-tag"
-                >
-                  <a href={`/inks?tag=${fixedEncodeURIComponent(tag)}`}>
-                    {tag}
-                  </a>
+                <li key={tag} className="tag badge text-bg-secondary cluster-tag">
+                  <a href={`/inks?tag=${fixedEncodeURIComponent(tag)}`}>{tag}</a>
                 </li>
               ))}
             </ul>

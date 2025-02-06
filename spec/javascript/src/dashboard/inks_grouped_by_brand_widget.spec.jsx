@@ -7,18 +7,15 @@ import { InksGroupedByBrandWidget } from "dashboard/inks_grouped_by_brand_widget
 
 describe("InksGroupedByBrandWidget", () => {
   const server = setupServer(
-    rest.get(
-      "/dashboard/widgets/inks_grouped_by_brand.json",
-      (req, res, ctx) => {
-        return res(
-          ctx.json({
-            data: {
-              attributes: { brands: [{ brand_name: "brand", count: 1 }] }
-            }
-          })
-        );
-      }
-    )
+    rest.get("/dashboard/widgets/inks_grouped_by_brand.json", (req, res, ctx) => {
+      return res(
+        ctx.json({
+          data: {
+            attributes: { brands: [{ brand_name: "brand", count: 1 }] }
+          }
+        })
+      );
+    })
   );
 
   beforeAll(() => server.listen());

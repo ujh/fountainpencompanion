@@ -31,21 +31,14 @@ class FetchReviews
     end
 
     def submit(video)
-      FetchReviews::SubmitReview.perform_async(
-        video[:url],
-        video[:macro_cluster]
-      )
+      FetchReviews::SubmitReview.perform_async(video[:url], video[:macro_cluster])
     end
 
     def match(video)
       Rails
         .cache
         .fetch("youtube:#{video[:url]}", expires_in: 1.year) do
-          cluster =
-            MacroCluster.full_text_search(
-              video[:search_term],
-              fuzzy: true
-            ).first
+          cluster = MacroCluster.full_text_search(video[:search_term], fuzzy: true).first
           video.merge(macro_cluster: cluster&.id)
         end
     end

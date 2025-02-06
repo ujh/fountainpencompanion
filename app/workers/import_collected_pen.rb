@@ -32,13 +32,6 @@ class ImportCollectedPen
 
   def params(row)
     row["archived_on"] = row["archived"].present? ? Date.current : nil
-    row.slice(
-      "material",
-      "trim_color",
-      "filling_system",
-      "price",
-      "comment",
-      "archived_on"
-    )
+    row.slice("material", "trim_color", "filling_system", "price", "comment", "archived_on")
   end
 end

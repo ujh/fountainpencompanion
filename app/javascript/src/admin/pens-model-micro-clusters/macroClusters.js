@@ -48,12 +48,7 @@ export const getMacroClusters = (dispatch) => {
   run();
 };
 
-export const createMacroClusterAndAssign = (
-  values,
-  microClusterId,
-  dispatch,
-  afterCreate
-) => {
+export const createMacroClusterAndAssign = (values, microClusterId, dispatch, afterCreate) => {
   dispatch({ type: UPDATING });
   setTimeout(() => {
     postRequest("/admins/pens/models.json", {
@@ -95,15 +90,11 @@ export const updateMacroCluster = (id, dispatch) => {
         const grouped_entries = groupedPens(
           macroCluster.model_micro_clusters.map((c) => c.model_variants).flat()
         );
-        macroCluster.model_micro_clusters.forEach(
-          (mc) => (mc.entries = mc.model_variants)
-        );
+        macroCluster.model_micro_clusters.forEach((mc) => (mc.entries = mc.model_variants));
         macroCluster.micro_clusters = macroCluster.model_micro_clusters;
         return { ...macroCluster, grouped_entries };
       })
-      .then((macroCluster) =>
-        dispatch({ type: UPDATE_MACRO_CLUSTER, payload: macroCluster })
-      );
+      .then((macroCluster) => dispatch({ type: UPDATE_MACRO_CLUSTER, payload: macroCluster }));
   }, 500);
 };
 

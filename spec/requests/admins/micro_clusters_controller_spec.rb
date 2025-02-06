@@ -26,8 +26,7 @@ describe Admins::MicroClustersController do
                 "id" => micro_cluster.id.to_s,
                 "type" => "micro_cluster",
                 "attributes" => {
-                  "simplified_brand_name" =>
-                    micro_cluster.simplified_brand_name,
+                  "simplified_brand_name" => micro_cluster.simplified_brand_name,
                   "simplified_line_name" => micro_cluster.simplified_line_name,
                   "simplified_ink_name" => micro_cluster.simplified_ink_name
                 },
@@ -136,9 +135,7 @@ describe Admins::MicroClustersController do
 
   describe "#unassign" do
     let!(:macro_cluster) { create(:macro_cluster) }
-    let!(:micro_cluster) do
-      create(:micro_cluster, macro_cluster: macro_cluster)
-    end
+    let!(:micro_cluster) { create(:micro_cluster, macro_cluster: macro_cluster) }
 
     before(:each) { sign_in(admin) }
 
@@ -146,9 +143,7 @@ describe Admins::MicroClustersController do
       expect do
         delete "/admins/micro_clusters/#{micro_cluster.id}/unassign"
         expect(response).to be_successful
-      end.to change { micro_cluster.reload.macro_cluster_id }.from(
-        macro_cluster.id
-      ).to(nil)
+      end.to change { micro_cluster.reload.macro_cluster_id }.from(macro_cluster.id).to(nil)
     end
 
     it "schedules a recalculation of the macro cluster data" do

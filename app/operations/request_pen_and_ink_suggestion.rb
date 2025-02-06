@@ -12,19 +12,11 @@ class RequestPenAndInkSuggestion
 
       suggestion[:ink] = user.collected_inks.find_by(id: suggestion[:ink])
       suggestion[:pen] = user.collected_pens.find_by(id: suggestion[:pen])
-      suggestion[:message] = Slodown::Formatter
-        .new(suggestion[:message])
-        .complete
-        .to_s
-        .html_safe
+      suggestion[:message] = Slodown::Formatter.new(suggestion[:message]).complete.to_s.html_safe
       suggestion
     else
       new_suggestion_id = generate_suggestion_id
-      SchedulePenAndInkSuggestion.perform_async(
-        user.id,
-        new_suggestion_id,
-        ink_kind
-      )
+      SchedulePenAndInkSuggestion.perform_async(user.id, new_suggestion_id, ink_kind)
       { suggestion_id: new_suggestion_id }
     end
   end
