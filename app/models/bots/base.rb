@@ -2,6 +2,10 @@ require "csv"
 
 module Bots
   class Base
+    def self.env_name
+      "OPEN_AI_#{name.demodulize.underscore.upcase}"
+    end
+
     def run
       raise NotImplementedError
     end
@@ -27,10 +31,15 @@ module Bots
     end
 
     def client
-      OpenAI::Client.new(
-        access_token: ENV.fetch("OPENAI_PEN_AND_INK_SUGGESTIONS"),
-        log_errors: !Rails.env.production?
-      )
+      OpenAI::Client.new(access_token:, log_errors: !Rails.env.production?)
+    end
+
+    def access_token
+      if Rails.env.development?
+        ENV.fetch(self.class.env_name, ENV.fetch("OPEN_AI_DEV_TOKEN", nil))
+      else
+        ENV.fetch(self.class.env_name)
+      end
     end
   end
 end
