@@ -1,9 +1,7 @@
 ENV["RAILS_ENV"] ||= "test"
 require File.expand_path("../config/environment", __dir__)
 # Prevent database truncation if the environment is production
-if Rails.env.production?
-  abort("The Rails environment is running in production mode!")
-end
+abort("The Rails environment is running in production mode!") if Rails.env.production?
 require "spec_helper"
 require "rspec/rails"
 require "sidekiq/testing"
@@ -24,10 +22,6 @@ RSpec.configure do |config|
   config.before(:each) { Sidekiq::Worker.clear_all }
   config.before(:each) { Rails.cache.clear }
 
-  config.before(:each, type: :request) do
-    Rails.application.reload_routes_unless_loaded
-  end
-  config.before(:each, type: :controller) do
-    Rails.application.reload_routes_unless_loaded
-  end
+  config.before(:each, type: :request) { Rails.application.reload_routes_unless_loaded }
+  config.before(:each, type: :controller) { Rails.application.reload_routes_unless_loaded }
 end

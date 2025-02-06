@@ -13,10 +13,7 @@ class Pens::ModelVariant < ApplicationRecord
 
   paginates_per 100
 
-  scope :ordered,
-        lambda {
-          order(:brand, :model, :color, :material, :trim_color, :filling_system)
-        }
+  scope :ordered, lambda { order(:brand, :model, :color, :material, :trim_color, :filling_system) }
 
   def self.search(query)
     return self if query.blank?
@@ -39,9 +36,7 @@ class Pens::ModelVariant < ApplicationRecord
   end
 
   def name
-    [brand, model, color, material, trim_color, filling_system].reject do |part|
-        part.blank?
-      end
+    [brand, model, color, material, trim_color, filling_system].reject { |part| part.blank? }
       .join(" ")
   end
 
@@ -52,9 +47,7 @@ class Pens::ModelVariant < ApplicationRecord
         .join(", ")
     collected_pens
       .group(columns)
-      .select(
-        "min(collected_pens.id), count(*) as collected_pens_count, #{columns}"
-      )
+      .select("min(collected_pens.id), count(*) as collected_pens_count, #{columns}")
       .order("collected_pens_count desc")
   end
 

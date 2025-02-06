@@ -23,9 +23,7 @@ class BrandsController < ApplicationController
             .select("macro_clusters.*, count(*) as collected_inks_count")
       end
       format.csv do
-        send_data @brand.to_csv,
-                  type: "text/csv",
-                  filename: "#{@brand.name.parameterize}.csv"
+        send_data @brand.to_csv, type: "text/csv", filename: "#{@brand.name.parameterize}.csv"
       end
     end
   end

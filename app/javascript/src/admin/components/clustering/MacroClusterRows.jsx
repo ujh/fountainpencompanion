@@ -12,21 +12,15 @@ export const MacroClusterRows = ({
   extraColumn,
   fields
 }) => {
-  const {
-    macroClusters,
-    activeCluster,
-    selectedMacroClusterIndex,
-    updateCounter
-  } = useContext(StateContext);
+  const { macroClusters, activeCluster, selectedMacroClusterIndex, updateCounter } =
+    useContext(StateContext);
   const [clustersWithDistance, setClustersWithDistance] = useState([]);
   const [computing, setComputing] = useState(true);
   const [search, setSearch] = useState("");
   useEffect(() => {
     setComputing(true);
     setTimeout(() => {
-      setClustersWithDistance(
-        _.sortBy(withDistance(macroClusters, activeCluster), "distance")
-      );
+      setClustersWithDistance(_.sortBy(withDistance(macroClusters, activeCluster), "distance"));
       setComputing(false);
     }, 0);
     // eslint-disable-next-line react-hooks/exhaustive-deps

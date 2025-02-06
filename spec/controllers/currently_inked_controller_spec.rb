@@ -9,10 +9,7 @@ describe CurrentlyInkedController do
 
   describe "#index" do
     let!(:currently_inked) do
-      user.currently_inkeds.create!(
-        collected_ink: collected_ink,
-        collected_pen: collected_pen
-      )
+      user.currently_inkeds.create!(collected_ink: collected_ink, collected_pen: collected_pen)
     end
 
     it "requires authentication" do
@@ -82,12 +79,7 @@ describe CurrentlyInkedController do
 
       it "renders the new page when invalid" do
         expect do
-          post :create,
-               params: {
-                 currently_inked: {
-                   collected_ink_id: collected_ink.id
-                 }
-               }
+          post :create, params: { currently_inked: { collected_ink_id: collected_ink.id } }
           expect(response).to be_successful
           expect(response).to render_template(:new)
         end.to_not change { user.currently_inkeds.count }
@@ -97,10 +89,7 @@ describe CurrentlyInkedController do
 
   describe "#edit" do
     let!(:currently_inked) do
-      user.currently_inkeds.create!(
-        collected_ink: collected_ink,
-        collected_pen: collected_pen
-      )
+      user.currently_inkeds.create!(collected_ink: collected_ink, collected_pen: collected_pen)
     end
 
     it "requires authentication" do
@@ -138,10 +127,7 @@ describe CurrentlyInkedController do
 
   describe "#refill" do
     let!(:currently_inked) do
-      user.currently_inkeds.create!(
-        collected_ink: collected_ink,
-        collected_pen: collected_pen
-      )
+      user.currently_inkeds.create!(collected_ink: collected_ink, collected_pen: collected_pen)
     end
 
     it "requires authentication" do
@@ -170,18 +156,10 @@ describe CurrentlyInkedController do
 
   describe "#update" do
     let!(:currently_inked) do
-      user.currently_inkeds.create!(
-        collected_ink: collected_ink,
-        collected_pen: collected_pen
-      )
+      user.currently_inkeds.create!(collected_ink: collected_ink, collected_pen: collected_pen)
     end
     let(:new_collected_ink) do
-      create(
-        :collected_ink,
-        brand_name: "Robert Oster",
-        ink_name: "Fire and Ice",
-        user: user
-      )
+      create(:collected_ink, brand_name: "Robert Oster", ink_name: "Fire and Ice", user: user)
     end
 
     it "requires authentication" do
@@ -210,9 +188,9 @@ describe CurrentlyInkedController do
                 }
               }
           expect(response).to redirect_to(currently_inked_index_path)
-        end.to change { currently_inked.reload.collected_ink }.from(
-          collected_ink
-        ).to(new_collected_ink)
+        end.to change { currently_inked.reload.collected_ink }.from(collected_ink).to(
+          new_collected_ink
+        )
       end
 
       it "updates an archived entry" do
@@ -226,20 +204,14 @@ describe CurrentlyInkedController do
                 }
               }
           expect(response).to redirect_to(currently_inked_index_path)
-        end.to change { currently_inked.reload.collected_ink }.from(
-          collected_ink
-        ).to(new_collected_ink)
+        end.to change { currently_inked.reload.collected_ink }.from(collected_ink).to(
+          new_collected_ink
+        )
       end
 
       it "renders the edit page when invalid" do
         expect do
-          put :update,
-              params: {
-                id: currently_inked.id,
-                currently_inked: {
-                  collected_ink_id: -1
-                }
-              }
+          put :update, params: { id: currently_inked.id, currently_inked: { collected_ink_id: -1 } }
         end.to_not change { currently_inked.reload.collected_ink_id }
         expect(response).to be_successful
         expect(response).to render_template(:edit)
@@ -249,10 +221,7 @@ describe CurrentlyInkedController do
 
   describe "#archive" do
     let!(:currently_inked) do
-      user.currently_inkeds.create!(
-        collected_ink: collected_ink,
-        collected_pen: collected_pen
-      )
+      user.currently_inkeds.create!(collected_ink: collected_ink, collected_pen: collected_pen)
     end
 
     it "requires authentication" do
@@ -273,10 +242,7 @@ describe CurrentlyInkedController do
 
   describe "#destroy" do
     let!(:currently_inked) do
-      user.currently_inkeds.create!(
-        collected_ink: collected_ink,
-        collected_pen: collected_pen
-      )
+      user.currently_inkeds.create!(collected_ink: collected_ink, collected_pen: collected_pen)
     end
 
     it "requires authentication" do
@@ -312,9 +278,9 @@ describe CurrentlyInkedController do
             collected_pen: create(:collected_pen, user: other_user)
           )
         expect do
-          expect do
-            delete :destroy, params: { id: other_currently_inked.id }
-          end.to raise_error(ActiveRecord::RecordNotFound)
+          expect do delete :destroy, params: { id: other_currently_inked.id } end.to raise_error(
+            ActiveRecord::RecordNotFound
+          )
         end.to_not change { CurrentlyInked.count }
       end
     end

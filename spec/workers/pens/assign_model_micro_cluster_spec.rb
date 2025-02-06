@@ -8,10 +8,7 @@ describe Pens::AssignModelMicroCluster do
   it "creates a new model micro cluster" do
     mv = create(:pens_model_variant, brand: "Brand", model: "Model")
 
-    expect do subject.perform(mv.id) end.to change(
-      Pens::ModelMicroCluster,
-      :count
-    ).by(1)
+    expect do subject.perform(mv.id) end.to change(Pens::ModelMicroCluster, :count).by(1)
 
     cluster = Pens::ModelMicroCluster.last
     mv.reload
@@ -21,16 +18,9 @@ describe Pens::AssignModelMicroCluster do
   it "assigns to an existing model micro cluster" do
     mv = create(:pens_model_variant, brand: "Brand", model: "Model")
     cluster =
-      create(
-        :pens_model_micro_cluster,
-        simplified_brand: "brand",
-        simplified_model: "model"
-      )
+      create(:pens_model_micro_cluster, simplified_brand: "brand", simplified_model: "model")
 
-    expect do subject.perform(mv.id) end.not_to change(
-      Pens::ModelMicroCluster,
-      :count
-    )
+    expect do subject.perform(mv.id) end.not_to change(Pens::ModelMicroCluster, :count)
 
     mv.reload
     expect(mv.model_micro_cluster).to eq(cluster)

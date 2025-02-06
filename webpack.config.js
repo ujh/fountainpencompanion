@@ -4,8 +4,7 @@ const webpack = require("webpack");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const RemoveEmptyScriptsPlugin = require("webpack-remove-empty-scripts");
 
-const mode =
-  process.env.NODE_ENV === "development" ? "development" : "production";
+const mode = process.env.NODE_ENV === "development" ? "development" : "production";
 
 /**
  * @typedef {import("webpack").Configuration} WebpackConfiguration

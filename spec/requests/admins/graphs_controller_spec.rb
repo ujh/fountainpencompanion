@@ -34,14 +34,8 @@ describe Admins::GraphsController do
               data: [[2.days.ago.at_beginning_of_day.to_i * 1000, 1]],
               name: "Unconfirmed & not bot"
             },
-            {
-              data: [[1.day.ago.at_beginning_of_day.to_i * 1000, 1]],
-              name: "Bot signups"
-            },
-            {
-              data: [[1.day.ago.at_beginning_of_day.to_i * 1000, 1]],
-              name: "New spam accounts"
-            }
+            { data: [[1.day.ago.at_beginning_of_day.to_i * 1000, 1]], name: "Bot signups" },
+            { data: [[1.day.ago.at_beginning_of_day.to_i * 1000, 1]], name: "New spam accounts" }
           ]
         )
       end
@@ -119,10 +113,7 @@ describe Admins::GraphsController do
               ],
               "name" => "reason1"
             },
-            {
-              "data" => [[2.days.ago.at_beginning_of_day.to_i * 1000, 1]],
-              "name" => "reason2"
-            }
+            { "data" => [[2.days.ago.at_beginning_of_day.to_i * 1000, 1]], "name" => "reason2" }
           ]
         )
       end

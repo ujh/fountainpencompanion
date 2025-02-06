@@ -25,16 +25,8 @@ class ImportCurrentlyInked
       model: row["pen_model"],
       nib: row["pen_nib"]
     )
-    row["archived_on"] = Date.parse(row["archived_on"]) if row[
-      "archived_on"
-    ].present?
+    row["archived_on"] = Date.parse(row["archived_on"]) if row["archived_on"].present?
     row["inked_on"] = Date.parse(row["inked_on"]) if row["inked_on"].present?
-    row.slice(
-      "collected_ink",
-      "collected_pen",
-      "comment",
-      "inked_on",
-      "archived_on"
-    )
+    row.slice("collected_ink", "collected_pen", "comment", "inked_on", "archived_on")
   end
 end

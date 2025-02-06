@@ -13,9 +13,7 @@ describe Pens::ModelsController do
       color: "Orange"
     )
   end
-  let(:platinum) do
-    create(:collected_pen, brand: "Platinum", model: "3776 Chartres")
-  end
+  let(:platinum) { create(:collected_pen, brand: "Platinum", model: "3776 Chartres") }
   let(:pens) { [wing_sung, custom74, platinum] }
 
   before { pens }
@@ -24,9 +22,7 @@ describe Pens::ModelsController do
     it "returns all models with an empty search term" do
       get :index, params: { term: "" }, format: :json
       expect(response).to be_successful
-      expect(JSON.parse(response.body)).to eq(
-        ["3776 Chartres", "618", "Custom 74"]
-      )
+      expect(JSON.parse(response.body)).to eq(["3776 Chartres", "618", "Custom 74"])
     end
 
     it "returns models by substring search" do

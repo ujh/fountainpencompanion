@@ -4,10 +4,7 @@ export const UsageButton = ({ used, id, testingMode = false }) => {
   const [displayAsUsed, setDisplayAsUsed] = useState(used);
   if (displayAsUsed) {
     return (
-      <div
-        className="btn btn-secondary"
-        title="Already recorded usage for today"
-      >
+      <div className="btn btn-secondary" title="Already recorded usage for today">
         <i className="fa fa-bookmark-o"></i>
       </div>
     );

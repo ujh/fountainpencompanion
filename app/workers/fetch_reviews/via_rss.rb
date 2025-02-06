@@ -14,9 +14,7 @@ class FetchReviews
 
     def perform
       reviews =
-        feed.items.map do |item|
-          { url: item.link, title: item.title, search_term: item.title }
-        end
+        feed.items.map { |item| { url: item.link, title: item.title, search_term: item.title } }
       reviews = reviews.map { |review| process_review(review) }
       reviews = reviews.compact
       reviews = reviews.take(REVIEW_COUNT)
@@ -30,20 +28,13 @@ class FetchReviews
       Rails
         .cache
         .fetch("rss:#{review[:url]}", expires_in: 1.year) do
-          cluster =
-            MacroCluster.full_text_search(
-              review[:search_term],
-              fuzzy: true
-            ).first
+          cluster = MacroCluster.full_text_search(review[:search_term], fuzzy: true).first
           review.merge(macro_cluster: cluster&.id)
         end
     end
 
     def submit_review(review)
-      FetchReviews::SubmitReview.perform_async(
-        review[:url],
-        review[:macro_cluster]
-      )
+      FetchReviews::SubmitReview.perform_async(review[:url], review[:macro_cluster])
     end
 
     def feed

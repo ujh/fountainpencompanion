@@ -23,19 +23,12 @@ const dist = (macroClusterInks, microClusterInks) => {
       [c1.brand_name, c1.line_name, c1.ink_name].join(""),
       [c2.brand_name, c2.line_name, c2.ink_name].join("")
     );
-  const calc3 = (c1, c2) =>
-    minLev(c1.brand_name, c2.brand_name) + minLev(c1.ink_name, c2.ink_name);
+  const calc3 = (c1, c2) => minLev(c1.brand_name, c2.brand_name) + minLev(c1.ink_name, c2.ink_name);
   const calc4 = (c1, c2) => {
     if (!c1.line_name && !c2.line_name) return Number.MAX_SAFE_INTEGER;
     return Math.min(
-      minLev(
-        [c1.brand_name, c1.ink_name].join(""),
-        [c2.line_name, c2.ink_name].join("")
-      ),
-      minLev(
-        [c2.brand_name, c2.ink_name].join(""),
-        [c1.line_name, c1.ink_name].join("")
-      )
+      minLev([c1.brand_name, c1.ink_name].join(""), [c2.line_name, c2.ink_name].join("")),
+      minLev([c2.brand_name, c2.ink_name].join(""), [c1.line_name, c1.ink_name].join(""))
     );
   };
 
@@ -52,10 +45,7 @@ const dist = (macroClusterInks, microClusterInks) => {
 };
 
 const minLev = (str1, str2) => {
-  return Math.min(
-    levenshtein.get(str1, str2),
-    levenshtein.get(stripped(str1), stripped(str2))
-  );
+  return Math.min(levenshtein.get(str1, str2), levenshtein.get(stripped(str1), stripped(str2)));
 };
 
 const stripped = (str) => {

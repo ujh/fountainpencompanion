@@ -9,9 +9,7 @@ import { App } from "add-ink-button/app";
 describe("App", () => {
   const server = setupServer(
     rest.get("/collected_inks.json", (req, res, ctx) => {
-      const macro_cluster_id = req.url.searchParams.get(
-        "filter[macro_cluster_id]"
-      );
+      const macro_cluster_id = req.url.searchParams.get("filter[macro_cluster_id]");
       switch (macro_cluster_id) {
         case "in_collection":
           return res(ctx.json({ data: ["item"] }));

@@ -98,9 +98,7 @@ export const CollectedPensTable = ({ pens, onLayoutChange }) => {
       {
         Header: "Added On",
         accessor: "created_at",
-        Cell: ({ cell: { value } }) => (
-          <RelativeDate date={value} relativeAsDefault={false} />
-        )
+        Cell: ({ cell: { value } }) => <RelativeDate date={value} relativeAsDefault={false} />
       },
       {
         Header: "Actions",

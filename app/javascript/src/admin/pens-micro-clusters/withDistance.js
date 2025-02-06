@@ -14,19 +14,14 @@ export const withDistance = (macroClusters, activeCluster) => {
 };
 
 const dist = (macroClusterInks, microClusterInks) => {
-  const calc1 = (c1, c2) =>
-    minLev(c1.brand, c2.brand) + minLev(c1.model, c2.model);
-  const calc2 = (c1, c2) =>
-    minLev([c1.brand, c1.model].join(""), [c2.brand, c2.model].join(""));
-  const calc3 = (c1, c2) =>
-    minLev(c1.brand, c2.brand) + minLev(c1.model, c2.model);
+  const calc1 = (c1, c2) => minLev(c1.brand, c2.brand) + minLev(c1.model, c2.model);
+  const calc2 = (c1, c2) => minLev([c1.brand, c1.model].join(""), [c2.brand, c2.model].join(""));
+  const calc3 = (c1, c2) => minLev(c1.brand, c2.brand) + minLev(c1.model, c2.model);
 
   let minDistance = Number.MAX_SAFE_INTEGER;
   macroClusterInks.forEach((ci1) => {
     microClusterInks.forEach((ci2) => {
-      const dist = Math.min(
-        ...[calc1(ci1, ci2), calc2(ci1, ci2), calc3(ci1, ci2)]
-      );
+      const dist = Math.min(...[calc1(ci1, ci2), calc2(ci1, ci2), calc3(ci1, ci2)]);
       if (dist < minDistance) minDistance = dist;
     });
   });
@@ -34,10 +29,7 @@ const dist = (macroClusterInks, microClusterInks) => {
 };
 
 const minLev = (str1, str2) => {
-  return Math.min(
-    levenshtein.get(str1, str2),
-    levenshtein.get(stripped(str1), stripped(str2))
-  );
+  return Math.min(levenshtein.get(str1, str2), levenshtein.get(stripped(str1), stripped(str2)));
 };
 
 const stripped = (str) => {

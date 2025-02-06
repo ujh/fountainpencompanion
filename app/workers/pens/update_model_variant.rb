@@ -24,11 +24,7 @@ module Pens
 
     def best_attr_value(attr)
       attr_values =
-        model_variant
-          .collected_pens
-          .map { |cp| cp.send(attr) }
-          .find_all { |v| v.present? }
-          .tally
+        model_variant.collected_pens.map { |cp| cp.send(attr) }.find_all { |v| v.present? }.tally
       return "" if attr_values.empty?
 
       # When there's more than one value that is the most common, pick the longest
@@ -39,8 +35,7 @@ module Pens
     end
 
     def update_embedding!
-      embedding =
-        model_variant.pen_embedding || model_variant.build_pen_embedding
+      embedding = model_variant.pen_embedding || model_variant.build_pen_embedding
       names = ([model_variant.name] + model_variant.all_names.map(&:pen_name))
       content = names.uniq.sort.map(&:inspect).join(" OR ")
       embedding.update!(content: content)

@@ -3,13 +3,9 @@ class RefreshPens
 
   def perform(ids = [])
     if ids.empty?
-      CollectedPen.in_batches(of: 100) do |batch|
-        RefreshPens.perform_async(batch.pluck(:id))
-      end
+      CollectedPen.in_batches(of: 100) { |batch| RefreshPens.perform_async(batch.pluck(:id)) }
     else
-      CollectedPen
-        .where(id: ids)
-        .find_each { |pen| SaveCollectedPen.new(pen, {}).perform }
+      CollectedPen.where(id: ids).find_each { |pen| SaveCollectedPen.new(pen, {}).perform }
     end
   end
 end

@@ -53,9 +53,7 @@ export default class Table extends React.Component {
           return !od.owned_by_logged_in_user && od.owned_by_user;
         }
       },
-      Cell: (row) => (
-        <ComparisonCell {...row.original} name={this.props.name} />
-      ),
+      Cell: (row) => <ComparisonCell {...row.original} name={this.props.name} />,
       Filter: (props) => <ComparisonFilter {...props} name={this.props.name} />
     };
   }
@@ -200,18 +198,12 @@ export default class Table extends React.Component {
         let searchData = filter.value.replace(/\W/g, "");
         return rowData.match(new RegExp(searchData, "i"));
       },
-      defaultSorted: [
-        { id: "brand_name" },
-        { id: "line_name" },
-        { id: "ink_name" }
-      ],
+      defaultSorted: [{ id: "brand_name" }, { id: "line_name" }, { id: "ink_name" }],
       filterable: true
     };
     let hidden = this.hiddenColumns();
     if (hidden.length) {
-      props.SubComponent = (row) => (
-        <RowSubComponent row={row} hidden={hidden} />
-      );
+      props.SubComponent = (row) => <RowSubComponent row={row} hidden={hidden} />;
       props.SubComponent.displayName = "RowSubComponent";
     } else {
       // Necessary to clear out the previous value on resize

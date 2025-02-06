@@ -47,9 +47,7 @@ describe("<CollectedPens />", () => {
   });
 
   it("swaps to card layout when clicked", async () => {
-    const { findByText, getByTitle, queryByTestId, user } = setup(
-      <CollectedPens />
-    );
+    const { findByText, getByTitle, queryByTestId, user } = setup(<CollectedPens />);
 
     await findByText("Brand");
     const cardLayoutButton = getByTitle("Card layout");

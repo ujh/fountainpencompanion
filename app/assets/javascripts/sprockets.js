@@ -17,12 +17,9 @@
 //= require_tree .
 
 $(function () {
-  $(".admin-macro-cluster-row, .admin-micro-cluster-row").on(
-    "ajax:success",
-    function () {
-      location.reload();
-    }
-  );
+  $(".admin-macro-cluster-row, .admin-micro-cluster-row").on("ajax:success", function () {
+    location.reload();
+  });
 });
 
 $(function () {
@@ -48,8 +45,6 @@ $(function () {
   var ink_review_submission_form = $("#new_ink_review_submission");
   ink_review_submission_form.on("ajax:success", () => {
     ink_review_submission_form.find("input").val("");
-    ink_review_submission_form
-      .find(".form-text")
-      .text("URL successful submitted!");
+    ink_review_submission_form.find(".form-text").text("URL successful submitted!");
   });
 });

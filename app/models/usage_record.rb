@@ -7,11 +7,7 @@ class UsageRecord < ApplicationRecord
 
   validates :used_on, uniqueness: { scope: :currently_inked_id }, presence: true
 
-  delegate :pen_name,
-           :ink_name,
-           :collected_ink,
-           :collected_pen,
-           to: :currently_inked
+  delegate :pen_name, :ink_name, :collected_ink, :collected_pen, to: :currently_inked
 
   def self.to_csv
     CSV.generate(col_sep: ";") do |csv|

@@ -3,12 +3,7 @@ import { groupedInks } from "./groupedInks";
 import { UPDATING, ADD_MACRO_CLUSTER } from "../components/clustering/actions";
 import { assignCluster } from "./assignCluster";
 
-export const createMacroClusterAndAssign = (
-  values,
-  microClusterId,
-  dispatch,
-  afterCreate
-) => {
+export const createMacroClusterAndAssign = (values, microClusterId, dispatch, afterCreate) => {
   dispatch({ type: UPDATING });
   setTimeout(() => {
     postRequest("/admins/macro_clusters.json", {

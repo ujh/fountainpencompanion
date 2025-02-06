@@ -7,9 +7,7 @@ class CreateInkReviewSubmission
   end
 
   def perform
-    if submission.persisted?
-      ProcessInkReviewSubmission.perform_async(submission.id)
-    end
+    ProcessInkReviewSubmission.perform_async(submission.id) if submission.persisted?
     submission
   end
 

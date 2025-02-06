@@ -4,10 +4,7 @@ describe Pens::CreateBrandCluster do
   let(:model) { create(:pens_model) }
 
   it "creates a pen brand" do
-    expect { described_class.new(model).perform }.to change(
-      Pens::Brand,
-      :count
-    ).by(1)
+    expect { described_class.new(model).perform }.to change(Pens::Brand, :count).by(1)
   end
 
   it "assigns the model to the brand" do

@@ -18,8 +18,7 @@ class UpdateMacroCluster
   attr_accessor :cluster
 
   def update_tags
-    cluster.tags =
-      Gutentag::Tag.names_for_scope(cluster.public_collected_inks).to_a
+    cluster.tags = Gutentag::Tag.names_for_scope(cluster.public_collected_inks).to_a
   end
 
   def update_names
@@ -35,18 +34,10 @@ class UpdateMacroCluster
   end
 
   def update_color
-    colors =
-      cluster
-        .collected_inks
-        .with_color
-        .pluck(:color)
-        .map { |c| Color::RGB.from_html(c) }
+    colors = cluster.collected_inks.with_color.pluck(:color).map { |c| Color::RGB.from_html(c) }
     return if colors.blank?
 
-    average =
-      Color::RGB.new(
-        *%i[red green blue].map { |f| average_for(colors, f) }
-      ).html
+    average = Color::RGB.new(*%i[red green blue].map { |f| average_for(colors, f) }).html
     cluster.color = average
   end
 

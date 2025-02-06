@@ -7,16 +7,13 @@ import { CurrentlyInkedSummaryWidget } from "dashboard/currently_inked_summary_w
 
 describe("CurrentlyInkedSummaryWidget", () => {
   const server = setupServer(
-    rest.get(
-      "/dashboard/widgets/currently_inked_summary.json",
-      (req, res, ctx) => {
-        return res(
-          ctx.json({
-            data: { attributes: { active: 1, total: 1, usage_records: 1 } }
-          })
-        );
-      }
-    )
+    rest.get("/dashboard/widgets/currently_inked_summary.json", (req, res, ctx) => {
+      return res(
+        ctx.json({
+          data: { attributes: { active: 1, total: 1, usage_records: 1 } }
+        })
+      );
+    })
   );
 
   beforeAll(() => server.listen());

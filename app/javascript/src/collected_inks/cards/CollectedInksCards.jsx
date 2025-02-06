@@ -10,9 +10,7 @@ export const CollectedInksCards = ({ data, archive, onLayoutChange }) => {
   const [matchOn, setMatchOn] = useState("");
   const visible = fuzzyMatch(data, matchOn);
 
-  const { hiddenFields, onHiddenFieldsChange } = useHiddenFields(
-    storageKeyHiddenFields
-  );
+  const { hiddenFields, onHiddenFieldsChange } = useHiddenFields(storageKeyHiddenFields);
 
   return (
     <div>

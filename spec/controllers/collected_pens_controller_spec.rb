@@ -15,9 +15,7 @@ describe CollectedPensController do
       color: "Orange"
     )
   end
-  let!(:platinum) do
-    create(:collected_pen, brand: "Platinum", model: "3776 Chartres")
-  end
+  let!(:platinum) { create(:collected_pen, brand: "Platinum", model: "3776 Chartres") }
 
   describe "#index" do
     it "requires authentication" do
@@ -82,13 +80,7 @@ describe CollectedPensController do
   describe "#create" do
     it "requires authentication" do
       expect do
-        post :create,
-             params: {
-               collected_pen: {
-                 brand: "Pelikan",
-                 model: "M205"
-               }
-             }
+        post :create, params: { collected_pen: { brand: "Pelikan", model: "M205" } }
         expect(response).to redirect_to(new_user_session_path)
       end.to_not change { CollectedPen.count }
     end
@@ -98,13 +90,7 @@ describe CollectedPensController do
 
       it "creates the data" do
         expect do
-          post :create,
-               params: {
-                 collected_pen: {
-                   brand: "Pelikan",
-                   model: "M205"
-                 }
-               }
+          post :create, params: { collected_pen: { brand: "Pelikan", model: "M205" } }
           expect(response).to redirect_to(collected_pens_path)
         end.to change { user.collected_pens.count }.by(1)
         collected_pen = user.collected_pens.order(:id).last
@@ -114,13 +100,7 @@ describe CollectedPensController do
 
       it "strips out extraneous whitespace" do
         expect do
-          post :create,
-               params: {
-                 collected_pen: {
-                   brand: " Pelikan ",
-                   model: " M205 "
-                 }
-               }
+          post :create, params: { collected_pen: { brand: " Pelikan ", model: " M205 " } }
           expect(response).to redirect_to(collected_pens_path)
         end.to change { user.collected_pens.count }.by(1)
         collected_pen = user.collected_pens.order(:id).last
@@ -133,13 +113,7 @@ describe CollectedPensController do
   describe "#update" do
     it "requires authentication" do
       expect do
-        put :update,
-            params: {
-              id: wing_sung.id,
-              collected_pen: {
-                brand: "Not Wing Sung"
-              }
-            }
+        put :update, params: { id: wing_sung.id, collected_pen: { brand: "Not Wing Sung" } }
         expect(response).to redirect_to(new_user_session_path)
       end.to_not change { wing_sung.reload }
     end
@@ -149,32 +123,16 @@ describe CollectedPensController do
 
       it "updates the pen" do
         expect do
-          put :update,
-              params: {
-                id: wing_sung.id,
-                collected_pen: {
-                  brand: "Not Wing Sung"
-                }
-              }
+          put :update, params: { id: wing_sung.id, collected_pen: { brand: "Not Wing Sung" } }
           expect(response).to redirect_to(collected_pens_path)
-        end.to change { wing_sung.reload.brand }.from("Wing Sung").to(
-          "Not Wing Sung"
-        )
+        end.to change { wing_sung.reload.brand }.from("Wing Sung").to("Not Wing Sung")
       end
 
       it "strips out whitespace" do
         expect do
-          put :update,
-              params: {
-                id: wing_sung.id,
-                collected_pen: {
-                  brand: " Not Wing Sung "
-                }
-              }
+          put :update, params: { id: wing_sung.id, collected_pen: { brand: " Not Wing Sung " } }
           expect(response).to redirect_to(collected_pens_path)
-        end.to change { wing_sung.reload.brand }.from("Wing Sung").to(
-          "Not Wing Sung"
-        )
+        end.to change { wing_sung.reload.brand }.from("Wing Sung").to("Not Wing Sung")
       end
     end
   end

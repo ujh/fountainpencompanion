@@ -19,9 +19,7 @@ class CollectedInk < ApplicationRecord
   belongs_to :user
   has_many :currently_inkeds, dependent: :destroy
   has_many :usage_records, through: :currently_inkeds
-  has_one :newest_currently_inked,
-          -> { order("inked_on desc") },
-          class_name: "CurrentlyInked"
+  has_one :newest_currently_inked, -> { order("inked_on desc") }, class_name: "CurrentlyInked"
 
   belongs_to :micro_cluster, optional: true
 
@@ -97,10 +95,7 @@ class CollectedInk < ApplicationRecord
   end
 
   def self.brand_count
-    reorder(:simplified_brand_name)
-      .group(:simplified_brand_name)
-      .pluck(:simplified_brand_name)
-      .size
+    reorder(:simplified_brand_name).group(:simplified_brand_name).pluck(:simplified_brand_name).size
   end
 
   def self.unique_inks_per_brand(name)
@@ -228,9 +223,7 @@ class CollectedInk < ApplicationRecord
   private
 
   def add_comment
-    unless changed.any? { |c| %w[brand_name line_name ink_name].include?(c) }
-      return
-    end
+    return unless changed.any? { |c| %w[brand_name line_name ink_name].include?(c) }
     return unless comment.blank?
 
     rel =
@@ -246,13 +239,7 @@ class CollectedInk < ApplicationRecord
         .where(kind: kind)
     rel = rel.where("id <> ?", id) if persisted?
 
-    if rel.exists?
-      self.comment = [
-        kind.capitalize.presence,
-        "no.",
-        rel.count + 1
-      ].compact.join(" ")
-    end
+    self.comment = [kind.capitalize.presence, "no.", rel.count + 1].compact.join(" ") if rel.exists?
   end
 
   def simplify
@@ -262,18 +249,12 @@ class CollectedInk < ApplicationRecord
   def color_valid
     return if read_attribute(:color).blank?
     if read_attribute(:color) !~ /#[0-9a-f]{3}([0-9a-f][3])?/i
-      errors.add(
-        :color,
-        "Only valid HTML color codes are supported (e.g #fff or #efefef)"
-      )
+      errors.add(:color, "Only valid HTML color codes are supported (e.g #fff or #efefef)")
       return
     end
 
     Color::RGB.from_html(read_attribute(:color))
   rescue ArgumentError
-    errors.add(
-      :color,
-      "Only valid HTML color codes are supported (e.g #fff or #efefef)"
-    )
+    errors.add(:color, "Only valid HTML color codes are supported (e.g #fff or #efefef)")
   end
 end

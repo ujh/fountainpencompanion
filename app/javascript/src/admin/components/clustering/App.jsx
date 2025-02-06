@@ -31,24 +31,14 @@ export const App = ({
     macroClusterLoader(dispatch);
   }, [macroClusterLoader]);
   useEffect(() => {
-    if (
-      loadingMicroClusters ||
-      loadingMacroClusters ||
-      state.microClusters.length > 0
-    )
-      return;
+    if (loadingMicroClusters || loadingMacroClusters || state.microClusters.length > 0) return;
     const intervalId = setInterval(() => {
       microClusterLoader(dispatch);
     }, 30 * 1000);
     return () => {
       clearInterval(intervalId);
     };
-  }, [
-    loadingMicroClusters,
-    loadingMacroClusters,
-    state.microClusters.length,
-    microClusterLoader
-  ]);
+  }, [loadingMicroClusters, loadingMacroClusters, state.microClusters.length, microClusterLoader]);
   if (!loadingMicroClusters && !loadingMacroClusters) {
     return (
       <DispatchContext.Provider value={dispatch}>

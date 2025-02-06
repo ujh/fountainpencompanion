@@ -7,14 +7,7 @@ import { matchSorter } from "match-sorter";
  * @returns {any[]}
  */
 export function fuzzyMatch(rows, _, filterValue) {
-  const attrs = [
-    "brand_name",
-    "line_name",
-    "ink_name",
-    "maker",
-    "comment",
-    "private_comment"
-  ];
+  const attrs = ["brand_name", "line_name", "ink_name", "maker", "comment", "private_comment"];
   return matchSorter(rows, filterValue.replace(/\s+/gi, ""), {
     keys: [
       (row) => {

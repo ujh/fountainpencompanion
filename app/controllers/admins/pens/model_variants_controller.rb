@@ -3,10 +3,7 @@ class Admins::Pens::ModelVariantsController < Admins::BaseController
     respond_to do |format|
       format.json do
         clusters =
-          Pens::ModelVariant
-            .includes(micro_clusters: :collected_pens)
-            .ordered
-            .page(params[:page])
+          Pens::ModelVariant.includes(micro_clusters: :collected_pens).ordered.page(params[:page])
         render json:
                  PensModelVariantSerializer
                    .new(clusters, index_options(clusters))
@@ -26,20 +23,12 @@ class Admins::Pens::ModelVariantsController < Admins::BaseController
 
   def show
     cluster = Pens::ModelVariant.find(params[:id])
-    render json:
-             PensModelVariantSerializer
-               .new(cluster, show_options)
-               .serializable_hash
-               .to_json
+    render json: PensModelVariantSerializer.new(cluster, show_options).serializable_hash.to_json
   end
 
   def create
     cluster = Pens::ModelVariant.create!(create_params)
-    render json:
-             PensModelVariantSerializer
-               .new(cluster, show_options)
-               .serializable_hash
-               .to_json
+    render json: PensModelVariantSerializer.new(cluster, show_options).serializable_hash.to_json
   end
 
   def destroy
@@ -65,15 +54,7 @@ class Admins::Pens::ModelVariantsController < Admins::BaseController
     {
       include: %i[micro_clusters micro_clusters.collected_pens],
       fields: {
-        collected_pen: %i[
-          brand
-          model
-          color
-          material
-          trim_color
-          filling_system
-          pens_micro_cluster
-        ],
+        collected_pen: %i[brand model color material trim_color filling_system pens_micro_cluster],
         pens_micro_cluster: %i[model_variant collected_pens]
       }
     }

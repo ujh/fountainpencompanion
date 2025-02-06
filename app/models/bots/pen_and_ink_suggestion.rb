@@ -59,44 +59,25 @@ module Bots
 
     def pen_data
       CSV.generate do |csv|
-        csv << [
-          "fountain pen name",
-          "last usage",
-          "usage count",
-          "daily usage count"
-        ]
+        csv << ["fountain pen name", "last usage", "usage count", "daily usage count"]
         pens
           .shuffle
           .take(LIMIT)
           .each do |pen|
             last_usage =
               if pen.last_used_on
-                ActionController::Base.helpers.time_ago_in_words(
-                  pen.last_used_on
-                )
+                ActionController::Base.helpers.time_ago_in_words(pen.last_used_on)
               else
                 "never"
               end
-            csv << [
-              pen.name.inspect,
-              last_usage,
-              pen.usage_count,
-              pen.daily_usage_count
-            ]
+            csv << [pen.name.inspect, last_usage, pen.usage_count, pen.daily_usage_count]
           end
       end
     end
 
     def ink_data
       CSV.generate do |csv|
-        csv << [
-          "ink name",
-          "last usage",
-          "usage count",
-          "daily usage count",
-          "tags",
-          "description"
-        ]
+        csv << ["ink name", "last usage", "usage count", "daily usage count", "tags", "description"]
 
         inks
           .shuffle
@@ -104,9 +85,7 @@ module Bots
           .each do |ink|
             last_usage =
               if ink.last_used_on
-                ActionController::Base.helpers.time_ago_in_words(
-                  ink.last_used_on
-                )
+                ActionController::Base.helpers.time_ago_in_words(ink.last_used_on)
               else
                 "never"
               end
@@ -127,11 +106,7 @@ module Bots
         user
           .collected_pens
           .active
-          .includes(
-            :currently_inkeds,
-            :usage_records,
-            newest_currently_inked: :last_usage
-          )
+          .includes(:currently_inkeds, :usage_records, newest_currently_inked: :last_usage)
           .reject { |pen| pen.inked? }
     end
 

@@ -8,13 +8,7 @@ describe SaveCollectedInk do
   end
 
   def default!(params = {})
-    add!(
-      {
-        brand_name: "Pilot",
-        line_name: "Iroshizuku",
-        ink_name: "Kon-Peki"
-      }.merge(params)
-    )
+    add!({ brand_name: "Pilot", line_name: "Iroshizuku", ink_name: "Kon-Peki" }.merge(params))
   end
 
   it "schedules a AssignMicroCluster job" do

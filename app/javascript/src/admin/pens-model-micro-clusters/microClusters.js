@@ -1,10 +1,7 @@
 import Jsona from "jsona";
 
 import { getRequest, putRequest } from "../../fetch";
-import {
-  SET_LOADING_PERCENTAGE,
-  SET_MICRO_CLUSTERS
-} from "../components/clustering/actions";
+import { SET_LOADING_PERCENTAGE, SET_MICRO_CLUSTERS } from "../components/clustering/actions";
 import { groupedPens } from "./groupedPens";
 
 export const getMicroClusters = (dispatch) => {
@@ -72,8 +69,7 @@ export const assignCluster = (microClusterId, macroClusterId) =>
         mc.entries = mc.model_variants;
         delete mc.model_variants;
       });
-      microCluster.macro_cluster.micro_clusters =
-        microCluster.macro_cluster.model_micro_clusters;
+      microCluster.macro_cluster.micro_clusters = microCluster.macro_cluster.model_micro_clusters;
       return microCluster;
     });
 

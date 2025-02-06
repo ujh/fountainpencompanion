@@ -74,8 +74,7 @@ class Api::V1::CurrentlyInkedController < Api::V1::BaseController
     if params.dig(:fields, :currently_inked).present?
       params[:fields][:currently_inked].split(",").map(&:strip)
     else
-      CurrentlyInkedSerializer.attributes_to_serialize.keys +
-        %i[collected_ink collected_pen]
+      CurrentlyInkedSerializer.attributes_to_serialize.keys + %i[collected_ink collected_pen]
     end
   end
 

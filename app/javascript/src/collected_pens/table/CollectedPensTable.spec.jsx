@@ -2,10 +2,7 @@
 import React from "react";
 import { render } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import {
-  CollectedPensTable,
-  storageKeyHiddenFields
-} from "./CollectedPensTable";
+import { CollectedPensTable, storageKeyHiddenFields } from "./CollectedPensTable";
 
 const setup = (jsx, options) => {
   return {
@@ -99,8 +96,7 @@ describe("<CollectedPensTable />", () => {
       />
     );
     const headerCell = getAllByRole("columnheader").find(
-      (e) =>
-        e.innerHTML.includes("Usage") && !e.innerHTML.includes("Daily Usage")
+      (e) => e.innerHTML.includes("Usage") && !e.innerHTML.includes("Daily Usage")
     );
 
     if (!headerCell) {

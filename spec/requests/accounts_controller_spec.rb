@@ -84,9 +84,7 @@ describe AccountsController do
         get "/account.jsonapi"
         expect(response).to be_successful
         json = JSON.parse(response.body)
-        expect(json["data"]["relationships"]["collected_inks"]["data"]).to eq(
-          []
-        )
+        expect(json["data"]["relationships"]["collected_inks"]["data"]).to eq([])
       end
     end
   end
@@ -115,9 +113,10 @@ describe AccountsController do
       end
 
       it "fires off a after save job if successful" do
-        expect do
-          put "/account", params: { user: { name: "new name" } }
-        end.to change(AfterUserSaved.jobs, :count).by(1)
+        expect do put "/account", params: { user: { name: "new name" } } end.to change(
+          AfterUserSaved.jobs,
+          :count
+        ).by(1)
       end
     end
   end

@@ -64,17 +64,11 @@ const actualReducer = (state, { type, payload }) => {
     case NEXT:
       return changeIndex(state, state.index + 1);
     case NEXT_MACRO_CLUSTER:
-      return changeSelectedMacroClusterIndex(
-        state,
-        state.selectedMacroClusterIndex + 1
-      );
+      return changeSelectedMacroClusterIndex(state, state.selectedMacroClusterIndex + 1);
     case PREVIOUS:
       return changeIndex(state, state.index - 1);
     case PREVIOUS_MACRO_CLUSTER:
-      return changeSelectedMacroClusterIndex(
-        state,
-        state.selectedMacroClusterIndex - 1
-      );
+      return changeSelectedMacroClusterIndex(state, state.selectedMacroClusterIndex - 1);
     case REMOVE_MICRO_CLUSTER:
       return removeMicroCluster(state, payload);
     case SET_MACRO_CLUSTERS:
@@ -83,16 +77,11 @@ const actualReducer = (state, { type, payload }) => {
       // sortBy is a stable sort. If we just by number of entries we end up with
       // reverse alphabetical order for all clusters with the same number of entries.
       // We need to do a reverse first, to get around that.
-      const microClusters = _.reverse(
-        _.sortBy(_.reverse(payload), "entries.length")
-      );
+      const microClusters = _.reverse(_.sortBy(_.reverse(payload), "entries.length"));
       return {
         ...state,
         microClusters,
-        selectedMicroClusters: selectMicroClusters(
-          state.selectedBrands,
-          microClusters
-        ),
+        selectedMicroClusters: selectMicroClusters(state.selectedBrands, microClusters),
         loadingMicroClusters: false
       };
     }
@@ -126,8 +115,7 @@ const updateActiveCluster = (state) => {
   const activeCluster = state.selectedMicroClusters[index];
   let selectedMacroClusterIndex = state.selectedMacroClusterIndex;
   if (activeCluster && state.activeCluster) {
-    if (activeCluster.id != state.activeCluster.id)
-      selectedMacroClusterIndex = 0;
+    if (activeCluster.id != state.activeCluster.id) selectedMacroClusterIndex = 0;
   }
   return { ...state, index, activeCluster, selectedMacroClusterIndex };
 };
@@ -135,10 +123,7 @@ const updateActiveCluster = (state) => {
 const removeMicroCluster = (state, payload) => {
   let selectedBrands;
   const microClusters = withoutElement(payload, state.microClusters);
-  let selectedMicroClusters = withoutElement(
-    payload,
-    state.selectedMicroClusters
-  );
+  let selectedMicroClusters = withoutElement(payload, state.selectedMicroClusters);
   if (selectedMicroClusters.length > 0) {
     selectedBrands = state.selectedBrands;
   } else {
@@ -158,10 +143,7 @@ const updateSelectedBrands = (state, newSelectedBrands) => {
   return {
     ...state,
     selectedBrands,
-    selectedMicroClusters: selectMicroClusters(
-      selectedBrands,
-      state.microClusters
-    )
+    selectedMicroClusters: selectMicroClusters(selectedBrands, state.microClusters)
   };
 };
 
@@ -174,9 +156,7 @@ const changeIndex = (state, newIndex) => {
 };
 
 const withoutElement = (element, clusters) => {
-  return clusters.filter(
-    (c) => !(c.id == element.id && c.type == element.type)
-  );
+  return clusters.filter((c) => !(c.id == element.id && c.type == element.type));
 };
 
 const selectMicroClusters = (selectedBrands, microClusters) => {

@@ -39,14 +39,7 @@ class Api::V1::CollectedPensController < Api::V1::BaseController
   end
 
   def options
-    {
-      fields: {
-        collected_pen: collected_pen_fields
-      },
-      meta: {
-        pagination: pagination
-      }
-    }
+    { fields: { collected_pen: collected_pen_fields }, meta: { pagination: pagination } }
   end
 
   def pagination

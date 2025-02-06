@@ -3,8 +3,7 @@ require "rails_helper"
 describe FetchEmbedding do
   it "fetches the embedding" do
     vector = Array.new(1536, 0.0)
-    embedding =
-      create(:pen_embedding, owner: create(:collected_pen), content: "content")
+    embedding = create(:pen_embedding, owner: create(:collected_pen), content: "content")
     stub =
       stub_request(:post, "https://api.openai.com/v1/embeddings").with(
         body: { model: "text-embedding-3-small", input: "content" }.to_json

@@ -55,21 +55,15 @@ export const SwabCard = (props) => {
     hiddenFields
   } = props;
 
-  const fullName = ["brand_name", "line_name", "ink_name"]
-    .map((a) => props[a])
-    .join(" ");
+  const fullName = ["brand_name", "line_name", "ink_name"].map((a) => props[a]).join(" ");
 
   const isVisible = (field) => props[field] && !hiddenFields.includes(field);
-  const hasUsage =
-    isVisible("usage") || isVisible("daily_usage") || isVisible("last_used_on");
+  const hasUsage = isVisible("usage") || isVisible("daily_usage") || isVisible("last_used_on");
 
   return (
     <Card className="fpc-swab-card">
       {color ? (
-        <Card.Image
-          className="fpc-swab-card__swab"
-          style={{ "--swab-color": color }}
-        />
+        <Card.Image className="fpc-swab-card__swab" style={{ "--swab-color": color }} />
       ) : null}
       <Card.Body>
         <Card.Title>
@@ -100,8 +94,7 @@ export const SwabCard = (props) => {
           <>
             <div className="small text-secondary">Usage</div>
             <Card.Text data-testid="usage">
-              {String(usage)} inked -{" "}
-              <LastUsageDisplay last_used_on={last_used_on} /> (
+              {String(usage)} inked - <LastUsageDisplay last_used_on={last_used_on} /> (
               {String(daily_usage)} daily usages)
             </Card.Text>
           </>
@@ -109,34 +102,19 @@ export const SwabCard = (props) => {
         {isVisible("created_at") ? (
           <>
             <div className="small text-secondary">Added On</div>
-            <Card.Text>
-              {<RelativeDate date={created_at} relativeAsDefault={false} />}
-            </Card.Text>
+            <Card.Text>{<RelativeDate date={created_at} relativeAsDefault={false} />}</Card.Text>
           </>
         ) : null}
         <div className="fpc-swab-card__footer">
           <div className="fpc-swab-card__badges">
-            {isPrivate ? (
-              <span className="badge text-bg-info">Private</span>
-            ) : null}
-            {isVisible("swabbed") ? (
-              <span className="badge text-bg-success">Swabbed</span>
-            ) : null}
-            {isVisible("used") ? (
-              <span className="badge text-bg-success">Used</span>
-            ) : null}
-            {isVisible("kind") ? (
-              <span className="badge text-bg-secondary">{kind}</span>
-            ) : null}
+            {isPrivate ? <span className="badge text-bg-info">Private</span> : null}
+            {isVisible("swabbed") ? <span className="badge text-bg-success">Swabbed</span> : null}
+            {isVisible("used") ? <span className="badge text-bg-success">Used</span> : null}
+            {isVisible("kind") ? <span className="badge text-bg-secondary">{kind}</span> : null}
             {isVisible("tags") && Array.isArray(tags)
               ? tags.map(({ id, name }) => (
-                  <span
-                    key={`ink-tag-${id}`}
-                    className="tag badge text-bg-secondary"
-                  >
-                    <a href={`/inks?tag=${fixedEncodeURIComponent(name)}`}>
-                      {name}
-                    </a>
+                  <span key={`ink-tag-${id}`} className="tag badge text-bg-secondary">
+                    <a href={`/inks?tag=${fixedEncodeURIComponent(name)}`}>{name}</a>
                   </span>
                 ))
               : null}
@@ -145,30 +123,15 @@ export const SwabCard = (props) => {
                   cluster_tags,
                   tags.map((t) => t.name)
                 ).map((tag) => (
-                  <span
-                    key={`ink-tag-${tag}`}
-                    className="tag badge text-bg-secondary cluster-tag"
-                  >
-                    <a href={`/inks?tag=${fixedEncodeURIComponent(tag)}`}>
-                      {tag}
-                    </a>
+                  <span key={`ink-tag-${tag}`} className="tag badge text-bg-secondary cluster-tag">
+                    <a href={`/inks?tag=${fixedEncodeURIComponent(tag)}`}>{tag}</a>
                   </span>
                 ))
               : null}
           </div>
           <div className="fpc-swab-card__actions">
-            <EditButton
-              className="me-2"
-              name={fullName}
-              id={id}
-              archived={archived}
-            />
-            <ArchiveButton
-              className="me-2"
-              name={fullName}
-              id={id}
-              archived={archived}
-            />
+            <EditButton className="me-2" name={fullName} id={id} archived={archived} />
+            <ArchiveButton className="me-2" name={fullName} id={id} archived={archived} />
             <DeleteButton name={fullName} id={id} archived={archived} />
           </div>
         </div>

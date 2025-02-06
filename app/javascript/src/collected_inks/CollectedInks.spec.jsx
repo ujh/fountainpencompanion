@@ -115,9 +115,7 @@ describe("<CollectedInks />", () => {
   afterAll(() => server.close());
 
   it("renders the app", async () => {
-    const { findByText, queryByText } = setup(
-      <CollectedInks archive={false} />
-    );
+    const { findByText, queryByText } = setup(<CollectedInks archive={false} />);
 
     const result = await findByText("Yozakura");
 
@@ -127,9 +125,7 @@ describe("<CollectedInks />", () => {
   });
 
   it("swaps to card layout when clicked", async () => {
-    const { findByText, getByTitle, getByTestId, user } = setup(
-      <CollectedInks archive={false} />
-    );
+    const { findByText, getByTitle, getByTestId, user } = setup(<CollectedInks archive={false} />);
 
     await findByText("Yozakura");
     const cardLayoutButton = getByTitle("Card layout");
@@ -142,9 +138,7 @@ describe("<CollectedInks />", () => {
   it("remembers layout from localStorage", async () => {
     localStorage.setItem(storageKeyLayout, "card");
 
-    const { findByText, getByTestId } = setup(
-      <CollectedInks archive={false} />
-    );
+    const { findByText, getByTestId } = setup(<CollectedInks archive={false} />);
 
     await findByText("Sailor Shikiori Yozakura");
 

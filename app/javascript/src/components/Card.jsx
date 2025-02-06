@@ -10,9 +10,7 @@ Card.Image = ({ className = "", ...rest }) => (
 );
 Card.Image.displayName = "Card.Image";
 
-Card.Body = ({ className = "", ...rest }) => (
-  <div className={`card-body ${className}`} {...rest} />
-);
+Card.Body = ({ className = "", ...rest }) => <div className={`card-body ${className}`} {...rest} />;
 Card.Body.displayName = "Card.Body";
 
 Card.Title = ({ className = "", ...rest }) => (
@@ -20,7 +18,5 @@ Card.Title = ({ className = "", ...rest }) => (
 );
 Card.Title.displayName = "Card.Title";
 
-Card.Text = ({ className = "", ...rest }) => (
-  <p className={`card-text ${className}`} {...rest} />
-);
+Card.Text = ({ className = "", ...rest }) => <p className={`card-text ${className}`} {...rest} />;
 Card.Text.displayName = "Card.Text";

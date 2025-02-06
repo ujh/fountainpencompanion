@@ -26,16 +26,11 @@ class Users::RegistrationsController < Devise::RegistrationsController
       end
     response =
       conn.post("/siteverify") do |req|
-        req.body = {
-          secret: ENV["HCAPTCHA_SECRET"],
-          response: params["h-captcha-response"]
-        }
+        req.body = { secret: ENV["HCAPTCHA_SECRET"], response: params["h-captcha-response"] }
       end
 
     return if response.body["success"]
     data["bot"] = true
-    data[
-      "bot_reason"
-    ] = "failed-captcha(#{response.body["error-codes"].join(",")})"
+    data["bot_reason"] = "failed-captcha(#{response.body["error-codes"].join(",")})"
   end
 end

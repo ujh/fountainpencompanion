@@ -49,11 +49,7 @@ export const CurrentlyInkedTable = ({ currentlyInked, onLayoutChange }) => {
         accessor: "collected_ink.color",
         sortType: colorSort,
         Cell: ({ cell: { value } }) => {
-          return (
-            <div
-              style={{ backgroundColor: value, width: "45px", height: "45px" }}
-            ></div>
-          );
+          return <div style={{ backgroundColor: value, width: "45px", height: "45px" }}></div>;
         }
       },
       {
@@ -95,9 +91,7 @@ export const CurrentlyInkedTable = ({ currentlyInked, onLayoutChange }) => {
       {
         Header: "Date Inked",
         accessor: "inked_on",
-        Cell: ({ cell: { value } }) => (
-          <RelativeDate date={value} relativeAsDefault={false} />
-        )
+        Cell: ({ cell: { value } }) => <RelativeDate date={value} relativeAsDefault={false} />
       },
       {
         Header: "Last Used",
@@ -124,9 +118,7 @@ export const CurrentlyInkedTable = ({ currentlyInked, onLayoutChange }) => {
   );
 
   const defaultHiddenFields = useMemo(() => {
-    let hideIfNoneWithValue = ["comment"].filter(
-      (n) => !currentlyInked.some((e) => e[n])
-    );
+    let hideIfNoneWithValue = ["comment"].filter((n) => !currentlyInked.some((e) => e[n]));
     return hideIfNoneWithValue;
   }, [currentlyInked]);
 

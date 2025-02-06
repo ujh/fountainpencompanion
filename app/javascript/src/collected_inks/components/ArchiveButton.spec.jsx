@@ -5,9 +5,7 @@ import { ArchiveButton } from "./ArchiveButton";
 
 describe("<ArchiveButton />", () => {
   it("renders a button to archive if archived equals false", () => {
-    const { getByRole } = render(
-      <ArchiveButton name="Pilot Blue" id="1" archived={false} />
-    );
+    const { getByRole } = render(<ArchiveButton name="Pilot Blue" id="1" archived={false} />);
 
     const link = getByRole("link");
 
@@ -16,9 +14,7 @@ describe("<ArchiveButton />", () => {
   });
 
   it("renders a button to unarchive if archived equals true", () => {
-    const { getByRole } = render(
-      <ArchiveButton name="Pilot Blue" id="1" archived={true} />
-    );
+    const { getByRole } = render(<ArchiveButton name="Pilot Blue" id="1" archived={true} />);
 
     const link = getByRole("link");
 

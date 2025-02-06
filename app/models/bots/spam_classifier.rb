@@ -50,9 +50,7 @@ module Bots
     def formatted_as_csv(users)
       CSV.generate do |csv|
         csv << ["email", "name", "blurb", "time zone"]
-        users.each do |user|
-          csv << [user.email, user.name, user.blurb, user.time_zone]
-        end
+        users.each { |user| csv << [user.email, user.name, user.blurb, user.time_zone] }
       end
     end
   end

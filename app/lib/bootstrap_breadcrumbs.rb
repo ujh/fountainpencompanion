@@ -7,10 +7,7 @@ class BootstrapBreadcrumbs < BreadcrumbsOnRails::Breadcrumbs::SimpleBuilder
     @options[:separator] ||= ""
 
     @context.content_tag(@options[:outer_tag], class: "breadcrumb") do
-      @elements
-        .collect { |element| render_element(element) }
-        .join(@options[:separator])
-        .html_safe
+      @elements.collect { |element| render_element(element) }.join(@options[:separator]).html_safe
     end
   end
 

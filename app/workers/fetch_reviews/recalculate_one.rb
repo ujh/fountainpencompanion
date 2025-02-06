@@ -5,12 +5,7 @@ class FetchReviews
 
     def perform(ink_review_id)
       self.ink_review = InkReview.find(ink_review_id)
-      ink_review.update!(
-        title: title,
-        description: description,
-        image: image,
-        author: author
-      )
+      ink_review.update!(title: title, description: description, image: image, author: author)
     end
 
     private

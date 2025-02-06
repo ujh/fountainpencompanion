@@ -39,11 +39,7 @@ export const CollectedInks = ({ archive }) => {
   if (layout ? layout === "card" : screen.isSmall) {
     if (inks) {
       return (
-        <CollectedInksCards
-          data={visibleInks}
-          archive={archive}
-          onLayoutChange={onLayoutChange}
-        />
+        <CollectedInksCards data={visibleInks} archive={archive} onLayoutChange={onLayoutChange} />
       );
     } else {
       return <CardsPlaceholder />;
@@ -51,11 +47,7 @@ export const CollectedInks = ({ archive }) => {
   } else {
     if (inks) {
       return (
-        <CollectedInksTable
-          data={visibleInks}
-          archive={archive}
-          onLayoutChange={onLayoutChange}
-        />
+        <CollectedInksTable data={visibleInks} archive={archive} onLayoutChange={onLayoutChange} />
       );
     } else {
       return <TablePlaceholder />;

@@ -32,9 +32,10 @@ describe Admins::Pens::BrandClustersController do
       before(:each) { sign_in(admin) }
 
       it "creates the new brand" do
-        expect do
-          post "/admins/pens/brand_clusters?model_id=#{model.id}"
-        end.to change(Pens::Brand, :count).by(1)
+        expect do post "/admins/pens/brand_clusters?model_id=#{model.id}" end.to change(
+          Pens::Brand,
+          :count
+        ).by(1)
       end
     end
   end
@@ -53,9 +54,9 @@ describe Admins::Pens::BrandClustersController do
       before(:each) { sign_in(admin) }
 
       it "updates the brand" do
-        expect do
-          put "/admins/pens/brand_clusters/#{model.id}?brand_id=#{brand.id}"
-        end.to change { model.reload.pen_brand }.from(old_brand).to(brand)
+        expect do put "/admins/pens/brand_clusters/#{model.id}?brand_id=#{brand.id}" end.to change {
+          model.reload.pen_brand
+        }.from(old_brand).to(brand)
       end
     end
   end

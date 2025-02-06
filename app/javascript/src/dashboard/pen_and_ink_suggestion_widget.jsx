@@ -101,10 +101,7 @@ const AskForSuggestion = ({
       {Object.entries(inkCounts) && (
         <div className="filter">
           Restrict selection to ink type:{" "}
-          <select
-            defaultValue={inkKind}
-            onChange={(e) => setInkKind(e.target.value)}
-          >
+          <select defaultValue={inkKind} onChange={(e) => setInkKind(e.target.value)}>
             <option key="all" value=""></option>
             {Object.entries(inkCounts).map(([k, v]) => (
               <option key={k} value={k}>
@@ -140,10 +137,7 @@ const ShowSuggestion = ({
   const url = `/currently_inked/new?${params.join("&")}`;
   return (
     <div>
-      <div
-        className="suggestion"
-        dangerouslySetInnerHTML={{ __html: suggestion.message }}
-      ></div>
+      <div className="suggestion" dangerouslySetInnerHTML={{ __html: suggestion.message }}></div>
       <div className="buttons">
         <a className="btn btn-success" href={url}>
           Ink it Up!

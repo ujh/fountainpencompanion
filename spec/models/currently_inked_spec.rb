@@ -78,12 +78,7 @@ describe CurrentlyInked do
 
   describe "#collected_pens_for_active_select" do
     let(:pen) { create(:collected_pen, user: user) }
-    let(:all_pens) do
-      [
-        pen,
-        create(:collected_pen, user: user, brand: "Pilot", model: "Custom 74")
-      ]
-    end
+    let(:all_pens) { [pen, create(:collected_pen, user: user, brand: "Pilot", model: "Custom 74")] }
 
     before { all_pens }
 
@@ -96,9 +91,7 @@ describe CurrentlyInked do
         collected_pen: pen,
         collected_ink: create(:collected_ink, user: user)
       )
-      expect(subject.collected_pens_for_active_select).to match_array(
-        all_pens - [pen]
-      )
+      expect(subject.collected_pens_for_active_select).to match_array(all_pens - [pen])
     end
 
     it "includes pens that have an archived currently inked" do
@@ -197,9 +190,7 @@ describe CurrentlyInked do
     end
 
     it "archives the entry and creates a new one" do
-      expect do subject.refill! end.to change {
-        user.currently_inkeds.count
-      }.by(1)
+      expect do subject.refill! end.to change { user.currently_inkeds.count }.by(1)
       expect(subject).to be_archived
       newest_ci = user.currently_inkeds.last
       expect(newest_ci.collected_ink).to eq(ink)
@@ -249,15 +240,7 @@ describe CurrentlyInked do
 
   describe "nib" do
     let(:ink) { create(:collected_ink, user: user) }
-    let(:pen) do
-      create(
-        :collected_pen,
-        user: user,
-        brand: "Pilot",
-        model: "Custom 74",
-        nib: "M"
-      )
-    end
+    let(:pen) { create(:collected_pen, user: user, brand: "Pilot", model: "Custom 74", nib: "M") }
 
     before do
       subject.collected_pen = pen
@@ -266,9 +249,9 @@ describe CurrentlyInked do
     end
 
     it "sets the nib if entry is archived" do
-      expect do subject.update(archived_on: Date.today) end.to change {
-        subject.nib
-      }.from("").to(pen.nib)
+      expect do subject.update(archived_on: Date.today) end.to change { subject.nib }.from("").to(
+        pen.nib
+      )
     end
 
     it "does not change the nib when already archived" do
@@ -285,9 +268,7 @@ describe CurrentlyInked do
 
     it "clears the nib when unarchiving" do
       subject.update(archived_on: Date.today)
-      expect do subject.update(archived_on: nil) end.to change {
-        subject.nib
-      }.from(pen.nib).to("")
+      expect do subject.update(archived_on: nil) end.to change { subject.nib }.from(pen.nib).to("")
     end
   end
 
@@ -305,16 +286,12 @@ describe CurrentlyInked do
     end
 
     it "uses the nib from the pen" do
-      expect(subject.pen_name).to eq(
-        "Pilot Custom 74, orange, plastic, gold, M"
-      )
+      expect(subject.pen_name).to eq("Pilot Custom 74, orange, plastic, gold, M")
     end
 
     it "uses the nib from self" do
       subject.nib = "my nib"
-      expect(subject.pen_name).to eq(
-        "Pilot Custom 74, orange, plastic, gold, my nib"
-      )
+      expect(subject.pen_name).to eq("Pilot Custom 74, orange, plastic, gold, my nib")
     end
   end
 
@@ -324,9 +301,7 @@ describe CurrentlyInked do
     it "deletes usage records" do
       create(:usage_record, currently_inked: subject)
       expect do
-        expect do subject.destroy end.to change { CurrentlyInked.count }.from(
-          1
-        ).to(0)
+        expect do subject.destroy end.to change { CurrentlyInked.count }.from(1).to(0)
       end.to change { UsageRecord.count }.from(1).to(0)
     end
   end
@@ -379,9 +354,7 @@ describe CurrentlyInked do
   end
 
   describe "#unarchivable?" do
-    subject(:currently_inked) do
-      create(:currently_inked, archived_on: 1.day.ago)
-    end
+    subject(:currently_inked) { create(:currently_inked, archived_on: 1.day.ago) }
 
     it "returns true if the pen is unused and in the collection" do
       expect(currently_inked).to be_unarchivable

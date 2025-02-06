@@ -26,10 +26,7 @@ class Admins::GraphsController < Admins::BaseController
 
   def signups
     [
-      {
-        data: build(User.active.not_spam, range: 2.months),
-        name: "Confirmed signups"
-      },
+      { data: build(User.active.not_spam, range: 2.months), name: "Confirmed signups" },
       {
         data: build(User.where(confirmed_at: nil, bot: false), range: 2.months),
         name: "Unconfirmed & not bot"
@@ -47,10 +44,7 @@ class Admins::GraphsController < Admins::BaseController
       .pluck(:bot_reason)
       .reject { |reason| reason.blank? }
       .map do |reason|
-        {
-          name: reason,
-          data: build(User.bots.where(bot_reason: reason), range: 2.months)
-        }
+        { name: reason, data: build(User.bots.where(bot_reason: reason), range: 2.months) }
       end
   end
 
@@ -62,10 +56,7 @@ class Admins::GraphsController < Admins::BaseController
       .pluck(:spam_reason)
       .reject { |reason| reason.blank? }
       .map do |reason|
-        {
-          name: reason,
-          data: build(User.where(spam_reason: reason), range: 2.months)
-        }
+        { name: reason, data: build(User.where(spam_reason: reason), range: 2.months) }
       end
   end
 
@@ -84,11 +75,7 @@ class Admins::GraphsController < Admins::BaseController
               .where(name: name)
               .group("date_trunc('hour', created_at)")
               .order("hour asc")
-              .pluck(
-                Arel.sql(
-                  "date_trunc('hour', created_at) as hour, count(*) as hour_count"
-                )
-              )
+              .pluck(Arel.sql("date_trunc('hour', created_at) as hour, count(*) as hour_count"))
               .map { |d| [d.first.to_i * 1000, d.last] }
         }
       end
@@ -116,9 +103,7 @@ class Admins::GraphsController < Admins::BaseController
       .where("created_at > ?", range.ago)
       .group("date_trunc('day', created_at)")
       .order("day asc")
-      .pluck(
-        Arel.sql("date_trunc('day', created_at) as day, count(*) as day_count")
-      )
+      .pluck(Arel.sql("date_trunc('day', created_at) as day, count(*) as day_count"))
       .map { |d| [d.first.to_i * 1000, d.last] }
   end
 end

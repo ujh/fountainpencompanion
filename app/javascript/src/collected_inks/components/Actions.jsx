@@ -32,10 +32,7 @@ export const Actions = ({
     [onFilterChange, numberOfInks]
   );
 
-  const { isSwitchedOn, onSwitchChange } = useFieldSwitcher(
-    hiddenFields,
-    onHiddenFieldsChange
-  );
+  const { isSwitchedOn, onSwitchChange } = useFieldSwitcher(hiddenFields, onHiddenFieldsChange);
 
   return (
     <div>
@@ -92,17 +89,13 @@ export const Actions = ({
               </Switch>
               <Switch
                 checked={isSwitchedOn("daily_usage")}
-                onChange={(e) =>
-                  onSwitchChange(e.target.checked, "daily_usage")
-                }
+                onChange={(e) => onSwitchChange(e.target.checked, "daily_usage")}
               >
                 Show&nbsp;daily&nbsp;usage
               </Switch>
               <Switch
                 checked={isSwitchedOn("last_used_on")}
-                onChange={(e) =>
-                  onSwitchChange(e.target.checked, "last_used_on")
-                }
+                onChange={(e) => onSwitchChange(e.target.checked, "last_used_on")}
               >
                 Show&nbsp;last&nbsp;usage
               </Switch>
@@ -120,9 +113,7 @@ export const Actions = ({
               </Switch>
               <Switch
                 checked={isSwitchedOn("private_comment")}
-                onChange={(e) =>
-                  onSwitchChange(e.target.checked, "private_comment")
-                }
+                onChange={(e) => onSwitchChange(e.target.checked, "private_comment")}
               >
                 Show&nbsp;private&nbsp;comment
               </Switch>
@@ -134,9 +125,7 @@ export const Actions = ({
               </Switch>
               <Switch
                 checked={isSwitchedOn("cluster_tags")}
-                onChange={(e) =>
-                  onSwitchChange(e.target.checked, "cluster_tags")
-                }
+                onChange={(e) => onSwitchChange(e.target.checked, "cluster_tags")}
               >
                 Show&nbsp;cluster&nbsp;tags
               </Switch>
@@ -160,10 +149,7 @@ export const Actions = ({
             <a className="btn btn-sm btn-link" href="/collected_inks.csv">
               Export
             </a>
-            <a
-              className="btn btn-sm btn-link"
-              href="/collected_inks?search[archive]=true"
-            >
+            <a className="btn btn-sm btn-link" href="/collected_inks?search[archive]=true">
               Archive
             </a>
           </>

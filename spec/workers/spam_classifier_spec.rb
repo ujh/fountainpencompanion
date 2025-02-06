@@ -5,9 +5,7 @@ describe SpamClassifier do
 
   context "user classified as spam" do
     before do
-      allow_any_instance_of(Bots::SpamClassifier).to receive(:run).and_return(
-        true
-      )
+      allow_any_instance_of(Bots::SpamClassifier).to receive(:run).and_return(true)
       described_class.new.perform(user.id)
       user.reload
     end
@@ -23,9 +21,7 @@ describe SpamClassifier do
 
   context "user not classified as spam" do
     before do
-      allow_any_instance_of(Bots::SpamClassifier).to receive(:run).and_return(
-        false
-      )
+      allow_any_instance_of(Bots::SpamClassifier).to receive(:run).and_return(false)
       described_class.new.perform(user.id)
       user.reload
     end

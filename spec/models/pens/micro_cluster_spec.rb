@@ -8,8 +8,7 @@ describe Pens::MicroCluster do
     end
 
     it "does not return assigned micro clusters" do
-      cluster =
-        create(:pens_micro_cluster, model_variant: create(:pens_model_variant))
+      cluster = create(:pens_micro_cluster, model_variant: create(:pens_model_variant))
       expect(described_class.unassigned).not_to include(cluster)
     end
   end
@@ -44,8 +43,6 @@ describe Pens::MicroCluster do
 
     expect(cluster.reload.collected_pens).to eq([collected_pen])
     # Requires stuff to be properly set up for eager loading to work
-    expect(
-      described_class.includes(:collected_pens).first.collected_pens
-    ).to eq([collected_pen])
+    expect(described_class.includes(:collected_pens).first.collected_pens).to eq([collected_pen])
   end
 end

@@ -24,9 +24,7 @@ describe("reducer", () => {
 
     it("adds the new macro cluster", () => {
       const newState = reducer(initalState, action);
-      expect(newState.macroClusters).toStrictEqual([
-        { id: 1, type: "macro_cluster" }
-      ]);
+      expect(newState.macroClusters).toStrictEqual([{ id: 1, type: "macro_cluster" }]);
     });
 
     it("increments the counter", () => {
@@ -55,9 +53,7 @@ describe("reducer", () => {
         {
           id: 2,
           type: "macro_cluster",
-          micro_clusters: [
-            { id: 41, type: "micro_cluster", macro_cluster: { id: 2 } }
-          ]
+          micro_clusters: [{ id: 41, type: "micro_cluster", macro_cluster: { id: 2 } }]
         }
       ]);
     });
@@ -153,9 +149,7 @@ describe("reducer", () => {
         type: REMOVE_MICRO_CLUSTER,
         payload: { id: 1, type: "micro_cluster" }
       });
-      expect(newState.microClusters).toStrictEqual([
-        { id: 2, type: "micro_cluster" }
-      ]);
+      expect(newState.microClusters).toStrictEqual([{ id: 2, type: "micro_cluster" }]);
     });
 
     it("removes the cluster from selectedMicroClusters", () => {
@@ -170,9 +164,7 @@ describe("reducer", () => {
         type: REMOVE_MICRO_CLUSTER,
         payload: { id: 1, type: "micro_cluster" }
       });
-      expect(newState.selectedMicroClusters).toStrictEqual([
-        { id: 2, type: "micro_cluster" }
-      ]);
+      expect(newState.selectedMicroClusters).toStrictEqual([{ id: 2, type: "micro_cluster" }]);
     });
 
     it("resets selection when last selected micro clusters removed", () => {
@@ -187,9 +179,7 @@ describe("reducer", () => {
         payload: { id: 1, type: "micro_cluster" }
       });
       expect(newState.selectedBrands).toStrictEqual([]);
-      expect(newState.selectedMicroClusters).toStrictEqual([
-        { id: 2, type: "micro_cluster" }
-      ]);
+      expect(newState.selectedMicroClusters).toStrictEqual([{ id: 2, type: "micro_cluster" }]);
     });
 
     it("does not reset the select when selected micro clusters present", () => {
@@ -204,9 +194,7 @@ describe("reducer", () => {
         payload: { id: 2, type: "micro_cluster" }
       });
       expect(newState.selectedBrands).toStrictEqual(["selected brands"]);
-      expect(newState.selectedMicroClusters).toStrictEqual([
-        { id: 1, type: "micro_cluster" }
-      ]);
+      expect(newState.selectedMicroClusters).toStrictEqual([{ id: 1, type: "micro_cluster" }]);
     });
   });
 
@@ -217,9 +205,7 @@ describe("reducer", () => {
         type: SET_MACRO_CLUSTERS,
         payload: [{ id: 1, type: "macro_cluster" }]
       });
-      expect(newState.macroClusters).toStrictEqual([
-        { id: 1, type: "macro_cluster" }
-      ]);
+      expect(newState.macroClusters).toStrictEqual([{ id: 1, type: "macro_cluster" }]);
     });
 
     it("sets loadingMacroClusters to false", () => {
@@ -239,9 +225,7 @@ describe("reducer", () => {
         type: SET_MICRO_CLUSTERS,
         payload: [{ id: 1, type: "micro_cluster", entries: [] }]
       });
-      expect(newState.microClusters).toStrictEqual([
-        { id: 1, type: "micro_cluster", entries: [] }
-      ]);
+      expect(newState.microClusters).toStrictEqual([{ id: 1, type: "micro_cluster", entries: [] }]);
     });
 
     it("sorts the clusters by number of entries", () => {

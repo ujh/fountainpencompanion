@@ -46,8 +46,7 @@ export const PenCard = (props) => {
 
   const fullName = `${brand} ${model}`;
   const isVisible = (field) => props[field] && !hiddenFields.includes(field);
-  const hasUsage =
-    isVisible("usage") || isVisible("daily_usage") || isVisible("last_used_on");
+  const hasUsage = isVisible("usage") || isVisible("daily_usage") || isVisible("last_used_on");
 
   return (
     <Card className="fpc-pen-card">
@@ -104,8 +103,7 @@ export const PenCard = (props) => {
           <>
             <div className="small text-secondary">Usage</div>
             <Card.Text data-testid="usage">
-              {String(usage)} inked -{" "}
-              <LastUsageDisplay last_used_on={last_used_on} /> (
+              {String(usage)} inked - <LastUsageDisplay last_used_on={last_used_on} /> (
               {String(daily_usage)} daily usages)
             </Card.Text>
           </>
@@ -113,18 +111,12 @@ export const PenCard = (props) => {
         {isVisible("created_at") ? (
           <>
             <div className="small text-secondary">Added On</div>
-            <Card.Text>
-              {<RelativeDate date={created_at} relativeAsDefault={false} />}
-            </Card.Text>
+            <Card.Text>{<RelativeDate date={created_at} relativeAsDefault={false} />}</Card.Text>
           </>
         ) : null}
         <div className="fpc-pen-card__footer">
           <div className="fpc-pen-card__actions">
-            <a
-              className="btn btn-secondary me-2"
-              title="edit"
-              href={`/collected_pens/${id}/edit`}
-            >
+            <a className="btn btn-secondary me-2" title="edit" href={`/collected_pens/${id}/edit`}>
               <i className="fa fa-pencil" />
             </a>
             <a

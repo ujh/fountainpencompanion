@@ -35,8 +35,7 @@ class Youtube
 
     def authorize
       client_id = Google::Auth::ClientId.from_hash(SECRETS)
-      authorizer =
-        Google::Auth::UserAuthorizer.new(client_id, SCOPE, Credentials.new)
+      authorizer = Google::Auth::UserAuthorizer.new(client_id, SCOPE, Credentials.new)
       authorizer.get_credentials("default")
     end
   end

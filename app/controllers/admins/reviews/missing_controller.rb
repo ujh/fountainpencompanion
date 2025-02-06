@@ -23,8 +23,7 @@ class Admins::Reviews::MissingController < Admins::BaseController
   private
 
   def find_on_youtube(cluster)
-    search =
-      client.list_searches("snippet", q: "#{cluster.name} ink", type: "video")
+    search = client.list_searches("snippet", q: "#{cluster.name} ink", type: "video")
     search.items.map do |item|
       video_id = item.id.video_id
       data = Unfurler::Youtube.new(video_id).perform

@@ -1,28 +1,23 @@
 require "rails_helper"
 
 describe ProcessInkReviewSubmission do
-  let(:ink_review_submission) do
-    create(:ink_review_submission, url: "http://example.com")
-  end
+  let(:ink_review_submission) { create(:ink_review_submission, url: "http://example.com") }
   let(:content) { file_fixture("kobe-hatoba-blue-all-attributes.html") }
 
-  before do
-    stub_request(:get, ink_review_submission.url).to_return(body: content)
-  end
+  before { stub_request(:get, ink_review_submission.url).to_return(body: content) }
 
   it "creates a new ink review if none exists" do
-    expect do
-      described_class.new.perform(ink_review_submission.id)
-    end.to change(InkReview, :count).by(1)
+    expect do described_class.new.perform(ink_review_submission.id) end.to change(
+      InkReview,
+      :count
+    ).by(1)
   end
 
   it "sets the correct attributes on the ink review" do
     described_class.new.perform(ink_review_submission.id)
     review = InkReview.first
     expect(review.url).to eq("https://mountainofink.com/blog/kobe-hatoba-blue")
-    expect(review.title).to eq(
-      "Ink Review #1699: Kobe 02 Hatoba Blue — Mountain of Ink"
-    )
+    expect(review.title).to eq("Ink Review #1699: Kobe 02 Hatoba Blue — Mountain of Ink")
     expect(review.description).to eq(
       "Kobe is a brand I come back to again and again, just because I love them so much. Today let’s look at  Kobe 02 Hatoba Blue . You can find this ink for sale at most retailers including  Vanness Pens ."
     )
@@ -46,12 +41,11 @@ describe ProcessInkReviewSubmission do
         url: "https://mountainofink.com/blog/kobe-hatoba-blue",
         macro_cluster: ink_review_submission.macro_cluster
       )
-    expect do
-      described_class.new.perform(ink_review_submission.id)
-    end.not_to change(InkReview, :count)
-    expect(existing_review.ink_review_submissions).to eq(
-      [ink_review_submission]
+    expect do described_class.new.perform(ink_review_submission.id) end.not_to change(
+      InkReview,
+      :count
     )
+    expect(existing_review.ink_review_submissions).to eq([ink_review_submission])
   end
 
   it "resets rejected_at of existing review" do
@@ -63,9 +57,10 @@ describe ProcessInkReviewSubmission do
         approved_at: Time.now,
         rejected_at: Time.now
       )
-    expect do
-      described_class.new.perform(ink_review_submission.id)
-    end.not_to change(InkReview, :count)
+    expect do described_class.new.perform(ink_review_submission.id) end.not_to change(
+      InkReview,
+      :count
+    )
     existing_review.reload
     expect(existing_review.approved_at).not_to eq(nil)
     expect(existing_review.rejected_at).to eq(nil)
@@ -78,20 +73,16 @@ describe ProcessInkReviewSubmission do
         url: "https://mountainofink.com/blog/kobe-hatoba-blue",
         macro_cluster: create(:macro_cluster)
       )
-    expect do
-      described_class.new.perform(ink_review_submission.id)
-    end.to change(InkReview, :count).by(1)
-    expect(InkReview.last.macro_cluster).to eq(
-      ink_review_submission.macro_cluster
-    )
+    expect do described_class.new.perform(ink_review_submission.id) end.to change(
+      InkReview,
+      :count
+    ).by(1)
+    expect(InkReview.last.macro_cluster).to eq(ink_review_submission.macro_cluster)
   end
 
   context "YouTube" do
     let(:ink_review_submission) do
-      create(
-        :ink_review_submission,
-        url: "https://www.youtube.com/watch?v=09mpgUzVc5g"
-      )
+      create(:ink_review_submission, url: "https://www.youtube.com/watch?v=09mpgUzVc5g")
     end
 
     before do
@@ -108,15 +99,14 @@ describe ProcessInkReviewSubmission do
         )
       video = double(:video, snippet: video_snippet)
       client = double(:client, list_videos: double(:videos, items: [video]))
-      allow_any_instance_of(Unfurler::Youtube).to receive(:client).and_return(
-        client
-      )
+      allow_any_instance_of(Unfurler::Youtube).to receive(:client).and_return(client)
     end
 
     it "creates the youtube channel if it does not exist" do
-      expect do
-        described_class.new.perform(ink_review_submission.id)
-      end.to change(YouTubeChannel, :count).by(1)
+      expect do described_class.new.perform(ink_review_submission.id) end.to change(
+        YouTubeChannel,
+        :count
+      ).by(1)
       channel = YouTubeChannel.first
       expect(channel.channel_id).to eq("channel_id")
     end
@@ -130,9 +120,10 @@ describe ProcessInkReviewSubmission do
 
     it "associates the review with the existing youtube channel" do
       channel = create(:you_tube_channel, channel_id: "channel_id")
-      expect do
-        described_class.new.perform(ink_review_submission.id)
-      end.not_to change(YouTubeChannel, :count)
+      expect do described_class.new.perform(ink_review_submission.id) end.not_to change(
+        YouTubeChannel,
+        :count
+      )
       review = InkReview.first
       expect(review.you_tube_channel).to eq(channel)
     end
@@ -142,9 +133,10 @@ describe ProcessInkReviewSubmission do
     let(:content) { file_fixture("kobe-hatoba-blue-no-image.html") }
 
     it "does not create an ink review" do
-      expect do
-        described_class.new.perform(ink_review_submission.id)
-      end.not_to change(InkReview, :count)
+      expect do described_class.new.perform(ink_review_submission.id) end.not_to change(
+        InkReview,
+        :count
+      )
     end
 
     it "saves the validation errors" do
@@ -174,9 +166,7 @@ describe ProcessInkReviewSubmission do
         macro_cluster: macro_cluster
       )
     expect do
-      submissions.each do |submission|
-        described_class.new.perform(submission.id)
-      end
+      submissions.each { |submission| described_class.new.perform(submission.id) }
     end.to change(InkReview, :count).by(1)
     review = InkReview.first
     expect(review.approved_at).not_to eq(nil)

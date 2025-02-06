@@ -7,15 +7,11 @@ describe Unfurler::Html do
     let(:html) { file_fixture("kobe-hatoba-blue-all-attributes.html") }
 
     it "extracts the url" do
-      expect(subject.url).to eq(
-        "https://mountainofink.com/blog/kobe-hatoba-blue"
-      )
+      expect(subject.url).to eq("https://mountainofink.com/blog/kobe-hatoba-blue")
     end
 
     it "extracts the title" do
-      expect(subject.title).to eq(
-        "Ink Review #1699: Kobe 02 Hatoba Blue — Mountain of Ink"
-      )
+      expect(subject.title).to eq("Ink Review #1699: Kobe 02 Hatoba Blue — Mountain of Ink")
     end
 
     it "extracts the description" do
@@ -39,15 +35,11 @@ describe Unfurler::Html do
     let(:html) { file_fixture("kobe-hatoba-blue-og-attributes.html") }
 
     it "extracts the url" do
-      expect(subject.url).to eq(
-        "https://mountainofink.com/blog/kobe-hatoba-blue"
-      )
+      expect(subject.url).to eq("https://mountainofink.com/blog/kobe-hatoba-blue")
     end
 
     it "extracts the title" do
-      expect(subject.title).to eq(
-        "Ink Review #1699: Kobe 02 Hatoba Blue — Mountain of Ink"
-      )
+      expect(subject.title).to eq("Ink Review #1699: Kobe 02 Hatoba Blue — Mountain of Ink")
     end
 
     it "extracts the description" do
@@ -67,15 +59,11 @@ describe Unfurler::Html do
     let(:html) { file_fixture("kobe-hatoba-blue-itemprop-attributes.html") }
 
     it "extracts the url" do
-      expect(subject.url).to eq(
-        "https://mountainofink.com/blog/kobe-hatoba-blue"
-      )
+      expect(subject.url).to eq("https://mountainofink.com/blog/kobe-hatoba-blue")
     end
 
     it "extracts the title" do
-      expect(subject.title).to eq(
-        "Ink Review #1699: Kobe 02 Hatoba Blue — Mountain of Ink"
-      )
+      expect(subject.title).to eq("Ink Review #1699: Kobe 02 Hatoba Blue — Mountain of Ink")
     end
 
     it "extracts the description" do
@@ -95,15 +83,11 @@ describe Unfurler::Html do
     let(:html) { file_fixture("kobe-hatoba-blue-twitter-attributes.html") }
 
     it "extracts the url" do
-      expect(subject.url).to eq(
-        "https://mountainofink.com/blog/kobe-hatoba-blue"
-      )
+      expect(subject.url).to eq("https://mountainofink.com/blog/kobe-hatoba-blue")
     end
 
     it "extracts the title" do
-      expect(subject.title).to eq(
-        "Ink Review #1699: Kobe 02 Hatoba Blue — Mountain of Ink"
-      )
+      expect(subject.title).to eq("Ink Review #1699: Kobe 02 Hatoba Blue — Mountain of Ink")
     end
 
     it "extracts the description" do
@@ -123,15 +107,11 @@ describe Unfurler::Html do
     let(:html) { file_fixture("kobe-hatoba-blue-html-attributes.html") }
 
     it "extracts the url" do
-      expect(subject.url).to eq(
-        "https://mountainofink.com/blog/kobe-hatoba-blue"
-      )
+      expect(subject.url).to eq("https://mountainofink.com/blog/kobe-hatoba-blue")
     end
 
     it "extracts the title" do
-      expect(subject.title).to eq(
-        "Ink Review #1699: Kobe 02 Hatoba Blue — Mountain of Ink"
-      )
+      expect(subject.title).to eq("Ink Review #1699: Kobe 02 Hatoba Blue — Mountain of Ink")
     end
 
     it "extracts the description" do
@@ -179,9 +159,7 @@ describe Unfurler::Html do
     end
 
     it "extracts the title" do
-      expect(subject.title).to eq(
-        "Waterman Serenity Blue | Why Did I Wait So Long To Try This Ink"
-      )
+      expect(subject.title).to eq("Waterman Serenity Blue | Why Did I Wait So Long To Try This Ink")
     end
 
     it "extracts the description" do
@@ -191,9 +169,7 @@ describe Unfurler::Html do
     end
 
     it "extracts the image" do
-      expect(subject.image).to eq(
-        "https://i.ytimg.com/vi/1aKR9th0sDo/maxresdefault.jpg"
-      )
+      expect(subject.image).to eq("https://i.ytimg.com/vi/1aKR9th0sDo/maxresdefault.jpg")
     end
 
     it "extracts the author" do
@@ -205,15 +181,11 @@ describe Unfurler::Html do
     let(:html) { file_fixture("anderson.html") }
 
     it "extracts the url" do
-      expect(subject.url).to eq(
-        "https://blog.andersonpens.com/sailor-miruai-ink-review/"
-      )
+      expect(subject.url).to eq("https://blog.andersonpens.com/sailor-miruai-ink-review/")
     end
 
     it "extracts the title" do
-      expect(subject.title).to eq(
-        "thINKthursday – Sailor Miruai Ink Review | Anderson Pens Blog"
-      )
+      expect(subject.title).to eq("thINKthursday – Sailor Miruai Ink Review | Anderson Pens Blog")
     end
 
     it "extracts the description" do

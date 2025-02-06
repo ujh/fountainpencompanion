@@ -8,10 +8,7 @@ class Pens::Model < ApplicationRecord
   has_many :collected_pens, through: :micro_clusters
   has_one :pen_embedding, dependent: :destroy, as: :owner
 
-  belongs_to :pen_brand,
-             optional: true,
-             class_name: "Pens::Brand",
-             foreign_key: :pens_brand_id
+  belongs_to :pen_brand, optional: true, class_name: "Pens::Brand", foreign_key: :pens_brand_id
 
   paginates_per 100
 
@@ -22,13 +19,10 @@ class Pens::Model < ApplicationRecord
     return self if query.blank?
 
     query = query.split(/\s+/).join("%")
-    joins(model_micro_clusters: :model_variants).where(
-      <<~SQL,
+    joins(model_micro_clusters: :model_variants).where(<<~SQL, "%#{query}%").group("pens_models.id")
         CONCAT(pens_model_variants.brand, pens_model_variants.model)
         ILIKE ?
       SQL
-      "%#{query}%"
-    ).group("pens_models.id")
   end
 
   def name

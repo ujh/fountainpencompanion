@@ -15,10 +15,7 @@ describe Api::V1::CollectedPensController do
         create(:collected_pen, user: user, brand: "Aurora", model: "Optima")
         create(:collected_pen, user: user, brand: "Waldmann", model: "Liberty")
         create(:collected_pen, user: user, brand: "Pilot", model: "Custom 823")
-        get "/api/v1/collected_pens",
-            headers: {
-              "ACCEPT" => "application/json"
-            }
+        get "/api/v1/collected_pens", headers: { "ACCEPT" => "application/json" }
 
         expect(json).to include(
           data: [
@@ -32,10 +29,7 @@ describe Api::V1::CollectedPensController do
       it "does not return data from other users" do
         create(:collected_pen)
 
-        get "/api/v1/collected_pens",
-            headers: {
-              "ACCEPT" => "application/json"
-            }
+        get "/api/v1/collected_pens", headers: { "ACCEPT" => "application/json" }
         expect(json[:data]).to be_empty
       end
 
@@ -52,9 +46,7 @@ describe Api::V1::CollectedPensController do
             }
 
         expect(json).to include(
-          data: [
-            hash_including(attributes: { brand: "Aurora", model: "Optima" })
-          ]
+          data: [hash_including(attributes: { brand: "Aurora", model: "Optima" })]
         )
       end
 
@@ -89,10 +81,7 @@ describe Api::V1::CollectedPensController do
 
       it "returns all fields by default" do
         create(:collected_pen, user: user)
-        get "/api/v1/collected_pens",
-            headers: {
-              "ACCEPT" => "application/json"
-            }
+        get "/api/v1/collected_pens", headers: { "ACCEPT" => "application/json" }
 
         expect(json).to include(
           data: [

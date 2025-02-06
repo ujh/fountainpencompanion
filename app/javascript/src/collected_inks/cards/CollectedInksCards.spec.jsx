@@ -1,10 +1,7 @@
 import React from "react";
 import { render } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import {
-  CollectedInksCards,
-  storageKeyHiddenFields
-} from "./CollectedInksCards";
+import { CollectedInksCards, storageKeyHiddenFields } from "./CollectedInksCards";
 
 const setup = (jsx, options) => {
   return {
@@ -86,14 +83,7 @@ describe("<CollectedInksCards />", () => {
   });
 
   it("resets hidden fields when restore defaults is clicked", async () => {
-    const {
-      getByText,
-      getByTitle,
-      getByLabelText,
-      queryByText,
-      getByTestId,
-      user
-    } = setup(
+    const { getByText, getByTitle, getByLabelText, queryByText, getByTestId, user } = setup(
       <CollectedInksCards
         archive={false}
         data={data}
@@ -115,10 +105,7 @@ describe("<CollectedInksCards />", () => {
   });
 
   it("renders with hidden fields restored from localStorage", () => {
-    localStorage.setItem(
-      storageKeyHiddenFields,
-      JSON.stringify(["usage", "daily_usage"])
-    );
+    localStorage.setItem(storageKeyHiddenFields, JSON.stringify(["usage", "daily_usage"]));
 
     const { queryByText } = setup(
       <CollectedInksCards

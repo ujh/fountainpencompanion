@@ -143,8 +143,7 @@ class AdminStats
   end
 
   def users_using_collected_pens_count
-    @users_using_collected_pens_count ||=
-      User.joins(:collected_pens).group("users.id").count.count
+    @users_using_collected_pens_count ||= User.joins(:collected_pens).group("users.id").count.count
   end
 
   def users_using_collected_pens_percentage
@@ -161,8 +160,7 @@ class AdminStats
   end
 
   def users_using_collected_inks_count
-    @users_using_collected_inks_count ||=
-      User.joins(:collected_inks).group("users.id").count.count
+    @users_using_collected_inks_count ||= User.joins(:collected_inks).group("users.id").count.count
   end
 
   def collected_inks_count
@@ -171,10 +169,7 @@ class AdminStats
 
   def collected_inks_with_color_count
     @collected_inks_with_color_count ||=
-      CollectedInk
-        .where.not(color: "")
-        .or(CollectedInk.where.not(cluster_color: ""))
-        .count
+      CollectedInk.where.not(color: "").or(CollectedInk.where.not(cluster_color: "")).count
   end
 
   def users_using_usage_records_count

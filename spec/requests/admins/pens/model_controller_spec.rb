@@ -32,10 +32,7 @@ describe Admins::Pens::ModelsController do
               "relationships" => {
                 "model_micro_clusters" => {
                   "data" => [
-                    {
-                      "id" => model_micro_cluster.id.to_s,
-                      "type" => "pens_model_micro_cluster"
-                    }
+                    { "id" => model_micro_cluster.id.to_s, "type" => "pens_model_micro_cluster" }
                   ]
                 }
               }
@@ -80,12 +77,7 @@ describe Admins::Pens::ModelsController do
                       }
                     },
                     "model_variants" => {
-                      "data" => [
-                        {
-                          "id" => model_variant.id.to_s,
-                          "type" => "pens_model_variant"
-                        }
-                      ]
+                      "data" => [{ "id" => model_variant.id.to_s, "type" => "pens_model_variant" }]
                     }
                   }
                 }

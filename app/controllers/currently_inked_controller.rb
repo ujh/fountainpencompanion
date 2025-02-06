@@ -9,8 +9,7 @@ class CurrentlyInkedController < ApplicationController
     respond_to do |format|
       format.html
       format.csv do
-        cis =
-          current_user.currently_inkeds.includes(:collected_pen, :collected_ink)
+        cis = current_user.currently_inkeds.includes(:collected_pen, :collected_ink)
         send_data cis.to_csv, type: "text/csv", filename: "currently_inked.csv"
       end
     end
@@ -37,9 +36,7 @@ class CurrentlyInkedController < ApplicationController
 
   def refill
     @record.refill!
-    flash[
-      :notice
-    ] = "Refilled your #{@record.pen_name} with #{@record.ink_name}."
+    flash[:notice] = "Refilled your #{@record.pen_name} with #{@record.ink_name}."
     redirect_to currently_inked_index_path
   end
 

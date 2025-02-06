@@ -2,10 +2,7 @@
 import React from "react";
 import { render } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import {
-  CollectedPensCards,
-  storageKeyHiddenFields
-} from "./CollectedPensCards";
+import { CollectedPensCards, storageKeyHiddenFields } from "./CollectedPensCards";
 
 const setup = (jsx, options) => {
   return {
@@ -85,15 +82,14 @@ describe("<CollectedPensCards />", () => {
   });
 
   it("resets hidden fields when restore defaults is clicked", async () => {
-    const { getByText, getByTitle, getByLabelText, queryAllByTestId, user } =
-      setup(
-        <CollectedPensCards
-          pens={pens}
-          onLayoutChange={() => {
-            return;
-          }}
-        />
-      );
+    const { getByText, getByTitle, getByLabelText, queryAllByTestId, user } = setup(
+      <CollectedPensCards
+        pens={pens}
+        onLayoutChange={() => {
+          return;
+        }}
+      />
+    );
 
     await user.click(getByTitle("Configure visible fields"));
     await user.click(getByLabelText("Show usage"));
@@ -108,10 +104,7 @@ describe("<CollectedPensCards />", () => {
   });
 
   it("renders with hidden fields restored from localStorage", () => {
-    localStorage.setItem(
-      storageKeyHiddenFields,
-      JSON.stringify(["usage", "daily_usage"])
-    );
+    localStorage.setItem(storageKeyHiddenFields, JSON.stringify(["usage", "daily_usage"]));
 
     const { queryByText } = setup(
       <CollectedPensCards

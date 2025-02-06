@@ -32,10 +32,7 @@ export const CurrentlyInked = () => {
   if (layout ? layout === "card" : screen.isSmall) {
     if (currentlyInked) {
       return (
-        <CurrentlyInkedCards
-          currentlyInked={currentlyInked}
-          onLayoutChange={onLayoutChange}
-        />
+        <CurrentlyInkedCards currentlyInked={currentlyInked} onLayoutChange={onLayoutChange} />
       );
     } else {
       return <CardsPlaceholder />;
@@ -43,10 +40,7 @@ export const CurrentlyInked = () => {
   } else {
     if (currentlyInked) {
       return (
-        <CurrentlyInkedTable
-          currentlyInked={currentlyInked}
-          onLayoutChange={onLayoutChange}
-        />
+        <CurrentlyInkedTable currentlyInked={currentlyInked} onLayoutChange={onLayoutChange} />
       );
     } else {
       return <TablePlaceholder />;

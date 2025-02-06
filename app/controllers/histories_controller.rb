@@ -12,10 +12,8 @@ class HistoriesController < ApplicationController
     case object
     when MacroCluster
       add_breadcrumb "Inks", "/brands"
-      add_breadcrumb "#{object.brand_cluster.name}",
-                     brand_path(object.brand_cluster)
-      add_breadcrumb "#{object.name}",
-                     brand_ink_path(object.brand_cluster, object)
+      add_breadcrumb "#{object.brand_cluster.name}", brand_path(object.brand_cluster)
+      add_breadcrumb "#{object.name}", brand_ink_path(object.brand_cluster, object)
       add_breadcrumb "History", ink_history_path(object)
     when BrandCluster
       add_breadcrumb "#{object.name}", brand_path(object)
@@ -30,9 +28,6 @@ class HistoriesController < ApplicationController
 
   def object
     @object ||=
-      (
-        MacroCluster.find_by(id: params[:ink_id]) ||
-          BrandCluster.find_by(id: params[:brand_id])
-      )
+      (MacroCluster.find_by(id: params[:ink_id]) || BrandCluster.find_by(id: params[:brand_id]))
   end
 end

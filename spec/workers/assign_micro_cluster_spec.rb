@@ -5,9 +5,7 @@ describe AssignMicroCluster do
 
   context "new ink" do
     it "creates a new cluster and assigns it if no matching one exists" do
-      expect do subject.perform(collected_ink.id) end.to change {
-        MicroCluster.count
-      }.by(1)
+      expect do subject.perform(collected_ink.id) end.to change { MicroCluster.count }.by(1)
       cluster = MicroCluster.last
       expect(collected_ink.reload.micro_cluster).to eq(cluster)
       expect(cluster.macro_cluster).to eq(nil)
@@ -31,17 +29,13 @@ describe AssignMicroCluster do
     end
 
     it "reuses an existing cluster" do
-      expect do subject.perform(collected_ink.id) end.to_not change {
-        MicroCluster.count
-      }
+      expect do subject.perform(collected_ink.id) end.to_not change { MicroCluster.count }
       expect(collected_ink.reload.micro_cluster).to eq(cluster)
     end
 
     it "does not send an email" do
       expect(AdminMailer).to_not receive(:new_cluster)
-      expect do subject.perform(collected_ink.id) end.to_not change {
-        MicroCluster.count
-      }
+      expect do subject.perform(collected_ink.id) end.to_not change { MicroCluster.count }
     end
   end
 
@@ -57,26 +51,22 @@ describe AssignMicroCluster do
     let!(:macro_cluster) { create(:macro_cluster) }
 
     it "assigns to existing macro cluster if brand and ink are same as existing micro cluster" do
-      expect do subject.perform(collected_ink.id) end.to change {
-        MicroCluster.count
-      }.by(1)
+      expect do subject.perform(collected_ink.id) end.to change { MicroCluster.count }.by(1)
       cluster = MicroCluster.last
       expect(cluster.macro_cluster).to eq(macro_cluster)
     end
 
     it "does not send an email" do
       expect(AdminMailer).to_not receive(:new_cluster).and_call_original
-      expect do subject.perform(collected_ink.id) end.to change {
-        MicroCluster.count
-      }.by(1)
+      expect do subject.perform(collected_ink.id) end.to change { MicroCluster.count }.by(1)
     end
   end
 
   it "uses the macro cluster id if supplied" do
     macro_cluster = create(:macro_cluster)
-    expect do
-      subject.perform(collected_ink.id, macro_cluster.id)
-    end.to change { MicroCluster.count }.by(1)
+    expect do subject.perform(collected_ink.id, macro_cluster.id) end.to change {
+      MicroCluster.count
+    }.by(1)
     cluster = MicroCluster.last
     expect(cluster.macro_cluster).to eq(macro_cluster)
   end

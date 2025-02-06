@@ -26,19 +26,11 @@ export default class App extends React.Component {
       let userInks = new Set(ud.inks.map((i) => i.ink_id));
       let loggedInUserInks = new Set(ld.inks.map((i) => i.ink_id));
       ud.inks.forEach((ink) => {
-        let comparison = this.calculateComparison(
-          ink.ink_id,
-          userInks,
-          loggedInUserInks
-        );
+        let comparison = this.calculateComparison(ink.ink_id, userInks, loggedInUserInks);
         combined.push({ ...ink, ...comparison });
       });
       ld.inks.forEach((ink) => {
-        let comparison = this.calculateComparison(
-          ink.ink_id,
-          userInks,
-          loggedInUserInks
-        );
+        let comparison = this.calculateComparison(ink.ink_id, userInks, loggedInUserInks);
         // User already owns ink, no need to add it again
         if (!comparison.owned_by_user) combined.push({ ...ink, ...comparison });
       });

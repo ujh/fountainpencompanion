@@ -30,17 +30,9 @@ RSpec.describe "Api::V1::Brands", type: :request do
         create(:brand_cluster, name: "Diamine")
         create(:brand_cluster, name: "Robert Oster")
 
-        get "/api/v1/brands",
-            params: {
-              term: "rob"
-            },
-            headers: {
-              "ACCEPT" => "application/json"
-            }
+        get "/api/v1/brands", params: { term: "rob" }, headers: { "ACCEPT" => "application/json" }
 
-        expect(json).to match(
-          data: [hash_including(attributes: { name: "Robert Oster" })]
-        )
+        expect(json).to match(data: [hash_including(attributes: { name: "Robert Oster" })])
       end
     end
   end

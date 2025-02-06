@@ -30,13 +30,7 @@ describe("<SwabCard />", () => {
 
   it("renders no Private-badge if public", () => {
     const { queryByText } = setup(
-      <SwabCard
-        id="1"
-        archived={false}
-        brand_name="Pilot"
-        ink_name="Black"
-        hiddenFields={[]}
-      />
+      <SwabCard id="1" archived={false} brand_name="Pilot" ink_name="Black" hiddenFields={[]} />
     );
 
     expect(queryByText("Private")).not.toBeInTheDocument();
@@ -59,13 +53,7 @@ describe("<SwabCard />", () => {
 
   it("renders no Swabbed-badge if not swabbed", () => {
     const { queryByText } = setup(
-      <SwabCard
-        id="1"
-        archived={false}
-        brand_name="Pilot"
-        ink_name="Black"
-        hiddenFields={[]}
-      />
+      <SwabCard id="1" archived={false} brand_name="Pilot" ink_name="Black" hiddenFields={[]} />
     );
 
     expect(queryByText("Swabbed")).not.toBeInTheDocument();
@@ -88,13 +76,7 @@ describe("<SwabCard />", () => {
 
   it("renders no Used-badge if unused", () => {
     const { queryByText } = setup(
-      <SwabCard
-        id="1"
-        archived={false}
-        brand_name="Pilot"
-        ink_name="Black"
-        hiddenFields={[]}
-      />
+      <SwabCard id="1" archived={false} brand_name="Pilot" ink_name="Black" hiddenFields={[]} />
     );
 
     expect(queryByText("Used")).not.toBeInTheDocument();
@@ -118,13 +100,7 @@ describe("<SwabCard />", () => {
 
   it("doesn't render the kind-badge if not set", () => {
     const { queryByText } = setup(
-      <SwabCard
-        id="1"
-        archived={false}
-        brand_name="Pilot"
-        ink_name="Black"
-        hiddenFields={[]}
-      />
+      <SwabCard id="1" archived={false} brand_name="Pilot" ink_name="Black" hiddenFields={[]} />
     );
 
     expect(queryByText("bottle")).not.toBeInTheDocument();
@@ -241,9 +217,7 @@ describe("<SwabCard />", () => {
     expect(getByText("Usage")).toBeInTheDocument();
     expect(getByTestId("usage")).toBeInTheDocument();
     const usageElement = getByTestId("usage");
-    expect(usageElement.textContent).toBe(
-      "1 inked - last used today (10 daily usages)"
-    );
+    expect(usageElement.textContent).toBe("1 inked - last used today (10 daily usages)");
   });
 
   it("doesn't render a usage header if there are no stats", () => {

@@ -17,9 +17,7 @@ module Pens
       # Get the cluster with the lowest ID. Others will get removed eventually
       cluster =
         Pens::MicroCluster
-          .where(
-            expand_brand_names(collected_pen, cluster_attributes(collected_pen))
-          )
+          .where(expand_brand_names(collected_pen, cluster_attributes(collected_pen)))
           .order(:id)
           .first
       return cluster if cluster
@@ -43,11 +41,7 @@ module Pens
     end
 
     def expand_brand_names(collected_pen, attrs)
-      brand =
-        Pens::Model
-          .where.not(pen_brand: nil)
-          .find_by(brand: collected_pen.brand)
-          &.pen_brand
+      brand = Pens::Model.where.not(pen_brand: nil).find_by(brand: collected_pen.brand)&.pen_brand
       return attrs unless brand
 
       attrs.merge("simplified_brand" => brand.simplified_names)

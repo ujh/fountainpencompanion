@@ -10,9 +10,7 @@ describe Youtube do
         list_channels:
           double(
             :channels,
-            items: [
-              double(:item, snippet: double(:snippet, title: "channel_name"))
-            ]
+            items: [double(:item, snippet: double(:snippet, title: "channel_name"))]
           )
       )
     end
@@ -29,10 +27,7 @@ describe Youtube do
         list_channels:
           double(
             items: [
-              double(
-                content_details:
-                  double(related_playlists: double(uploads: "uploads_id"))
-              )
+              double(content_details: double(related_playlists: double(uploads: "uploads_id")))
             ]
           ),
         list_playlist_items: list_playlist_items
@@ -41,17 +36,9 @@ describe Youtube do
     let(:list_playlist_items) do
       list_double = double(:list_playlist_items)
       video1 =
-        double(
-          :video,
-          snippet:
-            double(resource_id: double(video_id: "video1"), title: "title1")
-        )
+        double(:video, snippet: double(resource_id: double(video_id: "video1"), title: "title1"))
       video2 =
-        double(
-          :video,
-          snippet:
-            double(resource_id: double(video_id: "video2"), title: "title2")
-        )
+        double(:video, snippet: double(resource_id: double(video_id: "video2"), title: "title2"))
       allow(list_double).to receive(:items).and_return([video1], [video2])
       allow(list_double).to receive(:next_page_token).and_return("token", nil)
       list_double

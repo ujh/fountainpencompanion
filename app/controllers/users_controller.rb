@@ -16,16 +16,7 @@ class UsersController < ApplicationController
         render jsonapi: @user,
                include: :collected_inks,
                fields: {
-                 collected_inks: %i[
-                   brand_name
-                   line_name
-                   ink_name
-                   maker
-                   kind
-                   color
-                   comment
-                   ink_id
-                 ]
+                 collected_inks: %i[brand_name line_name ink_name maker kind color comment ink_id]
                }
       end
     end

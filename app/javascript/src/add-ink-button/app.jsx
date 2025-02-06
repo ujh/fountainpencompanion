@@ -6,9 +6,7 @@ export const App = ({ macro_cluster_id, details }) => {
   const [loading, setLoading] = useState(true);
   const [inCollection, setInCollection] = useState(false);
   useEffect(() => {
-    getRequest(
-      `/collected_inks.json?filter[macro_cluster_id]=${macro_cluster_id}`
-    )
+    getRequest(`/collected_inks.json?filter[macro_cluster_id]=${macro_cluster_id}`)
       .then((response) => response.json())
       .then((json) => {
         setInCollection(json.data.length > 0);
@@ -33,11 +31,11 @@ const ActualInkAddButton = ({ macro_cluster_id, inCollection, detailView }) => {
   const [kind, setKind] = useState("bottle");
   const add = () => {
     setState("adding");
-    postRequest(
-      `/collected_inks/add.json?macro_cluster_id=${macro_cluster_id}&kind=${kind}`
-    ).then(() => {
-      setState("added");
-    });
+    postRequest(`/collected_inks/add.json?macro_cluster_id=${macro_cluster_id}&kind=${kind}`).then(
+      () => {
+        setState("added");
+      }
+    );
   };
   switch (state) {
     case "added":
@@ -70,11 +68,7 @@ const ActualInkAddButton = ({ macro_cluster_id, inCollection, detailView }) => {
           <button type="button" className="btn btn-success" onClick={add}>
             Add
           </button>
-          <button
-            type="button"
-            className="btn btn-secondary"
-            onClick={() => setState(null)}
-          >
+          <button type="button" className="btn btn-secondary" onClick={() => setState(null)}>
             <i className="fa fa-times" />
           </button>
         </div>
@@ -82,23 +76,14 @@ const ActualInkAddButton = ({ macro_cluster_id, inCollection, detailView }) => {
     default:
       if (inCollection) {
         return (
-          <div
-            className="btn btn-success"
-            onClick={() => setState("pick-kind")}
-          >
+          <div className="btn btn-success" onClick={() => setState("pick-kind")}>
             <i className="fa fa-check" />
-            &nbsp;{" "}
-            {detailView
-              ? "Add additional entries to collection?"
-              : "Add again?"}
+            &nbsp; {detailView ? "Add additional entries to collection?" : "Add again?"}
           </div>
         );
       } else {
         return (
-          <div
-            className="btn btn-secondary"
-            onClick={() => setState("pick-kind")}
-          >
+          <div className="btn btn-secondary" onClick={() => setState("pick-kind")}>
             Add to collection
           </div>
         );

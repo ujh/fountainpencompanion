@@ -27,9 +27,7 @@ describe Bots::SpamClassifier do
       headers: {
         "Content-Type" => "application/json"
       },
-      body: {
-        "choices" => [{ "message" => { "content" => "normal" } }]
-      }.to_json
+      body: { "choices" => [{ "message" => { "content" => "normal" } }] }.to_json
     )
     expect(subject.run).to eq false
   end
@@ -40,9 +38,7 @@ describe Bots::SpamClassifier do
       headers: {
         "Content-Type" => "application/json"
       },
-      body: {
-        "choices" => [{ "message" => { "content" => "spam but also normal" } }]
-      }.to_json
+      body: { "choices" => [{ "message" => { "content" => "spam but also normal" } }] }.to_json
     )
     expect(subject.run).to eq false
   end

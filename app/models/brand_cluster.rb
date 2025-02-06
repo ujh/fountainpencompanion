@@ -1,9 +1,7 @@
 class BrandCluster < ApplicationRecord
   has_paper_trail
   has_many :description_versions,
-           -> do
-             where("object_changes like ?", "%description%").order("id desc")
-           end,
+           -> { where("object_changes like ?", "%description%").order("id desc") },
            class_name: "PaperTrail::Version",
            as: :item
 
@@ -18,12 +16,7 @@ class BrandCluster < ApplicationRecord
   end
 
   def self.of_user(user)
-    joins(:collected_inks).where(
-      collected_inks: {
-        user_id: user.id,
-        archived_on: nil
-      }
-    )
+    joins(:collected_inks).where(collected_inks: { user_id: user.id, archived_on: nil })
   end
 
   def self.public

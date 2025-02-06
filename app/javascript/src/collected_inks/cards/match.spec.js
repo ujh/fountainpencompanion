@@ -25,8 +25,7 @@ describe("fuzzyMatch", () => {
       ink_name: "Carbon Black",
       maker: "Platinum",
       comment: "Perpetually inked in my Preppy",
-      private_comment:
-        "Cartridges bought at various points for about X amount per 4-pack"
+      private_comment: "Cartridges bought at various points for about X amount per 4-pack"
     },
     {
       brand_name: "Sailor",
@@ -73,8 +72,7 @@ describe("fuzzyMatch", () => {
         ink_name: "Carbon Black",
         maker: "Platinum",
         comment: "Perpetually inked in my Preppy",
-        private_comment:
-          "Cartridges bought at various points for about X amount per 4-pack"
+        private_comment: "Cartridges bought at various points for about X amount per 4-pack"
       }
     ]);
 
@@ -85,8 +83,7 @@ describe("fuzzyMatch", () => {
         ink_name: "Carbon Black",
         maker: "Platinum",
         comment: "Perpetually inked in my Preppy",
-        private_comment:
-          "Cartridges bought at various points for about X amount per 4-pack"
+        private_comment: "Cartridges bought at various points for about X amount per 4-pack"
       }
     ]);
   });

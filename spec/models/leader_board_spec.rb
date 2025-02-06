@@ -3,9 +3,7 @@ require "rails_helper"
 describe LeaderBoard do
   describe "#top_pens_by_popularity" do
     it "returns the first 10 entries" do
-      allow(described_class).to receive(:pens_by_popularity).and_return(
-        (1..20).to_a
-      )
+      allow(described_class).to receive(:pens_by_popularity).and_return((1..20).to_a)
       expect(described_class.top_pens_by_popularity).to eq((1..10).to_a)
     end
   end
@@ -24,9 +22,9 @@ describe LeaderBoard do
       currently_inked4 = create(:currently_inked, user: user2)
       create_list(:usage_record, 2, currently_inked: currently_inked4)
 
-      expect(
-        described_class.usage_records.map { |e| [e[:id], e[:counter]] }
-      ).to eq([[user1.id, 4], [user2.id, 3]])
+      expect(described_class.usage_records.map { |e| [e[:id], e[:counter]] }).to eq(
+        [[user1.id, 4], [user2.id, 3]]
+      )
     end
   end
 
@@ -44,17 +42,15 @@ describe LeaderBoard do
       user2 = create(:user)
       create_list(:currently_inked, 2, user: user2)
 
-      expect(
-        described_class.currently_inked.map { |e| [e[:id], e[:counter]] }
-      ).to eq([[user1.id, 3], [user2.id, 2]])
+      expect(described_class.currently_inked.map { |e| [e[:id], e[:counter]] }).to eq(
+        [[user1.id, 3], [user2.id, 2]]
+      )
     end
   end
 
   describe "#top_currently_inked" do
     it "returns the first 10 entries" do
-      allow(described_class).to receive(:currently_inked).and_return(
-        (1..20).to_a
-      )
+      allow(described_class).to receive(:currently_inked).and_return((1..20).to_a)
       expect(described_class.top_currently_inked).to eq((1..10).to_a)
     end
   end
@@ -76,9 +72,7 @@ describe LeaderBoard do
       micro_cluster31 = create(:micro_cluster, macro_cluster: macro_cluster3)
       create(:collected_ink, micro_cluster: micro_cluster31)
 
-      expect(
-        described_class.inks_by_popularity.map { |mc| [mc.id, mc.ci_count] }
-      ).to eq(
+      expect(described_class.inks_by_popularity.map { |mc| [mc.id, mc.ci_count] }).to eq(
         [[macro_cluster1.id, 3], [macro_cluster2.id, 2], [macro_cluster3.id, 1]]
       )
     end
@@ -86,9 +80,7 @@ describe LeaderBoard do
 
   describe "#top_inks_by_popularity" do
     it "returns the first 10 entries" do
-      allow(described_class).to receive(:inks_by_popularity).and_return(
-        (1..20).to_a
-      )
+      allow(described_class).to receive(:inks_by_popularity).and_return((1..20).to_a)
       expect(described_class.top_inks_by_popularity).to eq((1..10).to_a)
     end
   end

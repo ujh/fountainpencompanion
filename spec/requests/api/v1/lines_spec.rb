@@ -17,10 +17,7 @@ RSpec.describe "Api::V1::Lines", type: :request do
           3,
           line_name: "Edelstein",
           micro_cluster:
-            create(
-              :micro_cluster,
-              macro_cluster: create(:macro_cluster, line_name: "Edelstein")
-            )
+            create(:micro_cluster, macro_cluster: create(:macro_cluster, line_name: "Edelstein"))
         )
 
         create_list(
@@ -28,10 +25,7 @@ RSpec.describe "Api::V1::Lines", type: :request do
           3,
           line_name: "Iroshizuku",
           micro_cluster:
-            create(
-              :micro_cluster,
-              macro_cluster: create(:macro_cluster, line_name: "Iroshizuku")
-            )
+            create(:micro_cluster, macro_cluster: create(:macro_cluster, line_name: "Iroshizuku"))
         )
 
         get "/api/v1/lines", headers: { "ACCEPT" => "application/json" }
@@ -49,10 +43,7 @@ RSpec.describe "Api::V1::Lines", type: :request do
           3,
           line_name: "Edelstein",
           micro_cluster:
-            create(
-              :micro_cluster,
-              macro_cluster: create(:macro_cluster, line_name: "Edelstein")
-            )
+            create(:micro_cluster, macro_cluster: create(:macro_cluster, line_name: "Edelstein"))
         )
 
         create_list(
@@ -60,22 +51,11 @@ RSpec.describe "Api::V1::Lines", type: :request do
           3,
           line_name: "Iroshizuku",
           micro_cluster:
-            create(
-              :micro_cluster,
-              macro_cluster: create(:macro_cluster, line_name: "Iroshizuku")
-            )
+            create(:micro_cluster, macro_cluster: create(:macro_cluster, line_name: "Iroshizuku"))
         )
 
-        get "/api/v1/lines",
-            params: {
-              term: "iro"
-            },
-            headers: {
-              "ACCEPT" => "application/json"
-            }
-        expect(json).to match(
-          data: [hash_including(attributes: { line_name: "Iroshizuku" })]
-        )
+        get "/api/v1/lines", params: { term: "iro" }, headers: { "ACCEPT" => "application/json" }
+        expect(json).to match(data: [hash_including(attributes: { line_name: "Iroshizuku" })])
       end
 
       it "returns lines from the correct brand if specified" do
@@ -87,12 +67,7 @@ RSpec.describe "Api::V1::Lines", type: :request do
           micro_cluster:
             create(
               :micro_cluster,
-              macro_cluster:
-                create(
-                  :macro_cluster,
-                  brand_name: "Pelikan",
-                  line_name: "Edelstein"
-                )
+              macro_cluster: create(:macro_cluster, brand_name: "Pelikan", line_name: "Edelstein")
             )
         )
 
@@ -104,8 +79,7 @@ RSpec.describe "Api::V1::Lines", type: :request do
           micro_cluster:
             create(
               :micro_cluster,
-              macro_cluster:
-                create(:macro_cluster, brand_name: "Other", line_name: "Stein")
+              macro_cluster: create(:macro_cluster, brand_name: "Other", line_name: "Stein")
             )
         )
 
@@ -117,9 +91,7 @@ RSpec.describe "Api::V1::Lines", type: :request do
             headers: {
               "ACCEPT" => "application/json"
             }
-        expect(json).to match(
-          data: [hash_including(attributes: { line_name: "Edelstein" })]
-        )
+        expect(json).to match(data: [hash_including(attributes: { line_name: "Edelstein" })])
       end
     end
   end

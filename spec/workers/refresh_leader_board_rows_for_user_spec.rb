@@ -8,12 +8,7 @@ describe RefreshLeaderBoardRowsForUser do
     # same brand as previous entry
     create(:collected_ink, user: user, brand_name: "brand 2")
     # archived entry
-    create(
-      :collected_ink,
-      user: user,
-      brand_name: "brand 3",
-      archived_on: Date.today
-    )
+    create(:collected_ink, user: user, brand_name: "brand 3", archived_on: Date.today)
     # private entry
     create(:collected_ink, user: user, brand_name: "brand 4", private: true)
 
