@@ -42,11 +42,10 @@ module Pens
       embedding =
         model_variant.pen_embedding || model_variant.build_pen_embedding
       content =
-        model_variant
-          .all_names
-          .map(&:model_name)
-          .map(&:inspect)
+        ([model_variant.name] + model_variant.all_names.map(&:model_name))
+          .uniq
           .sort
+          .map(&:inspect)
           .join(" OR ")
       embedding.update!(content: content)
     end

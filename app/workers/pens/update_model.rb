@@ -8,6 +8,7 @@ module Pens
 
       update_attributes!
       Pens::AssignBrand.perform_async(model_id)
+      update_embedding!
     end
 
     private
@@ -28,8 +29,18 @@ module Pens
           .map { |cp| cp.send(attr) }
           .find_all { |v| v.present? }
       return "" if attr_values.empty?
-
       attr_values.tally.max_by { |_k, v| v }.first || ""
+    end
+
+    def update_embedding!
+      embedding = model.pen_embedding || model.build_pen_embedding
+      content =
+        ([model.name] + model.model_variants.map(&:name))
+          .uniq
+          .sort
+          .map(&:inspect)
+          .join(" OR ")
+      embedding.update!(content: content)
     end
   end
 end

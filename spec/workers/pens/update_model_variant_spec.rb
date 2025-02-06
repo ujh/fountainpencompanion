@@ -119,13 +119,23 @@ describe Pens::UpdateModelVariant do
       trim_color: "Trim Color 1",
       filling_system: "Filling System 1"
     )
+    create(
+      :collected_pen,
+      pens_micro_cluster: mc2,
+      brand: "Brand 1",
+      model: "Model 2",
+      color: "Color 2",
+      material: "Material 1",
+      trim_color: "Trim Color 1",
+      filling_system: "Filling System 1"
+    )
 
     expect do subject.perform(model_variant.id) end.to change {
       PenEmbedding.count
     }.by(1)
     pen_embedding = model_variant.pen_embedding
     expect(pen_embedding.content).to eq(
-      "\"Brand 1 Model 1 Color 1 Material 1 Trim Color 1 Filling System 1\" OR \"Brand 1 Model 2 Color 1 Material 1 Trim Color 1 Filling System 1\""
+      '"Brand 1 Model 1 Color 1 Material 1 Trim Color 1 Filling System 1" OR "Brand 1 Model 2 Color 1 Material 1 Trim Color 1 Filling System 1" OR "Brand 1 Model 2 Color 2 Material 1 Trim Color 1 Filling System 1"'
     )
   end
 
