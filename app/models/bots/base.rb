@@ -1,4 +1,3 @@
-require "chatgpt/client"
 require "csv"
 
 module Bots
@@ -18,15 +17,20 @@ module Bots
         begin
           response =
             client.chat(
-              [{ role: "user", content: prompt }],
-              { model: "gpt-4o-mini" }
+              parameters: {
+                model: "gpt-4o-mini",
+                messages: [{ role: "user", content: prompt }]
+              }
             )
           response.dig("choices", 0, "message", "content")
         end
     end
 
     def client
-      ChatGPT::Client.new(ENV.fetch("OPENAI_PEN_AND_INK_SUGGESTIONS"))
+      OpenAI::Client.new(
+        access_token: ENV.fetch("OPENAI_PEN_AND_INK_SUGGESTIONS"),
+        log_errors: !Rails.env.production?
+      )
     end
   end
 end

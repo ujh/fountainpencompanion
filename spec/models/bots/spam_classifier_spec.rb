@@ -13,6 +13,9 @@ describe Bots::SpamClassifier do
   it 'returns true if text response is "spam"' do
     stub_request(:post, "https://api.openai.com/v1/chat/completions").to_return(
       status: 200,
+      headers: {
+        "Content-Type" => "application/json"
+      },
       body: { "choices" => [{ "message" => { "content" => "spam" } }] }.to_json
     )
     expect(subject.run).to eq true
@@ -21,6 +24,9 @@ describe Bots::SpamClassifier do
   it 'returns false if text response is "normal"' do
     stub_request(:post, "https://api.openai.com/v1/chat/completions").to_return(
       status: 200,
+      headers: {
+        "Content-Type" => "application/json"
+      },
       body: {
         "choices" => [{ "message" => { "content" => "normal" } }]
       }.to_json
@@ -31,6 +37,9 @@ describe Bots::SpamClassifier do
   it "returns false if text contains word normal" do
     stub_request(:post, "https://api.openai.com/v1/chat/completions").to_return(
       status: 200,
+      headers: {
+        "Content-Type" => "application/json"
+      },
       body: {
         "choices" => [{ "message" => { "content" => "spam but also normal" } }]
       }.to_json
