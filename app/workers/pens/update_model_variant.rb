@@ -41,12 +41,8 @@ module Pens
     def update_embedding!
       embedding =
         model_variant.pen_embedding || model_variant.build_pen_embedding
-      content =
-        ([model_variant.name] + model_variant.all_names.map(&:pen_name))
-          .uniq
-          .sort
-          .map(&:inspect)
-          .join(" OR ")
+      names = ([model_variant.name] + model_variant.all_names.map(&:pen_name))
+      content = names.uniq.sort.map(&:inspect).join(" OR ")
       embedding.update!(content: content)
     end
   end

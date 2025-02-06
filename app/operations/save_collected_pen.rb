@@ -18,8 +18,10 @@ class SaveCollectedPen
   attr_accessor :collected_pen, :collected_pen_params
 
   def update_embedding
-    pen_embedding =
-      collected_pen.pen_embedding || collected_pen.build_pen_embedding
     pen_embedding.update(content: collected_pen.pen_name)
+  end
+
+  def pen_embedding
+    collected_pen.pen_embedding || collected_pen.build_pen_embedding
   end
 end
