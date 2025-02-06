@@ -4,7 +4,7 @@ class Pens::ModelVariant < ApplicationRecord
            class_name: "Pens::MicroCluster",
            dependent: :nullify
   has_many :collected_pens, through: :micro_clusters
-  has_one :pen_embedding
+  has_one :pen_embedding, dependent: :destroy, as: :owner
 
   belongs_to :model_micro_cluster,
              optional: true,

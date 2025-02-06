@@ -8,6 +8,7 @@ module Pens
 
       update_attributes!
       Pens::AssignModelMicroCluster.perform_async(model_variant_id)
+      update_embedding!
     end
 
     private
@@ -35,6 +36,14 @@ module Pens
       max_count = attr_values.values.max
       max_attrs = attr_values.find_all { |_k, v| v == max_count }.to_h
       max_attrs.max_by { |k, v| v + k.to_s.length }.first || ""
+    end
+
+    def update_embedding!
+      embedding =
+        model_variant.pen_embedding || model_variant.build_pen_embedding
+      names = ([model_variant.name] + model_variant.all_names.map(&:pen_name))
+      content = names.uniq.sort.map(&:inspect).join(" OR ")
+      embedding.update!(content: content)
     end
   end
 end
