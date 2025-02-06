@@ -20,6 +20,6 @@ class SaveCollectedPen
   def update_embedding
     pen_embedding =
       collected_pen.pen_embedding || collected_pen.build_pen_embedding
-    pen_embedding.update(content: collected_pen.model_name)
+    pen_embedding.update(content: collected_pen.pen_name)
   end
 end

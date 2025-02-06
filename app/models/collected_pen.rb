@@ -111,7 +111,7 @@ class CollectedPen < ApplicationRecord
     )
   end
 
-  def model_name
+  def pen_name
     [brand, model, color, material, trim_color, filling_system].reject do |part|
         part.blank?
       end
