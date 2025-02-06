@@ -4,6 +4,7 @@ class Pens::ModelVariant < ApplicationRecord
            class_name: "Pens::MicroCluster",
            dependent: :nullify
   has_many :collected_pens, through: :micro_clusters
+  has_one :pen_embedding
 
   belongs_to :model_micro_cluster,
              optional: true,

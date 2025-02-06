@@ -14,6 +14,7 @@ class CollectedPen < ApplicationRecord
   has_one :newest_currently_inked,
           -> { order("inked_on desc") },
           class_name: "CurrentlyInked"
+  has_one :pen_embedding
 
   validates :brand, length: { in: 1..100 }
   validates :color, length: { in: 0..100, allow_blank: true }

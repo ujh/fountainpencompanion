@@ -51,6 +51,20 @@ CREATE EXTENSION IF NOT EXISTS pg_trgm WITH SCHEMA public;
 COMMENT ON EXTENSION pg_trgm IS 'text similarity measurement and index searching based on trigrams';
 
 
+--
+-- Name: vector; Type: EXTENSION; Schema: -; Owner: -
+--
+
+CREATE EXTENSION IF NOT EXISTS vector WITH SCHEMA public;
+
+
+--
+-- Name: EXTENSION vector; Type: COMMENT; Schema: -; Owner: -
+--
+
+COMMENT ON EXTENSION vector IS 'vector data type and ivfflat and hnsw access methods';
+
+
 SET default_tablespace = '';
 
 SET default_table_access_method = heap;
@@ -578,6 +592,40 @@ ALTER SEQUENCE public.new_ink_names_id_seq OWNED BY public.new_ink_names.id;
 
 
 --
+-- Name: pen_embeddings; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.pen_embeddings (
+    id bigint NOT NULL,
+    content text NOT NULL,
+    embedding public.vector(1536),
+    owner_type character varying NOT NULL,
+    owner_id bigint NOT NULL,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
+);
+
+
+--
+-- Name: pen_embeddings_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.pen_embeddings_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: pen_embeddings_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.pen_embeddings_id_seq OWNED BY public.pen_embeddings.id;
+
+
+--
 -- Name: pens_brands; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -1077,6 +1125,13 @@ ALTER TABLE ONLY public.new_ink_names ALTER COLUMN id SET DEFAULT nextval('publi
 
 
 --
+-- Name: pen_embeddings id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.pen_embeddings ALTER COLUMN id SET DEFAULT nextval('public.pen_embeddings_id_seq'::regclass);
+
+
+--
 -- Name: pens_brands id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -1271,6 +1326,14 @@ ALTER TABLE ONLY public.micro_clusters
 
 ALTER TABLE ONLY public.new_ink_names
     ADD CONSTRAINT new_ink_names_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: pen_embeddings pen_embeddings_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.pen_embeddings
+    ADD CONSTRAINT pen_embeddings_pkey PRIMARY KEY (id);
 
 
 --
@@ -1643,6 +1706,20 @@ CREATE UNIQUE INDEX index_new_ink_names_on_simplified_name_and_ink_brand_id ON p
 
 
 --
+-- Name: index_pen_embeddings_on_embedding; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_pen_embeddings_on_embedding ON public.pen_embeddings USING hnsw (embedding public.vector_cosine_ops);
+
+
+--
+-- Name: index_pen_embeddings_on_owner; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_pen_embeddings_on_owner ON public.pen_embeddings USING btree (owner_type, owner_id);
+
+
+--
 -- Name: index_pens_brands_on_name; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -1981,6 +2058,8 @@ ALTER TABLE ONLY public.collected_inks
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20250206102705'),
+('20250206102130'),
 ('20250107083051'),
 ('20241228204210'),
 ('20241228202733'),

@@ -317,6 +317,8 @@ GEM
     multi_json (1.15.0)
     multipart-post (2.4.1)
     mutex_m (0.3.0)
+    neighbor (0.5.2)
+      activerecord (>= 7)
     net-imap (0.5.1)
       date
       net-protocol
@@ -636,6 +638,7 @@ DEPENDENCIES
   letter_opener
   letter_opener_web
   listen
+  neighbor
   newrelic_rpm
   nokogiri
   paper_trail
