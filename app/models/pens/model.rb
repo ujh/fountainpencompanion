@@ -6,7 +6,7 @@ class Pens::Model < ApplicationRecord
   has_many :model_variants, through: :model_micro_clusters
   has_many :micro_clusters, through: :model_variants
   has_many :collected_pens, through: :micro_clusters
-  has_one :pen_embedding
+  has_one :pen_embedding, dependent: :destroy, as: :owner
 
   belongs_to :pen_brand,
              optional: true,

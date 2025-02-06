@@ -14,7 +14,7 @@ class CollectedPen < ApplicationRecord
   has_one :newest_currently_inked,
           -> { order("inked_on desc") },
           class_name: "CurrentlyInked"
-  has_one :pen_embedding
+  has_one :pen_embedding, dependent: :destroy, as: :owner
 
   validates :brand, length: { in: 1..100 }
   validates :color, length: { in: 0..100, allow_blank: true }
@@ -109,6 +109,13 @@ class CollectedPen < ApplicationRecord
       trim_color:,
       archived: archived?
     )
+  end
+
+  def model_name
+    [brand, model, color, material, trim_color, filling_system].reject do |part|
+        part.blank?
+      end
+      .join(" ")
   end
 
   def brand=(value)

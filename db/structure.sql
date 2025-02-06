@@ -1720,6 +1720,13 @@ CREATE INDEX index_pen_embeddings_on_owner ON public.pen_embeddings USING btree 
 
 
 --
+-- Name: index_pen_embeddings_on_owner_type_and_owner_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_pen_embeddings_on_owner_type_and_owner_id ON public.pen_embeddings USING btree (owner_type, owner_id);
+
+
+--
 -- Name: index_pens_brands_on_name; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -2058,6 +2065,7 @@ ALTER TABLE ONLY public.collected_inks
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20250206124945'),
 ('20250206102705'),
 ('20250206102130'),
 ('20250107083051'),

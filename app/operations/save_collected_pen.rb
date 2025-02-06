@@ -6,11 +6,20 @@ class SaveCollectedPen
 
   def perform
     updated = collected_pen.update(collected_pen_params)
-    Pens::AssignMicroCluster.perform_async(collected_pen.id) if updated
-    updated
+    return false unless updated
+
+    Pens::AssignMicroCluster.perform_async(collected_pen.id)
+    update_embedding
+    true
   end
 
   private
 
   attr_accessor :collected_pen, :collected_pen_params
+
+  def update_embedding
+    pen_embedding =
+      collected_pen.pen_embedding || collected_pen.build_pen_embedding
+    pen_embedding.update(content: collected_pen.model_name)
+  end
 end
