@@ -94,4 +94,73 @@ describe Pens::UpdateModelVariant do
     job = Pens::AssignModelMicroCluster.jobs.last
     expect(job["args"]).to eq([model_variant.id])
   end
+
+  it "creates the embedding if not present" do
+    model_variant = create(:pens_model_variant)
+    mc1 = create(:pens_micro_cluster, model_variant:)
+    mc2 = create(:pens_micro_cluster, model_variant:)
+    create(
+      :collected_pen,
+      pens_micro_cluster: mc1,
+      brand: "Brand 1",
+      model: "Model 1",
+      color: "Color 1",
+      material: "Material 1",
+      trim_color: "Trim Color 1",
+      filling_system: "Filling System 1"
+    )
+    create(
+      :collected_pen,
+      pens_micro_cluster: mc2,
+      brand: "Brand 1",
+      model: "Model 2",
+      color: "Color 1",
+      material: "Material 1",
+      trim_color: "Trim Color 1",
+      filling_system: "Filling System 1"
+    )
+
+    expect do subject.perform(model_variant.id) end.to change {
+      PenEmbedding.count
+    }.by(1)
+    pen_embedding = model_variant.pen_embedding
+    expect(pen_embedding.content).to eq(
+      "\"Brand 1 Model 1 Color 1 Material 1 Trim Color 1 Filling System 1\" OR \"Brand 1 Model 2 Color 1 Material 1 Trim Color 1 Filling System 1\""
+    )
+  end
+
+  it "updates the existing embedding" do
+    model_variant = create(:pens_model_variant)
+    pen_embedding = model_variant.create_pen_embedding(content: "old content")
+    mc1 = create(:pens_micro_cluster, model_variant:)
+    mc2 = create(:pens_micro_cluster, model_variant:)
+    create(
+      :collected_pen,
+      pens_micro_cluster: mc1,
+      brand: "Brand 1",
+      model: "Model 1",
+      color: "Color 1",
+      material: "Material 1",
+      trim_color: "Trim Color 1",
+      filling_system: "Filling System 1"
+    )
+    create(
+      :collected_pen,
+      pens_micro_cluster: mc2,
+      brand: "Brand 1",
+      model: "Model 2",
+      color: "Color 1",
+      material: "Material 1",
+      trim_color: "Trim Color 1",
+      filling_system: "Filling System 1"
+    )
+
+    expect do
+      expect { subject.perform(model_variant.id) }.not_to(
+        change { PenEmbedding.count }
+      )
+    end.to change { pen_embedding.reload.content }.from("old content").to(
+      "\"Brand 1 Model 1 Color 1 Material 1 Trim Color 1 Filling System 1\" OR \"Brand 1 Model 2 Color 1 Material 1 Trim Color 1 Filling System 1\""
+    )
+  end
 end
