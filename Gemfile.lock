@@ -432,6 +432,7 @@ GEM
       redis-client (>= 0.22.0)
     redis-client (0.23.2)
       connection_pool
+    redis-prescription (2.6.0)
     regexp_parser (2.10.0)
     reline (0.6.0)
       io-console (~> 0.5)
@@ -517,6 +518,10 @@ GEM
       rufus-scheduler (~> 3.2)
       sidekiq (>= 6, < 8)
       tilt (>= 1.4.0, < 3)
+    sidekiq-throttled (1.5.2)
+      concurrent-ruby (>= 1.2.0)
+      redis-prescription (~> 2.2)
+      sidekiq (>= 6.5)
     signet (0.19.0)
       addressable (~> 2.8)
       faraday (>= 0.17.5, < 3.a)
@@ -669,6 +674,7 @@ DEPENDENCIES
   scenic
   sidekiq
   sidekiq-scheduler
+  sidekiq-throttled
   simple_form
   simplecov
   simplecov-lcov
