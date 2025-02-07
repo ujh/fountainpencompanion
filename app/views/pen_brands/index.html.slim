@@ -1,5 +1,7 @@
 - content_for :title, "Pen brands"
 
+= render partial: 'pen_models/search'
+
 h2.mt-5.mb-3 Browse
 p #{Pens::Brand.public_count} brands
 ol class="fpc-brands-list"

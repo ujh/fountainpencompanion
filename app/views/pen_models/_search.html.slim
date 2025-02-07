@@ -1,0 +1,5 @@
+div.fpc-pen-models-search
+  = form_tag('/pen_models', method: :get) do
+    div.input-group.mb-3
+      = text_field_tag :q, params[:q], placeholder: 'Try a pen model like TWSBI Eco', class: 'form-control', id: 'search', 'aria-label': 'Search'
+      = submit_tag 'Search', class: 'btn btn-success'
