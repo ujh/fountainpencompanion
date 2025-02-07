@@ -63,7 +63,7 @@ Rails.application.routes.draw do
       resources :pen_variants, only: %i[show]
     end
   end
-  resources :pen_models, only: %i[show]
+  resources :pen_models, only: %i[index show]
   resources :pen_variants, only: %i[show]
 
   resources :inks, only: %i[index show] do

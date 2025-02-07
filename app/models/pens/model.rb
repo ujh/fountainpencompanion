@@ -25,6 +25,17 @@ class Pens::Model < ApplicationRecord
       SQL
   end
 
+  def self.embedding_search(query)
+    query_embedding = EmbeddingsClient.new.fetch(query)
+    PenEmbedding
+      .where(owner_type: to_s)
+      .nearest_neighbors(:embedding, query_embedding, distance: "cosine")
+      .includes(:owner)
+      .order(:neighbor_distance)
+      .first(200)
+      .reject { |e| e.neighbor_distance > 0.6 }
+  end
+
   def name
     "#{brand} #{model}"
   end

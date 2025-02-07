@@ -1,0 +1,18 @@
+- content_for :title, "Search results for '#{params[:q]}'"
+
+= render partial: 'pen_models/search'
+
+div class="fpc-table fpc-table--full-width fpc-inks-table fpc-scroll-shadow"
+  table class="table table-striped"
+    thead
+      tr
+        th Brand
+        th Model
+        th
+    tbody
+      - @embeddings.each do |embedding|
+        - model = embedding.owner
+        tr
+          td= model.brand
+          td= model.model
+          td= link_to "Details", pen_model_path(model)
