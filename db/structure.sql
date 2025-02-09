@@ -10,6 +10,20 @@ SET client_min_messages = warning;
 SET row_security = off;
 
 --
+-- Name: public; Type: SCHEMA; Schema: -; Owner: -
+--
+
+-- *not* creating schema, since initdb creates it
+
+
+--
+-- Name: SCHEMA public; Type: COMMENT; Schema: -; Owner: -
+--
+
+COMMENT ON SCHEMA public IS '';
+
+
+--
 -- Name: fuzzystrmatch; Type: EXTENSION; Schema: -; Owner: -
 --
 
@@ -1447,6 +1461,13 @@ CREATE UNIQUE INDEX idx_on_simplified_brand_simplified_model_70c232c961 ON publi
 
 
 --
+-- Name: idx_on_simplified_brand_simplified_model_simplified_b6b51aca41; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX idx_on_simplified_brand_simplified_model_simplified_b6b51aca41 ON public.pens_micro_clusters USING btree (simplified_brand, simplified_model, simplified_color);
+
+
+--
 -- Name: index_brand_clusters_on_description; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -1703,13 +1724,6 @@ CREATE INDEX index_new_ink_names_on_popular_name ON public.new_ink_names USING b
 --
 
 CREATE UNIQUE INDEX index_new_ink_names_on_simplified_name_and_ink_brand_id ON public.new_ink_names USING btree (simplified_name, ink_brand_id);
-
-
---
--- Name: index_pen_embeddings_on_embedding; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX index_pen_embeddings_on_embedding ON public.pen_embeddings USING hnsw (embedding public.vector_cosine_ops);
 
 
 --
@@ -2065,6 +2079,7 @@ ALTER TABLE ONLY public.collected_inks
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20250209193211'),
 ('20250206124945'),
 ('20250206102705'),
 ('20250206102130'),
