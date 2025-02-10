@@ -33,6 +33,7 @@ exceptions:
     - ActionDispatch::Http::Parameters::ParseError
     - ActionController::BadRequest
     - Redis::ConnectionError
+    - RedisClient::ReadTimeoutError
     - Rack::Timeout::RequestTimeoutException
     - Rack::Timeout::RequestExpiryError
     - Rack::Timeout::RequestTimeoutError
