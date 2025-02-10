@@ -11,7 +11,7 @@ class EmbeddingsClient
   def fetch_embedding
     Rails
       .cache
-      .fetch("embedding:#{digest}") do
+      .fetch("embedding:#{digest}", expires_in: 1.week) do
         response = client.embeddings(parameters: { model: "text-embedding-3-small", input: text })
         response.dig("data", 0, "embedding")
       end
