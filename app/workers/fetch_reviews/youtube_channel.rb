@@ -18,6 +18,7 @@ class FetchReviews
         video = video.merge(search_term: video[:title])
         video = match(video)
         submit(video)
+        sleep(rand) # Crude way of reducing the database load
       end
     end
 
