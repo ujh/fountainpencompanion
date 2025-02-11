@@ -482,7 +482,7 @@ GEM
     rubocop-ast (1.38.0)
       parser (>= 3.3.1.0)
     ruby-oembed (0.15.0)
-    ruby-openai (7.3.1)
+    ruby-openai (7.4.0)
       event_stream_parser (>= 0.3.0, < 2.0.0)
       faraday (>= 1)
       faraday-multipart (>= 1)
