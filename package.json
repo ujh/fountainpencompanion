@@ -65,7 +65,7 @@
     "jest": "^29.7.0",
     "jest-environment-jsdom": "^29.7.0",
     "msw": "1.0.1",
-    "prettier": "^3.5.1"
+    "prettier": "^3.5.2"
   },
   "engines": {
     "node": "v20.18.0"
