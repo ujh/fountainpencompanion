@@ -1,18 +1,32 @@
 import React from "react";
 import { useState, useEffect } from "react";
+import TrackVisibility from "react-on-screen";
 import { getRequest, postRequest } from "../fetch";
 
-export const App = ({ macro_cluster_id, details }) => {
+export const App = ({ renderWhenInvisible, ...rest }) => {
+  if (renderWhenInvisible) {
+    return <InternalApp {...rest} isVisible={true} />;
+  }
+
+  return (
+    <TrackVisibility once partialVisibility>
+      {({ isVisible }) => <InternalApp {...rest} isVisible={isVisible} />}
+    </TrackVisibility>
+  );
+};
+
+const InternalApp = ({ macro_cluster_id, details, isVisible }) => {
   const [loading, setLoading] = useState(true);
   const [inCollection, setInCollection] = useState(false);
   useEffect(() => {
+    if (!isVisible) return;
     getRequest(`/collected_inks.json?filter[macro_cluster_id]=${macro_cluster_id}`)
       .then((response) => response.json())
       .then((json) => {
         setInCollection(json.data.length > 0);
         setLoading(false);
       });
-  }, [macro_cluster_id]);
+  }, [macro_cluster_id, isVisible]);
   if (loading) {
     return <Loader />;
   } else {
