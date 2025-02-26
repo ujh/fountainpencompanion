@@ -22,12 +22,14 @@ class HistoriesController < ApplicationController
   end
 
   def calculate_diff(version)
+    return "" unless version.changeset.key?("description")
+
     changes = version.changeset["description"].reverse.map(&:to_s)
     Differ.diff_by_word(*changes).format_as(:html).html_safe
   end
 
   def object
     @object ||=
-      (MacroCluster.find_by(id: params[:ink_id]) || BrandCluster.find_by(id: params[:brand_id]))
+      MacroCluster.find_by(id: params[:ink_id]) || BrandCluster.find_by(id: params[:brand_id])
   end
 end
