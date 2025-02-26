@@ -15,7 +15,7 @@ Rack::Attack.throttle("Mastodon", limit: 1, period: 1) do |request|
   "mastodon" if request.user_agent =~ /mastodon/i
 end
 
-Rack::Attack.throttle("general", limit: 100, period: 1.minute) do |request|
+Rack::Attack.throttle("general", limit: 180, period: 1.minute) do |request|
   request.ip unless request.path.starts_with?("/admins")
 end
 

@@ -25,17 +25,17 @@ describe("App", () => {
 
   describe("ink already in collection", () => {
     it("shows the add button", async () => {
-      render(<App macro_cluster_id="in_collection" />);
+      render(<App macro_cluster_id="in_collection" renderWhenInvisible={true} />);
       await screen.findByText("Add again?");
     });
 
     it("has a different text for the detail view", async () => {
-      render(<App macro_cluster_id="in_collection" details={true} />);
+      render(<App macro_cluster_id="in_collection" details={true} renderWhenInvisible={true} />);
       await screen.findByText("Add additional entries to collection?");
     });
 
     it("clicking shows the type selector", async () => {
-      render(<App macro_cluster_id="in_collection" />);
+      render(<App macro_cluster_id="in_collection" renderWhenInvisible={true} />);
       await screen.findByText("Add again?");
       const user = userEvent.setup();
       await user.click(screen.getByText("Add again?"));
@@ -49,17 +49,17 @@ describe("App", () => {
 
   describe("ink not in collection", () => {
     it("shows the add button", async () => {
-      render(<App macro_cluster_id="missing" />);
+      render(<App macro_cluster_id="missing" renderWhenInvisible={true} />);
       await screen.findByText("Add to collection");
     });
 
     it("has the same text for detail view", async () => {
-      render(<App macro_cluster_id="missing" details={true} />);
+      render(<App macro_cluster_id="missing" details={true} renderWhenInvisible={true} />);
       await screen.findByText("Add to collection");
     });
 
     it("clicking shows the type selector", async () => {
-      render(<App macro_cluster_id="missing" />);
+      render(<App macro_cluster_id="missing" renderWhenInvisible={true} />);
       await screen.findByText("Add to collection");
       const user = userEvent.setup();
       await user.click(screen.getByText("Add to collection"));
