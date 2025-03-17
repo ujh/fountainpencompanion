@@ -28,7 +28,8 @@ class UpdateMacroCluster
   end
 
   def popular(field)
-    grouped = cluster.collected_inks.group_by { |ci| ci.send(field) }
+    grouped =
+      cluster.collected_inks.reject { |ci| ci.send(field).blank? }.group_by { |ci| ci.send(field) }
     popular = grouped.values.max_by { |cis| cis.length }.first
     popular.send(field)
   end
@@ -42,7 +43,7 @@ class UpdateMacroCluster
   end
 
   def average_for(colors, field)
-    sum = (colors.map { |c| c.send(field)**2 }.sum)
+    sum = colors.map { |c| c.send(field)**2 }.sum
     size = colors.size.to_f
     Math.sqrt(sum / size).round
   end
