@@ -28,8 +28,10 @@ class UpdateMacroCluster
   end
 
   def popular(field)
-    grouped =
-      cluster.collected_inks.reject { |ci| ci.send(field).blank? }.group_by { |ci| ci.send(field) }
+    inks = cluster.collected_inks.reject { |ci| ci.send(field).blank? }
+    return "" if inks.empty?
+
+    grouped = inks.group_by { |ci| ci.send(field) }
     popular = grouped.values.max_by { |cis| cis.length }.first
     popular.send(field)
   end
