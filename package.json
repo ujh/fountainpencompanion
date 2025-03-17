@@ -1,7 +1,7 @@
 {
   "license": "UNLICENSED",
   "dependencies": {
-    "@babel/core": "^7.26.9",
+    "@babel/core": "^7.26.10",
     "@babel/preset-env": "^7.26.9",
     "@babel/preset-react": "^7.26.3",
     "@popperjs/core": "^2.11.8",
@@ -23,7 +23,7 @@
     "js-cookie": "^3.0.5",
     "jsona": "^1.12.1",
     "jstz": "^2.1.1",
-    "lint-staged": "^15.4.3",
+    "lint-staged": "^15.5.0",
     "lodash": "^4.17.21",
     "match-sorter": "^8.0.0",
     "mini-css-extract-plugin": "^2.9.2",
@@ -49,7 +49,7 @@
     "whatwg-fetch": "^3.6.20"
   },
   "devDependencies": {
-    "@babel/eslint-parser": "^7.26.8",
+    "@babel/eslint-parser": "^7.26.10",
     "@eslint/compat": "^1.2.7",
     "@eslint/eslintrc": "^3.3.0",
     "@eslint/js": "^9.22.0",
