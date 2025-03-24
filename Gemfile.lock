@@ -230,7 +230,7 @@ GEM
     hashdiff (1.1.2)
     heapy (0.2.0)
       thor
-    honeybadger (5.27.0)
+    honeybadger (5.27.1)
       logger
       ostruct
     httpclient (2.9.0)
