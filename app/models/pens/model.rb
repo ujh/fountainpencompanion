@@ -32,7 +32,7 @@ class Pens::Model < ApplicationRecord
     embeddings =
       PenEmbedding
         .nearest_neighbors(:embedding, query_embedding, distance: "cosine")
-        .includes(:owner)
+        .includes(owner: { pens_micro_cluster: { model_variant: { model_micro_cluster: :model } } })
         .order(:neighbor_distance)
         .first(200)
         .reject { |e| e.neighbor_distance > 0.6 }
