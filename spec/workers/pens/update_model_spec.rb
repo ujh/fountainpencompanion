@@ -34,7 +34,12 @@ describe Pens::UpdateModel do
   it "schedules the brand update job" do
     model = create(:pens_model)
     mmc1 = create(:pens_model_micro_cluster, model:)
-    create(:pens_model_variant, model_micro_cluster: mmc1)
+    mv = create(:pens_model_variant, model_micro_cluster: mmc1)
+    create(
+      :pens_micro_cluster,
+      model_variant: mv,
+      collected_pens: [create(:collected_pen, brand: "Brand 1", model: "Model 1")]
+    )
 
     expect do subject.perform(model.id) end.to change(Pens::AssignBrand.jobs, :count).by(1)
   end
