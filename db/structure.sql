@@ -10,20 +10,6 @@ SET client_min_messages = warning;
 SET row_security = off;
 
 --
--- Name: public; Type: SCHEMA; Schema: -; Owner: -
---
-
--- *not* creating schema, since initdb creates it
-
-
---
--- Name: SCHEMA public; Type: COMMENT; Schema: -; Owner: -
---
-
-COMMENT ON SCHEMA public IS '';
-
-
---
 -- Name: fuzzystrmatch; Type: EXTENSION; Schema: -; Owner: -
 --
 
@@ -2079,6 +2065,7 @@ ALTER TABLE ONLY public.collected_inks
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20250331082810'),
 ('20250209193211'),
 ('20250206124945'),
 ('20250206102705'),
