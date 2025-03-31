@@ -4,7 +4,7 @@ module Pens
 
     def perform(model_id)
       self.model = Pens::Model.find(model_id)
-      return if model.model_variants.empty?
+      return if model.collected_pens.empty?
 
       update_attributes!
       Pens::AssignBrand.perform_async(model_id)
