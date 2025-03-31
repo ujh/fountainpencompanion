@@ -28,6 +28,7 @@ class Pens::Model < ApplicationRecord
   end
 
   def self.embedding_search(query)
+    self.connection.execute("SET hnsw.ef_search = 100")
     query_embedding = EmbeddingsClient.new.fetch(query)
     embeddings =
       PenEmbedding

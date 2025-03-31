@@ -1713,6 +1713,13 @@ CREATE UNIQUE INDEX index_new_ink_names_on_simplified_name_and_ink_brand_id ON p
 
 
 --
+-- Name: index_pen_embeddings_on_embedding; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_pen_embeddings_on_embedding ON public.pen_embeddings USING hnsw (embedding public.vector_cosine_ops);
+
+
+--
 -- Name: index_pen_embeddings_on_owner; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -2065,6 +2072,7 @@ ALTER TABLE ONLY public.collected_inks
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20250331124026'),
 ('20250331082810'),
 ('20250209193211'),
 ('20250206124945'),
