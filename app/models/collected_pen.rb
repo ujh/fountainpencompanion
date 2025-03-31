@@ -124,4 +124,8 @@ class CollectedPen < ApplicationRecord
   def pen_variant
     pens_micro_cluster&.model_variant
   end
+
+  def pen_model
+    pen_variant&.pen_model
+  end
 end

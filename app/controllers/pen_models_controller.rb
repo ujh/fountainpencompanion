@@ -2,7 +2,7 @@ class PenModelsController < ApplicationController
   add_breadcrumb "Pens", "/pen_brands"
 
   def index
-    @embeddings = Pens::Model.embedding_search(params[:q])
+    @model_data = Pens::Model.embedding_search(params[:q])
   end
 
   def show

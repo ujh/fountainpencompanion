@@ -10,9 +10,18 @@ div class="fpc-table fpc-table--full-width fpc-inks-table fpc-scroll-shadow"
         th Model
         th
     tbody
-      - @embeddings.each do |embedding|
-        - model = embedding.owner
+      - @model_data.each do |data|
+        - model = data.owner.pen_model
         tr
           td= model.brand
           td= model.model
           td= link_to "Details", pen_model_path(model)
+
+          - if data.model_variants.present?
+            tr
+              td colspan=3
+                table class="table table-striped"
+                  - data.model_variants.each do |model_variant|
+                    tr
+                      td= model_variant.name
+                      td= link_to "Details", pen_variant_path(model_variant)
