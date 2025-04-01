@@ -2,8 +2,23 @@ class AssignMicroCluster
   include Sidekiq::Worker
 
   def perform(collected_ink_id, macro_cluster_id = nil)
-    collected_ink = CollectedInk.find(collected_ink_id)
-    cluster =
+    self.collected_ink = CollectedInk.find(collected_ink_id)
+    self.macro_cluster_id = macro_cluster_id
+    find_or_create_cluster
+    update_collected_ink
+    update_embedding
+
+    UpdateMicroCluster.perform_async(cluster.id)
+  rescue ActiveRecord::RecordNotFound
+    # do nothing
+  end
+
+  private
+
+  attr_accessor :cluster, :collected_ink, :macro_cluster_id
+
+  def find_or_create_cluster
+    self.cluster =
       MicroCluster.find_or_create_by!(
         simplified_brand_name: collected_ink.simplified_brand_name,
         simplified_line_name: collected_ink.simplified_line_name,
@@ -26,9 +41,14 @@ class AssignMicroCluster
           end
         end
       end
+  end
+
+  def update_collected_ink
     collected_ink.update!(micro_cluster: cluster)
-    UpdateMicroCluster.perform_async(cluster.id)
-  rescue ActiveRecord::RecordNotFound
-    # do nothing
+  end
+
+  def update_embedding
+    embedding = cluster.ink_embedding || cluster.build_ink_embedding
+    embedding.update(content: cluster.simplified_name)
   end
 end

@@ -1,7 +1,14 @@
 require "rails_helper"
 
 describe AssignMicroCluster do
-  let(:collected_ink) { create(:collected_ink) }
+  let(:collected_ink) do
+    create(
+      :collected_ink,
+      brand_name: "Diamine",
+      line_name: "160th Anniversary",
+      ink_name: "Canal Side"
+    )
+  end
 
   context "new ink" do
     it "creates a new cluster and assigns it if no matching one exists" do
@@ -16,6 +23,12 @@ describe AssignMicroCluster do
         Rails.cache.read("new_cluster_count", raw: true).to_i
       }.by(1)
     end
+
+    it "creates the embedding" do
+      expect do subject.perform(collected_ink.id) end.to change { InkEmbedding.count }.by(1)
+      embedding = MicroCluster.last.ink_embedding
+      expect(embedding.content).to eq("diamine 160thanniversary canalside")
+    end
   end
 
   context "existing ink" do
@@ -29,13 +42,26 @@ describe AssignMicroCluster do
     end
 
     it "reuses an existing cluster" do
-      expect do subject.perform(collected_ink.id) end.to_not change { MicroCluster.count }
+      expect { subject.perform(collected_ink.id) }.to_not(change { MicroCluster.count })
       expect(collected_ink.reload.micro_cluster).to eq(cluster)
     end
 
     it "does not send an email" do
       expect(AdminMailer).to_not receive(:new_cluster)
-      expect do subject.perform(collected_ink.id) end.to_not change { MicroCluster.count }
+      expect { subject.perform(collected_ink.id) }.to_not(change { MicroCluster.count })
+    end
+
+    it "adds the embedding if it does not exist" do
+      expect do subject.perform(collected_ink.id) end.to change { InkEmbedding.count }.by(1)
+      embedding = cluster.ink_embedding
+      expect(embedding.content).to eq("diamine 160thanniversary canalside")
+    end
+
+    it "updates an existing embedding" do
+      embedding = cluster.create_ink_embedding(content: "wrong")
+
+      expect { subject.perform(collected_ink.id) }.not_to(change { InkEmbedding.count })
+      expect(embedding.reload.content).to eq("diamine 160thanniversary canalside")
     end
   end
 

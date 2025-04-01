@@ -375,6 +375,40 @@ ALTER SEQUENCE public.ink_brands_id_seq OWNED BY public.ink_brands.id;
 
 
 --
+-- Name: ink_embeddings; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.ink_embeddings (
+    id bigint NOT NULL,
+    content text NOT NULL,
+    embedding public.vector(1536),
+    owner_type character varying NOT NULL,
+    owner_id bigint NOT NULL,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
+);
+
+
+--
+-- Name: ink_embeddings_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.ink_embeddings_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: ink_embeddings_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.ink_embeddings_id_seq OWNED BY public.ink_embeddings.id;
+
+
+--
 -- Name: ink_review_submissions; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -1083,6 +1117,13 @@ ALTER TABLE ONLY public.ink_brands ALTER COLUMN id SET DEFAULT nextval('public.i
 
 
 --
+-- Name: ink_embeddings id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.ink_embeddings ALTER COLUMN id SET DEFAULT nextval('public.ink_embeddings_id_seq'::regclass);
+
+
+--
 -- Name: ink_review_submissions id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -1278,6 +1319,14 @@ ALTER TABLE ONLY public.gutentag_tags
 
 ALTER TABLE ONLY public.ink_brands
     ADD CONSTRAINT ink_brands_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: ink_embeddings ink_embeddings_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.ink_embeddings
+    ADD CONSTRAINT ink_embeddings_pkey PRIMARY KEY (id);
 
 
 --
@@ -1598,6 +1647,27 @@ CREATE INDEX index_gutentag_tags_on_taggings_count ON public.gutentag_tags USING
 --
 
 CREATE UNIQUE INDEX index_ink_brands_on_simplified_name ON public.ink_brands USING btree (simplified_name);
+
+
+--
+-- Name: index_ink_embeddings_on_embedding; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_ink_embeddings_on_embedding ON public.ink_embeddings USING hnsw (embedding public.vector_cosine_ops);
+
+
+--
+-- Name: index_ink_embeddings_on_owner; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_ink_embeddings_on_owner ON public.ink_embeddings USING btree (owner_type, owner_id);
+
+
+--
+-- Name: index_ink_embeddings_on_owner_type_and_owner_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_ink_embeddings_on_owner_type_and_owner_id ON public.ink_embeddings USING btree (owner_type, owner_id);
 
 
 --
@@ -2072,6 +2142,7 @@ ALTER TABLE ONLY public.collected_inks
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20250401120318'),
 ('20250331124026'),
 ('20250331082810'),
 ('20250209193211'),
