@@ -20,6 +20,7 @@ class CollectedInk < ApplicationRecord
   has_many :currently_inkeds, dependent: :destroy
   has_many :usage_records, through: :currently_inkeds
   has_one :newest_currently_inked, -> { order("inked_on desc") }, class_name: "CurrentlyInked"
+  has_one :ink_embedding, dependent: :destroy, as: :owner
 
   belongs_to :micro_cluster, optional: true
 
@@ -227,8 +228,7 @@ class CollectedInk < ApplicationRecord
     return unless comment.blank?
 
     rel =
-      self
-        .user
+      user
         .collected_inks
         .where(
           "LOWER(brand_name) = ? AND LOWER(line_name) = ? AND LOWER(ink_name) = ?",

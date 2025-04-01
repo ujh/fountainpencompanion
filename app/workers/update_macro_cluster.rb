@@ -9,6 +9,7 @@ class UpdateMacroCluster
     update_names
     update_tags
     cluster.save
+    update_embedding
     cluster.collected_inks.update_all(cluster_color: cluster.color)
     CheckBrandClusters.perform_async(id)
   end
@@ -48,5 +49,10 @@ class UpdateMacroCluster
     sum = colors.map { |c| c.send(field)**2 }.sum
     size = colors.size.to_f
     Math.sqrt(sum / size).round
+  end
+
+  def update_embedding
+    embedding = cluster.ink_embedding || cluster.build_ink_embedding
+    embedding.update(content: cluster.name)
   end
 end
