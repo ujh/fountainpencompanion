@@ -8,7 +8,7 @@ class RefreshInks
     if ids.empty?
       CollectedInk.in_batches(of: 100) { |batch| RefreshInks.perform_async(batch.pluck(:id)) }
     else
-      CollectedInk.where(id: ids).map(&:save)
+      CollectedInk.where(id: ids).find_each { |ci| SaveCollectedInk.new(ci, {}).perform }
     end
   end
 end
