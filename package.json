@@ -50,7 +50,7 @@
   },
   "devDependencies": {
     "@babel/eslint-parser": "^7.27.0",
-    "@eslint/compat": "^1.2.7",
+    "@eslint/compat": "^1.2.8",
     "@eslint/eslintrc": "^3.3.1",
     "@eslint/js": "^9.22.0",
     "@prettier/plugin-ruby": "^4.0.4",
