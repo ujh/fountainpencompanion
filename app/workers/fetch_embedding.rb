@@ -3,6 +3,7 @@ class FetchEmbedding
   include Sidekiq::Throttled::Worker
 
   sidekiq_throttle concurrency: { limit: 2 }
+  sidekiq_options queue: "low"
 
   def perform(class_name, id)
     self.model = class_name.constantize.find_by(id: id)
