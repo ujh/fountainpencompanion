@@ -203,16 +203,16 @@ GEM
     google-cloud-env (2.2.1)
       faraday (>= 1.0, < 3.a)
     google-logging-utils (0.1.0)
-    google-protobuf (4.29.2)
+    google-protobuf (4.30.2)
       bigdecimal
       rake (>= 13)
-    google-protobuf (4.29.2-arm64-darwin)
+    google-protobuf (4.30.2-arm64-darwin)
       bigdecimal
       rake (>= 13)
-    google-protobuf (4.29.2-x86_64-darwin)
+    google-protobuf (4.30.2-x86_64-darwin)
       bigdecimal
       rake (>= 13)
-    google-protobuf (4.29.2-x86_64-linux)
+    google-protobuf (4.30.2-x86_64-linux)
       bigdecimal
       rake (>= 13)
     googleauth (1.13.1)
@@ -354,7 +354,7 @@ GEM
       ast (~> 2.4.1)
       racc
     pg (1.5.9)
-    pg_query (6.0.0)
+    pg_query (6.1.0)
       google-protobuf (>= 3.25.3)
     pg_search (2.3.7)
       activerecord (>= 6.1)
