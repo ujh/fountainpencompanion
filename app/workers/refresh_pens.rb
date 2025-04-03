@@ -2,7 +2,7 @@ class RefreshPens
   include Sidekiq::Worker
   include Sidekiq::Throttled::Worker
 
-  sidekiq_throttle concurrency: { limit: 2 }
+  sidekiq_throttle concurrency: { limit: 3 }
 
   def perform(ids = [])
     if ids.empty?
