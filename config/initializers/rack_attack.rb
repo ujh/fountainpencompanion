@@ -15,6 +15,11 @@ Rack::Attack.throttle("Mastodon", limit: 1, period: 1) do |request|
   "mastodon" if request.user_agent =~ /mastodon/i
 end
 
+# General bot throttling
+Rack::Attack.throttle("bots", limit: 1, period: 1) do |request|
+  request.user_agent if request.user_agent =~ /bot/i
+end
+
 # Block misbehaving bots
 # See https://social.treehouse.systems/@dee/112524729369220652
 Rack::Attack.blocklist("Misbehaving bots") do |request|
