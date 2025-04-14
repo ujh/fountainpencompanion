@@ -132,7 +132,7 @@ GEM
       railties (>= 4.1.0)
       responders
       warden (~> 1.2.3)
-    devise-passwordless (1.0.3)
+    devise-passwordless (1.1.0)
       devise
       globalid
     diff-lcs (1.6.1)
@@ -378,7 +378,7 @@ GEM
       puma (>= 2.7)
     raabro (1.4.0)
     racc (1.8.1)
-    rack (3.1.12)
+    rack (3.1.13)
     rack-attack (6.7.0)
       rack (>= 1.0, < 4)
     rack-session (2.1.0)
