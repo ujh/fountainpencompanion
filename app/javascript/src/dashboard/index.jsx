@@ -20,7 +20,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
 const Dashboard = () => (
   <div className="fpc-dashboard">
-    <SponsorWidget />
     <CurrentlyInkedSummaryWidget />
     <InksSummaryWidget />
     <PensSummaryWidget />
