@@ -8,7 +8,6 @@ import { PensSummaryWidget } from "./pens_summary_widget";
 import { InksVisualizationWidget } from "./inks_visualization_widget";
 import { createRoot } from "react-dom/client";
 import { PenAndInkSuggestionWidget } from "./pen_and_ink_suggestion_widget";
-import { SponsorWidget } from "./sponsor_widget";
 
 document.addEventListener("DOMContentLoaded", () => {
   const el = document.getElementById("dashboard");
@@ -20,7 +19,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
 const Dashboard = () => (
   <div className="fpc-dashboard">
-    <SponsorWidget />
     <CurrentlyInkedSummaryWidget />
     <InksSummaryWidget />
     <PensSummaryWidget />

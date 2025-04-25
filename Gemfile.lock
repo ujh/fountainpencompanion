@@ -132,7 +132,7 @@ GEM
       railties (>= 4.1.0)
       responders
       warden (~> 1.2.3)
-    devise-passwordless (1.0.3)
+    devise-passwordless (1.1.0)
       devise
       globalid
     diff-lcs (1.6.1)
@@ -198,9 +198,10 @@ GEM
       mutex_m
       representable (~> 3.0)
       retriable (>= 2.0, < 4.a)
-    google-apis-youtube_v3 (0.54.0)
+    google-apis-youtube_v3 (0.55.0)
       google-apis-core (>= 0.15.0, < 2.a)
-    google-cloud-env (2.2.1)
+    google-cloud-env (2.2.2)
+      base64 (~> 0.2)
       faraday (>= 1.0, < 3.a)
     google-logging-utils (0.1.0)
     google-protobuf (4.30.2)
@@ -215,7 +216,7 @@ GEM
     google-protobuf (4.30.2-x86_64-linux)
       bigdecimal
       rake (>= 13)
-    googleauth (1.13.1)
+    googleauth (1.14.0)
       faraday (>= 1.0, < 3.a)
       google-cloud-env (~> 2.2)
       google-logging-utils (~> 0.1)
@@ -230,7 +231,7 @@ GEM
     hashdiff (1.1.2)
     heapy (0.2.0)
       thor
-    honeybadger (5.27.1)
+    honeybadger (5.27.2)
       logger
       ostruct
     httpclient (2.9.0)
@@ -333,14 +334,14 @@ GEM
       net-protocol
     newrelic_rpm (9.18.0)
     nio4r (2.7.4)
-    nokogiri (1.18.7)
+    nokogiri (1.18.8)
       mini_portile2 (~> 2.8.2)
       racc (~> 1.4)
-    nokogiri (1.18.7-arm64-darwin)
+    nokogiri (1.18.8-arm64-darwin)
       racc (~> 1.4)
-    nokogiri (1.18.7-x86_64-darwin)
+    nokogiri (1.18.8-x86_64-darwin)
       racc (~> 1.4)
-    nokogiri (1.18.7-x86_64-linux-gnu)
+    nokogiri (1.18.8-x86_64-linux-gnu)
       racc (~> 1.4)
     observer (0.1.2)
     orm_adapter (0.5.0)
@@ -349,8 +350,8 @@ GEM
     paper_trail (16.0.0)
       activerecord (>= 6.1)
       request_store (~> 1.4)
-    parallel (1.26.3)
-    parser (3.3.7.4)
+    parallel (1.27.0)
+    parser (3.3.8.0)
       ast (~> 2.4.1)
       racc
     pg (1.5.9)
@@ -378,7 +379,7 @@ GEM
       puma (>= 2.7)
     raabro (1.4.0)
     racc (1.8.1)
-    rack (3.1.12)
+    rack (3.1.13)
     rack-attack (6.7.0)
       rack (>= 1.0, < 4)
     rack-session (2.1.0)
@@ -472,7 +473,7 @@ GEM
     rspec-support (3.13.2)
     rss (0.3.1)
       rexml
-    rubocop (1.75.1)
+    rubocop (1.75.2)
       json (~> 2.3)
       language_server-protocol (~> 3.17.0.2)
       lint_roller (~> 1.1.0)
@@ -480,10 +481,10 @@ GEM
       parser (>= 3.3.0.2)
       rainbow (>= 2.2.2, < 4.0)
       regexp_parser (>= 2.9.3, < 3.0)
-      rubocop-ast (>= 1.43.0, < 2.0)
+      rubocop-ast (>= 1.44.0, < 2.0)
       ruby-progressbar (~> 1.7)
       unicode-display_width (>= 2.4.0, < 4.0)
-    rubocop-ast (1.43.0)
+    rubocop-ast (1.44.1)
       parser (>= 3.3.7.2)
       prism (~> 1.4)
     ruby-oembed (0.15.0)
@@ -550,7 +551,7 @@ GEM
       rinku (>= 1.7.0)
       ruby-oembed (>= 0.9.0)
       sanitize (>= 2.0.0)
-    solargraph (0.53.4)
+    solargraph (0.54.0)
       backport (~> 1.2)
       benchmark
       bundler (~> 2.0)
