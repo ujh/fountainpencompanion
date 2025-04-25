@@ -167,6 +167,10 @@ class MacroCluster < ApplicationRecord
     all_names.map(&:short_name) - [name]
   end
 
+  def all_names_as_elements
+    all_names.map { |ink| ink.slice(:brand_name, :line_name, :ink_name) }
+  end
+
   def to_param
     "#{id}-#{name.parameterize}"
   end
