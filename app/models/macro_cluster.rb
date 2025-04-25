@@ -163,6 +163,10 @@ class MacroCluster < ApplicationRecord
       .order("collected_inks_count desc")
   end
 
+  def synonyms
+    all_names.map(&:short_name) - [name]
+  end
+
   def to_param
     "#{id}-#{name.parameterize}"
   end
