@@ -1,0 +1,23 @@
+- content_for :title, "Agent Logs"
+
+= paginate @agent_logs
+
+- @agent_logs.each do |agent_log|
+  dl class="row" id="admin_agent_log"
+    dt class="col-sm-3" Type
+    dd class="col-sm-9"= agent_log.name
+
+    dt class="col-sm-3" Timestamp
+    dd class="col-sm-9"= agent_log.created_at.strftime("%Y-%m-%d %H:%M:%S")
+
+    dt class="col-sm-3" Extra Data
+    dd class="col-sm-9"
+      pre= JSON.pretty_generate(agent_log.extra_data)
+
+    dt class="col-sm-3" Transcript
+    dd class="col-sm-9"
+      - agent_log.transcript.each do |transcript|
+        pre= JSON.pretty_generate(transcript)
+
+
+= paginate @agent_logs

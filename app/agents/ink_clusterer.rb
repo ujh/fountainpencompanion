@@ -7,8 +7,13 @@ class InkClusterer
 
     You will be given a ink and asked to find the most similar ink cluster in the database and
     assign the ink to that cluster. If no similar cluster is found, you will be asked to create a new cluster.
-    Note, that sometimes people create their own mixes of inks, or don't know the name of an ink.
-    These entries should be marked as ignored.
+    When in doubt, you can always refuse to assign the ink to a cluster and ask a human to handle it.
+
+    Note, that sometimes people create their own mixes of inks. These should be ignored. Often times these
+    contain two ink names that are separated by a non-word character.
+
+    Note, that sometimes people do not know the full name of an ink. These unidentified inks should also
+    be ignored.
   TEXT
 
   def initialize(micro_cluster)
@@ -24,10 +29,11 @@ class InkClusterer
 
   private
 
+  attr_accessor :extra_data
   attr_accessor :micro_cluster
 
   def save_transcript
-    AgentLog.create!(name: self.class.name, transcript:)
+    AgentLog.create!(name: self.class.name, transcript:, extra_data:)
   end
 
   def micro_cluster_data
@@ -60,7 +66,7 @@ class InkClusterer
     micro_cluster = MicroCluster.find(ink_id)
     cluster_id = arguments[:cluster_id].to_i
     cluster = MacroCluster.find(cluster_id)
-    puts "Assigning #{micro_cluster.id} to #{cluster.id} - #{cluster.name}"
+    self.extra_data = "Assigning #{micro_cluster_str} to #{cluster.id} - #{cluster.name}"
     stop_looping!
   end
 
@@ -71,14 +77,29 @@ class InkClusterer
            } do |arguments|
     ink_id = arguments[:ink_id].to_i
     micro_cluster = MicroCluster.find(ink_id)
-    puts "Creating new cluster for #{micro_cluster.id}"
+    self.extra_data = "Creating new cluster for #{micro_cluster_str}"
     stop_looping!
   end
 
   function :ignore_ink, "Ignore this ink", ink_id: { type: "integer" } do |arguments|
     ink_id = arguments[:ink_id].to_i
     micro_cluster = MicroCluster.find(ink_id)
-    puts "Ignoring #{micro_cluster.id}"
+    self.extra_data = "Ignoring #{micro_cluster_str}"
     stop_looping!
+  end
+
+  function :check_manually,
+           "Ask a human to handle this ink",
+           ink_id: {
+             type: "integer"
+           } do |arguments|
+    ink_id = arguments[:ink_id].to_i
+    micro_cluster = MicroCluster.find(ink_id)
+    self.extra_data = "Forwarding #{micro_cluster_str} to a human for review"
+    stop_looping!
+  end
+
+  def micro_cluster_str
+    "MicroCluster(#{micro_cluster.id})<#{micro_cluster.all_names.sort.join(", ")}>"
   end
 end

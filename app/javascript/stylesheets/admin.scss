@@ -5,6 +5,7 @@
 @use "./admin/blog";
 @use "./admin/reviews";
 @use "./admin/clusters";
+@use "./admin/agent_logs";
 
 #users-table {
   tr.patron {

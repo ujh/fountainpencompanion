@@ -78,7 +78,8 @@ CREATE TABLE public.agent_logs (
     name character varying NOT NULL,
     transcript jsonb NOT NULL,
     created_at timestamp(6) without time zone NOT NULL,
-    updated_at timestamp(6) without time zone NOT NULL
+    updated_at timestamp(6) without time zone NOT NULL,
+    extra_data jsonb
 );
 
 
@@ -2189,6 +2190,7 @@ ALTER TABLE ONLY public.collected_inks
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20250425140548'),
 ('20250425130952'),
 ('20250401120318'),
 ('20250331124026'),
