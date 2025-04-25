@@ -4,8 +4,8 @@ class CustomSessionsController < Devise::SessionsController
   def create
     super and return if create_params[:password].present?
 
-    self.resource = resource_class.find_by(email: create_params[:email])
-    if self.resource
+    self.resource = resource_class.find_by(email: create_params[:email].downcase)
+    if resource
       resource.send_magic_link(remember_me: create_params[:remember_me])
       set_flash_message(:notice, :magic_link_sent, now: true)
     else
