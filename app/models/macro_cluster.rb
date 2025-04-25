@@ -1,3 +1,5 @@
+require "ostruct"
+
 class MacroCluster < ApplicationRecord
   has_paper_trail
   has_many :description_versions,
@@ -63,6 +65,31 @@ class MacroCluster < ApplicationRecord
     SQL
   end
 
+  # NOTE: This is not performant, and should only be used in the background
+  def self.embedding_search(query)
+    connection.execute("SET hnsw.ef_search = 100")
+    query_embedding = EmbeddingsClient.new.fetch(query)
+    embeddings =
+      InkEmbedding
+        .nearest_neighbors(:embedding, query_embedding, distance: "cosine")
+        .order(:neighbor_distance)
+        .first(200)
+    clusters = Hash.new { |h, k| h[k] = OpenStruct.new(distance: 1.0, cluster: nil) }
+    embeddings.each do |embedding|
+      owner = embedding.owner
+      cluster = owner.macro_cluster # N+1 query
+      next unless cluster
+
+      cluster_id = cluster.id
+      next unless clusters[cluster_id].distance > embedding.neighbor_distance
+
+      clusters[cluster_id].distance = embedding.neighbor_distance
+      clusters[cluster_id].cluster = cluster
+    end
+    # Return data sorted by neighbor_distance
+    clusters.values.sort_by(&:distance)
+  end
+
   def self.autocomplete_search(term, field)
     simplified_term = Simplifier.send(field, term.to_s)
     joins(micro_clusters: :collected_inks)
@@ -112,6 +139,10 @@ class MacroCluster < ApplicationRecord
         .pluck("macro_clusters.id")
         .uniq
     MacroCluster.where(id: mc_ids).sort_by { |mc| mc_ids.index(mc.id) }
+  end
+
+  def macro_cluster
+    self
   end
 
   def approved_ink_reviews
