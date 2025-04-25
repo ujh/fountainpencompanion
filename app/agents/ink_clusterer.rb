@@ -7,6 +7,8 @@ class InkClusterer
 
     You will be given a ink and asked to find the most similar ink cluster in the database and
     assign the ink to that cluster. If no similar cluster is found, you will be asked to create a new cluster.
+    Note, that sometimes people create their own mixes of inks, or don't know the name of an ink.
+    These entries should be marked as ignored.
   TEXT
 
   def initialize(micro_cluster)
@@ -70,6 +72,13 @@ class InkClusterer
     ink_id = arguments[:ink_id].to_i
     micro_cluster = MicroCluster.find(ink_id)
     puts "Creating new cluster for #{micro_cluster.id}"
+    stop_looping!
+  end
+
+  function :ignore_ink, "Ignore this ink", ink_id: { type: "integer" } do |arguments|
+    ink_id = arguments[:ink_id].to_i
+    micro_cluster = MicroCluster.find(ink_id)
+    puts "Ignoring #{micro_cluster.id}"
     stop_looping!
   end
 end
