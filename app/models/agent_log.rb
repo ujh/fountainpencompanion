@@ -1,0 +1,2 @@
+class AgentLog < ApplicationRecord
+end

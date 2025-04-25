@@ -14,4 +14,8 @@ class MicroCluster < ApplicationRecord
     [simplified_brand_name, simplified_line_name, simplified_ink_name].reject { |f| f.blank? }
       .join(" ")
   end
+
+  def all_names
+    collected_inks.map(&:short_name).uniq
+  end
 end

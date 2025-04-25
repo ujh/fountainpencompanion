@@ -70,6 +70,38 @@ SET default_tablespace = '';
 SET default_table_access_method = heap;
 
 --
+-- Name: agent_logs; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.agent_logs (
+    id bigint NOT NULL,
+    name character varying NOT NULL,
+    transcript jsonb NOT NULL,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
+);
+
+
+--
+-- Name: agent_logs_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.agent_logs_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: agent_logs_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.agent_logs_id_seq OWNED BY public.agent_logs.id;
+
+
+--
 -- Name: ar_internal_metadata; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -1061,6 +1093,13 @@ ALTER SEQUENCE public.you_tube_channels_id_seq OWNED BY public.you_tube_channels
 
 
 --
+-- Name: agent_logs id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.agent_logs ALTER COLUMN id SET DEFAULT nextval('public.agent_logs_id_seq'::regclass);
+
+
+--
 -- Name: blog_posts id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -1247,6 +1286,14 @@ ALTER TABLE ONLY public.versions ALTER COLUMN id SET DEFAULT nextval('public.ver
 --
 
 ALTER TABLE ONLY public.you_tube_channels ALTER COLUMN id SET DEFAULT nextval('public.you_tube_channels_id_seq'::regclass);
+
+
+--
+-- Name: agent_logs agent_logs_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.agent_logs
+    ADD CONSTRAINT agent_logs_pkey PRIMARY KEY (id);
 
 
 --
@@ -2142,6 +2189,7 @@ ALTER TABLE ONLY public.collected_inks
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20250425130952'),
 ('20250401120318'),
 ('20250331124026'),
 ('20250331082810'),
@@ -2305,4 +2353,3 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20170502060458'),
 ('20170502055847'),
 ('20170424062404');
-
