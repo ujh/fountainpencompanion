@@ -3,13 +3,14 @@ class UpdateMacroCluster
 
   def perform(id)
     self.cluster = MacroCluster.find(id)
+    update_embedding
+
     return if cluster.collected_inks.empty?
 
     update_color
     update_names
     update_tags
     cluster.save
-    update_embedding
     cluster.collected_inks.update_all(cluster_color: cluster.color)
     CheckBrandClusters.perform_async(id)
   end
