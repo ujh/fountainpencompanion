@@ -2,7 +2,7 @@ class FetchEmbedding
   include Sidekiq::Worker
   include Sidekiq::Throttled::Worker
 
-  sidekiq_throttle concurrency: { limit: 2 }
+  sidekiq_throttle concurrency: { limit: 4 }
   sidekiq_options queue: "low"
 
   def perform(class_name, id)
