@@ -105,6 +105,9 @@ Rails.application.routes.draw do
   namespace :admins do
     resource :dashboard, only: [:show]
     resources :agent_logs, only: [:index]
+    namespace :agents do
+      resources :ink_clusterer, only: [:index]
+    end
     resources :stats, only: [:show]
     resources :users, only: %i[index show update destroy] do
       collection { get "to_review" }
