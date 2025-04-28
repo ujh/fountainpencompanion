@@ -25,8 +25,8 @@ class InkClusterer
     be ignored.
   TEXT
 
-  def initialize(micro_cluster)
-    self.micro_cluster = micro_cluster
+  def initialize(micro_cluster_id)
+    self.micro_cluster = MicroCluster.find(micro_cluster_id)
     transcript << { system: SYSTEM_DIRECTIVE }
     transcript << { user: micro_cluster_data }
   end
@@ -34,6 +34,28 @@ class InkClusterer
   def perform
     chat_completion(loop: true, openai: "gpt-4.1")
     save_transcript
+  end
+
+  def reject!
+    agent_log = micro_cluster.agent_logs.ink_clusterer.unprocessed.first
+    agent_log.reject!
+    micro_cluster.touch # Move it to the end of the queue
+  end
+
+  def approve!
+    agent_log = micro_cluster.agent_logs.ink_clusterer.unprocessed.first
+    agent_log.approve!
+    case agent_log.extra_data["action"]
+    when "assign_to_cluster"
+      micro_cluster.update!(macro_cluster_id: agent_log.extra_data["cluster_id"])
+      UpdateMicroCluster.perform_async(micro_cluster.id)
+    when "create_new_cluster"
+      cluster = MacroCluster.create!
+      micro_cluster.update!(macro_cluster_id: cluster.id)
+      UpdateMicroCluster.perform_async(cluster.id)
+    when "ignore_ink"
+      micro_cluster.update!(ignored: true)
+    end
   end
 
   private
@@ -62,12 +84,7 @@ class InkClusterer
     similar_clusters = MacroCluster.embedding_search(arguments[:search_string])
     similar_clusters.map do |data|
       cluster = data.cluster
-      {
-        id: cluster.id,
-        name: cluster.name,
-        distance: data.distance,
-        names_as_elements: cluster.all_names_as_elements
-      }
+      { id: cluster.id, name: cluster.name, distance: data.distance, synonyms: cluster.synonyms }
     end
   end
 
@@ -80,7 +97,7 @@ class InkClusterer
     cluster = MacroCluster.find(cluster_id)
     self.extra_data = {
       msg: "Assigning #{micro_cluster_str} to #{cluster.id} - #{cluster.name}",
-      action: :assign_to_cluster,
+      action: "assign_to_cluster",
       cluster_id: cluster.id
     }
     stop_looping!
@@ -89,13 +106,13 @@ class InkClusterer
   function :create_new_cluster, "Create a new cluster for this ink" do |_arguments|
     self.extra_data = {
       msg: "Creating new cluster for #{micro_cluster_str}",
-      action: :create_new_cluster
+      action: "create_new_cluster"
     }
     stop_looping!
   end
 
   function :ignore_ink, "Ignore this ink" do |_arguments|
-    self.extra_data = { msg: "Ignoring #{micro_cluster_str}", action: :ignore_ink }
+    self.extra_data = { msg: "Ignoring #{micro_cluster_str}", action: "ignore_ink" }
     stop_looping!
   end
 

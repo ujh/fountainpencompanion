@@ -1,0 +1,50 @@
+- content_for :title, "Clustering app (AI)"
+- if @queue_length > 0 && (@processing || @agent_log.blank?)
+  - content_for :head do
+    meta content="1" http-equiv="refresh"
+
+table class="table"
+  thead
+    tr
+      th Unprocessed
+      th Processed
+      th Approved
+      th Rejected
+  tbody
+    tr
+      td= AgentLog.ink_clusterer.unprocessed.count
+      td= AgentLog.ink_clusterer.processed.count
+      td= AgentLog.ink_clusterer.approved.count
+      td= AgentLog.ink_clusterer.rejected.count
+    tr
+      td
+      td
+        pre= JSON.pretty_generate(AgentLog.ink_clusterer.processed.group("extra_data->>'action'").count)
+      td
+        pre= JSON.pretty_generate(AgentLog.ink_clusterer.approved.group("extra_data->>'action'").count)
+      td
+        pre= JSON.pretty_generate(AgentLog.ink_clusterer.rejected.group("extra_data->>'action'").count)
+
+- if @processing
+  p= "Processing cluster, please wait..."
+- elsif @agent_log
+  dl class="row" id="admin_agent_log"
+    dt class="col-sm-3" Extra Data
+    dd class="col-sm-9"
+      pre= JSON.pretty_generate(@agent_log.extra_data)
+
+    dt class="col-sm-3" Owner
+    dd class="col-sm-9"
+      pre= JSON.pretty_generate(@agent_log.owner.attributes)
+
+    dt class="col-sm-3" Actions
+    dd class="col-sm-9"
+      = link_to "Approve", admins_agents_ink_clusterer_path, method: :put, class: 'btn btn-success'
+      = link_to "Reject", admins_agents_ink_clusterer_path, method: :delete, class: 'btn btn-danger'
+    dt class="col-sm-3" Transcript
+    dd class="col-sm-9"
+      - @agent_log.transcript.each do |transcript|
+        pre= JSON.pretty_generate(transcript)
+- elsif @next_cluster
+  p
+    = link_to "Generate candidate", admins_agents_ink_clusterer_path, method: :post, class: 'btn btn-danger'

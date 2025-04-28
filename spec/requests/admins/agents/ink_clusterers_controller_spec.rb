@@ -1,9 +1,9 @@
 require "rails_helper"
 
-describe Admins::Agents::InkClustererController do
+describe Admins::Agents::InkClusterersController do
   let(:admin) { create(:user, :admin) }
 
-  describe "#index" do
+  describe "#show" do
     it "requires authentication" do
       get "/admins/agents/ink_clusterer"
       expect(response).to redirect_to(new_user_session_path)
