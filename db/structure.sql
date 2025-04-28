@@ -81,7 +81,9 @@ CREATE TABLE public.agent_logs (
     updated_at timestamp(6) without time zone NOT NULL,
     extra_data jsonb,
     owner_type character varying,
-    owner_id bigint
+    owner_id bigint,
+    approved_at timestamp without time zone,
+    rejected_at timestamp without time zone
 );
 
 
@@ -2199,6 +2201,7 @@ ALTER TABLE ONLY public.collected_inks
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20250428072932'),
 ('20250428065608'),
 ('20250425140548'),
 ('20250425130952'),
