@@ -79,7 +79,9 @@ CREATE TABLE public.agent_logs (
     transcript jsonb NOT NULL,
     created_at timestamp(6) without time zone NOT NULL,
     updated_at timestamp(6) without time zone NOT NULL,
-    extra_data jsonb
+    extra_data jsonb,
+    owner_type character varying,
+    owner_id bigint
 );
 
 
@@ -1551,6 +1553,13 @@ CREATE UNIQUE INDEX idx_on_simplified_brand_simplified_model_simplified_b6b51aca
 
 
 --
+-- Name: index_agent_logs_on_owner; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_agent_logs_on_owner ON public.agent_logs USING btree (owner_type, owner_id);
+
+
+--
 -- Name: index_brand_clusters_on_description; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -2190,6 +2199,7 @@ ALTER TABLE ONLY public.collected_inks
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20250428065608'),
 ('20250425140548'),
 ('20250425130952'),
 ('20250401120318'),
