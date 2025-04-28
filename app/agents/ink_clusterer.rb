@@ -10,7 +10,6 @@ class InkClusterer
        ONLY, if you are highly confident.
     2. Create a new cluster for the ink if no similar cluster is found.
     3. Ignore the ink if it is a mix of inks or an unidentified ink.
-    4. Ask a human to handle the ink if you are unsure about the assignment.
 
     ONLY assign the ink to a cluster if you are confident that it belongs there. If you are not sure,
     you should rather ask a human to handle it than assigning it incorrectly.
@@ -79,27 +78,31 @@ class InkClusterer
            } do |arguments|
     cluster_id = arguments[:cluster_id].to_i
     cluster = MacroCluster.find(cluster_id)
-    self.extra_data = "Assigning #{micro_cluster_str} to #{cluster.id} - #{cluster.name}"
+    self.extra_data = {
+      msg: "Assigning #{micro_cluster_str} to #{cluster.id} - #{cluster.name}",
+      action: :assign_to_cluster,
+      cluster_id: cluster.id
+    }
     stop_looping!
   end
 
   function :create_new_cluster, "Create a new cluster for this ink" do |_arguments|
-    self.extra_data = "Creating new cluster for #{micro_cluster_str}"
+    self.extra_data = {
+      msg: "Creating new cluster for #{micro_cluster_str}",
+      action: :create_new_cluster
+    }
     stop_looping!
   end
 
   function :ignore_ink, "Ignore this ink" do |_arguments|
-    self.extra_data = "Ignoring #{micro_cluster_str}"
+    self.extra_data = { msg: "Ignoring #{micro_cluster_str}", action: :ignore_ink }
     stop_looping!
   end
 
-  function :check_manually, "Ask a human to handle this ink" do |_arguments|
-    self.extra_data = "Forwarding #{micro_cluster_str} to a human for review"
-    stop_looping!
-  end
-
-  function :brand_names_with_synonyms, "List of known ink brands with synonyms" do
-    BrandCluster.public.map { |c| { name: c.name, synonyms: c.synonyms } }
+  function :known_brand, "Check if brand of ink is known" do
+    cluster_brand_names = micro_cluster.all_names_as_elements.map { |ink| ink[:brand_name] }.uniq
+    known_brand = MacroCluster.where(brand_name: cluster_brand_names).exists?
+    known_brand ? "Yes, the ink brand is known." : "No, the ink brand is not known."
   end
 
   def micro_cluster_str
