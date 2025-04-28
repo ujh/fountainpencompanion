@@ -42,7 +42,7 @@ class InkClusterer
   attr_accessor :extra_data, :micro_cluster
 
   def save_transcript
-    AgentLog.create!(name: self.class.name, transcript:, extra_data:)
+    AgentLog.create!(name: self.class.name, owner: micro_cluster, transcript:, extra_data:)
   end
 
   def micro_cluster_data
