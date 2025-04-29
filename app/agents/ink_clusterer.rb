@@ -164,7 +164,11 @@ class InkClusterer
         .joins(:micro_clusters)
         .where(micro_clusters: { simplified_brand_name: micro_cluster.simplified_brand_name })
         .exists?
-    known_brand ? "Yes, the ink brand is known." : "No, the ink brand is not known."
+    if known_brand
+      "Yes, the ink brand is known."
+    else
+      "No, the ink brand is not known. Use the search function to double check for spelling mistakes, though!"
+    end
   end
 
   function :search_web, "Search the web for the name of the ink" do
