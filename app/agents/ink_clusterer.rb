@@ -23,6 +23,13 @@ class InkClusterer
 
     Note, that sometimes people do not know the full name of an ink. These unidentified inks should also
     be ignored.
+
+    If you are unsure if an ink exists, or is another name for an existing one you can search the web for it.
+    The results can help you termine if you should assign the ink to an existing cluster, create a new one,
+    or ignore it. Few things to keep in mind:
+    1. The more results you get, the more likely it is that the ink is known.
+    2. Even if there are many results, double check that the ink name is actually present. The results might
+       not even contain the ink name.
   TEXT
 
   def initialize(micro_cluster_id)
@@ -158,6 +165,12 @@ class InkClusterer
         .where(micro_clusters: { simplified_brand_name: micro_cluster.simplified_brand_name })
         .exists?
     known_brand ? "Yes, the ink brand is known." : "No, the ink brand is not known."
+  end
+
+  function :search_web, "Search the web for the name of the ink" do
+    search_query = "#{micro_cluster.all_names.join(" ")} ink"
+    search_results = GoogleSearch.new(search_query).perform
+    "The search results for '#{search_query}' are:\n #{JSON.pretty_generate(search_results)}"
   end
 
   def micro_cluster_str
