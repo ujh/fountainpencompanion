@@ -8,10 +8,14 @@ class UpdateMacroCluster
     update_color
     update_names
     update_tags
-    cluster.save
+    cluster.save!
     update_embedding
     cluster.collected_inks.update_all(cluster_color: cluster.color)
-    CheckBrandClusters.perform_async(id)
+    if cluster.brand_cluster
+      CheckBrandClusters.perform_async(id)
+    else
+      AssignMacroCluster.perform_async(id)
+    end
   end
 
   private

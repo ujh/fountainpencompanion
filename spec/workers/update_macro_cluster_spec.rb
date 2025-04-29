@@ -22,11 +22,23 @@ describe UpdateMacroCluster do
     expect(collected_ink2.reload.cluster_color).to eq("#262626")
   end
 
-  it "schedules CheckBrandClusters" do
+  it "schedules AssignMacroCluster if no brand cluster set" do
     collected_ink1
-    expect do described_class.new.perform(macro_cluster.id) end.to change {
-      CheckBrandClusters.jobs.size
-    }.by(1)
+    expect do
+      expect do described_class.new.perform(macro_cluster.id) end.to change {
+        AssignMacroCluster.jobs.size
+      }.by(1)
+    end.not_to(change { CheckBrandClusters.jobs.size })
+  end
+
+  it "schedules CheckBrandClusters if brand cluster present" do
+    collected_ink1
+    macro_cluster.update(brand_cluster: create(:brand_cluster))
+    expect do
+      expect do described_class.new.perform(macro_cluster.id) end.to change {
+        CheckBrandClusters.jobs.size
+      }.by(1)
+    end.not_to(change { AssignMacroCluster.jobs.size })
   end
 
   it "does nothing if no collected inks in cluster" do
