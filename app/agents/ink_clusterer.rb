@@ -27,23 +27,33 @@ class InkClusterer
 
   def initialize(micro_cluster_id)
     self.micro_cluster = MicroCluster.find(micro_cluster_id)
-    transcript << { system: SYSTEM_DIRECTIVE }
-    transcript << { user: micro_cluster_data }
+    if agent_log.transcript.present?
+      transcript.set!(agent_log.transcript)
+    else
+      transcript << { system: SYSTEM_DIRECTIVE }
+      transcript << { user: micro_cluster_data }
+    end
+  end
+
+  def agent_log
+    @agent_log ||= micro_cluster.agent_logs.ink_clusterer.processing.first
+    @agent_log ||= micro_cluster.agent_logs.create!(name: self.class.name, transcript: [])
   end
 
   def perform
     chat_completion(loop: true, openai: "gpt-4.1")
-    save_transcript
+    agent_log.update!(extra_data: extra_data)
+    agent_log.waiting_for_approval!
   end
 
   def reject!
-    agent_log = micro_cluster.agent_logs.ink_clusterer.waiting_for_approval.first
+    agent_log = micro_cluster.agent_logs.ink_clusterer.waiting_for_approval.first!
     agent_log.reject!
     micro_cluster.touch # Move it to the end of the queue
   end
 
   def approve!
-    agent_log = micro_cluster.agent_logs.ink_clusterer.waiting_for_approval.first
+    agent_log = micro_cluster.agent_logs.ink_clusterer.waiting_for_approval.first!
     agent_log.approve!
     case agent_log.extra_data["action"]
     when "assign_to_cluster"
@@ -62,8 +72,34 @@ class InkClusterer
 
   attr_accessor :extra_data, :micro_cluster
 
-  def save_transcript
-    AgentLog.create!(name: self.class.name, owner: micro_cluster, transcript:, extra_data:)
+  def transcript
+    @transcript ||= Transcript.new(agent_log)
+  end
+
+  class Transcript
+    include Enumerable
+
+    def initialize(agent_log)
+      @transcript = []
+      @agent_log = agent_log
+    end
+
+    def set!(data)
+      @transcript = data.map(&:deep_symbolize_keys)
+    end
+
+    def <<(entry)
+      @transcript << entry
+      @agent_log.update(transcript: @transcript)
+    end
+
+    def each(&)
+      @transcript.each(&)
+    end
+
+    def flatten
+      @transcript.flatten
+    end
   end
 
   def micro_cluster_data
