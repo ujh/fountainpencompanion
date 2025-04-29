@@ -152,8 +152,11 @@ class InkClusterer
   end
 
   function :known_brand, "Check if brand of ink is known" do
-    cluster_brand_names = micro_cluster.all_names_as_elements.map { |ink| ink[:brand_name] }.uniq
-    known_brand = MacroCluster.where(brand_name: cluster_brand_names).exists?
+    known_brand =
+      MacroCluster
+        .joins(:micro_clusters)
+        .where(micro_clusters: { simplified_brand_name: micro_cluster.simplified_brand_name })
+        .exists?
     known_brand ? "Yes, the ink brand is known." : "No, the ink brand is not known."
   end
 
