@@ -8,14 +8,7 @@ class AdminStats
   end
 
   def micro_clusters_to_assign_count
-    # The JOIN is there to remove clusters without inks
-    @micro_clusters_to_assign_count ||=
-      MicroCluster
-        .where(macro_cluster_id: nil, ignored: false)
-        .joins(:collected_inks)
-        .group("micro_clusters.id")
-        .count
-        .count
+    @micro_clusters_to_assign_count ||= MicroCluster.for_processing.count.count
   end
 
   def pens_model_micro_clusters_to_assign_count

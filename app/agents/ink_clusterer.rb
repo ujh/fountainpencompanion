@@ -25,23 +25,80 @@ class InkClusterer
     be ignored.
   TEXT
 
-  def initialize(micro_cluster)
-    self.micro_cluster = micro_cluster
-    transcript << { system: SYSTEM_DIRECTIVE }
-    transcript << { user: micro_cluster_data }
+  def initialize(micro_cluster_id)
+    self.micro_cluster = MicroCluster.find(micro_cluster_id)
+    if agent_log.transcript.present?
+      transcript.set!(agent_log.transcript)
+    else
+      transcript << { system: SYSTEM_DIRECTIVE }
+      transcript << { user: micro_cluster_data }
+    end
+  end
+
+  def agent_log
+    @agent_log ||= micro_cluster.agent_logs.ink_clusterer.processing.first
+    @agent_log ||= micro_cluster.agent_logs.ink_clusterer.waiting_for_approval.first
+    @agent_log ||= micro_cluster.agent_logs.create!(name: self.class.name, transcript: [])
   end
 
   def perform
     chat_completion(loop: true, openai: "gpt-4.1")
-    save_transcript
+    agent_log.update!(extra_data: extra_data)
+    agent_log.waiting_for_approval!
+  end
+
+  def reject!
+    agent_log.reject!
+    micro_cluster.touch # Move it to the end of the queue
+  end
+
+  def approve!
+    case agent_log.extra_data["action"]
+    when "assign_to_cluster"
+      micro_cluster.update!(macro_cluster_id: agent_log.extra_data["cluster_id"])
+      UpdateMicroCluster.perform_async(micro_cluster.id)
+    when "create_new_cluster"
+      cluster = MacroCluster.create!
+      micro_cluster.update!(macro_cluster_id: cluster.id)
+      UpdateMicroCluster.perform_async(cluster.id)
+    when "ignore_ink"
+      micro_cluster.update!(ignored: true)
+    end
+    agent_log.approve!
   end
 
   private
 
   attr_accessor :extra_data, :micro_cluster
 
-  def save_transcript
-    AgentLog.create!(name: self.class.name, owner: micro_cluster, transcript:, extra_data:)
+  def transcript
+    @transcript ||= Transcript.new(agent_log)
+  end
+
+  class Transcript
+    include Enumerable
+
+    def initialize(agent_log)
+      @transcript = []
+      @agent_log = agent_log
+    end
+
+    def set!(data)
+      @transcript = data.map(&:deep_symbolize_keys)
+    end
+
+    def <<(entry)
+      @transcript << entry
+      @agent_log.update(transcript: @transcript)
+    end
+
+    def each(&)
+      @transcript.each(&)
+    end
+
+    def flatten
+      @transcript.flatten
+    end
   end
 
   def micro_cluster_data
@@ -62,12 +119,7 @@ class InkClusterer
     similar_clusters = MacroCluster.embedding_search(arguments[:search_string])
     similar_clusters.map do |data|
       cluster = data.cluster
-      {
-        id: cluster.id,
-        name: cluster.name,
-        distance: data.distance,
-        names_as_elements: cluster.all_names_as_elements
-      }
+      { id: cluster.id, name: cluster.name, distance: data.distance, synonyms: cluster.synonyms }
     end
   end
 
@@ -80,7 +132,7 @@ class InkClusterer
     cluster = MacroCluster.find(cluster_id)
     self.extra_data = {
       msg: "Assigning #{micro_cluster_str} to #{cluster.id} - #{cluster.name}",
-      action: :assign_to_cluster,
+      action: "assign_to_cluster",
       cluster_id: cluster.id
     }
     stop_looping!
@@ -89,13 +141,13 @@ class InkClusterer
   function :create_new_cluster, "Create a new cluster for this ink" do |_arguments|
     self.extra_data = {
       msg: "Creating new cluster for #{micro_cluster_str}",
-      action: :create_new_cluster
+      action: "create_new_cluster"
     }
     stop_looping!
   end
 
   function :ignore_ink, "Ignore this ink" do |_arguments|
-    self.extra_data = { msg: "Ignoring #{micro_cluster_str}", action: :ignore_ink }
+    self.extra_data = { msg: "Ignoring #{micro_cluster_str}", action: "ignore_ink" }
     stop_looping!
   end
 
