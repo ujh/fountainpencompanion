@@ -37,6 +37,7 @@ class InkClusterer
 
   def agent_log
     @agent_log ||= micro_cluster.agent_logs.ink_clusterer.processing.first
+    @agent_log ||= micro_cluster.agent_logs.ink_clusterer.waiting_for_approval.first
     @agent_log ||= micro_cluster.agent_logs.create!(name: self.class.name, transcript: [])
   end
 
@@ -47,14 +48,11 @@ class InkClusterer
   end
 
   def reject!
-    agent_log = micro_cluster.agent_logs.ink_clusterer.waiting_for_approval.first!
     agent_log.reject!
     micro_cluster.touch # Move it to the end of the queue
   end
 
   def approve!
-    agent_log = micro_cluster.agent_logs.ink_clusterer.waiting_for_approval.first!
-    agent_log.approve!
     case agent_log.extra_data["action"]
     when "assign_to_cluster"
       micro_cluster.update!(macro_cluster_id: agent_log.extra_data["cluster_id"])
@@ -66,6 +64,7 @@ class InkClusterer
     when "ignore_ink"
       micro_cluster.update!(ignored: true)
     end
+    agent_log.approve!
   end
 
   private

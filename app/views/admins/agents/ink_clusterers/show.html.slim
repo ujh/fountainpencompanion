@@ -1,5 +1,5 @@
-- content_for :title, "Clustering app (AI)"
-- if @queue_length > 0 && (@processing || @agent_log.blank?)
+- content_for :title, "Clustering app (AI) - #{@queue_length} items in queue"
+- if @processing
   - content_for :head do
     meta content="1" http-equiv="refresh"
 
@@ -27,24 +27,25 @@ table class="table"
 
 - if @processing
   p= "Processing cluster, please wait..."
-- elsif @agent_log
+- if @agent_log
   dl class="row" id="admin_agent_log"
-    dt class="col-sm-3" Extra Data
-    dd class="col-sm-9"
-      pre= JSON.pretty_generate(@agent_log.extra_data)
+    - if @processing.blank?
+      dt class="col-sm-3" Extra Data
+      dd class="col-sm-9"
+        pre= JSON.pretty_generate(@agent_log.extra_data)
 
-    dt class="col-sm-3" Owner
-    dd class="col-sm-9"
-      pre= JSON.pretty_generate(@agent_log.owner.attributes)
+      dt class="col-sm-3" Owner
+      dd class="col-sm-9"
+        pre= JSON.pretty_generate(@agent_log.owner.attributes)
 
-    dt class="col-sm-3" Actions
-    dd class="col-sm-9"
-      = link_to "Approve", admins_agents_ink_clusterer_path, method: :put, class: 'btn btn-success'
-      = link_to "Reject", admins_agents_ink_clusterer_path, method: :delete, class: 'btn btn-danger'
+      dt class="col-sm-3" Actions
+      dd class="col-sm-9"
+        = link_to "Approve", admins_agents_ink_clusterer_path, method: :put, class: 'btn btn-success'
+        = link_to "Reject", admins_agents_ink_clusterer_path, method: :delete, class: 'btn btn-danger'
     dt class="col-sm-3" Transcript
     dd class="col-sm-9"
       - @agent_log.transcript.each do |transcript|
         pre= JSON.pretty_generate(transcript)
-- elsif @next_cluster
+- elsif @queue_length > 0
   p
     = link_to "Generate candidate", admins_agents_ink_clusterer_path, method: :post, class: 'btn btn-danger'

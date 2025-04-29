@@ -29,4 +29,8 @@ class AgentLog < ApplicationRecord
   def approve!
     update!(approved_at: Time.current, state: APPROVED)
   end
+
+  def processing?
+    state == PROCESSING
+  end
 end
