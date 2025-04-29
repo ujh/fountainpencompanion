@@ -15,7 +15,7 @@
     "fast-levenshtein": "^3.0.0",
     "font-awesome": "^4.7.0",
     "highcharts": "^12.2.0",
-    "highcharts-react-official": "^3.2.1",
+    "highcharts-react-official": "^3.2.2",
     "husky": "^9.1.7",
     "jquery": "3.7.1",
     "jquery-ui": "^1.14.1",
