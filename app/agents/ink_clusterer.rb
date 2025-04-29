@@ -60,7 +60,7 @@ class InkClusterer
     when "create_new_cluster"
       cluster = MacroCluster.create!
       micro_cluster.update!(macro_cluster_id: cluster.id)
-      UpdateMicroCluster.perform_async(cluster.id)
+      UpdateMicroCluster.perform_async(micro_cluster.id)
     when "ignore_ink"
       micro_cluster.update!(ignored: true)
     end
