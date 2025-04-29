@@ -27,7 +27,7 @@ class Admins::Agents::InkClusterersController < Admins::BaseController
   private
 
   def set_agent_log
-    @agent_log = AgentLog.ink_clusterer.unprocessed.first
+    @agent_log = AgentLog.ink_clusterer.waiting_for_approval.first
   end
 
   def set_next_cluster

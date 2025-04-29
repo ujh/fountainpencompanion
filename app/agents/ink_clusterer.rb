@@ -37,13 +37,13 @@ class InkClusterer
   end
 
   def reject!
-    agent_log = micro_cluster.agent_logs.ink_clusterer.unprocessed.first
+    agent_log = micro_cluster.agent_logs.ink_clusterer.waiting_for_approval.first
     agent_log.reject!
     micro_cluster.touch # Move it to the end of the queue
   end
 
   def approve!
-    agent_log = micro_cluster.agent_logs.ink_clusterer.unprocessed.first
+    agent_log = micro_cluster.agent_logs.ink_clusterer.waiting_for_approval.first
     agent_log.approve!
     case agent_log.extra_data["action"]
     when "assign_to_cluster"

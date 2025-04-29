@@ -83,7 +83,8 @@ CREATE TABLE public.agent_logs (
     owner_type character varying,
     owner_id bigint,
     approved_at timestamp without time zone,
-    rejected_at timestamp without time zone
+    rejected_at timestamp without time zone,
+    state character varying DEFAULT 'processing'::character varying
 );
 
 
@@ -1562,6 +1563,13 @@ CREATE INDEX index_agent_logs_on_owner ON public.agent_logs USING btree (owner_t
 
 
 --
+-- Name: index_agent_logs_on_state; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_agent_logs_on_state ON public.agent_logs USING btree (state);
+
+
+--
 -- Name: index_brand_clusters_on_description; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -2201,6 +2209,7 @@ ALTER TABLE ONLY public.collected_inks
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20250429064027'),
 ('20250428072932'),
 ('20250428065608'),
 ('20250425140548'),

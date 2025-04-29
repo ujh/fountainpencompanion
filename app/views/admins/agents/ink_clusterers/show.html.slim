@@ -6,13 +6,13 @@
 table class="table"
   thead
     tr
-      th Unprocessed
+      th Waiting for Approval
       th Processed
       th Approved
       th Rejected
   tbody
     tr
-      td= AgentLog.ink_clusterer.unprocessed.count
+      td= AgentLog.ink_clusterer.waiting_for_approval.count
       td= AgentLog.ink_clusterer.processed.count
       td= AgentLog.ink_clusterer.approved.count
       td= AgentLog.ink_clusterer.rejected.count
