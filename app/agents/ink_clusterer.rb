@@ -14,6 +14,9 @@ class InkClusterer
     ONLY assign the ink to a cluster if you are confident that it belongs there.
     If you are not confident, but sure that it is a real ink, rather create a new cluster for it.
 
+    If the ink has a color and the cluster you want to assign it to has a color as well,
+    make sure that the colors are similar. If they are not, create a new cluster for the ink.
+
     You are allowed to search more than once and do searches with certain parts of the ink name removed,
     if the results returned by the previous search did not result in similar enough results.
 
@@ -146,9 +149,10 @@ class InkClusterer
       id: micro_cluster.id,
       names: micro_cluster.all_names,
       names_as_elements: micro_cluster.all_names_as_elements
-    }.to_json
+    }
+    data[:color] = micro_cluster.color if micro_cluster.color.present?
 
-    "This is the data for the ink to cluster: #{data}"
+    "This is the data for the ink to cluster: #{JSON.pretty_generate(data)}"
   end
 
   function :similarity_search,
@@ -159,7 +163,13 @@ class InkClusterer
     similar_clusters = MacroCluster.embedding_search(arguments[:search_string])
     similar_clusters.map do |data|
       cluster = data.cluster
-      { id: cluster.id, name: cluster.name, distance: data.distance, synonyms: cluster.synonyms }
+      {
+        id: cluster.id,
+        name: cluster.name,
+        distance: data.distance,
+        synonyms: cluster.synonyms,
+        color: color
+      }
     end
   end
 
