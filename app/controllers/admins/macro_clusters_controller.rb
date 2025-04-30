@@ -32,6 +32,15 @@ class Admins::MacroClustersController < Admins::BaseController
 
   def destroy
     cluster = MacroCluster.find(params[:id])
+    cluster.micro_clusters.each do |micro_cluster|
+      micro_cluster.agent_logs.create!(
+        name: "InkClusterer",
+        state: AgentLog::APPROVED,
+        extra_data: {
+          action: "create_new_cluster"
+        }
+      )
+    end
     cluster.destroy!
     head :ok
   end
