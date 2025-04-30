@@ -67,13 +67,50 @@ class MacroCluster < ApplicationRecord
 
   # NOTE: This is not performant, and should only be used in the background
   def self.embedding_search(query)
-    connection.execute("SET hnsw.ef_search = 100")
+    connection.execute("SET hnsw.ef_search = 1000")
     query_embedding = EmbeddingsClient.new.fetch(query)
-    embeddings =
+    # This needs to do multiple queries as it is not possible to do the filtering
+    # by distance in the database. So we need to get the first N results and do
+    # the filtering afterwards. With so many collected inks this in turn means
+    # that we might miss some of the closest results, e.g. from the clusters.
+    #
+    # What we do here is then first search the macro clusters, exclude them from
+    # the search for micro clusters and then exclude both in the search for the
+    # collected inks. Then we can apply different limits for the different
+    # types and hopefully get better results.
+    macro_cluster_embeddings =
       InkEmbedding
+        .where(owner_type: "MacroCluster")
+        .includes(:macro_cluster)
         .nearest_neighbors(:embedding, query_embedding, distance: "cosine")
         .order(:neighbor_distance)
         .first(200)
+        .reject { |e| e.neighbor_distance > 0.6 }
+    micro_cluster_embeddings =
+      InkEmbedding
+        .where(owner_type: "MicroCluster")
+        .joins(micro_cluster: :macro_cluster)
+        .where.not(macro_clusters: { id: macro_cluster_embeddings.map(&:owner_id) })
+        .nearest_neighbors(:embedding, query_embedding, distance: "cosine")
+        .order(:neighbor_distance)
+        .first(200)
+        .reject { |e| e.neighbor_distance > 0.6 }
+    collected_ink_embeddings =
+      InkEmbedding
+        .where(owner_type: "CollectedInk")
+        .joins(collected_ink: { micro_cluster: :macro_cluster })
+        .where.not(macro_clusters: { id: macro_cluster_embeddings.map(&:owner_id) })
+        .where.not(micro_clusters: { id: micro_cluster_embeddings.map(&:owner_id) })
+        .nearest_neighbors(:embedding, query_embedding, distance: "cosine")
+        .order(:neighbor_distance)
+        .first(2000)
+        .reject { |e| e.neighbor_distance > 0.6 }
+    embeddings = [*macro_cluster_embeddings, *micro_cluster_embeddings, *collected_ink_embeddings]
+    # embeddings =
+    #   InkEmbedding
+    #     .nearest_neighbors(:embedding, query_embedding, distance: "cosine")
+    #     .where('neighbor_distance < 0.6')
+    #     .order(:neighbor_distance)
     clusters = Hash.new { |h, k| h[k] = OpenStruct.new(distance: 1.0, cluster: nil) }
     embeddings.each do |embedding|
       owner = embedding.owner
