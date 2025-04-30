@@ -33,6 +33,15 @@ class Admins::MicroClustersController < Admins::BaseController
     cluster = MicroCluster.find(params[:id])
     cluster.update!(update_params)
     UpdateMicroCluster.perform_async(cluster.id)
+    if cluster.previous_changes["ignored"] == [true, false]
+      cluster.agent_logs.create!(
+        name: "InkClusterer",
+        state: AgentLog::APPROVED,
+        extra_data: {
+          action: "ignore_ink"
+        }
+      )
+    end
     if request.referrer == ignored_admins_micro_clusters_url
       redirect_to ignored_admins_micro_clusters_url
     else
@@ -45,6 +54,15 @@ class Admins::MicroClustersController < Admins::BaseController
     macro_cluster_id = cluster.macro_cluster_id
     cluster.update!(macro_cluster_id: nil)
     UpdateMacroCluster.perform_async(macro_cluster_id)
+    # Fake entry, to avoid generating the same outcome in the clustering agent again
+    cluster.agent_logs.create!(
+      name: "InkClusterer",
+      state: AgentLog::APPROVED,
+      extra_data: {
+        action: "assign_to_cluster",
+        cluster_id: cluster.id
+      }
+    )
     head :ok
   end
 
