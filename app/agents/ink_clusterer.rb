@@ -125,26 +125,22 @@ class InkClusterer
 
   def processed_tries_data
     data =
-      processed_tries.map do |log|
-        case log.extra_data["action"]
-        when "assign_to_cluster"
-          {
-            msg: "Assigning ink to existing cluster",
-            cluster_id: log.extra_data["cluster_id"],
-            cluster_name: MacroCluster.find(log.extra_data["cluster_id"]).name,
-            timestamp: log.created_at
-          }
-        when "create_new_cluster"
-          { msg: "Creating new cluster for ink", timestamp: log.created_at }
-        when "ignore_ink"
-          { msg: "Ignoring ink", timestamp: log.created_at }
-        else
-          { msg: "Unknown action", timestamp: log.created_at }
+      processed_tries
+        .map do |log|
+          case log.extra_data["action"]
+          when "assign_to_cluster"
+            "Assigning ink to existing cluster with id #{log.extra_data["cluster_id"]}"
+          when "create_new_cluster"
+            "Creating a new cluster for ink"
+          when "ignore_ink"
+            "Ignoring this ink"
+          end
         end
-      end
+        .uniq
 
-    "This ink was processed before #{processed_tries.count} times. These actions cannot be taken.
-    Here are the details: #{data.to_json}"
+    "This ink was processed before #{processed_tries.count} times and the action taken
+    was manually rejected. Therefore the following outcomes cannot be taken again:
+    #{data.map { |str| "* #{str}" }.join("\n")}"
   end
 
   def micro_cluster_data
