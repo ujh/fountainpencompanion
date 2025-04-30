@@ -168,7 +168,7 @@ class InkClusterer
         name: cluster.name,
         distance: data.distance,
         synonyms: cluster.synonyms,
-        color: color
+        color: cluster.color
       }
     end
   end
