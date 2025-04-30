@@ -28,15 +28,46 @@ class Pens::Model < ApplicationRecord
   end
 
   def self.embedding_search(query)
-    self.connection.execute("SET hnsw.ef_search = 100")
+    connection.execute("SET hnsw.ef_search = 1000")
     query_embedding = EmbeddingsClient.new.fetch(query)
-    embeddings =
+    model_embeddings =
       PenEmbedding
+        .where(owner_type: "Pens::Model")
         .nearest_neighbors(:embedding, query_embedding, distance: "cosine")
-        .includes(owner: { pens_micro_cluster: { model_variant: { model_micro_cluster: :model } } })
+        .includes(:owner)
         .order(:neighbor_distance)
         .first(200)
         .reject { |e| e.neighbor_distance > 0.6 }
+    model_variant_embeddings =
+      PenEmbedding
+        .where(owner_type: "Pens::ModelVariant")
+        .joins(pens_model_variant: { model_micro_cluster: :model })
+        .where.not(model: { id: model_embeddings.map(&:owner_id) })
+        .nearest_neighbors(:embedding, query_embedding, distance: "cosine")
+        .includes(owner: { model_micro_cluster: :model })
+        .order(:neighbor_distance)
+        .first(200)
+        .reject { |e| e.neighbor_distance > 0.6 }
+    collected_pens_embeddings =
+      PenEmbedding
+        .where(owner_type: "CollectedPen")
+        .joins(
+          collected_pen: {
+            pens_micro_cluster: {
+              model_variant: {
+                model_micro_cluster: :model
+              }
+            }
+          }
+        )
+        .where.not(model: { id: model_embeddings.map(&:owner_id) })
+        .where.not(model_variant: { id: model_variant_embeddings.map(&:owner_id) })
+        .nearest_neighbors(:embedding, query_embedding, distance: "cosine")
+        .includes(owner: :pens_micro_cluster)
+        .order(:neighbor_distance)
+        .first(2000)
+        .reject { |e| e.neighbor_distance > 0.6 }
+    embeddings = [*model_embeddings, *model_variant_embeddings, *collected_pens_embeddings]
     models = Hash.new { |h, k| h[k] = OpenStruct.new(distance: 1.0, results: []) }
     embeddings.each do |embedding|
       owner = embedding.owner
