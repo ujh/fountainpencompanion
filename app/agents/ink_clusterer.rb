@@ -39,7 +39,7 @@ class InkClusterer
     else
       transcript << { system: SYSTEM_DIRECTIVE }
       transcript << { user: micro_cluster_data }
-      transcript << { user: rejected_tries_data } if rejected_tries?
+      transcript << { user: processed_tries_data } if processed_tries?
     end
   end
 
@@ -109,17 +109,17 @@ class InkClusterer
     end
   end
 
-  def rejected_tries?
-    rejected_tries.exists?
+  def processed_tries?
+    processed_tries.exists?
   end
 
-  def rejected_tries
-    micro_cluster.agent_logs.ink_clusterer.rejected.where("created_at < ?", agent_log.created_at)
+  def processed_tries
+    micro_cluster.agent_logs.ink_clusterer.processed.where("created_at < ?", agent_log.created_at)
   end
 
-  def rejected_tries_data
+  def processed_tries_data
     data =
-      rejected_tries.map do |log|
+      processed_tries.map do |log|
         case log.extra_data["action"]
         when "assign_to_cluster"
           {
@@ -137,7 +137,8 @@ class InkClusterer
         end
       end
 
-    "This ink was processed before #{rejected_tries.count} times. Here are the details: #{JSON.pretty_generate(data)}"
+    "This ink was processed before #{processed_tries.count} times. These actions cannot be taken.
+    Here are the details: #{JSON.pretty_generate(data)}"
   end
 
   def micro_cluster_data
