@@ -17,6 +17,7 @@ release_command_timeout = '60m'
 
 [env]
 BUNDLE_WITHOUT = "development:test"
+MALLOC_ARENA_MAX = "2"
 NEW_RELIC_BROWSER_MONITORING_AUTO_INSTRUMENT = "false"
 NEW_RELIC_LOG = "stdout"
 RACK_ENV = "production"
