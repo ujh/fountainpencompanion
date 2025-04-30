@@ -6,24 +6,26 @@
 table class="table"
   thead
     tr
-      th Waiting for Approval
       th Processed
       th Approved
       th Rejected
-  tbody
-    tr
-      td= AgentLog.ink_clusterer.waiting_for_approval.count
-      td= AgentLog.ink_clusterer.processed.count
-      td= AgentLog.ink_clusterer.approved.count
-      td= AgentLog.ink_clusterer.rejected.count
-    tr
-      td
-      td
-        pre= JSON.pretty_generate(AgentLog.ink_clusterer.processed.group("extra_data->>'action'").count)
-      td
-        pre= JSON.pretty_generate(AgentLog.ink_clusterer.approved.group("extra_data->>'action'").count)
-      td
-        pre= JSON.pretty_generate(AgentLog.ink_clusterer.rejected.group("extra_data->>'action'").count)
+  - latest = AgentLog.where(id: AgentLog.ink_clusterer.order(created_at: :desc).limit(500).pluck(:id))
+  - [[AgentLog.ink_clusterer, "All"], [latest, "Latest"]].each do |rel, name|
+    thead
+      tr
+        th(colspan=3)= name
+    tbody
+      tr
+        td= rel.processed.count
+        td= rel.approved.count
+        td= rel.rejected.count
+      tr
+        td
+          pre= JSON.pretty_generate(rel.processed.group("extra_data->>'action'").count)
+        td
+          pre= JSON.pretty_generate(rel.approved.group("extra_data->>'action'").count)
+        td
+          pre= JSON.pretty_generate(rel.rejected.group("extra_data->>'action'").count)
 
 - if @processing
   p= "Processing cluster, please wait..."
