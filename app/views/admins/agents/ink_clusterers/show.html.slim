@@ -40,8 +40,9 @@ table class="table"
 
       dt class="col-sm-3" Actions
       dd class="col-sm-9"
-        = link_to "Approve", admins_agents_ink_clusterer_path, method: :put, class: 'btn btn-success'
-        = link_to "Reject", admins_agents_ink_clusterer_path, method: :delete, class: 'btn btn-danger'
+        = link_to "Approve", admins_agents_ink_clusterer_path, method: :put, class: 'btn btn-success me-5'
+        = link_to "Reject", admins_agents_ink_clusterer_path, method: :delete, class: 'btn btn-danger me-5'
+        = link_to "Search", "https://www.google.com/search?#{{q: @agent_log.owner.all_names.first}.to_query}", class: 'btn btn-secondary', target: "_blank"
     dt class="col-sm-3" Transcript
     dd class="col-sm-9"
       - @agent_log.transcript.each do |transcript|
