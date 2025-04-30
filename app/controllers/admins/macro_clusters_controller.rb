@@ -41,6 +41,7 @@ class Admins::MacroClustersController < Admins::BaseController
           action: "create_new_cluster"
         }
       )
+      micro_cluster.touch
     end
     cluster.destroy!
     head :ok
