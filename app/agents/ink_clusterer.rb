@@ -141,7 +141,7 @@ class InkClusterer
       end
 
     "This ink was processed before #{processed_tries.count} times. These actions cannot be taken.
-    Here are the details: #{JSON.pretty_generate(data)}"
+    Here are the details: #{data.to_json}"
   end
 
   def micro_cluster_data
@@ -152,7 +152,7 @@ class InkClusterer
     }
     data[:colors] = micro_cluster.colors if micro_cluster.colors.present?
 
-    "This is the data for the ink to cluster: #{JSON.pretty_generate(data)}"
+    "This is the data for the ink to cluster: #{data.to_json}"
   end
 
   function :similarity_search,
@@ -163,13 +163,14 @@ class InkClusterer
     similar_clusters = MacroCluster.embedding_search(arguments[:search_string])
     similar_clusters.map do |data|
       cluster = data.cluster
-      {
+      data = {
         id: cluster.id,
         name: cluster.name,
         distance: data.distance,
-        synonyms: cluster.synonyms,
-        color: cluster.color
+        synonyms: cluster.synonyms
       }
+      data[:color] = cluster.color if cluster.color.present?
+      data
     end
   end
 
@@ -225,7 +226,7 @@ class InkClusterer
   function :search_web, "Search the web for the name of the ink" do
     search_query = "#{micro_cluster.all_names.join(" ")} ink"
     search_results = GoogleSearch.new(search_query).perform
-    "The search results for '#{search_query}' are:\n #{JSON.pretty_generate(search_results)}"
+    "The search results for '#{search_query}' are:\n #{search_results.to_json}"
   end
 
   def micro_cluster_str
