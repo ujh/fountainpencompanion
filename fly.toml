@@ -62,7 +62,7 @@ path = "/"
 # url_prefix = "/images"
 
 [[vm]]
-memory = '1024mb'
+memory = '2GB'
 cpu_kind = 'shared'
 cpus = 1
 processes = ["worker"]
