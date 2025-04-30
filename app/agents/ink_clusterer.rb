@@ -129,7 +129,7 @@ class InkClusterer
         .map do |log|
           case log.extra_data["action"]
           when "assign_to_cluster"
-            "Assigning ink to existing cluster with id #{log.extra_data["cluster_id"]}"
+            "Assigning ink to existing cluster with id #{log.extra_data["cluster_id"]}. Assignments to other clusters can be considered."
           when "create_new_cluster"
             "Creating a new cluster for ink"
           when "ignore_ink"
