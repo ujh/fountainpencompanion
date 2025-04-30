@@ -71,7 +71,7 @@ class Pens::Model < ApplicationRecord
     models = Hash.new { |h, k| h[k] = OpenStruct.new(distance: 1.0, results: []) }
     embeddings.each do |embedding|
       owner = embedding.owner
-      model = owner.pen_model # N+1 query
+      model = owner.pen_model
       next unless model
 
       model_id = model.id

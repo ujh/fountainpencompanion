@@ -81,7 +81,7 @@ class MacroCluster < ApplicationRecord
     macro_cluster_embeddings =
       InkEmbedding
         .where(owner_type: "MacroCluster")
-        .includes(:macro_cluster)
+        .includes(:owner)
         .nearest_neighbors(:embedding, query_embedding, distance: "cosine")
         .order(:neighbor_distance)
         .first(200)
@@ -92,6 +92,7 @@ class MacroCluster < ApplicationRecord
         .joins(micro_cluster: :macro_cluster)
         .where.not(macro_clusters: { id: macro_cluster_embeddings.map(&:owner_id) })
         .nearest_neighbors(:embedding, query_embedding, distance: "cosine")
+        .includes(owner: :macro_cluster)
         .order(:neighbor_distance)
         .first(200)
         .reject { |e| e.neighbor_distance > 0.6 }
@@ -102,19 +103,15 @@ class MacroCluster < ApplicationRecord
         .where.not(macro_clusters: { id: macro_cluster_embeddings.map(&:owner_id) })
         .where.not(micro_clusters: { id: micro_cluster_embeddings.map(&:owner_id) })
         .nearest_neighbors(:embedding, query_embedding, distance: "cosine")
+        .includes(owner: { micro_cluster: :macro_cluster })
         .order(:neighbor_distance)
         .first(2000)
         .reject { |e| e.neighbor_distance > 0.6 }
     embeddings = [*macro_cluster_embeddings, *micro_cluster_embeddings, *collected_ink_embeddings]
-    # embeddings =
-    #   InkEmbedding
-    #     .nearest_neighbors(:embedding, query_embedding, distance: "cosine")
-    #     .where('neighbor_distance < 0.6')
-    #     .order(:neighbor_distance)
     clusters = Hash.new { |h, k| h[k] = OpenStruct.new(distance: 1.0, cluster: nil) }
     embeddings.each do |embedding|
       owner = embedding.owner
-      cluster = owner.macro_cluster # N+1 query
+      cluster = owner.macro_cluster
       next unless cluster
 
       cluster_id = cluster.id
