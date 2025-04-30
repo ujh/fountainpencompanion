@@ -10,6 +10,7 @@ class InkClusterer
        ONLY, if you are highly confident.
     2. Create a new cluster for the ink if no similar cluster is found.
     3. Ignore the ink if it is a mix of inks or an unidentified ink.
+    4. Hand over the ink to a human to do the assignment if you are not sure about the assignment.
 
     ONLY assign the ink to a cluster if you are confident that it belongs there. If you are not sure,
     you should rather ask a human to handle it than assigning it incorrectly.
@@ -155,6 +156,14 @@ class InkClusterer
 
   function :ignore_ink, "Ignore this ink" do |_arguments|
     self.extra_data = { msg: "Ignoring #{micro_cluster_str}", action: "ignore_ink" }
+    stop_looping!
+  end
+
+  function :hand_over_to_human, "Hand over to human to do the assignment" do |_arguments|
+    self.extra_data = {
+      msg: "Handing over #{micro_cluster_str} to human",
+      action: "hand_over_to_human"
+    }
     stop_looping!
   end
 
