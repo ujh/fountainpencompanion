@@ -37,6 +37,7 @@ class Admins::MicroClustersController < Admins::BaseController
       cluster.agent_logs.create!(
         name: "InkClusterer",
         state: AgentLog::APPROVED,
+        transcript: [],
         extra_data: {
           action: "ignore_ink"
         }
@@ -58,6 +59,7 @@ class Admins::MicroClustersController < Admins::BaseController
     cluster.agent_logs.create!(
       name: "InkClusterer",
       state: AgentLog::APPROVED,
+      transcript: [],
       extra_data: {
         action: "assign_to_cluster",
         cluster_id: cluster.id

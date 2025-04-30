@@ -36,6 +36,7 @@ class Admins::MacroClustersController < Admins::BaseController
       micro_cluster.agent_logs.create!(
         name: "InkClusterer",
         state: AgentLog::APPROVED,
+        transcript: [],
         extra_data: {
           action: "create_new_cluster"
         }
