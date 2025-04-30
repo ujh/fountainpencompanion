@@ -14,6 +14,9 @@ class InkClusterer
     ONLY assign the ink to a cluster if you are confident that it belongs there.
     If you are not confident, but sure that it is a real ink, rather create a new cluster for it.
 
+    Before creating a new cluster make sure that you did a search for only the ink name to check
+    if it was possibly created under a differnt brand or line.
+
     If the ink has a color and the cluster you want to assign it to has a color as well,
     make sure that the colors are similar. If they are not, create a new cluster for the ink.
 
