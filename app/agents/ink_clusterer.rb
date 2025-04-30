@@ -150,7 +150,7 @@ class InkClusterer
       names: micro_cluster.all_names,
       names_as_elements: micro_cluster.all_names_as_elements
     }
-    data[:color] = micro_cluster.color if micro_cluster.color.present?
+    data[:colors] = micro_cluster.colors if micro_cluster.colors.present?
 
     "This is the data for the ink to cluster: #{JSON.pretty_generate(data)}"
   end

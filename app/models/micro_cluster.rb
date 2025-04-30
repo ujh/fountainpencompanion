@@ -32,4 +32,8 @@ class MicroCluster < ApplicationRecord
   def all_names_as_elements
     collected_inks.map { |ink| ink.slice(:brand_name, :line_name, :ink_name) }.uniq
   end
+
+  def colors
+    collected_inks.map(&:color).reject(&:blank?).uniq
+  end
 end
