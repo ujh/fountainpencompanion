@@ -1640,6 +1640,13 @@ CREATE INDEX index_collected_inks_on_tsv ON public.collected_inks USING gin (tsv
 
 
 --
+-- Name: index_collected_inks_on_user_id_and_brand_name; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_collected_inks_on_user_id_and_brand_name ON public.collected_inks USING btree (user_id, brand_name);
+
+
+--
 -- Name: index_collected_pens_on_brand; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -1724,10 +1731,10 @@ CREATE INDEX index_ink_embeddings_on_embedding ON public.ink_embeddings USING hn
 
 
 --
--- Name: index_ink_embeddings_on_owner; Type: INDEX; Schema: public; Owner: -
+-- Name: index_ink_embeddings_on_owner_id; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX index_ink_embeddings_on_owner ON public.ink_embeddings USING btree (owner_type, owner_id);
+CREATE INDEX index_ink_embeddings_on_owner_id ON public.ink_embeddings USING btree (owner_id);
 
 
 --
@@ -1857,10 +1864,10 @@ CREATE INDEX index_pen_embeddings_on_embedding ON public.pen_embeddings USING hn
 
 
 --
--- Name: index_pen_embeddings_on_owner; Type: INDEX; Schema: public; Owner: -
+-- Name: index_pen_embeddings_on_owner_id; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX index_pen_embeddings_on_owner ON public.pen_embeddings USING btree (owner_type, owner_id);
+CREATE INDEX index_pen_embeddings_on_owner_id ON public.pen_embeddings USING btree (owner_id);
 
 
 --
@@ -1934,6 +1941,13 @@ CREATE UNIQUE INDEX index_usage_records_on_currently_inked_id_and_used_on ON pub
 
 
 --
+-- Name: index_user_agents_on_day; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_user_agents_on_day ON public.user_agents USING btree (day);
+
+
+--
 -- Name: index_user_agents_on_name_and_day; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -1980,6 +1994,13 @@ CREATE INDEX index_users_on_spam_reason ON public.users USING btree (spam_reason
 --
 
 CREATE INDEX index_versions_on_item_type_and_item_id ON public.versions USING btree (item_type, item_id);
+
+
+--
+-- Name: index_versions_on_whodunnit; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_versions_on_whodunnit ON public.versions USING btree (whodunnit);
 
 
 --
@@ -2209,6 +2230,7 @@ ALTER TABLE ONLY public.collected_inks
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20250430140418'),
 ('20250429064027'),
 ('20250428072932'),
 ('20250428065608'),
