@@ -11,10 +11,16 @@ class ProcessInkReviewSubmission
         ink_review.image = image
         ink_review.author = author
       end
+    new_record = ink_review.new_record?
+    schedule_approval = false
     if ink_review.save
       ink_review.update(rejected_at: nil)
       ink_review_submission.update(ink_review:, unfurling_errors: nil, html: nil)
-      ink_review.auto_approve! if ink_review.ink_review_submissions.size > 1
+      if ink_review.ink_review_submissions.size > 1
+        ink_review.auto_approve!
+      else
+        schedule_approval = true
+      end
     else
       ink_review_submission.update(unfurling_errors: ink_review.errors.messages.to_json)
     end
@@ -22,6 +28,7 @@ class ProcessInkReviewSubmission
       channel = YouTubeChannel.find_or_create_by(channel_id: you_tube_channel_id)
       ink_review.update!(you_tube_channel: channel)
     end
+    RunAgent.perform_async("ReviewApprover", ink_review.id) if new_record && schedule_approval
   rescue URI::InvalidURIError, Faraday::ForbiddenError
     ink_review&.destroy
     ink_review_submission&.destroy
