@@ -77,6 +77,8 @@ class InkClusterer
       UpdateMicroCluster.perform_async(micro_cluster.id)
     when "ignore_ink"
       micro_cluster.update!(ignored: true)
+    when "hand_over_to_human"
+      micro_cluster.touch # Move it to the end of the queue for now
     end
     agent_log.approve!
   end
