@@ -1,6 +1,6 @@
 class Admins::Agents::InkClusterersController < Admins::BaseController
   def show
-    @queue_length = AdminStats.new.micro_clusters_to_assign_count
+    @queue_length = MicroCluster.for_cluster_processing.count
     @agent_log =
       AgentLog
         .ink_clusterer
@@ -29,7 +29,7 @@ class Admins::Agents::InkClusterersController < Admins::BaseController
   private
 
   def next_cluster
-    MicroCluster.for_processing.first
+    MicroCluster.for_cluster_processing.first
   end
 
   def run_agent!

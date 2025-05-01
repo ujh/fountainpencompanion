@@ -16,9 +16,14 @@ class MicroCluster < ApplicationRecord
           unassigned
             .without_ignored
             .joins(:collected_inks)
-            .includes(:agent_logs)
             .group("micro_clusters.id")
             .order(updated_at: :asc)
+        end
+
+  scope :for_cluster_processing,
+        -> do
+          for_processing
+            .includes(:agent_logs)
             .reject do |cluster|
               cluster.agent_logs.any? { |al| al.action == "hand_over_to_human" && al.approved? }
             end
