@@ -49,7 +49,7 @@
     "whatwg-fetch": "^3.6.20"
   },
   "devDependencies": {
-    "@babel/eslint-parser": "^7.27.0",
+    "@babel/eslint-parser": "^7.27.1",
     "@eslint/compat": "^1.2.8",
     "@eslint/eslintrc": "^3.3.1",
     "@eslint/js": "^9.25.1",
