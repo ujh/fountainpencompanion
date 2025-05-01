@@ -16,8 +16,12 @@ class MicroCluster < ApplicationRecord
           unassigned
             .without_ignored
             .joins(:collected_inks)
+            .includes(:agent_logs)
             .group("micro_clusters.id")
             .order(updated_at: :asc)
+            .reject do |cluster|
+              cluster.agent_logs.any? { |al| al.action == "hand_over_to_human" && al.approved? }
+            end
         end
 
   def simplified_name

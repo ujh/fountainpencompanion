@@ -33,4 +33,12 @@ class AgentLog < ApplicationRecord
   def processing?
     state == PROCESSING
   end
+
+  def approved?
+    state == APPROVED
+  end
+
+  def action
+    extra_data["action"]
+  end
 end
