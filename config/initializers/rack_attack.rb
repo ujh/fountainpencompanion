@@ -17,7 +17,7 @@ end
 
 # General bot throttling
 Rack::Attack.throttle("bots", limit: 1, period: 1) do |request|
-  request.user_agent if request.user_agent =~ /bot/i
+  request.user_agent if request.user_agent =~ /bot|scrapy/i
 end
 
 # Block misbehaving bots
