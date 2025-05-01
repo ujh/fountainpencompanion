@@ -48,6 +48,10 @@ class User < ApplicationRecord
     where(review_blurb: true)
   end
 
+  def self.admins
+    where(admin: true)
+  end
+
   def active_for_authentication?
     super and !spam?
   end

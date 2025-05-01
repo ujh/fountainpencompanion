@@ -1,6 +1,7 @@
 class InkClusterer
   include Raix::ChatCompletion
   include Raix::FunctionDispatch
+  include AgentTranscript
 
   SYSTEM_DIRECTIVE = <<~TEXT
     You are a clustering algorithm that groups similar inks together based on their properties.
@@ -86,36 +87,6 @@ class InkClusterer
   private
 
   attr_accessor :extra_data, :micro_cluster
-
-  def transcript
-    @transcript ||= Transcript.new(agent_log)
-  end
-
-  class Transcript
-    include Enumerable
-
-    def initialize(agent_log)
-      @transcript = []
-      @agent_log = agent_log
-    end
-
-    def set!(data)
-      @transcript = data.map(&:deep_symbolize_keys)
-    end
-
-    def <<(entry)
-      @transcript << entry
-      @agent_log.update(transcript: @transcript)
-    end
-
-    def each(&)
-      @transcript.each(&)
-    end
-
-    def flatten
-      @transcript.flatten
-    end
-  end
 
   def processed_tries?
     processed_tries.exists?
