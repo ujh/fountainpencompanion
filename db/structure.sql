@@ -500,7 +500,8 @@ CREATE TABLE public.ink_reviews (
     host text,
     author text,
     auto_approved boolean DEFAULT false,
-    you_tube_channel_id bigint
+    you_tube_channel_id bigint,
+    extra_data jsonb DEFAULT '{}'::jsonb
 );
 
 
@@ -2230,6 +2231,7 @@ ALTER TABLE ONLY public.collected_inks
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20250501120850'),
 ('20250430140418'),
 ('20250429064027'),
 ('20250428072932'),
