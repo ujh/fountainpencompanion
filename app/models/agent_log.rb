@@ -39,6 +39,6 @@ class AgentLog < ApplicationRecord
   end
 
   def action
-    extra_data["action"]
+    (extra_data || {})["action"]
   end
 end
