@@ -1,5 +1,8 @@
 class RunAgent
   include Sidekiq::Worker
+  include Sidekiq::Throttled::Worker
+
+  sidekiq_throttle concurrency: { limit: 1 }
   sidekiq_options queue: "agents"
 
   def perform(klass, *)

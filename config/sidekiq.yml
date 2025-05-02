@@ -3,4 +3,5 @@
 :queues:
   - mailers
   - default
+  - agents
   - low
