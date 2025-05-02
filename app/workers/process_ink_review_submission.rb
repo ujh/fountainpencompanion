@@ -26,7 +26,7 @@ class ProcessInkReviewSubmission
     end
     if you_tube_channel_id
       channel = YouTubeChannel.find_or_create_by(channel_id: you_tube_channel_id)
-      ink_review.update!(you_tube_channel: channel)
+      ink_review.update!(you_tube_channel: channel, you_tube_short: is_youtube_short)
     end
     RunAgent.perform_async("ReviewApprover", ink_review.id) if new_record && schedule_approval
   rescue URI::InvalidURIError, Faraday::ForbiddenError
@@ -38,7 +38,14 @@ class ProcessInkReviewSubmission
 
   attr_accessor :ink_review_submission
 
-  delegate :url, :title, :description, :image, :author, :you_tube_channel_id, to: :page_data
+  delegate :url,
+           :title,
+           :description,
+           :image,
+           :author,
+           :you_tube_channel_id,
+           :is_youtube_short,
+           to: :page_data
 
   def macro_cluster
     ink_review_submission.macro_cluster

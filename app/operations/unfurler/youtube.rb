@@ -5,7 +5,7 @@ class Unfurler
     end
 
     def perform
-      Result.new(url, title, description, image, author, channel_id)
+      Result.new(url, title, description, image, author, channel_id, is_short)
     end
 
     private
@@ -36,6 +36,10 @@ class Unfurler
 
     def author
       video.snippet.channel_title
+    end
+
+    def is_short
+      Faraday.get("https://www.youtube.com/shorts/#{video_id}").status == 200
     end
 
     def video

@@ -67,12 +67,11 @@ describe ProcessInkReviewSubmission do
   end
 
   it "creates a new review if url submitted only to separate cluster" do
-    existing_review =
-      create(
-        :ink_review,
-        url: "https://mountainofink.com/blog/kobe-hatoba-blue",
-        macro_cluster: create(:macro_cluster)
-      )
+    create(
+      :ink_review,
+      url: "https://mountainofink.com/blog/kobe-hatoba-blue",
+      macro_cluster: create(:macro_cluster)
+    )
     expect do described_class.new.perform(ink_review_submission.id) end.to change(
       InkReview,
       :count
@@ -100,6 +99,7 @@ describe ProcessInkReviewSubmission do
       video = double(:video, snippet: video_snippet)
       client = double(:client, list_videos: double(:videos, items: [video]))
       allow_any_instance_of(Unfurler::Youtube).to receive(:client).and_return(client)
+      stub_request(:get, "https://www.youtube.com/shorts/09mpgUzVc5g").to_return(status: 301)
     end
 
     it "creates the youtube channel if it does not exist" do
@@ -126,6 +126,13 @@ describe ProcessInkReviewSubmission do
       )
       review = InkReview.first
       expect(review.you_tube_channel).to eq(channel)
+    end
+
+    it "marks it as a short if detected" do
+      stub_request(:get, "https://www.youtube.com/shorts/09mpgUzVc5g").to_return(status: 200)
+      described_class.new.perform(ink_review_submission.id)
+      review = InkReview.first
+      expect(review.you_tube_short).to eq(true)
     end
   end
 

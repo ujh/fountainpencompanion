@@ -68,7 +68,10 @@ class ReviewApprover
       author: review.author,
       user: review.user.admin? ? "System" : (review.user.name.presence || review.user.email)
     }
-    data[:is_you_tube_channel] = true if review.you_tube_channel
+    if review.you_tube_channel
+      data[:is_you_tube_video] = true
+      data[:is_youtube_short] = review.you_tube_short?
+    end
     data
   end
 

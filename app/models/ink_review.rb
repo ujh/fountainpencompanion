@@ -14,6 +14,7 @@ class InkReview < ApplicationRecord
   scope :queued, -> { where(approved_at: nil, rejected_at: nil) }
   scope :approved, -> { where.not(approved_at: nil) }
   scope :rejected, -> { where.not(rejected_at: nil) }
+  scope :processed, -> { where.not(approved_at: nil).or(where.not(rejected_at: nil)) }
 
   def reject!
     update!(rejected_at: Time.zone.now, approved_at: nil)
