@@ -76,14 +76,26 @@ class ReviewApprover
   end
 
   def approved_reviews_data
-    data = admin_reviews.approved.limit(10).map { |r| format_review_data(r) }
-    data += user_reviews.approved.limit(10).map { |r| format_review_data(r) }
+    data =
+      [admin_reviews, user_reviews].flat_map do |relation|
+          [
+            relation.where(extra_data: { action: "approve_review" }),
+            relation.where(extra_data: { action: "reject_review" })
+          ]
+        end
+        .flat_map { |relation| relation.approved.limit(5).map { |r| format_review_data(r) } }
     "Here are some examples of approved reviews: #{data.to_json}"
   end
 
   def rejected_reviews_data
-    data = admin_reviews.rejected.limit(10).map { |r| format_review_data(r) }
-    data += user_reviews.rejected.limit(10).map { |r| format_review_data(r) }
+    data =
+      [admin_reviews, user_reviews].flat_map do |relation|
+          [
+            relation.where(extra_data: { action: "approve_review" }),
+            relation.where(extra_data: { action: "reject_review" })
+          ]
+        end
+        .flat_map { |relation| relation.rejected.limit(5).map { |r| format_review_data(r) } }
     "Here are some examples of rejected reviews: #{data.to_json}"
   end
 
