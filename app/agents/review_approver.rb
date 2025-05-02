@@ -108,16 +108,18 @@ class ReviewApprover
   end
 
   def reviews
-    InkReview.joins(:ink_review_submissions).order(created_at: :desc)
+    InkReview.joins(:ink_review_submissions).order("RANDOM()").manually_processed
   end
 
   function :approve_review, "Approve the review" do
     ink_review.update(extra_data: { action: "approve_review" })
+    ink_review.agent_approve!
     stop_looping!
   end
 
   function :reject_review, "Reject the review" do
     ink_review.update(extra_data: { action: "reject_review" })
+    ink_review.agent_reject!
     stop_looping!
   end
 end
