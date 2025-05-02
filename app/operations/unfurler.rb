@@ -25,7 +25,11 @@ class Unfurler
   end
 
   def video_id
-    Rack::Utils.parse_query(uri.query)["v"]
+    if uri.host =~ /youtube.com/
+      Rack::Utils.parse_query(uri.query)["v"]
+    elsif uri.host =~ /youtu.be/
+      uri.path[1..-1]
+    end
   end
 
   def html
