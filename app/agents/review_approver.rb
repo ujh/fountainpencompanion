@@ -10,8 +10,9 @@ class ReviewApprover
     * Reject reviews that are not related to the ink.
     * Approve reviews that are related to the ink.
     * Reject reviews that are instagram posts.
-    * Reject reviews that are Youtube shorts unless the ink has no reviews, yet.
-    * Approve reviews that are Youtube videos and that are related to the ink.
+    * Reject reviews that are related to the ink, but that are Youtube shorts.
+      Unless the ink has no other reviews. The approve the review if it is related
+      to the ink.
   TEXT
 
   def initialize(ink_review_id)
