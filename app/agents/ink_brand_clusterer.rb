@@ -22,7 +22,7 @@ class InkBrandClusterer
   end
 
   def perform
-    chat_completion(loop: true, openai: "gpt-4o-mini")
+    chat_completion(loop: true, openai: "gpt-4.1")
     agent_log.waiting_for_approval!
     agent_log
   end
