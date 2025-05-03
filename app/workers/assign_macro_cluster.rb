@@ -3,7 +3,11 @@ class AssignMacroCluster
 
   def perform(macro_cluster_id)
     self.macro_cluster = MacroCluster.find(macro_cluster_id)
-    macro_cluster.update(brand_cluster: brand_cluster)
+    if brand_cluster
+      macro_cluster.update(brand_cluster: brand_cluster)
+    else
+      RunAgent.perform_async("InkBrandClusterer", macro_cluster.id)
+    end
   end
 
   private
