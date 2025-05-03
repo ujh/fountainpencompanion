@@ -36,23 +36,31 @@ class InkBrandClusterer
   end
 
   def macro_cluster_data
-    data = {
-      name: macro_cluster.name,
-      synonyms: macro_cluster.synonyms,
-      name_details: macro_cluster.all_names_as_elements
-    }
+    data = { name: macro_cluster.name, name_details: macro_cluster.all_names_as_elements }
+    synonyms = macro_cluster.synonyms
+    data[:synonyms] = synonyms if synonyms.present?
 
     "The ink in question has the following details: #{data.to_json}"
   end
 
   def brands_data
     data =
-      BrandCluster.includes(:macro_clusters).all.map { |c| { name: c.name, synonyms: c.synonyms } }
+      BrandCluster
+        .includes(:macro_clusters)
+        .all
+        .map do |c|
+          cd = { brand_cluster_id: c.id, name: c.name }
+          synonyms = c.synonyms
+          cd[:synonyms] = synonyms if synonyms.present?
+          cd
+        end
     if evaluating
       brand_name = macro_cluster.brand_name
       # Remove brand under question from the list of existing brands in the synonyms
       data =
         data.map do |brand|
+          next brand unless brand[:synonyms].present?
+
           brand.merge(synonyms: brand[:synonyms].reject { |synonym| synonym == brand_name })
         end
       # Remove brand under question from the list of existing brands in the names. Use the first name
@@ -61,7 +69,7 @@ class InkBrandClusterer
         data.map do |brand|
           next brand unless brand[:name] == brand_name
 
-          brand.merge(name: brand[:synonyms].first)
+          brand.merge(name: (brand[:synonyms] || []).first)
         end
       # Remove brands with nil names
       data = data.reject { |brand| brand[:name].nil? }
