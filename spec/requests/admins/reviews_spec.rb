@@ -37,7 +37,7 @@ describe "Admins::Reviews" do
       end
 
       it "keeps redirects to the reviews index page with the page param if another review exists" do
-        create(:ink_review)
+        create(:ink_review, approved_at: Time.current, agent_approved: true)
         put "/admins/reviews/#{ink_review.id}?page=2"
         expect(response).to redirect_to("/admins/reviews?page=2")
       end

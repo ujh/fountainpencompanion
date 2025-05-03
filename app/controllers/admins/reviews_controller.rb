@@ -23,7 +23,7 @@ class Admins::ReviewsController < Admins::BaseController
 
   def redirect_after_change
     if request.referrer.blank? || request.referrer =~ %r{/admins}
-      if InkReview.queued.exists?
+      if InkReview.agent_processed.exists?
         redirect_to admins_reviews_path(page: params[:page])
       else
         redirect_to admins_dashboard_path
