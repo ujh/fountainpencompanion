@@ -16,13 +16,24 @@ class InkReview < ApplicationRecord
   scope :rejected, -> { where.not(rejected_at: nil) }
   scope :processed, -> { where.not(approved_at: nil).or(where.not(rejected_at: nil)) }
   scope :manually_processed, -> { processed.where(agent_approved: false) }
+  scope :agent_processed, -> { processed.where(agent_approved: true) }
 
   def reject!
-    update!(rejected_at: Time.zone.now, approved_at: nil)
+    update!(
+      rejected_at: Time.zone.now,
+      approved_at: nil,
+      agent_approved: false,
+      auto_approved: false
+    )
   end
 
   def approve!
-    update(approved_at: Time.zone.now, rejected_at: nil)
+    update(
+      approved_at: Time.zone.now,
+      rejected_at: nil,
+      agent_approved: false,
+      auto_approved: false
+    )
   end
 
   def auto_approve!

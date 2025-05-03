@@ -132,7 +132,7 @@ class AdminStats
   end
 
   def ink_reviews_to_review_count
-    InkReview.queued.count
+    InkReview.agent_processed.count
   end
 
   def users_using_collected_pens_count

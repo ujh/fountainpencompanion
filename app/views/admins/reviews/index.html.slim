@@ -1,4 +1,19 @@
-- content_for :title, "#{InkReview.queued.count} reviews to check"
+- content_for :title, "#{InkReview.agent_processed.count} reviews to check"
+
+table class="table table-striped"
+  thead
+    tr
+      th
+      th Count
+      th Correct
+      th Incorrect
+  tbody
+    - @stats.each do |key, value|
+      tr
+        td= key
+        td= value[:count]
+        td= number_to_percentage value[:correct_percentage]
+        td= number_to_percentage value[:incorrect_percentage]
 
 - @ink_reviews.each do |ink_review|
   dl class="row" id="admin_ink_review"
