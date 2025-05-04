@@ -1,5 +1,9 @@
 - content_for :title, "Agent Logs"
 
+= form_tag(false, method: :get) do
+  = select_tag :name, options_for_select(@agent_log_names, params[:name]), include_blank: true, class: "me-2"
+  = submit_tag "Search", class: "btn btn-primary"
+
 = paginate @agent_logs
 
 - @agent_logs.each do |agent_log|
