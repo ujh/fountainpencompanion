@@ -34,7 +34,7 @@ class Admins::ReviewsController < Admins::BaseController
   end
 
   def calculate_stats
-    ids = InkReview.processed.where.not(extra_data: {}).order(created_at: :desc).pluck(:id)
+    ids = InkReview.manually_processed.where.not(extra_data: {}).order(created_at: :desc).pluck(:id)
     rel = InkReview.where(id: ids)
 
     analysis = { total: {}, approved: {}, rejected: {} }
