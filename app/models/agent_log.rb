@@ -1,5 +1,6 @@
 class AgentLog < ApplicationRecord
   belongs_to :owner, polymorphic: true
+  has_many :agent_logs, as: :owner, dependent: :destroy
 
   scope :ink_clusterer, -> { where(name: "InkClusterer") }
 

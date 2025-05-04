@@ -60,6 +60,10 @@ class InkClusterer
     chat_completion(loop: true, openai: "gpt-4.1")
     agent_log.update!(extra_data: extra_data)
     agent_log.waiting_for_approval!
+    return unless extra_data[:follow_up_agent].present?
+
+    follow_up = extra_data[:follow_up_agent]
+    RunAgent.perform_async(follow_up, agent_log.id)
   end
 
   def reject!
@@ -150,27 +154,48 @@ class InkClusterer
            "Assign ink to existing cluster",
            cluster_id: {
              type: "integer"
+           },
+           explanation_of_decision: {
+             type: "string",
+             description: "Explain why you are assigning the ink to this cluster"
            } do |arguments|
     cluster_id = arguments[:cluster_id].to_i
     cluster = MacroCluster.find(cluster_id)
     self.extra_data = {
       msg: "Assigning #{micro_cluster_str} to #{cluster.id} - #{cluster.name}",
       action: "assign_to_cluster",
-      cluster_id: cluster.id
+      explanation_of_decision: arguments[:explanation_of_decision],
+      cluster_id: cluster.id,
+      follow_up_agent: "InkClustererCheckAssignment"
     }
     stop_looping!
   end
 
-  function :create_new_cluster, "Create a new cluster for this ink" do |_arguments|
+  function :create_new_cluster,
+           "Create a new cluster for this ink",
+           explanation_of_decision: {
+             type: "string",
+             description: "Explain why you are creating a new cluster for this ink"
+           } do |arguments|
     self.extra_data = {
       msg: "Creating new cluster for #{micro_cluster_str}",
-      action: "create_new_cluster"
+      action: "create_new_cluster",
+      explanation_of_decision: arguments[:explanation_of_decision]
     }
     stop_looping!
   end
 
-  function :ignore_ink, "Ignore this ink" do |_arguments|
-    self.extra_data = { msg: "Ignoring #{micro_cluster_str}", action: "ignore_ink" }
+  function :ignore_ink,
+           "Ignore this ink",
+           explanation_of_decision: {
+             type: "string",
+             description: "Explain why you are ignoring this ink"
+           } do |arguments|
+    self.extra_data = {
+      msg: "Ignoring #{micro_cluster_str}",
+      action: "ignore_ink",
+      explanation_of_decision: arguments[:explanation_of_decision]
+    }
     stop_looping!
   end
 

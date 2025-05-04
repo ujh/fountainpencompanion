@@ -7,6 +7,10 @@ class Admins::Agents::InkClusterersController < Admins::BaseController
         .where(state: [AgentLog::WAITING_FOR_APPROVAL, AgentLog::PROCESSING])
         .first
     @processing = @agent_log&.processing?
+
+    return unless @agent_log && !@processing
+    @processing = true if @agent_log.extra_data["follow_up_agent"] &&
+      !@agent_log.extra_data["follow_up_done"]
   end
 
   def create
@@ -39,9 +43,5 @@ class Admins::Agents::InkClusterersController < Admins::BaseController
     # Adds the agent_log to the system if it does not exist, yet
     InkClusterer.new(cluster.id)
     RunAgent.perform_async("InkClusterer", cluster.id)
-  end
-
-  def processing?
-    AgentLog.ink_clusterer.processing.any?
   end
 end
