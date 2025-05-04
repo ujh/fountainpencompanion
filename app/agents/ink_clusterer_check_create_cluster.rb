@@ -1,23 +1,25 @@
-class InkClustererCheckAssignment
+class InkClustererCheckCreateCluster
   include Raix::ChatCompletion
   include Raix::FunctionDispatch
   include AgentTranscript
 
   SYSTEM_DIRECTIVE = <<~TEXT
     You are reviewing the result of a clustering algorithm that clusters inks,
-    or ignores them. Here the algorithm suggested that the ink should assigned
-    to an existing cluster.
+    or ignores them. Here the algorithm suggested that the ink does not belong
+    to any of the existing clusters and a new cluster should be created for it.
 
-    You are tasked with checking if the assignment is correct. You are given
-    the ink, the cluster it is assigned to, and the reasoning of the algorithm.
+    New clusters should be created when:
+    * No ink can be found that is similar enough to the ink
 
-    Inks should be assigned to a cluster when:
+    No new cluster should be created when:
     * The ink is a different spelling of the cluster
-    * The ink is a translation of the cluster
-    * Some parts of the name were added or removed, but it is still definitely the same ink
+    * The ink is a translation of an existing cluster
+    * The ink does not exist at all or is a mix of inks
 
-    You can search the web for the ink (double check that the search results really contain what
-    you searched for), as well as the internal database of ink clusters.
+    If you are unsure you can search the web for it. Make sure to check the results
+    to see if the ink name is actually present. The results might not even contain the ink name.
+
+    You can also search the internal database of ink clusters.
   TEXT
 
   def initialize(agent_log_id)
@@ -25,7 +27,6 @@ class InkClustererCheckAssignment
     transcript << { system: SYSTEM_DIRECTIVE }
     transcript << { user: clustering_explanation }
     transcript << { user: micro_cluster_data }
-    transcript << { user: macro_cluster_data }
   end
 
   def perform
@@ -49,7 +50,7 @@ class InkClustererCheckAssignment
   attr_accessor :micro_cluster_agent_log
 
   def clustering_explanation
-    "Below is the reasoning of the AI for the clustering:
+    "Below is the reasoning of the AI for creating a new cluster:
     #{micro_cluster_agent_log.extra_data["explanation_of_decision"]}"
   end
 
@@ -63,27 +64,19 @@ class InkClustererCheckAssignment
     "This is the data for the ink to cluster: #{data.to_json}"
   end
 
-  def macro_cluster_data
-    data = {
-      names: macro_cluster.all_names.map(&:short_name),
-      names_as_elements: macro_cluster.all_names_as_elements
-    }
-    "This is the data for the cluster to which the ink was assigned: #{data.to_json}"
-  end
-
-  function :approve_assignment, "Approve the assignment of the ink to the cluster" do
+  function :approve_cluster_creation, "Approve the creation of a new cluster" do
     agent_log.update(extra_data: { action: "approve" })
     stop_looping!
   end
 
-  function :reject_assignment, "Reject the assignment of the ink to the cluster" do
+  function :reject_cluster_creation, "Reject the creation of a new cluster" do
     agent_log.update(extra_data: { action: "reject" })
     stop_looping!
   end
 
   function :log_of_clustering,
-           "Log of the chat with the LLM that produced the cluster assignment in question" do
-    "The conversation that led to this assignment:\n#{micro_cluster_agent_log.transcript.to_json}"
+           "Log of the chat with the LLM that produced the cluster creation in question" do
+    "The conversation that led to this cluster creation suggestion:\n#{micro_cluster_agent_log.transcript.to_json}"
   end
 
   function :search_web, "Search the web", search_query: { type: "string" } do |arguments|
@@ -113,9 +106,5 @@ class InkClustererCheckAssignment
 
   def micro_cluster
     @micro_cluster ||= micro_cluster_agent_log.owner
-  end
-
-  def macro_cluster
-    @macro_cluster ||= MacroCluster.find(micro_cluster_agent_log.extra_data["cluster_id"])
   end
 end

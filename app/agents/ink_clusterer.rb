@@ -166,7 +166,7 @@ class InkClusterer
       action: "assign_to_cluster",
       explanation_of_decision: arguments[:explanation_of_decision],
       cluster_id: cluster.id,
-      follow_up_agent: "InkClustererCheckAssignment"
+      follow_up_agent: InkClustererCheckAssignment.name
     }
     stop_looping!
   end
@@ -180,7 +180,8 @@ class InkClusterer
     self.extra_data = {
       msg: "Creating new cluster for #{micro_cluster_str}",
       action: "create_new_cluster",
-      explanation_of_decision: arguments[:explanation_of_decision]
+      explanation_of_decision: arguments[:explanation_of_decision],
+      follow_up_agent: InkClustererCheckCreateCluster.name
     }
     stop_looping!
   end
@@ -194,7 +195,8 @@ class InkClusterer
     self.extra_data = {
       msg: "Ignoring #{micro_cluster_str}",
       action: "ignore_ink",
-      explanation_of_decision: arguments[:explanation_of_decision]
+      explanation_of_decision: arguments[:explanation_of_decision],
+      follow_up_agent: InkClustererCheckIgnoreInk.name
     }
     stop_looping!
   end
