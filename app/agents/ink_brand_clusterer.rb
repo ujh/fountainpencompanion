@@ -11,6 +11,14 @@ class InkBrandClusterer
 
     * You will receive the ink name and a list of synonyms.
     * You will also receive a list of existing brands with their names and synonyms.
+
+    You can determine patterns in the names and synonyms of the inks and brands that
+    can help you determine if the brand of the ink is a new one or already present
+    in the system.
+
+    Synonyms for ink include, but are not limited to:
+    * Spelling variations or typos
+    * Different translations of the same name
   TEXT
 
   def initialize(macro_cluster_id, evaluating: false)

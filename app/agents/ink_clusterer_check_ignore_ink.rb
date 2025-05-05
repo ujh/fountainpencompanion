@@ -5,22 +5,28 @@ class InkClustererCheckIgnoreInk
 
   SYSTEM_DIRECTIVE = <<~TEXT
     You are reviewing the result of a clustering algorithm that clusters inks,
-    or ignores them. Here the algorithm suggested that the ink should be ignored.
+    creates new clusters, or ignores them. Here the algorithm suggested that the
+    ink should be ignored.
 
     Inks should be ignored when:
 
     * It is a mix of inks
     * It is an unidentified ink
+    * It is an ink that someone created themselves
+    * It is an incomplete entry, e.g. a name that is not a full ink name on its own
 
-    Note, that sometimes people create their own mixes of inks. These should be ignored. Often times these
-    contain two ink names that are separated by a non-word character. Additionally, custom ink mixes
-    most of the time do not use one of the know brand names (use the supplied function name to double check).
+    Ink mixes can be determined for example by:
+    * The ink name contains two ink names that are separated by a non-word character
+    * The ink name does not contain one of the known brand names
 
-    Note, that sometimes people do not know the full name of an ink. These unidentified inks should also
-    be ignored.
+    You can search the web for the ink. When you do that keep the following in mind:
+    * The results might not even contain the ink name. You need to double check that the ink name is actually present.
+    * Fewer results make it more likely that the ink does not exist.
+    * More results make it more likely that the ink does exist.
 
-    If you are unsure you can search the web for it. Make sure to check the results
-    to see if the ink name is actually present. The results might not even contain the ink name.
+    You can search the internal database using the similarity search function.
+    * The similarity is based on vector embeddings. The smaller the number the closer they are.
+    * Many results with a small distance but none that really fit usually mean that the ink is not a full name.
   TEXT
 
   def initialize(agent_log_id)
@@ -84,6 +90,25 @@ class InkClustererCheckIgnoreInk
     search_query = "#{arguments[:search_query]} ink"
     search_results = GoogleSearch.new(search_query).perform
     "The search results for '#{search_query}' are:\n #{search_results.to_json}"
+  end
+
+  function :similarity_search,
+           "Find the 10 most similar ink clusters by cosine distance",
+           search_string: {
+             type: "string"
+           } do |arguments|
+    similar_clusters = MacroCluster.embedding_search(arguments[:search_string]).take(10)
+    similar_clusters.map do |data|
+      cluster = data.cluster
+      data = {
+        id: cluster.id,
+        name: cluster.name,
+        distance: data.distance,
+        synonyms: cluster.synonyms
+      }
+      data[:color] = cluster.color if cluster.color.present?
+      data
+    end
   end
 
   def micro_cluster
