@@ -11,7 +11,7 @@ class GoogleSearch
         req.params["q"] = query
       end
 
-    response.body
+    filter_body(response.body)
   rescue StandardError => e
     "Search failed: #{e.message}"
   end
@@ -19,6 +19,16 @@ class GoogleSearch
   private
 
   attr_accessor :query
+
+  def filter_body(body)
+    filtered_body = {}
+    filtered_body["search_stats"] = body.dig("queries", "request", 0).slice(
+      "totalResults",
+      "searchTerms"
+    )
+    filtered_body["search_results"] = body["items"].map { |item| item.except("kind") }
+    filtered_body
+  end
 
   def key
     ENV.fetch("GOOGLE_SEARCH_API_KEY")
