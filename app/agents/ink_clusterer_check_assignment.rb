@@ -95,7 +95,8 @@ class InkClustererCheckAssignment
   function :search_web, "Search the web", search_query: { type: "string" } do |arguments|
     search_query = "#{arguments[:search_query]} ink"
     search_results = GoogleSearch.new(search_query).perform
-    "The search results for '#{search_query}' are:\n #{search_results.to_json}"
+    search_summary = GoogleSearchSummarizer.new(search_query, search_results).perform
+    "The search results for '#{search_query}' are:\n #{search_summary}"
   end
 
   function :similarity_search,

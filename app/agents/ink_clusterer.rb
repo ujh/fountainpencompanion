@@ -225,7 +225,8 @@ class InkClusterer
   function :search_web, "Search the web for the name of the ink" do
     search_query = "#{micro_cluster.all_names.join(" ")} ink"
     search_results = GoogleSearch.new(search_query).perform
-    "The search results for '#{search_query}' are:\n #{search_results.to_json}"
+    search_summary = GoogleSearchSummarizer.new(search_query, search_results).perform
+    "The search results for '#{search_query}' are:\n #{search_summary}"
   end
 
   def micro_cluster_str
