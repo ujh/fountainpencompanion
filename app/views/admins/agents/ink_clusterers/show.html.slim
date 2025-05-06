@@ -23,8 +23,16 @@ table class="table"
       tr
         th= action
         td= action_rel.count
-        td= action_rel.approved.count
-        td= action_rel.rejected.count
+        td
+          - approved_count = action_rel.approved.count
+          = approved_count
+          - correct_auto_approve_count = action_rel.approved.where("extra_data->>'follow_up_action' = ?", 'approve').count
+          = " (#{correct_auto_approve_count} correct auto review)"
+        td
+          - rejected_count = action_rel.rejected.count
+          = rejected_count
+          - correct_auto_reject_count = action_rel.rejected.where("extra_data->>'follow_up_action' = ?", 'reject').count
+          = " (#{correct_auto_reject_count} correct auto review)"
 
 - if @processing
   p= "Processing cluster, please wait..."
