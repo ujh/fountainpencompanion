@@ -157,7 +157,8 @@ class InkClusterer
            },
            explanation_of_decision: {
              type: "string",
-             description: "Explain why you are assigning the ink to this cluster"
+             description:
+               "Explain why you are assigning the ink to this cluster and not creating a cluster or ignoring it"
            } do |arguments|
     cluster_id = arguments[:cluster_id].to_i
     cluster = MacroCluster.find(cluster_id)
@@ -175,7 +176,8 @@ class InkClusterer
            "Create a new cluster for this ink",
            explanation_of_decision: {
              type: "string",
-             description: "Explain why you are creating a new cluster for this ink"
+             description:
+               "Explain why you are creating a new cluster for this ink and not assigning it to an existing one or ignoring it"
            } do |arguments|
     self.extra_data = {
       msg: "Creating new cluster for #{micro_cluster_str}",
@@ -190,7 +192,8 @@ class InkClusterer
            "Ignore this ink",
            explanation_of_decision: {
              type: "string",
-             description: "Explain why you are ignoring this ink"
+             description:
+               "Explain why you are ignoring this ink and not assigning it to a cluster or creating a new one"
            } do |arguments|
     self.extra_data = {
       msg: "Ignoring #{micro_cluster_str}",
