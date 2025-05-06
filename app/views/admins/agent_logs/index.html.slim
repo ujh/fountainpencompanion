@@ -21,9 +21,10 @@
     dd class="col-sm-9"
       pre= JSON.pretty_generate(agent_log.extra_data)
 
-    dt class="col-sm-3" Owner
-    dd class="col-sm-9"
-      pre= JSON.pretty_generate(agent_log.owner.attributes)
+    - if  agent_log.owner
+      dt class="col-sm-3" Owner
+      dd class="col-sm-9"
+        pre= JSON.pretty_generate(agent_log.owner.attributes)
 
     dt class="col-sm-3" Transcript
     dd class="col-sm-9"
