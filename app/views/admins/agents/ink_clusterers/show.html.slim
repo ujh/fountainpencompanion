@@ -31,11 +31,12 @@ table class="table"
   p= "Processing cluster, please wait..."
 - if @agent_log
   dl class="row" id="admin_agent_log"
-    - if @processing.blank?
+    - if @agent_log.extra_data.present?
       dt class="col-sm-3" Extra Data
       dd class="col-sm-9"
         pre= JSON.pretty_generate(@agent_log.extra_data)
 
+    - if @processing.blank?
       dt class="col-sm-3" Owner
       dd class="col-sm-9"
         pre= JSON.pretty_generate(@agent_log.owner.attributes)
