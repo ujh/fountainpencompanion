@@ -6,26 +6,25 @@
 table class="table"
   thead
     tr
+      th Type
       th Processed
       th Approved
       th Rejected
-  - latest = AgentLog.where(id: AgentLog.ink_clusterer.order(created_at: :desc).limit(500).pluck(:id))
-  - [[AgentLog.ink_clusterer, "All"], [latest, "Latest"]].each do |rel, name|
-    thead
+  - rel = AgentLog.where(id: AgentLog.ink_clusterer.processed.order(created_at: :desc).limit(500).pluck(:id))
+  tbody
+    tr
+      th Latest 500
+      td= rel.count
+      td= rel.approved.count
+      td= rel.rejected.count
+    - actions = rel.distinct.select("extra_data->>'action' as action_taken").map(&:action_taken).compact.sort
+    - actions.each do |action|
+      - action_rel = rel.where("extra_data->>'action' = ?", action)
       tr
-        th(colspan=3)= name
-    tbody
-      tr
-        td= rel.processed.count
-        td= rel.approved.count
-        td= rel.rejected.count
-      tr
-        td
-          pre= JSON.pretty_generate(rel.processed.group("extra_data->>'action'").count)
-        td
-          pre= JSON.pretty_generate(rel.approved.group("extra_data->>'action'").count)
-        td
-          pre= JSON.pretty_generate(rel.rejected.group("extra_data->>'action'").count)
+        th= action
+        td= action_rel.count
+        td= action_rel.approved.count
+        td= action_rel.rejected.count
 
 - if @processing
   p= "Processing cluster, please wait..."
