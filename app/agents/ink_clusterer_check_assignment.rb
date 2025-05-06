@@ -41,7 +41,8 @@ class InkClustererCheckAssignment
       extra_data:
         micro_cluster_agent_log.extra_data.merge(
           follow_up_done: true,
-          follow_up_action: agent_log.extra_data["action"]
+          follow_up_action: agent_log.extra_data["action"],
+          follow_up_action_explanation: agent_log.extra_data["explanation_of_decision"]
         )
     )
   end
@@ -77,13 +78,33 @@ class InkClustererCheckAssignment
     "This is the data for the cluster to which the ink was assigned: #{data.to_json}"
   end
 
-  function :approve_assignment, "Approve the assignment of the ink to the cluster" do
-    agent_log.update(extra_data: { action: "approve" })
+  function :approve_assignment,
+           "Approve the assignment of the ink to the cluster",
+           explanation_of_decision: {
+             type: "string",
+             description: "Explanation of why the assignment is correct"
+           } do |arguments|
+    agent_log.update(
+      extra_data: {
+        action: "approve",
+        explanation_of_decision: arguments[:explanation_of_decision]
+      }
+    )
     stop_looping!
   end
 
-  function :reject_assignment, "Reject the assignment of the ink to the cluster" do
-    agent_log.update(extra_data: { action: "reject" })
+  function :reject_assignment,
+           "Reject the assignment of the ink to the cluster",
+           explanation_of_decision: {
+             type: "string",
+             description: "Explanation of why the assignment is incorrect"
+           } do |arguments|
+    agent_log.update(
+      extra_data: {
+        action: "reject",
+        explanation_of_decision: arguments[:explanation_of_decision]
+      }
+    )
     stop_looping!
   end
 

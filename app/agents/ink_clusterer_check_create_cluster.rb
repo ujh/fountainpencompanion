@@ -43,7 +43,8 @@ class InkClustererCheckCreateCluster
       extra_data:
         micro_cluster_agent_log.extra_data.merge(
           follow_up_done: true,
-          follow_up_action: agent_log.extra_data["action"]
+          follow_up_action: agent_log.extra_data["action"],
+          follow_up_action_explanation: agent_log.extra_data["explanation_of_decision"]
         )
     )
   end
@@ -71,13 +72,33 @@ class InkClustererCheckCreateCluster
     "This is the data for the ink to cluster: #{data.to_json}"
   end
 
-  function :approve_cluster_creation, "Approve the creation of a new cluster" do
-    agent_log.update(extra_data: { action: "approve" })
+  function :approve_cluster_creation,
+           "Approve the creation of a new cluster",
+           explanation_of_decision: {
+             type: "string",
+             description: "Explanation of why the cluster creation was approved"
+           } do |arguments|
+    agent_log.update(
+      extra_data: {
+        action: "approve",
+        explanation_of_decision: arguments[:explanation_of_decision]
+      }
+    )
     stop_looping!
   end
 
-  function :reject_cluster_creation, "Reject the creation of a new cluster" do
-    agent_log.update(extra_data: { action: "reject" })
+  function :reject_cluster_creation,
+           "Reject the creation of a new cluster",
+           explanation_of_decision: {
+             type: "string",
+             description: "Explanation of why the cluster creation was rejected"
+           } do |arguments|
+    agent_log.update(
+      extra_data: {
+        action: "reject",
+        explanation_of_decision: arguments[:explanation_of_decision]
+      }
+    )
     stop_looping!
   end
 
