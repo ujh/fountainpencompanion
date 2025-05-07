@@ -2,6 +2,7 @@ class InkClusterer
   include Raix::ChatCompletion
   include Raix::FunctionDispatch
   include AgentTranscript
+  include InkWebSearch
 
   SYSTEM_DIRECTIVE = <<~TEXT
     You are a clustering algorithm that groups similar inks together based on their properties.
@@ -223,13 +224,6 @@ class InkClusterer
     else
       "No, the ink brand is not known. Use the search function to double check for spelling mistakes, though!"
     end
-  end
-
-  function :search_web, "Search the web for the name of the ink" do
-    search_query = "#{micro_cluster.all_names.join(" ")} ink"
-    search_results = GoogleSearch.new(search_query).perform
-    search_summary = GoogleSearchSummarizer.new(search_query, search_results, agent_log).perform
-    "The search results for '#{search_query}' are:\n #{search_summary}"
   end
 
   def micro_cluster_str

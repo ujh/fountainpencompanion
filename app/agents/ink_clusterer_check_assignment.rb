@@ -2,6 +2,7 @@ class InkClustererCheckAssignment
   include Raix::ChatCompletion
   include Raix::FunctionDispatch
   include AgentTranscript
+  include InkWebSearch
 
   SYSTEM_DIRECTIVE = <<~TEXT
     You are reviewing the result of a clustering algorithm that clusters inks,
@@ -111,13 +112,6 @@ class InkClustererCheckAssignment
   function :log_of_clustering,
            "Log of the chat with the LLM that produced the cluster assignment in question" do
     "The conversation that led to this assignment:\n#{micro_cluster_agent_log.transcript.to_json}"
-  end
-
-  function :search_web, "Search the web", search_query: { type: "string" } do |arguments|
-    search_query = "#{arguments[:search_query]} ink"
-    search_results = GoogleSearch.new(search_query).perform
-    search_summary = GoogleSearchSummarizer.new(search_query, search_results, agent_log).perform
-    "The search results for '#{search_query}' are:\n #{search_summary}"
   end
 
   function :similarity_search,
