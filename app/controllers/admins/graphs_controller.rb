@@ -18,6 +18,8 @@ class Admins::GraphsController < Admins::BaseController
         spam
       when "user-agents"
         user_agents
+      when "agents"
+        agents
       end
     render json: data
   end
@@ -80,6 +82,27 @@ class Admins::GraphsController < Admins::BaseController
         }
       end
       .reject { |data| data[:data].map(&:last).all? { |count| count <= 10 } }
+  end
+
+  def agents
+    base_relation = AgentLog.where("created_at > ?", 1.month.ago)
+    base_relation
+      .select(:name)
+      .distinct
+      .pluck(:name)
+      .reject { |name| name.blank? }
+      .map do |name|
+        {
+          name: name,
+          data:
+            base_relation
+              .where(name: name)
+              .group("date_trunc('hour', created_at)")
+              .order("hour asc")
+              .pluck(Arel.sql("date_trunc('hour', created_at) as hour, count(*) as hour_count"))
+              .map { |d| [d.first.to_i * 1000, d.last] }
+        }
+      end
   end
 
   def collected_inks

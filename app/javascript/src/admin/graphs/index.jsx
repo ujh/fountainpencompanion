@@ -6,9 +6,10 @@ import { CollectedInks } from "./CollectedInks";
 import { CollectedPens } from "./CollectedPens";
 import { CurrentlyInked } from "./CurrentlyInked";
 import { UsageRecords } from "./UsageRecords";
-import { BotSignUps } from "./BotSignUps";
-import { Spam } from "./Spam";
-import { UserAgents } from "./UserAgents";
+// // import { BotSignUps } from "./BotSignUps";
+// import { Spam } from "./Spam";
+// import { UserAgents } from "./UserAgents";
+import { Agents } from "./Agents";
 
 document.addEventListener("DOMContentLoaded", () => {
   const el = document.getElementById("signups-graph");
@@ -19,28 +20,36 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 document.addEventListener("DOMContentLoaded", () => {
-  const el = document.getElementById("user-agents-graph");
+  const el = document.getElementById("agents-graph");
   if (el) {
     const root = createRoot(el);
-    root.render(<UserAgents />);
+    root.render(<Agents />);
   }
 });
 
-document.addEventListener("DOMContentLoaded", () => {
-  const el = document.getElementById("bot-signups-graph");
-  if (el) {
-    const root = createRoot(el);
-    root.render(<BotSignUps />);
-  }
-});
+// document.addEventListener("DOMContentLoaded", () => {
+//   const el = document.getElementById("user-agents-graph");
+//   if (el) {
+//     const root = createRoot(el);
+//     root.render(<UserAgents />);
+//   }
+// });
 
-document.addEventListener("DOMContentLoaded", () => {
-  const el = document.getElementById("spam-graph");
-  if (el) {
-    const root = createRoot(el);
-    root.render(<Spam />);
-  }
-});
+// document.addEventListener("DOMContentLoaded", () => {
+//   const el = document.getElementById("bot-signups-graph");
+//   if (el) {
+//     const root = createRoot(el);
+//     root.render(<BotSignUps />);
+//   }
+// });
+
+// document.addEventListener("DOMContentLoaded", () => {
+//   const el = document.getElementById("spam-graph");
+//   if (el) {
+//     const root = createRoot(el);
+//     root.render(<Spam />);
+//   }
+// });
 
 document.addEventListener("DOMContentLoaded", () => {
   const el = document.getElementById("collected-inks-graph");
