@@ -29,14 +29,14 @@ table class="table"
             - correct_auto_approve_count = action_rel.approved.where("extra_data->>'follow_up_action' = ?", 'approve').count
             - incorrect_auto_approve_count = action_rel.approved.where("extra_data->>'follow_up_action' = ?", 'reject').count
             - correct_percentage = (correct_auto_approve_count.to_f / (correct_auto_approve_count + incorrect_auto_approve_count) * 100).round(2)
-            = " (#{correct_percentage}% correct auto review)"
+            = " (#{correct_percentage}% / #{correct_auto_approve_count} correct auto review)"
         td
           = action_rel.rejected.count
           - unless action == "hand_over_to_human"
             - correct_auto_reject_count = action_rel.rejected.where("extra_data->>'follow_up_action' = ?", 'reject').count
             - incorrect_auto_reject_count = action_rel.rejected.where("extra_data->>'follow_up_action' = ?", 'approve').count
             - correct_percentage = (correct_auto_reject_count.to_f / (correct_auto_reject_count + incorrect_auto_reject_count) * 100).round(2)
-            = " (#{correct_percentage}% correct auto review)"
+            = " (#{correct_percentage}% / #{correct_auto_reject_count} correct auto review)"
 
 - if @processing
   p= "Processing cluster, please wait..."
