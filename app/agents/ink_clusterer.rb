@@ -60,8 +60,25 @@ class InkClusterer
   def perform
     chat_completion(loop: true, openai: "gpt-4.1")
     agent_log.update!(extra_data: extra_data)
+    schedule_follow_up!
     agent_log.waiting_for_approval!
-    return unless extra_data[:follow_up_agent].present?
+  end
+
+  def schedule_follow_up!
+    follow_up_agent =
+      case agent_log.extra_data["action"]
+      when "assign_to_cluster"
+        InkClustererCheckAssignment
+      when "create_new_cluster"
+        InkClustererCheckCreateCluster
+      when "ignore_ink"
+        InkClustererCheckIgnoreInk
+      end
+
+    return if follow_up_agent.nil?
+
+    extra_data[:follow_up_agent] = follow_up_agent.name
+    agent_log.update!(extra_data: extra_data)
 
     follow_up = extra_data[:follow_up_agent]
     RunAgent.perform_async(follow_up, agent_log.id)
@@ -167,8 +184,7 @@ class InkClusterer
       msg: "Assigning #{micro_cluster_str} to #{cluster.id} - #{cluster.name}",
       action: "assign_to_cluster",
       explanation_of_decision: arguments[:explanation_of_decision],
-      cluster_id: cluster.id,
-      follow_up_agent: InkClustererCheckAssignment.name
+      cluster_id: cluster.id
     }
     stop_looping!
   end
@@ -183,8 +199,7 @@ class InkClusterer
     self.extra_data = {
       msg: "Creating new cluster for #{micro_cluster_str}",
       action: "create_new_cluster",
-      explanation_of_decision: arguments[:explanation_of_decision],
-      follow_up_agent: InkClustererCheckCreateCluster.name
+      explanation_of_decision: arguments[:explanation_of_decision]
     }
     stop_looping!
   end
@@ -199,8 +214,7 @@ class InkClusterer
     self.extra_data = {
       msg: "Ignoring #{micro_cluster_str}",
       action: "ignore_ink",
-      explanation_of_decision: arguments[:explanation_of_decision],
-      follow_up_agent: InkClustererCheckIgnoreInk.name
+      explanation_of_decision: arguments[:explanation_of_decision]
     }
     stop_looping!
   end
