@@ -20,9 +20,10 @@ class GoogleSearchSummarizer
     search results.
   TEXT
 
-  def initialize(search_term, search_results)
+  def initialize(search_term, search_results, owner)
     self.search_term = search_term
     self.search_results = search_results
+    self.owner = owner
     transcript << { system: SYSTEM_DIRECTIVE }
     transcript << { user: search_term_prompt }
     transcript << { user: search_results_prompt }
@@ -36,12 +37,12 @@ class GoogleSearchSummarizer
   end
 
   def agent_log
-    @agent_log ||= AgentLog.create!(name: self.class.name, transcript: [])
+    @agent_log ||= AgentLog.create!(name: self.class.name, transcript: [], owner: owner)
   end
 
   private
 
-  attr_accessor :search_term, :search_results, :summary
+  attr_accessor :search_term, :search_results, :summary, :owner
 
   def search_term_prompt
     "The search was done for the following search term: #{search_term}"
