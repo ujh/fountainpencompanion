@@ -1,4 +1,4 @@
-class SpamClassifier
+class ClassifyUser
   include Sidekiq::Worker
 
   def perform(user_id)
@@ -19,6 +19,8 @@ class SpamClassifier
   end
 
   def spam?
-    Bots::SpamClassifier.new(user).run
+    agent = SpamClassifier.new(user)
+    agent.perform
+    agent.spam?
   end
 end
