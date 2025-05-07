@@ -3,6 +3,7 @@ class InkClusterer
   include Raix::FunctionDispatch
   include AgentTranscript
   include InkWebSearch
+  include InkSimilaritySearch
 
   SYSTEM_DIRECTIVE = <<~TEXT
     You are a clustering algorithm that groups similar inks together based on their properties.
@@ -68,11 +69,11 @@ class InkClusterer
     follow_up_agent =
       case agent_log.extra_data["action"]
       when "assign_to_cluster"
-        InkClustererCheckAssignment
+        CheckInkClustering::Assign
       when "create_new_cluster"
-        InkClustererCheckCreateCluster
+        CheckInkClustering::Create
       when "ignore_ink"
-        InkClustererCheckIgnoreInk
+        CheckInkClustering::Ignore
       end
 
     return if follow_up_agent.nil?
@@ -147,25 +148,6 @@ class InkClusterer
     data[:colors] = micro_cluster.colors if micro_cluster.colors.present?
 
     "This is the data for the ink to cluster: #{data.to_json}"
-  end
-
-  function :similarity_search,
-           "Find the 10 most similar ink clusters by cosine distance",
-           search_string: {
-             type: "string"
-           } do |arguments|
-    similar_clusters = MacroCluster.embedding_search(arguments[:search_string]).take(10)
-    similar_clusters.map do |data|
-      cluster = data.cluster
-      data = {
-        id: cluster.id,
-        name: cluster.name,
-        distance: data.distance,
-        synonyms: cluster.synonyms
-      }
-      data[:color] = cluster.color if cluster.color.present?
-      data
-    end
   end
 
   function :assign_to_cluster,
