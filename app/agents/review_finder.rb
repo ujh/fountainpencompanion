@@ -15,6 +15,8 @@ class ReviewFinder
     * The page or video may contain reviews of multiple inks.
     * The page or video may be about something completely different. Submitting
       no reviews is also an option.
+    * Only submit a review for inks that are a focus of the page or video. Inks
+      that only get mentioned in passing should not be submitted.
     * You can search the internal database using the similarity search to find
       the correct inks to submit the review for.
     * You can search multiple times if you need to.
