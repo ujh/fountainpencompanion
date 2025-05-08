@@ -2,12 +2,8 @@ class FetchReviews
   include Sidekiq::Worker
 
   def perform
-    FetchReviews::MountainOfInk.perform_async
-    FetchReviews::PenAddict.perform_in(1.minute)
-    feeds.each_with_index { |url, i| FetchReviews::GenericRss.perform_in(i.minutes, url) }
-    youtube_channels.each_with_index do |channel_id, i|
-      FetchReviews::YoutubeChannel.perform_in(i.minutes, channel_id)
-    end
+    feeds.each { |url| FetchReviews::GenericRss.perform_async(url) }
+    youtube_channels.each { |channel_id| FetchReviews::YoutubeChannel.perform_async(channel_id) }
   end
 
   private
@@ -19,6 +15,8 @@ class FetchReviews
       https://www.wellappointeddesk.com/category/ink-review/feed/
       https://macchiatoman.com/?format=rss
       https://www.inkyinspirations.com/inkreviews?format=rss
+      https://mountainofink.com/?format=rss
+      https://penaddict.com/blog?format=rss
     ]
   end
 
