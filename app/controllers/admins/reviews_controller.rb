@@ -78,10 +78,10 @@ class Admins::ReviewsController < Admins::BaseController
     %i[total approved rejected agent_submitted].each do |key|
       analysis[key][:correct_percentage] = (
         analysis[key][:correct].to_f / analysis[key][:count].to_f * 100
-      ).round(2)
+      )
       analysis[key][:incorrect_percentage] = (
         analysis[key][:incorrect].to_f / analysis[key][:count].to_f * 100
-      ).round(2)
+      )
     end
 
     analysis
