@@ -13,6 +13,6 @@ end
 Sidekiq.configure_server do |config|
   config.capsule("slow") do |cap|
     cap.concurrency = 1
-    cap.queues = %w[reviews leaderboards]
+    cap.queues = %w[leaderboards]
   end
 end

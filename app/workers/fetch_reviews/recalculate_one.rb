@@ -1,6 +1,9 @@
 class FetchReviews
   class RecalculateOne
     include Sidekiq::Worker
+    include Sidekiq::Throttled::Worker
+
+    sidekiq_throttle concurrency: { limit: 1 }
     sidekiq_options queue: "reviews"
 
     def perform(ink_review_id)
