@@ -5,7 +5,9 @@ class Unfurler
     end
 
     def perform
-      Result.new(url, title, description, image, author)
+      result = Result.new(url, title, description, image, author)
+      result.raw_html = document.to_html
+      result
     end
 
     private
