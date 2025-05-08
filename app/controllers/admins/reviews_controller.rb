@@ -57,7 +57,20 @@ class Admins::ReviewsController < Admins::BaseController
       analysis[:total][key] = analysis[:approved][key] + analysis[:rejected][key]
     end
 
-    %i[total approved rejected].each do |key|
+    agent_submitted =
+      InkReview
+        .processed
+        .joins(:ink_review_submissions)
+        .where(ink_review_submissions: { user: User.find_by(email: "urban@bettong.net") })
+        .where("ink_reviews.created_at > ?", Time.parse("2025-05-08 12:25 +0200"))
+
+    analysis[:agent_submitted] = {
+      count: agent_submitted.count,
+      correct: agent_submitted.approved.count,
+      incorrect: agent_submitted.rejected.count
+    }
+
+    %i[total approved rejected agent_submitted].each do |key|
       analysis[key][:correct_percentage] = (
         analysis[key][:correct].to_f / analysis[key][:count].to_f * 100
       ).round(2)
