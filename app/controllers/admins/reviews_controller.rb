@@ -64,8 +64,7 @@ class Admins::ReviewsController < Admins::BaseController
     end
 
     agent_submitted =
-      InkReview
-        .processed
+      rel
         .joins(:ink_review_submissions)
         .where(ink_review_submissions: { user: User.find_by(email: "urban@bettong.net") })
         .where("ink_reviews.created_at > ?", Time.parse("2025-05-08 12:25 +0200"))
