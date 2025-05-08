@@ -3,7 +3,7 @@ class FetchReviews
     include Sidekiq::Worker
     sidekiq_options queue: "reviews"
 
-    def peform(page_id)
+    def perform(page_id)
       self.web_page_for_review = WebPageForReview.find(page_id)
       return unless macro_cluster
 
