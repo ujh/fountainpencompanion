@@ -18,8 +18,9 @@ class ReviewFinder
     * You can search the internal database using the similarity search to find
       the correct inks to submit the review for.
     * You can search multiple times if you need to.
-    * For web pages you can also get a more detailed summary of the page by
-      using the `summarize` function.
+    * For web pages call the `summarize` function to get a more detailed summary
+      of the page, which might contain more information than is available in the
+      page data.
   TEXT
 
   def initialize(page)
