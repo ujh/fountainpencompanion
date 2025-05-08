@@ -1,28 +1,28 @@
 class CheckInkClustering::Assign < CheckInkClustering::Base
-  SYSTEM_DIRECTIVE = <<~TEXT
-    You are reviewing the result of a clustering algorithm that clusters inks,
-    creates new clusters or ignores them. Here the algorithm suggested that the
-    ink should assigned to an existing cluster.
+  def system_directive
+    <<~TEXT
+      You are reviewing the result of a clustering algorithm that clusters inks,
+      creates new clusters or ignores them. Here the algorithm suggested that the
+      ink should assigned to an existing cluster.
 
-    You are tasked with checking if the assignment is correct. You are given
-    the ink, the cluster it is assigned to, and the reasoning of the algorithm.
+      You are tasked with checking if the assignment is correct. You are given
+      the ink, the cluster it is assigned to, and the reasoning of the algorithm.
 
-    Inks should be assigned to a cluster when:
-    * The ink is a different spelling of the cluster
-    * The ink is a translation of the cluster
-    * Some parts of the name were added or removed, but it is still definitely the same ink
+      Inks should be assigned to a cluster when:
+      * The ink is a different spelling of the cluster
+      * The ink is a translation of the cluster
+      * Some parts of the name were added or removed, but it is still definitely the same ink
 
-    When both the ink and the cluster have an RGB color, a similar color is a good
-    indicator that the assignment is correct.
+      When both the ink and the cluster have an RGB color, a similar color is a good
+      indicator that the assignment is correct.
 
-    You can search the web for the ink. When you do that keep the following in mind:
-    * The results might not even contain the ink name. You need to double check that the ink name is actually present.
+      You can search the web for the ink. When you do that keep the following in mind:
+      * The results might not even contain the ink name. You need to double check that the ink name is actually present.
 
-    You can search the internal database using the similarity search function.
-    * The similarity is based on vector embeddings. The smaller the number the closer they are.
-  TEXT
-
-  private
+      You can search the internal database using the similarity search function.
+      * The similarity is based on vector embeddings. The smaller the number the closer they are.
+    TEXT
+  end
 
   def after_initialize
     transcript << { user: macro_cluster_data }

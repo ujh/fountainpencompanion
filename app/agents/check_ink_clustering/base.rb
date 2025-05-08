@@ -7,7 +7,7 @@ class CheckInkClustering::Base
 
   def initialize(agent_log_id)
     self.micro_cluster_agent_log = AgentLog.find(agent_log_id)
-    transcript << { system: SYSTEM_DIRECTIVE }
+    transcript << { system: system_directive }
     transcript << { user: clustering_explanation }
     transcript << { user: micro_cluster_data }
     after_initialize
