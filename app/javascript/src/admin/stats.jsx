@@ -29,14 +29,19 @@ const Stat = ({ id, arg }) => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   useEffect(() => {
-    navigator.locks.request("admin-dashboard-stats", async () => {
-      let url = `/admins/stats/${id}`;
-      if (arg) url += `?arg=${arg}`;
-      const response = await getRequest(url);
-      const json = await response.json();
-      setData(json);
-      setLoading(false);
-    });
+    const fetchData = () => {
+      navigator.locks.request("admin-dashboard-stats", async () => {
+        let url = `/admins/stats/${id}`;
+        if (arg) url += `?arg=${arg}`;
+        const response = await getRequest(url);
+        const json = await response.json();
+        setData(json);
+        setLoading(false);
+      });
+    };
+    fetchData();
+    const interval = setInterval(fetchData(), 1000 * 30);
+    return () => clearInterval(interval);
   });
   if (loading) {
     return (
@@ -54,14 +59,19 @@ const ConditionalStat = ({ id, arg, href, template }) => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   useEffect(() => {
-    navigator.locks.request("admin-dashboard-stats", async () => {
-      let url = `/admins/stats/${id}`;
-      if (arg) url += `?arg=${arg}`;
-      const response = await getRequest(url);
-      const json = await response.json();
-      setData(json);
-      setLoading(false);
-    });
+    const fetchData = () => {
+      navigator.locks.request("admin-dashboard-stats", async () => {
+        let url = `/admins/stats/${id}`;
+        if (arg) url += `?arg=${arg}`;
+        const response = await getRequest(url);
+        const json = await response.json();
+        setData(json);
+        setLoading(false);
+      });
+    };
+    fetchData();
+    const interval = setInterval(fetchData, 1000 * 30);
+    return () => clearInterval(interval);
   });
   if (loading) {
     return (

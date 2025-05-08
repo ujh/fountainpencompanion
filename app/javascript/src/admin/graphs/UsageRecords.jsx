@@ -8,11 +8,16 @@ import { getRequest } from "../../fetch";
 export const UsageRecords = () => {
   const [data, setData] = useState(null);
   useEffect(() => {
-    navigator.locks.request("admin-dashboard", async () =>
-      getRequest("/admins/graphs/usage-records.json")
-        .then((res) => res.json())
-        .then((json) => setData(json))
-    );
+    const fetchData = () => {
+      navigator.locks.request("admin-dashboard", async () =>
+        getRequest("/admins/graphs/usage-records.json")
+          .then((res) => res.json())
+          .then((json) => setData(json))
+      );
+    };
+    fetchData();
+    const interval = setInterval(fetchData, 1000 * 30);
+    return () => clearInterval(interval);
   }, []);
   if (data) {
     const options = {
