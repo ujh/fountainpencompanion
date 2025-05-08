@@ -8,9 +8,9 @@ describe FetchReviews::MountainOfInk do
   end
 
   it "adds all items as ink reviews" do
-    expect do
-      FetchReviews::MountainOfInk.new.perform
-      # 5 items in total
-    end.to change(FetchReviews::SubmitReview.jobs, :count).by(5)
+    expect do FetchReviews::MountainOfInk.new.perform end.to change(
+      FetchReviews::ProcessWebPageForReview.jobs,
+      :count
+    ).by(20)
   end
 end

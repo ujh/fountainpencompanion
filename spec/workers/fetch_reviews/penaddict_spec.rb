@@ -9,8 +9,8 @@ describe FetchReviews::PenAddict do
 
   it "adds all items as ink reviews" do
     expect do FetchReviews::PenAddict.new.perform end.to change(
-      FetchReviews::SubmitReview.jobs,
+      FetchReviews::ProcessWebPageForReview.jobs,
       :count
-    ).by(5)
+    ).by(15)
   end
 end

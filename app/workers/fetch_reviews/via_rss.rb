@@ -1,9 +1,5 @@
 class FetchReviews
   module ViaRss
-    # As we run this multiple times a day we do not have to process all reviews
-    # every time.
-    REVIEW_COUNT = 5
-
     def feed_url
       raise NotImplementedError
     end
@@ -17,25 +13,20 @@ class FetchReviews
         feed.items.map { |item| { url: item.link, title: item.title, search_term: item.title } }
       reviews = reviews.map { |review| process_review(review) }
       reviews = reviews.compact
-      reviews = reviews.take(REVIEW_COUNT)
-      reviews = reviews.map { |review| match_review(review) }
-      reviews.map { |review| submit_review(review) }
+      reviews.each do |review|
+        next if WebPageForReview.where(url: review[:url]).exists?
+
+        page =
+          WebPageForReview.create!(url: review[:url], data: { search_term: review[:search_term] })
+        if Rails.cache.exist?("rss:#{review[:url]}")
+          page.update!(state: "processed")
+        else
+          FetchReviews::ProcessWebPageForReview.perform_async(page.id)
+        end
+      end
     end
 
     private
-
-    def match_review(review)
-      Rails
-        .cache
-        .fetch("rss:#{review[:url]}", expires_in: 1.year) do
-          cluster = MacroCluster.full_text_search(review[:search_term], fuzzy: true).first
-          review.merge(macro_cluster: cluster&.id)
-        end
-    end
-
-    def submit_review(review)
-      FetchReviews::SubmitReview.perform_async(review[:url], review[:macro_cluster])
-    end
 
     def feed
       connection =

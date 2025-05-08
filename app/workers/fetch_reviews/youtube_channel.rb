@@ -16,9 +16,15 @@ class FetchReviews
     def import!
       videos.each do |video|
         video = video.merge(search_term: video[:title])
-        video = match(video)
-        submit(video)
-        sleep(rand) # Crude way of reducing the database load
+        next if WebPageForReview.where(url: video[:url]).exists?
+
+        page =
+          WebPageForReview.create!(url: video[:url], data: { search_term: video[:search_term] })
+        if Rails.cache.exist?("youtube:#{video[:url]}")
+          page.update!(state: "processed")
+        else
+          FetchReviews::ProcessWebPageForReview.perform_async(page.id)
+        end
       end
     end
 
@@ -29,19 +35,6 @@ class FetchReviews
         channel.update!(back_catalog_imported: true)
         client.fetch_videos
       end
-    end
-
-    def submit(video)
-      FetchReviews::SubmitReview.perform_async(video[:url], video[:macro_cluster])
-    end
-
-    def match(video)
-      Rails
-        .cache
-        .fetch("youtube:#{video[:url]}", expires_in: 1.year) do
-          cluster = MacroCluster.full_text_search(video[:search_term], fuzzy: true).first
-          video.merge(macro_cluster: cluster&.id)
-        end
     end
 
     def client

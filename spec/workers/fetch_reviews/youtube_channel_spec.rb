@@ -14,17 +14,15 @@ describe FetchReviews::YoutubeChannel do
 
     it "submits the first five reviews" do
       expect do subject.perform(channel.channel_id) end.to change {
-        FetchReviews::SubmitReview.jobs.count
+        FetchReviews::ProcessWebPageForReview.jobs.count
       }.by(5)
     end
 
     it "submits the correct data" do
-      macro_cluster = create(:macro_cluster)
-      micro_cluster = create(:micro_cluster, macro_cluster: macro_cluster)
-      create(:collected_ink, micro_cluster: micro_cluster, brand_name: "title0")
-      subject.perform(channel.channel_id)
-      job = FetchReviews::SubmitReview.jobs.first
-      expect(job["args"]).to eq(["url0", macro_cluster.id])
+      expect do subject.perform(channel.channel_id) end.to change(WebPageForReview, :count).by(5)
+      job = FetchReviews::ProcessWebPageForReview.jobs.first
+      page = WebPageForReview.find(job["args"].first)
+      expect(page.url).to eq("url0")
     end
   end
 
@@ -33,7 +31,7 @@ describe FetchReviews::YoutubeChannel do
 
     it "submits all reviews" do
       expect do subject.perform(channel.channel_id) end.to change {
-        FetchReviews::SubmitReview.jobs.count
+        FetchReviews::ProcessWebPageForReview.jobs.count
       }.by(10)
     end
 
