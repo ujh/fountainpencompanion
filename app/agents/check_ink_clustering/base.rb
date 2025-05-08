@@ -7,10 +7,14 @@ class CheckInkClustering::Base
 
   def initialize(agent_log_id)
     self.micro_cluster_agent_log = AgentLog.find(agent_log_id)
-    transcript << { system: system_directive }
-    transcript << { user: clustering_explanation }
-    transcript << { user: micro_cluster_data }
-    after_initialize
+    if agent_log.transcript.present?
+      transcript.set!(agent_log.transcript)
+    else
+      transcript << { system: system_directive }
+      transcript << { user: clustering_explanation }
+      transcript << { user: micro_cluster_data }
+      after_initialize
+    end
   end
 
   def perform
@@ -27,6 +31,7 @@ class CheckInkClustering::Base
   end
 
   def agent_log
+    @agent_log ||= micro_cluster_agent_log.agent_logs.where(name: self.class.name).first
     @agent_log ||= micro_cluster_agent_log.agent_logs.create!(name: self.class.name, transcript: [])
   end
 
