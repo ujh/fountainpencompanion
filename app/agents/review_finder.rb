@@ -23,7 +23,6 @@ class ReviewFinder
     * For web pages call the `summarize` function to get a more detailed summary
       of the page, which might contain more information than is available in the
       page data.
-    * Pages or videos that reference more than 10 inks should be ignored.
   TEXT
 
   def initialize(page)
