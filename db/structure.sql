@@ -1070,6 +1070,39 @@ ALTER SEQUENCE public.versions_id_seq OWNED BY public.versions.id;
 
 
 --
+-- Name: web_page_for_reviews; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.web_page_for_reviews (
+    id bigint NOT NULL,
+    state text DEFAULT 'pending'::text,
+    url text NOT NULL,
+    data jsonb DEFAULT '{}'::jsonb,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
+);
+
+
+--
+-- Name: web_page_for_reviews_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.web_page_for_reviews_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: web_page_for_reviews_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.web_page_for_reviews_id_seq OWNED BY public.web_page_for_reviews.id;
+
+
+--
 -- Name: you_tube_channels; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -1288,6 +1321,13 @@ ALTER TABLE ONLY public.users ALTER COLUMN id SET DEFAULT nextval('public.users_
 --
 
 ALTER TABLE ONLY public.versions ALTER COLUMN id SET DEFAULT nextval('public.versions_id_seq'::regclass);
+
+
+--
+-- Name: web_page_for_reviews id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.web_page_for_reviews ALTER COLUMN id SET DEFAULT nextval('public.web_page_for_reviews_id_seq'::regclass);
 
 
 --
@@ -1527,6 +1567,14 @@ ALTER TABLE ONLY public.users
 
 ALTER TABLE ONLY public.versions
     ADD CONSTRAINT versions_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: web_page_for_reviews web_page_for_reviews_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.web_page_for_reviews
+    ADD CONSTRAINT web_page_for_reviews_pkey PRIMARY KEY (id);
 
 
 --
@@ -2007,6 +2055,20 @@ CREATE INDEX index_versions_on_whodunnit ON public.versions USING btree (whodunn
 
 
 --
+-- Name: index_web_page_for_reviews_on_state; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_web_page_for_reviews_on_state ON public.web_page_for_reviews USING btree (state);
+
+
+--
+-- Name: index_web_page_for_reviews_on_url; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_web_page_for_reviews_on_url ON public.web_page_for_reviews USING btree (url);
+
+
+--
 -- Name: index_you_tube_channels_on_channel_id; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -2233,6 +2295,7 @@ ALTER TABLE ONLY public.collected_inks
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20250508081740'),
 ('20250502141405'),
 ('20250502065737'),
 ('20250501120850'),

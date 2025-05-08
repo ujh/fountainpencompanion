@@ -1,0 +1,2 @@
+class WebPageForReview < ApplicationRecord
+end
