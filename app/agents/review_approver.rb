@@ -12,6 +12,10 @@ class ReviewApprover
     * Reject reviews that are instagram posts.
     * For YouTube videos that are not shorts, approve the review if it is related to the ink.
     * For YouTube videos that are shorts, approve the review if it is related to the ink AND there are no reviews for the ink, yet.
+
+    If the review is not a Youtube video, you can also use the `summarize` function to get a summary of the page
+    to better understand which inks are being reviewed. For Youtube videos, you need to rely on the
+    information provided in the review.
   TEXT
 
   def initialize(ink_review_id)
@@ -121,5 +125,15 @@ class ReviewApprover
     ink_review.update(extra_data: { action: "reject_review" })
     ink_review.agent_reject!
     stop_looping!
+  end
+
+  function :summarize, "Return a summary of the web page" do
+    page_data = Unfurler.new(ink_review.url).perform
+    if page_data.you_tube_channel_id.present?
+      "This is a Youtube video. I can't summarize it."
+    else
+      summary = WebPageSummarizer.new(agent_log, page_data.raw_html).perform
+      "Here is a summary of the page:\n\n#{summary}"
+    end
   end
 end
