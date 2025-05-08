@@ -10,13 +10,21 @@ class FetchReviews
 
   def feeds
     %w[
-      https://www.fountainpenpharmacist.com/feeds/posts/default?alt=rss
-      https://wondernaut.wordpress.com/category/ink-review/feed/
-      https://www.wellappointeddesk.com/category/ink-review/feed/
+      https://inkcrediblecolours.com/feed/
+      https://inksharks.blogspot.com/feeds/posts/default?alt=rss
+      https://inkyfountainpens.wordpress.com/feed/
       https://macchiatoman.com/?format=rss
-      https://www.inkyinspirations.com/inkreviews?format=rss
       https://mountainofink.com/?format=rss
+      https://mymanymuses.com/category/ink/feed/
+      https://nickstewart.ink/feed
       https://penaddict.com/blog?format=rss
+      https://toomanypurples.blogspot.com/feeds/posts/default?alt=rss
+      https://wondernaut.wordpress.com/category/ink-review/feed/
+      https://writingatlarge.com/feed/
+      https://www.fountainpenpharmacist.com/feeds/posts/default?alt=rss
+      https://www.gentlemanstationer.com/blog?format=rss
+      https://www.inkyinspirations.com/inkreviews?format=rss
+      https://www.wellappointeddesk.com/category/ink-review/feed/
     ]
   end
 
