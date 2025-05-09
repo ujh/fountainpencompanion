@@ -5,7 +5,7 @@ check_new_clusters:
   cron: "*/15 * * * *" # Every 15 minutes
   class: CheckNewClusters
 fetch_reviews:
-  cron: "0 */2 * * *" # Every two hours
+  cron: "0 * * * *" # Every hour
   class: FetchReviews
 refresh_leaderboards:
   cron: "45 */3 * * *" # Every three hours
