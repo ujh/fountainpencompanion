@@ -33,7 +33,7 @@ class UpdateMacroCluster
   end
 
   def popular(field)
-    inks = cluster.collected_inks.reject { |ci| ci.send(field).blank? }
+    inks = cluster.collected_inks
     return "" if inks.empty?
 
     grouped = inks.group_by { |ci| ci.send(field) }
