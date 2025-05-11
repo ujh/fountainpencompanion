@@ -84,7 +84,8 @@ CREATE TABLE public.agent_logs (
     owner_id bigint,
     approved_at timestamp without time zone,
     rejected_at timestamp without time zone,
-    state character varying DEFAULT 'processing'::character varying
+    state character varying DEFAULT 'processing'::character varying,
+    agent_approved boolean DEFAULT false
 );
 
 
@@ -2295,6 +2296,7 @@ ALTER TABLE ONLY public.collected_inks
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20250511185543'),
 ('20250508081740'),
 ('20250502141405'),
 ('20250502065737'),

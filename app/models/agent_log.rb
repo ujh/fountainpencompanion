@@ -3,6 +3,8 @@ class AgentLog < ApplicationRecord
   has_many :agent_logs, as: :owner, dependent: :destroy
 
   scope :ink_clusterer, -> { where(name: "InkClusterer") }
+  scope :manually_processed, -> { processed.where(agent_approved: false) }
+  scope :agent_processed, -> { processed.where(agent_approved: true) }
 
   STATES = [
     PROCESSING = "processing",
@@ -24,11 +26,11 @@ class AgentLog < ApplicationRecord
   end
 
   def reject!
-    update!(rejected_at: Time.current, state: REJECTED)
+    update!(rejected_at: Time.current, state: REJECTED, agent_approved: false)
   end
 
   def approve!
-    update!(approved_at: Time.current, state: APPROVED)
+    update!(approved_at: Time.current, state: APPROVED, agent_approved: false)
   end
 
   def processing?
