@@ -8,7 +8,16 @@ class UpdateMacroCluster
     update_color
     update_names
     update_tags
-    cluster.save!
+    begin
+      cluster.save!
+    rescue ActiveRecord::RecordNotUnique
+      raise if line_name_to_exclude.present?
+
+      # If the line name is already taken, try the next best one (mainly happens
+      # when line name blank).
+      self.line_name_to_exclude = cluster.line_name
+      retry
+    end
     update_embedding
     cluster.collected_inks.update_all(cluster_color: cluster.color)
     if cluster.brand_cluster
@@ -20,7 +29,7 @@ class UpdateMacroCluster
 
   private
 
-  attr_accessor :cluster
+  attr_accessor :cluster, :line_name_to_exclude
 
   def update_tags
     cluster.tags = Gutentag::Tag.names_for_scope(cluster.public_collected_inks).to_a
@@ -28,12 +37,14 @@ class UpdateMacroCluster
 
   def update_names
     cluster.brand_name = popular(:brand_name)
-    cluster.line_name = popular(:line_name)
+    cluster.line_name = popular(:line_name, exclude: line_name_to_exclude)
     cluster.ink_name = popular(:ink_name)
   end
 
-  def popular(field)
+  def popular(field, exclude: nil)
     inks = cluster.collected_inks
+    inks = inks.reject { |ci| ci.send(field) == exclude } if exclude
+
     return "" if inks.empty?
 
     grouped = inks.group_by { |ci| ci.send(field) }
