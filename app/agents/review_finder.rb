@@ -23,6 +23,9 @@ class ReviewFinder
     * For web pages call the `summarize` function to get a more detailed summary
       of the page, which might contain more information than is available in the
       page data.
+    * Vlog style videos are usually not about a specific ink, but rather about
+      other topics. In these cases, you should not submit a review.
+    * "Currently inked" videos or blog posts should also not be considered.
   TEXT
 
   def initialize(page)
