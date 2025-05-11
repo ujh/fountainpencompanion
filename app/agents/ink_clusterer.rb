@@ -86,8 +86,9 @@ class InkClusterer
   end
 
   def reject!
+    to_reprocess = (agent_log.approved? ? clean_up_rejected_approval! : micro_cluster)
+    Array(to_reprocess).map(&:touch)
     agent_log.reject!
-    micro_cluster.touch # Move it to the end of the queue
   end
 
   def approve!
@@ -110,6 +111,25 @@ class InkClusterer
   private
 
   attr_accessor :extra_data, :micro_cluster
+
+  def clean_up_rejected_approval!
+    case agent_log.extra_data["action"]
+    when "assign_to_cluster"
+      micro_cluster.update!(macro_cluster_id: nil)
+      micro_cluster
+    when "create_new_cluster"
+      if micro_cluster.macro_cluster
+        micro_clusters = micro_cluster.macro_cluster.micro_clusters
+        micro_cluster.macro_cluster.destroy
+        micro_clusters
+      else
+        micro_cluster
+      end
+    when "ignore_ink"
+      micro_cluster.update!(ignored: false)
+      micro_cluster
+    end
+  end
 
   def processed_tries?
     processed_tries.exists?
