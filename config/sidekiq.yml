@@ -2,7 +2,7 @@
 :concurrency: <%= ENV.fetch('SIDEKIQ_CONCURRENCY', 5) %>
 :queues:
   - mailers
-  - default
   - agents
+  - default
   - low
   - reviews
