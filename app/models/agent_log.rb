@@ -29,8 +29,16 @@ class AgentLog < ApplicationRecord
     update!(rejected_at: Time.current, state: REJECTED, agent_approved: false)
   end
 
+  def reject_by_agent!
+    update!(rejected_at: Time.current, state: REJECTED, agent_approved: true)
+  end
+
   def approve!
     update!(approved_at: Time.current, state: APPROVED, agent_approved: false)
+  end
+
+  def approve_by_agent!
+    update!(approved_at: Time.current, state: APPROVED, agent_approved: true)
   end
 
   def processing?
