@@ -1,11 +1,7 @@
 class Admins::Agents::InkClusterersController < Admins::BaseController
   def show
-    @queue_length = MicroCluster.for_cluster_processing.count
-    @agent_log =
-      AgentLog
-        .ink_clusterer
-        .where(state: [AgentLog::WAITING_FOR_APPROVAL, AgentLog::PROCESSING])
-        .first
+    @queue_length = MicroCluster.for_cluster_processing.count + agent_logs.count
+    @agent_log = agent_logs.first
     @processing = @agent_log&.processing?
 
     return unless @agent_log && !@processing
@@ -34,6 +30,13 @@ class Admins::Agents::InkClusterersController < Admins::BaseController
 
   def next_cluster
     MicroCluster.for_cluster_processing.first
+  end
+
+  def agent_logs
+    AgentLog
+      .ink_clusterer
+      .where(state: [AgentLog::WAITING_FOR_APPROVAL, AgentLog::PROCESSING])
+      .or(AgentLog.ink_clusterer.agent_processed)
   end
 
   def run_agent!

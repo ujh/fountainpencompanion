@@ -52,6 +52,12 @@ table class="table"
       dd class="col-sm-9"
         pre= JSON.pretty_generate(@agent_log.owner.attributes)
 
+      dt class="col-sm-3" State
+      dd class="col-sm-9"
+        = @agent_log.state
+        - if @agent_log.agent_approved?
+          b= " (agent processed)"
+
       dt class="col-sm-3" Actions
       dd class="col-sm-9"
         = link_to "Approve", admins_agents_ink_clusterer_path, method: :put, class: 'btn btn-success me-5'
