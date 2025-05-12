@@ -59,7 +59,17 @@ class InkClusterer
   end
 
   def perform
-    chat_completion(loop: true, openai: "gpt-4.1")
+    if micro_cluster.collected_inks.present?
+      chat_completion(loop: true, openai: "gpt-4.1")
+    else
+      agent_log.update(
+        extra_data: {
+          "action" => "reject",
+          "explanation_of_decision" =>
+            "The micro cluster has no inks in it. It is not possible to cluster an empty micro cluster."
+        }
+      )
+    end
     agent_log.update!(extra_data: extra_data)
     schedule_follow_up!
     agent_log.waiting_for_approval!
