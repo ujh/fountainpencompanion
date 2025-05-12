@@ -7,16 +7,11 @@ module InkSimilaritySearch
 
   included do
     function :ink_similarity_search,
-             "Find the 10 most similar ink clusters by cosine distance",
+             "Find the 50 most similar ink clusters by cosine distance",
              search_string: {
                type: "string"
-             },
-             extended_search: {
-               type: "boolean",
-               description: "Optional. Set to true to get 50 instead of 10 search results."
              } do |arguments|
-      limit = arguments[:extended_search] ? 50 : 10
-      similar_clusters = MacroCluster.embedding_search(arguments[:search_string]).take(limit)
+      similar_clusters = MacroCluster.embedding_search(arguments[:search_string]).take(50)
       similar_clusters.map do |data|
         cluster = data.cluster
         data = {
