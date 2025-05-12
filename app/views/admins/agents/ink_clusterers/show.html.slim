@@ -10,7 +10,7 @@ table class="table"
       th Processed
       th Approved
       th Rejected
-  - rel = AgentLog.where(id: AgentLog.ink_clusterer.processed.order(created_at: :desc).limit(500).pluck(:id))
+  - rel = AgentLog.where(id: AgentLog.ink_clusterer.manually_processed.order(created_at: :desc).limit(500).pluck(:id))
   tbody
     tr
       th Latest 500
