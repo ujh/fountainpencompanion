@@ -20,5 +20,7 @@ class CheckInkClustering::Human < CheckInkClustering::Base
              type: "string",
              description: "Body of the email"
            } do |arguments|
+    AdminMailer.agent_mail(arguments[:subject], arguments[:body]).deliver_later
+    stop_looping!
   end
 end
