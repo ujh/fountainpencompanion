@@ -34,11 +34,7 @@ class AssignMicroCluster
               simplified_brand_name: collected_ink.simplified_brand_name,
               simplified_ink_name: collected_ink.simplified_ink_name
             )
-          if micro_cluster
-            cluster.macro_cluster_id = micro_cluster.macro_cluster_id
-          else
-            Rails.cache.increment("new_cluster_count")
-          end
+          cluster.macro_cluster_id = micro_cluster.macro_cluster_id if micro_cluster
         end
       end
   end

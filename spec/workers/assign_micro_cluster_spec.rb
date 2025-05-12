@@ -18,12 +18,6 @@ describe AssignMicroCluster do
       expect(cluster.macro_cluster).to eq(nil)
     end
 
-    it "increments count of new clusters" do
-      expect do subject.perform(collected_ink.id) end.to change {
-        Rails.cache.read("new_cluster_count", raw: true).to_i
-      }.by(1)
-    end
-
     it "creates the embedding" do
       expect do subject.perform(collected_ink.id) end.to change { InkEmbedding.count }.by(1)
       embedding = MicroCluster.last.ink_embedding
@@ -44,11 +38,6 @@ describe AssignMicroCluster do
     it "reuses an existing cluster" do
       expect { subject.perform(collected_ink.id) }.to_not(change { MicroCluster.count })
       expect(collected_ink.reload.micro_cluster).to eq(cluster)
-    end
-
-    it "does not send an email" do
-      expect(AdminMailer).to_not receive(:new_cluster)
-      expect { subject.perform(collected_ink.id) }.to_not(change { MicroCluster.count })
     end
 
     it "adds the embedding if it does not exist" do
@@ -80,11 +69,6 @@ describe AssignMicroCluster do
       expect do subject.perform(collected_ink.id) end.to change { MicroCluster.count }.by(1)
       cluster = MicroCluster.last
       expect(cluster.macro_cluster).to eq(macro_cluster)
-    end
-
-    it "does not send an email" do
-      expect(AdminMailer).to_not receive(:new_cluster).and_call_original
-      expect do subject.perform(collected_ink.id) end.to change { MicroCluster.count }.by(1)
     end
   end
 
