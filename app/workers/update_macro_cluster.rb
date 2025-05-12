@@ -32,7 +32,8 @@ class UpdateMacroCluster
   attr_accessor :cluster, :line_name_to_exclude
 
   def update_tags
-    cluster.tags = Gutentag::Tag.names_for_scope(cluster.public_collected_inks).to_a
+    cluster.tags =
+      cluster.public_collected_inks.flat_map(&:tags).map(&:name).tally.reject { |_t, c| c < 2 }.keys
   end
 
   def update_names
