@@ -20,15 +20,6 @@ class MicroCluster < ApplicationRecord
             .order(updated_at: :asc)
         end
 
-  scope :for_cluster_processing,
-        -> do
-          for_processing
-            .includes(:agent_logs)
-            .reject do |cluster|
-              cluster.agent_logs.any? { |al| al.action == "hand_over_to_human" && al.approved? }
-            end
-        end
-
   def simplified_name
     [simplified_brand_name, simplified_line_name, simplified_ink_name].reject { |f| f.blank? }
       .join(" ")
