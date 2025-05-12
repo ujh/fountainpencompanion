@@ -25,11 +25,11 @@ module InkSimilaritySearch
       end
     end
 
-    fuction :ink_full_text_search,
-            "Fallback search, when results using similarity search inconclusive. Finds inks by full text search",
-            search_string: {
-              type: "string"
-            } do |arguments|
+    function :ink_full_text_search,
+             "Fallback search, when results using similarity search inconclusive. Finds inks by full text search",
+             search_string: {
+               type: "string"
+             } do |arguments|
       similar_clusters = MacroCluster.full_text_search(arguments[:search_string])
       similar_clusters.map do |cluster|
         data = { id: cluster.id, name: cluster.name, synonyms: cluster.synonyms }
