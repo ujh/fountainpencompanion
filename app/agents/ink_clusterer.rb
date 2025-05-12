@@ -74,6 +74,8 @@ class InkClusterer
         CheckInkClustering::Create
       when "ignore_ink"
         CheckInkClustering::Ignore
+      when "hand_over_to_human"
+        CheckInkClustering::Human
       end
 
     return if follow_up_agent.nil?
