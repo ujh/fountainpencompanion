@@ -11,6 +11,10 @@ class AdminStats
     @micro_clusters_to_assign_count ||= MicroCluster.for_processing.count.count
   end
 
+  def micro_cluster_agent_review_count
+    AgentLog.ink_clusterer.waiting_for_approval.or(AgentLog.ink_clusterer.agent_processed).count
+  end
+
   def pens_model_micro_clusters_to_assign_count
     # The JOIN is there to remove clusters without variants
     @pens_model_micro_clusters_to_assign_count ||=
