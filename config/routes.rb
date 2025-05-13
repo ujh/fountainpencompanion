@@ -106,7 +106,7 @@ Rails.application.routes.draw do
     resource :dashboard, only: [:show]
     resources :agent_logs, only: [:index]
     namespace :agents do
-      resource :ink_clusterer, only: %i[show create destroy update]
+      resources :ink_clusterer, only: %i[index destroy update]
     end
     resources :stats, only: [:show]
     resources :users, only: %i[index show update destroy] do

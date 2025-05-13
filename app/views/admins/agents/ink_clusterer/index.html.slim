@@ -1,7 +1,7 @@
 - content_for :title, "Clustering app (AI) - #{@queue_length} items in queue"
 - if @processing
   - content_for :head do
-    meta content="1" http-equiv="refresh"
+    meta content="3" http-equiv="refresh"
 
 table class="table"
   thead
@@ -38,35 +38,34 @@ table class="table"
             - correct_percentage = (correct_auto_reject_count.to_f / (correct_auto_reject_count + incorrect_auto_reject_count) * 100).round(2)
             = " (#{correct_percentage}% / #{correct_auto_reject_count} correct auto review)"
 
-- if @processing
-  p= "Processing cluster, please wait..."
-- if @agent_log
+= paginate @agent_logs
+
+- @agent_logs.each do |agent_log|
   dl class="row" id="admin_agent_log"
-    - if @agent_log.extra_data.present?
+    - if agent_log.extra_data.present?
       dt class="col-sm-3" Extra Data
       dd class="col-sm-9"
-        pre= JSON.pretty_generate(@agent_log.extra_data)
+        pre= JSON.pretty_generate(agent_log.extra_data)
 
-    - if @processing.blank?
+    - unless agent_log.processing?
       dt class="col-sm-3" Owner
       dd class="col-sm-9"
-        pre= JSON.pretty_generate(@agent_log.owner.attributes)
+        pre= JSON.pretty_generate(agent_log.owner.attributes)
 
       dt class="col-sm-3" State
       dd class="col-sm-9"
-        = @agent_log.state
-        - if @agent_log.agent_approved?
+        = agent_log.state
+        - if agent_log.agent_approved?
           b= " (agent processed)"
 
       dt class="col-sm-3" Actions
       dd class="col-sm-9"
-        = link_to "Approve", admins_agents_ink_clusterer_path, method: :put, class: 'btn btn-success me-5'
-        = link_to "Reject", admins_agents_ink_clusterer_path, method: :delete, class: 'btn btn-danger me-5'
-        = link_to "Search", "https://www.google.com/search?#{{q: @agent_log.owner.all_names.first}.to_query}", class: 'btn btn-secondary', target: "_blank"
+        = link_to "Approve", admins_agents_ink_clusterer_path(agent_log), method: :put, class: 'btn btn-success me-5'
+        = link_to "Reject", admins_agents_ink_clusterer_path(agent_log), method: :delete, class: 'btn btn-danger me-5'
+        = link_to "Search", "https://www.google.com/search?#{{q: agent_log.owner.all_names.first}.to_query}", class: 'btn btn-secondary', target: "_blank"
     dt class="col-sm-3" Transcript
     dd class="col-sm-9"
-      - @agent_log.transcript.each do |transcript|
+      - agent_log.transcript.each do |transcript|
         pre= JSON.pretty_generate(transcript)
-- elsif @queue_length > 0
-  p
-    = link_to "Generate candidate", admins_agents_ink_clusterer_path, method: :post, class: 'btn btn-danger'
+
+= paginate @agent_logs
