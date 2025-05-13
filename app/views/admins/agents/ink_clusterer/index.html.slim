@@ -42,11 +42,11 @@ table class="table"
 
 - @agent_logs.each do |agent_log|
   dl class="row" id="admin_agent_log"
-      dt class="col-sm-3" State
-      dd class="col-sm-9"
-        = agent_log.state
-        - if agent_log.agent_approved?
-          b= " (agent processed)"
+    dt class="col-sm-3" State
+    dd class="col-sm-9"
+      = agent_log.state
+      - if agent_log.agent_approved?
+        b= " (agent processed)"
 
     - if agent_log.extra_data.present?
       dt class="col-sm-3" Extra Data
