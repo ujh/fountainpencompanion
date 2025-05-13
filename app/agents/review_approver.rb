@@ -14,6 +14,9 @@ class ReviewApprover
     * For YouTube videos that are shorts, approve the review if it is related to the ink AND there are no reviews for the ink, yet.
     * Reject reviews that are from currently inked style videos or blog posts
       UNLESS the ink in question has no reviews at all.
+    * Before rejecting a review that was not submitted by "System", double check with the `summarize` function
+      that the ink does not appear in the review, after all.
+    * Reviews that are not submitted by user "System" have a higher likelihood of being correct.
 
     If the review is not a Youtube video, you can also use the `summarize` function to get a summary of the page
     to better understand which inks are being reviewed. For Youtube videos, you need to rely on the
