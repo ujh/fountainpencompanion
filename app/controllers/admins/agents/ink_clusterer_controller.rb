@@ -16,11 +16,13 @@ class Admins::Agents::InkClustererController < Admins::BaseController
   end
 
   def destroy
-    InkClusterer.new(micro_cluster.id).reject!
-    # Generate a new agent log for the rejected micro cluster
-    InkClusterer.new(micro_cluster.id)
-    # Now schedule the actual ink clustering job
-    RunInkClustererAgent.perform_async("InkClusterer", micro_cluster.id)
+    clusters_to_reprocess = InkClusterer.new(micro_cluster.id).reject!
+    clusters_to_reprocess.each do |cluster|
+      # Generate a new agent log for the rejected micro cluster
+      InkClusterer.new(cluster.id)
+      # Now schedule the actual ink clustering job
+      RunInkClustererAgent.perform_async("InkClusterer", cluster.id)
+    end
     redirect_to admins_agents_ink_clusterer_index_path(page: params[:page])
   end
 

@@ -98,9 +98,10 @@ class InkClusterer
   end
 
   def reject!
-    to_reprocess = (agent_log.approved? ? clean_up_rejected_approval! : micro_cluster)
-    Array(to_reprocess).map(&:touch)
+    to_reprocess = Array(agent_log.approved? ? clean_up_rejected_approval! : micro_cluster)
+    to_reprocess.map(&:touch)
     agent_log.reject!
+    to_process
   end
 
   def approve!
