@@ -12,6 +12,8 @@ class ReviewApprover
     * Reject reviews that are instagram posts.
     * For YouTube videos that are not shorts, approve the review if it is related to the ink.
     * For YouTube videos that are shorts, approve the review if it is related to the ink AND there are no reviews for the ink, yet.
+    * Reject reviews that are from currently inked style videos or blog posts
+      UNLESS the ink in question has no reviews at all.
 
     If the review is not a Youtube video, you can also use the `summarize` function to get a summary of the page
     to better understand which inks are being reviewed. For Youtube videos, you need to rely on the
