@@ -94,7 +94,7 @@ class InkClusterer
     agent_log.update!(extra_data: extra_data)
 
     follow_up = extra_data[:follow_up_agent]
-    RunAgent.perform_async(follow_up, agent_log.id)
+    RunInkClustererAgent.perform_async(follow_up, agent_log.id)
   end
 
   def reject!
