@@ -1,6 +1,6 @@
 require "rails_helper"
 
-describe Admins::Agents::InkClusterersController do
+describe Admins::Agents::InkClustererController do
   let(:admin) { create(:user, :admin) }
 
   describe "#show" do
