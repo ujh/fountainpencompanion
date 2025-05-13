@@ -99,6 +99,7 @@ class InkClusterer
 
   def reject!(agent: false)
     to_reprocess = Array(agent_log.approved? ? clean_up_rejected_approval! : micro_cluster)
+    to_reprocess = to_reprocess.reject { |mi| mi.collected_inks.empty? }
     to_reprocess.map(&:touch)
     agent ? agent_log.reject_by_agent! : agent_log.reject!
     to_reprocess
