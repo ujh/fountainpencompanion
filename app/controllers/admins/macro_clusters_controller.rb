@@ -42,6 +42,7 @@ class Admins::MacroClustersController < Admins::BaseController
         }
       )
       micro_cluster.touch
+      UpdateMicroCluster.perform_async(micro_cluster.id)
     end
     cluster.destroy!
     head :ok
