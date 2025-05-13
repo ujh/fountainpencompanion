@@ -146,13 +146,13 @@ describe Admins::MicroClustersController do
       end.to change { micro_cluster.reload.macro_cluster_id }.from(macro_cluster.id).to(nil)
     end
 
-    it "schedules a recalculation of the macro cluster data" do
+    it "schedules a recalculation of the micro cluster data" do
       expect do
         delete "/admins/micro_clusters/#{micro_cluster.id}/unassign"
         expect(response).to be_successful
-      end.to change { UpdateMacroCluster.jobs.count }.from(0).to(1)
-      job = UpdateMacroCluster.jobs.first
-      expect(job["args"]).to eq([macro_cluster.id])
+      end.to change { UpdateMicroCluster.jobs.count }.from(0).to(1)
+      job = UpdateMicroCluster.jobs.first
+      expect(job["args"]).to eq([micro_cluster.id])
     end
   end
 end

@@ -52,9 +52,8 @@ class Admins::MicroClustersController < Admins::BaseController
 
   def unassign
     cluster = MicroCluster.find(params[:id])
-    macro_cluster_id = cluster.macro_cluster_id
     cluster.update!(macro_cluster_id: nil)
-    UpdateMicroCluster.perform_async(macro_cluster_id)
+    UpdateMicroCluster.perform_async(cluster.id)
     # Fake entry, to avoid generating the same outcome in the clustering agent again
     cluster.agent_logs.create!(
       name: "InkClusterer",
