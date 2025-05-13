@@ -5,6 +5,9 @@ class CheckInkClustering::Base
   include InkWebSearch
   include InkSimilaritySearch
 
+  APPROVE = "approve"
+  REJECT = "reject"
+
   def initialize(agent_log_id)
     self.micro_cluster_agent_log = AgentLog.find(agent_log_id)
     if agent_log.transcript.present?
@@ -38,6 +41,19 @@ class CheckInkClustering::Base
           follow_up_action_explanation: agent_log.extra_data["explanation_of_decision"]
         )
     )
+    if approved?
+      InkClusterer.new(micro_cluster.id).approve!(agent: true)
+    elsif rejected?
+      clusters_to_reprocess = InkClusterer.new(micro_cluster.id).reject!(agent: true)
+      clusters_to_reprocess.each do |cluster|
+        # Generate a new agent log for the rejected micro cluster
+        InkClusterer.new(cluster.id)
+        # Now schedule the actual ink clustering job
+        RunInkClustererAgent.perform_async("InkClusterer", cluster.id)
+      end
+    else
+      # Handed over to human. Nothing should happen here.
+    end
   end
 
   def agent_log
@@ -63,6 +79,14 @@ class CheckInkClustering::Base
     # Hook for the subclasses to perform any additional setup
   end
 
+  def approved?
+    agent_log.extra_data["action"] == APPROVE
+  end
+
+  def rejected?
+    agent_log.extra_data["action"] == REJECT
+  end
+
   def micro_cluster_data
     data = {
       names: micro_cluster.all_names,
@@ -80,7 +104,7 @@ class CheckInkClustering::Base
   def save_approval_and_stop!(arguments)
     agent_log.update(
       extra_data: {
-        action: "approve",
+        action: APPROVE,
         explanation_of_decision: arguments[:explanation_of_decision]
       }
     )
@@ -90,7 +114,7 @@ class CheckInkClustering::Base
   def save_rejection_and_stop!(arguments)
     agent_log.update(
       extra_data: {
-        action: "reject",
+        action: REJECT,
         explanation_of_decision: arguments[:explanation_of_decision]
       }
     )

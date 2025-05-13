@@ -97,14 +97,14 @@ class InkClusterer
     RunInkClustererAgent.perform_async(follow_up, agent_log.id)
   end
 
-  def reject!
+  def reject!(agent: false)
     to_reprocess = Array(agent_log.approved? ? clean_up_rejected_approval! : micro_cluster)
     to_reprocess.map(&:touch)
-    agent_log.reject!
+    agent ? agent_log.reject_by_agent! : agent_log.reject!
     to_process
   end
 
-  def approve!
+  def approve!(agent: false)
     case agent_log.extra_data["action"]
     when "assign_to_cluster"
       micro_cluster.update!(macro_cluster_id: agent_log.extra_data["cluster_id"])
@@ -118,7 +118,7 @@ class InkClusterer
     when "hand_over_to_human"
       micro_cluster.touch # Move it to the end of the queue for now
     end
-    agent_log.approve!
+    agent ? agent_log.approve_by_agent! : agent_log.approve!
   end
 
   private
