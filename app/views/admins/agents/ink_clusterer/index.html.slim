@@ -60,8 +60,17 @@ table class="table"
 
       dt class="col-sm-3" Actions
       dd class="col-sm-9"
-        = link_to "Approve", admins_agents_ink_clusterer_path(agent_log, page: params[:page]), method: :put, class: 'btn btn-success me-5'
-        = link_to "Reject", admins_agents_ink_clusterer_path(agent_log, page: params[:page]), method: :delete, class: 'btn btn-danger me-5'
+        - if agent_log.agent_approved?
+          - if agent_log.approved?
+            = link_to "Approve", admins_agents_ink_clusterer_path(agent_log, page: params[:page]), method: :put, class: 'btn btn-success me-5'
+            = link_to "Reject approval and reprocess", admins_agents_ink_clusterer_path(agent_log, page: params[:page]), method: :delete, class: 'btn btn-danger me-5'
+          - else
+            / Note how the URLs are switched around as if it's already rejected then a rejection will be the implicit approval.
+            = link_to "Approve rejection", admins_agents_ink_clusterer_path(agent_log, page: params[:page]), method: :delete, class: 'btn btn-success me-5'
+            = link_to "Should have been approved", admins_agents_ink_clusterer_path(agent_log, page: params[:page]), method: :put, class: 'btn btn-danger me-5'
+        - else
+          = link_to "Approve", admins_agents_ink_clusterer_path(agent_log, page: params[:page]), method: :put, class: 'btn btn-success me-5'
+          = link_to "Reject", admins_agents_ink_clusterer_path(agent_log, page: params[:page]), method: :delete, class: 'btn btn-danger me-5'
         = link_to "Search", "https://www.google.com/search?#{{q: agent_log.owner.all_names.first}.to_query}", class: 'btn btn-secondary', target: "_blank"
     dt class="col-sm-3" Transcript
     dd class="col-sm-9"
