@@ -27,7 +27,7 @@ class Admins::UsersController < Admins::BaseController
   end
 
   def update
-    if @user.update(params.require(:user).permit(:patron))
+    if @user.update(update_params)
       redirect_to admins_user_path(@user)
     else
       render :show
@@ -102,5 +102,9 @@ class Admins::UsersController < Admins::BaseController
 
   def fetch_user
     @user = User.find(params[:id])
+  end
+
+  def update_params
+    params.require(:user).permit(:patron, :auto_approve_ink_reviews)
   end
 end

@@ -16,7 +16,7 @@ class ProcessInkReviewSubmission
     if ink_review.save
       ink_review.update(rejected_at: nil)
       ink_review_submission.update(ink_review:, unfurling_errors: nil, html: nil)
-      if ink_review.ink_review_submissions.size > 1
+      if ink_review.auto_approve?
         ink_review.auto_approve!
       else
         schedule_approval = true

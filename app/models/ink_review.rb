@@ -65,6 +65,10 @@ class InkReview < ApplicationRecord
     ink_review_submissions.first.user
   end
 
+  def auto_approve?
+    user.auto_approve_ink_reviews? || ink_review_submissions.count > 1
+  end
+
   private
 
   def set_host!(value)

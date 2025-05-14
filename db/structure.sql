@@ -1012,7 +1012,8 @@ CREATE TABLE public.users (
     admin boolean DEFAULT false,
     review_blurb boolean DEFAULT false,
     spam boolean DEFAULT false,
-    spam_reason character varying DEFAULT ''::character varying
+    spam_reason character varying DEFAULT ''::character varying,
+    auto_approve_ink_reviews boolean DEFAULT false
 );
 
 
@@ -2296,6 +2297,7 @@ ALTER TABLE ONLY public.collected_inks
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20250514055126'),
 ('20250511185543'),
 ('20250508081740'),
 ('20250502141405'),
