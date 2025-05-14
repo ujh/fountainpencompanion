@@ -2,7 +2,7 @@ class Admins::Agents::InkClustererController < Admins::BaseController
   def index
     @queue_length = agent_logs.count
     @agent_logs = agent_logs.page(params[:page]).per(1)
-    @agent_logs = agent_logs.page(0) if @agent_logs.empty?
+    @agent_logs = agent_logs.page(0).per(1) if @agent_logs.empty?
     @processing =
       @agent_logs.any? do |agent_log|
         agent_log.processing? ||
