@@ -20,7 +20,7 @@ class Admins::Agents::InkClustererController < Admins::BaseController
         # If agent rejected it, a follow up action was already taken. We
         # therefore can only change to manually approved. No further action can
         # be taken.
-        agent_lot.approve!
+        agent_log.approve!
       end
     else
       InkClusterer.new(micro_cluster.id).approve!
