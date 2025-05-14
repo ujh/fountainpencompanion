@@ -150,7 +150,12 @@ class InkClusterer
   end
 
   def processed_tries
-    micro_cluster.agent_logs.ink_clusterer.processed.where("created_at < ?", agent_log.created_at)
+    micro_cluster
+      .agent_logs
+      .ink_clusterer
+      .processed
+      .where("created_at < ?", agent_log.created_at)
+      .where.not(extra_data: {})
   end
 
   def processed_tries_data
