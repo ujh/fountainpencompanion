@@ -41,9 +41,9 @@ class InkClusterer
        not even contain the ink name.
   TEXT
 
-  def initialize(micro_cluster_id, for_rejection: false)
+  def initialize(micro_cluster_id, agent_log_id: nil)
     self.micro_cluster = MicroCluster.find(micro_cluster_id)
-    self.for_rejection = for_rejection
+    self.agent_log_id = agent_log_id
     if agent_log.transcript.present?
       transcript.set!(agent_log.transcript)
     else
@@ -54,9 +54,9 @@ class InkClusterer
   end
 
   def agent_log
+    @agent_log = AgentLog.find(agent_log_id) if agent_log_id
     @agent_log ||= micro_cluster.agent_logs.ink_clusterer.processing.first
     @agent_log ||= micro_cluster.agent_logs.ink_clusterer.waiting_for_approval.first
-    @agent_log ||= micro_cluster.agent_logs.ink_clusterer.rejected.first
     @agent_log ||= micro_cluster.agent_logs.create!(name: self.class.name, transcript: [])
   end
 
@@ -126,7 +126,7 @@ class InkClusterer
 
   private
 
-  attr_accessor :extra_data, :micro_cluster, :for_rejection
+  attr_accessor :extra_data, :micro_cluster, :agent_log_id
 
   def clean_up_rejected_approval!
     case agent_log.extra_data["action"]

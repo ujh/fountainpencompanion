@@ -45,7 +45,9 @@ class CheckInkClustering::Base
       InkClusterer.new(micro_cluster.id).approve!(agent: true)
     elsif rejected?
       clusters_to_reprocess =
-        InkClusterer.new(micro_cluster.id, for_rejection: true).reject!(agent: true)
+        InkClusterer.new(micro_cluster.id, agent_log_id: micro_cluster_agent_log.id).reject!(
+          agent: true
+        )
       clusters_to_reprocess.each do |cluster|
         RunInkClustererAgent.perform_async("InkClusterer", cluster.id)
       end
