@@ -40,6 +40,10 @@ class InkReview < ApplicationRecord
     update(approved_at: Time.zone.now, rejected_at: nil, auto_approved: true)
   end
 
+  def auto_reject!
+    update(rejected_at: Time.zone.now, approved_at: nil, auto_approved: true)
+  end
+
   def agent_approve!
     update(approved_at: Time.zone.now, rejected_at: nil, agent_approved: true)
   end
@@ -67,6 +71,13 @@ class InkReview < ApplicationRecord
 
   def auto_approve?
     user.auto_approve_ink_reviews? || ink_review_submissions.count > 1
+  end
+
+  def auto_reject?
+    return unless you_tube_short?
+    return unless user.admin?
+
+    macro_cluster.ink_reviews.approved.exists?
   end
 
   private

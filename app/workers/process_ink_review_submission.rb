@@ -18,6 +18,8 @@ class ProcessInkReviewSubmission
       ink_review_submission.update(ink_review:, unfurling_errors: nil, html: nil)
       if ink_review.auto_approve?
         ink_review.auto_approve!
+      elsif ink_review.auto_reject?
+        ink_review.auto_reject!
       else
         schedule_approval = true
       end
