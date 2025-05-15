@@ -558,7 +558,7 @@ GEM
       rinku (>= 1.7.0)
       ruby-oembed (>= 0.9.0)
       sanitize (>= 2.0.0)
-    solargraph (0.54.3)
+    solargraph (0.54.4)
       backport (~> 1.2)
       benchmark (~> 0.4)
       bundler (~> 2.0)
