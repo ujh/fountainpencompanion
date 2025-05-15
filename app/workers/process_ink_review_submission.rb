@@ -18,8 +18,6 @@ class ProcessInkReviewSubmission
       ink_review_submission.update(ink_review:, unfurling_errors: nil, html: nil)
       if ink_review.auto_approve?
         ink_review.auto_approve!
-      elsif ink_review.auto_reject?
-        ink_review.auto_reject!
       else
         schedule_approval = true
       end
@@ -29,6 +27,10 @@ class ProcessInkReviewSubmission
     if you_tube_channel_id
       channel = YouTubeChannel.find_or_create_by(channel_id: you_tube_channel_id)
       ink_review.update!(you_tube_channel: channel, you_tube_short: is_youtube_short)
+      if ink_review.auto_reject?
+        ink_review.auto_reject!
+        schedule_approval = false
+      end
     end
     RunAgent.perform_async("ReviewApprover", ink_review.id) if new_record && schedule_approval
   rescue URI::InvalidURIError, Faraday::ForbiddenError
