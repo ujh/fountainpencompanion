@@ -14,7 +14,7 @@ class PenAndInkSuggester
   end
 
   def perform
-    chat_completion(loop: true, openai: "gpt-4.1")
+    chat_completion(loop: true, openai: "gpt-4.1-mini")
     response = { message:, ink: ink_id, pen: pen_id }
     agent_log.update(extra_data: response)
     agent_log.waiting_for_approval!
