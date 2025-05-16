@@ -26,6 +26,7 @@ describe "sign up" do
       expect do
         post "/users", params: { user: user_params }
         expect(response).to be_redirect
+        Sidekiq::Worker.drain_all
       end.to change { ActionMailer::Base.deliveries.count }.by(1)
     end
   end
@@ -56,7 +57,8 @@ describe "sign up" do
       expect do
         post "/users", params: { user: user_params }
         expect(response).to be_redirect
-      end.to_not change { ActionMailer::Base.deliveries.count }
+        Sidekiq::Worker.drain_all
+      end.to_not(change { ActionMailer::Base.deliveries.count })
     end
   end
 end
