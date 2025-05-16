@@ -5,7 +5,7 @@ class PenAndInkSuggester
   include Raix::FunctionDispatch
   include AgentTranscript
 
-  LIMIT = 50
+  LIMIT = 100
 
   def initialize(user, ink_kind)
     self.user = user
