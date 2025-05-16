@@ -150,6 +150,12 @@ class User < ApplicationRecord
       MacroCluster.without_description_of_user(self).count > 0
   end
 
+  protected
+
+  def send_devise_notification(notification, *)
+    devise_mailer.send(notification, self, *).deliver_later
+  end
+
   private
 
   def check_if_we_should_skip_confirmation
