@@ -49,6 +49,11 @@ table class="table"
         b= " (agent processed)"
 
     - if agent_log.extra_data.present?
+      - action = agent_log.extra_data["action"]
+      - if action && agent_log.approved?
+        dt class="col-sm-3" Action Taken
+        dd class="col-sm-9"
+          b= action
       dt class="col-sm-3" Extra Data
       dd class="col-sm-9"
         pre= JSON.pretty_generate(agent_log.extra_data)
