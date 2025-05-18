@@ -82,11 +82,11 @@ class CheckInkClustering::Base
   end
 
   def approved?
-    agent_log.extra_data["action"] == APPROVE
+    agent_log.extra_data && agent_log.extra_data["action"] == APPROVE
   end
 
   def rejected?
-    agent_log.extra_data["action"] == REJECT
+    agent_log.extra_data && agent_log.extra_data["action"] == REJECT
   end
 
   def micro_cluster_data
