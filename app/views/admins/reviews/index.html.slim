@@ -24,7 +24,7 @@ table class="table table-striped"
     dd class="col-sm-9"= ink_review.title
 
     dt class="col-sm-3" Description
-    dd class="col-sm-9"= truncate(ink_review.description, length: 200)
+    dd class="col-sm-9"= ink_review.description
 
     dt class="col-sm-3" URL
     dd class="col-sm-9"= link_to ink_review.url, ink_review.url, target: "_blank"
