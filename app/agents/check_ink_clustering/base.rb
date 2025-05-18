@@ -33,14 +33,16 @@ class CheckInkClustering::Base
       )
     end
     agent_log.waiting_for_approval!
-    micro_cluster_agent_log.update!(
-      extra_data:
-        micro_cluster_agent_log.extra_data.merge(
-          follow_up_done: true,
-          follow_up_action: agent_log.extra_data["action"],
-          follow_up_action_explanation: agent_log.extra_data["explanation_of_decision"]
-        )
-    )
+    if agent_log.extra_data.present?
+      micro_cluster_agent_log.update!(
+        extra_data:
+          micro_cluster_agent_log.extra_data.merge(
+            follow_up_done: true,
+            follow_up_action: agent_log.extra_data["action"],
+            follow_up_action_explanation: agent_log.extra_data["explanation_of_decision"]
+          )
+      )
+    end
     if approved?
       InkClusterer.new(micro_cluster.id).approve!(agent: true)
     elsif rejected?
