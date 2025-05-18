@@ -14,7 +14,8 @@ class CheckInkClustering::Assign < CheckInkClustering::Base
       * Some parts of the name were added or removed, but it is still definitely the same ink
 
       When both the ink and the cluster have an RGB color, a similar color is a good
-      indicator that the assignment is correct.
+      indicator that the assignment is correct. However, it is not a requirement
+      as the ink color sometimes gets set to an incorrect value by the user.
 
       You can search the web for the ink. When you do that keep the following in mind:
       * The results might not even contain the ink name. You need to double check that the ink name is actually present.
