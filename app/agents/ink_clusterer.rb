@@ -21,7 +21,8 @@ class InkClusterer
     if it was possibly created under a differnt brand or line.
 
     If the ink has a color and the cluster you want to assign it to has a color as well,
-    make sure that the colors are similar. If they are not, create a new cluster for the ink.
+    make sure that the colors are similar. However, this is not a requirement as the ink color
+    sometimes gets set to an incorrect value by the user.
 
     You are allowed to search more than once and do searches with certain parts of the ink name removed,
     if the results returned by the previous search did not result in similar enough results.
