@@ -30,7 +30,7 @@ class GoogleSearchSummarizer
   end
 
   def perform
-    chat_completion(loop: true, openai: "gpt-4.1")
+    chat_completion(loop: true, openai: "gpt-4.1-mini")
     agent_log.update!(extra_data: { summary: summary })
     agent_log.approve!
     summary
