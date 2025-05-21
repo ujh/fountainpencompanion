@@ -80,7 +80,7 @@ class InkClusterer
 
   def schedule_follow_up!
     follow_up_agent =
-      case agent_log.extra_data["action"]
+      case (agent_log.extra_data || {})["action"]
       when "assign_to_cluster"
         CheckInkClustering::Assign
       when "create_new_cluster"
