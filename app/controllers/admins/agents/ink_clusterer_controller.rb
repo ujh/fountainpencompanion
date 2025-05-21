@@ -6,7 +6,10 @@ class Admins::Agents::InkClustererController < Admins::BaseController
     @processing =
       @agent_logs.any? do |agent_log|
         agent_log.processing? ||
-          (agent_log.extra_data["follow_up_agent"] && !agent_log.extra_data["follow_up_done"])
+          (
+            agent_log.extra_data && agent_log.extra_data["follow_up_agent"] &&
+              !agent_log.extra_data["follow_up_done"]
+          )
       end
   end
 
