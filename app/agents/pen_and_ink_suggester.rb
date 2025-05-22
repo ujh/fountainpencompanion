@@ -5,20 +5,27 @@ class PenAndInkSuggester
   include Raix::FunctionDispatch
   include AgentTranscript
 
-  LIMIT = 100
+  LIMIT = 50
 
-  def initialize(user, ink_kind)
+  def initialize(user, ink_kind, extra_user_input = nil)
     self.user = user
     self.ink_kind = ink_kind
+    self.extra_user_input = extra_user_input
     transcript << { user: prompt }
+    transcript << { user: extra_user_prompt } if extra_user_input.present?
   end
 
   def perform
-    chat_completion(loop: true, openai: "gpt-4.1-mini")
-    response = { message:, ink: ink_id, pen: pen_id }
-    agent_log.update(extra_data: response)
-    agent_log.waiting_for_approval!
-    response
+    chat_completion(loop: true, openai: "gpt-4.1")
+    if [message, ink_id, pen_id].all?(&:present?)
+      response = { message:, ink: ink_id, pen: pen_id }
+      agent_log.update(extra_data: response)
+      agent_log.waiting_for_approval!
+      response
+    else
+      transcript << { user: "The `record_suggestion` tool was not called. Please try again." }
+      perform
+    end
   end
 
   def agent_log
@@ -44,7 +51,7 @@ class PenAndInkSuggester
 
     ink = inks.find { |ink| ink.id == ink_id }
     pen = pens.find { |pen| pen.id == pen_id }
-    if ink && pen
+    if ink && pen && message.present?
       stop_looping!
     elsif ink.blank? && pen.blank?
       "Please try again. Both the pen and ink IDs are invalid."
@@ -52,12 +59,14 @@ class PenAndInkSuggester
       "Please try again. The ink ID is invalid."
     elsif pen.blank?
       "Please try again. The pen ID is invalid."
+    elsif message.blank?
+      "Please try again. The suggestion message is blank."
     end
   end
 
   private
 
-  attr_accessor :user, :ink_kind, :message, :ink_id, :pen_id
+  attr_accessor :user, :ink_kind, :message, :ink_id, :pen_id, :extra_user_input
 
   def prompt
     <<~MESSAGE
@@ -67,15 +76,21 @@ class PenAndInkSuggester
       Given the following inks:
       #{ink_data}
 
-      Which combination of ink and fountain pen should I use and why?
+      Which combination of ink and fountain pen should I use and why? Use the `record_suggestion`
+      function to return the suggestion.
 
-      Prefer items that have either never been used, rarely used, or used a long time ago.
-      Also suggest items that have been used a lot.
-      Make only one suggestion.
-      Use markdown syntax for highlighting.
-      Do not mention usage and daily usage count if they are zero.
-      Use the ink tags and description as part of the reasoning, but do not mention them directly.
+      * Prefer items that have either never been used, rarely used, or used a long time ago.
+      * Also suggest items that have been used a lot.
+      * Make only one suggestion.
+      * Use markdown syntax for highlighting of the suggestion message. Insert an empty line before lists or quotes.
+      * Do not mention usage and daily usage count if they are zero.
+      * Use the ink tags and description as part of the reasoning, but do not mention them directly.
+      * Do not metion the pen and ink IDs in the suggestion message.
     MESSAGE
+  end
+
+  def extra_user_prompt
+    "Take extra care to follow these additional instructions:\n#{extra_user_input}"
   end
 
   def pen_data
