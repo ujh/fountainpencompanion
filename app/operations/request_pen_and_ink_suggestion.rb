@@ -13,7 +13,6 @@ class RequestPenAndInkSuggestion
 
       suggestion[:ink] = user.collected_inks.find_by(id: suggestion[:ink])
       suggestion[:pen] = user.collected_pens.find_by(id: suggestion[:pen])
-      Rails.logger.debug "\n\n\n#{suggestion[:message]}\n\n\n"
       suggestion[:message] = Slodown::Formatter.new(suggestion[:message]).markdown.to_s.html_safe
       suggestion
     else

@@ -1,7 +1,7 @@
 import React from "react";
-import { useContext, useState } from "react";
+import { useState } from "react";
 import _ from "lodash";
-import { Widget, WidgetDataContext } from "./widgets";
+import { Widget } from "./widgets";
 import { getRequest } from "../fetch";
 import "./pen_and_ink_suggestion_widget.css";
 
@@ -9,7 +9,6 @@ export const PenAndInkSuggestionWidget = ({ renderWhenInvisible }) => (
   <Widget
     header="Pen and Ink suggestion"
     subtitle="Gives suggestions on what to ink next using AI™"
-    path="/dashboard/widgets/inks_summary.json"
     renderWhenInvisible={renderWhenInvisible}
   >
     <div className="pen-and-ink-suggestion">
@@ -19,11 +18,9 @@ export const PenAndInkSuggestionWidget = ({ renderWhenInvisible }) => (
 );
 
 const PenAndInkSuggestionWidgetContent = () => {
-  const { data } = useContext(WidgetDataContext);
-  const { by_kind } = data.attributes;
   const [suggestion, setSuggestion] = useState();
   const [loading, setLoading] = useState();
-  const [inkKind, setInkKind] = useState("");
+  const [extraInstructions, setExtraInstructions] = useState("");
 
   if (!suggestion && !loading) {
     return (
@@ -31,9 +28,8 @@ const PenAndInkSuggestionWidgetContent = () => {
         <AskForSuggestion
           setSuggestion={setSuggestion}
           setLoading={setLoading}
-          inkCounts={by_kind}
-          inkKind={inkKind}
-          setInkKind={setInkKind}
+          extraInstructions={extraInstructions}
+          setExtraInstructions={setExtraInstructions}
         />
       </div>
     );
@@ -45,9 +41,8 @@ const PenAndInkSuggestionWidgetContent = () => {
         <AskForSuggestion
           setSuggestion={setSuggestion}
           setLoading={setLoading}
-          inkCounts={by_kind}
-          inkKind={inkKind}
-          setInkKind={setInkKind}
+          extraInstructions={extraInstructions}
+          setExtraInstructions={setExtraInstructions}
         />
       </div>
     );
@@ -57,9 +52,8 @@ const PenAndInkSuggestionWidgetContent = () => {
         suggestion={suggestion}
         setSuggestion={setSuggestion}
         setLoading={setLoading}
-        inkCounts={by_kind}
-        inkKind={inkKind}
-        setInkKind={setInkKind}
+        extraInstructions={extraInstructions}
+        setExtraInstructions={setExtraInstructions}
       />
     );
   }
@@ -68,15 +62,14 @@ const PenAndInkSuggestionWidgetContent = () => {
 const AskForSuggestion = ({
   setSuggestion,
   setLoading,
-  inkCounts,
-  inkKind,
-  setInkKind,
-  text = "Suggest something!"
+  text = "Suggest something!",
+  extraInstructions,
+  setExtraInstructions
 }) => {
   const onClick = async () => {
     setLoading(true);
     setSuggestion(null);
-    const url = `/dashboard/widgets/pen_and_ink_suggestion.json${inkKind ? `?ink_kind=${inkKind}` : ""}`;
+    const url = `/dashboard/widgets/pen_and_ink_suggestion.json?extra_user_input=${encodeURIComponent(extraInstructions)}`;
     const response = await getRequest(url);
     const json = await response.json();
     const suggestion_id = json.suggestion_id;
@@ -98,19 +91,13 @@ const AskForSuggestion = ({
       <a className="btn btn-success" onClick={onClick}>
         {text}
       </a>
-      {Object.entries(inkCounts) && (
-        <div className="filter">
-          Restrict selection to ink type:{" "}
-          <select defaultValue={inkKind} onChange={(e) => setInkKind(e.target.value)}>
-            <option key="all" value=""></option>
-            {Object.entries(inkCounts).map(([k, v]) => (
-              <option key={k} value={k}>
-                {k} ({v})
-              </option>
-            ))}
-          </select>
-        </div>
-      )}
+      <div className="extra-instructions">
+        <textarea
+          value={extraInstructions}
+          onChange={(e) => setExtraInstructions(e.target.value)}
+          placeholder="Add extra instructions, e.g. I only want ink samples ..."
+        />
+      </div>
     </>
   );
 };
@@ -125,9 +112,8 @@ const ShowSuggestion = ({
   suggestion,
   setSuggestion,
   setLoading,
-  inkCounts,
-  inkKind,
-  setInkKind
+  extraInstructions,
+  setExtraInstructions
 }) => {
   const inkId = suggestion.ink?.id;
   const penId = suggestion.pen?.id;
@@ -145,9 +131,8 @@ const ShowSuggestion = ({
         <AskForSuggestion
           setSuggestion={setSuggestion}
           setLoading={setLoading}
-          inkCounts={inkCounts}
-          inkKind={inkKind}
-          setInkKind={setInkKind}
+          extraInstructions={extraInstructions}
+          setExtraInstructions={setExtraInstructions}
           text="Try again!"
         />
       </div>

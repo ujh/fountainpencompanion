@@ -19,4 +19,14 @@
   .buttons .btn {
     margin-right: 20px;
   }
+
+  .extra-instructions {
+    textarea {
+      border: 1px solid #999999;
+      border-radius: 5px;
+      width: 100%;
+      margin: 5px 0;
+      padding: 3px 1%;
+    }
+  }
 }
