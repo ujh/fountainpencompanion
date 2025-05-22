@@ -69,6 +69,7 @@ table class="table"
           - if agent_log.approved?
             = link_to "Approve", admins_agents_ink_clusterer_path(agent_log, page: params[:page]), method: :put, class: 'btn btn-success me-5'
             = link_to "Reject approval and reprocess", admins_agents_ink_clusterer_path(agent_log, page: params[:page]), method: :delete, class: 'btn btn-danger me-5'
+            = link_to "Reject approval and reprocess (delete history)", admins_agents_ink_clusterer_path(agent_log, page: params[:page], delete_history: true), method: :delete, class: 'btn btn-danger me-5'
           - else
             / Note how the URLs are switched around as if it's already rejected then a rejection will be the implicit approval.
             = link_to "Approve rejection", admins_agents_ink_clusterer_path(agent_log, page: params[:page]), method: :delete, class: 'btn btn-success me-5'

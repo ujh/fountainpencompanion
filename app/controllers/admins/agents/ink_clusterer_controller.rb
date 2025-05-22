@@ -69,6 +69,7 @@ class Admins::Agents::InkClustererController < Admins::BaseController
   def reject_and_reprocess!
     clusters_to_reprocess = InkClusterer.new(micro_cluster.id, agent_log_id: agent_log.id).reject!
     clusters_to_reprocess.each do |cluster|
+      cluster.agent_logs.destroy_all if params[:delete_history].present?
       # Now schedule the actual ink clustering job
       RunInkClustererAgent.perform_async("InkClusterer", cluster.id)
     end
