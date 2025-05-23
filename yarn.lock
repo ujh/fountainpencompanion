@@ -6048,10 +6048,10 @@ makeerror@1.0.12:
   dependencies:
     tmpl "1.0.5"
 
-match-sorter@^8.0.1:
-  version "8.0.1"
-  resolved "https://registry.yarnpkg.com/match-sorter/-/match-sorter-8.0.1.tgz#ac19fb76559cdffd44b02dce5ab20594bb63d97d"
-  integrity sha512-YwEpnfJy/MhLpVdl0xU27y83oHnnT19IRAVeus9I/9tjOrfoGADeNy1OsLvYHdcJVcwFmBp5DzdZLEiDDXoiIw==
+match-sorter@^8.0.2:
+  version "8.0.2"
+  resolved "https://registry.yarnpkg.com/match-sorter/-/match-sorter-8.0.2.tgz#77d2ca3f5f56a0f81a4fc3adddc1308723d98d4c"
+  integrity sha512-5mXYiqA0QKXQDVaXtuMb4JfQFu5z4rzpgPUi3b+7+psOV+Q85RqVRrs8+kCorzR38LHv6ftkpSbbP5qhuPu3SQ==
   dependencies:
     "@babel/runtime" "^7.23.8"
     remove-accents "0.5.0"
