@@ -18,6 +18,8 @@ class CheckInkClustering::Create < CheckInkClustering::Base
       Ink mixes can be determined for example by:
       * The ink name contains two ink names that are separated by a non-word character
       * The ink name does not contain one of the known brand names
+      * However, ink names can contain contain translations of the names separated by
+        a non-word character, so be careful with that.
 
       You can search the web for the ink. When you do that keep the following in mind:
       * The results might not even contain the ink name. You need to double check that the ink name is actually present.
