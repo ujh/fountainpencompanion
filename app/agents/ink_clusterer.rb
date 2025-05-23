@@ -12,6 +12,8 @@ class InkClusterer
     1. Find the most similar ink cluster in the database and assign the ink to that cluster.
     2. Create a new cluster for the ink if no similar cluster is found.
     3. Ignore the ink if it is a mix of inks or an unidentified ink.
+    3.1 You can also ignore an ink if the user made a mistake and only provided the brand and line
+        data of the ink. Usually, the line data is actually ink the ink name field by mistake.
     4. Hand over the ink to a human to do the assignment if you are not sure.
 
     ONLY assign the ink to a cluster if you are confident that it belongs there.
