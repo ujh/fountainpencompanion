@@ -460,7 +460,8 @@ CREATE TABLE public.ink_review_submissions (
     created_at timestamp(6) without time zone NOT NULL,
     updated_at timestamp(6) without time zone NOT NULL,
     unfurling_errors text,
-    html text
+    html text,
+    extra_data jsonb DEFAULT '{}'::jsonb
 );
 
 
@@ -2297,6 +2298,7 @@ ALTER TABLE ONLY public.collected_inks
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20250524113956'),
 ('20250514055126'),
 ('20250511185543'),
 ('20250508081740'),

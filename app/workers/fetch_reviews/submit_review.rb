@@ -6,19 +6,20 @@ class FetchReviews
     sidekiq_throttle concurrency: { limit: 1 }
     sidekiq_options queue: "reviews"
 
-    def perform(url, macro_cluster_id)
+    def perform(url, macro_cluster_id, explanation = nil)
       macro_cluster = MacroCluster.find_by(id: macro_cluster_id)
-      submit_review(url, macro_cluster)
+      submit_review(url, macro_cluster, explanation)
     end
 
     private
 
-    def submit_review(url, macro_cluster)
+    def submit_review(url, macro_cluster, explanation)
       CreateInkReviewSubmission.new(
         url: url,
         user: user,
         macro_cluster: macro_cluster,
-        automatic: true
+        automatic: true,
+        explanation: explanation
       ).perform
     end
 

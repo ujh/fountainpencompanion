@@ -58,12 +58,16 @@ class ReviewFinder
              type: "integer",
              description:
                "The ID of the ink cluster to submit the review for. Found via the similarity search"
+           },
+           explanation: {
+             type: "string",
+             description: "An explanation of why this ink cluster was chosen for the review"
            } do |arguments|
     cluster = MacroCluster.find_by(id: arguments["ink_cluster_id"])
     if cluster.nil?
       "I couldn't find the ink cluster with ID #{arguments["ink_cluster_id"]}. Please try again."
     else
-      FetchReviews::SubmitReview.perform_async(page.url, cluster.id)
+      FetchReviews::SubmitReview.perform_async(page.url, cluster.id, arguments["explanation"])
       "I have submitted the review for the ink cluster with ID #{arguments["ink_cluster_id"]} (#{cluster.name})."
     end
   end
