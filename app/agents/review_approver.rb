@@ -120,14 +120,34 @@ class ReviewApprover
     InkReview.joins(:ink_review_submissions).order("RANDOM()").manually_processed
   end
 
-  function :approve_review, "Approve the review" do
-    ink_review.update(extra_data: { action: "approve_review" })
+  function :approve_review,
+           "Approve the review",
+           explanation_of_decision: {
+             type: "string",
+             description: "Provide a brief explanation of why you are approving this review."
+           } do |arguments|
+    ink_review.update(
+      extra_data: {
+        action: "approve_review",
+        explanation_of_decision: arguments[:explanation_of_decision]
+      }
+    )
     ink_review.agent_approve!
     stop_looping!
   end
 
-  function :reject_review, "Reject the review" do
-    ink_review.update(extra_data: { action: "reject_review" })
+  function :reject_review,
+           "Reject the review",
+           explanation_of_decision: {
+             type: "string",
+             description: "Provide a brief explanation of why you are rejecting this review."
+           } do |arguments|
+    ink_review.update(
+      extra_data: {
+        action: "reject_review",
+        explanation_of_decision: arguments[:explanation_of_decision]
+      }
+    )
     ink_review.agent_reject!
     stop_looping!
   end
