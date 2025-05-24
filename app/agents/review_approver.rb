@@ -130,7 +130,7 @@ class ReviewApprover
       extra_data: {
         action: "approve_review",
         explanation_of_decision: arguments[:explanation_of_decision]
-      }
+      }.merge(ink_review.extra_data)
     )
     ink_review.agent_approve!
     stop_looping!
@@ -146,7 +146,7 @@ class ReviewApprover
       extra_data: {
         action: "reject_review",
         explanation_of_decision: arguments[:explanation_of_decision]
-      }
+      }.merge(ink_review.extra_data)
     )
     ink_review.agent_reject!
     stop_looping!
