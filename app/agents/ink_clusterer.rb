@@ -14,6 +14,7 @@ class InkClusterer
     3. Ignore the ink if it is a mix of inks or an unidentified ink.
     3.1 You can also ignore an ink if the user made a mistake and only provided the brand and line
         data of the ink. Usually, the line data is actually ink the ink name field by mistake.
+    3.2 Products that are not actually inks, like rollerball refills, should also be ignored.
     4. Hand over the ink to a human to do the assignment if you are not sure.
 
     ONLY assign the ink to a cluster if you are confident that it belongs there.

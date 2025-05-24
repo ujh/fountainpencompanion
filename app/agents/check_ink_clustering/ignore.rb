@@ -11,6 +11,7 @@ class CheckInkClustering::Ignore < CheckInkClustering::Base
       * It is an unidentified ink
       * It is an ink that someone created themselves
       * It is an incomplete entry, e.g. a name that is not a full ink name on its own
+      * It references a product that is not an ink, e.g. a rollberball or ballpoint pen
 
       Ink mixes can be determined for example by:
       * The ink name contains two ink names that are separated by a non-word character
