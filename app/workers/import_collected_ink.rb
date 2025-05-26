@@ -26,6 +26,7 @@ class ImportCollectedInk
     row["swabbed"] = to_b(row["swabbed"])
     row["archived_on"] = to_b(row["archived"]) ? Date.current : nil
     row["kind"] = "bottle" unless row["kind"].present?
+    row["kind"] = row["kind"].strip.downcase
     row["tags_as_string"] = row["tags"] || ""
     row.slice(
       "brand_name",
