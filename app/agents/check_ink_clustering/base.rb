@@ -44,7 +44,9 @@ class CheckInkClustering::Base
       )
     end
     if approved?
-      InkClusterer.new(micro_cluster.id).approve!(agent: true)
+      InkClusterer.new(micro_cluster.id, agent_log_id: micro_cluster_agent_log.id).approve!(
+        agent: true
+      )
     elsif rejected?
       clusters_to_reprocess =
         InkClusterer.new(micro_cluster.id, agent_log_id: micro_cluster_agent_log.id).reject!(
