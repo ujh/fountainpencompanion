@@ -16,3 +16,12 @@ Sidekiq.configure_server do |config|
     cap.queues = %w[leaderboards]
   end
 end
+
+# Separate capsule for the ink clustering as concurrency, especially during an
+# import leads to weird behaviour
+Sidekiq.configure_server do |config|
+  config.capsule("ink-clusterer") do |cap|
+    cap.concurrency = 1
+    cap.queues = %w[agents-ink-clusterer]
+  end
+end
