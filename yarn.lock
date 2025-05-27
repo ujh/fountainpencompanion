@@ -8362,10 +8362,10 @@ webpack-merge@^6.0.1:
     flat "^5.0.2"
     wildcard "^2.0.1"
 
-webpack-remove-empty-scripts@^1.1.0:
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/webpack-remove-empty-scripts/-/webpack-remove-empty-scripts-1.1.0.tgz#f2029936b26051ac471b4af59955f9d87c91d84c"
-  integrity sha512-XJNhYcaLvS8XrPWVIe/uAGIrEAhGiDqfxv3KdfZIq8TiEAmo0OWK7iNV1B/PCQXVbzb9WQ60itIzM1Hv9oWXhA==
+webpack-remove-empty-scripts@^1.1.1:
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/webpack-remove-empty-scripts/-/webpack-remove-empty-scripts-1.1.1.tgz#bd0fb0371f4fd6a87751986fae2a34e9d775f45c"
+  integrity sha512-FqmIy7joxXd0/7jz8UjzMXOKc6B7LR+ynfgaaaH72xUT917h3A94ERxOLvGM8a8XdGIvUsdTLIUt8aBQM2Pdqg==
   dependencies:
     ansis "4.0.0-node10"
 
