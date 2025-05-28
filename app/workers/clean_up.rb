@@ -6,6 +6,7 @@ class CleanUp
     remove_unconfirmed_accounts
     anonymize_sign_up_ip
     remove_old_user_agents
+    reject_orphaned_agent_logs
   end
 
   private
@@ -26,5 +27,9 @@ class CleanUp
 
   def remove_old_user_agents
     UserAgent.where("created_at < ?", 3.months.ago).destroy_all
+  end
+
+  def reject_orphaned_agent_logs
+    AgentLog.processing.where("updated_at < ?", 2.days.ago).map(&:reject!)
   end
 end
