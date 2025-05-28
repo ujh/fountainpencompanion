@@ -17,15 +17,15 @@ class PenAndInkSuggester
 
   def perform
     chat_completion(loop: true, openai: "gpt-4.1")
-    if [message, ink_id, pen_id].all?(&:present?)
-      response = { message:, ink: ink_id, pen: pen_id }
-      agent_log.update(extra_data: response)
-      agent_log.waiting_for_approval!
-      response
-    else
-      transcript << { user: "The `record_suggestion` tool was not called. Please try again." }
-      perform
-    end
+    response =
+      if [message, ink_id, pen_id].all?(&:present?)
+        { message:, ink: ink_id, pen: pen_id }
+      else
+        { message: "Sorry, that didn't work. Please try again!" }
+      end
+    agent_log.update(extra_data: response)
+    agent_log.waiting_for_approval!
+    response
   end
 
   def agent_log
