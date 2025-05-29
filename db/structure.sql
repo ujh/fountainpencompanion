@@ -85,7 +85,8 @@ CREATE TABLE public.agent_logs (
     approved_at timestamp without time zone,
     rejected_at timestamp without time zone,
     state character varying DEFAULT 'processing'::character varying,
-    agent_approved boolean DEFAULT false
+    agent_approved boolean DEFAULT false,
+    usage jsonb DEFAULT '{"total_tokens": 0, "prompt_tokens": 0, "completion_tokens": 0}'::jsonb NOT NULL
 );
 
 
@@ -2298,6 +2299,7 @@ ALTER TABLE ONLY public.collected_inks
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20250529143609'),
 ('20250524113956'),
 ('20250514055126'),
 ('20250511185543'),

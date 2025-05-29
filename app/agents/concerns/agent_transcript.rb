@@ -23,7 +23,13 @@ module AgentTranscript
 
     def <<(entry)
       @transcript << entry
-      @agent_log.update(transcript: @transcript)
+      if entry[:role] == "assistant"
+        %w[prompt_tokens completion_tokens total_tokens].each do |key|
+          @agent_log.usage[key] += Thread.current[:chat_completion_response]["usage"][key]
+        end
+      end
+      @agent_log.transcript = @transcript
+      @agent_log.save
     end
 
     def each(&)
