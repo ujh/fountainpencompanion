@@ -10,6 +10,7 @@ import { UsageRecords } from "./UsageRecords";
 // import { Spam } from "./Spam";
 // import { UserAgents } from "./UserAgents";
 import { Agents } from "./Agents";
+import { AgentUsage } from "./AgentUsage";
 
 document.addEventListener("DOMContentLoaded", () => {
   const el = document.getElementById("signups-graph");
@@ -24,6 +25,14 @@ document.addEventListener("DOMContentLoaded", () => {
   if (el) {
     const root = createRoot(el);
     root.render(<Agents />);
+  }
+});
+
+document.addEventListener("DOMContentLoaded", () => {
+  const el = document.getElementById("agent-usage-graph");
+  if (el) {
+    const root = createRoot(el);
+    root.render(<AgentUsage />);
   }
 });
 

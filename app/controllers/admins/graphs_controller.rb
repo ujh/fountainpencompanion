@@ -20,6 +20,8 @@ class Admins::GraphsController < Admins::BaseController
         user_agents
       when "agents"
         agents
+      when "agent-usage"
+        agent_usage
       end
     render json: data
   end
@@ -100,6 +102,31 @@ class Admins::GraphsController < Admins::BaseController
               .group("date_trunc('hour', created_at)")
               .order("hour asc")
               .pluck(Arel.sql("date_trunc('hour', created_at) as hour, count(*) as hour_count"))
+              .map { |d| [d.first.to_i * 1000, d.last] }
+        }
+      end
+  end
+
+  def agent_usage
+    base_relation = AgentLog.where("created_at > ?", 1.month.ago)
+    base_relation
+      .select(:name)
+      .distinct
+      .pluck(:name)
+      .reject { |name| name.blank? }
+      .map do |name|
+        {
+          name: name,
+          data:
+            base_relation
+              .where(name: name)
+              .group("date_trunc('hour', created_at)")
+              .order("hour asc")
+              .pluck(
+                Arel.sql(
+                  "date_trunc('hour', created_at) as hour, sum((usage->>'total_tokens')::int) as usage"
+                )
+              )
               .map { |d| [d.first.to_i * 1000, d.last] }
         }
       end
