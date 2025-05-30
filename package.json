@@ -58,7 +58,7 @@
     "@testing-library/react": "^15.0.7",
     "@testing-library/user-event": "^14.6.1",
     "eslint": "^9.27.0",
-    "eslint-plugin-prettier": "^5.4.0",
+    "eslint-plugin-prettier": "^5.4.1",
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^5.2.0",
     "globals": "^16.2.0",
