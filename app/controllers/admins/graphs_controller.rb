@@ -120,11 +120,11 @@ class Admins::GraphsController < Admins::BaseController
           data:
             base_relation
               .where(name: name)
-              .group("date_trunc('hour', created_at)")
-              .order("hour asc")
+              .group("date_trunc('day', created_at)")
+              .order("day asc")
               .pluck(
                 Arel.sql(
-                  "date_trunc('hour', created_at) as hour, sum((usage->>'total_tokens')::int) as usage"
+                  "date_trunc('day', created_at) as day, sum((usage->>'total_tokens')::int) as usage"
                 )
               )
               .map { |d| [d.first.to_i * 1000, d.last] }
