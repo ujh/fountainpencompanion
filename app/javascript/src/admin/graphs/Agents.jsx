@@ -31,7 +31,8 @@ export const Agents = () => {
       yAxis: { title: { text: "" } },
       plotOptions: {
         column: {
-          stacking: "normal"
+          stacking: "normal",
+          pointWidth: 20
         }
       }
     };
