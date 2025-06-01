@@ -21,14 +21,19 @@ export const AgentUsage = () => {
   }, []);
   if (data) {
     const options = {
-      chart: { type: "spline" },
+      chart: { type: "column" },
       legend: { enabled: true },
       series: data,
       title: { text: "Agent tokens per day" },
       xAxis: {
         type: "datetime"
       },
-      yAxis: { title: { text: "" } }
+      yAxis: { title: { text: "" } },
+      plotOptions: {
+        column: {
+          stacking: "normal"
+        }
+      }
     };
     return (
       <div>
