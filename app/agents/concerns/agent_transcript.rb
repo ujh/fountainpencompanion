@@ -23,7 +23,9 @@ module AgentTranscript
 
     def <<(entry)
       @transcript << entry
-      if entry[:role] == "assistant"
+      pp [:here, entry]
+      role = entry.is_a?(Array) ? entry[0][:role] : entry[:role]
+      if role == "assistant"
         %w[prompt_tokens completion_tokens total_tokens].each do |key|
           @agent_log.usage[key] += Thread.current[:chat_completion_response]["usage"][key]
         end
