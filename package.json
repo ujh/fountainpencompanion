@@ -1,7 +1,7 @@
 {
   "license": "UNLICENSED",
   "dependencies": {
-    "@babel/core": "^7.27.3",
+    "@babel/core": "^7.27.4",
     "@babel/preset-env": "^7.27.2",
     "@babel/preset-react": "^7.27.1",
     "@popperjs/core": "^2.11.8",
@@ -40,7 +40,7 @@
     "react-table-6": "^6.11.0",
     "recharts": "2.12.5",
     "regenerator-runtime": "^0.14.1",
-    "sass": "^1.89.0",
+    "sass": "^1.89.1",
     "sass-loader": "^16.0.5",
     "select2": "4.0.13",
     "webpack": "^5.99.9",
@@ -57,7 +57,7 @@
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^15.0.7",
     "@testing-library/user-event": "^14.6.1",
-    "eslint": "^9.27.0",
+    "eslint": "^9.28.0",
     "eslint-plugin-prettier": "^5.4.1",
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^5.2.0",
