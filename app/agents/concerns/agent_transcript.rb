@@ -18,13 +18,13 @@ module AgentTranscript
     end
 
     def set!(data)
-      @transcript = data.map(&:deep_symbolize_keys)
+      @transcript = data.flatten.map(&:deep_symbolize_keys)
     end
 
-    def <<(entry)
-      @transcript << entry
-      pp [:here, entry]
-      role = entry.is_a?(Array) ? entry[0][:role] : entry[:role]
+    def <<(data)
+      entries = data.is_a?(Array) ? data : [data]
+      entries.each { |e| @transcript << e }
+      role = entries.first[:role]
       if role == "assistant"
         %w[prompt_tokens completion_tokens total_tokens].each do |key|
           @agent_log.usage[key] += Thread.current[:chat_completion_response]["usage"][key]
