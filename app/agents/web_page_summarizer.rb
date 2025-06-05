@@ -20,7 +20,7 @@ class WebPageSummarizer
   end
 
   def perform
-    summary = chat_completion(loop: true, openai: "gpt-4.1-mini")
+    summary = chat_completion(openai: "gpt-4.1-mini")
     agent_log.waiting_for_approval!
     summary
   end

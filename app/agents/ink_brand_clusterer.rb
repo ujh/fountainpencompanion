@@ -30,7 +30,7 @@ class InkBrandClusterer
   end
 
   def perform
-    chat_completion(loop: true, openai: "gpt-4.1")
+    chat_completion(openai: "gpt-4.1")
     agent_log.waiting_for_approval!
     agent_log
   end
@@ -97,7 +97,7 @@ class InkBrandClusterer
     next "This brand_cluster_id does not exist. Please try again." unless brand_cluster
 
     UpdateBrandCluster.new(macro_cluster, brand_cluster).perform unless evaluating
-    stop_looping!
+    stop_tool_calls_and_respond!
     agent_log.update!(
       extra_data: {
         action: "add_to_brand_cluster",
@@ -109,7 +109,7 @@ class InkBrandClusterer
   function :create_new_brand_cluster, "Create a new brand cluster" do
     CreateBrandCluster.new(macro_cluster).perform unless evaluating
 
-    stop_looping!
+    stop_tool_calls_and_respond!
     agent_log.update!(extra_data: { action: "create_new_brand_cluster" })
   end
 end
