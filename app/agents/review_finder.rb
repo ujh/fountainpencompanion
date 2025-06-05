@@ -39,7 +39,7 @@ class ReviewFinder
   end
 
   def perform
-    chat_completion(loop: true, openai: "gpt-4.1")
+    chat_completion(openai: "gpt-4.1")
     agent_log.waiting_for_approval!
   end
 
@@ -79,7 +79,7 @@ class ReviewFinder
              description: "A summary of the actions you have taken"
            } do |arguments|
     agent_log.update!(extra_data: { summary: arguments["summary"] })
-    stop_looping!
+    stop_tool_calls_and_respond!
   end
 
   function :summarize, "Return a summary of the web page" do

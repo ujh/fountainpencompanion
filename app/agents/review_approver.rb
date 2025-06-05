@@ -33,7 +33,7 @@ class ReviewApprover
   end
 
   def perform
-    chat_completion(loop: true, openai: "gpt-4.1-mini")
+    chat_completion(openai: "gpt-4.1-mini")
     agent_log.update!(extra_data: ink_review.extra_data)
     agent_log.waiting_for_approval!
   end
@@ -133,7 +133,7 @@ class ReviewApprover
       }.merge(ink_review.extra_data)
     )
     ink_review.agent_approve!
-    stop_looping!
+    stop_tool_calls_and_respond!
   end
 
   function :reject_review,
@@ -149,7 +149,7 @@ class ReviewApprover
       }.merge(ink_review.extra_data)
     )
     ink_review.agent_reject!
-    stop_looping!
+    stop_tool_calls_and_respond!
   end
 
   function :summarize, "Return a summary of the web page" do

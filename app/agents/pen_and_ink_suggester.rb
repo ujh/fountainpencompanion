@@ -16,7 +16,7 @@ class PenAndInkSuggester
   end
 
   def perform
-    chat_completion(loop: true, openai: "gpt-4.1")
+    chat_completion(openai: "gpt-4.1")
     response =
       if [message, ink_id, pen_id].all?(&:present?)
         { message:, ink: ink_id, pen: pen_id }
@@ -52,7 +52,7 @@ class PenAndInkSuggester
     ink = inks.find { |ink| ink.id == ink_id }
     pen = pens.find { |pen| pen.id == pen_id }
     if ink && pen && message.present?
-      stop_looping!
+      stop_tool_calls_and_respond!
     elsif ink.blank? && pen.blank?
       "Please try again. Both the pen and ink IDs are invalid."
     elsif ink.blank?

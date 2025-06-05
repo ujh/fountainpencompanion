@@ -22,7 +22,7 @@ class CheckInkClustering::Base
 
   def perform
     if micro_cluster.collected_inks.present?
-      chat_completion(loop: true, openai: "gpt-4.1")
+      chat_completion(openai: "gpt-4.1")
     else
       agent_log.update(
         extra_data: {
@@ -112,7 +112,7 @@ class CheckInkClustering::Base
         explanation_of_decision: arguments[:explanation_of_decision]
       }
     )
-    stop_looping!
+    stop_tool_calls_and_respond!
   end
 
   def save_rejection_and_stop!(arguments)
@@ -122,6 +122,6 @@ class CheckInkClustering::Base
         explanation_of_decision: arguments[:explanation_of_decision]
       }
     )
-    stop_looping!
+    stop_tool_calls_and_respond!
   end
 end

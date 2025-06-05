@@ -12,7 +12,7 @@ class CheckInkClustering::Human < CheckInkClustering::Base
 
   def perform
     if micro_cluster.collected_inks.present?
-      chat_completion(loop: true, openai: "gpt-4.1", available_tools: [:send_email])
+      chat_completion(openai: "gpt-4.1", available_tools: [:send_email])
     else
       agent_log.update(
         extra_data: {
@@ -37,6 +37,6 @@ class CheckInkClustering::Human < CheckInkClustering::Base
              description: "Body of the email"
            } do |arguments|
     AdminMailer.agent_mail(arguments[:subject], arguments[:body]).deliver_later
-    stop_looping!
+    stop_tool_calls_and_respond!
   end
 end

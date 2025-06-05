@@ -66,7 +66,7 @@ class InkClusterer
 
   def perform
     if micro_cluster.collected_inks.present?
-      chat_completion(loop: true, openai: "gpt-4.1")
+      chat_completion(openai: "gpt-4.1")
       agent_log.update!(extra_data: extra_data)
       schedule_follow_up!
       agent_log.waiting_for_approval!
@@ -210,7 +210,7 @@ class InkClusterer
       explanation_of_decision: arguments[:explanation_of_decision],
       cluster_id: cluster.id
     }
-    stop_looping!
+    stop_tool_calls_and_respond!
   end
 
   function :create_new_cluster,
@@ -225,7 +225,7 @@ class InkClusterer
       action: "create_new_cluster",
       explanation_of_decision: arguments[:explanation_of_decision]
     }
-    stop_looping!
+    stop_tool_calls_and_respond!
   end
 
   function :ignore_ink,
@@ -240,7 +240,7 @@ class InkClusterer
       action: "ignore_ink",
       explanation_of_decision: arguments[:explanation_of_decision]
     }
-    stop_looping!
+    stop_tool_calls_and_respond!
   end
 
   function :hand_over_to_human, "Hand over to human to do the assignment" do |_arguments|
@@ -248,7 +248,7 @@ class InkClusterer
       msg: "Handing over #{micro_cluster_str} to human",
       action: "hand_over_to_human"
     }
-    stop_looping!
+    stop_tool_calls_and_respond!
   end
 
   function :known_brand, "Check if brand of ink is known" do

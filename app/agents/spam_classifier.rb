@@ -11,7 +11,7 @@ class SpamClassifier
   end
 
   def perform
-    chat_completion(loop: true, openai: "gpt-4o-mini")
+    chat_completion(openai: "gpt-4o-mini")
     agent_log.waiting_for_approval!
   end
 
@@ -34,7 +34,7 @@ class SpamClassifier
         explanation_of_action: arguments[:explanation_of_action]
       }
     )
-    stop_looping!
+    stop_tool_calls_and_respond!
   end
 
   function :classify_as_normal,
@@ -48,7 +48,7 @@ class SpamClassifier
         explanation_of_action: arguments[:explanation_of_action]
       }
     )
-    stop_looping!
+    stop_tool_calls_and_respond!
   end
 
   private
