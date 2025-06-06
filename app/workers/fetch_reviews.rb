@@ -22,7 +22,6 @@ class FetchReviews
       https://wondernaut.wordpress.com/category/ink-review/feed/
       https://writingatlarge.com/feed/
       https://www.fountainpenpharmacist.com/feeds/posts/default?alt=rss
-      https://www.gentlemanstationer.com/blog?format=rss
       https://www.inkyinspirations.com/inkreviews?format=rss
       https://www.wellappointeddesk.com/category/ink-review/feed/
     ]
