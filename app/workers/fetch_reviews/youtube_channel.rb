@@ -36,7 +36,9 @@ class FetchReviews
         client.fetch_videos.take(5)
       else
         channel.update!(back_catalog_imported: true)
-        client.fetch_videos
+        # Do not import the back catalog, as that will incur a lot of LLM API calls
+        # and will be super expensive.
+        client.fetch_videos.take(5)
       end
     end
 

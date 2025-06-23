@@ -29,10 +29,10 @@ describe FetchReviews::YoutubeChannel do
   context "back catalog not imported" do
     let(:channel) { create(:you_tube_channel, back_catalog_imported: false) }
 
-    it "submits all reviews" do
+    it "still only submits the latest five reviews" do
       expect do subject.perform(channel.channel_id) end.to change {
         FetchReviews::ProcessWebPageForReview.jobs.count
-      }.by(10)
+      }.by(5)
     end
 
     it "sets back_catalog_imported to true" do
