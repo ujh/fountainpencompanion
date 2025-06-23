@@ -40,7 +40,7 @@ services:
     ports:
       - 5432:5432
   redis:
-    image: redis:6-alpine
+    image: redis:7-alpine
     command: redis-server
     volumes:
       - redis_data:/data:cached
