@@ -16,7 +16,7 @@ export const LeaderboardRankingWidget = ({ renderWhenInvisible }) => (
 
 const LeaderboardRankingWidgetContent = () => {
   const { data } = useContext(WidgetDataContext);
-  const { inks, bottles, samples, brands, ink_review_submissions, description_edits } =
+  const { inks, bottles, samples, cartridges, brands, ink_review_submissions, description_edits } =
     data.attributes;
   return (
     <>
@@ -39,6 +39,12 @@ const LeaderboardRankingWidgetContent = () => {
               <a href="/pages/samples_leaderboard">Samples</a>
             </th>
             <td className="text-end">{samples}</td>
+          </tr>
+          <tr>
+            <th className="fw-normal" scope="row">
+              <a href="/pages/cartridges_leaderboard">Cartridges</a>
+            </th>
+            <td className="text-end">{cartridges}</td>
           </tr>
           <tr>
             <th className="fw-normal" scope="row">

@@ -1,0 +1,13 @@
+- content_for :title, "Cartridges leaderboard"
+
+- content_for :breadcrumbs
+  ol class="breadcrumb"
+    li class="breadcrumb-item"
+      = link_to "Leaderboards", page_path("leaderboards")
+    li class="breadcrumb-item active" aria-current="page"
+      | Samples leaderboard
+
+= cache params[:id], expires_in: 1.hour do
+  ol class="fpc-leaderboard"
+    - LeaderBoard.cartridges.each do |user_data|
+      = render partial: "leaderboard_row", locals: { user_data: user_data }
