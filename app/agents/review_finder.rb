@@ -8,24 +8,21 @@ class ReviewFinder
     You will be given details about a web page or Youtube video below. The page
     or video are not random, but most likely reviews of fountain pens or inks.
 
-    Your task is to find all inks reviewed in the page or video in the internal
-    database and submit it as a review for these ink clusters.
+    Your task is a follows:
 
-    Keep in mind:
-    * The page or video may contain reviews of multiple inks.
-    * The page or video may be about something completely different. Submitting
-      no reviews is also an option.
-    * Only submit a review for inks that are a focus of the page or video. Inks
-      that only get mentioned in passing should not be submitted.
-    * You can search the internal database using the similarity search to find
-      the correct inks to submit the review for.
-    * You can search multiple times if you need to.
-    * For web pages call the `summarize` function to get a more detailed summary
-      of the page, which might contain more information than is available in the
-      page data.
-    * Vlog style videos are usually not about a specific ink, but rather about
-      other topics. In these cases, you should not submit a review.
-    * "Currently inked" videos or blog posts should also not be considered.
+    1. Determine if the page or video contains reviews of fountain pen inks.
+    2. If it does, determine if the inks are the main focus of the page or video.
+    3. If they are, find the inks in the internal database using the similarity
+       search and submit a review for them.
+    4. If the page or video does not contain reviews of inks, do not submit any
+       reviews.
+
+    You will be given a prompt with the page data, which contains information
+    about the page or video, such as its title, description, and content. You
+    can use this information to determine if the page or video contains reviews
+    of inks. For web pages call the `summarize` function to get a more detailed
+    summary of the page, which might contain more information than is available
+    in the page data.
   TEXT
 
   def initialize(page)
