@@ -203,14 +203,18 @@ class InkClusterer
                "Explain why you are assigning the ink to this cluster and not creating a cluster or ignoring it"
            } do |arguments|
     cluster_id = arguments[:cluster_id].to_i
-    cluster = MacroCluster.find(cluster_id)
-    self.extra_data = {
-      msg: "Assigning #{micro_cluster_str} to #{cluster.id} - #{cluster.name}",
-      action: "assign_to_cluster",
-      explanation_of_decision: arguments[:explanation_of_decision],
-      cluster_id: cluster.id
-    }
-    stop_tool_calls_and_respond!
+    cluster = MacroCluster.find_by(id: cluster_id)
+    if cluster
+      self.extra_data = {
+        msg: "Assigning #{micro_cluster_str} to #{cluster.id} - #{cluster.name}",
+        action: "assign_to_cluster",
+        explanation_of_decision: arguments[:explanation_of_decision],
+        cluster_id: cluster.id
+      }
+      stop_tool_calls_and_respond!
+    else
+      "Tool call not successful. Please supply a valid cluster ID to assign the ink to."
+    end
   end
 
   function :create_new_cluster,
