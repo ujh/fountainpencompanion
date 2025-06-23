@@ -6128,10 +6128,10 @@ makeerror@1.0.12:
   dependencies:
     tmpl "1.0.5"
 
-match-sorter@^8.0.2:
-  version "8.0.2"
-  resolved "https://registry.yarnpkg.com/match-sorter/-/match-sorter-8.0.2.tgz#77d2ca3f5f56a0f81a4fc3adddc1308723d98d4c"
-  integrity sha512-5mXYiqA0QKXQDVaXtuMb4JfQFu5z4rzpgPUi3b+7+psOV+Q85RqVRrs8+kCorzR38LHv6ftkpSbbP5qhuPu3SQ==
+match-sorter@^8.0.3:
+  version "8.0.3"
+  resolved "https://registry.yarnpkg.com/match-sorter/-/match-sorter-8.0.3.tgz#c9af7e427702852a5be7c27c7c5ed1b367a53faf"
+  integrity sha512-BnR/YBS1iO94R3EcseKkb7kJ2w2su5CWmywHvFYv70HQ2syqca79JefoGocMK+G1NOdpV2kt0G3uQb5hcdFtIA==
   dependencies:
     "@babel/runtime" "^7.23.8"
     remove-accents "0.5.0"
