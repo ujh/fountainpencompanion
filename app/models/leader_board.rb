@@ -3,6 +3,7 @@ class LeaderBoard
     inks
     bottles
     samples
+    cartridges
     inks_by_popularity
     currently_inked
     usage_records
@@ -149,6 +150,18 @@ class LeaderBoard
 
   def self.top_samples
     samples.take(10)
+  end
+
+  def self.cartridges(force: false)
+    Rails
+      .cache
+      .fetch("LeaderBoard#cartridges", force:) do
+        extract(build.where(collected_inks: { kind: "cartridge" }))
+      end
+  end
+
+  def self.top_cartridges
+    cartridges.take(10)
   end
 
   def self.brands(force: false)
