@@ -6,7 +6,7 @@
     "@babel/preset-react": "^7.27.1",
     "@popperjs/core": "^2.11.8",
     "babel-loader": "^10.0.0",
-    "bootstrap": "^5.3.6",
+    "bootstrap": "^5.3.7",
     "color-convert": "^2.0.1",
     "core-js": "^3.43.0",
     "css-loader": "^7.1.2",
