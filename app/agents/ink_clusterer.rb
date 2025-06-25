@@ -204,7 +204,7 @@ class InkClusterer
            } do |arguments|
     cluster_id = arguments[:cluster_id].to_i
     cluster = MacroCluster.find_by(id: cluster_id)
-    if cluster
+    if cluster && arguments[:explanation_of_decision].present?
       self.extra_data = {
         msg: "Assigning #{micro_cluster_str} to #{cluster.id} - #{cluster.name}",
         action: "assign_to_cluster",
@@ -213,7 +213,7 @@ class InkClusterer
       }
       stop_tool_calls_and_respond!
     else
-      "Tool call not successful. Please supply a valid cluster ID to assign the ink to."
+      "Tool call not successful. Please supply a valid cluster ID to assign the ink to as well as an explanation of your decision."
     end
   end
 
@@ -224,12 +224,16 @@ class InkClusterer
              description:
                "Explain why you are creating a new cluster for this ink and not assigning it to an existing one or ignoring it"
            } do |arguments|
-    self.extra_data = {
-      msg: "Creating new cluster for #{micro_cluster_str}",
-      action: "create_new_cluster",
-      explanation_of_decision: arguments[:explanation_of_decision]
-    }
-    stop_tool_calls_and_respond!
+    if arguments[:explanation_of_decision].present?
+      self.extra_data = {
+        msg: "Creating new cluster for #{micro_cluster_str}",
+        action: "create_new_cluster",
+        explanation_of_decision: arguments[:explanation_of_decision]
+      }
+      stop_tool_calls_and_respond!
+    else
+      "Tool call not successful. Please supply an explanation of your decision to create a new cluster for this ink."
+    end
   end
 
   function :ignore_ink,
@@ -239,12 +243,16 @@ class InkClusterer
              description:
                "Explain why you are ignoring this ink and not assigning it to a cluster or creating a new one"
            } do |arguments|
-    self.extra_data = {
-      msg: "Ignoring #{micro_cluster_str}",
-      action: "ignore_ink",
-      explanation_of_decision: arguments[:explanation_of_decision]
-    }
-    stop_tool_calls_and_respond!
+    if arguments[:explanation_of_decision].present?
+      self.extra_data = {
+        msg: "Ignoring #{micro_cluster_str}",
+        action: "ignore_ink",
+        explanation_of_decision: arguments[:explanation_of_decision]
+      }
+      stop_tool_calls_and_respond!
+    else
+      "Tool call not successful. Please supply an explanation of your decision to ignore this ink."
+    end
   end
 
   function :hand_over_to_human, "Hand over to human to do the assignment" do |_arguments|
