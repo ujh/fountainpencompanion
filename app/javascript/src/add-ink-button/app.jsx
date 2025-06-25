@@ -106,7 +106,7 @@ const ActualInkAddButton = ({ macro_cluster_id, inCollection, detailView }) => {
 };
 
 const Loader = () => (
-  <div className="loader">
+  <div className="loader" role="status">
     <i className="fa fa-spin fa-refresh" />
   </div>
 );
