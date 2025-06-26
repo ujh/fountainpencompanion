@@ -22,13 +22,17 @@ export const MacroClusterRow = ({
   const assign = useCallback(() => {
     dispatch({ type: UPDATING });
     setTimeout(() => {
-      assignCluster(activeCluster.id, macroCluster.id).then((microCluster) => {
-        dispatch({
-          type: ASSIGN_TO_MACRO_CLUSTER,
-          payload: microCluster
+      assignCluster(activeCluster.id, macroCluster.id)
+        .then((microCluster) => {
+          dispatch({
+            type: ASSIGN_TO_MACRO_CLUSTER,
+            payload: microCluster
+          });
+          afterAssign(microCluster);
+        })
+        .catch((error) => {
+          console.error("Assignment failed:", error);
         });
-        afterAssign(microCluster);
-      });
     }, 10);
   }, [activeCluster.id, afterAssign, dispatch, macroCluster.id, assignCluster]);
   useEffect(() => {

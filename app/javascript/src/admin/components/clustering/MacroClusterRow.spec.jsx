@@ -437,17 +437,30 @@ describe("MacroClusterRow", () => {
     it("handles assignCluster promise rejection gracefully", async () => {
       const user = userEvent.setup();
       const consoleErrorSpy = jest.spyOn(console, "error").mockImplementation(() => {});
-      mockAssignCluster.mockRejectedValue(new Error("Assignment failed"));
+
+      // Mock the assignCluster to return a rejected promise
+      mockAssignCluster.mockImplementation(
+        () =>
+          new Promise((resolve, reject) => {
+            setTimeout(() => reject(new Error("Assignment failed")), 0);
+          })
+      );
 
       renderWithContext();
 
       const assignButton = screen.getByRole("button", { name: "Assign" });
       await user.click(assignButton);
 
-      // Wait a bit to let any promises settle, then verify component is still intact
-      await waitFor(() => {
-        expect(screen.getByRole("button", { name: "Assign" })).toBeInTheDocument();
-      });
+      // Wait for the setTimeout (10ms) + promise rejection to be handled
+      await waitFor(
+        () => {
+          expect(consoleErrorSpy).toHaveBeenCalledWith("Assignment failed:", expect.any(Error));
+        },
+        { timeout: 1000 }
+      );
+
+      // Verify component is still intact
+      expect(screen.getByRole("button", { name: "Assign" })).toBeInTheDocument();
 
       consoleErrorSpy.mockRestore();
     });
