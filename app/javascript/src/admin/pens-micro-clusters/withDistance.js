@@ -29,10 +29,16 @@ const dist = (macroClusterInks, microClusterInks) => {
 };
 
 const minLev = (str1, str2) => {
-  return Math.min(levenshtein.get(str1, str2), levenshtein.get(stripped(str1), stripped(str2)));
+  const safeStr1 = str1 || "";
+  const safeStr2 = str2 || "";
+  return Math.min(
+    levenshtein.get(safeStr1, safeStr2),
+    levenshtein.get(stripped(safeStr1), stripped(safeStr2))
+  );
 };
 
 const stripped = (str) => {
+  if (!str) return "";
   return str
     .replace(/-/i, "")
     .replace(/(\([^)]*\))/i, "")
