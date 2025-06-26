@@ -8,17 +8,11 @@ RSpec.describe PenAndInkSuggester do
 
   # Create test data
   let!(:collected_pen_1) do
-    pen = create(:collected_pen, user: user, brand: "Pilot", model: "Custom 74", nib: "M")
-    # Ensure pen is not currently inked
-    pen.currently_inkeds.destroy_all
-    pen
+    create(:collected_pen, user: user, brand: "Pilot", model: "Custom 74", nib: "M")
   end
 
   let!(:collected_pen_2) do
-    pen = create(:collected_pen, user: user, brand: "LAMY", model: "Safari", nib: "F")
-    # Ensure pen is not currently inked
-    pen.currently_inkeds.destroy_all
-    pen
+    create(:collected_pen, user: user, brand: "LAMY", model: "Safari", nib: "F")
   end
 
   let!(:collected_ink_1) do
@@ -31,11 +25,9 @@ RSpec.describe PenAndInkSuggester do
         kind: "bottle"
       )
     # Ensure ink has proper cluster data to avoid nil errors
-    if ink.micro_cluster.blank?
-      macro_cluster = create(:macro_cluster, tags: %w[blue water-based])
-      micro_cluster = create(:micro_cluster, macro_cluster: macro_cluster)
-      ink.update!(micro_cluster: micro_cluster)
-    end
+    macro_cluster = create(:macro_cluster, tags: %w[blue water-based])
+    micro_cluster = create(:micro_cluster, macro_cluster: macro_cluster)
+    ink.update!(micro_cluster: micro_cluster)
     ink
   end
 
@@ -49,11 +41,9 @@ RSpec.describe PenAndInkSuggester do
         kind: "cartridge"
       )
     # Ensure ink has proper cluster data to avoid nil errors
-    if ink.micro_cluster.blank?
-      macro_cluster = create(:macro_cluster, tags: %w[blue cartridge])
-      micro_cluster = create(:micro_cluster, macro_cluster: macro_cluster)
-      ink.update!(micro_cluster: micro_cluster)
-    end
+    macro_cluster = create(:macro_cluster, tags: %w[blue cartridge])
+    micro_cluster = create(:micro_cluster, macro_cluster: macro_cluster)
+    ink.update!(micro_cluster: micro_cluster)
     ink
   end
 
@@ -131,19 +121,6 @@ RSpec.describe PenAndInkSuggester do
     end
 
     before(:each) do
-      # Ensure test data is clean
-      collected_pen_1.currently_inkeds.destroy_all
-      collected_pen_2.currently_inkeds.destroy_all
-      collected_ink_1.currently_inkeds.destroy_all
-      collected_ink_2.currently_inkeds.destroy_all
-
-      # Ensure inks have proper cluster data
-      unless collected_ink_1.micro_cluster&.macro_cluster&.tags
-        macro_cluster = create(:macro_cluster, tags: %w[blue water-based])
-        micro_cluster = create(:micro_cluster, macro_cluster: macro_cluster)
-        collected_ink_1.update!(micro_cluster: micro_cluster)
-      end
-
       stub_request(:post, "https://api.openai.com/v1/chat/completions").to_return(
         status: 200,
         body: successful_openai_response.to_json,
@@ -289,25 +266,6 @@ RSpec.describe PenAndInkSuggester do
 
   describe "data formatting" do
     before(:each) do
-      # Ensure test data is clean
-      collected_pen_1.currently_inkeds.destroy_all
-      collected_pen_2.currently_inkeds.destroy_all
-      collected_ink_1.currently_inkeds.destroy_all
-      collected_ink_2.currently_inkeds.destroy_all
-
-      # Ensure inks have proper cluster data
-      unless collected_ink_1.micro_cluster&.macro_cluster&.tags
-        macro_cluster = create(:macro_cluster, tags: %w[blue water-based])
-        micro_cluster = create(:micro_cluster, macro_cluster: macro_cluster)
-        collected_ink_1.update!(micro_cluster: micro_cluster)
-      end
-
-      unless collected_ink_2.micro_cluster&.macro_cluster&.tags
-        macro_cluster = create(:macro_cluster, tags: %w[blue cartridge])
-        micro_cluster = create(:micro_cluster, macro_cluster: macro_cluster)
-        collected_ink_2.update!(micro_cluster: micro_cluster)
-      end
-
       stub_request(:post, "https://api.openai.com/v1/chat/completions").to_return(
         status: 200,
         body: successful_openai_response.to_json,
@@ -464,18 +422,7 @@ RSpec.describe PenAndInkSuggester do
   end
 
   describe "integration test" do
-    let!(:macro_cluster) { create(:macro_cluster, tags: %w[blue integration]) }
-    let!(:micro_cluster) { create(:micro_cluster, macro_cluster: macro_cluster) }
-
     before(:each) do
-      # Ensure test data is clean
-      collected_pen_1.currently_inkeds.destroy_all
-      collected_pen_2.currently_inkeds.destroy_all
-      collected_ink_1.currently_inkeds.destroy_all
-      collected_ink_2.currently_inkeds.destroy_all
-
-      collected_ink_1.update!(micro_cluster: micro_cluster)
-
       stub_request(:post, "https://api.openai.com/v1/chat/completions").to_return(
         status: 200,
         body: successful_openai_response.to_json,
