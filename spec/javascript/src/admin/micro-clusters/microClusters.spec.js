@@ -1,4 +1,4 @@
-import { getMicroClusters } from "./microClusters";
+import { getMicroClusters } from "admin/micro-clusters/microClusters";
 
 import { rest } from "msw";
 import { setupServer } from "msw/node";

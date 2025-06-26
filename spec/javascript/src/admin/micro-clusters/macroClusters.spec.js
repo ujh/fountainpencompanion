@@ -1,4 +1,4 @@
-import { getMacroClusters } from "./macroClusters";
+import { getMacroClusters } from "admin/micro-clusters/macroClusters";
 
 import { rest } from "msw";
 import { setupServer } from "msw/node";

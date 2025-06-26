@@ -1,4 +1,4 @@
-import { groupedInks } from "./groupedInks";
+import { groupedInks } from "admin/micro-clusters/groupedInks";
 
 describe("groupedInks", () => {
   it("returns only unique inks", () => {
