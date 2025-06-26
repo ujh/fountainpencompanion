@@ -139,8 +139,8 @@ class PenAndInkSuggester
             last_usage,
             ink.usage_count,
             ink.daily_usage_count,
-            ink.cluster_tags.join(","),
-            ink.cluster_description
+            (ink.cluster_tags || []).join(","),
+            ink.cluster_description || ""
           ]
         end
     end
