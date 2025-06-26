@@ -1,4 +1,5 @@
 .yarn
+.ruby-lsp
 coverage/
 app/assets/builds/
 node_modules/

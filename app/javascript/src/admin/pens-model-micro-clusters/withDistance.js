@@ -15,7 +15,8 @@ export const withDistance = (macroClusters, activeCluster) => {
 
 const dist = (macroClusterInks, microClusterInks) => {
   const calc1 = (c1, c2) => minLev(c1.brand, c2.brand) + minLev(c1.model, c2.model);
-  const calc2 = (c1, c2) => minLev([c1.brand, c1.model].join(""), [c2.brand, c2.model].join(""));
+  const calc2 = (c1, c2) =>
+    minLev([c1.brand || "", c1.model || ""].join(""), [c2.brand || "", c2.model || ""].join(""));
   const calc3 = (c1, c2) => minLev(c1.brand, c2.brand) + minLev(c1.model, c2.model);
 
   let minDistance = Number.MAX_SAFE_INTEGER;
@@ -29,10 +30,16 @@ const dist = (macroClusterInks, microClusterInks) => {
 };
 
 const minLev = (str1, str2) => {
-  return Math.min(levenshtein.get(str1, str2), levenshtein.get(stripped(str1), stripped(str2)));
+  const safeStr1 = str1 || "";
+  const safeStr2 = str2 || "";
+  return Math.min(
+    levenshtein.get(safeStr1, safeStr2),
+    levenshtein.get(stripped(safeStr1), stripped(safeStr2))
+  );
 };
 
 const stripped = (str) => {
+  if (!str) return "";
   return str
     .replace(/-/i, "")
     .replace(/(\([^)]*\))/i, "")
