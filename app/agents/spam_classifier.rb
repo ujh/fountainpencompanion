@@ -16,7 +16,7 @@ class SpamClassifier
   end
 
   def spam?
-    agent_log.extra_data["spam"]
+    agent_log.extra_data&.[]("spam")
   end
 
   def agent_log

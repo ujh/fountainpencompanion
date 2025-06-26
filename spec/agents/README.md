@@ -6,6 +6,50 @@ This directory contains tests for AI agents used in the Fountain Pen Companion a
 
 The `PenAndInkSuggester` agent uses OpenAI's GPT to suggest fountain pen and ink combinations based on user preferences and usage history.
 
+## SpamClassifier Tests
+
+The `SpamClassifier` agent uses OpenAI's GPT-4o-mini to classify user accounts as spam or legitimate based on email, name, blurb, and timezone patterns compared to existing spam and normal account examples.
+
+### SpamClassifier Test Coverage
+
+The test suite (`spam_classifier_spec.rb`) covers:
+
+#### Initialization & Setup
+
+- Agent creation with target user for classification
+- Agent log creation and persistence
+- System prompt initialization with spam detection instructions
+
+#### OpenAI Integration
+
+- **HTTP Request Validation**: Ensures correct data is sent to OpenAI API
+- **Response Handling**: Tests spam and normal classification responses
+- **Error Handling**: API failures, malformed responses, unexpected formats
+- **Model Configuration**: Verifies use of gpt-4o-mini model
+
+#### Data Generation & CSV Formatting
+
+- **Training Data**: Provides spam and normal account examples in CSV format
+- **Data Limits**: Respects 50-account limits for both spam and normal examples
+- **User Filtering**: Excludes users with `review_blurb: true`
+- **Empty Blurb Handling**: Excludes normal users with empty blurbs from training data
+- **Special Characters**: Handles quotes, commas, and special characters in user data
+- **Randomization**: Shuffles normal accounts for varied training examples
+
+#### Classification Functions
+
+- **Spam Classification**: `classify_as_spam` function with explanation
+- **Normal Classification**: `classify_as_normal` function with explanation
+- **Function Parameters**: Validates explanation_of_action parameter
+- **State Management**: Updates agent log with classification results
+
+#### Business Logic Validation
+
+- **Spam Detection**: Correctly identifies and stores spam classifications
+- **Normal Classification**: Properly handles legitimate user classifications
+- **Explanation Storage**: Captures reasoning for classification decisions
+- **Agent State**: Sets state to "waiting-for-approval" after classification
+
 ### Testing Philosophy
 
 These tests follow best practices by:
@@ -121,14 +165,20 @@ docker-compose exec app bundle exec rspec spec/agents/
 # Run only PenAndInkSuggester tests
 docker-compose exec app bundle exec rspec spec/agents/pen_and_ink_suggester_spec.rb
 
+# Run only SpamClassifier tests
+docker-compose exec app bundle exec rspec spec/agents/spam_classifier_spec.rb
+
 # Run with detailed output
 docker-compose exec app bundle exec rspec spec/agents/pen_and_ink_suggester_spec.rb --format documentation
 
 # Run specific test scenarios
 docker-compose exec app bundle exec rspec spec/agents/pen_and_ink_suggester_spec.rb -e "excludes currently inked pens"
+docker-compose exec app bundle exec rspec spec/agents/spam_classifier_spec.rb -e "classifies as spam"
 ```
 
 ### Test Structure
+
+#### PenAndInkSuggester Structure
 
 ```
 describe PenAndInkSuggester do
@@ -158,6 +208,42 @@ describe PenAndInkSuggester do
 end
 ```
 
+#### SpamClassifier Structure
+
+```
+describe SpamClassifier do
+  describe "#initialize" do
+    # Tests agent setup and user assignment
+  end
+
+  describe "#spam?" do
+    # Tests classification result retrieval
+  end
+
+  describe "#perform" do
+    context "when classified as spam" do
+      # Spam detection scenarios
+    end
+
+    context "when classified as normal" do
+      # Normal user classification scenarios
+    end
+  end
+
+  describe "data formatting" do
+    # CSV generation and user data filtering tests
+  end
+
+  describe "error handling" do
+    # API error and malformed response scenarios
+  end
+
+  describe "integration scenarios" do
+    # End-to-end classification workflows
+  end
+end
+```
+
 ### Dependencies
 
 - **WebMock**: HTTP request stubbing
@@ -174,6 +260,15 @@ end
 5. **Clear Test Names**: Descriptive scenario-based test descriptions
 6. **Realistic Data**: Uses factories to create realistic test scenarios
 
+### Key SpamClassifier Test Scenarios
+
+1. **Spam Classification**: OpenAI calls `classify_as_spam` with explanation
+2. **Normal Classification**: OpenAI calls `classify_as_normal` with explanation
+3. **Data Validation**: Ensures proper CSV formatting with spam/normal examples
+4. **Filtering Logic**: Excludes inappropriate users from training data
+5. **Error Handling**: Invalid responses, API failures, malformed JSON
+6. **Integration Testing**: Complete classification workflows with state management
+
 ### Notes
 
 - Tests must be run via Docker using `docker-compose exec app bundle exec rspec`
@@ -181,4 +276,6 @@ end
 - PostgreSQL database setup is handled by Docker
 - WebMock prevents actual HTTP requests during testing
 - All test data is created using FactoryBot factories
-- The agent uses the Raix gem for AI function calling integration
+- The agents use the Raix gem for AI function calling integration
+- SpamClassifier uses gpt-4o-mini model for cost-effective spam detection
+- Test data includes realistic spam and normal user patterns for accurate classification
