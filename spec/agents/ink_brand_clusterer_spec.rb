@@ -97,12 +97,6 @@ RSpec.describe InkBrandClusterer do
     it "creates agent with macro cluster" do
       clusterer = described_class.new(macro_cluster.id)
       expect(clusterer.send(:macro_cluster)).to eq(macro_cluster)
-      expect(clusterer.send(:evaluating)).to be false
-    end
-
-    it "accepts evaluating parameter" do
-      clusterer = described_class.new(macro_cluster.id, evaluating: true)
-      expect(clusterer.send(:evaluating)).to be true
     end
 
     it "initializes transcript with system directive" do
@@ -178,13 +172,6 @@ RSpec.describe InkBrandClusterer do
         macro_cluster.reload
         expect(macro_cluster.brand_cluster).to eq(existing_brand_cluster)
       end
-
-      it "does not assign macro cluster when evaluating" do
-        clusterer = described_class.new(macro_cluster.id, evaluating: true)
-        clusterer.perform
-        macro_cluster.reload
-        expect(macro_cluster.brand_cluster).to be_nil
-      end
     end
 
     context "when AI decides to create new brand cluster" do
@@ -242,17 +229,6 @@ RSpec.describe InkBrandClusterer do
         expect(BrandCluster.count).to eq(initial_brand_cluster_count + 1)
         expect(unique_macro_cluster.brand_cluster).to be_present
         expect(unique_macro_cluster.brand_cluster.name).to eq(unique_macro_cluster.brand_name)
-      end
-
-      it "does not create brand cluster or assign when evaluating" do
-        clusterer = described_class.new(unique_macro_cluster.id, evaluating: true)
-        initial_brand_cluster_count = BrandCluster.count
-
-        clusterer.perform
-        unique_macro_cluster.reload
-
-        expect(BrandCluster.count).to eq(initial_brand_cluster_count)
-        expect(unique_macro_cluster.brand_cluster).to be_nil
       end
     end
 
@@ -394,22 +370,6 @@ RSpec.describe InkBrandClusterer do
       expect(parsed_data).to have_key("name")
       expect(parsed_data).to have_key("name_details")
       # Synonyms field is optional based on whether synonyms exist
-    end
-  end
-
-  describe "evaluating mode" do
-    let(:evaluating_clusterer) { described_class.new(macro_cluster.id, evaluating: true) }
-
-    it "filters brand data when evaluating" do
-      user_messages = evaluating_clusterer.transcript.select { |msg| msg[:user] }
-      brands_data = user_messages.last[:user]
-
-      parsed_data =
-        JSON.parse(brands_data.gsub("The following brands are already present in the system: ", ""))
-
-      # In evaluating mode, the system should filter out the current brand
-      # from the list of existing brands to avoid bias
-      expect(parsed_data).to be_an(Array)
     end
   end
 
