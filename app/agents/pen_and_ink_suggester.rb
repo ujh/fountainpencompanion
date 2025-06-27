@@ -7,9 +7,8 @@ class PenAndInkSuggester
 
   LIMIT = 200
 
-  def initialize(user, ink_kind, extra_user_input = nil)
+  def initialize(user, extra_user_input = nil)
     self.user = user
-    self.ink_kind = ink_kind
     self.extra_user_input = extra_user_input
     transcript << { user: prompt }
     transcript << { user: extra_user_prompt } if extra_user_input.present?
@@ -66,7 +65,7 @@ class PenAndInkSuggester
 
   private
 
-  attr_accessor :user, :ink_kind, :message, :ink_id, :pen_id, :extra_user_input
+  attr_accessor :user, :message, :ink_id, :pen_id, :extra_user_input
 
   def prompt
     <<~MESSAGE
@@ -167,7 +166,7 @@ class PenAndInkSuggester
             },
             newest_currently_inked: :last_usage
           )
-        rel = rel.where(kind: ink_kind) if ink_kind.present?
+
         rel
       end
   end

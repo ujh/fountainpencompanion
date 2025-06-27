@@ -3,7 +3,7 @@ require "rails_helper"
 RSpec.describe PenAndInkSuggester do
   before(:each) { WebMock.reset! }
   let(:user) { create(:user) }
-  let(:ink_kind) { "bottle" }
+
   let(:extra_user_input) { "Please suggest something blue" }
 
   # Create test data
@@ -47,23 +47,18 @@ RSpec.describe PenAndInkSuggester do
     ink
   end
 
-  subject { described_class.new(user, ink_kind, extra_user_input) }
+  subject { described_class.new(user, extra_user_input) }
 
   describe "#initialize" do
     it "creates agent with user and preferences" do
-      suggester = described_class.new(user, ink_kind, extra_user_input)
+      suggester = described_class.new(user, extra_user_input)
       expect(suggester.agent_log.owner).to eq(user)
       expect(suggester.agent_log.name).to eq("PenAndInkSuggester")
       expect(suggester.agent_log).to be_persisted
     end
 
     it "works without extra user input" do
-      suggester = described_class.new(user, ink_kind, nil)
-      expect(suggester.agent_log.owner).to eq(user)
-    end
-
-    it "works without ink kind filter" do
-      suggester = described_class.new(user, nil, extra_user_input)
+      suggester = described_class.new(user, nil)
       expect(suggester.agent_log.owner).to eq(user)
     end
   end
@@ -214,7 +209,7 @@ RSpec.describe PenAndInkSuggester do
     end
 
     context "without extra user input" do
-      subject { described_class.new(user, ink_kind, nil) }
+      subject { described_class.new(user, nil) }
 
       it "sends only main prompt" do
         subject.perform
@@ -229,26 +224,8 @@ RSpec.describe PenAndInkSuggester do
       end
     end
 
-    context "with ink kind filter" do
-      it "filters inks by specified kind" do
-        subject.perform
-
-        expect(WebMock).to have_requested(:post, "https://api.openai.com/v1/chat/completions")
-          .with { |req|
-            body = JSON.parse(req.body)
-            content = body["messages"].first["content"]
-            expect(content).to include(collected_ink_1.ink_name) # bottle
-            expect(content).not_to include(collected_ink_2.ink_name) # cartridge
-            true
-          }
-          .at_least_once
-      end
-    end
-
-    context "without ink kind filter" do
-      subject { described_class.new(user, nil, extra_user_input) }
-
-      it "includes all ink types" do
+    context "includes all ink types" do
+      it "includes both bottle and cartridge inks" do
         subject.perform
 
         expect(WebMock).to have_requested(:post, "https://api.openai.com/v1/chat/completions")
