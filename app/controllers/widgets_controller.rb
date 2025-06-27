@@ -118,7 +118,6 @@ class WidgetsController < ApplicationController
     RequestPenAndInkSuggestion.new(
       user: current_user,
       suggestion_id: params[:suggestion_id].presence,
-      ink_kind: params[:ink_kind].presence,
       extra_user_input: params[:extra_user_input].presence
     ).perform
   end

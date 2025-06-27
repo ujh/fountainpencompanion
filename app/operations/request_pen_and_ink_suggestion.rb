@@ -1,8 +1,8 @@
 class RequestPenAndInkSuggestion
-  def initialize(user:, suggestion_id: nil, ink_kind: nil, extra_user_input: nil)
+  def initialize(user:, suggestion_id: nil, extra_user_input: nil)
     self.suggestion_id = suggestion_id
     self.user = user
-    self.ink_kind = ink_kind
+
     self.extra_user_input = extra_user_input
   end
 
@@ -17,19 +17,14 @@ class RequestPenAndInkSuggestion
       suggestion
     else
       new_suggestion_id = generate_suggestion_id
-      SchedulePenAndInkSuggestion.perform_async(
-        user.id,
-        new_suggestion_id,
-        ink_kind,
-        extra_user_input
-      )
+      SchedulePenAndInkSuggestion.perform_async(user.id, new_suggestion_id, extra_user_input)
       { suggestion_id: new_suggestion_id }
     end
   end
 
   private
 
-  attr_accessor :suggestion_id, :user, :ink_kind, :extra_user_input
+  attr_accessor :suggestion_id, :user, :extra_user_input
 
   def generate_suggestion_id
     prefix = self.class.name.underscore.dasherize
