@@ -1,6 +1,6 @@
 source "https://rubygems.org"
 
-ruby "3.3.6"
+ruby "3.4.4"
 
 git_source(:github) do |repo_name|
   repo_name = "#{repo_name}/#{repo_name}" unless repo_name.include?("/")
@@ -13,6 +13,7 @@ gem "bcrypt"
 gem "bootsnap"
 gem "breadcrumbs_on_rails"
 gem "color"
+gem "csv"
 gem "devise"
 gem "devise-passwordless"
 gem "differ"
