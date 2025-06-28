@@ -1115,7 +1115,8 @@ CREATE TABLE public.you_tube_channels (
     channel_id character varying NOT NULL,
     back_catalog_imported boolean DEFAULT false,
     created_at timestamp(6) without time zone NOT NULL,
-    updated_at timestamp(6) without time zone NOT NULL
+    updated_at timestamp(6) without time zone NOT NULL,
+    ignored boolean DEFAULT false
 );
 
 
@@ -2299,6 +2300,7 @@ ALTER TABLE ONLY public.collected_inks
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20250628053707'),
 ('20250529143609'),
 ('20250524113956'),
 ('20250514055126'),
@@ -2476,3 +2478,4 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20170502060458'),
 ('20170502055847'),
 ('20170424062404');
+

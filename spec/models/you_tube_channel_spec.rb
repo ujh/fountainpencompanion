@@ -30,5 +30,11 @@ describe YouTubeChannel do
       channel = create(:you_tube_channel)
       expect(described_class.channel_ids_for_reviews).to eq([])
     end
+
+    it "does not return an ignored channel even with enough approved reviews" do
+      channel = create(:you_tube_channel, ignored: true)
+      create_list(:ink_review, 3, you_tube_channel: channel, approved_at: Time.now)
+      expect(described_class.channel_ids_for_reviews).to eq([])
+    end
   end
 end

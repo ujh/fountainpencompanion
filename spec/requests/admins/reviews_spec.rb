@@ -60,6 +60,17 @@ describe "Admins::Reviews" do
           ink_review.reload.rejected?
         }.from(false).to(true)
       end
+
+      it "ignores the YouTube channel when rejecting a review with ignore_youtube_channel param" do
+        youtube_channel = create(:you_tube_channel, ignored: false)
+        ink_review_with_channel = create(:ink_review, you_tube_channel: youtube_channel)
+
+        expect do
+          delete "/admins/reviews/#{ink_review_with_channel.id}?ignore_youtube_channel=true"
+        end.to change { youtube_channel.reload.ignored? }.from(false).to(true)
+
+        expect(ink_review_with_channel.reload.rejected?).to be true
+      end
     end
   end
 end
