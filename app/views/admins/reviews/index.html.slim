@@ -42,6 +42,8 @@ table class="table table-striped"
     dd class="col-sm-9"
       = link_to "Approve",  admins_review_path(ink_review, page: params[:page]), method: :put, class: 'btn btn-success me-2'
       = link_to "Reject", admins_review_path(ink_review, page: params[:page]), method: :delete, class: 'btn btn-secondary'
+      - if ink_review.you_tube_channel.present?
+        = link_to "Reject AND ingore channel", admins_review_path(ink_review, page: params[:page]), method: :delete, params: { ignore_youtube_channel: true }, class: 'btn btn-secondary mw-2'
 
     - if ink_review.extra_data.present?
       dt class="col-sm-3" Extra Data
