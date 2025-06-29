@@ -15,7 +15,8 @@ class ReviewFinder
        Be strict about this: the page or video should be primarily about inks,
        not just a passing mention or a small section about inks. Err on the
        side of caution and only consider pages or videos that are clearly
-       focused on inks.
+       focused on inks. "Currently inked" style videos or pages should not
+       be considered, as they are not primarily about inks.
     3. If they are, find the inks in the internal database using the similarity
        search and submit a review for them.
     4. If the page or video does not contain reviews of inks, do not submit any
