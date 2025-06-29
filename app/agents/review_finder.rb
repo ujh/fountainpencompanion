@@ -12,6 +12,10 @@ class ReviewFinder
 
     1. Determine if the page or video contains reviews of fountain pen inks.
     2. If it does, determine if the inks are the main focus of the page or video.
+       Be strict about this: the page or video should be primarily about inks,
+       not just a passing mention or a small section about inks. Err on the
+       side of caution and only consider pages or videos that are clearly
+       focused on inks.
     3. If they are, find the inks in the internal database using the similarity
        search and submit a review for them.
     4. If the page or video does not contain reviews of inks, do not submit any
