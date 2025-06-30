@@ -56,7 +56,10 @@ describe CollectedInksController do
               "Archived",
               "Usage",
               "Tags",
-              "Date Added"
+              "Date Added",
+              "Maker",
+              "Daily Usage",
+              "Last Usage"
             ]
             user_inks.each do |ci|
               csv << [
@@ -72,7 +75,10 @@ describe CollectedInksController do
                 ci.archived?,
                 ci.currently_inkeds.count,
                 ci.tags_as_string,
-                ci.created_at.to_date.to_s
+                ci.created_at.to_date.to_s,
+                ci.maker,
+                ci.usage_records.size,
+                ci.last_used_on&.to_date.to_s
               ]
             end
           end

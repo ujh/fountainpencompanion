@@ -152,7 +152,10 @@ class CollectedInk < ApplicationRecord
         "Archived",
         "Usage",
         "Tags",
-        "Date Added"
+        "Date Added",
+        "Maker",
+        "Daily Usage",
+        "Last Usage"
       ]
       all.each do |ci|
         csv << [
@@ -168,7 +171,10 @@ class CollectedInk < ApplicationRecord
           ci.archived?,
           ci.currently_inkeds.length,
           ci.tags_as_string,
-          ci.created_at.to_date.to_s
+          ci.created_at.to_date.to_s,
+          ci.maker,
+          ci.usage_records.size,
+          ci.last_used_on&.to_date.to_s
         ]
       end
     end
