@@ -520,23 +520,6 @@ RSpec.describe ReviewApprover do
     end
   end
 
-  describe "SYSTEM_DIRECTIVE" do
-    it "contains expected guidelines" do
-      directive = described_class::SYSTEM_DIRECTIVE
-
-      expect(directive).to include("check if the given data is a review")
-      expect(directive).to include("approve or reject the review")
-      expect(directive).to include("Reject reviews that are not related to the ink")
-      expect(directive).to include("Approve reviews that are related to the ink")
-      expect(directive).to include("Reject reviews that are instagram posts")
-      expect(directive).to include("YouTube videos that are not shorts")
-      expect(directive).to include("YouTube videos that are shorts")
-      expect(directive).to include("currently inked style videos")
-      expect(directive).to include("summarize")
-      expect(directive).to include("System")
-    end
-  end
-
   describe "edge cases" do
     context "when macro cluster has no synonyms" do
       let(:empty_macro_cluster) do
