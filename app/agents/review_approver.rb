@@ -10,10 +10,10 @@ class ReviewApprover
     * Reject reviews that are not related to the ink.
     * Approve reviews that are related to the ink.
     * Reject reviews that are instagram posts.
+    * Reject reviews that are unboxing, currently inked, or live videos or blog posts
+      UNLESS the ink in question has no reviews at all.
     * For YouTube videos that are not shorts, approve the review if it is related to the ink.
     * For YouTube videos that are shorts, approve the review if it is related to the ink AND there are no reviews for the ink, yet.
-    * Reject reviews that are from currently inked style videos or blog posts
-      UNLESS the ink in question has no reviews at all.
     * Before rejecting a review that was not submitted by "System", double check with the `summarize` function
       that the ink does not appear in the review, after all.
     * Reviews that are not submitted by user "System" have a higher likelihood of being correct.
@@ -75,7 +75,14 @@ class ReviewApprover
       thumbnail_url: review.image,
       host: review.host,
       author: review.author,
-      user: review.user.admin? ? "System" : (review.user.name.presence || review.user.email)
+      user:
+        (
+          if review.user.admin?
+            "System"
+          else
+            (review.user.name.presence || review.user.email)
+          end
+        )
     }
     if review.you_tube_channel
       data[:is_you_tube_video] = true
