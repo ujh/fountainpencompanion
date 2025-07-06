@@ -68,8 +68,8 @@ class InkClusterer
     if micro_cluster.collected_inks.present?
       chat_completion(openai: "gpt-4.1")
       agent_log.update!(extra_data: extra_data)
-      schedule_follow_up!
       agent_log.waiting_for_approval!
+      schedule_follow_up!
     else
       agent_log.update(
         extra_data: {
