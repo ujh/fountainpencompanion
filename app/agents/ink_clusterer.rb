@@ -95,13 +95,17 @@ class InkClusterer
         CheckInkClustering::Human
       end
 
-    return if follow_up_agent.nil?
+    if follow_up_agent.present?
+      extra_data[:follow_up_agent] = follow_up_agent.name
+      agent_log.update!(extra_data: extra_data)
 
-    extra_data[:follow_up_agent] = follow_up_agent.name
-    agent_log.update!(extra_data: extra_data)
-
-    follow_up = extra_data[:follow_up_agent]
-    RunInkClustererAgent.perform_async(follow_up, agent_log.id)
+      follow_up = extra_data[:follow_up_agent]
+      RunInkClustererAgent.perform_async(follow_up, agent_log.id)
+    else
+      # No extra data, so something went wrong and it's best to try again.
+      agent_log.destroy
+      RunInkClustererAgent.perform_async("InkClusterer", micro_cluster.id)
+    end
   end
 
   def reject!(agent: false)
