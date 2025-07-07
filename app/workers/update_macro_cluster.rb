@@ -58,7 +58,7 @@ class UpdateMacroCluster
     colors = cluster.collected_inks.with_color.pluck(:color).map { |c| Color::RGB.from_html(c) }
     return if colors.blank?
 
-    average = Color::RGB.new(*%i[red green blue].map { |f| average_for(colors, f) }).html
+    average = Color::RGB.from_values(*%i[red green blue].map { |f| average_for(colors, f) }).html
     cluster.color = average
   end
 
