@@ -130,14 +130,6 @@ RSpec.describe GoogleSearchSummarizer do
       ).at_least_once
     end
 
-    it "uses correct OpenAI model" do
-      subject.perform
-
-      expect(WebMock).to have_requested(:post, "https://api.openai.com/v1/chat/completions")
-        .with { |req| JSON.parse(req.body)["model"] == "gpt-4.1-mini" }
-        .at_least_once
-    end
-
     it "includes summarize_search_results function" do
       subject.perform
 

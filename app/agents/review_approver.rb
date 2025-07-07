@@ -33,7 +33,7 @@ class ReviewApprover
   end
 
   def perform
-    chat_completion(openai: "gpt-4.1-mini")
+    chat_completion(openai: "gpt-4o-mini")
     agent_log.update!(extra_data: ink_review.extra_data)
     agent_log.waiting_for_approval!
   end

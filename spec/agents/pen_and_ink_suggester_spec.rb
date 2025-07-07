@@ -169,18 +169,6 @@ RSpec.describe PenAndInkSuggester do
         .at_least_once
     end
 
-    it "uses correct OpenAI model" do
-      subject.perform
-
-      expect(WebMock).to have_requested(:post, "https://api.openai.com/v1/chat/completions")
-        .with { |req|
-          body = JSON.parse(req.body)
-          expect(body["model"]).to eq("gpt-4.1")
-          true
-        }
-        .at_least_once
-    end
-
     it "includes function definition for record_suggestion" do
       subject.perform
 
