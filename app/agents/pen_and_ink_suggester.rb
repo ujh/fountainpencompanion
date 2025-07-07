@@ -15,7 +15,7 @@ class PenAndInkSuggester
   end
 
   def perform
-    chat_completion(openai: "gpt-4.1-mini")
+    chat_completion(openai: "gpt-4.1")
     response =
       if [message, ink_id, pen_id].all?(&:present?)
         { message:, ink: ink_id, pen: pen_id }
