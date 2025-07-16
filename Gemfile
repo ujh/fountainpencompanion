@@ -43,7 +43,7 @@ gem "puma_worker_killer"
 gem "rack-attack"
 gem "rack-timeout"
 gem "rails-assets-select2", "4.0.13", source: "https://rails-assets.org" # Select2 4.0.6 breaks the currently inked page
-gem "raix", "1.0.1"
+gem "raix", "1.0.2"
 gem "redis"
 gem "rss"
 gem "ruby-progressbar"
