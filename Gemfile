@@ -74,7 +74,7 @@ group :development do
   gem "listen"
   gem "prettier_print", "~> 1.2"
   gem "ruby-lsp"
-  gem "syntax_tree", "~> 6.2"
+  gem "syntax_tree", "~> 6.3"
   gem "syntax_tree-haml", "~> 4.0"
   gem "syntax_tree-rbs", "~> 1.0.0"
   gem "web-console"
