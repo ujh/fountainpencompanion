@@ -547,7 +547,7 @@ GEM
     stringio (3.1.7)
     strong_migrations (2.4.0)
       activerecord (>= 7.1)
-    syntax_tree (6.2.0)
+    syntax_tree (6.3.0)
       prettier_print (>= 1.2.0)
     syntax_tree-haml (4.0.3)
       haml (>= 5.2)
@@ -655,7 +655,7 @@ DEPENDENCIES
   slodown
   sprockets-rails
   strong_migrations
-  syntax_tree (~> 6.2)
+  syntax_tree (~> 6.3)
   syntax_tree-haml (~> 4.0)
   syntax_tree-rbs (~> 1.0.0)
   user_agent_parser
