@@ -6218,10 +6218,10 @@ makeerror@1.0.12:
   dependencies:
     tmpl "1.0.5"
 
-match-sorter@^8.0.3:
-  version "8.0.3"
-  resolved "https://registry.yarnpkg.com/match-sorter/-/match-sorter-8.0.3.tgz#c9af7e427702852a5be7c27c7c5ed1b367a53faf"
-  integrity sha512-BnR/YBS1iO94R3EcseKkb7kJ2w2su5CWmywHvFYv70HQ2syqca79JefoGocMK+G1NOdpV2kt0G3uQb5hcdFtIA==
+match-sorter@^8.1.0:
+  version "8.1.0"
+  resolved "https://registry.yarnpkg.com/match-sorter/-/match-sorter-8.1.0.tgz#c15cb758aeb2eb981346f8a47ec24d814c85a7e3"
+  integrity sha512-0HX3BHPixkbECX+Vt7nS1vJ6P2twPgGTU3PMXjWrl1eyVCL24tFHeyYN1FN5RKLzve0TyzNI9qntqQGbebnfPQ==
   dependencies:
     "@babel/runtime" "^7.23.8"
     remove-accents "0.5.0"
