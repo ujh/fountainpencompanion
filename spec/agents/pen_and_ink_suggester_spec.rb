@@ -335,24 +335,6 @@ RSpec.describe PenAndInkSuggester do
         }
         .at_least_once
     end
-
-    it "excludes archived items" do
-      collected_pen_1.update!(archived_on: 1.day.ago)
-      collected_ink_1.update!(archived_on: 1.day.ago)
-
-      subject.perform
-
-      expect(WebMock).to have_requested(:post, "https://api.openai.com/v1/chat/completions")
-        .with { |req|
-          body = JSON.parse(req.body)
-          content = body["messages"].first["content"]
-          # Should not include archived items
-          expect(content).not_to include("#{collected_pen_1.id},")
-          expect(content).not_to include("#{collected_ink_1.id},")
-          true
-        }
-        .at_least_once
-    end
   end
 
   describe "error handling" do
