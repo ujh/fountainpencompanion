@@ -44,3 +44,6 @@ yarn-debug.log*
 
 .vscode
 .DS_Store
+
+# Crush local state
+.crush/
