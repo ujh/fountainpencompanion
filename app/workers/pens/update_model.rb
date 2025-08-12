@@ -23,7 +23,15 @@ module Pens
     def best_attr_value(attr)
       attr_values = model.collected_pens.map { |cp| cp.send(attr) }.find_all { |v| v.present? }
       return "" if attr_values.empty?
-      attr_values.tally.max_by { |_k, v| v }.first || ""
+      # From all values with the most members, pick the one with the longest,
+      # i.e most specific, name.
+      attr_values
+        .tally
+        .group_by(&:last)
+        .max_by { |k, v| k }
+        .last
+        .max_by { |k, v| k.length }
+        .first || ""
     end
 
     def update_embedding!
