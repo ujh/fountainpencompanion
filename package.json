@@ -57,7 +57,7 @@
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^15.0.7",
     "@testing-library/user-event": "^14.6.1",
-    "eslint": "^9.36.0",
+    "eslint": "^9.37.0",
     "eslint-plugin-prettier": "^5.5.4",
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^6.1.0",
