@@ -32,7 +32,7 @@ const ColorPicker = ({ input }) => {
           color={color}
           disableAlpha={true}
           onChange={(color) => {
-            input.value = color.hex;
+            input.value = color.hex; // eslint-disable-line react-hooks/immutability
             setColor(color.hex);
           }}
         />
