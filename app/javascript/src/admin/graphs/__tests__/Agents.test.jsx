@@ -71,7 +71,7 @@ describe("Agents component", () => {
           title: { text: "Agent executions per day" }
         })
       }),
-      {}
+      undefined
     );
   });
 });
