@@ -95,7 +95,7 @@
       "<rootDir>/config/"
     ],
     "transformIgnorePatterns": [
-      "node_modules/(?!(d3-scale-chromatic|d3-interpolate|d3-color)/)"
+      "node_modules/(?!(d3-scale-chromatic|d3-interpolate|d3-color|color-convert|color-name)/)"
     ]
   },
   "scripts": {
