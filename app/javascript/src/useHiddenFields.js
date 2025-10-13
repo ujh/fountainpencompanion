@@ -7,7 +7,7 @@ export const useHiddenFields = (storageKey, defaultHiddenFields) => {
   useEffect(() => {
     const fromLocalStorage = JSON.parse(storage.getItem(storageKey));
     if (fromLocalStorage) {
-      setHiddenFields(fromLocalStorage);
+      setHiddenFields(fromLocalStorage); // eslint-disable-line react-hooks/set-state-in-effect
       return;
     }
 
