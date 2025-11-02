@@ -23,6 +23,8 @@ class CheckInkClustering::Base
   end
 
   def perform
+    return unless micro_cluster_agent_log
+
     if micro_cluster.collected_inks.present?
       chat_completion(openai: "gpt-4.1")
     else
