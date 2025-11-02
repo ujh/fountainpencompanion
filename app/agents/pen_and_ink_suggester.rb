@@ -4,6 +4,7 @@ class PenAndInkSuggester
   include Raix::ChatCompletion
   include Raix::FunctionDispatch
   include AgentTranscript
+  include ConfigureToken
 
   LIMIT = 200
 
