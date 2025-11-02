@@ -1,9 +1,14 @@
 module ConfigureToken
   extend ActiveSupport::Concern
 
+  class_methods do
+    def token_name
+      "OPEN_AI_#{self.name.underscore.upcase}_TOKEN"
+    end
+  end
+
   included do
     configure do |config|
-      token_name = "OPEN_AI_#{self.name.underscore.upcase}_TOKEN"
       access_token =
         (
           if Rails.env.development?
