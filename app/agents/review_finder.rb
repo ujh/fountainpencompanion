@@ -3,6 +3,7 @@ class ReviewFinder
   include Raix::FunctionDispatch
   include AgentTranscript
   include InkSimilaritySearch
+  include ConfigureToken
 
   SYSTEM_DIRECTIVE = <<~TEXT
     You will be given details about a web page or Youtube video below. The page

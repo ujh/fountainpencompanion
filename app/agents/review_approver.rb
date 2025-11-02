@@ -2,6 +2,7 @@ class ReviewApprover
   include Raix::ChatCompletion
   include Raix::FunctionDispatch
   include AgentTranscript
+  include ConfigureToken
 
   SYSTEM_DIRECTIVE = <<~TEXT
     Your task is to check if the given data is a review of the ink specified or not.
