@@ -4,6 +4,7 @@ class UpdateMacroCluster
   def perform(id)
     # Load public collected inks for tag calculation
     self.cluster = MacroCluster.includes(public_collected_inks: :tags).find_by(id: id)
+    return unless cluster
     return if cluster.collected_inks.empty?
 
     update_color
