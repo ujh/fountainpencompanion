@@ -127,7 +127,7 @@ RSpec.describe SpamClassifier do
         "id" => "chatcmpl-123",
         "object" => "chat.completion",
         "created" => 1_677_652_288,
-        "model" => "gpt-4o-mini",
+        "model" => "gpt-4.1-mini",
         "choices" => [
           {
             "index" => 0,
@@ -164,7 +164,7 @@ RSpec.describe SpamClassifier do
         "id" => "chatcmpl-456",
         "object" => "chat.completion",
         "created" => 1_677_652_288,
-        "model" => "gpt-4o-mini",
+        "model" => "gpt-4.1-mini",
         "choices" => [
           {
             "index" => 0,
@@ -279,7 +279,7 @@ RSpec.describe SpamClassifier do
       expect(WebMock).to have_requested(:post, "https://api.openai.com/v1/chat/completions")
         .with { |req|
           body = JSON.parse(req.body)
-          expect(body["model"]).to eq("gpt-4o-mini")
+          expect(body["model"]).to eq("gpt-4.1-mini")
           true
         }
         .at_least_once
@@ -327,7 +327,7 @@ RSpec.describe SpamClassifier do
         "id" => "chatcmpl-789",
         "object" => "chat.completion",
         "created" => 1_677_652_288,
-        "model" => "gpt-4o-mini",
+        "model" => "gpt-4.1-mini",
         "choices" => [
           {
             "index" => 0,
@@ -615,7 +615,7 @@ RSpec.describe SpamClassifier do
             "id" => "chatcmpl-integration",
             "object" => "chat.completion",
             "created" => 1_677_652_288,
-            "model" => "gpt-4o-mini",
+            "model" => "gpt-4.1-mini",
             "choices" => [
               {
                 "index" => 0,
@@ -681,7 +681,7 @@ RSpec.describe SpamClassifier do
             "id" => "chatcmpl-normal",
             "object" => "chat.completion",
             "created" => 1_677_652_288,
-            "model" => "gpt-4o-mini",
+            "model" => "gpt-4.1-mini",
             "choices" => [
               {
                 "index" => 0,

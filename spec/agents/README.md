@@ -8,7 +8,7 @@ The `PenAndInkSuggester` agent uses OpenAI's GPT to suggest fountain pen and ink
 
 ## SpamClassifier Tests
 
-The `SpamClassifier` agent uses OpenAI's GPT-4o-mini to classify user accounts as spam or legitimate based on email, name, blurb, and timezone patterns compared to existing spam and normal account examples.
+The `SpamClassifier` agent uses OpenAI's gpt-4.1-mini to classify user accounts as spam or legitimate based on email, name, blurb, and timezone patterns compared to existing spam and normal account examples.
 
 ## InkClusterer Tests
 
@@ -81,7 +81,7 @@ The test suite (`spam_classifier_spec.rb`) covers:
 - **HTTP Request Validation**: Ensures correct data is sent to OpenAI API
 - **Response Handling**: Tests spam and normal classification responses
 - **Error Handling**: API failures, malformed responses, unexpected formats
-- **Model Configuration**: Verifies use of gpt-4o-mini model
+- **Model Configuration**: Verifies use of gpt-4.1-mini model
 
 #### Data Generation & CSV Formatting
 
@@ -597,7 +597,7 @@ The test suites (`check_ink_clustering/*_spec.rb`) cover:
 - All test data is created using FactoryBot factories
 - The agents use the Raix gem for AI function calling integration
 - InkClusterer uses gpt-4.1 model for complex clustering decisions
-- SpamClassifier uses gpt-4o-mini model for cost-effective spam detection
+- SpamClassifier uses gpt-4.1-mini model for cost-effective spam detection
 - CheckInkClustering agents use gpt-4.1 model for detailed review analysis
 - InkClusterer tests include realistic ink data with brands, colors, and clustering scenarios
 - Test data includes realistic spam and normal user patterns for accurate classification
