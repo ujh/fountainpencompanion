@@ -20,13 +20,13 @@ module Pens
       begin
         retried = false
         model.model = best_attr_value(:model, retried: retried)
+        model.save
       rescue ActiveRecord::RecordNotUnique
         raise if retried
 
         retried = true
         retry
       end
-      model.save
     end
 
     def best_attr_value(attr, retried: false)
