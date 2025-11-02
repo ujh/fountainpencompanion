@@ -26,6 +26,7 @@ module AgentTranscript
       entries.each { |e| @transcript << e }
       role = entries.first[:role]
       if role == "assistant"
+        @agent_log.usage["model"] = Thread.current[:chat_completion_response][:model]
         %w[prompt_tokens completion_tokens total_tokens].each do |key|
           @agent_log.usage[key] += Thread.current[:chat_completion_response]["usage"][key]
         end
