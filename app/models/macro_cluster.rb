@@ -112,6 +112,8 @@ class MacroCluster < ApplicationRecord
     clusters = Hash.new { |h, k| h[k] = OpenStruct.new(distance: 1.0, cluster: nil) }
     embeddings.each do |embedding|
       owner = embedding.owner
+      next unless owner
+
       cluster = owner.macro_cluster
       next unless cluster
 
