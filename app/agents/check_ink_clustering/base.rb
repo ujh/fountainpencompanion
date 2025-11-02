@@ -9,7 +9,9 @@ class CheckInkClustering::Base
   REJECT = "reject"
 
   def initialize(agent_log_id)
-    self.micro_cluster_agent_log = AgentLog.find(agent_log_id)
+    self.micro_cluster_agent_log = AgentLog.find_by(id: agent_log_id)
+    return unless micro_cluster_agent_log
+
     if agent_log.transcript.present?
       transcript.set!(agent_log.transcript)
     else
