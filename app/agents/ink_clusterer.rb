@@ -4,6 +4,7 @@ class InkClusterer
   include AgentTranscript
   include InkWebSearch
   include InkSimilaritySearch
+  include ConfigureToken
 
   SYSTEM_DIRECTIVE = <<~TEXT
     You are a clustering algorithm that groups similar inks together based on their properties.
