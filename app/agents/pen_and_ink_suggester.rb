@@ -33,17 +33,22 @@ class PenAndInkSuggester
   end
 
   function :record_suggestion,
+           "Output for the end user. Must contain a markdown formatted suggestion for a pen and ink combination,
+    along with the IDs of the suggested pen and ink.",
            suggestion: {
              type: "string",
-             description: "Markdown formatted pen and ink suggestion"
+             description: "Markdown formatted pen and ink suggestion",
+             required: true
            },
            ink_id: {
              type: "integer",
-             description: "ID of the suggested ink"
+             description: "ID of the suggested ink",
+             required: true
            },
            pen_id: {
              type: "integer",
-             description: "ID of the suggested pen"
+             description: "ID of the suggested pen",
+             required: true
            } do |arguments|
     self.message = arguments[:suggestion]
     self.ink_id = arguments[:ink_id]
@@ -139,7 +144,7 @@ class PenAndInkSuggester
             last_usage,
             ink.usage_count,
             ink.daily_usage_count,
-            (ink.cluster_tags || []).join(","),
+            (ink.tags + ink.cluster_tags).uniq.join(","),
             ink.cluster_description || ""
           ]
         end
