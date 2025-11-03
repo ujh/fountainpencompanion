@@ -33,17 +33,22 @@ class PenAndInkSuggester
   end
 
   function :record_suggestion,
+           "Output for the end user. Must contain a markdown formatted suggestion for a pen and ink combination,
+    along with the IDs of the suggested pen and ink.",
            suggestion: {
              type: "string",
-             description: "Markdown formatted pen and ink suggestion"
+             description: "Markdown formatted pen and ink suggestion",
+             required: true
            },
            ink_id: {
              type: "integer",
-             description: "ID of the suggested ink"
+             description: "ID of the suggested ink",
+             required: true
            },
            pen_id: {
              type: "integer",
-             description: "ID of the suggested pen"
+             description: "ID of the suggested pen",
+             required: true
            } do |arguments|
     self.message = arguments[:suggestion]
     self.ink_id = arguments[:ink_id]
@@ -76,21 +81,27 @@ class PenAndInkSuggester
       Given the following inks:
       #{ink_data}
 
-      Which combination of ink and fountain pen should I use and why? Use the `record_suggestion`
-      function to return the suggestion.
+      Which combination of ink and fountain pen should I use and why? The rules to pick are as follows:
 
       * Prefer items that have either never been used, rarely used, or used a long time ago.
       * Also suggest items that have been used a lot.
       * Make only one suggestion.
-      * Use markdown syntax for highlighting of the suggestion message. Insert an empty line before lists or quotes.
+
+      Use the `record_suggestion` function to return the suggestion. Provide a detailed reasoning for your
+      choice in the suggestion message as well as the IDs of the suggested pen and ink. Follow these rules
+      for the suggestion message:
+
+      * Use markdown formatting.
+      * Bullet list for the pen and ink chosen at the top (markdown formatted)
+      * Keep the reasoning concise, no more than 200 words.
       * Do not mention usage and daily usage count if they are zero.
       * Use the ink tags and description as part of the reasoning, but do not mention them directly.
-      * Do not metion the pen and ink IDs in the suggestion message.
+      * Do not mention the pen and ink IDs in the suggestion message.
     MESSAGE
   end
 
   def extra_user_prompt
-    "Take extra care to follow these additional instructions:\n#{extra_user_input}"
+    "IMPORTANT: Take extra care to follow these additional instructions:\n#{extra_user_input}"
   end
 
   def pen_data
@@ -116,6 +127,7 @@ class PenAndInkSuggester
       csv << [
         "ink id",
         "ink name",
+        "type",
         "last usage",
         "usage count",
         "daily usage count",
@@ -136,10 +148,11 @@ class PenAndInkSuggester
           csv << [
             ink.id,
             ink.name.inspect,
+            ink.kind,
             last_usage,
             ink.usage_count,
             ink.daily_usage_count,
-            (ink.cluster_tags || []).join(","),
+            (ink.tag_names + ink.cluster_tags).uniq.join(","),
             ink.cluster_description || ""
           ]
         end
