@@ -6,7 +6,7 @@ class PenAndInkSuggester
   include AgentTranscript
   include ConfigureToken
 
-  LIMIT = 150
+  LIMIT = 200
 
   def initialize(user, extra_user_input = nil)
     self.user = user
@@ -93,7 +93,7 @@ class PenAndInkSuggester
 
       * Use markdown formatting.
       * Bullet list for the pen and ink chosen at the top (markdown formatted)
-      * Keep the reasoning short and to the point.
+      * Keep the reasoning short and to the point, but do not mention the rules directly.
       * Do not mention usage and daily usage count if they are zero.
       * Use the ink tags and description as part of the reasoning, but do not mention them directly.
       * Do not mention the pen and ink IDs in the suggestion message.
