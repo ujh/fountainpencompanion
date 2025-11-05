@@ -93,7 +93,7 @@ class PenAndInkSuggester
 
       * Use markdown formatting.
       * Bullet list for the pen and ink chosen at the top (markdown formatted)
-      * Keep the reasoning concise, no more than 200 words.
+      * Keep the reasoning short and to the point.
       * Do not mention usage and daily usage count if they are zero.
       * Use the ink tags and description as part of the reasoning, but do not mention them directly.
       * Do not mention the pen and ink IDs in the suggestion message.
