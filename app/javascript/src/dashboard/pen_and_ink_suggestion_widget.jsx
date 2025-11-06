@@ -19,6 +19,7 @@ export const PenAndInkSuggestionWidget = ({ renderWhenInvisible }) => (
 
 const PenAndInkSuggestionWidgetContent = () => {
   const [suggestion, setSuggestion] = useState();
+  const [allSuggestions, setAllSuggestions] = useState([]);
   const [loading, setLoading] = useState();
   const [extraInstructions, setExtraInstructions] = useState("");
 
@@ -30,6 +31,8 @@ const PenAndInkSuggestionWidgetContent = () => {
           setLoading={setLoading}
           extraInstructions={extraInstructions}
           setExtraInstructions={setExtraInstructions}
+          allSuggestions={allSuggestions}
+          setAllSuggestions={setAllSuggestions}
         />
       </div>
     );
@@ -43,6 +46,8 @@ const PenAndInkSuggestionWidgetContent = () => {
           setLoading={setLoading}
           extraInstructions={extraInstructions}
           setExtraInstructions={setExtraInstructions}
+          allSuggestions={allSuggestions}
+          setAllSuggestions={setAllSuggestions}
         />
       </div>
     );
@@ -54,6 +59,8 @@ const PenAndInkSuggestionWidgetContent = () => {
         setLoading={setLoading}
         extraInstructions={extraInstructions}
         setExtraInstructions={setExtraInstructions}
+        allSuggestions={allSuggestions}
+        setAllSuggestions={setAllSuggestions}
       />
     );
   }
@@ -64,12 +71,19 @@ const AskForSuggestion = ({
   setLoading,
   text = "Suggest something!",
   extraInstructions,
-  setExtraInstructions
+  setExtraInstructions,
+  allSuggestions,
+  setAllSuggestions
 }) => {
   const onClick = async () => {
     setLoading(true);
     setSuggestion(null);
-    const url = `/dashboard/widgets/pen_and_ink_suggestion.json?extra_user_input=${encodeURIComponent(extraInstructions)}`;
+    let url = `/dashboard/widgets/pen_and_ink_suggestion.json?extra_user_input=${encodeURIComponent(extraInstructions)}`;
+    if (allSuggestions.length > 0) {
+      const hiddenInputData = allSuggestions.map((s) => ({ ink_id: s.ink?.id, pen_id: s.pen?.id }));
+      const hiddenInput = `The following suggestions were rejected. Do not recommend them again:\n${JSON.stringify(hiddenInputData)}`;
+      url += `&hidden_input=${encodeURIComponent(hiddenInput)}`;
+    }
     const response = await getRequest(url);
     const json = await response.json();
     const suggestion_id = json.suggestion_id;
@@ -80,6 +94,7 @@ const AskForSuggestion = ({
       const json = await response.json();
       if (json.message) {
         setSuggestion(json);
+        setAllSuggestions([...allSuggestions, json]);
         setLoading(false);
         clearInterval(intervalID);
       }
@@ -113,7 +128,9 @@ const ShowSuggestion = ({
   setSuggestion,
   setLoading,
   extraInstructions,
-  setExtraInstructions
+  setExtraInstructions,
+  allSuggestions,
+  setAllSuggestions
 }) => {
   const inkId = suggestion.ink?.id;
   const penId = suggestion.pen?.id;
@@ -133,6 +150,8 @@ const ShowSuggestion = ({
           setLoading={setLoading}
           extraInstructions={extraInstructions}
           setExtraInstructions={setExtraInstructions}
+          allSuggestions={allSuggestions}
+          setAllSuggestions={setAllSuggestions}
           text="Try again!"
         />
       </div>

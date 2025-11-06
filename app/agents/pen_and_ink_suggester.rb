@@ -8,11 +8,12 @@ class PenAndInkSuggester
 
   LIMIT = 200
 
-  def initialize(user, extra_user_input = nil)
+  def initialize(user, extra_user_input = nil, hidden_input = nil)
     self.user = user
     self.extra_user_input = extra_user_input
     transcript << { user: prompt }
     transcript << { user: extra_user_prompt } if extra_user_input.present?
+    transcript << { user: hidden_input } if hidden_input.present?
   end
 
   def perform
