@@ -85,7 +85,7 @@ class PenAndInkSuggester
       Which combination of ink and fountain pen should I use and why? The rules to pick are as follows:
 
       * Prefer items that have either never been used, rarely used, or used a long time ago.
-      * Also suggest items that have been used a lot.
+      * Also suggest items that have been used a lot, but with a lower priority.
       * Make only one suggestion.
 
       Use the `record_suggestion` function to return the suggestion. Provide a detailed reasoning for your
