@@ -85,8 +85,10 @@ class PenAndInkSuggester
       Which combination of ink and fountain pen should I use and why? The rules to pick are as follows:
 
       * Suggest only one fountain pen and one ink.
-      * The suggestion should be based on maximizing variety in my usage.
-      * Suggesting items that have been used recently, frequently, or daily rarely.
+      * Strike a balance between novelty and favorites.
+        * Novelty: Prefer items that have not been used recently or frequently.
+        * Favorites: Consider items that I have used more often in the past.
+        * Lean heavier towards novelty if you have to choose.
 
       Use the `record_suggestion` function to return the suggestion. Provide a detailed reasoning for your
       choice in the suggestion message as well as the IDs of the suggested pen and ink. Follow these rules
