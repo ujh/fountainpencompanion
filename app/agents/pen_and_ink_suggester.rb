@@ -79,8 +79,12 @@ class PenAndInkSuggester
       Given the following fountain pens:
       #{pen_data}
 
+      #{average_pen_usage}
+
       Given the following inks:
       #{ink_data}
+
+      #{average_ink_usage}
 
       Which combination of ink and fountain pen should I use and why? The rules to pick are as follows:
 
@@ -107,6 +111,36 @@ class PenAndInkSuggester
     "IMPORTANT: Take extra care to follow these additional instructions:\n#{extra_user_input}"
   end
 
+  def average_pen_usage
+    average_usage = (pens.sum(&:usage_count) / pens.size.to_f).round(2)
+    average_daily_usage = (pens.sum(&:daily_usage_count) / pens.size.to_f).round(2)
+    average_last_used_ago =
+      pens.sum do |pen|
+        last_used_on = pen.last_used_on || Date.today.advance(years: -1)
+        (Date.today - last_used_on).to_i
+      end / pens.size.to_f
+    average_last_used_ago = time_ago_in_words(Date.today.advance(days: -average_last_used_ago))
+    stats = { average_usage:, average_daily_usage:, average_last_used_ago: }
+    "Pens have the following average statistics:\n#{stats.to_json}"
+  end
+
+  def average_ink_usage
+    average_usage = (inks.sum(&:usage_count) / inks.size.to_f).round(2)
+    average_daily_usage = (inks.sum(&:daily_usage_count) / inks.size.to_f).round(2)
+    average_last_used_ago =
+      inks.sum do |ink|
+        last_used_on = ink.last_used_on || Date.today.advance(years: -1)
+        (Date.today - last_used_on).to_i
+      end / inks.size.to_f
+    average_last_used_ago = time_ago_in_words(Date.today.advance(days: -average_last_used_ago))
+    stats = { average_usage:, average_daily_usage:, average_last_used_ago: }
+    "Inks have the following average statistics:\n#{stats.to_json}"
+  end
+
+  def time_ago_in_words(date)
+    ActionController::Base.helpers.time_ago_in_words(date)
+  end
+
   def pen_data
     CSV.generate do |csv|
       csv << ["pen id", "fountain pen name", "last usage", "usage count", "daily usage count"]
@@ -114,12 +148,7 @@ class PenAndInkSuggester
         .shuffle
         .take(LIMIT)
         .each do |pen|
-          last_usage =
-            if pen.last_used_on
-              ActionController::Base.helpers.time_ago_in_words(pen.last_used_on)
-            else
-              "never"
-            end
+          last_usage = (pen.last_used_on ? time_ago_in_words(pen.last_used_on) : "never")
           csv << [pen.id, pen.name.inspect, last_usage, pen.usage_count, pen.daily_usage_count]
         end
     end
@@ -142,12 +171,7 @@ class PenAndInkSuggester
         .shuffle
         .take(LIMIT)
         .each do |ink|
-          last_usage =
-            if ink.last_used_on
-              ActionController::Base.helpers.time_ago_in_words(ink.last_used_on)
-            else
-              "never"
-            end
+          last_usage = (ink.last_used_on ? time_ago_in_words(ink.last_used_on) : "never")
           csv << [
             ink.id,
             ink.name.inspect,
