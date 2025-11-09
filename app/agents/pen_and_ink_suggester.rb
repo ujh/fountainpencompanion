@@ -122,6 +122,8 @@ class PenAndInkSuggester
     average_last_used_ago = time_ago_in_words(Date.today.advance(days: -average_last_used_ago))
     stats = { average_usage:, average_daily_usage:, average_last_used_ago: }
     "Pens have the following average statistics:\n#{stats.to_json}"
+  rescue StandardError
+    ""
   end
 
   def average_ink_usage
@@ -135,6 +137,8 @@ class PenAndInkSuggester
     average_last_used_ago = time_ago_in_words(Date.today.advance(days: -average_last_used_ago))
     stats = { average_usage:, average_daily_usage:, average_last_used_ago: }
     "Inks have the following average statistics:\n#{stats.to_json}"
+  rescue StandardError
+    ""
   end
 
   def time_ago_in_words(date)
