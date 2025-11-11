@@ -6,7 +6,7 @@ class PenAndInkSuggester
   include AgentTranscript
   include ConfigureToken
 
-  LIMIT = 200
+  LIMIT = 100
 
   def initialize(user, extra_user_input = nil, hidden_input = nil)
     self.user = user
