@@ -7,6 +7,8 @@ class PenAndInkSuggester
   include ConfigureToken
 
   LIMIT = 100
+  MAX_PER_DAY = 20
+  MAX_PER_DAY_PATRON = 100
 
   def initialize(user, extra_user_input = nil, hidden_input = nil)
     self.user = user
@@ -17,12 +19,16 @@ class PenAndInkSuggester
   end
 
   def perform
-    chat_completion(openai: "gpt-4.1-mini")
     response =
-      if [message, ink_id, pen_id].all?(&:present?)
-        { message:, ink: ink_id, pen: pen_id }
+      if can_perform?
+        chat_completion(openai: "gpt-4.1-mini")
+        if [message, ink_id, pen_id].all?(&:present?)
+          { message:, ink: ink_id, pen: pen_id }
+        else
+          { message: "Sorry, that didn't work. Please try again!" }
+        end
       else
-        { message: "Sorry, that didn't work. Please try again!" }
+        { message: out_of_requests_message }
       end
     agent_log.update(extra_data: response)
     agent_log.waiting_for_approval!
@@ -214,5 +220,25 @@ class PenAndInkSuggester
 
         rel
       end
+  end
+
+  def today_usage_count
+    AgentLog
+      .where(name: self.class.name, owner: user)
+      .where("created_at >= ?", Time.current.beginning_of_day)
+      .count
+  end
+
+  def can_perform?
+    limit = user.patron? ? MAX_PER_DAY_PATRON : MAX_PER_DAY
+    today_usage_count < limit
+  end
+
+  def out_of_requests_message
+    if user.patron?
+      "You have reached your daily limit of #{MAX_PER_DAY_PATRON} suggestions. Please try again tomorrow."
+    else
+      "You have reached your daily limit of #{MAX_PER_DAY} suggestions. Consider becoming a [Patron](https://www.patreon.com/bePatron?u=6900241) for a higher limit!"
+    end
   end
 end
