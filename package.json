@@ -68,7 +68,7 @@
     "prettier": "^3.6.2"
   },
   "engines": {
-    "node": "v20.18.0"
+    "node": "v20.19.5"
   },
   "jest": {
     "collectCoverage": true,

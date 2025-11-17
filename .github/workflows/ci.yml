@@ -36,7 +36,7 @@ jobs:
       - name: Install correct Node version
         uses: actions/setup-node@v6.0.0
         with:
-          node-version: "v20.18.0"
+          node-version: "v20.19.5"
           cache: yarn
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
@@ -60,7 +60,7 @@ jobs:
       - name: Install correct Node version
         uses: actions/setup-node@v6.0.0
         with:
-          node-version: "v20.18.0"
+          node-version: "v20.19.5"
           cache: yarn
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
