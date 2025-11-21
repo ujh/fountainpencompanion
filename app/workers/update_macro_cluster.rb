@@ -13,10 +13,12 @@ class UpdateMacroCluster
     update_color
     update_names
     update_tags
+    retried = false
     begin
       cluster.save!
     rescue ActiveRecord::RecordNotUnique
-      raise if line_name_to_exclude.present?
+      raise if line_name_to_exclude.present? || retried
+      retried = true
 
       # If the line name is already taken, try the next best one (mainly happens
       # when line name blank).
