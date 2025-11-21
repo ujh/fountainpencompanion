@@ -2,7 +2,7 @@ class UpdateMacroCluster
   include Sidekiq::Worker
   include Sidekiq::Throttled::Worker
 
-  sidekiq_throttle concurrency: { limit: 3 }
+  sidekiq_throttle concurrency: { limit: 5 }
 
   def perform(id)
     # Load public collected inks for tag calculation
