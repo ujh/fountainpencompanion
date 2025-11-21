@@ -6,7 +6,8 @@ class PenAndInkSuggester
   include AgentTranscript
   include ConfigureToken
 
-  LIMIT = 100
+  LIMIT = 50
+  LIMIT_PATRON = 100
   MAX_PER_DAY = 20
   MAX_PER_DAY_PATRON = 100
 
@@ -156,7 +157,7 @@ class PenAndInkSuggester
       csv << ["pen id", "fountain pen name", "last usage", "usage count", "daily usage count"]
       pens
         .shuffle
-        .take(LIMIT)
+        .take(limit)
         .each do |pen|
           last_usage = (pen.last_used_on ? time_ago_in_words(pen.last_used_on) : "never")
           csv << [pen.id, pen.name.inspect, last_usage, pen.usage_count, pen.daily_usage_count]
@@ -179,7 +180,7 @@ class PenAndInkSuggester
 
       inks
         .shuffle
-        .take(LIMIT)
+        .take(limit)
         .each do |ink|
           last_usage = (ink.last_used_on ? time_ago_in_words(ink.last_used_on) : "never")
           csv << [
@@ -230,15 +231,23 @@ class PenAndInkSuggester
   end
 
   def can_perform?
-    limit = user.patron? ? MAX_PER_DAY_PATRON : MAX_PER_DAY
+    limit = premium? ? MAX_PER_DAY_PATRON : MAX_PER_DAY
     today_usage_count < limit
   end
 
   def out_of_requests_message
-    if user.patron?
+    if premium?
       "You have reached your daily limit of #{MAX_PER_DAY_PATRON} suggestions. Please try again tomorrow."
     else
       "You have reached your daily limit of #{MAX_PER_DAY} suggestions. Consider becoming a [Patron](https://www.patreon.com/bePatron?u=6900241) for a higher limit!"
     end
+  end
+
+  def limit
+    premium? ? LIMIT_PATRON : LIMIT
+  end
+
+  def premium?
+    user.patron? || user.admin?
   end
 end
