@@ -11,6 +11,10 @@ refresh_inks:
   class: RefreshInks
   description: Run this to refresh what is stored as simplified data in the inks
   enabled: false
+refresh_ink_clusters:
+  class: RefreshInkClusters
+  description: Run this to refresh what is stored as ink clusters
+  enabled: false
 refresh_pens:
   class: RefreshPens
   description: Run this to refresh what is stored as simplified data in the micro cluster (also updates micro clusters as a consequence)
