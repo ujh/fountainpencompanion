@@ -34,8 +34,13 @@ class UpdateMacroCluster
   attr_accessor :cluster, :line_name_to_exclude
 
   def update_tags
-    cluster.tags =
+    primary_color = FindPrimaryColor.new(cluster.color).perform
+    tags = [primary_color]
+    tags +=
       cluster.public_collected_inks.flat_map(&:tags).map(&:name).tally.reject { |_t, c| c < 2 }.keys
+    tags.uniq!
+    tags.sort!
+    cluster.tags = tags
   end
 
   def update_names
