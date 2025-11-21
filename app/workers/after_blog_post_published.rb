@@ -3,6 +3,9 @@ class AfterBlogPostPublished
 
   def perform(id)
     blog_post = BlogPost.find(id)
-    User.active.find_each { |user| user.reading_statuses.create!(blog_post: blog_post) }
+
+    User.active.find_each do |user|
+      AfterBlogPostPublishedForUser.perform_async(blog_post.id, user.id)
+    end
   end
 end
