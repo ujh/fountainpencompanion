@@ -11,10 +11,10 @@ class UpdateMacroCluster
     return if cluster.collected_inks.empty?
 
     update_color
-    update_names
     update_tags
     retried = false
     begin
+      update_names # The bit that can cause uniqueness violations
       cluster.save!
     rescue ActiveRecord::RecordNotUnique
       raise if line_name_to_exclude.present? || retried
