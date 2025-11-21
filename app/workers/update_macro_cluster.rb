@@ -20,9 +20,8 @@ class UpdateMacroCluster
       raise if line_name_to_exclude.present? || retried
       retried = true
 
-      # If the line name is already taken, try the next best one (mainly happens
-      # when line name blank).
-      self.line_name_to_exclude = cluster.line_name
+      # Exclude the line name that was picked this time around and try again
+      self.line_name_to_exclude = line_name_picked
       retry
     end
     update_embedding
@@ -36,7 +35,7 @@ class UpdateMacroCluster
 
   private
 
-  attr_accessor :cluster, :line_name_to_exclude
+  attr_accessor :cluster, :line_name_to_exclude, :line_name_picked
 
   def update_tags
     tags =
@@ -52,7 +51,8 @@ class UpdateMacroCluster
 
   def update_names
     cluster.brand_name = popular(:brand_name)
-    cluster.line_name = popular(:line_name, exclude: line_name_to_exclude)
+    self.line_name_picked = popular(:line_name, exclude: line_name_to_exclude)
+    cluster.line_name = line_name_picked
     cluster.ink_name = popular(:ink_name)
   end
 
