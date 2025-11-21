@@ -231,12 +231,12 @@ class PenAndInkSuggester
   end
 
   def can_perform?
-    limit = user.patron? ? MAX_PER_DAY_PATRON : MAX_PER_DAY
+    limit = premium? ? MAX_PER_DAY_PATRON : MAX_PER_DAY
     today_usage_count < limit
   end
 
   def out_of_requests_message
-    if user.patron?
+    if premium?
       "You have reached your daily limit of #{MAX_PER_DAY_PATRON} suggestions. Please try again tomorrow."
     else
       "You have reached your daily limit of #{MAX_PER_DAY} suggestions. Consider becoming a [Patron](https://www.patreon.com/bePatron?u=6900241) for a higher limit!"
@@ -244,6 +244,10 @@ class PenAndInkSuggester
   end
 
   def limit
-    user.patron? ? LIMIT_PATRON : LIMIT
+    premium? ? LIMIT_PATRON : LIMIT
+  end
+
+  def premium?
+    user.patron? || user.admin?
   end
 end
