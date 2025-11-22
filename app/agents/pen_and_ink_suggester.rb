@@ -22,7 +22,7 @@ class PenAndInkSuggester
   def perform
     response =
       if can_perform?
-        chat_completion(openai: model)
+        chat_completion(openai: model_name)
         if [message, ink_id, pen_id].all?(&:present?)
           { message:, ink: ink_id, pen: pen_id }
         else
@@ -247,7 +247,7 @@ class PenAndInkSuggester
     premium? ? LIMIT_PATRON : LIMIT
   end
 
-  def model?
+  def model_name
     premium? ? "gpt-4.1" : "gpt-4.1-mini"
   end
 
