@@ -46,7 +46,8 @@ class CollectedPen < ApplicationRecord
         "Last Inked",
         "Last Cleaned",
         "Last Used",
-        "Inked"
+        "Inked",
+        "Date Added"
       ]
       all.each do |cp|
         csv << [
@@ -66,7 +67,8 @@ class CollectedPen < ApplicationRecord
           cp.last_inked,
           cp.last_cleaned,
           cp.last_used_on,
-          cp.inked?
+          cp.inked?,
+          cp.created_at.to_date.to_s
         ]
       end
     end

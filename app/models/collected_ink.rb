@@ -150,6 +150,7 @@ class CollectedInk < ApplicationRecord
         "Comment",
         "Private Comment",
         "Archived",
+        "Archived On",
         "Usage",
         "Tags",
         "Date Added",
@@ -169,12 +170,13 @@ class CollectedInk < ApplicationRecord
           ci.comment,
           ci.private_comment,
           ci.archived?,
+          ci.archived_on,
           ci.currently_inkeds.length,
           ci.tags_as_string,
           ci.created_at.to_date.to_s,
           ci.maker,
-          ci.usage_records.size,
-          ci.last_used_on&.to_date.to_s
+          ci.daily_usage_count,
+          ci.last_used_on
         ]
       end
     end
