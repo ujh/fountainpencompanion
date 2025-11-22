@@ -1,0 +1,8 @@
+{
+  "project_name": "FPC",
+  "languages": {
+    "Ruby": {
+      "formatter": "prettier"
+    }
+  }
+}
