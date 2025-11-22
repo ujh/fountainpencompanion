@@ -171,7 +171,7 @@ describe CollectedInk do
 
     it "has a header row" do
       expect(CollectedInk.none.to_csv).to eq(
-        "Brand;Line;Name;Type;Color;Swabbed;Used;Comment;Private Comment;Archived;Usage;Tags;Date Added;Maker;Daily Usage;Last Usage\n"
+        "Brand;Line;Name;Type;Color;Swabbed;Used;Comment;Private Comment;Archived;Archived On;Usage;Tags;Date Added;Maker;Daily Usage;Last Usage\n"
       )
     end
 

@@ -48,7 +48,8 @@ describe CollectedPensController do
               "Last Inked",
               "Last Cleaned",
               "Last Used",
-              "Inked"
+              "Inked",
+              "Date Added"
             ]
             [custom74, wing_sung].each do |cp|
               csv << [
@@ -68,7 +69,8 @@ describe CollectedPensController do
                 nil,
                 nil,
                 nil,
-                nil
+                nil,
+                cp.created_at.to_date
               ]
             end
           end
