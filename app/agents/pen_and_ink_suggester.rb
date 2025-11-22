@@ -9,7 +9,7 @@ class PenAndInkSuggester
   LIMIT = 50
   LIMIT_PATRON = 100
   MAX_PER_DAY = 20
-  MAX_PER_DAY_PATRON = 100
+  MAX_PER_DAY_PATRON = 50
 
   def initialize(user, extra_user_input = nil, hidden_input = nil)
     self.user = user
