@@ -17,4 +17,8 @@ module ApplicationHelper
   def admin?
     current_user&.admin?
   end
+
+  def jsonify(object)
+    JSON.pretty_generate(object).gsub('\r\n', " ").gsub('\n', "\n")
+  end
 end

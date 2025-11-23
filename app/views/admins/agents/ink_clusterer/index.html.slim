@@ -56,7 +56,7 @@ table class="table"
           b= action
       dt class="col-sm-3" Extra Data
       dd class="col-sm-9"
-        pre= JSON.pretty_generate(agent_log.extra_data)
+        pre= jsonify(agent_log.extra_data)
 
     - unless agent_log.processing?
       dt class="col-sm-3" Owner
@@ -81,6 +81,6 @@ table class="table"
     dt class="col-sm-3" Transcript
     dd class="col-sm-9"
       - agent_log.transcript.each do |transcript|
-        pre= JSON.pretty_generate(transcript)
+        pre= jsonify(transcript)
 
 = paginate @agent_logs
