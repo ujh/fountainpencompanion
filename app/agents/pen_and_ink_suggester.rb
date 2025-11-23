@@ -16,6 +16,7 @@ class PenAndInkSuggester
     self.user = user
     self.extra_user_input = extra_user_input
     transcript << { user: prompt }
+    transcript << { user: additional_premium_prompt } if premium?
     transcript << { user: extra_user_prompt } if extra_user_input.present?
     transcript << { user: hidden_input } if hidden_input.present?
   end
@@ -112,6 +113,18 @@ class PenAndInkSuggester
       * Do not mention usage and daily usage count if they are zero.
       * Use the ink tags and description as part of the reasoning, but do not mention them directly.
       * Do not mention the pen and ink IDs in the suggestion message.
+    MESSAGE
+  end
+
+  def additional_premium_prompt
+    currently_inked = user.currently_inkeds.active.to_csv
+    <<~MESSAGE
+      Below is the list of currently inked pens in my collection:
+      #{currently_inked}
+
+      When picking a new pen and ink combination, take these into account and
+      prefer combinations that do not overlap with the currently inked pens
+      and inks. Prefer a variety of ink colors and nib sizes.
     MESSAGE
   end
 
