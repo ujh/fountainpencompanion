@@ -12,7 +12,7 @@ class CheckInkClustering::Human < CheckInkClustering::Base
 
   def perform
     if micro_cluster.collected_inks.present?
-      chat_completion(openai: "gpt-4.1", available_tools: [:send_email])
+      chat_completion(openai: "gpt-4.1", available_tools: %i[send_email previous_agent_logs])
     else
       agent_log.update(
         extra_data: {
@@ -38,5 +38,13 @@ class CheckInkClustering::Human < CheckInkClustering::Base
            } do |arguments|
     AdminMailer.agent_mail(arguments[:subject], arguments[:body]).deliver_later
     stop_tool_calls_and_respond!
+  end
+
+  function :previous_agent_logs,
+           "All logs of interactions with respect to clustering of this ink" do
+    ink_clusterer_agent_log = micro_cluster_agent_log.owner
+    micro_cluster = ink_clusterer_agent_log.owner
+    logs = micro_cluster.agent_logs.where.not(id: agent_log.id)
+    logs.to_json
   end
 end
