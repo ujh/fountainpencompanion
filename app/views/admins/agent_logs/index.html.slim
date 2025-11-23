@@ -19,7 +19,7 @@
 
     dt class="col-sm-3" Extra Data
     dd class="col-sm-9"
-      pre= JSON.pretty_generate(agent_log.extra_data)
+      pre= jsonify(agent_log.extra_data)
 
     - if  agent_log.owner
       dt class="col-sm-3" Owner
@@ -29,7 +29,7 @@
     dt class="col-sm-3" Transcript
     dd class="col-sm-9"
       - agent_log.transcript.each do |transcript|
-        pre= JSON.pretty_generate(transcript)
+        pre= jsonify(transcript)
 
 
 = paginate @agent_logs
