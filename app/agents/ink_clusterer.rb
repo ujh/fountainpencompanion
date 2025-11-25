@@ -168,18 +168,16 @@ class InkClusterer
 
   def processed_tries_data
     data =
-      processed_tries
-        .map do |log|
-          case log.extra_data["action"]
-          when "assign_to_cluster"
-            "Assigning ink to existing cluster with id #{log.extra_data["cluster_id"]}. Assignments to other clusters can be considered."
-          when "create_new_cluster"
-            "Creating a new cluster for ink"
-          when "ignore_ink"
-            "Ignoring this ink"
-          end
+      processed_tries.map do |log|
+        case log.extra_data["action"]
+        when "assign_to_cluster"
+          "Assigning ink to existing cluster with id #{log.extra_data["cluster_id"]}. Assignments to other clusters can be considered."
+        when "create_new_cluster"
+          "Creating a new cluster for ink"
+        when "ignore_ink"
+          "Ignoring this ink"
         end
-        .uniq
+      end
 
     "This ink was processed before #{processed_tries.count} times and the action taken
     was manually rejected. Therefore the following outcomes cannot be taken again:
