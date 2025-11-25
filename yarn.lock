@@ -6297,10 +6297,10 @@ makeerror@1.0.12:
   dependencies:
     tmpl "1.0.5"
 
-match-sorter@^8.1.0:
-  version "8.1.0"
-  resolved "https://registry.yarnpkg.com/match-sorter/-/match-sorter-8.1.0.tgz#c15cb758aeb2eb981346f8a47ec24d814c85a7e3"
-  integrity sha512-0HX3BHPixkbECX+Vt7nS1vJ6P2twPgGTU3PMXjWrl1eyVCL24tFHeyYN1FN5RKLzve0TyzNI9qntqQGbebnfPQ==
+match-sorter@^8.2.0:
+  version "8.2.0"
+  resolved "https://registry.yarnpkg.com/match-sorter/-/match-sorter-8.2.0.tgz#aa7ef4a6a385edb51517168bc4e853812c087d48"
+  integrity sha512-qRVB7wYMJXizAWR4TKo5UYwgW7oAVzA8V9jve0wGzRvV91ou9dcqL+/2gJtD0PZ/Pm2Fq6cVT4VHXHmDFVMGRA==
   dependencies:
     "@babel/runtime" "^7.23.8"
     remove-accents "0.5.0"
