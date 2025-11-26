@@ -42,8 +42,7 @@ class CheckInkClustering::Human < CheckInkClustering::Base
 
   function :previous_agent_logs,
            "All logs of interactions with respect to clustering of this ink" do
-    ink_clusterer_agent_log = micro_cluster_agent_log.owner
-    micro_cluster = ink_clusterer_agent_log.owner
+    micro_cluster = micro_cluster_agent_log.owner
     logs = micro_cluster.agent_logs.where.not(id: agent_log.id).order(:created_at)
     logs.map { |l| l.slice(:id, :name, :created_at, :extra_data, :state) }.to_json
   end
