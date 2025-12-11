@@ -69,7 +69,7 @@ RSpec.describe ReviewFinder do
       finder = described_class.new(page)
       transcript_messages = finder.transcript.to_a
 
-      user_message = transcript_messages.find { |msg| msg.key?(:user) }
+      user_message = transcript_messages.find_all { |msg| msg.key?(:user) }.last
       expect(user_message).to be_present
       expect(user_message[:user]).to include("page data")
     end
@@ -167,7 +167,7 @@ RSpec.describe ReviewFinder do
         finder = described_class.new(youtube_page)
         transcript_messages = finder.transcript.to_a
 
-        user_message = transcript_messages.find { |msg| msg.key?(:user) }
+        user_message = transcript_messages.find_all { |msg| msg.key?(:user) }.last
         expect(user_message[:user]).to include("youtube.com")
       end
     end
@@ -208,7 +208,7 @@ RSpec.describe ReviewFinder do
     end
 
     it "includes page data in user message" do
-      user_message = subject.transcript.to_a.find { |msg| msg.key?(:user) }
+      user_message = subject.transcript.to_a.find_all { |msg| msg.key?(:user) }.last
 
       expect(user_message[:user]).to include("page data")
       expect(user_message[:user]).to include(page.url)
