@@ -27,6 +27,7 @@ class ReviewApprover
   def initialize(ink_review_id)
     self.ink_review = InkReview.find(ink_review_id)
     transcript << { system: SYSTEM_DIRECTIVE }
+    transcript << { user: "The year is #{Time.current.year}." }
     transcript << { user: macro_cluster_data }
     transcript << { user: review_data }
     transcript << { user: approved_reviews_data }

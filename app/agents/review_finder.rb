@@ -37,6 +37,7 @@ class ReviewFinder
       transcript.set!(agent_log.transcript)
     else
       transcript << { system: SYSTEM_DIRECTIVE }
+      transcript << { user: "The year is #{Time.current.year}." }
       transcript << { user: page_prompt }
     end
   end
