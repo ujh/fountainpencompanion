@@ -12,6 +12,7 @@ class User < ApplicationRecord
          :validatable,
          :magic_link_authenticatable
 
+  has_many :authentication_tokens, dependent: :destroy
   has_many :currently_inkeds, dependent: :destroy
   has_many :collected_inks, dependent: :delete_all
   has_many :collected_pens, dependent: :delete_all

@@ -20,3 +20,10 @@ div id="account" class="row"
 
       div class="pt-2 mb-5"
         = f.button :button, "Save", class: "btn-success"
+
+    hr
+    h5 API Access
+    p
+      = link_to "Manage API Tokens", authentication_tokens_path, class: "btn btn-outline-primary"
+    p.text-muted
+      small API tokens allow you to authenticate with the Fountain Pen Companion API.
