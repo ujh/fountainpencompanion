@@ -65,7 +65,7 @@ path = "/"
 [[vm]]
 memory = '4GB'
 cpu_kind = 'shared'
-cpus = 1
+cpus = 2
 processes = ["worker"]
 
 [[vm]]
