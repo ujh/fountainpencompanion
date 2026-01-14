@@ -7,7 +7,6 @@ class CleanUp
     remove_unused_accounts
     remove_unconfirmed_accounts
     anonymize_sign_up_ip
-    remove_old_user_agents
     reject_orphaned_agent_logs
   end
 
@@ -33,12 +32,6 @@ class CleanUp
 
   def anonymize_sign_up_ip
     User.where("created_at < ?", 1.month.ago).where.not(sign_up_ip: nil).update_all(sign_up_ip: nil)
-  end
-
-  def remove_old_user_agents
-    UserAgent
-      .where("created_at < ?", 3.months.ago)
-      .in_batches(of: 1000) { |batch| CleanUp::DeleteUserAgents.perform_async(batch.pluck(:id)) }
   end
 
   def reject_orphaned_agent_logs
