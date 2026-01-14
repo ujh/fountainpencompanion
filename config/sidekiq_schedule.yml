@@ -20,7 +20,7 @@ refresh_pens:
   description: Run this to refresh what is stored as simplified data in the micro cluster (also updates micro clusters as a consequence)
   enabled: false
 clean_up:
-  cron: "0 0 * * *" # Every day at midnight
+  cron: "45 * * * *" # Every hour
   class: CleanUp
 analyze:
   cron: "0 6 * * *" # Every day at 6am
