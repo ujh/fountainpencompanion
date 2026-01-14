@@ -59,7 +59,6 @@ gem "slim"
 gem "slodown"
 gem "sprockets-rails"
 gem "strong_migrations"
-gem "user_agent_parser"
 
 group :development, :test do
   gem "byebug", platform: :mri

@@ -16,8 +16,6 @@ class Admins::GraphsController < Admins::BaseController
         bot_signups
       when "spam"
         spam
-      when "user-agents"
-        user_agents
       when "agents"
         agents
       when "agent-usage"
@@ -62,28 +60,6 @@ class Admins::GraphsController < Admins::BaseController
       .map do |reason|
         { name: reason, data: build(User.where(spam_reason: reason), range: 2.months) }
       end
-  end
-
-  def user_agents
-    base_relation = UserAgent.non_browser.where("day > ?", 2.weeks.ago)
-    base_relation
-      .select(:name)
-      .distinct
-      .pluck(:name)
-      .reject { |name| name.blank? }
-      .map do |name|
-        {
-          name: name,
-          data:
-            base_relation
-              .where(name: name)
-              .group("date_trunc('day', created_at)")
-              .order("day asc")
-              .pluck(Arel.sql("date_trunc('day', created_at) as day, count(*) as day_count"))
-              .map { |d| [d.first.to_i * 1000, d.last] }
-        }
-      end
-      .reject { |data| data[:data].map(&:last).all? { |count| count <= 10 } }
   end
 
   def agents

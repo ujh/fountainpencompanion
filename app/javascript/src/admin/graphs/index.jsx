@@ -8,7 +8,6 @@ import { CurrentlyInked } from "./CurrentlyInked";
 import { UsageRecords } from "./UsageRecords";
 // // import { BotSignUps } from "./BotSignUps";
 // import { Spam } from "./Spam";
-// import { UserAgents } from "./UserAgents";
 import { Agents } from "./Agents";
 import { AgentUsage } from "./AgentUsage";
 
@@ -35,14 +34,6 @@ document.addEventListener("DOMContentLoaded", () => {
     root.render(<AgentUsage />);
   }
 });
-
-// document.addEventListener("DOMContentLoaded", () => {
-//   const el = document.getElementById("user-agents-graph");
-//   if (el) {
-//     const root = createRoot(el);
-//     root.render(<UserAgents />);
-//   }
-// });
 
 // document.addEventListener("DOMContentLoaded", () => {
 //   const el = document.getElementById("bot-signups-graph");
