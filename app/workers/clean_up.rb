@@ -37,14 +37,14 @@ class CleanUp
 
   def remove_old_user_agents
     UserAgent
-      .where("created_at < ?", 3.hours.ago)
+      .where("created_at < ?", 3.months.ago)
       .in_batches(of: 1000) { |batch| CleanUp::DeleteUserAgents.perform_async(batch.pluck(:id)) }
   end
 
   def reject_orphaned_agent_logs
     AgentLog
       .processing
-      .where("updated_at < ?", 2.days.ago)
+      .where("updated_at < ?", 3.hours.ago)
       .pluck(:id)
       .each { |agent_log_id| CleanUp::RejectAgentLog.perform_async(agent_log_id) }
   end
