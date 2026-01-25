@@ -13,7 +13,6 @@ class FetchReviews
       https://inkcrediblecolours.com/feed/
       https://inksharks.blogspot.com/feeds/posts/default?alt=rss
       https://inkyfountainpens.wordpress.com/feed/
-      https://macchiatoman.com/?format=rss
       https://mountainofink.com/?format=rss
       https://mymanymuses.com/category/ink/feed/
       https://nickstewart.ink/feed
