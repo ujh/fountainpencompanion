@@ -29,8 +29,10 @@
         .row
           .col-md-6
             = f.input :name, placeholder: "e.g., My Script, Mobile App", hint: "A name to help you identify this token", wrapper: :vertical_form
-          .col-md-6.d-flex.align-items-end.pb-3
-            = f.button :submit, "Create Token", class: "btn-primary"
+          .col-md-6
+            label.form-label.invisible &nbsp;
+            .mb-3
+              = f.button :submit, "Create Token", class: "btn-primary"
 
   .card.mt-4
     .card-header
