@@ -16,10 +16,12 @@
           | Copy
 
       h6.mt-3 Usage Example
-      pre.bg-light.p-3
-        code
-          | curl -H "Authorization: Bearer #{flash[:new_access_token]}" \
-          |      https://www.fountainpencompanion.com/api/v1/collected_pens
+      .input-group
+        pre.bg-light.p-3.mb-0.flex-grow-1
+          code#usage-example
+            = "curl -H \"Authorization: Bearer #{flash[:new_access_token]}\" \\\n     \"#{request.base_url}/api/v1/collected_pens\""
+        button.btn.btn-outline-secondary type="button" onclick="navigator.clipboard.writeText(document.getElementById('usage-example').textContent); this.textContent='Copied!'"
+          | Copy
 
   .card.mt-4
     .card-header
