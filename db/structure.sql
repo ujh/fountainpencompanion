@@ -122,6 +122,40 @@ CREATE TABLE public.ar_internal_metadata (
 
 
 --
+-- Name: authentication_tokens; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.authentication_tokens (
+    id bigint NOT NULL,
+    user_id bigint NOT NULL,
+    token_digest character varying NOT NULL,
+    name character varying NOT NULL,
+    last_used_at timestamp(6) without time zone,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
+);
+
+
+--
+-- Name: authentication_tokens_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.authentication_tokens_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: authentication_tokens_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.authentication_tokens_id_seq OWNED BY public.authentication_tokens.id;
+
+
+--
 -- Name: blog_posts; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -1114,6 +1148,13 @@ ALTER TABLE ONLY public.agent_logs ALTER COLUMN id SET DEFAULT nextval('public.a
 
 
 --
+-- Name: authentication_tokens id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.authentication_tokens ALTER COLUMN id SET DEFAULT nextval('public.authentication_tokens_id_seq'::regclass);
+
+
+--
 -- Name: blog_posts id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -1316,6 +1357,14 @@ ALTER TABLE ONLY public.agent_logs
 
 ALTER TABLE ONLY public.ar_internal_metadata
     ADD CONSTRAINT ar_internal_metadata_pkey PRIMARY KEY (key);
+
+
+--
+-- Name: authentication_tokens authentication_tokens_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.authentication_tokens
+    ADD CONSTRAINT authentication_tokens_pkey PRIMARY KEY (id);
 
 
 --
@@ -1575,6 +1624,13 @@ CREATE INDEX index_agent_logs_on_owner ON public.agent_logs USING btree (owner_t
 --
 
 CREATE INDEX index_agent_logs_on_state ON public.agent_logs USING btree (state);
+
+
+--
+-- Name: index_authentication_tokens_on_user_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_authentication_tokens_on_user_id ON public.authentication_tokens USING btree (user_id);
 
 
 --
@@ -2192,6 +2248,14 @@ ALTER TABLE ONLY public.reading_statuses
 
 
 --
+-- Name: authentication_tokens fk_rails_ad331ebb27; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.authentication_tokens
+    ADD CONSTRAINT fk_rails_ad331ebb27 FOREIGN KEY (user_id) REFERENCES public.users(id);
+
+
+--
 -- Name: usage_records fk_rails_c4d19d072d; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -2239,6 +2303,7 @@ SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
 ('20260114091815'),
+('20260107215006'),
 ('20250628053707'),
 ('20250529143609'),
 ('20250524113956'),

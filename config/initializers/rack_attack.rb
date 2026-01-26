@@ -1,3 +1,8 @@
+# Throttle API requests by authorization token
+Rack::Attack.throttle("api requests", limit: 15, period: 30) do |request|
+  request.env["HTTP_AUTHORIZATION"] if request.env["HTTP_AUTHORIZATION"].present?
+end
+
 Rack::Attack.throttle("full text search limit", limit: 1, period: 3) do |request|
   request.ip if request.path.starts_with?("/inks") && request.query_string.include?("q=")
 end

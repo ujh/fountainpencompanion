@@ -1,0 +1,68 @@
+- content_for :title, "API Tokens"
+
+.container.mt-4
+  p.text-muted
+    | API tokens allow you to authenticate with the Fountain Pen Companion API programmatically.
+    | Each token can be used to access the API as your account.
+
+  - if flash[:new_access_token]
+    .alert.alert-success.mt-4
+      h5.alert-heading Your new API token
+      p
+        strong Copy this token now. You won't be able to see it again!
+      .input-group.mb-3
+        input.form-control type="text" value=flash[:new_access_token] readonly="" id="new-token-value"
+        button.btn.btn-outline-secondary type="button" onclick="navigator.clipboard.writeText(document.getElementById('new-token-value').value); this.textContent='Copied!'"
+          | Copy
+
+      h6.mt-3 Usage Example
+      .input-group
+        pre.bg-light.p-3.mb-0.flex-grow-1
+          code#usage-example
+            = "curl -H \"Authorization: Bearer #{flash[:new_access_token]}\" \\\n     \"#{request.base_url}/api/v1/collected_pens\""
+        button.btn.btn-outline-secondary type="button" onclick="navigator.clipboard.writeText(document.getElementById('usage-example').textContent); this.textContent='Copied!'"
+          | Copy
+
+  .card.mt-4
+    .card-header
+      h5.mb-0 Create New Token
+    .card-body
+      = simple_form_for @new_token, url: authentication_tokens_path do |f|
+        .row
+          .col-md-6
+            = f.input :name, placeholder: "e.g., My Script, Mobile App", hint: "A name to help you identify this token", wrapper: :vertical_form
+          .col-md-6
+            label.form-label.invisible &nbsp;
+            .mb-3
+              = f.button :submit, "Create Token", class: "btn-primary"
+
+  .card.mt-4
+    .card-header
+      h5.mb-0 Your Tokens
+    .card-body
+      - if @tokens.any?
+        table.table.table-striped
+          thead
+            tr
+              th Name
+              th Created
+              th Last Used
+              th Actions
+          tbody
+            - @tokens.each do |token|
+              tr
+                td= token.name
+                td= token.created_at.strftime("%B %d, %Y")
+                td
+                  - if token.last_used_at
+                    = time_ago_in_words(token.last_used_at) + " ago"
+                  - else
+                    span.text-muted Never
+                td
+                  .btn-group
+                    = button_to "Delete", authentication_token_path(token), method: :delete, class: "btn btn-sm btn-outline-danger", data: { confirm: "Are you sure you want to delete this token? Any applications using it will stop working." }
+      - else
+        p.text-muted You haven't created any API tokens yet.
+
+  .mt-4
+    = link_to "← Back to Account", account_path, class: "btn btn-outline-secondary"

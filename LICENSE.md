@@ -5,7 +5,9 @@ Copyright 2020 Urban Hafner (“Licensor”)
 Copyright 2021 Urban Hafner (“Licensor”)
 Copyright 2022 Urban Hafner (“Licensor”)
 Copyright 2023 Urban Hafner, William Killerud (“Licensor”)
-Copyright 2024 Urban Hafner
+Copyright 2024 Urban Hafner (“Licensor”)
+Copyright 2025 Urban hafner (“Licensor”)
+Copyright 2026 Urban Hafner, Jonathan Keane (“Licensor”)
 
 Hippocratic License Version Number: 2.1.
 
