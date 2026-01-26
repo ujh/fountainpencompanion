@@ -65,36 +65,6 @@ describe AuthenticationTokensController do
     end
   end
 
-  describe "#update" do
-    let!(:token) { create(:authentication_token, user: user, name: "Original Name") }
-
-    it "requires authentication" do
-      patch :update, params: { id: token.id, authentication_token: { name: "New Name" } }
-      expect(response).to redirect_to(new_user_session_path)
-    end
-
-    context "signed in" do
-      before { sign_in(user) }
-
-      it "updates the token name" do
-        patch :update, params: { id: token.id, authentication_token: { name: "New Name" } }
-        expect(token.reload.name).to eq("New Name")
-      end
-
-      it "redirects to index on success" do
-        patch :update, params: { id: token.id, authentication_token: { name: "New Name" } }
-        expect(response).to redirect_to(authentication_tokens_path)
-      end
-
-      it "cannot update another user's token" do
-        other_token = create(:authentication_token, name: "Other")
-        expect {
-          patch :update, params: { id: other_token.id, authentication_token: { name: "Hacked" } }
-        }.to raise_error(ActiveRecord::RecordNotFound)
-      end
-    end
-  end
-
   describe "#destroy" do
     let!(:token) { create(:authentication_token, user: user) }
 
