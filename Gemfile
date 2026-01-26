@@ -9,6 +9,7 @@ end
 
 gem "rails", "~> 8.1.2"
 
+gem "apipie-rails"
 gem "bcrypt"
 gem "bootsnap"
 gem "breadcrumbs_on_rails"
@@ -29,6 +30,7 @@ gem "jquery-ui-rails"
 gem "jsbundling-rails"
 gem "jsonapi-rails"
 gem "jsonapi-serializer"
+gem "json-schema"
 gem "kaminari"
 gem "neighbor"
 gem "newrelic_rpm"
