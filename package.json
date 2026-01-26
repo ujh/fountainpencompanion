@@ -27,7 +27,7 @@
     "lodash": "^4.17.23",
     "match-sorter": "^8.2.0",
     "mini-css-extract-plugin": "^2.10.0",
-    "postcss-preset-env": "^11.1.1",
+    "postcss-preset-env": "^11.1.2",
     "prop-types": "^15.8.1",
     "rc-resize-observer": "^1.4.3",
     "react": "19.2.3",
