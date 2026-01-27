@@ -5,6 +5,8 @@ class Api::V1::CollectedInksController < Api::V1::BaseController
     description "Endpoints for managing user's collected inks."
   end
 
+  before_action :set_collected_ink, only: %i[show update destroy]
+
   api :GET, "/api/v1/collected_inks", "Retrieve a list of the user's collected inks"
   param :page, Hash, desc: "Pagination parameters" do
     param :number, :number, desc: "Page number"
@@ -88,7 +90,134 @@ class Api::V1::CollectedInksController < Api::V1::BaseController
     render json: serializer.serializable_hash.to_json
   end
 
+  api :GET, "/api/v1/collected_inks/:id", "Retrieve a single collected ink"
+  param :id, :number, required: true, desc: "ID of the collected ink"
+  returns code: 200, desc: "A single collected ink" do
+    property :data, Hash do
+      property :id, String, desc: "ID of the collected ink"
+      property :type, ["collected_ink"]
+      property :attributes, Hash, desc: "Attributes of the ink"
+    end
+  end
+  returns code: 404, desc: "Collected ink not found"
+
+  def show
+    render json: single_serializer.serializable_hash.to_json
+  end
+
+  api :POST, "/api/v1/collected_inks", "Create a new collected ink"
+  param :data, Hash, required: true, desc: "Collected ink data" do
+    param :type, ["collected_ink"], required: true, desc: "Resource type"
+    param :attributes, Hash, required: true, desc: "Attributes of the ink" do
+      param :brand_name, String, required: true, desc: "Brand name of the ink (1-100 characters)"
+      param :ink_name, String, required: true, desc: "Name of the ink (1-100 characters)"
+      param :line_name, String, desc: "Line name of the ink (1-100 characters)"
+      param :maker, String, desc: "Maker of the ink"
+      param :kind, %w[bottle sample cartridge swab], desc: "Type of ink"
+      param :color, String, desc: "Color hex code of the ink (e.g., '#FF0000')"
+      param :swabbed, [true, false], desc: "Whether the ink has been swabbed"
+      param :used, [true, false], desc: "Whether the ink has been used"
+      param :comment, String, desc: "User comment about the ink"
+      param :private_comment, String, desc: "Private comment about the ink"
+      param :private, [true, false], desc: "Whether the ink is private"
+      param :archived, [true, false], desc: "Whether the ink is archived"
+      param :tags_as_string, String, desc: "Comma-separated list of tags"
+    end
+  end
+  returns code: 201, desc: "Collected ink created successfully"
+  returns code: 422, desc: "Validation errors"
+
+  def create
+    ink = current_user.collected_inks.build
+    if SaveCollectedInk.new(ink, collected_ink_params).perform
+      render json: CollectedInkSerializer.new(ink).serializable_hash.to_json, status: :created
+    else
+      render json: { errors: format_errors(ink) }, status: :unprocessable_entity
+    end
+  end
+
+  api :PATCH, "/api/v1/collected_inks/:id", "Update a collected ink"
+  param :id, :number, required: true, desc: "ID of the collected ink"
+  param :data, Hash, required: true, desc: "Collected ink data" do
+    param :type, ["collected_ink"], required: true, desc: "Resource type"
+    param :attributes, Hash, required: true, desc: "Attributes of the ink" do
+      param :brand_name, String, desc: "Brand name of the ink (1-100 characters)"
+      param :ink_name, String, desc: "Name of the ink (1-100 characters)"
+      param :line_name, String, desc: "Line name of the ink (1-100 characters)"
+      param :maker, String, desc: "Maker of the ink"
+      param :kind, %w[bottle sample cartridge swab], desc: "Type of ink"
+      param :color, String, desc: "Color hex code of the ink (e.g., '#FF0000')"
+      param :swabbed, [true, false], desc: "Whether the ink has been swabbed"
+      param :used, [true, false], desc: "Whether the ink has been used"
+      param :comment, String, desc: "User comment about the ink"
+      param :private_comment, String, desc: "Private comment about the ink"
+      param :private, [true, false], desc: "Whether the ink is private"
+      param :archived, [true, false], desc: "Whether the ink is archived"
+      param :tags_as_string, String, desc: "Comma-separated list of tags"
+    end
+  end
+  returns code: 200, desc: "Collected ink updated successfully"
+  returns code: 404, desc: "Collected ink not found"
+  returns code: 422, desc: "Validation errors"
+
+  def update
+    if SaveCollectedInk.new(@collected_ink, collected_ink_params).perform
+      render json: single_serializer.serializable_hash.to_json
+    else
+      render json: { errors: format_errors(@collected_ink) }, status: :unprocessable_entity
+    end
+  end
+
+  api :DELETE, "/api/v1/collected_inks/:id", "Delete a collected ink"
+  param :id, :number, required: true, desc: "ID of the collected ink"
+  returns code: 204, desc: "Collected ink deleted successfully"
+  returns code: 404, desc: "Collected ink not found"
+
+  def destroy
+    @collected_ink.destroy
+    head :no_content
+  end
+
   private
+
+  def set_collected_ink
+    @collected_ink = current_user.collected_inks.find(params[:id])
+  end
+
+  def single_serializer
+    CollectedInkSerializer.new(@collected_ink, single_options)
+  end
+
+  def collected_ink_params
+    params
+      .require(:data)
+      .require(:attributes)
+      .permit(
+        :brand_name,
+        :line_name,
+        :ink_name,
+        :maker,
+        :kind,
+        :swabbed,
+        :used,
+        :comment,
+        :private_comment,
+        :color,
+        :private,
+        :archived,
+        :tags_as_string
+      )
+  end
+
+  def format_errors(ink)
+    ink.errors.map do |error|
+      { source: { pointer: "/data/attributes/#{error.attribute}" }, detail: error.full_message }
+    end
+  end
+
+  def single_options
+    { fields: { collected_ink: collected_ink_fields } }
+  end
 
   def serializer
     CollectedInkSerializer.new(collected_inks, options)
