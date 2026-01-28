@@ -30,7 +30,7 @@
     "postcss-preset-env": "^11.1.2",
     "prop-types": "^15.8.1",
     "rc-resize-observer": "^1.4.3",
-    "react": "19.2.3",
+    "react": "19.2.4",
     "react-color": "^2.19.3",
     "react-dom": "19.2.3",
     "react-on-screen": "^2.1.1",
