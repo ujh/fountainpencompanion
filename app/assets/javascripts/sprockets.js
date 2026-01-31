@@ -10,39 +10,50 @@
 // Read Sprockets README (https://github.com/rails/sprockets#sprockets-directives) for details
 // about supported directives.
 //
-//= require jquery
-//= require jquery_ujs
 //= require_tree .
 
-$(function () {
-  $(".admin-macro-cluster-row, .admin-micro-cluster-row").on("ajax:success", function () {
-    location.reload();
-  });
-});
+document.addEventListener("DOMContentLoaded", function () {
+  // Admin cluster rows - reload page on successful AJAX
+  document
+    .querySelectorAll(".admin-macro-cluster-row, .admin-micro-cluster-row")
+    .forEach(function (el) {
+      el.addEventListener("ajax:success", function () {
+        location.reload();
+      });
+    });
 
-$(function () {
-  $(".video").on("ajax:success", function () {
-    $(this).hide();
+  // Video elements - hide on successful AJAX
+  document.querySelectorAll(".video").forEach(function (el) {
+    el.addEventListener("ajax:success", function () {
+      this.style.display = "none";
+    });
   });
-});
 
-$(function () {
-  $(".blog-alert").on("closed.bs.alert", function () {
-    console.log(this);
-    var url = "/reading_statuses/" + $(this).data("id");
-    console.log(url);
-    function csrfToken() {
-      var tokenElement = document.querySelector("meta[name='csrf-token']");
-      return tokenElement ? tokenElement.getAttribute("content") : null;
-    }
-    fetch(url, { method: "PUT", headers: { "X-CSRF-Token": csrfToken() } });
+  // Blog alerts - mark as read when dismissed
+  document.querySelectorAll(".blog-alert").forEach(function (el) {
+    el.addEventListener("closed.bs.alert", function () {
+      console.log(this);
+      var url = "/reading_statuses/" + this.dataset.id;
+      console.log(url);
+      function csrfToken() {
+        var tokenElement = document.querySelector("meta[name='csrf-token']");
+        return tokenElement ? tokenElement.getAttribute("content") : null;
+      }
+      fetch(url, { method: "PUT", headers: { "X-CSRF-Token": csrfToken() } });
+    });
   });
-});
 
-$(function () {
-  var ink_review_submission_form = $("#new_ink_review_submission");
-  ink_review_submission_form.on("ajax:success", () => {
-    ink_review_submission_form.find("input").val("");
-    ink_review_submission_form.find(".form-text").text("URL successful submitted!");
-  });
+  // Ink review submission form - clear on success
+  var ink_review_submission_form = document.getElementById("new_ink_review_submission");
+  if (ink_review_submission_form) {
+    ink_review_submission_form.addEventListener("ajax:success", function () {
+      ink_review_submission_form.querySelectorAll("input").forEach(function (input) {
+        input.value = "";
+      });
+      var formText = ink_review_submission_form.querySelector(".form-text");
+      if (formText) {
+        formText.textContent = "URL successful submitted!";
+      }
+    });
+  }
 });

@@ -1,6 +1,9 @@
 import "./stylesheets/application.scss";
 import "core-js/stable";
 import "regenerator-runtime/runtime";
+import Rails from "@rails/ujs";
+
+Rails.start();
 import "./src/slim-select-init";
 import { Tooltip, Dropdown } from "bootstrap";
 import "@popperjs/core";
