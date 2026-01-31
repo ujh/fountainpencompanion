@@ -3,6 +3,8 @@ class UpdateMicroCluster
 
   def perform(id)
     cluster = MicroCluster.find(id)
+    return if cluster.ignored?
+
     if cluster.macro_cluster_id
       UpdateMacroCluster.perform_async(cluster.macro_cluster_id)
     else
