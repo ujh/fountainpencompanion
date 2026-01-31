@@ -1,7 +1,7 @@
 import "./stylesheets/application.scss";
 import "core-js/stable";
 import "regenerator-runtime/runtime";
-import "./src/tom-select-init";
+import "./src/slim-select-init";
 import { Tooltip, Dropdown } from "bootstrap";
 import "@popperjs/core";
 
