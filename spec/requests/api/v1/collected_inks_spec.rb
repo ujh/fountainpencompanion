@@ -209,6 +209,45 @@ describe Api::V1::CollectedInksController do
 
         expect(json).to include(data: [hash_including(id: used.id.to_s)])
       end
+
+      it "can filter by macro_cluster_id" do
+        macro_cluster1 = create(:macro_cluster)
+        macro_cluster2 = create(:macro_cluster)
+        micro_cluster1 = create(:micro_cluster, macro_cluster: macro_cluster1)
+        micro_cluster2 = create(:micro_cluster, macro_cluster: macro_cluster2)
+        ink1 = create(:collected_ink, user: user, micro_cluster: micro_cluster1)
+        ink2 = create(:collected_ink, user: user, micro_cluster: micro_cluster2)
+
+        get "/api/v1/collected_inks",
+            params: {
+              filter: {
+                macro_cluster_id: macro_cluster1.id
+              }
+            },
+            headers: {
+              "ACCEPT" => "application/json"
+            }
+
+        expect(json[:data].length).to eq(1)
+        expect(json).to include(data: [hash_including(id: ink1.id.to_s)])
+      end
+
+      it "returns no inks when filtering by macro_cluster_id with no matches" do
+        macro_cluster = create(:macro_cluster)
+        ink_without_cluster = create(:collected_ink, user: user)
+
+        get "/api/v1/collected_inks",
+            params: {
+              filter: {
+                macro_cluster_id: macro_cluster.id
+              }
+            },
+            headers: {
+              "ACCEPT" => "application/json"
+            }
+
+        expect(json[:data]).to be_empty
+      end
     end
   end
 end

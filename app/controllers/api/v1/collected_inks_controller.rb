@@ -18,6 +18,7 @@ class Api::V1::CollectedInksController < Api::V1::BaseController
     param :archived, %w[true false], desc: "Filter by archived status"
     param :swabbed, %w[true false], desc: "Filter by swabbed status"
     param :used, %w[true false], desc: "Filter by used status"
+    param :macro_cluster_id, :number, desc: "Filter by macro cluster ID (ink_id)"
   end
   param :fields, Hash, desc: "Sparse fieldsets" do
     param :collected_ink,
@@ -132,6 +133,10 @@ class Api::V1::CollectedInksController < Api::V1::BaseController
     end
     if used = params.dig(:filter, :used)
       relation = relation.where(used: used == "true")
+    end
+    if macro_cluster_id = params.dig(:filter, :macro_cluster_id)
+      relation =
+        relation.joins(:micro_cluster).where(micro_clusters: { macro_cluster_id: macro_cluster_id })
     end
     relation
   end
