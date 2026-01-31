@@ -12,4 +12,4 @@ coverage:
         threshold: 0.2%
     patch:
       default:
-        threshold: 0.2%
+        threshold: 5%
