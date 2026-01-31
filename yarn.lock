@@ -7785,11 +7785,6 @@ schema-utils@^4.0.0, schema-utils@^4.3.0, schema-utils@^4.3.3:
     ajv-formats "^2.1.1"
     ajv-keywords "^5.1.0"
 
-select2@4.0.13:
-  version "4.0.13"
-  resolved "https://registry.yarnpkg.com/select2/-/select2-4.0.13.tgz#0dbe377df3f96167c4c1626033e924372d8ef44d"
-  integrity sha512-1JeB87s6oN/TDxQQYCvS5EFoQyvV6eYMZZ0AeA4tdFDYWN3BAGZ8npr17UBFddU0lgAt3H0yjX3X6/ekOj1yjw==
-
 semver@^6.0.0, semver@^6.3.1:
   version "6.3.1"
   resolved "https://registry.yarnpkg.com/semver/-/semver-6.3.1.tgz#556d2ef8689146e46dcea4bfdd095f3434dffcb4"
@@ -7941,6 +7936,11 @@ slice-ansi@^7.1.0:
   dependencies:
     ansi-styles "^6.2.1"
     is-fullwidth-code-point "^5.0.0"
+
+slim-select@^2.9.2:
+  version "2.13.1"
+  resolved "https://registry.yarnpkg.com/slim-select/-/slim-select-2.13.1.tgz#4973613ac3dc8c281cbe3d510593aa286be56ea3"
+  integrity sha512-0/j1SAYzwaCgb4mWEOIr+QSzznVPEfT/o6FHAK3yk9qZTM+79DC/J3YRZz7lC4JvteZTzxoGXxPF6CAG7ezjyg==
 
 "source-map-js@>=0.6.2 <2.0.0":
   version "1.0.2"

@@ -1,23 +1,24 @@
 @use "~bootstrap/scss/bootstrap" as b;
-@import "~select2/dist/css/select2.css";
 
-// Select2 theme customizations for dark/light mode
-.select2-dropdown,
-.select2-container--default .select2-selection--single,
-.select2-container--default
-  .select2-results__option[aria-selected="true"]:not(.select2-results__option--highlighted) {
+// Slim Select theme customizations for dark/light mode
+.ss-main {
   background-color: var(--bs-body-bg);
   border-color: var(--bs-border-color);
   color: var(--fpc-text-color);
 }
 
-.select2-container--default .select2-results__option--highlighted[aria-selected] {
+.ss-content {
+  background-color: var(--bs-body-bg);
+  border-color: var(--bs-border-color);
+}
+
+.ss-content .ss-option.ss-highlighted,
+.ss-content .ss-option:hover {
   background-color: var(--bs-primary);
-  border-color: var(--bs-primary-border-subtle);
   color: #fff;
 }
 
-.select2-container--default .select2-selection--single .select2-selection__rendered {
+.ss-content .ss-option {
   color: var(--fpc-text-color);
 }
 
@@ -131,14 +132,10 @@ form.new_currently_inked {
     margin-right: 15px;
   }
 
+  // Slim Select height adjustments to match other form fields
   $_form-field-height: 38px;
 
-  .select2-selection,
-  .select2-container--default .select2-selection--single .select2-selection__arrow {
-    height: $_form-field-height;
-  }
-
-  .select2-container--default .select2-selection--single .select2-selection__rendered {
-    line-height: $_form-field-height;
+  .ss-main {
+    min-height: $_form-field-height;
   }
 }
