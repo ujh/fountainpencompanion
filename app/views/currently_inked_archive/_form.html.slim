@@ -5,9 +5,9 @@
 
   div class="d-flex g-2"
     div style="max-width: 190px" class="me-3"
-      = f.input :inked_on, as: :string, required: false
+      = f.input :inked_on, as: :string, required: false, input_html: { type: 'date' }
     div style="max-width: 190px"
-      = f.input :archived_on, as: :string
+      = f.input :archived_on, as: :string, input_html: { type: 'date' }
 
   div style="max-width: 850px"
     = f.input :comment, as: :string

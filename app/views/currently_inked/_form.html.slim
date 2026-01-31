@@ -4,7 +4,7 @@
       = f.association :collected_ink, collection: record.collected_inks_for_active_select, selected: record.collected_ink_id || params[:collected_ink_id], prompt: "(Pick an ink)"
 
   div style="max-width: 190px"
-      = f.input :inked_on, as: :string, required: false
+      = f.input :inked_on, as: :string, required: false, input_html: { type: 'date' }
 
   div style="max-width: 850px"
       = f.input :comment, as: :string
