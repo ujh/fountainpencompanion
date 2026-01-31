@@ -2,8 +2,6 @@
 
 @import "jquery-ui/core";
 @import "jquery-ui/theme";
-@import "jquery-ui/autocomplete";
-@import "jquery-ui/menu";
 @import "jquery-ui/datepicker";
 
 @import "select2";
@@ -25,14 +23,6 @@
 
 .select2-container--default .select2-selection--single .select2-selection__rendered {
   color: var(--fpc-text-color);
-}
-
-.ui-autocomplete {
-  max-height: 200px;
-  overflow-y: auto;
-  overflow-x: hidden;
-  color: var(--fpc-text-color);
-  background-color: var(--fpc-bright-background);
 }
 
 .ui-widget {
