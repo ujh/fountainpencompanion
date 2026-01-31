@@ -3,6 +3,9 @@ import "core-js/stable";
 import "regenerator-runtime/runtime";
 import { Tooltip, Dropdown } from "bootstrap";
 import "@popperjs/core";
+import Rails from "@rails/ujs";
+
+Rails.start();
 
 import "./color-mode";
 import "./src/admin/micro-clusters";
