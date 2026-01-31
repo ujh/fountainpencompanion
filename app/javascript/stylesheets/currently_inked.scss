@@ -1,23 +1,20 @@
 @use "~bootstrap/scss/bootstrap" as b;
-@import "~select2/dist/css/select2.css";
 
-// Select2 theme customizations for dark/light mode
-.select2-dropdown,
-.select2-container--default .select2-selection--single,
-.select2-container--default
-  .select2-results__option[aria-selected="true"]:not(.select2-results__option--highlighted) {
+// Tom Select theme customizations for dark/light mode
+.ts-wrapper.single .ts-control,
+.ts-dropdown {
   background-color: var(--bs-body-bg);
   border-color: var(--bs-border-color);
   color: var(--fpc-text-color);
 }
 
-.select2-container--default .select2-results__option--highlighted[aria-selected] {
+.ts-dropdown .option.active {
   background-color: var(--bs-primary);
-  border-color: var(--bs-primary-border-subtle);
   color: #fff;
 }
 
-.select2-container--default .select2-selection--single .select2-selection__rendered {
+.ts-control input,
+.ts-control input::placeholder {
   color: var(--fpc-text-color);
 }
 
@@ -131,14 +128,10 @@ form.new_currently_inked {
     margin-right: 15px;
   }
 
+  // Tom Select height adjustments to match other form fields
   $_form-field-height: 38px;
 
-  .select2-selection,
-  .select2-container--default .select2-selection--single .select2-selection__arrow {
-    height: $_form-field-height;
-  }
-
-  .select2-container--default .select2-selection--single .select2-selection__rendered {
-    line-height: $_form-field-height;
+  .ts-control {
+    min-height: $_form-field-height;
   }
 }
