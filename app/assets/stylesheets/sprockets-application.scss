@@ -1,9 +1,5 @@
 @import "font-awesome";
 
-@import "jquery-ui/core";
-@import "jquery-ui/theme";
-@import "jquery-ui/datepicker";
-
 @import "select2";
 
 .select2-dropdown,
@@ -23,37 +19,4 @@
 
 .select2-container--default .select2-selection--single .select2-selection__rendered {
   color: var(--fpc-text-color);
-}
-
-.ui-widget {
-  &.ui-widget-content,
-  &-content {
-    background-color: var(--fpc-background);
-    border: 1px solid var(--bs-border-color);
-    color: var(--fpc-text-color);
-
-    .ui-state-default {
-      background-color: var(--fpc-bright-background);
-      border-color: var(--bs-border-color);
-      color: var(--fpc-text-color);
-    }
-
-    .ui-state-hover {
-      background-color: var(--bs-primary-bg-subtle);
-      border-color: var(--bs-primary-border-subtle);
-      color: var(--fpc-text-color);
-    }
-
-    .ui-state-highlight {
-      background-color: var(--bs-primary);
-      border-color: var(--bs-primary-border-subtle);
-      color: #fff;
-    }
-  }
-
-  &-header {
-    border: 1px solid var(--bs-border-color);
-    background-color: var(--fpc-bright-background);
-    color: var(--fpc-text-color);
-  }
 }
