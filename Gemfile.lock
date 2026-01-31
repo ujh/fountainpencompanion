@@ -1,9 +1,4 @@
 GEM
-  remote: https://rails-assets.org/
-  specs:
-    rails-assets-select2 (4.0.13)
-
-GEM
   remote: https://rubygems.org/
   specs:
     action_text-trix (2.1.16)
@@ -643,7 +638,6 @@ DEPENDENCIES
   rack-attack
   rack-timeout
   rails (~> 8.1.2)
-  rails-assets-select2 (= 4.0.13)!
   rails-controller-testing
   raix (= 1.0.3)
   redis

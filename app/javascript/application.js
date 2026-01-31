@@ -1,6 +1,7 @@
 import "./stylesheets/application.scss";
 import "core-js/stable";
 import "regenerator-runtime/runtime";
+import "./src/select2-init";
 import { Tooltip, Dropdown } from "bootstrap";
 import "@popperjs/core";
 
