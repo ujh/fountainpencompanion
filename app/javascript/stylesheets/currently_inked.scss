@@ -22,16 +22,6 @@
   color: var(--fpc-text-color);
 }
 
-.ss-main .ss-single-selected,
-.ss-main .ss-multi-selected {
-  background-color: var(--bs-body-bg);
-  border-color: var(--bs-border-color);
-}
-
-.ss-main .ss-single-selected .placeholder {
-  color: var(--fpc-text-color);
-}
-
 .fpc-currently-inked-table {
   td {
     vertical-align: middle;
