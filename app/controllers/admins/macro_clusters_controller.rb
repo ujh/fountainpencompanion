@@ -32,6 +32,7 @@ class Admins::MacroClustersController < Admins::BaseController
 
   def destroy
     cluster = MacroCluster.find(params[:id])
+    micro_cluster_ids = []
     cluster.micro_clusters.each do |micro_cluster|
       micro_cluster.agent_logs.create!(
         name: "InkClusterer",
@@ -41,10 +42,10 @@ class Admins::MacroClustersController < Admins::BaseController
           action: "create_new_cluster"
         }
       )
-      micro_cluster.touch
-      UpdateMicroCluster.perform_async(micro_cluster.id)
+      micro_cluster_ids << micro_cluster.id
     end
     cluster.destroy!
+    micro_cluster_ids.each { |micro_cluster_id| UpdateMicroCluster.perform_async(micro_cluster_id) }
     head :ok
   end
 
