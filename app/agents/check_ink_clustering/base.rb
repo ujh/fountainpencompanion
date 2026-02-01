@@ -26,7 +26,8 @@ class CheckInkClustering::Base
     return unless micro_cluster_agent_log
 
     if micro_cluster.collected_inks.present?
-      chat_completion(openai: "gpt-4.1")
+      model = ENV["USE_OLLAMA"] == "true" ? "llama3.2:3b" : "gpt-4.1"
+      chat_completion(openai: model)
     else
       agent_log.update(
         extra_data: {

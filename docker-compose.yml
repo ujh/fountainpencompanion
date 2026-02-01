@@ -16,6 +16,7 @@ x-rails: &rails
     REDIS_CACHE_URL: redis://redis:6379/1
     REDIS_PROVIDER: REDIS_URL
     REDIS_URL: redis://redis:6379/0
+    USE_OLLAMA: "true"
   env_file:
     - path: ./.env
       required: true
@@ -23,8 +24,12 @@ x-rails: &rails
       required: false
 
   depends_on:
-    - postgres
-    - redis
+    postgres:
+      condition: service_started
+    redis:
+      condition: service_started
+    ollama:
+      condition: service_healthy
   volumes:
     - .:/app
     - gem_cache:/usr/local/bundle
@@ -46,6 +51,30 @@ services:
       - redis_data:/data:cached
     ports:
       - 6379:6379
+  ollama:
+    image: ollama/ollama:latest
+    volumes:
+      - ollama_data:/root/.ollama
+    ports:
+      - 11434:11434
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "ollama list | grep -q 'llama3.2:3b' && ollama list | grep -q 'nomic-embed-text'"
+        ]
+      # Wait up to 10 minutes (interval * retries) for Ollama to be ready and models to be pulled
+      interval: 10s
+      timeout: 5s
+      retries: 60
+      start_period: 60s
+    entrypoint: ["/bin/sh", "-c"]
+    command: >
+      "ollama serve &
+      sleep 5 &&
+      ollama pull llama3.2:3b &&
+      ollama pull nomic-embed-text &&
+      wait"
   app:
     <<: *rails
     command: bundle exec puma
@@ -62,3 +91,4 @@ volumes:
   gem_cache:
   postgres_data:
   redis_data:
+  ollama_data:
