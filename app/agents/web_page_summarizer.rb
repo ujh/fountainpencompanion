@@ -20,7 +20,7 @@ class WebPageSummarizer
   end
 
   def perform
-    model = ENV["USE_OLLAMA"] == "true" ? "llama3.2:3b" : "gpt-4.1-mini"
+    model = ENV["USE_OLLAMA"] == "true" ? "llama3.1" : "gpt-4.1-mini"
     summary = chat_completion(openai: model)
     agent_log.waiting_for_approval!
     summary

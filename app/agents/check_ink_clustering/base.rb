@@ -26,7 +26,7 @@ class CheckInkClustering::Base
     return unless micro_cluster_agent_log
 
     if micro_cluster.collected_inks.present?
-      model = ENV["USE_OLLAMA"] == "true" ? "llama3.2:3b" : "gpt-4.1"
+      model = ENV["USE_OLLAMA"] == "true" ? "llama3.1" : "gpt-4.1"
       chat_completion(openai: model)
     else
       agent_log.update(
@@ -53,12 +53,39 @@ class CheckInkClustering::Base
         agent: true
       )
     elsif rejected?
-      clusters_to_reprocess =
-        InkClusterer.new(micro_cluster.id, agent_log_id: micro_cluster_agent_log.id).reject!(
-          agent: true
+      # Check if we've rejected this same action too many times (prevent infinite loop)
+      rejected_action = micro_cluster_agent_log.extra_data["action"]
+      previous_rejections =
+        micro_cluster
+          .agent_logs
+          .ink_clusterer
+          .rejected
+          .where("extra_data->>'action' = ?", rejected_action)
+          .where("created_at < ?", micro_cluster_agent_log.created_at)
+          .count
+
+      if previous_rejections >= 3
+        # Stop the infinite loop - mark as needing human review
+        micro_cluster_agent_log.update!(
+          extra_data:
+            micro_cluster_agent_log.extra_data.merge(
+              follow_up_done: true,
+              follow_up_action: "hand_over_to_human",
+              follow_up_action_explanation:
+                "This action has been rejected #{previous_rejections} times. Handing over to human for manual review."
+            ),
+          state: AgentLog::APPROVED
         )
-      clusters_to_reprocess.each do |cluster|
-        RunInkClustererAgent.perform_async("InkClusterer", cluster.id)
+        micro_cluster.touch # Move it to the end of the queue
+      else
+        # Try again with a different approach
+        clusters_to_reprocess =
+          InkClusterer.new(micro_cluster.id, agent_log_id: micro_cluster_agent_log.id).reject!(
+            agent: true
+          )
+        clusters_to_reprocess.each do |cluster|
+          RunInkClustererAgent.perform_async("InkClusterer", cluster.id)
+        end
       end
     else
       # Handed over to human. Nothing should happen here.

@@ -17,6 +17,7 @@ x-rails: &rails
     REDIS_PROVIDER: REDIS_URL
     REDIS_URL: redis://redis:6379/0
     USE_OLLAMA: "true"
+    FETCH_REVIEWS: "false"
   env_file:
     - path: ./.env
       required: true
@@ -61,7 +62,7 @@ services:
       test:
         [
           "CMD-SHELL",
-          "ollama list | grep -q 'llama3.2:3b' && ollama list | grep -q 'nomic-embed-text'"
+          "ollama list | grep -q 'llama3.1' && ollama list | grep -q 'nomic-embed-text'"
         ]
       # Wait up to 10 minutes (interval * retries) for Ollama to be ready and models to be pulled
       interval: 10s
@@ -72,7 +73,7 @@ services:
     command: >
       "ollama serve &
       sleep 5 &&
-      ollama pull llama3.2:3b &&
+      ollama pull llama3.1 &&
       ollama pull nomic-embed-text &&
       wait"
   app:

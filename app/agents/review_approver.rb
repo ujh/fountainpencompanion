@@ -35,7 +35,7 @@ class ReviewApprover
   end
 
   def perform
-    model = ENV["USE_OLLAMA"] == "true" ? "llama3.2:3b" : "gpt-4.1-mini"
+    model = ENV["USE_OLLAMA"] == "true" ? "llama3.1" : "gpt-4.1-mini"
     chat_completion(openai: model)
     agent_log.update!(extra_data: ink_review.extra_data)
     agent_log.waiting_for_approval!

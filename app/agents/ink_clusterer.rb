@@ -9,6 +9,9 @@ class InkClusterer
   SYSTEM_DIRECTIVE = <<~TEXT
     You are a clustering algorithm that groups similar inks together based on their properties.
 
+    CRITICAL: You MUST respond by calling one of the provided tool functions.
+    DO NOT respond with plain text explanations. Your ONLY valid responses are tool/function calls.
+
     You will be given an ink and asked to execute one of the following actions:
     1. Find the most similar ink cluster in the database and assign the ink to that cluster.
     2. Create a new cluster for the ink if no similar cluster is found.
@@ -44,6 +47,13 @@ class InkClusterer
     1. The more results you get, the more likely it is that the ink is known.
     2. Even if there are many results, double check that the ink name is actually present. The results might
        not even contain the ink name.
+
+    WORKFLOW:
+    1. First, call ink_similarity_search to find potential matching clusters
+    2. Based on results, call ONE of: assign_to_cluster, create_new_cluster, ignore_ink, or hand_over_to_human
+    3. If unsure, call hand_over_to_human
+
+    REMINDER: You MUST call a tool function. Never respond with just text.
   TEXT
 
   def initialize(micro_cluster_id, agent_log_id: nil)
@@ -67,7 +77,7 @@ class InkClusterer
 
   def perform
     if micro_cluster.collected_inks.present?
-      model = ENV["USE_OLLAMA"] == "true" ? "llama3.2:3b" : "gpt-4.1"
+      model = ENV["USE_OLLAMA"] == "true" ? "llama3.1" : "gpt-4.1"
       chat_completion(openai: model)
       agent_log.update!(extra_data: extra_data)
       agent_log.waiting_for_approval!
@@ -197,9 +207,11 @@ class InkClusterer
   end
 
   function :assign_to_cluster,
-           "Assign ink to existing cluster",
+           "Assign ink to existing cluster. IMPORTANT: You must first use ink_similarity_search to find valid cluster IDs before calling this function.",
            cluster_id: {
-             type: "integer"
+             type: "integer",
+             description:
+               "The ID of an existing cluster returned by ink_similarity_search. Do NOT guess IDs."
            },
            explanation_of_decision: {
              type: "string",

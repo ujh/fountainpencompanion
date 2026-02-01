@@ -27,7 +27,7 @@ It's easiest to run the app via [OrbStack](https://orbstack.dev/), a Docker Desk
 ### Initial Setup
 
 - Run `docker-compose up` with OrbStack already running and wait for the everything to build. _This can take a while the first time around._
-  - **Note:** The first run will download AI models (~2GB for llama3.2:3b and ~300MB for nomic-embed-text). This happens automatically via the Ollama container but may take 10-20 minutes depending on your connection.
+  - **Note:** The first run will download AI models (~4GB for llama3.1 and ~300MB for nomic-embed-text). This happens automatically via the Ollama container but may take 10-20 minutes depending on your connection.
 - In a second terminal (while the other is still running Docker), run `docker-compose exec app bundle exec rails db:setup`
 - Go to app.fountainpencompanion.orb.local (or whatever the `app` container in Orbstack has as it's URL)
 - Login with email address `urban@bettong.net` and password `password`
@@ -46,6 +46,12 @@ This means you don't need OpenAI API keys for local development. The models run 
 **To use OpenAI instead of Ollama in development**: Set `USE_OLLAMA=false` in your `.env.local` file, or remove the `USE_OLLAMA` environment variable from docker-compose.yml. You'll need to provide `OPEN_AI_DEV_TOKEN` and other OpenAI API keys in your `.env` or `.env.local` file.
 
 **Embedding Compatibility Note**: When using Ollama, `nomic-embed-text` produces 768-dimensional vectors that are automatically padded to 1536 dimensions with zeros to maintain database compatibility. This means Ollama embeddings will work but won't be directly comparable to production embeddings from OpenAI's `text-embedding-3-small`.
+
+### Review Fetching
+
+The app automatically fetches ink reviews from RSS feeds and YouTube channels every hour. This is **enabled by default** in production but **disabled in development** (via docker-compose.yml) to avoid processing hundreds of web pages with AI agents on fresh database setup.
+
+**To enable review fetching in development**: Remove the `FETCH_REVIEWS: "false"` line from docker-compose.yml or set `FETCH_REVIEWS=true` in your `.env.local` file. When enabled, the app will fetch reviews every hour from various fountain pen blogs and YouTube channels, which will queue AI processing jobs using Ollama.
 
 ### Running the tests
 

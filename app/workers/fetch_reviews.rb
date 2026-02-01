@@ -2,6 +2,8 @@ class FetchReviews
   include Sidekiq::Worker
 
   def perform
+    return if ENV["FETCH_REVIEWS"] == "false"
+
     feeds.each { |url| FetchReviews::GenericRss.perform_async(url) }
     youtube_channels.each { |channel_id| FetchReviews::YoutubeChannel.perform_async(channel_id) }
   end
