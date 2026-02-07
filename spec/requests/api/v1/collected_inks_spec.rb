@@ -250,4 +250,262 @@ describe Api::V1::CollectedInksController do
       end
     end
   end
+
+  describe "GET /show" do
+    it "requires authentication" do
+      ink = create(:collected_ink)
+      get "/api/v1/collected_inks/#{ink.id}", headers: { "ACCEPT" => "application/json" }
+      expect(response).to have_http_status(:unauthorized)
+    end
+
+    context "when signed in" do
+      let(:user) { create(:user) }
+      before(:each) { sign_in(user) }
+
+      it "returns the requested ink" do
+        ink = create(:collected_ink, user: user, brand_name: "Pilot", ink_name: "Kon-peki")
+        get "/api/v1/collected_inks/#{ink.id}", headers: { "ACCEPT" => "application/json" }
+
+        expect(response).to have_http_status(:ok)
+        expect(json).to include(
+          data:
+            hash_including(
+              id: ink.id.to_s,
+              attributes: hash_including(brand_name: "Pilot", ink_name: "Kon-peki")
+            )
+        )
+      end
+
+      it "returns 404 for another user's ink" do
+        other_ink = create(:collected_ink)
+        get "/api/v1/collected_inks/#{other_ink.id}", headers: { "ACCEPT" => "application/json" }
+
+        expect(response).to have_http_status(:not_found)
+      end
+
+      it "returns 404 for non-existent ink" do
+        get "/api/v1/collected_inks/999999", headers: { "ACCEPT" => "application/json" }
+
+        expect(response).to have_http_status(:not_found)
+      end
+    end
+  end
+
+  describe "POST /create" do
+    it "requires authentication" do
+      post "/api/v1/collected_inks",
+           params: {
+             data: {
+               type: "collected_ink",
+               attributes: {
+                 brand_name: "Pilot",
+                 ink_name: "Blue"
+               }
+             }
+           },
+           headers: {
+             "ACCEPT" => "application/json",
+             "CONTENT_TYPE" => "application/json"
+           },
+           as: :json
+      expect(response).to have_http_status(:unauthorized)
+    end
+
+    context "when signed in" do
+      let(:user) { create(:user) }
+      before(:each) { sign_in(user) }
+
+      it "creates a new collected ink" do
+        expect do
+          post "/api/v1/collected_inks",
+               params: {
+                 data: {
+                   type: "collected_ink",
+                   attributes: {
+                     brand_name: "Pilot",
+                     line_name: "Iroshizuku",
+                     ink_name: "Kon-peki",
+                     kind: "bottle",
+                     color: "#0066CC"
+                   }
+                 }
+               },
+               headers: {
+                 "ACCEPT" => "application/json",
+                 "CONTENT_TYPE" => "application/json"
+               },
+               as: :json
+        end.to change(user.collected_inks, :count).by(1)
+
+        expect(response).to have_http_status(:created)
+        expect(json).to include(
+          data:
+            hash_including(
+              attributes:
+                hash_including(
+                  brand_name: "Pilot",
+                  line_name: "Iroshizuku",
+                  ink_name: "Kon-peki",
+                  kind: "bottle",
+                  color: "#0066CC"
+                )
+            )
+        )
+      end
+
+      it "returns validation errors for brand_name that is too long" do
+        post "/api/v1/collected_inks",
+             params: {
+               data: {
+                 type: "collected_ink",
+                 attributes: {
+                   brand_name: "a" * 101,
+                   ink_name: "Blue"
+                 }
+               }
+             },
+             headers: {
+               "ACCEPT" => "application/json",
+               "CONTENT_TYPE" => "application/json"
+             },
+             as: :json
+
+        expect(response).to have_http_status(:unprocessable_entity)
+        expect(json[:errors]).to be_present
+      end
+    end
+  end
+
+  describe "PATCH /update" do
+    it "requires authentication" do
+      ink = create(:collected_ink)
+      patch "/api/v1/collected_inks/#{ink.id}",
+            params: {
+              data: {
+                type: "collected_ink",
+                attributes: {
+                  brand_name: "Updated"
+                }
+              }
+            },
+            headers: {
+              "ACCEPT" => "application/json",
+              "CONTENT_TYPE" => "application/json"
+            },
+            as: :json
+      expect(response).to have_http_status(:unauthorized)
+    end
+
+    context "when signed in" do
+      let(:user) { create(:user) }
+      before(:each) { sign_in(user) }
+
+      it "updates the collected ink" do
+        ink = create(:collected_ink, user: user, brand_name: "Pilot", ink_name: "Blue")
+
+        patch "/api/v1/collected_inks/#{ink.id}",
+              params: {
+                data: {
+                  type: "collected_ink",
+                  attributes: {
+                    brand_name: "Sailor",
+                    comment: "Great ink!"
+                  }
+                }
+              },
+              headers: {
+                "ACCEPT" => "application/json",
+                "CONTENT_TYPE" => "application/json"
+              },
+              as: :json
+
+        expect(response).to have_http_status(:ok)
+        expect(json).to include(
+          data:
+            hash_including(attributes: hash_including(brand_name: "Sailor", comment: "Great ink!"))
+        )
+        expect(ink.reload.brand_name).to eq("Sailor")
+      end
+
+      it "returns 404 for another user's ink" do
+        other_ink = create(:collected_ink)
+
+        patch "/api/v1/collected_inks/#{other_ink.id}",
+              params: {
+                data: {
+                  type: "collected_ink",
+                  attributes: {
+                    brand_name: "Updated"
+                  }
+                }
+              },
+              headers: {
+                "ACCEPT" => "application/json",
+                "CONTENT_TYPE" => "application/json"
+              },
+              as: :json
+
+        expect(response).to have_http_status(:not_found)
+      end
+
+      it "returns validation errors for invalid data" do
+        ink = create(:collected_ink, user: user)
+
+        patch "/api/v1/collected_inks/#{ink.id}",
+              params: {
+                data: {
+                  type: "collected_ink",
+                  attributes: {
+                    brand_name: "a" * 101
+                  }
+                }
+              },
+              headers: {
+                "ACCEPT" => "application/json",
+                "CONTENT_TYPE" => "application/json"
+              },
+              as: :json
+
+        expect(response).to have_http_status(:unprocessable_entity)
+        expect(json[:errors]).to be_present
+      end
+    end
+  end
+
+  describe "DELETE /destroy" do
+    it "requires authentication" do
+      ink = create(:collected_ink)
+      delete "/api/v1/collected_inks/#{ink.id}", headers: { "ACCEPT" => "application/json" }
+      expect(response).to have_http_status(:unauthorized)
+    end
+
+    context "when signed in" do
+      let(:user) { create(:user) }
+      before(:each) { sign_in(user) }
+
+      it "deletes the collected ink" do
+        ink = create(:collected_ink, user: user)
+
+        expect do
+          delete "/api/v1/collected_inks/#{ink.id}", headers: { "ACCEPT" => "application/json" }
+        end.to change(user.collected_inks, :count).by(-1)
+
+        expect(response).to have_http_status(:no_content)
+      end
+
+      it "returns 404 for another user's ink" do
+        other_ink = create(:collected_ink)
+
+        delete "/api/v1/collected_inks/#{other_ink.id}", headers: { "ACCEPT" => "application/json" }
+
+        expect(response).to have_http_status(:not_found)
+      end
+
+      it "returns 404 for non-existent ink" do
+        delete "/api/v1/collected_inks/999999", headers: { "ACCEPT" => "application/json" }
+
+        expect(response).to have_http_status(:not_found)
+      end
+    end
+  end
 end
