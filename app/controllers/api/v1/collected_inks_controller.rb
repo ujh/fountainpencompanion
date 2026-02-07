@@ -204,7 +204,6 @@ class Api::V1::CollectedInksController < Api::V1::BaseController
         :private_comment,
         :color,
         :private,
-        :archived,
         :tags_as_string
       )
   end

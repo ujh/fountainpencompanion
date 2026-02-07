@@ -1,7 +1,7 @@
 class SaveCollectedInk
   def initialize(collected_ink, collected_ink_params)
     self.collected_ink = collected_ink
-    self.collected_ink_params = normalize_params(collected_ink_params)
+    self.collected_ink_params = collected_ink_params
   end
 
   def perform
@@ -17,10 +17,6 @@ class SaveCollectedInk
   private
 
   attr_accessor :collected_ink, :collected_ink_params
-
-  def normalize_params(params)
-    params.to_h.symbolize_keys.except(:archived)
-  end
 
   def update_embedding
     ink_embedding.update(content: collected_ink.short_name)
