@@ -1,4 +1,5 @@
 import React from "react";
+import { flexRender } from "@tanstack/react-table";
 
 export const Table = ({
   getTableProps,
@@ -18,11 +19,15 @@ export const Table = ({
                 key={`thead-th-${i}-${j}`}
                 {...column.getHeaderProps(column.getSortByToggleProps())}
               >
-                {column.render("Header")}
+                {column.columnDef?.header
+                  ? flexRender(column.columnDef.header, column.getContext?.() ?? {})
+                  : column.render("Header")}
                 <span>
                   &nbsp;
-                  {column.isSorted ? (
-                    <i className={`fa fa-arrow-${column.isSortedDesc ? "down" : "up"}`} />
+                  {(column.getIsSorted ? column.getIsSorted() : column.isSorted) ? (
+                    <i
+                      className={`fa fa-arrow-${column.getIsSorted?.() === "desc" || column.isSortedDesc ? "down" : "up"}`}
+                    />
                   ) : (
                     ""
                   )}
@@ -40,7 +45,9 @@ export const Table = ({
               {row.cells.map((cell, j) => {
                 return (
                   <td key={`thead-td-${i}-${j}`} {...cell.getCellProps()}>
-                    {cell.render("Cell")}
+                    {cell.column?.columnDef?.cell
+                      ? flexRender(cell.column.columnDef.cell, cell.getContext?.() ?? {})
+                      : cell.render("Cell")}
                   </td>
                 );
               })}
@@ -53,7 +60,9 @@ export const Table = ({
           <tr key={`tfoot-tr-${i}`} className="align-top" {...group.getFooterGroupProps()}>
             {group.headers.map((column, j) => (
               <td key={`tfoot-td-${i}-${j}`} {...column.getFooterProps()}>
-                {column.render("Footer")}
+                {column.columnDef?.footer
+                  ? flexRender(column.columnDef.footer, column.getContext?.() ?? {})
+                  : column.render("Footer")}
               </td>
             ))}
           </tr>
