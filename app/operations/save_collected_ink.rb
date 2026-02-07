@@ -19,11 +19,7 @@ class SaveCollectedInk
   attr_accessor :collected_ink, :collected_ink_params
 
   def normalize_params(params)
-    normalized = params.to_h.symbolize_keys
-    if normalized.key?(:archived)
-      normalized[:archived_on] = normalized.delete(:archived) ? Date.current : nil
-    end
-    normalized
+    params.to_h.symbolize_keys.except(:archived)
   end
 
   def update_embedding

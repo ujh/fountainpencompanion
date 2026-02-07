@@ -373,28 +373,6 @@ describe Api::V1::CollectedInksController do
         expect(response).to have_http_status(:unprocessable_entity)
         expect(json[:errors]).to be_present
       end
-
-      it "creates an archived ink when archived is true" do
-        post "/api/v1/collected_inks",
-             params: {
-               data: {
-                 type: "collected_ink",
-                 attributes: {
-                   brand_name: "Pilot",
-                   ink_name: "Blue",
-                   archived: true
-                 }
-               }
-             },
-             headers: {
-               "ACCEPT" => "application/json",
-               "CONTENT_TYPE" => "application/json"
-             },
-             as: :json
-
-        expect(response).to have_http_status(:created)
-        expect(user.collected_inks.last.archived?).to be true
-      end
     end
   end
 
@@ -490,54 +468,6 @@ describe Api::V1::CollectedInksController do
 
         expect(response).to have_http_status(:unprocessable_entity)
         expect(json[:errors]).to be_present
-      end
-
-      it "archives an ink when archived is set to true" do
-        ink = create(:collected_ink, user: user)
-        expect(ink.archived?).to be false
-
-        patch "/api/v1/collected_inks/#{ink.id}",
-              params: {
-                data: {
-                  type: "collected_ink",
-                  attributes: {
-                    archived: true
-                  }
-                }
-              },
-              headers: {
-                "ACCEPT" => "application/json",
-                "CONTENT_TYPE" => "application/json"
-              },
-              as: :json
-
-        expect(response).to have_http_status(:ok)
-        expect(ink.reload.archived?).to be true
-        expect(json[:data][:attributes][:archived]).to be true
-      end
-
-      it "unarchives an ink when archived is set to false" do
-        ink = create(:collected_ink, user: user, archived_on: Date.current)
-        expect(ink.archived?).to be true
-
-        patch "/api/v1/collected_inks/#{ink.id}",
-              params: {
-                data: {
-                  type: "collected_ink",
-                  attributes: {
-                    archived: false
-                  }
-                }
-              },
-              headers: {
-                "ACCEPT" => "application/json",
-                "CONTENT_TYPE" => "application/json"
-              },
-              as: :json
-
-        expect(response).to have_http_status(:ok)
-        expect(ink.reload.archived?).to be false
-        expect(json[:data][:attributes][:archived]).to be false
       end
     end
   end
