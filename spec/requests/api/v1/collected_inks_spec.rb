@@ -469,6 +469,56 @@ describe Api::V1::CollectedInksController do
         expect(response).to have_http_status(:unprocessable_entity)
         expect(json[:errors]).to be_present
       end
+
+      it "can set the archived date" do
+        ink = create(:collected_ink, user: user, archived_on: nil)
+
+        patch "/api/v1/collected_inks/#{ink.id}",
+              params: {
+                data: {
+                  type: "collected_ink",
+                  attributes: {
+                    archived_on: "2024-01-01"
+                  }
+                }
+              },
+              headers: {
+                "ACCEPT" => "application/json",
+                "CONTENT_TYPE" => "application/json"
+              },
+              as: :json
+
+        expect(response).to have_http_status(:ok)
+        expect(json).to include(
+          data: hash_including(attributes: hash_including(archived_on: "2024-01-01"))
+        )
+        expect(ink.reload.archived_on).to eq(Date.parse("2024-01-01"))
+        expect(ink).to be_archived
+      end
+
+      it "can clear the archived date" do
+        ink = create(:collected_ink, user: user, archived_on: 2.days.ago)
+
+        patch "/api/v1/collected_inks/#{ink.id}",
+              params: {
+                data: {
+                  type: "collected_ink",
+                  attributes: {
+                    archived_on: nil
+                  }
+                }
+              },
+              headers: {
+                "ACCEPT" => "application/json",
+                "CONTENT_TYPE" => "application/json"
+              },
+              as: :json
+
+        expect(response).to have_http_status(:ok)
+        expect(json).to include(data: hash_including(attributes: hash_including(archived_on: nil)))
+        expect(ink.reload.archived_on).to be_nil
+        expect(ink).not_to be_archived
+      end
     end
   end
 

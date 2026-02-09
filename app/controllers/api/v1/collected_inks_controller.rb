@@ -120,7 +120,7 @@ class Api::V1::CollectedInksController < Api::V1::BaseController
       param :comment, String, desc: "User comment about the ink"
       param :private_comment, String, desc: "Private comment about the ink"
       param :private, [true, false], desc: "Whether the ink is private"
-      param :archived, [true, false], desc: "Whether the ink is archived"
+      param :archived_on, Date, desc: "Date when the ink was archived"
       param :tags_as_string, String, desc: "Comma-separated list of tags"
     end
   end
@@ -204,6 +204,7 @@ class Api::V1::CollectedInksController < Api::V1::BaseController
         :private_comment,
         :color,
         :private,
+        :archived_on,
         :tags_as_string
       )
   end
