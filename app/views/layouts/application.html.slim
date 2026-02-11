@@ -13,6 +13,8 @@ html
     link rel="manifest" href="/application.webmanifest"
     link href="https://fonts.googleapis.com/css?family=Droid+Serif" rel="stylesheet" type="text/css" media="screen"
     meta name="viewport" content="width=device-width, initial-scale=1"
+    meta name="honeybadger-api-key" content=ENV['FRONTEND_HONEYBADGER_API_KEY']
+    meta name="honeybadger-environment" content=Rails.env
     = render partial: "layouts/clicky"
     = content_for :head
   body

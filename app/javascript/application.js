@@ -1,7 +1,20 @@
 import "./stylesheets/application.scss";
 import "core-js/stable";
 import "regenerator-runtime/runtime";
+import Honeybadger from "@honeybadger-io/js";
 import Rails from "@rails/ujs";
+
+const honeybadgerApiKey = document.querySelector('meta[name="honeybadger-api-key"]')?.content;
+const honeybadgerEnvironment = document.querySelector(
+  'meta[name="honeybadger-environment"]'
+)?.content;
+
+if (honeybadgerApiKey) {
+  Honeybadger.configure({
+    apiKey: honeybadgerApiKey,
+    environment: honeybadgerEnvironment || "production"
+  });
+}
 
 Rails.start();
 import "./src/slim-select-init";
