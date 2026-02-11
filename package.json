@@ -41,7 +41,7 @@
     "sass": "^1.97.3",
     "sass-loader": "^16.0.7",
     "slim-select": "^3.4.0",
-    "webpack": "^5.105.0",
+    "webpack": "^5.105.1",
     "webpack-cli": "^6.0.1",
     "webpack-remove-empty-scripts": "^1.1.1",
     "whatwg-fetch": "^3.6.20"
