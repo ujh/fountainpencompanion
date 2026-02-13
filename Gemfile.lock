@@ -356,7 +356,7 @@ GEM
       prettyprint
     prettier_print (1.2.1)
     prettyprint (0.2.0)
-    prism (1.8.0)
+    prism (1.9.0)
     psych (5.3.1)
       date
       stringio
@@ -424,8 +424,9 @@ GEM
     rb-fsevent (0.11.2)
     rb-inotify (0.11.1)
       ffi (~> 1.0)
-    rbs (3.10.2)
+    rbs (3.10.3)
       logger
+      tsort
     rdoc (7.1.0)
       erb
       psych (>= 4.0.0)
@@ -468,7 +469,7 @@ GEM
     rspec-support (3.13.4)
     rss (0.3.2)
       rexml
-    ruby-lsp (0.26.5)
+    ruby-lsp (0.26.6)
       language_server-protocol (~> 3.17.0)
       prism (>= 1.2, < 2.0)
       rbs (>= 3, < 5)
