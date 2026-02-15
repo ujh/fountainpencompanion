@@ -1,14 +1,19 @@
-import { matchSorter } from "match-sorter";
+import { rankItem } from "@tanstack/match-sorter-utils";
 
 /**
- * @param {any[]} rows
- * @param {string} id
+ * @param {any} row
+ * @param {string} columnId
  * @param {string} filterValue
- * @returns {any[]}
+ * @param {Function} addMeta
+ * @returns {boolean}
  */
-export function fuzzyMatch(rows, _, filterValue) {
+export function fuzzyMatch(row, columnId, filterValue, addMeta) {
   const attrs = ["ink_name", "pen_name", "comment"];
-  return matchSorter(rows, filterValue.replace(/\s+/gi, ""), {
-    keys: [(row) => attrs.map((a) => row.values[a]).join("")]
-  });
+  const searchText = attrs.map((a) => row.original[a] || "").join(" ");
+
+  const itemRank = rankItem(searchText, filterValue);
+
+  addMeta({ itemRank });
+
+  return itemRank.passed;
 }
