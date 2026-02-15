@@ -1,16 +1,19 @@
+import { rankItem } from "@tanstack/match-sorter-utils";
+
 /**
  * @param {any} row
  * @param {string} columnId
  * @param {string} filterValue
+ * @param {Function} addMeta
  * @returns {boolean}
  */
-export function fuzzyMatch(row, columnId, filterValue) {
-  if (!filterValue) return true;
-
+export function fuzzyMatch(row, columnId, filterValue, addMeta) {
   const attrs = ["ink_name", "pen_name", "comment"];
   const searchText = attrs.map((a) => row.original[a] || "").join(" ");
-  const normalizedFilter = filterValue.replace(/\s+/gi, "").toLowerCase();
-  const normalizedText = searchText.replace(/\s+/gi, "").toLowerCase();
 
-  return normalizedText.includes(normalizedFilter);
+  const itemRank = rankItem(searchText, filterValue);
+
+  addMeta({ itemRank });
+
+  return itemRank.passed;
 }

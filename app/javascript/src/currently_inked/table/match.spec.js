@@ -51,14 +51,21 @@ describe("fuzzyMatch", () => {
   ];
 
   it("matches and sorts by relevance", () => {
+    const mockAddMeta = jest.fn();
+
     // Test that Sailor rows match "sail" filter
-    expect(fuzzyMatch(input[0], null, "sail")).toBe(true);
-    expect(fuzzyMatch(input[1], null, "sail")).toBe(true);
-    expect(fuzzyMatch(input[2], null, "sail")).toBe(false);
+    expect(fuzzyMatch(input[0], null, "sail", mockAddMeta)).toBe(true);
+    expect(fuzzyMatch(input[1], null, "sail", mockAddMeta)).toBe(true);
+    expect(fuzzyMatch(input[2], null, "sail", mockAddMeta)).toBe(false);
 
     // Test that only Platinum row matches "carbon" filter
-    expect(fuzzyMatch(input[0], null, "carbon")).toBe(false);
-    expect(fuzzyMatch(input[1], null, "carbon")).toBe(false);
-    expect(fuzzyMatch(input[2], null, "carbon")).toBe(true);
+    expect(fuzzyMatch(input[0], null, "carbon", mockAddMeta)).toBe(false);
+    expect(fuzzyMatch(input[1], null, "carbon", mockAddMeta)).toBe(false);
+    expect(fuzzyMatch(input[2], null, "carbon", mockAddMeta)).toBe(true);
+
+    // Test that only Platinum row matches "carbon" filter
+    expect(fuzzyMatch(input[0], null, "slr", mockAddMeta)).toBe(true);
+    expect(fuzzyMatch(input[1], null, "slr", mockAddMeta)).toBe(true);
+    expect(fuzzyMatch(input[2], null, "slr", mockAddMeta)).toBe(false);
   });
 });
