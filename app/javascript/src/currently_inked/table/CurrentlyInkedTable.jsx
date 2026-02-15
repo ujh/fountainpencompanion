@@ -157,18 +157,32 @@ export const CurrentlyInkedTable = ({ currentlyInked, onLayoutChange }) => {
 
   // Extract table props for backward compatibility with Table component
   const getTableProps = () => ({ role: "table" });
-  const getTableBodyProps = () => ({});
+  const getTableBodyProps = () => ({ role: "rowgroup" });
 
   // Add backward compatibility methods to v8 objects
   const headerGroups = table.getHeaderGroups().map((headerGroup) => ({
     ...headerGroup,
-    getHeaderGroupProps: () => ({}),
+    getHeaderGroupProps: () => ({ role: "row" }),
     headers: headerGroup.headers.map((header) => ({
       ...header,
       getHeaderProps: (userProps = {}) => {
         const metaClass = header.column.columnDef?.meta?.className;
         const mergedClassName = [userProps.className, metaClass].filter(Boolean).join(" ");
-        return { ...userProps, className: mergedClassName };
+        const baseStyle =
+          metaClass === "fpc-actions-column" ? { width: "1%", whiteSpace: "nowrap" } : {};
+        const sortableStyle = header.column.getCanSort()
+          ? { cursor: "pointer", userSelect: "none", WebkitUserSelect: "none" }
+          : {};
+        const style = { ...baseStyle, ...sortableStyle };
+        const title = header.column.getCanSort() ? "Toggle SortBy" : undefined;
+        return {
+          ...userProps,
+          className: mergedClassName,
+          style,
+          role: "columnheader",
+          colSpan: 1,
+          title
+        };
       },
       getSortByToggleProps: () => ({
         onClick: header.column.getToggleSortingHandler?.()
@@ -187,12 +201,16 @@ export const CurrentlyInkedTable = ({ currentlyInked, onLayoutChange }) => {
 
   const footerGroups = table.getFooterGroups().map((footerGroup) => ({
     ...footerGroup,
-    getFooterGroupProps: () => ({}),
+    getFooterGroupProps: () => ({ role: "row" }),
     headers: footerGroup.headers.map((header) => ({
       ...header,
       getFooterProps: () => {
         const metaClass = header.column.columnDef?.meta?.className;
-        return metaClass ? { className: metaClass } : {};
+        const style =
+          metaClass === "fpc-actions-column" ? { width: "1%", whiteSpace: "nowrap" } : undefined;
+        return metaClass
+          ? { className: metaClass, style, role: "columnheader", colSpan: 1 }
+          : { style, role: "columnheader", colSpan: 1 };
       },
       render: (type) => {
         if (type === "Footer") {
@@ -205,12 +223,16 @@ export const CurrentlyInkedTable = ({ currentlyInked, onLayoutChange }) => {
 
   const rows = table.getRowModel().rows.map((row) => ({
     ...row,
-    getRowProps: () => ({}),
+    getRowProps: () => ({ role: "row" }),
     cells: row.getVisibleCells().map((cell) => ({
       ...cell,
       getCellProps: () => {
         const metaClass = cell.column.columnDef?.meta?.className;
-        return metaClass ? { className: metaClass } : {};
+        const style =
+          metaClass === "fpc-actions-column" ? { width: "1%", whiteSpace: "nowrap" } : undefined;
+        return metaClass
+          ? { className: metaClass, style, role: "cell", colSpan: 1 }
+          : { style, role: "cell", colSpan: 1 };
       }
     }))
   }));
