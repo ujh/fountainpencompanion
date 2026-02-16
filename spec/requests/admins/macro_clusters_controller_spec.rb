@@ -16,6 +16,20 @@ describe Admins::MacroClustersController do
         macro_cluster = create(:macro_cluster)
         micro_cluster = create(:micro_cluster, macro_cluster:)
         collected_ink = create(:collected_ink, micro_cluster:)
+        all_names = macro_cluster.all_names
+        all_name_elements =
+          macro_cluster.all_names_as_elements.map do |ink|
+            {
+              "brand_name" => ink[:brand_name],
+              "line_name" => ink[:line_name],
+              "ink_name" => ink[:ink_name],
+              "collected_inks_count" =>
+                all_names
+                  .find { |n| n.slice(:brand_name, :line_name, :ink_name) == ink }
+                  &.collected_inks_count || 0
+            }
+          end
+        colors = macro_cluster.collected_inks.pluck(:color).uniq.reject(&:blank?)
         get "/admins/macro_clusters.json"
         expect(response).to be_successful
         expect(JSON.parse(response.body)).to match(
@@ -28,7 +42,12 @@ describe Admins::MacroClustersController do
                   "brand_name" => macro_cluster.brand_name,
                   "line_name" => macro_cluster.line_name,
                   "ink_name" => macro_cluster.ink_name,
-                  "color" => macro_cluster.color
+                  "color" => macro_cluster.color,
+                  "description" => macro_cluster.description,
+                  "tags" => macro_cluster.tags,
+                  "public_collected_inks_count" => macro_cluster.public_collected_inks_count,
+                  "colors" => colors,
+                  "all_names" => all_name_elements
                 },
                 "relationships" => {
                   "micro_clusters" => {
@@ -105,7 +124,12 @@ describe Admins::MacroClustersController do
                   "brand_name" => macro_cluster.brand_name,
                   "line_name" => macro_cluster.line_name,
                   "ink_name" => macro_cluster.ink_name,
-                  "color" => macro_cluster.color
+                  "color" => macro_cluster.color,
+                  "description" => macro_cluster.description,
+                  "tags" => macro_cluster.tags,
+                  "public_collected_inks_count" => macro_cluster.public_collected_inks_count,
+                  "colors" => [],
+                  "all_names" => []
                 },
                 "relationships" => {
                   "micro_clusters" => {
@@ -161,7 +185,12 @@ describe Admins::MacroClustersController do
                 "brand_name" => macro_cluster.brand_name,
                 "line_name" => macro_cluster.line_name,
                 "ink_name" => macro_cluster.ink_name,
-                "color" => macro_cluster.color
+                "color" => macro_cluster.color,
+                "description" => macro_cluster.description,
+                "tags" => macro_cluster.tags,
+                "public_collected_inks_count" => macro_cluster.public_collected_inks_count,
+                "colors" => [],
+                "all_names" => []
               },
               "relationships" => {
                 "micro_clusters" => {
@@ -228,7 +257,12 @@ describe Admins::MacroClustersController do
                 "brand_name" => "brand_name",
                 "line_name" => "line_name",
                 "ink_name" => "ink_name",
-                "color" => "#FFFFFF"
+                "color" => "#FFFFFF",
+                "description" => cluster.description,
+                "tags" => cluster.tags,
+                "public_collected_inks_count" => cluster.public_collected_inks_count,
+                "colors" => [],
+                "all_names" => []
               },
               "relationships" => {
                 "micro_clusters" => {
@@ -284,7 +318,12 @@ describe Admins::MacroClustersController do
                 "brand_name" => "new brand_name",
                 "line_name" => "new line_name",
                 "ink_name" => "new ink_name",
-                "color" => "#000000"
+                "color" => "#000000",
+                "description" => macro_cluster.description,
+                "tags" => macro_cluster.tags,
+                "public_collected_inks_count" => macro_cluster.public_collected_inks_count,
+                "colors" => [],
+                "all_names" => []
               },
               "relationships" => {
                 "micro_clusters" => {
