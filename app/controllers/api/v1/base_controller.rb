@@ -1,7 +1,7 @@
 class Api::V1::BaseController < ApplicationController
   include ActionController::HttpAuthentication::Token::ControllerMethods
 
-  protect_from_forgery with: :null_session
+  skip_forgery_protection
 
   before_action :require_json
   before_action :authenticate_via_token_or_session!
