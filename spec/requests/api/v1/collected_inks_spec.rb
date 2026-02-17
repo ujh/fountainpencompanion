@@ -11,12 +11,31 @@ describe Api::V1::CollectedInksController do
       let(:user) { create(:user) }
       before(:each) { sign_in(user) }
 
+      it "returns user's inks (session auth)" do
+        create(:collected_ink, user: user, brand_name: "Aurora", ink_name: "Black")
+        get "/api/v1/collected_inks", headers: { "ACCEPT" => "application/json" }
+
+        expect(response).to have_http_status(:ok)
+        expect(json[:data].length).to eq(1)
+      end
+    end
+
+    context "with token authentication" do
+      let(:user) { create(:user) }
+      let(:auth_token) { create(:authentication_token, user: user) }
+
       it "returns all inks in alphabetical order" do
         create(:collected_ink, user: user, brand_name: "Aurora", ink_name: "Black")
         create(:collected_ink, user: user, brand_name: "Waldmann", ink_name: "Blue")
         create(:collected_ink, user: user, brand_name: "Pilot", ink_name: "Blue-Black")
-        get "/api/v1/collected_inks", headers: { "ACCEPT" => "application/json" }
 
+        get "/api/v1/collected_inks",
+            headers: {
+              "ACCEPT" => "application/json",
+              "AUTHORIZATION" => "Bearer #{auth_token.id}.#{auth_token.token}"
+            }
+
+        expect(response).to have_http_status(:ok)
         expect(json).to include(
           data: [
             hash_including(attributes: hash_including(brand_name: "Aurora")),
@@ -27,14 +46,22 @@ describe Api::V1::CollectedInksController do
       end
 
       it "does not return data from other users" do
-        create(:collected_ink)
+        create(:collected_ink, user: user, brand_name: "My Ink")
+        create(:collected_ink) # Different user
 
-        get "/api/v1/collected_inks", headers: { "ACCEPT" => "application/json" }
-        expect(json[:data]).to be_empty
+        get "/api/v1/collected_inks",
+            headers: {
+              "ACCEPT" => "application/json",
+              "AUTHORIZATION" => "Bearer #{auth_token.id}.#{auth_token.token}"
+            }
+
+        expect(json[:data].length).to eq(1)
+        expect(json[:data].first[:attributes][:brand_name]).to eq("My Ink")
       end
 
       it "allows specifying the fields to return" do
         create(:collected_ink, user: user, brand_name: "Aurora", ink_name: "Black")
+
         get "/api/v1/collected_inks",
             params: {
               fields: {
@@ -42,7 +69,8 @@ describe Api::V1::CollectedInksController do
               }
             },
             headers: {
-              "ACCEPT" => "application/json"
+              "ACCEPT" => "application/json",
+              "AUTHORIZATION" => "Bearer #{auth_token.id}.#{auth_token.token}"
             }
 
         expect(json).to include(
@@ -50,7 +78,7 @@ describe Api::V1::CollectedInksController do
         )
       end
 
-      it "allows supports pagination" do
+      it "supports pagination" do
         create(:collected_ink, user: user, brand_name: "Aurora", ink_name: "Black")
         create(:collected_ink, user: user, brand_name: "Waldmann", ink_name: "Blue")
         create(:collected_ink, user: user, brand_name: "Pilot", ink_name: "Blue-Black")
@@ -63,7 +91,8 @@ describe Api::V1::CollectedInksController do
               }
             },
             headers: {
-              "ACCEPT" => "application/json"
+              "ACCEPT" => "application/json",
+              "AUTHORIZATION" => "Bearer #{auth_token.id}.#{auth_token.token}"
             }
 
         expect(json).to match(
@@ -81,7 +110,12 @@ describe Api::V1::CollectedInksController do
 
       it "returns all fields by default" do
         create(:collected_ink, user: user)
-        get "/api/v1/collected_inks", headers: { "ACCEPT" => "application/json" }
+
+        get "/api/v1/collected_inks",
+            headers: {
+              "ACCEPT" => "application/json",
+              "AUTHORIZATION" => "Bearer #{auth_token.id}.#{auth_token.token}"
+            }
 
         expect(json).to include(
           data: [
@@ -123,7 +157,8 @@ describe Api::V1::CollectedInksController do
               }
             },
             headers: {
-              "ACCEPT" => "application/json"
+              "ACCEPT" => "application/json",
+              "AUTHORIZATION" => "Bearer #{auth_token.id}.#{auth_token.token}"
             }
 
         expect(json).to include(data: [hash_including(id: archived.id.to_s)])
@@ -140,7 +175,8 @@ describe Api::V1::CollectedInksController do
               }
             },
             headers: {
-              "ACCEPT" => "application/json"
+              "ACCEPT" => "application/json",
+              "AUTHORIZATION" => "Bearer #{auth_token.id}.#{auth_token.token}"
             }
 
         expect(json).to include(data: [hash_including(id: active.id.to_s)])
@@ -155,7 +191,8 @@ describe Api::V1::CollectedInksController do
               sort: "date_added"
             },
             headers: {
-              "ACCEPT" => "application/json"
+              "ACCEPT" => "application/json",
+              "AUTHORIZATION" => "Bearer #{auth_token.id}.#{auth_token.token}"
             }
 
         expect(json[:data].map { |d| d[:id] }).to eq([newer.id.to_s, older.id.to_s])
@@ -170,7 +207,8 @@ describe Api::V1::CollectedInksController do
               sort: "date_added_asc"
             },
             headers: {
-              "ACCEPT" => "application/json"
+              "ACCEPT" => "application/json",
+              "AUTHORIZATION" => "Bearer #{auth_token.id}.#{auth_token.token}"
             }
 
         expect(json[:data].map { |d| d[:id] }).to eq([older.id.to_s, newer.id.to_s])
@@ -187,7 +225,8 @@ describe Api::V1::CollectedInksController do
               }
             },
             headers: {
-              "ACCEPT" => "application/json"
+              "ACCEPT" => "application/json",
+              "AUTHORIZATION" => "Bearer #{auth_token.id}.#{auth_token.token}"
             }
 
         expect(json).to include(data: [hash_including(id: swabbed.id.to_s)])
@@ -204,7 +243,8 @@ describe Api::V1::CollectedInksController do
               }
             },
             headers: {
-              "ACCEPT" => "application/json"
+              "ACCEPT" => "application/json",
+              "AUTHORIZATION" => "Bearer #{auth_token.id}.#{auth_token.token}"
             }
 
         expect(json).to include(data: [hash_including(id: used.id.to_s)])
@@ -225,7 +265,8 @@ describe Api::V1::CollectedInksController do
               }
             },
             headers: {
-              "ACCEPT" => "application/json"
+              "ACCEPT" => "application/json",
+              "AUTHORIZATION" => "Bearer #{auth_token.id}.#{auth_token.token}"
             }
 
         expect(json[:data].length).to eq(1)
@@ -243,7 +284,8 @@ describe Api::V1::CollectedInksController do
               }
             },
             headers: {
-              "ACCEPT" => "application/json"
+              "ACCEPT" => "application/json",
+              "AUTHORIZATION" => "Bearer #{auth_token.id}.#{auth_token.token}"
             }
 
         expect(json[:data]).to be_empty
@@ -262,9 +304,26 @@ describe Api::V1::CollectedInksController do
       let(:user) { create(:user) }
       before(:each) { sign_in(user) }
 
-      it "returns the requested ink" do
+      it "returns the requested ink (session auth)" do
         ink = create(:collected_ink, user: user, brand_name: "Pilot", ink_name: "Kon-peki")
         get "/api/v1/collected_inks/#{ink.id}", headers: { "ACCEPT" => "application/json" }
+
+        expect(response).to have_http_status(:ok)
+      end
+    end
+
+    context "with token authentication" do
+      let(:user) { create(:user) }
+      let(:auth_token) { create(:authentication_token, user: user) }
+
+      it "returns the requested ink" do
+        ink = create(:collected_ink, user: user, brand_name: "Pilot", ink_name: "Kon-peki")
+
+        get "/api/v1/collected_inks/#{ink.id}",
+            headers: {
+              "ACCEPT" => "application/json",
+              "AUTHORIZATION" => "Bearer #{auth_token.id}.#{auth_token.token}"
+            }
 
         expect(response).to have_http_status(:ok)
         expect(json).to include(
@@ -278,13 +337,22 @@ describe Api::V1::CollectedInksController do
 
       it "returns 404 for another user's ink" do
         other_ink = create(:collected_ink)
-        get "/api/v1/collected_inks/#{other_ink.id}", headers: { "ACCEPT" => "application/json" }
+
+        get "/api/v1/collected_inks/#{other_ink.id}",
+            headers: {
+              "ACCEPT" => "application/json",
+              "AUTHORIZATION" => "Bearer #{auth_token.id}.#{auth_token.token}"
+            }
 
         expect(response).to have_http_status(:not_found)
       end
 
       it "returns 404 for non-existent ink" do
-        get "/api/v1/collected_inks/999999", headers: { "ACCEPT" => "application/json" }
+        get "/api/v1/collected_inks/999999",
+            headers: {
+              "ACCEPT" => "application/json",
+              "AUTHORIZATION" => "Bearer #{auth_token.id}.#{auth_token.token}"
+            }
 
         expect(response).to have_http_status(:not_found)
       end
@@ -315,6 +383,41 @@ describe Api::V1::CollectedInksController do
       let(:user) { create(:user) }
       before(:each) { sign_in(user) }
 
+      it "creates a new collected ink (session auth)" do
+        expect do
+          post "/api/v1/collected_inks",
+               params: {
+                 data: {
+                   type: "collected_ink",
+                   attributes: {
+                     brand_name: "Pilot",
+                     ink_name: "Blue"
+                   }
+                 }
+               },
+               headers: {
+                 "ACCEPT" => "application/json",
+                 "CONTENT_TYPE" => "application/json"
+               },
+               as: :json
+        end.to change(user.collected_inks, :count).by(1)
+
+        expect(response).to have_http_status(:created)
+      end
+    end
+
+    context "with token authentication" do
+      let(:user) { create(:user) }
+      let(:auth_token) { create(:authentication_token, user: user) }
+
+      around do |example|
+        # Temporarily enable CSRF protection for these tests
+        original_value = ActionController::Base.allow_forgery_protection
+        ActionController::Base.allow_forgery_protection = true
+        example.run
+        ActionController::Base.allow_forgery_protection = original_value
+      end
+
       it "creates a new collected ink" do
         expect do
           post "/api/v1/collected_inks",
@@ -332,7 +435,8 @@ describe Api::V1::CollectedInksController do
                },
                headers: {
                  "ACCEPT" => "application/json",
-                 "CONTENT_TYPE" => "application/json"
+                 "CONTENT_TYPE" => "application/json",
+                 "AUTHORIZATION" => "Bearer #{auth_token.id}.#{auth_token.token}"
                },
                as: :json
         end.to change(user.collected_inks, :count).by(1)
@@ -353,7 +457,7 @@ describe Api::V1::CollectedInksController do
         )
       end
 
-      it "returns validation errors for brand_name that is too long" do
+      it "returns validation errors for invalid data" do
         post "/api/v1/collected_inks",
              params: {
                data: {
@@ -366,12 +470,34 @@ describe Api::V1::CollectedInksController do
              },
              headers: {
                "ACCEPT" => "application/json",
-               "CONTENT_TYPE" => "application/json"
+               "CONTENT_TYPE" => "application/json",
+               "AUTHORIZATION" => "Bearer #{auth_token.id}.#{auth_token.token}"
              },
              as: :json
 
         expect(response).to have_http_status(:unprocessable_entity)
         expect(json[:errors]).to be_present
+      end
+
+      it "returns 401 for invalid token" do
+        post "/api/v1/collected_inks",
+             params: {
+               data: {
+                 type: "collected_ink",
+                 attributes: {
+                   brand_name: "Pilot",
+                   ink_name: "Blue"
+                 }
+               }
+             },
+             headers: {
+               "ACCEPT" => "application/json",
+               "CONTENT_TYPE" => "application/json",
+               "AUTHORIZATION" => "Bearer 999.invalid_token"
+             },
+             as: :json
+
+        expect(response).to have_http_status(:unauthorized)
       end
     end
   end
@@ -400,6 +526,40 @@ describe Api::V1::CollectedInksController do
       let(:user) { create(:user) }
       before(:each) { sign_in(user) }
 
+      it "updates the collected ink (session auth)" do
+        ink = create(:collected_ink, user: user, brand_name: "Pilot", ink_name: "Blue")
+
+        patch "/api/v1/collected_inks/#{ink.id}",
+              params: {
+                data: {
+                  type: "collected_ink",
+                  attributes: {
+                    brand_name: "Sailor"
+                  }
+                }
+              },
+              headers: {
+                "ACCEPT" => "application/json",
+                "CONTENT_TYPE" => "application/json"
+              },
+              as: :json
+
+        expect(response).to have_http_status(:ok)
+      end
+    end
+
+    context "with token authentication" do
+      let(:user) { create(:user) }
+      let(:auth_token) { create(:authentication_token, user: user) }
+
+      around do |example|
+        # Temporarily enable CSRF protection for these tests
+        original_value = ActionController::Base.allow_forgery_protection
+        ActionController::Base.allow_forgery_protection = true
+        example.run
+        ActionController::Base.allow_forgery_protection = original_value
+      end
+
       it "updates the collected ink" do
         ink = create(:collected_ink, user: user, brand_name: "Pilot", ink_name: "Blue")
 
@@ -415,7 +575,8 @@ describe Api::V1::CollectedInksController do
               },
               headers: {
                 "ACCEPT" => "application/json",
-                "CONTENT_TYPE" => "application/json"
+                "CONTENT_TYPE" => "application/json",
+                "AUTHORIZATION" => "Bearer #{auth_token.id}.#{auth_token.token}"
               },
               as: :json
 
@@ -441,7 +602,8 @@ describe Api::V1::CollectedInksController do
               },
               headers: {
                 "ACCEPT" => "application/json",
-                "CONTENT_TYPE" => "application/json"
+                "CONTENT_TYPE" => "application/json",
+                "AUTHORIZATION" => "Bearer #{auth_token.id}.#{auth_token.token}"
               },
               as: :json
 
@@ -462,7 +624,8 @@ describe Api::V1::CollectedInksController do
               },
               headers: {
                 "ACCEPT" => "application/json",
-                "CONTENT_TYPE" => "application/json"
+                "CONTENT_TYPE" => "application/json",
+                "AUTHORIZATION" => "Bearer #{auth_token.id}.#{auth_token.token}"
               },
               as: :json
 
@@ -484,7 +647,8 @@ describe Api::V1::CollectedInksController do
               },
               headers: {
                 "ACCEPT" => "application/json",
-                "CONTENT_TYPE" => "application/json"
+                "CONTENT_TYPE" => "application/json",
+                "AUTHORIZATION" => "Bearer #{auth_token.id}.#{auth_token.token}"
               },
               as: :json
 
@@ -510,7 +674,8 @@ describe Api::V1::CollectedInksController do
               },
               headers: {
                 "ACCEPT" => "application/json",
-                "CONTENT_TYPE" => "application/json"
+                "CONTENT_TYPE" => "application/json",
+                "AUTHORIZATION" => "Bearer #{auth_token.id}.#{auth_token.token}"
               },
               as: :json
 
@@ -518,6 +683,53 @@ describe Api::V1::CollectedInksController do
         expect(json).to include(data: hash_including(attributes: hash_including(archived_on: nil)))
         expect(ink.reload.archived_on).to be_nil
         expect(ink).not_to be_archived
+      end
+
+      it "returns 401 for invalid token" do
+        ink = create(:collected_ink, user: user)
+
+        patch "/api/v1/collected_inks/#{ink.id}",
+              params: {
+                data: {
+                  type: "collected_ink",
+                  attributes: {
+                    brand_name: "Updated"
+                  }
+                }
+              },
+              headers: {
+                "ACCEPT" => "application/json",
+                "CONTENT_TYPE" => "application/json",
+                "AUTHORIZATION" => "Bearer 999.invalid_token"
+              },
+              as: :json
+
+        expect(response).to have_http_status(:unauthorized)
+      end
+
+      it "does not require CSRF token when using bearer token authentication" do
+        # This test ensures the API works without CSRF tokens (protect_from_forgery with: :null_session)
+        ink = create(:collected_ink, user: user, brand_name: "Pilot", ink_name: "Blue")
+
+        # Make request without any session/CSRF setup, only token authentication
+        # If CSRF protection is not properly configured, this will fail with 422 Unprocessable Entity
+        patch "/api/v1/collected_inks/#{ink.id}",
+              params: {
+                data: {
+                  type: "collected_ink",
+                  attributes: {
+                    brand_name: "Sailor"
+                  }
+                }
+              }.to_json,
+              headers: {
+                "ACCEPT" => "application/json",
+                "CONTENT_TYPE" => "application/json",
+                "AUTHORIZATION" => "Bearer #{auth_token.id}.#{auth_token.token}"
+              }
+
+        expect(response).to have_http_status(:ok)
+        expect(response).not_to have_http_status(:unprocessable_entity) # Would be 422 if CSRF failed
       end
     end
   end
@@ -533,7 +745,7 @@ describe Api::V1::CollectedInksController do
       let(:user) { create(:user) }
       before(:each) { sign_in(user) }
 
-      it "deletes the collected ink" do
+      it "deletes the collected ink (session auth)" do
         ink = create(:collected_ink, user: user)
 
         expect do
@@ -542,19 +754,66 @@ describe Api::V1::CollectedInksController do
 
         expect(response).to have_http_status(:no_content)
       end
+    end
+
+    context "with token authentication" do
+      let(:user) { create(:user) }
+      let(:auth_token) { create(:authentication_token, user: user) }
+
+      around do |example|
+        # Temporarily enable CSRF protection for these tests
+        original_value = ActionController::Base.allow_forgery_protection
+        ActionController::Base.allow_forgery_protection = true
+        example.run
+        ActionController::Base.allow_forgery_protection = original_value
+      end
+
+      it "deletes the collected ink" do
+        ink = create(:collected_ink, user: user)
+
+        expect do
+          delete "/api/v1/collected_inks/#{ink.id}",
+                 headers: {
+                   "ACCEPT" => "application/json",
+                   "AUTHORIZATION" => "Bearer #{auth_token.id}.#{auth_token.token}"
+                 }
+        end.to change(user.collected_inks, :count).by(-1)
+
+        expect(response).to have_http_status(:no_content)
+      end
 
       it "returns 404 for another user's ink" do
         other_ink = create(:collected_ink)
 
-        delete "/api/v1/collected_inks/#{other_ink.id}", headers: { "ACCEPT" => "application/json" }
+        delete "/api/v1/collected_inks/#{other_ink.id}",
+               headers: {
+                 "ACCEPT" => "application/json",
+                 "AUTHORIZATION" => "Bearer #{auth_token.id}.#{auth_token.token}"
+               }
 
         expect(response).to have_http_status(:not_found)
       end
 
       it "returns 404 for non-existent ink" do
-        delete "/api/v1/collected_inks/999999", headers: { "ACCEPT" => "application/json" }
+        delete "/api/v1/collected_inks/999999",
+               headers: {
+                 "ACCEPT" => "application/json",
+                 "AUTHORIZATION" => "Bearer #{auth_token.id}.#{auth_token.token}"
+               }
 
         expect(response).to have_http_status(:not_found)
+      end
+
+      it "returns 401 for invalid token" do
+        ink = create(:collected_ink, user: user)
+
+        delete "/api/v1/collected_inks/#{ink.id}",
+               headers: {
+                 "ACCEPT" => "application/json",
+                 "AUTHORIZATION" => "Bearer 999.invalid_token"
+               }
+
+        expect(response).to have_http_status(:unauthorized)
       end
     end
   end
