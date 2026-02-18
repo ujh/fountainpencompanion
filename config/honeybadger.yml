@@ -32,11 +32,13 @@ exceptions:
     - ActionDispatch::Http::MimeNegotiation::InvalidType
     - ActionDispatch::Http::Parameters::ParseError
     - ActionController::BadRequest
-    # - Redis::ConnectionError
-    # - RedisClient::ReadTimeoutError
+    - Net::SMTPSyntaxError
     - Rack::Timeout::RequestTimeoutException
     - Rack::Timeout::RequestExpiryError
     - Rack::Timeout::RequestTimeoutError
+    - RedisClient::ConnectionError
+    - RedisClient::CannotConnectError
+    - RedisClient::ReadTimeoutError
 rails:
   subscriber_ignore_sources:
     - !ruby/regexp "/redis/"
