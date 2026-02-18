@@ -1,6 +1,10 @@
 class Api::V1::BaseController < ApplicationController
   include ActionController::HttpAuthentication::Token::ControllerMethods
 
+  skip_forgery_protection if: :token_authentication?
+
+  rescue_from ActionController::InvalidAuthenticityToken, with: :render_csrf_error
+
   before_action :require_json
   before_action :authenticate_via_token_or_session!
 
@@ -36,5 +40,16 @@ class Api::V1::BaseController < ApplicationController
 
   def render_unauthorized
     render json: { error: "Unauthorized" }, status: :unauthorized
+  end
+
+  def token_authentication?
+    request.authorization.present?
+  end
+
+  def render_csrf_error
+    render json: {
+             errors: [{ detail: "CSRF token verification failed" }]
+           },
+           status: :unprocessable_entity
   end
 end

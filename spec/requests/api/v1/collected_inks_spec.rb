@@ -311,6 +311,71 @@ describe Api::V1::CollectedInksController do
       expect(response).to have_http_status(:unauthorized)
     end
 
+    context "CSRF protection" do
+      around do |example|
+        # Temporarily enable CSRF protection for these tests
+        original_value = ActionController::Base.allow_forgery_protection
+        ActionController::Base.allow_forgery_protection = true
+        example.run
+        ActionController::Base.allow_forgery_protection = original_value
+      end
+
+      context "when signed in via web session" do
+        let(:user) { create(:user) }
+        before(:each) { sign_in(user) }
+
+        it "is protected against CSRF attacks" do
+          post "/api/v1/collected_inks",
+               params: {
+                 data: {
+                   type: "collected_ink",
+                   attributes: {
+                     brand_name: "Pilot",
+                     ink_name: "Blue"
+                   }
+                 }
+               },
+               headers: {
+                 "ACCEPT" => "application/json",
+                 "CONTENT_TYPE" => "application/json"
+               },
+               as: :json
+
+          expect(response).to have_http_status(:unprocessable_entity)
+          expect(json[:errors]).to be_present
+        end
+      end
+
+      context "when signed in via API token" do
+        let(:user) { create(:user) }
+        let(:auth_token) { create(:authentication_token, user: user) }
+
+        it "is not protected against CSRF attacks" do
+          post "/api/v1/collected_inks",
+               params: {
+                 data: {
+                   type: "collected_ink",
+                   attributes: {
+                     brand_name: "Pilot",
+                     ink_name: "Blue"
+                   }
+                 }
+               },
+               headers: {
+                 "ACCEPT" => "application/json",
+                 "CONTENT_TYPE" => "application/json",
+                 "Authorization" => "Bearer #{auth_token.id}.#{auth_token.token}"
+               },
+               as: :json
+
+          expect(response).to have_http_status(:created)
+          expect(json).to include(
+            data: hash_including(attributes: hash_including(brand_name: "Pilot", ink_name: "Blue"))
+          )
+        end
+      end
+    end
+
     context "when signed in" do
       let(:user) { create(:user) }
       before(:each) { sign_in(user) }
