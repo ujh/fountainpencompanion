@@ -4,6 +4,7 @@ FactoryBot.define do
     sequence(:url) { |n| "http://example#{n}.com" }
     description { "MyText" }
     image { "MyText" }
+    author { nil }
     macro_cluster
   end
 end

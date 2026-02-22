@@ -11,6 +11,7 @@ class MacroCluster < ApplicationRecord
   has_many :collected_inks, through: :micro_clusters
   has_many :public_collected_inks, through: :micro_clusters
   has_many :ink_reviews, dependent: :destroy
+  has_many :approved_ink_reviews, -> { approved }, class_name: "InkReview"
   has_many :ink_review_submissions, dependent: :destroy
   has_one :ink_embedding, dependent: :destroy, as: :owner
   has_many :agent_logs, as: :owner, dependent: :destroy

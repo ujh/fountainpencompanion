@@ -98,7 +98,7 @@ Rails.application.routes.draw do
     namespace :v1 do
       resources :brands, only: [:index]
       resources :lines, only: [:index]
-      resources :inks, only: [:index]
+      resources :inks, only: %i[index show]
       resources :collected_inks, only: %i[index show create update destroy]
       resources :collected_pens, only: [:index]
       resources :currently_inked, only: [:index]
