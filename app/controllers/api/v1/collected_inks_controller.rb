@@ -8,6 +8,18 @@ class Api::V1::CollectedInksController < Api::V1::BaseController
   before_action :set_collected_ink, only: %i[show update destroy]
 
   api :GET, "/api/v1/collected_inks", "Retrieve a list of the user's collected inks"
+  description "
+  Retrieves the user's collection of inks with optional cluster details.
+
+  **Performance Note:**
+  - Without `include_cluster_details`: Returns basic ink data only. Optimized for fast queries.
+  - With `include_cluster_details=true`: Returns basic ink data plus macro_cluster details in the 'included' section (JSON:API standard). Single request that includes descriptions, colors, tags, and alternative names.
+
+  **Example requests:**
+  - `GET /api/v1/collected_inks` - Basic data, minimal query load
+  - `GET /api/v1/collected_inks?include_cluster_details=true` - Full details in one request
+  - `GET /api/v1/collected_inks?include_cluster_details=true&page[number]=1&page[size]=50` - Full details with pagination
+  "
   param :page, Hash, desc: "Pagination parameters" do
     param :number, :number, desc: "Page number"
     param :size, :number, desc: "Number of items per page"
@@ -27,6 +39,10 @@ class Api::V1::CollectedInksController < Api::V1::BaseController
           String,
           desc: "Comma-separated list of collected ink fields to include in the response"
   end
+  param :include_cluster_details,
+        %w[true false],
+        desc:
+          "Include detailed ink cluster information (description, colors, tags, alternative names). When true, returns macro_cluster data in the 'included' section of the JSON:API response. Default: false (omit for best performance if not needed)."
   returns code: 200, desc: "A list of collected inks" do
     property :data, array_of: Hash do
       property :id, String, desc: "ID of the collected ink"
@@ -73,6 +89,33 @@ class Api::V1::CollectedInksController < Api::V1::BaseController
             property :id, String, desc: "ID of the currently inked record"
             property :type, ["currently_inked"]
           end
+        end
+      end
+    end
+    property :included,
+             array_of: Hash,
+             required: false,
+             desc: "Included macro_cluster data (only present when include_cluster_details=true)" do
+      property :id, String, desc: "ID of the macro cluster"
+      property :type, ["macro_cluster"]
+      property :attributes, Hash, desc: "Attributes of the ink cluster" do
+        property :brand_name, String, desc: "Brand name of the ink"
+        property :line_name, String, desc: "Line name of the ink"
+        property :ink_name, String, desc: "Name of the ink"
+        property :color, String, desc: "Average color hex code of the ink"
+        property :description, String, desc: "Detailed description of the ink (formatted markdown)"
+        property :tags, array_of: String, desc: "Tags associated with this ink cluster"
+        property :public_collected_inks_count,
+                 Integer,
+                 desc: "Number of public collections containing this ink"
+        property :colors, array_of: String, desc: "All unique colors reported for this ink"
+        property :all_names, array_of: Hash, desc: "Alternative names this ink is known by" do
+          property :brand_name, String, desc: "Brand name variant"
+          property :line_name, String, desc: "Line name variant"
+          property :ink_name, String, desc: "Ink name variant"
+          property :collected_inks_count,
+                   Integer,
+                   desc: "Number of collections with this exact name"
         end
       end
     end
@@ -226,14 +269,21 @@ class Api::V1::CollectedInksController < Api::V1::BaseController
   def collected_inks
     @collected_inks ||=
       begin
-        relation =
-          current_user.collected_inks.includes(
-            :currently_inkeds,
-            :usage_records,
-            :tags,
-            micro_cluster: :macro_cluster,
-            newest_currently_inked: :last_usage
-          )
+        includes_list = [
+          :currently_inkeds,
+          :usage_records,
+          :tags,
+          newest_currently_inked: :last_usage
+        ]
+
+        # Add detailed eager loading when cluster details are requested
+        if include_cluster_details?
+          includes_list << { micro_cluster: { macro_cluster: :collected_inks } }
+        else
+          includes_list << { micro_cluster: :macro_cluster }
+        end
+
+        relation = current_user.collected_inks.includes(includes_list)
         relation = sort(relation)
         relation = filter(relation)
         relation.page(params.dig(:page, :number)).per(params.dig(:page, :size))
@@ -271,7 +321,16 @@ class Api::V1::CollectedInksController < Api::V1::BaseController
   end
 
   def options
-    { fields: { collected_ink: collected_ink_fields }, meta: { pagination: pagination } }
+    opts = { fields: { collected_ink: collected_ink_fields }, meta: { pagination: pagination } }
+
+    # Include macro_cluster details in the response when requested
+    opts[:include] = %w[micro_cluster micro_cluster.macro_cluster] if include_cluster_details?
+
+    opts
+  end
+
+  def include_cluster_details?
+    params[:include_cluster_details] == "true"
   end
 
   def pagination

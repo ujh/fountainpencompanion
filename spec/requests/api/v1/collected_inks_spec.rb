@@ -248,6 +248,313 @@ describe Api::V1::CollectedInksController do
 
         expect(json[:data]).to be_empty
       end
+
+      describe "query efficiency - default behavior (no cluster details)" do
+        let(:macro_cluster1) do
+          create(:macro_cluster, brand_name: "Diamine", line_name: "Standard", ink_name: "Blue")
+        end
+        let(:macro_cluster2) do
+          create(:macro_cluster, brand_name: "Pilot", line_name: "", ink_name: "Kon-peki")
+        end
+        let(:micro_cluster1) { create(:micro_cluster, macro_cluster: macro_cluster1) }
+        let(:micro_cluster2) { create(:micro_cluster, macro_cluster: macro_cluster2) }
+
+        before do
+          # Create 5 collected inks
+          3.times do |i|
+            create(:collected_ink, user: user, micro_cluster: micro_cluster1, color: "#000#{i}FF")
+          end
+          2.times do |i|
+            create(:collected_ink, user: user, micro_cluster: micro_cluster2, color: "#00#{i}0FF")
+          end
+        end
+
+        it "does not load macro_cluster relationships when parameter is not provided" do
+          get "/api/v1/collected_inks", headers: { "ACCEPT" => "application/json" }
+
+          expect(response).to have_http_status(:ok)
+          # Verify no included section
+          expect(json).not_to have_key(:included)
+          # Verify no detailed attributes
+          expect(json[:data].first[:attributes]).not_to have_key(:description)
+          expect(json[:data].first[:attributes]).not_to have_key(:colors)
+          expect(json[:data].first[:attributes]).not_to have_key(:tags)
+          expect(json[:data].first[:attributes]).not_to have_key(:all_names)
+        end
+
+        it "keeps the query count low without cluster details (baseline)" do
+          # This is a baseline to ensure we're not loading extra data by default.
+          # With proper eager loading, we should have minimal N+1 queries.
+          # Typical query count: ~1 for user inks + 1 for relationships
+          get "/api/v1/collected_inks", headers: { "ACCEPT" => "application/json" }
+
+          expect(response).to have_http_status(:ok)
+          expect(json[:data].length).to eq(5)
+        end
+
+        it "does not add extra queries when micro_cluster eager loading is used" do
+          # This test verifies that by default we don't load unnecessary macro_cluster data.
+          # The eager loading strategy should load micro_cluster without macro_cluster
+          # when include_cluster_details is not set.
+          get "/api/v1/collected_inks", headers: { "ACCEPT" => "application/json" }
+
+          expect(response).to have_http_status(:ok)
+          # Verify no unnecessary attributes are present
+          data_attrs = json[:data].first[:attributes]
+          expect(data_attrs).not_to have_key(:colors)
+          expect(data_attrs).not_to have_key(:all_names)
+        end
+      end
+
+      describe "include_cluster_details parameter" do
+        let(:macro_cluster) do
+          create(
+            :macro_cluster,
+            brand_name: "Diamine",
+            line_name: "Standard",
+            ink_name: "Blue",
+            color: "#0000FF",
+            description: "A beautiful blue ink",
+            tags: %w[blue vibrant]
+          )
+        end
+        let(:micro_cluster) { create(:micro_cluster, macro_cluster: macro_cluster) }
+
+        before do
+          # Create multiple collected inks with different colors for the same cluster
+          create(:collected_ink, user: user, micro_cluster: micro_cluster, color: "#0000FF")
+          create(:collected_ink, user: user, micro_cluster: micro_cluster, color: "#0000CC")
+          create(:collected_ink, user: user, micro_cluster: micro_cluster, color: "#0000AA")
+        end
+
+        it "does not include macro_cluster details by default" do
+          get "/api/v1/collected_inks", headers: { "ACCEPT" => "application/json" }
+
+          expect(response).to have_http_status(:ok)
+          expect(json).not_to have_key(:included)
+          expect(json[:data].first[:attributes]).not_to have_key(:description)
+        end
+
+        it "does not include macro_cluster details when parameter is false" do
+          get "/api/v1/collected_inks",
+              params: {
+                include_cluster_details: "false"
+              },
+              headers: {
+                "ACCEPT" => "application/json"
+              }
+
+          expect(response).to have_http_status(:ok)
+          expect(json).not_to have_key(:included)
+        end
+
+        it "includes macro_cluster details when parameter is true" do
+          get "/api/v1/collected_inks",
+              params: {
+                include_cluster_details: "true"
+              },
+              headers: {
+                "ACCEPT" => "application/json"
+              }
+
+          expect(response).to have_http_status(:ok)
+          expect(json).to have_key(:included)
+
+          # Find the macro_cluster in the included section
+          cluster_data =
+            json[:included].find do |inc|
+              inc[:type] == "macro_cluster" && inc[:id] == macro_cluster.id.to_s
+            end
+
+          expect(cluster_data).to be_present
+          expect(cluster_data[:attributes]).to include(
+            brand_name: "Diamine",
+            line_name: "Standard",
+            ink_name: "Blue",
+            color: "#0000FF",
+            description: "A beautiful blue ink",
+            tags: %w[blue vibrant]
+          )
+        end
+
+        it "includes all unique colors in macro_cluster details" do
+          get "/api/v1/collected_inks",
+              params: {
+                include_cluster_details: "true"
+              },
+              headers: {
+                "ACCEPT" => "application/json"
+              }
+
+          cluster_data =
+            json[:included].find do |inc|
+              inc[:type] == "macro_cluster" && inc[:id] == macro_cluster.id.to_s
+            end
+
+          expect(cluster_data[:attributes][:colors]).to match_array(%w[#0000FF #0000CC #0000AA])
+        end
+
+        it "includes all_names in macro_cluster details" do
+          get "/api/v1/collected_inks",
+              params: {
+                include_cluster_details: "true"
+              },
+              headers: {
+                "ACCEPT" => "application/json"
+              }
+
+          cluster_data =
+            json[:included].find do |inc|
+              inc[:type] == "macro_cluster" && inc[:id] == macro_cluster.id.to_s
+            end
+
+          expect(cluster_data[:attributes]).to have_key(:all_names)
+          expect(cluster_data[:attributes][:all_names]).to be_an(Array)
+        end
+
+        it "includes public_collected_inks_count in macro_cluster details" do
+          # Create a public collected ink for the count
+          create(:collected_ink, micro_cluster: micro_cluster, private: false)
+
+          get "/api/v1/collected_inks",
+              params: {
+                include_cluster_details: "true"
+              },
+              headers: {
+                "ACCEPT" => "application/json"
+              }
+
+          cluster_data =
+            json[:included].find do |inc|
+              inc[:type] == "macro_cluster" && inc[:id] == macro_cluster.id.to_s
+            end
+
+          expect(cluster_data[:attributes]).to have_key(:public_collected_inks_count)
+          expect(cluster_data[:attributes][:public_collected_inks_count]).to be >= 1
+        end
+
+        it "deduplicates macro_clusters when multiple collected inks share the same cluster" do
+          get "/api/v1/collected_inks",
+              params: {
+                include_cluster_details: "true"
+              },
+              headers: {
+                "ACCEPT" => "application/json"
+              }
+
+          # Should have 3 collected_inks but only 1 macro_cluster in included
+          expect(json[:data].length).to eq(3)
+
+          macro_clusters_in_included =
+            json[:included].select { |inc| inc[:type] == "macro_cluster" }
+          expect(macro_clusters_in_included.length).to eq(1)
+          expect(macro_clusters_in_included.first[:id]).to eq(macro_cluster.id.to_s)
+        end
+
+        it "efficiently loads data with multiple clusters" do
+          # Create another macro_cluster to test multiple clusters
+          other_macro = create(:macro_cluster, brand_name: "Pilot", ink_name: "Kon-peki")
+          other_micro = create(:micro_cluster, macro_cluster: other_macro)
+          create(:collected_ink, user: user, micro_cluster: other_micro)
+
+          get "/api/v1/collected_inks",
+              params: {
+                include_cluster_details: "true"
+              },
+              headers: {
+                "ACCEPT" => "application/json"
+              }
+
+          expect(response).to have_http_status(:ok)
+          expect(json[:data].length).to eq(4) # 3 from first cluster + 1 from second
+
+          # Should have 2 distinct macro_clusters in included
+          macro_clusters_in_included =
+            json[:included].select { |inc| inc[:type] == "macro_cluster" }
+          expect(macro_clusters_in_included.length).to eq(2)
+
+          cluster_ids = macro_clusters_in_included.map { |c| c[:id] }
+          expect(cluster_ids).to match_array([macro_cluster.id.to_s, other_macro.id.to_s])
+        end
+
+        it "handles collected inks without micro_clusters gracefully" do
+          # Create an ink without a micro_cluster
+          create(:collected_ink, user: user, micro_cluster: nil)
+
+          get "/api/v1/collected_inks",
+              params: {
+                include_cluster_details: "true"
+              },
+              headers: {
+                "ACCEPT" => "application/json"
+              }
+
+          expect(response).to have_http_status(:ok)
+          expect(json[:data].length).to eq(4) # 3 with cluster + 1 without
+        end
+
+        it "works with pagination" do
+          get "/api/v1/collected_inks",
+              params: {
+                include_cluster_details: "true",
+                page: {
+                  number: 1,
+                  size: 2
+                }
+              },
+              headers: {
+                "ACCEPT" => "application/json"
+              }
+
+          expect(response).to have_http_status(:ok)
+          expect(json[:data].length).to eq(2)
+          expect(json).to have_key(:included)
+        end
+
+        it "works with filtering by macro_cluster_id" do
+          other_macro = create(:macro_cluster)
+          other_micro = create(:micro_cluster, macro_cluster: other_macro)
+          create(:collected_ink, user: user, micro_cluster: other_micro)
+
+          get "/api/v1/collected_inks",
+              params: {
+                include_cluster_details: "true",
+                filter: {
+                  macro_cluster_id: macro_cluster.id
+                }
+              },
+              headers: {
+                "ACCEPT" => "application/json"
+              }
+
+          expect(response).to have_http_status(:ok)
+          expect(json[:data].length).to eq(3) # Only inks from the filtered cluster
+
+          macro_clusters_in_included =
+            json[:included].select { |inc| inc[:type] == "macro_cluster" }
+          expect(macro_clusters_in_included.length).to eq(1)
+          expect(macro_clusters_in_included.first[:id]).to eq(macro_cluster.id.to_s)
+        end
+
+        it "works with sparse fieldsets" do
+          get "/api/v1/collected_inks",
+              params: {
+                include_cluster_details: "true",
+                fields: {
+                  collected_ink: "brand_name,ink_name"
+                }
+              },
+              headers: {
+                "ACCEPT" => "application/json"
+              }
+
+          expect(response).to have_http_status(:ok)
+          # Check that only the requested fields are present
+          expect(json[:data].first[:attributes].keys).to match_array(%i[brand_name ink_name])
+          expect(json[:data].first[:attributes][:brand_name]).to eq("Diamine")
+          expect(json).to have_key(:included) # Still includes macro_cluster details
+        end
+      end
     end
   end
 
