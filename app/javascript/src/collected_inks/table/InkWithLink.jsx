@@ -1,22 +1,21 @@
 import React from "react";
 
 /**
- * @param {{ value?: string; row: { original: { ink_id?: string; ink_name?: string } } }} props
+ * @param {{ value?: string; row: { original: { ink_id?: string } } }} props
  */
 export const InkWithLink = ({ value, row }) => {
-  const inkName = value || row?.original?.ink_name;
-  const inkId = row?.original?.ink_id;
+  const ink_id = row?.original?.ink_id;
 
-  if (inkId) {
+  if (ink_id) {
     return (
       <>
-        {inkName}
-        <a href={`/inks/${inkId}`}>
+        {value}
+        <a href={`/inks/${ink_id}`}>
           &nbsp;
           <i className="fa fa-external-link" />
         </a>
       </>
     );
   }
-  return <>{inkName}</>;
+  return <>{value}</>;
 };
