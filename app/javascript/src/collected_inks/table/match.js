@@ -11,7 +11,8 @@ export function fuzzyMatch(row, columnId, filterValue) {
 
   const attrs = ["brand_name", "line_name", "ink_name", "maker", "comment", "private_comment"];
   const tags = (row.original.tags || []).map((t) => t.name).join(" ");
-  const searchText = attrs.map((a) => row.original[a] || "").join(" ") + " " + tags;
+  const clusterTags = (row.original.cluster_tags || []).join(" ");
+  const searchText = `${attrs.map((a) => row.original[a] || "").join(" ")} ${tags} ${clusterTags}`;
 
   const itemRank = rankItem(searchText, filterValue);
 

@@ -127,4 +127,21 @@ describe("fuzzyMatch", () => {
 
     expect(fuzzyMatch(rowWithTag, null, "red")).toBe(true);
   });
+
+  it("searches cluster_tags if present", () => {
+    const rowWithClusterTags = {
+      original: {
+        brand_name: "Test",
+        line_name: "Test",
+        ink_name: "Test Ink",
+        maker: "Test",
+        comment: "",
+        private_comment: "",
+        tags: [],
+        cluster_tags: ["sheen", "blue-black"]
+      }
+    };
+
+    expect(fuzzyMatch(rowWithClusterTags, null, "sheen")).toBe(true);
+  });
 });
