@@ -1,21 +1,8 @@
-import { colorSort as genericColorSort } from "../../color-sorting";
-
 const getRowValue = (row, columnId) => {
   if (row?.getValue) return row.getValue(columnId);
   if (row?.values) return row.values[columnId];
   return undefined;
 };
-
-export const booleanSort = (rowA, rowB, columnId) => {
-  const valueA = getRowValue(rowA, columnId);
-  const valueB = getRowValue(rowB, columnId);
-  if (valueA == valueB) return 0;
-  if (valueA && !valueB) return 1;
-  return -1;
-};
-
-export const colorSort = (rowA, rowB, columnId) =>
-  genericColorSort(getRowValue(rowA, columnId), getRowValue(rowB, columnId));
 
 export const dateSort = (rowA, rowB, columnId) => {
   const valueA = getRowValue(rowA, columnId);

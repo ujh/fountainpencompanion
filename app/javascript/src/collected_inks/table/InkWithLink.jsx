@@ -1,16 +1,11 @@
 import React from "react";
 
 /**
- * @param {{ cell: { value: string; row: { original: { ink_id?: string } } } }} props
+ * @param {{ value?: string; row: { original: { ink_id?: string } } }} props
  */
-export const InkWithLink = ({
-  cell: {
-    value,
-    row: {
-      original: { ink_id }
-    }
-  }
-}) => {
+export const InkWithLink = ({ value, row }) => {
+  const ink_id = row?.original?.ink_id;
+
   if (ink_id) {
     return (
       <>

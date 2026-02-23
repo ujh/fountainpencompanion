@@ -1,5 +1,11 @@
 import React, { useEffect, useMemo } from "react";
-import { useTable, useSortBy, useGlobalFilter } from "react-table";
+import {
+  useReactTable,
+  getCoreRowModel,
+  getSortedRowModel,
+  getFilteredRowModel,
+  flexRender
+} from "@tanstack/react-table";
 import _ from "lodash";
 import { RelativeDate } from "../../components/RelativeDate";
 import { useHiddenFields } from "../../useHiddenFields";
@@ -8,7 +14,7 @@ import { fuzzyMatch } from "./match";
 import { Counter } from "./Counter";
 import { InkWithLink } from "./InkWithLink";
 import { Table } from "../../components/Table";
-import { booleanSort, colorSort } from "./sort";
+import { booleanSort, colorSort, dateSort } from "./sort";
 import { ActionsCell } from "./ActionsCell";
 
 export const storageKeyHiddenFields = "fpc-collected-inks-table-hidden-fields";
@@ -23,8 +29,9 @@ export const CollectedInksTable = ({ data, archive, onLayoutChange }) => {
   const columns = useMemo(
     () => [
       {
-        accessor: "private",
-        Cell: ({ cell: { value } }) => {
+        accessorKey: "private",
+        cell: ({ getValue }) => {
+          const value = getValue();
           if (value) {
             return <i title="Private, hidden from your profile" className="fa fa-lock" />;
           } else {
@@ -33,38 +40,36 @@ export const CollectedInksTable = ({ data, archive, onLayoutChange }) => {
         }
       },
       {
-        Header: "Brand",
-        accessor: "brand_name",
-        Footer: (info) => {
-          const count = useMemo(() => {
-            return _.uniqBy(info.rows, (row) => row.values["brand_name"]).length;
-          }, [info.rows]);
+        header: "Brand",
+        accessorKey: "brand_name",
+        footer: ({ table }) => {
+          const rows = table.getFilteredRowModel().rows;
+          const count = _.uniqBy(rows, (row) => row.original.brand_name).length;
           return <span>{count} brands</span>;
         }
       },
       {
-        Header: "Line",
-        accessor: "line_name"
+        header: "Line",
+        accessorKey: "line_name"
       },
       {
-        Header: "Name",
-        accessor: "ink_name",
-        Cell: InkWithLink,
-        Footer: (info) => {
-          return <span>{info.rows.length} inks</span>;
+        header: "Name",
+        accessorKey: "ink_name",
+        cell: ({ getValue, row }) => <InkWithLink value={getValue()} row={row} />,
+        footer: ({ table }) => {
+          return <span>{table.getFilteredRowModel().rows.length} inks</span>;
         }
       },
       {
-        Header: "Maker",
-        accessor: "maker"
+        header: "Maker",
+        accessorKey: "maker"
       },
       {
-        Header: "Type",
-        accessor: "kind",
-        Footer: (info) => {
-          const counters = useMemo(() => {
-            return _.countBy(info.rows, (row) => row.values["kind"]);
-          }, [info.rows]);
+        header: "Type",
+        accessorKey: "kind",
+        footer: ({ table }) => {
+          const rows = table.getFilteredRowModel().rows;
+          const counters = _.countBy(rows, (row) => row.original.kind);
           return (
             <span>
               <Counter data={counters} field="bottle" />
@@ -76,76 +81,83 @@ export const CollectedInksTable = ({ data, archive, onLayoutChange }) => {
         }
       },
       {
-        Header: "Color",
-        accessor: "color",
-        Cell: ({ cell: { value } }) => (
-          <div
-            style={{
-              backgroundColor: value,
-              width: "45px",
-              height: "45px"
-            }}
-          ></div>
-        ),
-        sortType: colorSort
+        header: "Color",
+        accessorKey: "color",
+        cell: ({ getValue }) => {
+          const value = getValue();
+          return (
+            <div
+              style={{
+                backgroundColor: value,
+                width: "45px",
+                height: "45px"
+              }}
+            ></div>
+          );
+        },
+        sortingFn: colorSort
       },
       {
-        Header: "Swabbed",
-        accessor: "swabbed",
-        Cell: ({ cell: { value } }) => {
+        header: "Swabbed",
+        accessorKey: "swabbed",
+        cell: ({ getValue }) => {
+          const value = getValue();
           if (value) {
             return <i className="fa fa-check" />;
           } else {
             return <i className="fa fa-times" />;
           }
         },
-        sortType: booleanSort
+        sortingFn: booleanSort
       },
       {
-        Header: "Used",
-        accessor: "used",
-        Cell: ({ cell: { value } }) => {
+        header: "Used",
+        accessorKey: "used",
+        cell: ({ getValue }) => {
+          const value = getValue();
           if (value) {
             return <i className="fa fa-check" />;
           } else {
             return <i className="fa fa-times" />;
           }
         },
-        sortType: booleanSort
+        sortingFn: booleanSort
       },
       {
-        Header: "Usage",
-        accessor: "usage",
+        header: "Usage",
+        accessorKey: "usage",
         sortDescFirst: true
       },
       {
-        Header: "Daily Usage",
-        accessor: "daily_usage",
+        header: "Daily Usage",
+        accessorKey: "daily_usage",
         sortDescFirst: true
       },
       {
-        Header: "Last Usage",
-        accessor: "last_used_on",
+        header: "Last Usage",
+        accessorKey: "last_used_on",
         sortDescFirst: true,
-        Cell: ({ cell: { value } }) => <RelativeDate date={value} />
+        sortingFn: dateSort,
+        cell: ({ getValue }) => <RelativeDate date={getValue()} />
       },
       {
-        Header: "Added On",
-        accessor: "created_at",
-        Cell: ({ cell: { value } }) => <RelativeDate date={value} relativeAsDefault={false} />
+        header: "Added On",
+        accessorKey: "created_at",
+        cell: ({ getValue }) => <RelativeDate date={getValue()} relativeAsDefault={false} />
       },
       {
-        Header: "Comment",
-        accessor: "comment"
+        header: "Comment",
+        accessorKey: "comment"
       },
       {
-        Header: "Private Comment",
-        accessor: "private_comment"
+        header: "Private Comment",
+        accessorKey: "private_comment"
       },
       {
-        Header: "Tags",
-        accessor: "tags",
-        Cell: ({ cell: { value } }) => {
+        header: "Tags",
+        accessorKey: "tags",
+        cell: ({ getValue }) => {
+          const value = getValue();
           if (!value.length) return null;
           return (
             <ul className="tags">
@@ -159,14 +171,11 @@ export const CollectedInksTable = ({ data, archive, onLayoutChange }) => {
         }
       },
       {
-        Header: "Cluster Tags",
-        accessor: "cluster_tags",
-        Cell: ({
-          cell: { value },
-          row: {
-            values: { tags }
-          }
-        }) => {
+        header: "Cluster Tags",
+        accessorKey: "cluster_tags",
+        cell: ({ getValue, row }) => {
+          const value = getValue();
+          const tags = row.original.tags || [];
           if (!value.length) return null;
           const clusterOnlyTags = _.difference(
             value,
@@ -184,8 +193,9 @@ export const CollectedInksTable = ({ data, archive, onLayoutChange }) => {
         }
       },
       {
-        Header: "Actions",
-        Cell: ({ cell: { row } }) => {
+        header: "Actions",
+        meta: { className: "fpc-actions-column" },
+        cell: ({ row }) => {
           return <ActionsCell {...row.original} id={row.original.id} />;
         }
       }
@@ -219,35 +229,119 @@ export const CollectedInksTable = ({ data, archive, onLayoutChange }) => {
     defaultHiddenFields
   );
 
-  const {
-    getTableProps,
-    getTableBodyProps,
-    headerGroups,
-    footerGroups,
-    rows,
-    prepareRow,
-    preGlobalFilteredRows,
-    setGlobalFilter,
-    setHiddenColumns
-  } = useTable(
-    {
-      columns,
-      data,
-      initialState: {
-        hiddenColumns: hiddenFields
-      },
-      filterTypes: {
-        fuzzyText: fuzzyMatch
-      },
-      globalFilter: "fuzzyText"
+  const table = useReactTable({
+    columns,
+    data,
+    getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    state: {
+      columnVisibility: hiddenFields.reduce((acc, field) => ({ ...acc, [field]: false }), {})
     },
-    useGlobalFilter,
-    useSortBy
-  );
+    onColumnVisibilityChange: (updater) => {
+      if (typeof updater === "function") {
+        const newVisibility = updater(
+          hiddenFields.reduce((acc, field) => ({ ...acc, [field]: false }), {})
+        );
+        const newHiddenFields = Object.keys(newVisibility).filter((key) => !newVisibility[key]);
+        onHiddenFieldsChange(newHiddenFields);
+      }
+    },
+    globalFilterFn: fuzzyMatch,
+    enableGlobalFilter: true
+  });
+
+  const setGlobalFilter = table.setGlobalFilter;
+  const preGlobalFilteredRows = table.getPreFilteredRowModel().rows;
 
   useEffect(() => {
-    setHiddenColumns(hiddenFields);
-  }, [hiddenFields, setHiddenColumns]);
+    const visibility = hiddenFields.reduce((acc, field) => ({ ...acc, [field]: false }), {});
+    table.setColumnVisibility(visibility);
+  }, [hiddenFields, table]);
+
+  // Extract table props for backward compatibility with Table component
+  const getTableProps = () => ({ role: "table" });
+  const getTableBodyProps = () => ({ role: "rowgroup" });
+
+  // Add backward compatibility methods to v8 objects
+  const headerGroups = table.getHeaderGroups().map((headerGroup) => ({
+    ...headerGroup,
+    getHeaderGroupProps: () => ({ role: "row" }),
+    headers: headerGroup.headers.map((header) => ({
+      ...header,
+      getHeaderProps: (userProps = {}) => {
+        const metaClass = header.column.columnDef?.meta?.className;
+        const mergedClassName = [userProps.className, metaClass].filter(Boolean).join(" ");
+        const baseStyle =
+          metaClass === "fpc-actions-column" ? { width: "1%", whiteSpace: "nowrap" } : {};
+        const sortableStyle = header.column.getCanSort()
+          ? { cursor: "pointer", userSelect: "none", WebkitUserSelect: "none" }
+          : {};
+        const style = { ...baseStyle, ...sortableStyle };
+        const title = header.column.getCanSort() ? "Toggle SortBy" : undefined;
+        return {
+          ...userProps,
+          className: mergedClassName,
+          style,
+          role: "columnheader",
+          colSpan: 1,
+          title
+        };
+      },
+      getSortByToggleProps: () => ({
+        onClick: header.column.getToggleSortingHandler?.()
+      }),
+      getIsSorted: () => header.column.getIsSorted?.(),
+      isSorted: header.column.getIsSorted?.() ? true : false,
+      isSortedDesc: header.column.getIsSorted?.() === "desc",
+      render: (type) => {
+        if (type === "Header") {
+          return flexRender(header.column.columnDef.header, header.getContext());
+        }
+        return null;
+      }
+    }))
+  }));
+
+  const footerGroups = table.getFooterGroups().map((footerGroup) => ({
+    ...footerGroup,
+    getFooterGroupProps: () => ({ role: "row" }),
+    headers: footerGroup.headers.map((header) => ({
+      ...header,
+      getFooterProps: () => {
+        const metaClass = header.column.columnDef?.meta?.className;
+        const style =
+          metaClass === "fpc-actions-column" ? { width: "1%", whiteSpace: "nowrap" } : undefined;
+        return metaClass
+          ? { className: metaClass, style, role: "columnheader", colSpan: 1 }
+          : { style, role: "columnheader", colSpan: 1 };
+      },
+      render: (type) => {
+        if (type === "Footer") {
+          return flexRender(header.column.columnDef.footer, header.getContext());
+        }
+        return null;
+      }
+    }))
+  }));
+
+  const rows = table.getRowModel().rows.map((row) => ({
+    ...row,
+    getRowProps: () => ({ role: "row" }),
+    cells: row.getVisibleCells().map((cell) => ({
+      ...cell,
+      getCellProps: () => {
+        const metaClass = cell.column.columnDef?.meta?.className;
+        const style =
+          metaClass === "fpc-actions-column" ? { width: "1%", whiteSpace: "nowrap" } : undefined;
+        return metaClass
+          ? { className: metaClass, style, role: "cell", colSpan: 1 }
+          : { style, role: "cell", colSpan: 1 };
+      }
+    }))
+  }));
+
+  const prepareRow = () => {};
 
   return (
     <div>

@@ -13,6 +13,7 @@ import { Actions } from "../components/Actions";
 import { ActionsCell } from "./ActionsCell";
 import { fuzzyMatch } from "./match";
 import { RelativeDate } from "../../components/RelativeDate";
+import { dateSort } from "./sort";
 
 export const storageKeyHiddenFields = "fpc-collected-pens-table-hidden-fields";
 
@@ -93,6 +94,7 @@ export const CollectedPensTable = ({ pens, onLayoutChange }) => {
         header: "Last Usage",
         accessorKey: "last_used_on",
         sortDescFirst: true,
+        sortingFn: dateSort,
         cell: ({ getValue }) => <RelativeDate date={getValue()} />
       },
       {
