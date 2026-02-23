@@ -1,4 +1,4 @@
-import React, { useMemo, useEffect } from "react";
+import React, { useMemo, useEffect, useCallback } from "react";
 import {
   useReactTable,
   getCoreRowModel,
@@ -147,12 +147,25 @@ export const CurrentlyInkedTable = ({ currentlyInked, onLayoutChange }) => {
     enableGlobalFilter: true
   });
 
-  const setGlobalFilter = table.setGlobalFilter;
   const preGlobalFilteredRows = table.getPreFilteredRowModel().rows;
+
+  const handleFilterChange = useCallback(
+    (value) => {
+      table.setGlobalFilter(value !== undefined ? { text: value, hiddenFields } : undefined);
+    },
+    [table, hiddenFields]
+  );
 
   useEffect(() => {
     const visibility = hiddenFields.reduce((acc, field) => ({ ...acc, [field]: false }), {});
     table.setColumnVisibility(visibility);
+
+    // Update the global filter value so it carries the new hiddenFields,
+    // which invalidates TanStack Table's memoized getFilteredRowModel.
+    const currentFilter = table.getState().globalFilter;
+    if (currentFilter?.text !== undefined) {
+      table.setGlobalFilter({ text: currentFilter.text, hiddenFields });
+    }
   }, [hiddenFields, table]);
 
   // Extract table props for backward compatibility with Table component
@@ -244,7 +257,7 @@ export const CurrentlyInkedTable = ({ currentlyInked, onLayoutChange }) => {
       <Actions
         activeLayout="table"
         numberOfEntries={preGlobalFilteredRows.length}
-        onFilterChange={setGlobalFilter}
+        onFilterChange={handleFilterChange}
         onLayoutChange={onLayoutChange}
         hiddenFields={hiddenFields}
         onHiddenFieldsChange={onHiddenFieldsChange}
