@@ -1,9 +1,9 @@
 class Api::V1::InksController < Api::V1::BaseController
   api :GET, "/api/v1/inks", "Returns a list of ink clusters"
   param :filter, Hash, desc: "Filtering options" do
-    param :ink_name, String, desc: "Filter by ink name"
-    param :line_name, String, desc: "Filter by line name"
-    param :brand_name, String, desc: "Filter by brand name"
+    param :ink_name, String, desc: "Filter by ink name", allow_blank: true
+    param :line_name, String, desc: "Filter by line name", allow_blank: true
+    param :brand_name, String, desc: "Filter by brand name", allow_blank: true
   end
   param :fields, Hash, desc: "Fields to include in the response" do
     param :macro_cluster, String, desc: "Comma-separated list of macro cluster fields to include"
