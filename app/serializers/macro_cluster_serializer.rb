@@ -12,7 +12,11 @@ class MacroClusterSerializer
   attribute :public_collected_inks_count
 
   attribute :colors do |object|
-    object.collected_inks.pluck(:color).uniq.reject(&:blank?)
+    if object.collected_inks.loaded?
+      object.collected_inks.map(&:color).uniq.reject(&:blank?)
+    else
+      object.collected_inks.pluck(:color).uniq.reject(&:blank?)
+    end
   end
 
   attribute :all_names do |object|
