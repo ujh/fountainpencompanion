@@ -10,7 +10,7 @@ import _ from "lodash";
 import { RelativeDate } from "../../components/RelativeDate";
 import { useHiddenFields } from "../../useHiddenFields";
 import { Actions } from "../components";
-import { fuzzyMatch } from "./match";
+import { createFuzzyMatch } from "./match";
 import { Counter } from "./Counter";
 import { InkWithLink } from "./InkWithLink";
 import { Table } from "../../components/Table";
@@ -229,6 +229,8 @@ export const CollectedInksTable = ({ data, archive, onLayoutChange }) => {
     defaultHiddenFields
   );
 
+  const fuzzyMatchFn = useMemo(() => createFuzzyMatch(hiddenFields), [hiddenFields]);
+
   const table = useReactTable({
     columns,
     data,
@@ -247,7 +249,7 @@ export const CollectedInksTable = ({ data, archive, onLayoutChange }) => {
         onHiddenFieldsChange(newHiddenFields);
       }
     },
-    globalFilterFn: fuzzyMatch,
+    globalFilterFn: fuzzyMatchFn,
     enableGlobalFilter: true
   });
 
