@@ -40,7 +40,11 @@ Accessible at `/letter_opener`.
 
 ## Running Tests
 
+When making changes always run the tests to ensure they still pass.
+
 ### Backend (RSpec)
+
+Important: When running the tests, check the output to ensure that no new warnings were introduced.
 
 All backend tests:
 
