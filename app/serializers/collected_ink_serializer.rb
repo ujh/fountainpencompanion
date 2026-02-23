@@ -2,6 +2,9 @@ class CollectedInkSerializer
   include JSONAPI::Serializer
 
   belongs_to :micro_cluster
+  belongs_to :macro_cluster do |object|
+    object.micro_cluster&.macro_cluster
+  end
   has_many :tags
   has_many :currently_inkeds
 
