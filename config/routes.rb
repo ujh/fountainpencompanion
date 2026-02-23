@@ -96,7 +96,7 @@ Rails.application.routes.draw do
 
   namespace :api do
     namespace :v1 do
-      resources :brands, only: [:index]
+      resources :brands, only: %i[index show]
       resources :lines, only: [:index]
       resources :inks, only: [:index]
       resources :collected_inks, only: %i[index show create update destroy]

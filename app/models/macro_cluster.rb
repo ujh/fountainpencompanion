@@ -1,6 +1,24 @@
 require "ostruct"
 
 class MacroCluster < ApplicationRecord
+  InkNameEntry =
+    Struct.new(
+      :id,
+      :brand_name,
+      :line_name,
+      :ink_name,
+      :collected_inks_count,
+      keyword_init: true
+    ) do
+      def slice(*keys)
+        to_h.slice(*keys)
+      end
+
+      def short_name
+        [brand_name, line_name, ink_name].reject(&:blank?).join(" ")
+      end
+    end
+
   has_paper_trail
   has_many :description_versions,
            -> { where("object_changes like ?", "%description%").order("id desc") },
@@ -187,17 +205,33 @@ class MacroCluster < ApplicationRecord
   end
 
   def public_collected_inks_count
-    public_collected_inks.count
+    collected_inks.loaded? ? collected_inks.count { |ci| !ci.private } : public_collected_inks.count
   end
 
   def all_names
-    collected_inks
-      .where(private: false)
-      .group("collected_inks.brand_name, collected_inks.line_name, collected_inks.ink_name")
-      .select(
-        "min(collected_inks.id), collected_inks.brand_name, collected_inks.line_name, collected_inks.ink_name, count(*) as collected_inks_count"
-      )
-      .order("collected_inks_count desc")
+    if collected_inks.loaded?
+      collected_inks
+        .reject(&:private)
+        .group_by { |ci| [ci.brand_name, ci.line_name, ci.ink_name] }
+        .map do |(brand_name, line_name, ink_name), inks|
+          InkNameEntry.new(
+            id: inks.first.id,
+            brand_name: brand_name,
+            line_name: line_name,
+            ink_name: ink_name,
+            collected_inks_count: inks.size
+          )
+        end
+        .sort_by { |n| -n.collected_inks_count }
+    else
+      collected_inks
+        .where(private: false)
+        .group("collected_inks.brand_name, collected_inks.line_name, collected_inks.ink_name")
+        .select(
+          "min(collected_inks.id), collected_inks.brand_name, collected_inks.line_name, collected_inks.ink_name, count(*) as collected_inks_count"
+        )
+        .order("collected_inks_count desc")
+    end
   end
 
   def synonyms
