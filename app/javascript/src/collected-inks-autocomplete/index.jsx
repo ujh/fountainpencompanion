@@ -13,10 +13,11 @@ const CollectedInksAutocomplete = () => {
   // Fetch line names from API
   const fetchLines = async (term, { brandName }) => {
     const params = new URLSearchParams({
-      term: term,
-      brand_name: brandName || ""
+      "fields[macro_cluster]": "line_name",
+      "filter[line_name]": term,
+      "filter[brand_name]": brandName || ""
     });
-    const response = await fetch(`/api/v1/lines?${params.toString()}`);
+    const response = await fetch(`/api/v1/inks?${params.toString()}`);
     const data = await response.json();
     return data.data.map((e) => e.attributes.line_name);
   };
@@ -24,8 +25,9 @@ const CollectedInksAutocomplete = () => {
   // Fetch ink names from API
   const fetchInks = async (term, { brandName }) => {
     const params = new URLSearchParams({
-      term: term,
-      brand_name: brandName || ""
+      "fields[macro_cluster]": "ink_name",
+      "filter[ink_name]": term,
+      "filter[brand_name]": brandName || ""
     });
     const response = await fetch(`/api/v1/inks?${params.toString()}`);
     const data = await response.json();
