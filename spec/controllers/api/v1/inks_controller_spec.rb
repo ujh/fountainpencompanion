@@ -269,6 +269,21 @@ describe Api::V1::InksController do
           expect(ids).to include(macro_cluster.id)
           expect(ids).not_to include(other_brand_cluster.id)
         end
+
+        it "filtering works even if brand_name is empty string" do
+          get :index,
+              params: {
+                filter: {
+                  line_name: "Flower",
+                  brand_name: ""
+                },
+                fields: {
+                  macro_cluster: "line_name"
+                }
+              },
+              format: :json
+          expect(response).to have_http_status(:ok)
+        end
       end
     end
   end
