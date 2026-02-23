@@ -63,15 +63,60 @@ class Api::V1::CurrentlyInkedController < Api::V1::BaseController
       property :pagination, Hash, desc: "Pagination details" do
         property :total_pages, Integer, desc: "Total number of pages"
         property :current_page, Integer, desc: "Current page number"
-        property :next_page, Integer, desc: "Next page number"
-        property :prev_page, Integer, desc: "Previous page number"
+        property :next_page, Integer, desc: "Next page number", required: false, default_value: nil
+        property :prev_page,
+                 Integer,
+                 desc: "Previous page number",
+                 required: false,
+                 default_value: nil
       end
     end
     property :included, array_of: Hash, desc: "Included related resources" do
       property :id, String, desc: "ID of the related resource"
       property :type, %w[collected_ink collected_pen], desc: "Type of the related resource"
-      property :attributes, Hash, desc: "Attributes of the related resource", required: false
-      property :relationships, Hash, desc: "Relationships of the related resource", required: false
+      property :attributes,
+               Hash,
+               desc: "Attributes of the related resource",
+               required: false,
+               default_value: nil do
+        property :brand_name, String, desc: "Brand name", required: false, default_value: nil
+        property :line_name, String, desc: "Line name", required: false, default_value: nil
+        property :ink_name, String, desc: "Ink name", required: false, default_value: nil
+        property :color, String, desc: "Color hex code", required: false, default_value: nil
+        property :archived,
+                 [true, false],
+                 desc: "Whether the resource is archived",
+                 required: false,
+                 default_value: nil
+        property :brand, String, desc: "Pen brand", required: false, default_value: nil
+        property :model, String, desc: "Pen model", required: false, default_value: nil
+        property :nib, String, desc: "Pen nib", required: false, default_value: nil
+        property :model_variant_id,
+                 Integer,
+                 desc: "Model variant ID",
+                 required: false,
+                 default_value: nil
+      end
+      property :relationships,
+               Hash,
+               desc: "Relationships of the related resource",
+               required: false,
+               default_value: nil do
+        property :micro_cluster,
+                 Hash,
+                 desc: "Related micro cluster",
+                 required: false,
+                 default_value: nil do
+          property :data,
+                   Hash,
+                   desc: "Micro cluster reference",
+                   required: false,
+                   default_value: nil do
+            property :id, String, desc: "Micro cluster ID"
+            property :type, String, desc: "Resource type (micro_cluster)"
+          end
+        end
+      end
     end
   end
   def index
