@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   useReactTable,
   getCoreRowModel,
@@ -10,7 +10,7 @@ import _ from "lodash";
 import { RelativeDate } from "../../components/RelativeDate";
 import { useHiddenFields } from "../../useHiddenFields";
 import { Actions } from "../components";
-import { createFuzzyMatch } from "./match";
+import { fuzzyFilter } from "./match";
 import { Counter } from "./Counter";
 import { InkWithLink } from "./InkWithLink";
 import { Table } from "../../components/Table";
@@ -229,7 +229,14 @@ export const CollectedInksTable = ({ data, archive, onLayoutChange }) => {
     defaultHiddenFields
   );
 
-  const fuzzyMatchFn = useMemo(() => createFuzzyMatch(hiddenFields), [hiddenFields]);
+  const [filterText, setFilterText] = useState("");
+
+  // Composite globalFilter value: when either the search text or hiddenFields
+  // change, TanStack Table sees a new state value and re-runs filtering.
+  const globalFilter = useMemo(
+    () => ({ text: filterText, hiddenFields }),
+    [filterText, hiddenFields]
+  );
 
   const table = useReactTable({
     columns,
@@ -238,7 +245,17 @@ export const CollectedInksTable = ({ data, archive, onLayoutChange }) => {
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     state: {
+      globalFilter,
       columnVisibility: hiddenFields.reduce((acc, field) => ({ ...acc, [field]: false }), {})
+    },
+    onGlobalFilterChange: (updater) => {
+      // The Actions component passes a plain string; store only the text part.
+      if (typeof updater === "function") {
+        const next = updater(globalFilter);
+        setFilterText(typeof next === "object" ? next.text : next || "");
+      } else {
+        setFilterText(typeof updater === "object" ? updater.text : updater || "");
+      }
     },
     onColumnVisibilityChange: (updater) => {
       if (typeof updater === "function") {
@@ -249,11 +266,11 @@ export const CollectedInksTable = ({ data, archive, onLayoutChange }) => {
         onHiddenFieldsChange(newHiddenFields);
       }
     },
-    globalFilterFn: fuzzyMatchFn,
+    globalFilterFn: fuzzyFilter,
     enableGlobalFilter: true
   });
 
-  const setGlobalFilter = table.setGlobalFilter;
+  const setGlobalFilter = (value) => setFilterText(value || "");
   const preGlobalFilteredRows = table.getPreFilteredRowModel().rows;
 
   useEffect(() => {
