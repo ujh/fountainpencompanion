@@ -1,4 +1,4 @@
-import React, { useMemo, useEffect } from "react";
+import React, { useMemo, useState, useCallback, useEffect } from "react";
 import {
   useReactTable,
   getCoreRowModel,
@@ -134,6 +134,12 @@ export const CollectedPensTable = ({ pens, onLayoutChange }) => {
     defaultHiddenFields
   );
 
+  const [filterText, setFilterText] = useState("");
+  const globalFilter = useMemo(
+    () => ({ filterValue: filterText, hiddenFields }),
+    [filterText, hiddenFields]
+  );
+
   const table = useReactTable({
     columns,
     data: pens,
@@ -141,6 +147,7 @@ export const CollectedPensTable = ({ pens, onLayoutChange }) => {
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     state: {
+      globalFilter,
       columnVisibility: hiddenFields.reduce((acc, field) => ({ ...acc, [field]: false }), {})
     },
     onColumnVisibilityChange: (updater) => {
@@ -156,7 +163,7 @@ export const CollectedPensTable = ({ pens, onLayoutChange }) => {
     enableGlobalFilter: true
   });
 
-  const setGlobalFilter = table.setGlobalFilter;
+  const onFilterChange = useCallback((value) => setFilterText(value || ""), []);
   const preGlobalFilteredRows = table.getPreFilteredRowModel().rows;
 
   useEffect(() => {
@@ -253,7 +260,7 @@ export const CollectedPensTable = ({ pens, onLayoutChange }) => {
       <Actions
         activeLayout="table"
         numberOfPens={preGlobalFilteredRows.length}
-        onFilterChange={setGlobalFilter}
+        onFilterChange={onFilterChange}
         onLayoutChange={onLayoutChange}
         hiddenFields={hiddenFields}
         onHiddenFieldsChange={onHiddenFieldsChange}
