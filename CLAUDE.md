@@ -45,25 +45,25 @@ Accessible at `/letter_opener`.
 All backend tests:
 
 ```
-docker-compose exec app bundle exec rspec
+docker-compose exec -T app bundle exec rspec
 ```
 
 Single file:
 
 ```
-docker-compose exec app bundle exec rspec spec/models/user_spec.rb
+docker-compose exec -T app bundle exec rspec spec/models/user_spec.rb
 ```
 
 Single test by line number:
 
 ```
-docker-compose exec app bundle exec rspec spec/models/user_spec.rb:3
+docker-compose exec -T app bundle exec rspec spec/models/user_spec.rb:3
 ```
 
 Filter by example name:
 
 ```
-docker-compose exec app bundle exec rspec -e "example name"
+docker-compose exec -T app bundle exec rspec -e "example name"
 ```
 
 ### Frontend (Jest)
@@ -71,25 +71,25 @@ docker-compose exec app bundle exec rspec -e "example name"
 All frontend tests:
 
 ```
-docker-compose exec app yarn test
+docker-compose exec -T app yarn test
 ```
 
 Single file:
 
 ```
-docker-compose exec app yarn jest app/javascript/src/color-sorting.spec.js
+docker-compose exec -T app yarn jest app/javascript/src/color-sorting.spec.js
 ```
 
 Filter by pattern:
 
 ```
-docker-compose exec app yarn jest --testPathPatterns="color-sorting"
+docker-compose exec -T app yarn jest --testPathPatterns="color-sorting"
 ```
 
 Filter by test name:
 
 ```
-docker-compose exec app yarn jest -t "test name"
+docker-compose exec -T app yarn jest -t "test name"
 ```
 
 ## Linting & Formatting
@@ -97,19 +97,19 @@ docker-compose exec app yarn jest -t "test name"
 Run all linters (Prettier + ESLint):
 
 ```
-docker-compose exec app yarn lint
+docker-compose exec -T app yarn lint
 ```
 
 Auto-fix formatting:
 
 ```
-docker-compose exec app yarn prettier-fix
+docker-compose exec -T app yarn prettier-fix
 ```
 
 Auto-fix ESLint issues:
 
 ```
-docker-compose exec app yarn eslint --fix
+docker-compose exec -T app yarn eslint --fix
 ```
 
 ### Style Rules
