@@ -91,6 +91,10 @@ class AdminStats
     User.spammer.count
   end
 
+  def active_users_last_year_count
+    @active_users_last_year_count ||= User.active.where("current_sign_in_at > ?", 1.year.ago).count
+  end
+
   def users_to_review_count
     User.to_review.count
   end
