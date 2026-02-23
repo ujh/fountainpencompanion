@@ -28,7 +28,19 @@ describe Admins::MacroClustersController do
                   "brand_name" => macro_cluster.brand_name,
                   "line_name" => macro_cluster.line_name,
                   "ink_name" => macro_cluster.ink_name,
-                  "color" => macro_cluster.color
+                  "color" => macro_cluster.color,
+                  "description" => "",
+                  "tags" => [],
+                  "public_collected_inks_count" => 1,
+                  "colors" => [collected_ink.color],
+                  "all_names" => [
+                    {
+                      "brand_name" => collected_ink.brand_name,
+                      "line_name" => collected_ink.line_name,
+                      "ink_name" => collected_ink.ink_name,
+                      "collected_inks_count" => 1
+                    }
+                  ]
                 },
                 "relationships" => {
                   "micro_clusters" => {
@@ -105,7 +117,12 @@ describe Admins::MacroClustersController do
                   "brand_name" => macro_cluster.brand_name,
                   "line_name" => macro_cluster.line_name,
                   "ink_name" => macro_cluster.ink_name,
-                  "color" => macro_cluster.color
+                  "color" => macro_cluster.color,
+                  "description" => "",
+                  "tags" => [],
+                  "public_collected_inks_count" => 0,
+                  "colors" => [],
+                  "all_names" => []
                 },
                 "relationships" => {
                   "micro_clusters" => {
@@ -161,7 +178,12 @@ describe Admins::MacroClustersController do
                 "brand_name" => macro_cluster.brand_name,
                 "line_name" => macro_cluster.line_name,
                 "ink_name" => macro_cluster.ink_name,
-                "color" => macro_cluster.color
+                "color" => macro_cluster.color,
+                "description" => "",
+                "tags" => [],
+                "public_collected_inks_count" => 0,
+                "colors" => [],
+                "all_names" => []
               },
               "relationships" => {
                 "micro_clusters" => {
@@ -228,7 +250,12 @@ describe Admins::MacroClustersController do
                 "brand_name" => "brand_name",
                 "line_name" => "line_name",
                 "ink_name" => "ink_name",
-                "color" => "#FFFFFF"
+                "color" => "#FFFFFF",
+                "description" => "",
+                "tags" => [],
+                "public_collected_inks_count" => 0,
+                "colors" => [],
+                "all_names" => []
               },
               "relationships" => {
                 "micro_clusters" => {
@@ -284,7 +311,12 @@ describe Admins::MacroClustersController do
                 "brand_name" => "new brand_name",
                 "line_name" => "new line_name",
                 "ink_name" => "new ink_name",
-                "color" => "#000000"
+                "color" => "#000000",
+                "description" => "",
+                "tags" => [],
+                "public_collected_inks_count" => 0,
+                "colors" => [],
+                "all_names" => []
               },
               "relationships" => {
                 "micro_clusters" => {

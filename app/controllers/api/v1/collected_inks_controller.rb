@@ -27,6 +27,9 @@ class Api::V1::CollectedInksController < Api::V1::BaseController
           String,
           desc: "Comma-separated list of collected ink fields to include in the response"
   end
+  param :include,
+        String,
+        desc: "Comma-separated list of related resources to include (e.g., 'macro_cluster')"
   returns code: 200, desc: "A list of collected inks" do
     property :data, array_of: Hash do
       property :id, String, desc: "ID of the collected ink"
@@ -92,6 +95,9 @@ class Api::V1::CollectedInksController < Api::V1::BaseController
 
   api :GET, "/api/v1/collected_inks/:id", "Retrieve a single collected ink"
   param :id, :number, required: true, desc: "ID of the collected ink"
+  param :include,
+        String,
+        desc: "Comma-separated list of related resources to include (e.g., 'macro_cluster')"
   returns code: 200, desc: "A single collected ink" do
     property :data, Hash do
       property :id, String, desc: "ID of the collected ink"
@@ -216,7 +222,7 @@ class Api::V1::CollectedInksController < Api::V1::BaseController
   end
 
   def single_options
-    { fields: { collected_ink: collected_ink_fields } }
+    { fields: { collected_ink: collected_ink_fields }, include: includes }
   end
 
   def serializer
@@ -271,7 +277,21 @@ class Api::V1::CollectedInksController < Api::V1::BaseController
   end
 
   def options
-    { fields: { collected_ink: collected_ink_fields }, meta: { pagination: pagination } }
+    {
+      fields: {
+        collected_ink: collected_ink_fields
+      },
+      meta: {
+        pagination: pagination
+      },
+      include: includes
+    }
+  end
+
+  def includes
+    includes_whitelist = ["macro_cluster"]
+    requested_includes = params[:include].to_s.split(",").map(&:strip)
+    requested_includes & includes_whitelist
   end
 
   def pagination
