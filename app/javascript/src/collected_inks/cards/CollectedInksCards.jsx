@@ -7,10 +7,9 @@ import { fuzzyMatch } from "./match";
 export const storageKeyHiddenFields = "fpc-collected-inks-cards-hidden-fields";
 
 export const CollectedInksCards = ({ data, archive, onLayoutChange }) => {
-  const [matchOn, setMatchOn] = useState("");
-  const visible = fuzzyMatch(data, matchOn);
-
   const { hiddenFields, onHiddenFieldsChange } = useHiddenFields(storageKeyHiddenFields);
+  const [matchOn, setMatchOn] = useState("");
+  const visible = fuzzyMatch(data, matchOn, hiddenFields);
 
   return (
     <div>
