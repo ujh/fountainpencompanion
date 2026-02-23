@@ -25,15 +25,40 @@ class Api::V1::InksController < Api::V1::BaseController
         property :tags, array_of: String, desc: "Tags"
         property :public_collected_inks_count, Integer, desc: "Number of public collected inks"
         property :colors, array_of: String, desc: "Unique colors from collected inks"
-        property :all_names, array_of: Hash, desc: "All name variants for this ink"
+        property :all_names, array_of: Hash, desc: "All name variants for this ink" do
+          property :brand_name, String, desc: "Brand name"
+          property :line_name, String, desc: "Line name"
+          property :ink_name, String, desc: "Ink name"
+          property :collected_inks_count, Integer, desc: "Number of collected inks with this name"
+        end
       end
-      property :relationships, Hash, desc: "Related resources", required: false
+      property :relationships,
+               Hash,
+               desc: "Related resources",
+               required: false,
+               default_value: {
+               } do
+        property :micro_clusters,
+                 Hash,
+                 desc: "Related micro clusters",
+                 required: false,
+                 default_value: nil do
+          property :data, array_of: Hash, desc: "Array of micro cluster references" do
+            property :id, String, desc: "Micro cluster ID"
+            property :type, String, desc: "Resource type (micro_cluster)"
+          end
+        end
+      end
     end
     property :meta, Hash, desc: "Metadata" do
       property :pagination, Hash, desc: "Pagination info" do
         property :current_page, Integer, desc: "Current page number"
-        property :next_page, Integer, desc: "Next page number", required: false
-        property :prev_page, Integer, desc: "Previous page number", required: false
+        property :next_page, Integer, desc: "Next page number", required: false, default_value: nil
+        property :prev_page,
+                 Integer,
+                 desc: "Previous page number",
+                 required: false,
+                 default_value: nil
         property :total_pages, Integer, desc: "Total number of pages"
         property :total_count, Integer, desc: "Total number of items"
       end
