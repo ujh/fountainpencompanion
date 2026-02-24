@@ -40,7 +40,8 @@ Accessible at `/letter_opener`.
 
 ## Running Tests
 
-When making changes always run the tests to ensure they still pass.
+When making changes always run the tests to ensure they still pass. Run ALL tests as the final step before considering
+a task done.
 
 ### Backend (RSpec)
 
