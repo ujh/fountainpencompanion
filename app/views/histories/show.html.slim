@@ -2,7 +2,10 @@
 
 - @versions.each do |version|
   div class='diff'
-    pre class='diff-content'= calculate_diff(version)
+    - calculate_diffs(version).each do |entry|
+      div class='diff-field'
+        strong= entry[:label]
+        pre class='diff-content'= entry[:diff]
     div class='timestamp'
       = time_ago_in_words(version.created_at)
       '  ago

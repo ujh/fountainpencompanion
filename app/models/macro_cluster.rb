@@ -21,7 +21,15 @@ class MacroCluster < ApplicationRecord
 
   has_paper_trail
   has_many :description_versions,
-           -> { where("object_changes like ?", "%description%").order("id desc") },
+           -> do
+             where(
+               "object_changes LIKE ? OR object_changes LIKE ? OR object_changes LIKE ? OR object_changes LIKE ?",
+               "%description%",
+               "%manual_brand_name%",
+               "%manual_line_name%",
+               "%manual_ink_name%"
+             ).order("id desc")
+           end,
            class_name: "PaperTrail::Version",
            as: :item
 
@@ -289,5 +297,10 @@ class MacroCluster < ApplicationRecord
 
   def automatic_ink_name
     read_attribute(:ink_name)
+  end
+
+  def manual_edits?
+    description.present? || manual_brand_name.present? || manual_line_name.present? ||
+      manual_ink_name.present?
   end
 end
