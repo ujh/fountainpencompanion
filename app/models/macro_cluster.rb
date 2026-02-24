@@ -145,15 +145,20 @@ class MacroCluster < ApplicationRecord
     clusters.values.sort_by(&:distance)
   end
 
+  def self.effective_column(field)
+    Arel.sql("COALESCE(NULLIF(macro_clusters.manual_#{field}, ''), macro_clusters.#{field})")
+  end
+
   def self.autocomplete_search(term, field)
+    effective = effective_column(field)
     simplified_term = Simplifier.send(field, term.to_s)
     joins(micro_clusters: :collected_inks)
       .where(collected_inks: { private: false })
       .where("collected_inks.simplified_#{field} LIKE ?", "%#{simplified_term}%")
-      .where.not(macro_clusters: { field => "" })
-      .group("macro_clusters.#{field}")
-      .order("macro_clusters.#{field}")
-      .select("min(macro_clusters.id) as id, macro_clusters.#{field}")
+      .where("#{effective} != ''")
+      .group(effective)
+      .order(effective)
+      .select("min(macro_clusters.id) as id, #{effective} as #{field}")
       .having("count(collected_inks.id) > 2")
   end
 
@@ -248,5 +253,29 @@ class MacroCluster < ApplicationRecord
 
   def name
     [brand_name, line_name, ink_name].reject(&:blank?).join(" ")
+  end
+
+  def brand_name
+    if has_attribute?(:manual_brand_name)
+      manual_brand_name.presence || super
+    else
+      super
+    end
+  end
+
+  def line_name
+    if has_attribute?(:manual_line_name)
+      manual_line_name.presence || super
+    else
+      super
+    end
+  end
+
+  def ink_name
+    if has_attribute?(:manual_ink_name)
+      manual_ink_name.presence || super
+    else
+      super
+    end
   end
 end
