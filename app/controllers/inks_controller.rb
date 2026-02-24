@@ -1,5 +1,5 @@
 class InksController < ApplicationController
-  before_action :authenticate_user!, only: %i[edit update]
+  before_action :authenticate_user!, only: %i[edit edit_name update]
   before_action :set_paper_trail_whodunnit, only: %i[edit update]
   before_action :redirect_if_no_search, only: [:index]
 
