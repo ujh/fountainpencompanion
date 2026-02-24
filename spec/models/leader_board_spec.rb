@@ -206,13 +206,23 @@ describe LeaderBoard do
 
   describe "#brands" do
     it "orders users by their number of different brands" do
+      brand_cluster1 = create(:brand_cluster, name: "Brand 1")
+      brand_cluster2 = create(:brand_cluster, name: "Brand 2")
+      brand_cluster3 = create(:brand_cluster, name: "Brand 3")
+      macro_cluster1 = create(:macro_cluster, brand_cluster: brand_cluster1)
+      macro_cluster2 = create(:macro_cluster, brand_cluster: brand_cluster2)
+      macro_cluster3 = create(:macro_cluster, brand_cluster: brand_cluster3)
+      micro_cluster1 = create(:micro_cluster, macro_cluster: macro_cluster1)
+      micro_cluster2 = create(:micro_cluster, macro_cluster: macro_cluster2)
+      micro_cluster3 = create(:micro_cluster, macro_cluster: macro_cluster3)
+
       user1 = create(:user)
-      create(:collected_ink, user: user1, brand_name: "brand 1")
-      create(:collected_ink, user: user1, brand_name: "brand 2")
-      create(:collected_ink, user: user1, brand_name: "brand 3")
+      create(:collected_ink, user: user1, brand_name: "Brand 1", micro_cluster: micro_cluster1)
+      create(:collected_ink, user: user1, brand_name: "Brand 2", micro_cluster: micro_cluster2)
+      create(:collected_ink, user: user1, brand_name: "Brand 3", micro_cluster: micro_cluster3)
       user2 = create(:user)
-      create(:collected_ink, user: user2, brand_name: "brand 1")
-      create(:collected_ink, user: user2, brand_name: "brand 2")
+      create(:collected_ink, user: user2, brand_name: "Brand 1", micro_cluster: micro_cluster1)
+      create(:collected_ink, user: user2, brand_name: "Brand 2", micro_cluster: micro_cluster2)
 
       Sidekiq::Testing.inline! { RefreshLeaderBoardRows.perform_async }
 

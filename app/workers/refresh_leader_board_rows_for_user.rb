@@ -19,7 +19,12 @@ class RefreshLeaderBoardRowsForUser
     row = LeaderBoardRow::Brands.find_or_initialize_by(user: user)
     # Intentionally done in Ruby instead of using DISTINCT to put less load on the database
     row.value =
-      user.collected_inks.where(archived_on: nil, private: false).pluck(:brand_name).uniq.length
+      user
+        .collected_inks
+        .joins(micro_cluster: :macro_cluster)
+        .group("macro_clusters.brand_cluster_id")
+        .count
+        .count
     row.save!
   end
 
