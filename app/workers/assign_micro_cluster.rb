@@ -5,6 +5,7 @@ class AssignMicroCluster
     self.collected_ink = CollectedInk.find(collected_ink_id)
     self.macro_cluster_id = macro_cluster_id
     find_or_create_cluster
+    assign_macro_cluster_if_missing
     update_collected_ink
     update_embedding
 
@@ -24,19 +25,20 @@ class AssignMicroCluster
         simplified_line_name: collected_ink.simplified_line_name,
         simplified_ink_name: collected_ink.simplified_ink_name
       ) do |cluster|
-        # macro_cluster_id is set when we change the simplifier rules and need to
-        # rerun the clustering
-        if macro_cluster_id
-          cluster.macro_cluster_id = macro_cluster_id
-        else
-          micro_cluster =
-            MicroCluster.find_by(
-              simplified_brand_name: collected_ink.simplified_brand_name,
-              simplified_ink_name: collected_ink.simplified_ink_name
-            )
-          cluster.macro_cluster_id = micro_cluster.macro_cluster_id if micro_cluster
-        end
+        micro_cluster =
+          MicroCluster.find_by(
+            simplified_brand_name: collected_ink.simplified_brand_name,
+            simplified_ink_name: collected_ink.simplified_ink_name
+          )
+        cluster.macro_cluster_id = micro_cluster.macro_cluster_id if micro_cluster
       end
+  end
+
+  def assign_macro_cluster_if_missing
+    return unless macro_cluster_id
+    return if cluster.macro_cluster_id
+
+    cluster.update!(macro_cluster_id: macro_cluster_id)
   end
 
   def update_collected_ink

@@ -5,7 +5,7 @@ class CollectedInks::AddController < ApplicationController
     ink = current_user.collected_inks.build
     ink_params = macro_cluster.slice(:brand_name, :line_name, :ink_name)
     ink_params[:kind] = params[:kind]
-    SaveCollectedInk.new(ink, ink_params).perform
+    SaveCollectedInk.new(ink, ink_params, macro_cluster_id: macro_cluster.id).perform
     head :created
   end
 
