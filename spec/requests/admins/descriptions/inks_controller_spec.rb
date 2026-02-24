@@ -39,7 +39,7 @@ describe Admins::Descriptions::InksController do
       context "with macro cluster versions" do
         let(:macro_cluster) { create(:macro_cluster) }
 
-        let!(:version_1) do
+        let!(:description_version) do
           create_version(
             item_type: "MacroCluster",
             item_id: macro_cluster.id,
@@ -48,18 +48,34 @@ describe Admins::Descriptions::InksController do
           )
         end
 
-        let!(:version_2) do
+        let!(:brand_name_version) do
           create_version(
             item_type: "MacroCluster",
             item_id: macro_cluster.id,
-            object_changes: {
-              "description" => ["First ink description", "Updated ink description"]
-            }.to_yaml,
+            object_changes: { "manual_brand_name" => [nil, "Pilot"] }.to_yaml,
             created_at: 1.day.ago
           )
         end
 
-        let!(:non_description_version) do
+        let!(:line_name_version) do
+          create_version(
+            item_type: "MacroCluster",
+            item_id: macro_cluster.id,
+            object_changes: { "manual_line_name" => [nil, "Iroshizuku"] }.to_yaml,
+            created_at: 12.hours.ago
+          )
+        end
+
+        let!(:ink_name_version) do
+          create_version(
+            item_type: "MacroCluster",
+            item_id: macro_cluster.id,
+            object_changes: { "manual_ink_name" => [nil, "Kon-peki"] }.to_yaml,
+            created_at: 6.hours.ago
+          )
+        end
+
+        let!(:non_tracked_version) do
           create_version(
             item_type: "MacroCluster",
             item_id: macro_cluster.id,
@@ -82,22 +98,54 @@ describe Admins::Descriptions::InksController do
           expect(response).to be_successful
         end
 
-        it "only includes MacroCluster versions with description changes" do
+        it "includes MacroCluster versions with description changes" do
           get "/admins/descriptions/inks"
           versions = assigns(:versions)
-          expect(versions.map(&:id)).to contain_exactly(version_2.id, version_1.id)
+          expect(versions.map(&:id)).to include(description_version.id)
+        end
+
+        it "includes MacroCluster versions with manual_brand_name changes" do
+          get "/admins/descriptions/inks"
+          versions = assigns(:versions)
+          expect(versions.map(&:id)).to include(brand_name_version.id)
+        end
+
+        it "includes MacroCluster versions with manual_line_name changes" do
+          get "/admins/descriptions/inks"
+          versions = assigns(:versions)
+          expect(versions.map(&:id)).to include(line_name_version.id)
+        end
+
+        it "includes MacroCluster versions with manual_ink_name changes" do
+          get "/admins/descriptions/inks"
+          versions = assigns(:versions)
+          expect(versions.map(&:id)).to include(ink_name_version.id)
+        end
+
+        it "excludes versions with no tracked field changes" do
+          get "/admins/descriptions/inks"
+          versions = assigns(:versions)
+          expect(versions.map(&:id)).not_to include(non_tracked_version.id)
+        end
+
+        it "excludes non-MacroCluster versions" do
+          get "/admins/descriptions/inks"
+          versions = assigns(:versions)
+          expect(versions.map(&:id)).not_to include(non_macro_cluster_version.id)
         end
 
         it "orders versions by id desc" do
           get "/admins/descriptions/inks"
           versions = assigns(:versions)
-          expect(versions.map(&:id)).to eq([version_2.id, version_1.id])
+          expect(versions.map(&:id)).to eq(
+            [ink_name_version, line_name_version, brand_name_version, description_version].map(&:id)
+          )
         end
 
         it "paginates with 100 per page" do
           get "/admins/descriptions/inks"
           versions = assigns(:versions)
-          expect(versions.size).to eq(2)
+          expect(versions.size).to eq(4)
           expect(versions.current_page).to eq(1)
         end
 
@@ -109,7 +157,7 @@ describe Admins::Descriptions::InksController do
                 item_type: "MacroCluster",
                 item_id: macro_cluster.id,
                 object_changes: { "description" => ["ink desc #{i}", "new ink desc #{i}"] }.to_yaml,
-                created_at: i.hours.ago
+                created_at: (i + 3).days.ago
               )
             end
           end
@@ -125,63 +173,137 @@ describe Admins::Descriptions::InksController do
     end
   end
 
-  describe "#calculate_diff" do
+  describe "#calculate_diffs" do
     let(:controller) { described_class.new }
 
-    context "with version containing description changes" do
+    context "with version containing only description changes" do
+      let(:version) do
+        double("version", changeset: { "description" => ["Old description", "New description"] })
+      end
+
+      it "returns a single diff entry with label 'Description'" do
+        allow(Differ).to receive(:diff_by_word).and_return(
+          double("diff", format_as: double("formatted", html_safe: "formatted diff"))
+        )
+
+        result = controller.send(:calculate_diffs, version)
+
+        expect(result).to eq([{ label: "Description", diff: "formatted diff" }])
+        expect(Differ).to have_received(:diff_by_word).with("New description", "Old description")
+      end
+    end
+
+    context "with version containing only manual_brand_name changes" do
+      let(:version) do
+        double("version", changeset: { "manual_brand_name" => ["Old Brand", "New Brand"] })
+      end
+
+      it "returns a single diff entry with label 'Brand Name'" do
+        allow(Differ).to receive(:diff_by_word).and_return(
+          double("diff", format_as: double("formatted", html_safe: "formatted diff"))
+        )
+
+        result = controller.send(:calculate_diffs, version)
+
+        expect(result).to eq([{ label: "Brand Name", diff: "formatted diff" }])
+        expect(Differ).to have_received(:diff_by_word).with("New Brand", "Old Brand")
+      end
+    end
+
+    context "with version containing only manual_line_name changes" do
+      let(:version) do
+        double("version", changeset: { "manual_line_name" => ["Old Line", "New Line"] })
+      end
+
+      it "returns a single diff entry with label 'Line Name'" do
+        allow(Differ).to receive(:diff_by_word).and_return(
+          double("diff", format_as: double("formatted", html_safe: "formatted diff"))
+        )
+
+        result = controller.send(:calculate_diffs, version)
+
+        expect(result).to eq([{ label: "Line Name", diff: "formatted diff" }])
+        expect(Differ).to have_received(:diff_by_word).with("New Line", "Old Line")
+      end
+    end
+
+    context "with version containing only manual_ink_name changes" do
+      let(:version) do
+        double("version", changeset: { "manual_ink_name" => ["Old Ink", "New Ink"] })
+      end
+
+      it "returns a single diff entry with label 'Ink Name'" do
+        allow(Differ).to receive(:diff_by_word).and_return(
+          double("diff", format_as: double("formatted", html_safe: "formatted diff"))
+        )
+
+        result = controller.send(:calculate_diffs, version)
+
+        expect(result).to eq([{ label: "Ink Name", diff: "formatted diff" }])
+        expect(Differ).to have_received(:diff_by_word).with("New Ink", "Old Ink")
+      end
+    end
+
+    context "with version containing multiple field changes" do
       let(:version) do
         double(
           "version",
           changeset: {
-            "description" => ["Old ink description", "New ink description"]
+            "description" => ["Old desc", "New desc"],
+            "manual_brand_name" => ["Old Brand", "New Brand"],
+            "manual_ink_name" => ["Old Ink", "New Ink"]
           }
         )
       end
 
-      it "calculates diff between old and new descriptions" do
+      it "returns diff entries for all changed fields in order" do
         allow(Differ).to receive(:diff_by_word).and_return(
           double("diff", format_as: double("formatted", html_safe: "formatted diff"))
         )
 
-        result = controller.send(:calculate_diff, version)
+        result = controller.send(:calculate_diffs, version)
 
-        expect(Differ).to have_received(:diff_by_word).with(
-          "New ink description",
-          "Old ink description"
-        )
-        expect(result).to eq("formatted diff")
+        expect(result.length).to eq(3)
+        expect(result.map { |e| e[:label] }).to eq(["Description", "Brand Name", "Ink Name"])
+        expect(Differ).to have_received(:diff_by_word).exactly(3).times
       end
     end
 
     context "with version containing nil to string change" do
-      let(:version) do
-        double("version", changeset: { "description" => [nil, "New ink description"] })
-      end
+      let(:version) { double("version", changeset: { "manual_brand_name" => [nil, "New Brand"] }) }
 
       it "handles nil values by converting to string" do
         allow(Differ).to receive(:diff_by_word).and_return(
           double("diff", format_as: double("formatted", html_safe: "formatted diff"))
         )
 
-        controller.send(:calculate_diff, version)
+        controller.send(:calculate_diffs, version)
 
-        expect(Differ).to have_received(:diff_by_word).with("New ink description", "")
+        expect(Differ).to have_received(:diff_by_word).with("New Brand", "")
       end
     end
 
     context "with version containing string to nil change" do
-      let(:version) do
-        double("version", changeset: { "description" => ["Old ink description", nil] })
-      end
+      let(:version) { double("version", changeset: { "manual_ink_name" => ["Old Ink", nil] }) }
 
       it "handles nil values by converting to string" do
         allow(Differ).to receive(:diff_by_word).and_return(
           double("diff", format_as: double("formatted", html_safe: "formatted diff"))
         )
 
-        controller.send(:calculate_diff, version)
+        controller.send(:calculate_diffs, version)
 
-        expect(Differ).to have_received(:diff_by_word).with("", "Old ink description")
+        expect(Differ).to have_received(:diff_by_word).with("", "Old Ink")
+      end
+    end
+
+    context "with version containing no tracked field changes" do
+      let(:version) { double("version", changeset: { "some_other_field" => %w[old new] }) }
+
+      it "returns an empty array" do
+        result = controller.send(:calculate_diffs, version)
+
+        expect(result).to eq([])
       end
     end
   end
