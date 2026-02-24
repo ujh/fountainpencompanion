@@ -60,7 +60,7 @@ const LeaderboardRankingWidgetContent = () => {
           </tr>
           <tr>
             <th className="fw-normal" scope="row">
-              <a href="/pages/users_by_description_edits_leaderboard">Description edits</a>
+              <a href="/pages/users_by_description_edits_leaderboard">Brand & ink edits</a>
             </th>
             <td className="text-end">{description_edits || "Unranked"}</td>
           </tr>

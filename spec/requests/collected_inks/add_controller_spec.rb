@@ -25,6 +25,13 @@ describe CollectedInks::AddController do
         expect(ink.kind).to eq("bottle")
       end
 
+      it "passes macro_cluster_id to AssignMicroCluster" do
+        post "/collected_inks/add.json?macro_cluster_id=#{macro_cluster.id}&kind=bottle"
+        expect(AssignMicroCluster.jobs.last["args"]).to eq(
+          [user.collected_inks.last.id, macro_cluster.id]
+        )
+      end
+
       it "adds the second ink with a comment" do
         expect do
           post "/collected_inks/add.json?macro_cluster_id=#{macro_cluster.id}&kind=bottle"

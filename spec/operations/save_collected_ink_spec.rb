@@ -9,6 +9,15 @@ describe SaveCollectedInk do
     expect do described_class.new(collected_ink, {}).perform end.to change {
       AssignMicroCluster.jobs.size
     }.by(1)
+    expect(AssignMicroCluster.jobs.last["args"]).to eq([collected_ink.id, nil])
+  end
+
+  it "passes macro_cluster_id to AssignMicroCluster" do
+    macro_cluster = create(:macro_cluster)
+    expect do
+      described_class.new(collected_ink, {}, macro_cluster_id: macro_cluster.id).perform
+    end.to change { AssignMicroCluster.jobs.size }.by(1)
+    expect(AssignMicroCluster.jobs.last["args"]).to eq([collected_ink.id, macro_cluster.id])
   end
 
   it "adds the embedding" do

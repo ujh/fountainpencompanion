@@ -1,4 +1,8 @@
-- content_for :title, "#{@ink.name}"
+- content_for :title
+  = "#{@ink.name}"
+  - if user_signed_in?
+    | &nbsp;
+    = link_to fa_icon("edit"), edit_name_brand_ink_path(@ink.brand_cluster, @ink), class: "small"
 - content_for :head
   meta property="og:title" content=@ink.name
   meta property="og:url" content=ink_url(@ink)
@@ -7,7 +11,7 @@
 div class='ink-description'
   div class="content"
     = Slodown::Formatter.new(@ink.description).complete.to_s.html_safe
-  - if @ink.description.present?
+  - if @ink.manual_edits?
     div class="meta-data"
       - latest_version = @ink.description_versions.first
       - user = User.find_by(id: latest_version.whodunnit)

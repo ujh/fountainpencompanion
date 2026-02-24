@@ -1,5 +1,5 @@
 class InksController < ApplicationController
-  before_action :authenticate_user!, only: %i[edit update]
+  before_action :authenticate_user!, only: %i[edit edit_name update]
   before_action :set_paper_trail_whodunnit, only: %i[edit update]
   before_action :redirect_if_no_search, only: [:index]
 
@@ -21,14 +21,28 @@ class InksController < ApplicationController
     @ink = MacroCluster.find(params[:id])
   end
 
+  def edit_name
+    @ink = MacroCluster.find(params[:id])
+  end
+
   def update
     @ink = MacroCluster.find(params[:id])
-    @ink.update(description: params[:macro_cluster][:description])
+    @ink.update(update_params)
+    @ink.ink_embedding&.update(content: @ink.name)
 
     redirect_to ink_path(@ink)
   end
 
   private
+
+  def update_params
+    params.require(:macro_cluster).permit(
+      :description,
+      :manual_brand_name,
+      :manual_line_name,
+      :manual_ink_name
+    )
+  end
 
   def redirect_if_no_search
     return if params[:q].present?

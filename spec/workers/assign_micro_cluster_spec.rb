@@ -80,4 +80,47 @@ describe AssignMicroCluster do
     cluster = MicroCluster.last
     expect(cluster.macro_cluster).to eq(macro_cluster)
   end
+
+  context "existing cluster without macro cluster" do
+    let!(:cluster) do
+      create(
+        :micro_cluster,
+        simplified_brand_name: collected_ink.simplified_brand_name,
+        simplified_line_name: collected_ink.simplified_line_name,
+        simplified_ink_name: collected_ink.simplified_ink_name
+      )
+    end
+
+    it "sets macro_cluster_id on existing cluster when supplied and not present" do
+      macro_cluster = create(:macro_cluster)
+      expect { subject.perform(collected_ink.id, macro_cluster.id) }.not_to(
+        change { MicroCluster.count }
+      )
+      expect(cluster.reload.macro_cluster).to eq(macro_cluster)
+    end
+
+    it "does not set macro_cluster_id when not supplied" do
+      subject.perform(collected_ink.id)
+      expect(cluster.reload.macro_cluster).to be_nil
+    end
+  end
+
+  context "existing cluster with macro cluster" do
+    let(:existing_macro_cluster) { create(:macro_cluster) }
+    let!(:cluster) do
+      create(
+        :micro_cluster,
+        simplified_brand_name: collected_ink.simplified_brand_name,
+        simplified_line_name: collected_ink.simplified_line_name,
+        simplified_ink_name: collected_ink.simplified_ink_name,
+        macro_cluster: existing_macro_cluster
+      )
+    end
+
+    it "does not overwrite existing macro_cluster_id" do
+      new_macro_cluster = create(:macro_cluster)
+      subject.perform(collected_ink.id, new_macro_cluster.id)
+      expect(cluster.reload.macro_cluster).to eq(existing_macro_cluster)
+    end
+  end
 end

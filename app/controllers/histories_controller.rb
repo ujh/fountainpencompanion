@@ -1,5 +1,5 @@
 class HistoriesController < ApplicationController
-  helper_method :calculate_diff
+  helper_method :calculate_diffs
 
   def show
     set_breadcrumbs!
@@ -21,11 +21,15 @@ class HistoriesController < ApplicationController
     end
   end
 
-  def calculate_diff(version)
-    return "" unless version.changeset.key?("description")
+  def calculate_diffs(version)
+    MacroCluster::TRACKED_FIELDS.filter_map do |field, label|
+      next unless version.changeset.key?(field)
 
-    changes = version.changeset["description"].reverse.map(&:to_s)
-    Differ.diff_by_word(*changes).format_as(:html).html_safe
+      changes = version.changeset[field].reverse.map(&:to_s)
+      diff = Differ.diff_by_word(*changes).format_as(:html).html_safe
+
+      { label: label, diff: diff }
+    end
   end
 
   def object

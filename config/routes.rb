@@ -55,6 +55,7 @@ Rails.application.routes.draw do
   resources :brands, only: %i[index edit update show] do
     resource :history, only: [:show]
     resources :inks, only: %i[show edit update] do
+      member { get "edit_name" }
       resources :ink_review_submissions, only: [:create]
     end
   end

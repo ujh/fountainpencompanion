@@ -1,19 +1,19 @@
-- content_for :title, "Brand and ink description edits leaderboard"
+- content_for :title, "Brand and ink edits leaderboard"
 
 - content_for :breadcrumbs
   ol class="breadcrumb"
     li class="breadcrumb-item"
       = link_to "Leaderboards", page_path("leaderboards")
     li class="breadcrumb-item active" aria-current="page"
-      | Brand and ink description edits leaderboard
+      | Brand and ink edits leaderboard
 
 div class="fpc-hint alert alert-secondary"
   p
-    ' You can add a description to all brands and inks in the system. The most useful descriptions to
-    ' add would however be those from
+    ' You can edit ink names and add descriptions to all brands and inks in the system. The most useful
+    ' descriptions to add would however be those from
     = link_to 'this list', missing_descriptions_path
     ' , as none of the brands and inks listed there have one.
-  p Note that you need to be logged in if you want to add a description.
+  p Note that you need to be logged in if you want to make edits.
 
 = cache params[:id], expires_in: 1.hour do
   ol class="fpc-leaderboard"

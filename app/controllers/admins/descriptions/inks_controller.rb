@@ -1,11 +1,13 @@
 class Admins::Descriptions::InksController < Admins::BaseController
-  helper_method :calculate_diff
+  helper_method :calculate_diffs
 
   def index
+    conditions = MacroCluster::TRACKED_FIELDS.keys.map { "object_changes LIKE ?" }.join(" OR ")
+    values = MacroCluster::TRACKED_FIELDS.keys.map { |f| "%#{f}%" }
     @versions =
       PaperTrail::Version
         .where(item_type: "MacroCluster")
-        .where("object_changes like ?", "%description%")
+        .where(conditions, *values)
         .order("id desc")
         .page(params[:page])
         .per(100)
@@ -13,10 +15,14 @@ class Admins::Descriptions::InksController < Admins::BaseController
 
   private
 
-  def calculate_diff(version)
-    return "" unless version.changeset.key?("description")
+  def calculate_diffs(version)
+    MacroCluster::TRACKED_FIELDS.filter_map do |field, label|
+      next unless version.changeset.key?(field)
 
-    changes = version.changeset["description"].reverse.map(&:to_s)
-    Differ.diff_by_word(*changes).format_as(:html).html_safe
+      changes = version.changeset[field].reverse.map(&:to_s)
+      diff = Differ.diff_by_word(*changes).format_as(:html).html_safe
+
+      { label: label, diff: diff }
+    end
   end
 end
