@@ -28,7 +28,7 @@ class InksController < ApplicationController
   def update
     @ink = MacroCluster.find(params[:id])
     @ink.update(update_params)
-    @ink.ink_embedding.update(content: @ink.name)
+    @ink.ink_embedding&.update(content: @ink.name)
 
     redirect_to ink_path(@ink)
   end
