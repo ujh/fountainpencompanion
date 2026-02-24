@@ -263,6 +263,10 @@ class MacroCluster < ApplicationRecord
     end
   end
 
+  def automatic_brand_name
+    read_attribute(:brand_name)
+  end
+
   def line_name
     if has_attribute?(:manual_line_name)
       manual_line_name.presence || super
@@ -271,11 +275,19 @@ class MacroCluster < ApplicationRecord
     end
   end
 
+  def automatic_line_name
+    read_attribute(:line_name)
+  end
+
   def ink_name
     if has_attribute?(:manual_ink_name)
       manual_ink_name.presence || super
     else
       super
     end
+  end
+
+  def automatic_ink_name
+    read_attribute(:ink_name)
   end
 end
