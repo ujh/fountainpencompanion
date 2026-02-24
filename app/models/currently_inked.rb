@@ -36,8 +36,28 @@ class CurrentlyInked < ApplicationRecord
 
   def self.to_csv
     CSV.generate(col_sep: ";") do |csv|
-      csv << ["Pen", "Ink", "Date Inked", "Date Cleaned", "Comment"]
-      all.each { |ci| csv << [ci.pen_name, ci.ink_name, ci.inked_on, ci.archived_on, ci.comment] }
+      csv << [
+        "Pen",
+        "Ink",
+        "Date Inked",
+        "Date Cleaned",
+        "Comment",
+        "Daily Usage",
+        "Last Used On",
+        "Date Added"
+      ]
+      all.each do |ci|
+        csv << [
+          ci.pen_name,
+          ci.ink_name,
+          ci.inked_on,
+          ci.archived_on,
+          ci.comment,
+          ci.daily_usage_count,
+          ci.last_used_on,
+          ci.created_at.to_date.to_s
+        ]
+      end
     end
   end
 

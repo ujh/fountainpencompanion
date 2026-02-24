@@ -353,6 +353,38 @@ describe CurrentlyInked do
     end
   end
 
+  describe "#to_csv" do
+    let(:currently_inked) do
+      create(:currently_inked, inked_on: Date.new(2024, 1, 15), comment: "smooth writer")
+    end
+    let(:csv) do
+      CSV.parse(described_class.where(id: [currently_inked.id]).to_csv, headers: true, col_sep: ";")
+    end
+    let(:entry) { csv.first }
+
+    it "has a header row" do
+      expect(described_class.none.to_csv).to eq(
+        "Pen;Ink;Date Inked;Date Cleaned;Comment;Daily Usage;Last Used On;Date Added\n"
+      )
+    end
+
+    it "has the correct Daily Usage" do
+      create(:usage_record, currently_inked: currently_inked, used_on: Date.today)
+      create(:usage_record, currently_inked: currently_inked, used_on: 1.day.ago)
+      expect(entry["Daily Usage"]).to eq("2")
+    end
+
+    it "has the correct Last Used On" do
+      create(:usage_record, currently_inked: currently_inked, used_on: 2.days.ago)
+      create(:usage_record, currently_inked: currently_inked, used_on: 5.days.ago)
+      expect(entry["Last Used On"]).to eq(2.days.ago.to_date.to_s)
+    end
+
+    it "has the correct Date Added" do
+      expect(entry["Date Added"]).to eq(currently_inked.created_at.to_date.to_s)
+    end
+  end
+
   describe "#unarchivable?" do
     subject(:currently_inked) { create(:currently_inked, archived_on: 1.day.ago) }
 
