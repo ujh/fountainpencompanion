@@ -17,14 +17,22 @@ class RefreshLeaderBoardRowsForUser
 
   def update_brands_row
     row = LeaderBoardRow::Brands.find_or_initialize_by(user: user)
-    # Intentionally done in Ruby instead of using DISTINCT to put less load on the database
-    row.value =
+    clustered_count =
       user
         .collected_inks
         .joins(micro_cluster: :macro_cluster)
         .group("macro_clusters.brand_cluster_id")
         .count
         .count
+    unclustered_count =
+      user
+        .collected_inks
+        .where(private: false)
+        .left_joins(micro_cluster: :macro_cluster)
+        .where(macro_clusters: { id: nil })
+        .distinct
+        .count(:brand_name)
+    row.value = clustered_count + unclustered_count
     row.save!
   end
 
