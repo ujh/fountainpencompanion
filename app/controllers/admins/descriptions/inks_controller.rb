@@ -2,16 +2,12 @@ class Admins::Descriptions::InksController < Admins::BaseController
   helper_method :calculate_diffs
 
   def index
+    conditions = MacroCluster::TRACKED_FIELDS.keys.map { "object_changes LIKE ?" }.join(" OR ")
+    values = MacroCluster::TRACKED_FIELDS.keys.map { |f| "%#{f}%" }
     @versions =
       PaperTrail::Version
         .where(item_type: "MacroCluster")
-        .where(
-          "object_changes LIKE ? OR object_changes LIKE ? OR object_changes LIKE ? OR object_changes LIKE ?",
-          "%description%",
-          "%manual_brand_name%",
-          "%manual_line_name%",
-          "%manual_ink_name%"
-        )
+        .where(conditions, *values)
         .order("id desc")
         .page(params[:page])
         .per(100)
@@ -19,15 +15,8 @@ class Admins::Descriptions::InksController < Admins::BaseController
 
   private
 
-  TRACKED_FIELDS = {
-    "description" => "Description",
-    "manual_brand_name" => "Brand Name",
-    "manual_line_name" => "Line Name",
-    "manual_ink_name" => "Ink Name"
-  }.freeze
-
   def calculate_diffs(version)
-    TRACKED_FIELDS.filter_map do |field, label|
+    MacroCluster::TRACKED_FIELDS.filter_map do |field, label|
       next unless version.changeset.key?(field)
 
       changes = version.changeset[field].reverse.map(&:to_s)

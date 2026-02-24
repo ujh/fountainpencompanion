@@ -8,13 +8,6 @@ class HistoriesController < ApplicationController
 
   private
 
-  TRACKED_FIELDS = {
-    "description" => "Description",
-    "manual_brand_name" => "Brand Name",
-    "manual_line_name" => "Line Name",
-    "manual_ink_name" => "Ink Name"
-  }.freeze
-
   def set_breadcrumbs!
     case object
     when MacroCluster
@@ -29,7 +22,7 @@ class HistoriesController < ApplicationController
   end
 
   def calculate_diffs(version)
-    TRACKED_FIELDS.filter_map do |field, label|
+    MacroCluster::TRACKED_FIELDS.filter_map do |field, label|
       next unless version.changeset.key?(field)
 
       changes = version.changeset[field].reverse.map(&:to_s)

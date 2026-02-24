@@ -1,6 +1,13 @@
 require "ostruct"
 
 class MacroCluster < ApplicationRecord
+  TRACKED_FIELDS = {
+    "description" => "Description",
+    "manual_brand_name" => "Brand Name",
+    "manual_line_name" => "Line Name",
+    "manual_ink_name" => "Ink Name"
+  }.freeze
+
   InkNameEntry =
     Struct.new(
       :id,
@@ -22,13 +29,9 @@ class MacroCluster < ApplicationRecord
   has_paper_trail
   has_many :description_versions,
            -> do
-             where(
-               "object_changes LIKE ? OR object_changes LIKE ? OR object_changes LIKE ? OR object_changes LIKE ?",
-               "%description%",
-               "%manual_brand_name%",
-               "%manual_line_name%",
-               "%manual_ink_name%"
-             ).order("id desc")
+             conditions = TRACKED_FIELDS.keys.map { "object_changes LIKE ?" }.join(" OR ")
+             values = TRACKED_FIELDS.keys.map { |f| "%#{f}%" }
+             where(conditions, *values).order("id desc")
            end,
            class_name: "PaperTrail::Version",
            as: :item
