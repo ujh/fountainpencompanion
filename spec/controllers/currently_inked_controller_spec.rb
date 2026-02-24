@@ -30,13 +30,25 @@ describe CurrentlyInkedController do
         expect(response).to be_successful
         csv =
           CSV.generate(col_sep: ";") do |csv|
-            csv << ["Pen", "Ink", "Date Inked", "Date Cleaned", "Comment"]
+            csv << [
+              "Pen",
+              "Ink",
+              "Date Inked",
+              "Date Cleaned",
+              "Comment",
+              "Daily Usage",
+              "Last Used On",
+              "Date Added"
+            ]
             csv << [
               currently_inked.pen_name,
               currently_inked.ink_name,
               currently_inked.inked_on,
               currently_inked.archived_on,
-              currently_inked.comment
+              currently_inked.comment,
+              currently_inked.daily_usage_count,
+              currently_inked.last_used_on,
+              currently_inked.created_at.to_date.to_s
             ]
           end
         expect(response.body).to eq(csv)
