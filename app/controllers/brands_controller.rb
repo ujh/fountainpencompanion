@@ -13,19 +13,12 @@ class BrandsController < ApplicationController
     @description = build_description
     add_breadcrumb "#{@brand.name}", brand_path(@brand)
 
-    respond_to do |format|
-      format.html do
-        @inks =
-          @brand
-            .macro_clusters
-            .public
-            .order("line_name, ink_name")
-            .select("macro_clusters.*, count(*) as collected_inks_count")
-      end
-      format.csv do
-        send_data @brand.to_csv, type: "text/csv", filename: "#{@brand.name.parameterize}.csv"
-      end
-    end
+    @inks =
+      @brand
+        .macro_clusters
+        .public
+        .order("line_name, ink_name")
+        .select("macro_clusters.*, count(*) as collected_inks_count")
   end
 
   def edit
