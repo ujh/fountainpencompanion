@@ -1,0 +1,3 @@
+- content_for :title, "Edit colors of #{@ink.name}"
+
+div class="fpc-edit-colors" data-colors=@ink.collected_inks.pluck(:color).reject(&:blank?).uniq.to_json data-ignored-colors=@ink.ignored_colors.to_json data-submit-url=brand_ink_path(@ink.brand_cluster, @ink) data-cancel-url=brand_ink_path(@ink.brand_cluster, @ink) data-current-color=@ink.color data-csrf-token=form_authenticity_token

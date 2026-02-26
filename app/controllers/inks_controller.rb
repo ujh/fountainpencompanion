@@ -1,5 +1,5 @@
 class InksController < ApplicationController
-  before_action :authenticate_user!, only: %i[edit edit_name update]
+  before_action :authenticate_user!, only: %i[edit edit_name edit_colors update]
   before_action :set_paper_trail_whodunnit, only: %i[edit update]
   before_action :redirect_if_no_search, only: [:index]
 
@@ -22,6 +22,10 @@ class InksController < ApplicationController
   end
 
   def edit_name
+    @ink = MacroCluster.find(params[:id])
+  end
+
+  def edit_colors
     @ink = MacroCluster.find(params[:id])
   end
 

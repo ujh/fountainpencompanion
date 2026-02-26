@@ -39,6 +39,22 @@ describe InksController do
     end
   end
 
+  describe "#edit_colors" do
+    it "requires authentication" do
+      get :edit_colors, params: { id: ink.id, brand_id: brand.id }
+      expect(response).to redirect_to(new_user_session_path)
+    end
+
+    context "signed in" do
+      before(:each) { sign_in(user) }
+
+      it "renders successfully" do
+        get :edit_colors, params: { id: ink.id, brand_id: brand.id }
+        expect(response).to be_successful
+      end
+    end
+  end
+
   describe "#update" do
     it "requires authentication" do
       put :update, params: { id: ink.id, brand_id: brand.id }

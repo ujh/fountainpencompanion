@@ -28,6 +28,7 @@ import "./src/collected_pens";
 import "./src/currently_inked";
 import "./src/dashboard";
 import "./src/add-ink-button";
+import "./src/edit-colors";
 import "./src/ink-search-hint";
 import "./src/public_inks";
 import "./src/collected-inks-autocomplete";
