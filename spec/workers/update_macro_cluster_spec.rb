@@ -14,6 +14,21 @@ describe UpdateMacroCluster do
     expect(macro_cluster.reload.color).to eq("#262626")
   end
 
+  it "excludes ignored colors from the color average" do
+    collected_ink1.update(color: "#111111")
+    collected_ink2.update(color: "#333333")
+    macro_cluster.update_column(:ignored_colors, ["#111111"])
+    described_class.new.perform(macro_cluster.id)
+    expect(macro_cluster.reload.color).to eq("#333333")
+  end
+
+  it "does not update color when all colors are ignored" do
+    collected_ink1.update(color: "#111111")
+    macro_cluster.update_column(:ignored_colors, ["#111111"])
+    described_class.new.perform(macro_cluster.id)
+    expect(macro_cluster.reload.color).to eq("#FFFFFF")
+  end
+
   it "sets cluster_color of all collected inks" do
     collected_ink1.update(color: "#111111")
     collected_ink2.update(color: "#333333")

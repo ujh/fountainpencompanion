@@ -31,6 +31,7 @@ describe Admins::MacroClustersController do
                   "color" => macro_cluster.color,
                   "description" => "",
                   "tags" => [],
+                  "ignored_colors" => [],
                   "public_collected_inks_count" => 1,
                   "colors" => [collected_ink.color],
                   "all_names" => [
@@ -120,6 +121,7 @@ describe Admins::MacroClustersController do
                   "color" => macro_cluster.color,
                   "description" => "",
                   "tags" => [],
+                  "ignored_colors" => [],
                   "public_collected_inks_count" => 0,
                   "colors" => [],
                   "all_names" => []
@@ -181,6 +183,7 @@ describe Admins::MacroClustersController do
                 "color" => macro_cluster.color,
                 "description" => "",
                 "tags" => [],
+                "ignored_colors" => [],
                 "public_collected_inks_count" => 0,
                 "colors" => [],
                 "all_names" => []
@@ -253,6 +256,7 @@ describe Admins::MacroClustersController do
                 "color" => "#FFFFFF",
                 "description" => "",
                 "tags" => [],
+                "ignored_colors" => [],
                 "public_collected_inks_count" => 0,
                 "colors" => [],
                 "all_names" => []
@@ -314,6 +318,7 @@ describe Admins::MacroClustersController do
                 "color" => "#000000",
                 "description" => "",
                 "tags" => [],
+                "ignored_colors" => [],
                 "public_collected_inks_count" => 0,
                 "colors" => [],
                 "all_names" => []

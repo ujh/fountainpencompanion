@@ -46,6 +46,8 @@ class MacroCluster < ApplicationRecord
 
   belongs_to :brand_cluster, optional: true
 
+  before_save :recalculate_color, if: :will_save_change_to_ignored_colors?
+
   paginates_per 100
 
   scope :unassigned, -> { where(brand_cluster_id: nil) }
@@ -305,5 +307,26 @@ class MacroCluster < ApplicationRecord
   def manual_edits?
     description.present? || manual_brand_name.present? || manual_line_name.present? ||
       manual_ink_name.present?
+  end
+
+  def recalculate_color
+    colors =
+      collected_inks
+        .with_color
+        .pluck(:color)
+        .reject { |c| ignored_colors.include?(c) }
+        .map { |c| Color::RGB.from_html(c) }
+    return if colors.blank?
+
+    self.color =
+      Color::RGB.from_values(*%i[red green blue].map { |f| color_average_for(colors, f) }).html
+  end
+
+  private
+
+  def color_average_for(colors, field)
+    sum = colors.map { |c| c.send(field)**2 }.sum
+    size = colors.size.to_f
+    Math.sqrt(sum / size).round
   end
 end

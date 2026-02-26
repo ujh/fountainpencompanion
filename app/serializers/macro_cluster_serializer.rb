@@ -8,6 +8,7 @@ class MacroClusterSerializer
   attribute :ink_name
   attribute :color
   attribute :description
+  attribute :ignored_colors
   attribute :tags
   attribute :public_collected_inks_count
 

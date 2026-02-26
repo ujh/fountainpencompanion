@@ -40,7 +40,8 @@ class InksController < ApplicationController
       :description,
       :manual_brand_name,
       :manual_line_name,
-      :manual_ink_name
+      :manual_ink_name,
+      ignored_colors: []
     )
   end
 
