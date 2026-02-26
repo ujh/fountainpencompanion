@@ -65,7 +65,7 @@ div class="row fpc-ink-details"
       - all_colors.reject { |c| @ink.ignored_colors.include?(c) }.each do |c|
         div class="fpc-ink-details__color-tile" style="background-color:#{c}"
       - all_colors.select { |c| @ink.ignored_colors.include?(c) }.each do |c|
-        div class="fpc-ink-details__color-tile fpc-ink-details__color-tile--ignored" style="background-color:#{c}"
+        div class="fpc-ink-details__color-tile fpc-ink-details__color-tile--ignored" style="background-color:#{c}" title="This color is ignored in the average color calculation"
     div style="clear: both;"
     div class="fpc-ink-details__tags"
       h3 class="h5" Tags
