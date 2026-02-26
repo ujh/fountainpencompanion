@@ -80,7 +80,10 @@ div class="row fpc-ink-details"
         ' else that is wrong, feel free to report this using the button below.
         ' We will try to fix it as soon as possible.
       p
-        em If the ink name  or description is wrong, click on the edit icon or button respectively above to make changes yourself.
+        em
+          ' If the ink name  or description is wrong, click on the edit icon or button respectively above to make
+          ' changes yourself. Colors that do not belong can be hidden by clicking the edit icon next to the colors heading.
+
       = link_to "Report an error",
                 "mailto:clustering-error@fountainpencompanion.com?subject=#{@ink.name}"
 
