@@ -17,6 +17,23 @@
 
     &--ignored {
       opacity: 0.3;
+      position: relative;
+
+      &::after {
+        content: "\00d7";
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 28px;
+        font-weight: bold;
+        color: rgba(0, 0, 0, 0.8);
+        text-shadow:
+          0 0 2px rgba(255, 255, 255, 0.9),
+          0 0 4px rgba(255, 255, 255, 0.7);
+        pointer-events: none;
+      }
     }
   }
 }
