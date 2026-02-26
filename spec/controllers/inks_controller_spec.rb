@@ -125,6 +125,19 @@ describe InksController do
         end.to change { ink.reload.manual_ink_name }.to("Custom Ink")
       end
 
+      it "successfully sets ignored_colors" do
+        expect do
+          put :update,
+              params: {
+                id: ink.id,
+                brand_id: brand.id,
+                macro_cluster: {
+                  ignored_colors: %w[#FF0000 #00FF00]
+                }
+              }
+        end.to change { ink.reload.ignored_colors }.to(%w[#FF0000 #00FF00])
+      end
+
       it "updates the ink embedding with the new name" do
         ink.create_ink_embedding(content: "old name")
         put :update,

@@ -65,6 +65,7 @@ class Api::V1::BrandsController < Api::V1::BaseController
         property :color, String, desc: "Hex color code"
         property :description, String, desc: "Description"
         property :tags, array_of: String, desc: "Tags"
+        property :ignored_colors, array_of: String, desc: "Colors excluded from color calculation"
         property :public_collected_inks_count, Integer, desc: "Number of public collected inks"
         property :colors, array_of: String, desc: "Unique colors from collected inks"
         property :all_names, array_of: Hash, desc: "All name variants for this ink" do

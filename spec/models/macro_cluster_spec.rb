@@ -149,6 +149,34 @@ describe MacroCluster do
     end
   end
 
+  describe "#recalculate_color" do
+    let(:macro_cluster) { create(:macro_cluster, color: "#FFFFFF") }
+    let(:micro_cluster) { create(:micro_cluster, macro_cluster: macro_cluster) }
+
+    it "recalculates color when ignored_colors changes" do
+      create(:collected_ink, micro_cluster: micro_cluster, color: "#111111")
+      create(:collected_ink, micro_cluster: micro_cluster, color: "#333333")
+      macro_cluster.update!(ignored_colors: ["#111111"])
+      expect(macro_cluster.reload.color).to eq("#333333")
+    end
+
+    it "excludes ignored colors from the average" do
+      create(:collected_ink, micro_cluster: micro_cluster, color: "#111111")
+      create(:collected_ink, micro_cluster: micro_cluster, color: "#333333")
+      create(:collected_ink, micro_cluster: micro_cluster, color: "#555555")
+      macro_cluster.update!(ignored_colors: ["#111111"])
+      # RMS of #333333 and #555555
+      macro_cluster.reload
+      expect(macro_cluster.color).to eq("#464646")
+    end
+
+    it "does not change color when all colors are ignored" do
+      create(:collected_ink, micro_cluster: micro_cluster, color: "#111111")
+      macro_cluster.update!(ignored_colors: ["#111111"])
+      expect(macro_cluster.reload.color).to eq("#FFFFFF")
+    end
+  end
+
   describe "#manual_edits?" do
     it "returns false when no manual fields are set" do
       cluster =
