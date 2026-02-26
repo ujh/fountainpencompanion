@@ -5,7 +5,8 @@ class MacroCluster < ApplicationRecord
     "description" => "Description",
     "manual_brand_name" => "Brand Name",
     "manual_line_name" => "Line Name",
-    "manual_ink_name" => "Ink Name"
+    "manual_ink_name" => "Ink Name",
+    "ignored_colors" => "Color"
   }.freeze
 
   InkNameEntry =
@@ -31,7 +32,7 @@ class MacroCluster < ApplicationRecord
            -> do
              conditions = TRACKED_FIELDS.keys.map { "object_changes LIKE ?" }.join(" OR ")
              values = TRACKED_FIELDS.keys.map { |f| "%#{f}%" }
-             where(conditions, *values).order("id desc")
+             where(conditions, *values).where(event: "update").order("id desc")
            end,
            class_name: "PaperTrail::Version",
            as: :item
