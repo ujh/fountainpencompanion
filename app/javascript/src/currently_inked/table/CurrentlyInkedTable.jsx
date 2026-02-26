@@ -1,15 +1,14 @@
-import React, { useMemo, useEffect, useCallback } from "react";
+import React, { useMemo, useEffect, useCallback, useState } from "react";
 import {
   useReactTable,
   getCoreRowModel,
   getSortedRowModel,
-  getFilteredRowModel,
   flexRender
 } from "@tanstack/react-table";
 import _ from "lodash";
 import { useHiddenFields } from "../../useHiddenFields";
 import { Actions } from "../components/Actions";
-import { fuzzyMatch } from "./match";
+import { fuzzyMatch } from "../match";
 import { Table } from "../../components/Table";
 import { colorSort } from "./sort";
 import { ActionsCell } from "./ActionsCell";
@@ -125,12 +124,17 @@ export const CurrentlyInkedTable = ({ currentlyInked, onLayoutChange }) => {
     defaultHiddenFields
   );
 
+  const [filterText, setFilterText] = useState("");
+  const filteredData = useMemo(
+    () => fuzzyMatch(currentlyInked, filterText, hiddenFields),
+    [currentlyInked, filterText, hiddenFields]
+  );
+
   const table = useReactTable({
     columns,
-    data: currentlyInked,
+    data: filteredData,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
     state: {
       columnVisibility: hiddenFields.reduce((acc, field) => ({ ...acc, [field]: false }), {})
     },
@@ -142,30 +146,14 @@ export const CurrentlyInkedTable = ({ currentlyInked, onLayoutChange }) => {
         const newHiddenFields = Object.keys(newVisibility).filter((key) => !newVisibility[key]);
         onHiddenFieldsChange(newHiddenFields);
       }
-    },
-    globalFilterFn: fuzzyMatch,
-    enableGlobalFilter: true
+    }
   });
 
-  const preGlobalFilteredRows = table.getPreFilteredRowModel().rows;
-
-  const handleFilterChange = useCallback(
-    (value) => {
-      table.setGlobalFilter(value !== undefined ? { text: value, hiddenFields } : undefined);
-    },
-    [table, hiddenFields]
-  );
+  const handleFilterChange = useCallback((value) => setFilterText(value || ""), []);
 
   useEffect(() => {
     const visibility = hiddenFields.reduce((acc, field) => ({ ...acc, [field]: false }), {});
     table.setColumnVisibility(visibility);
-
-    // Update the global filter value so it carries the new hiddenFields,
-    // which invalidates TanStack Table's memoized getFilteredRowModel.
-    const currentFilter = table.getState().globalFilter;
-    if (currentFilter?.text !== undefined) {
-      table.setGlobalFilter({ text: currentFilter.text, hiddenFields });
-    }
   }, [hiddenFields, table]);
 
   // Extract table props for backward compatibility with Table component
@@ -256,7 +244,7 @@ export const CurrentlyInkedTable = ({ currentlyInked, onLayoutChange }) => {
     <div className="fpc-currently-inked-table">
       <Actions
         activeLayout="table"
-        numberOfEntries={preGlobalFilteredRows.length}
+        numberOfEntries={currentlyInked.length}
         onFilterChange={handleFilterChange}
         onLayoutChange={onLayoutChange}
         hiddenFields={hiddenFields}

@@ -3,14 +3,13 @@ import {
   useReactTable,
   getCoreRowModel,
   getSortedRowModel,
-  getFilteredRowModel,
   flexRender
 } from "@tanstack/react-table";
 import _ from "lodash";
 import { RelativeDate } from "../../components/RelativeDate";
 import { useHiddenFields } from "../../useHiddenFields";
 import { Actions } from "../components";
-import { fuzzyFilter } from "./match";
+import { fuzzyMatch } from "../match";
 import { Counter } from "./Counter";
 import { InkWithLink } from "./InkWithLink";
 import { Table } from "../../components/Table";
@@ -231,31 +230,18 @@ export const CollectedInksTable = ({ data, archive, onLayoutChange }) => {
 
   const [filterText, setFilterText] = useState("");
 
-  // Composite globalFilter value: when either the search text or hiddenFields
-  // change, TanStack Table sees a new state value and re-runs filtering.
-  const globalFilter = useMemo(
-    () => ({ text: filterText, hiddenFields }),
-    [filterText, hiddenFields]
+  const filteredData = useMemo(
+    () => fuzzyMatch(data, filterText, hiddenFields),
+    [data, filterText, hiddenFields]
   );
 
   const table = useReactTable({
     columns,
-    data,
+    data: filteredData,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
     state: {
-      globalFilter,
       columnVisibility: hiddenFields.reduce((acc, field) => ({ ...acc, [field]: false }), {})
-    },
-    onGlobalFilterChange: (updater) => {
-      // The Actions component passes a plain string; store only the text part.
-      if (typeof updater === "function") {
-        const next = updater(globalFilter);
-        setFilterText(typeof next === "object" ? next.text : next || "");
-      } else {
-        setFilterText(typeof updater === "object" ? updater.text : updater || "");
-      }
     },
     onColumnVisibilityChange: (updater) => {
       if (typeof updater === "function") {
@@ -265,13 +251,10 @@ export const CollectedInksTable = ({ data, archive, onLayoutChange }) => {
         const newHiddenFields = Object.keys(newVisibility).filter((key) => !newVisibility[key]);
         onHiddenFieldsChange(newHiddenFields);
       }
-    },
-    globalFilterFn: fuzzyFilter,
-    enableGlobalFilter: true
+    }
   });
 
   const setGlobalFilter = (value) => setFilterText(value || "");
-  const preGlobalFilteredRows = table.getPreFilteredRowModel().rows;
 
   useEffect(() => {
     const visibility = hiddenFields.reduce((acc, field) => ({ ...acc, [field]: false }), {});
@@ -367,7 +350,7 @@ export const CollectedInksTable = ({ data, archive, onLayoutChange }) => {
       <Actions
         archive={archive}
         activeLayout="table"
-        numberOfInks={preGlobalFilteredRows.length}
+        numberOfInks={data.length}
         onFilterChange={setGlobalFilter}
         onLayoutChange={onLayoutChange}
         hiddenFields={hiddenFields}

@@ -2,7 +2,7 @@ import React, { useMemo, useState } from "react";
 import { useHiddenFields } from "../../useHiddenFields";
 import { Actions } from "../components/Actions";
 import { Cards } from "./Cards";
-import { fuzzyMatch } from "./match";
+import { fuzzyMatch } from "../match";
 
 export const storageKeyHiddenFields = "fpc-collected-pens-cards-hidden-fields";
 
