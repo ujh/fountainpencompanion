@@ -1,3 +1,12 @@
 - content_for :title, "Edit colors of #{@ink.name}"
 
+p
+  ' This is list of all colors added my users for this ink. You can add colors to
+  ' the ignore list, if the average color is wrong because of them. At least one
+  ' color needs to remain.
+p
+  em
+    ' New colors cannot be added here. This can only be done by editing the color
+    ' value of the ink in your collection.
+
 div class="fpc-edit-colors" data-colors=@ink.collected_inks.pluck(:color).reject(&:blank?).uniq.to_json data-ignored-colors=@ink.ignored_colors.to_json data-submit-url=brand_ink_path(@ink.brand_cluster, @ink) data-cancel-url=brand_ink_path(@ink.brand_cluster, @ink) data-current-color=@ink.color data-csrf-token=form_authenticity_token
