@@ -8092,10 +8092,10 @@ slice-ansi@^7.1.0:
     ansi-styles "^6.2.1"
     is-fullwidth-code-point "^5.0.0"
 
-slim-select@^3.4.2:
-  version "3.4.2"
-  resolved "https://registry.yarnpkg.com/slim-select/-/slim-select-3.4.2.tgz#8a21bb3111678749a186f59348cd255b24665c6d"
-  integrity sha512-MreQLz9FxHACMOSmfUmQFIUu9va69ng0euOl0oFmTgjZCIqrI8mMzQR1WQZo9hqXa+QsZsLEWQrjDwDeAAScaQ==
+slim-select@^3.4.3:
+  version "3.4.3"
+  resolved "https://registry.yarnpkg.com/slim-select/-/slim-select-3.4.3.tgz#d775ecf8997c4e5d21d9c13ce31472aa13a3c718"
+  integrity sha512-6jeOO7nVXNAdsAMAUIw2igcPG379yzGoa2mPBJ4tuoidenPz4AvFTnEewhVR4AnKBOSDf6L7trRJHuumJwJqOg==
 
 "source-map-js@>=0.6.2 <2.0.0":
   version "1.0.2"
