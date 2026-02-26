@@ -48,6 +48,7 @@ class MacroCluster < ApplicationRecord
   belongs_to :brand_cluster, optional: true
 
   before_save :recalculate_color, if: :will_save_change_to_ignored_colors?
+  after_commit :enqueue_update, if: :saved_change_to_color?
 
   paginates_per 100
 
@@ -324,6 +325,10 @@ class MacroCluster < ApplicationRecord
   end
 
   private
+
+  def enqueue_update
+    UpdateMacroCluster.perform_async(id)
+  end
 
   def color_average_for(colors, field)
     sum = colors.map { |c| c.send(field)**2 }.sum
