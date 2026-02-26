@@ -7,6 +7,7 @@ class Admins::Descriptions::InksController < Admins::BaseController
     @versions =
       PaperTrail::Version
         .where(item_type: "MacroCluster")
+        .where(event: "update")
         .where(conditions, *values)
         .order("id desc")
         .page(params[:page])
@@ -19,10 +20,14 @@ class Admins::Descriptions::InksController < Admins::BaseController
     MacroCluster::TRACKED_FIELDS.filter_map do |field, label|
       next unless version.changeset.key?(field)
 
-      changes = version.changeset[field].reverse.map(&:to_s)
-      diff = Differ.diff_by_word(*changes).format_as(:html).html_safe
-
-      { label: label, diff: diff }
+      if field == "ignored_colors" && version.changeset.key?("color")
+        old_color, new_color = version.changeset["color"]
+        { label: label, type: :color, old_color: old_color, new_color: new_color }
+      else
+        changes = version.changeset[field].reverse.map(&:to_s)
+        diff = Differ.diff_by_word(*changes).format_as(:html).html_safe
+        { label: label, type: :text, diff: diff }
+      end
     end
   end
 end

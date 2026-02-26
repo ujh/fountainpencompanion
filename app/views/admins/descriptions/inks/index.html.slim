@@ -10,7 +10,13 @@
       - calculate_diffs(version).each do |entry|
         div class='diff-field'
           strong= entry[:label]
-          pre class='diff-content'= entry[:diff]
+          - if entry[:type] == :color
+            div class='diff-content' style="display: flex; align-items: center; gap: 8px;"
+              div style="width: 37px; height: 37px; background-color:#{entry[:old_color]};"
+              | →
+              div style="width: 37px; height: 37px; background-color:#{entry[:new_color]};"
+          - else
+            pre class='diff-content'= entry[:diff]
       div class='timestamp'
         = time_ago_in_words(version.created_at)
         '  ago

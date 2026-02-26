@@ -16,7 +16,7 @@ describe HistoriesController do
 
         result = controller.send(:calculate_diffs, version)
 
-        expect(result).to eq([{ label: "Description", diff: "formatted diff" }])
+        expect(result).to eq([{ label: "Description", type: :text, diff: "formatted diff" }])
         expect(Differ).to have_received(:diff_by_word).with("New description", "Old description")
       end
     end
@@ -33,7 +33,7 @@ describe HistoriesController do
 
         result = controller.send(:calculate_diffs, version)
 
-        expect(result).to eq([{ label: "Brand Name", diff: "formatted diff" }])
+        expect(result).to eq([{ label: "Brand Name", type: :text, diff: "formatted diff" }])
         expect(Differ).to have_received(:diff_by_word).with("New Brand", "Old Brand")
       end
     end
@@ -50,7 +50,7 @@ describe HistoriesController do
 
         result = controller.send(:calculate_diffs, version)
 
-        expect(result).to eq([{ label: "Line Name", diff: "formatted diff" }])
+        expect(result).to eq([{ label: "Line Name", type: :text, diff: "formatted diff" }])
         expect(Differ).to have_received(:diff_by_word).with("New Line", "Old Line")
       end
     end
@@ -67,7 +67,7 @@ describe HistoriesController do
 
         result = controller.send(:calculate_diffs, version)
 
-        expect(result).to eq([{ label: "Ink Name", diff: "formatted diff" }])
+        expect(result).to eq([{ label: "Ink Name", type: :text, diff: "formatted diff" }])
         expect(Differ).to have_received(:diff_by_word).with("New Ink", "Old Ink")
       end
     end
