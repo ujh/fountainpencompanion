@@ -3,7 +3,6 @@ import {
   useReactTable,
   getCoreRowModel,
   getSortedRowModel,
-  getFilteredRowModel,
   flexRender
 } from "@tanstack/react-table";
 import _ from "lodash";
@@ -11,7 +10,7 @@ import { useHiddenFields } from "../../useHiddenFields";
 import { Table } from "../../components/Table";
 import { Actions } from "../components/Actions";
 import { ActionsCell } from "./ActionsCell";
-import { fuzzyMatch } from "./match";
+import { fuzzyMatch } from "../match";
 import { RelativeDate } from "../../components/RelativeDate";
 import { dateSort } from "./sort";
 
@@ -135,19 +134,17 @@ export const CollectedPensTable = ({ pens, onLayoutChange }) => {
   );
 
   const [filterText, setFilterText] = useState("");
-  const globalFilter = useMemo(
-    () => ({ filterValue: filterText, hiddenFields }),
-    [filterText, hiddenFields]
+  const filteredData = useMemo(
+    () => fuzzyMatch(pens, filterText, hiddenFields),
+    [pens, filterText, hiddenFields]
   );
 
   const table = useReactTable({
     columns,
-    data: pens,
+    data: filteredData,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
     state: {
-      globalFilter,
       columnVisibility: hiddenFields.reduce((acc, field) => ({ ...acc, [field]: false }), {})
     },
     onColumnVisibilityChange: (updater) => {
@@ -158,13 +155,10 @@ export const CollectedPensTable = ({ pens, onLayoutChange }) => {
         const newHiddenFields = Object.keys(newVisibility).filter((key) => !newVisibility[key]);
         onHiddenFieldsChange(newHiddenFields);
       }
-    },
-    globalFilterFn: fuzzyMatch,
-    enableGlobalFilter: true
+    }
   });
 
   const onFilterChange = useCallback((value) => setFilterText(value || ""), []);
-  const preGlobalFilteredRows = table.getPreFilteredRowModel().rows;
 
   useEffect(() => {
     const visibility = hiddenFields.reduce((acc, field) => ({ ...acc, [field]: false }), {});
@@ -259,7 +253,7 @@ export const CollectedPensTable = ({ pens, onLayoutChange }) => {
     <div>
       <Actions
         activeLayout="table"
-        numberOfPens={preGlobalFilteredRows.length}
+        numberOfPens={pens.length}
         onFilterChange={onFilterChange}
         onLayoutChange={onLayoutChange}
         hiddenFields={hiddenFields}
