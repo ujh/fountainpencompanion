@@ -68,7 +68,7 @@
   div.row.mb-3
     div class="col-sm-12 col-md-6 fpc-leaderboards__board"
       h2 class="h4" Brand and ink edits
-      p.text-muted Ranked by the number of edits made to brand and ink names and descriptions
+      p.text-muted Ranked by the number of edits made to brand and ink names, ink colors, and  descriptions
       ol
         - LeaderBoard.top_users_by_description_edits.each do |user_data|
           = render partial: "leaderboard_row", locals: { user_data: user_data }
