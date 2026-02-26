@@ -175,6 +175,14 @@ describe MacroCluster do
       macro_cluster.update!(ignored_colors: ["#111111"])
       expect(macro_cluster.reload.color).to eq("#FFFFFF")
     end
+
+    it "enqueues UpdateMacroCluster when color changes" do
+      create(:collected_ink, micro_cluster: micro_cluster, color: "#111111")
+      create(:collected_ink, micro_cluster: micro_cluster, color: "#333333")
+      expect { macro_cluster.update!(ignored_colors: ["#111111"]) }.to change {
+        UpdateMacroCluster.jobs.size
+      }.by(1)
+    end
   end
 
   describe "#manual_edits?" do
