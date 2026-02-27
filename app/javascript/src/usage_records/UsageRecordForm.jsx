@@ -9,7 +9,11 @@ const fetchAllCurrentlyInked = async (filterArchived) => {
   let all = [];
   let page = 1;
   do {
-    const params = new URLSearchParams({ "page[number]": page });
+    const params = new URLSearchParams({
+      "page[number]": page,
+      "fields[currently_inked]": "inked_on,archived_on,ink_name,pen_name",
+      include: ""
+    });
     if (filterArchived !== undefined) {
       params.set("filter[archived]", filterArchived);
     }

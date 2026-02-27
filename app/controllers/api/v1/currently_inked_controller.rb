@@ -132,18 +132,7 @@ class Api::V1::CurrentlyInkedController < Api::V1::BaseController
   def currently_inkeds
     @currently_inkeds ||=
       begin
-        relation =
-          current_user.currently_inkeds.includes(
-            :usage_records,
-            :collected_pen,
-            :last_usage,
-            collected_ink: :micro_cluster,
-            collected_pen: {
-              pens_micro_cluster: {
-                model_variant: :model_micro_cluster
-              }
-            }
-          )
+        relation = current_user.currently_inkeds.includes(*eager_load_associations)
         relation = filter(relation)
         records = relation.page(params.dig(:page, :number)).per(params.dig(:page, :size))
         active_pen_ids = current_user.currently_inkeds.active.pluck(:collected_pen_id)
@@ -186,8 +175,9 @@ class Api::V1::CurrentlyInkedController < Api::V1::BaseController
   end
 
   def includes
-    if params[:include].present?
-      params[:include].split(",").map(&:strip)
+    if params.key?(:include)
+      include_param = params[:include].to_s
+      include_param.blank? ? [] : include_param.split(",").map(&:strip)
     else
       %i[collected_ink collected_pen collected_ink.micro_cluster]
     end
@@ -219,5 +209,24 @@ class Api::V1::CurrentlyInkedController < Api::V1::BaseController
 
   def micro_cluster_fields
     %i[macro_cluster]
+  end
+
+  def eager_load_associations
+    inc = includes.map { |i| i.to_s.to_sym }
+    assocs = %i[usage_records last_usage]
+
+    if inc.include?(:collected_pen)
+      assocs << { collected_pen: { pens_micro_cluster: { model_variant: :model_micro_cluster } } }
+    else
+      assocs << :collected_pen
+    end
+
+    if inc.include?(:"collected_ink.micro_cluster")
+      assocs << { collected_ink: :micro_cluster }
+    else
+      assocs << :collected_ink
+    end
+
+    assocs
   end
 end
