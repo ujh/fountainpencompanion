@@ -221,6 +221,82 @@ html[data-bs-theme="dark"] {
     }
   }
 
+  .fpc-select__control {
+    background-color: var(--bs-body-bg);
+    border-color: var(--bs-border-color);
+    color: var(--fpc-text-color);
+
+    &:hover {
+      border-color: var(--bs-border-color);
+    }
+
+    &--is-focused {
+      border-color: var(--bs-primary-border-subtle);
+      box-shadow: 0 0 0 1px var(--bs-primary-border-subtle);
+    }
+  }
+
+  .fpc-select__menu {
+    background-color: var(--bs-body-bg);
+    border: 1px solid var(--bs-border-color);
+  }
+
+  .fpc-select__option {
+    color: var(--fpc-text-color);
+    background-color: transparent;
+
+    &--is-focused {
+      background-color: var(--fpc-active-background);
+    }
+
+    &--is-selected {
+      background-color: var(--bs-primary);
+      color: #{b.$white};
+    }
+  }
+
+  .fpc-select__single-value {
+    color: var(--fpc-text-color);
+  }
+
+  .fpc-select__placeholder {
+    color: var(--fpc-muted-text-color);
+  }
+
+  .fpc-select__input-container,
+  .fpc-select__input {
+    color: var(--fpc-text-color) !important;
+  }
+
+  .fpc-select__indicator-separator {
+    background-color: var(--bs-border-color);
+  }
+
+  .fpc-select__indicator {
+    color: var(--fpc-muted-text-color);
+  }
+
+  .fpc-select__group-heading {
+    color: var(--fpc-muted-text-color);
+  }
+
+  .fpc-select__multi-value {
+    background-color: var(--fpc-active-background);
+
+    &__label {
+      color: var(--fpc-text-color);
+    }
+
+    &__remove {
+      color: var(--fpc-text-color);
+
+      &:hover {
+        background-color: #{b.$red-700};
+        color: #{b.$white};
+      }
+    }
+  }
+
   a {
     --bs-link-color: #{b.$blue-400};
     --bs-link-hover-color: #{b.$blue-500};

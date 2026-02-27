@@ -20,6 +20,7 @@ export const BrandSelector = ({ field }) => {
   return (
     <div className="mb-3">
       <Select
+        classNamePrefix="fpc-select"
         options={options}
         onChange={(selected) => {
           dispatch({ type: UPDATE_SELECTED_BRANDS, payload: selected });
