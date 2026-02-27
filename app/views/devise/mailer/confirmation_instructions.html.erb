@@ -1,23 +1,11 @@
-<p>Welcome <%= @email %>!</p>
+<p style="margin: 0 0 16px;">Welcome <%= @email %>!</p>
 
-<p>You can confirm your account for <strong>fountainpencompanion.com</strong> through the link below:</p>
+<p style="margin: 0 0 16px;">You can confirm your account for <strong>fountainpencompanion.com</strong> using the button below:</p>
 
-<p><%= link_to 'Confirm my account', confirmation_url(@resource, confirmation_token: @token) %></p>
+<%= render "layouts/mailer_button", url: confirmation_url(@resource, confirmation_token: @token), text: "Confirm my account" %>
 
-<p>Have fun!</p>
+<p style="margin: 0 0 16px;">Have fun!</p>
 
-<p><b>If you have not created this account yourself, there is nothing to do. Your data will be automatically deleted!</b></p>
+<p style="margin: 0 0 16px; color: #666666; font-size: 14px;"><strong>If you have not created this account yourself, there is nothing to do. Your data will be automatically deleted!</strong></p>
 
-<p>Thanks,</p>
-<p>The Fountain Pen Capybara</p>
-
-<hr />
-<p>
-  <%= link_to 'Fountain Pen Companion', 'https://fountainpencompanion.com' %>
-  <br />
-  <%= link_to 'Privacy Policy', 'https://www.fountainpencompanion.com/pages/privacy-policy' %>
-</p>
-
-<p>
-  <img src="https://fountainpencompanion.com/images/capybara/capybara_square,w_200.png" alt="Fountain Pen Capybara" width="200" />
-</p>
+<p style="margin: 0;">Thanks,<br />The Fountain Pen Capybara</p>
