@@ -40,7 +40,7 @@ From now on you'll only need to run `docker-compose up` to work on the app.
 
 ### Receiving emails during development
 
-Emails in development are accessible by going to `/letter_opener`.
+Emails in development are accessible by going to `/letter_opener`. There is also a link in the admin menu bar for quick access.
 
 # Licensing
 
