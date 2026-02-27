@@ -187,6 +187,7 @@ export const UsageRecordForm = () => {
             </label>
             <Select
               inputId="usage-record-currently-inked"
+              classNamePrefix="fpc-select"
               options={selectOptions}
               value={selectedOption}
               onChange={handleSelectChange}
