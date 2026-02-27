@@ -1,0 +1,14 @@
+Hello <%= @resource.email %>!
+
+Your account has been locked due to an excessive number of unsuccessful sign in attempts.
+
+Click the link below to unlock your account:
+
+<%= unlock_url(@resource, unlock_token: @token) %>
+
+Thanks,
+The Fountain Pen Capybara
+
+---
+Fountain Pen Companion: https://fountainpencompanion.com
+Privacy Policy: https://www.fountainpencompanion.com/pages/privacy-policy
