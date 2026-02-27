@@ -33,6 +33,7 @@ import "./src/ink-search-hint";
 import "./src/public_inks";
 import "./src/collected-inks-autocomplete";
 import "./src/collected-pens-autocomplete";
+import "./src/review-submission";
 import setTimeZone from "./src/setTimeZone";
 
 window.setTimeZone = setTimeZone;

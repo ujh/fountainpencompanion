@@ -39,6 +39,31 @@ describe "InkReviewSubmissions" do
         submission = InkReviewSubmission.first
         expect(submission.url).to eq("http://example.com")
       end
+
+      it "rejects Instagram URLs with a 422 and error message" do
+        post path,
+             params: {
+               ink_review_submission: {
+                 url: "https://www.instagram.com/p/abc123"
+               }
+             },
+             as: :json
+        expect(response).to have_http_status(:unprocessable_entity)
+        json = JSON.parse(response.body)
+        expect(json["errors"].first).to include("Instagram URLs are not supported")
+      end
+
+      it "does not create a submission for Instagram URLs" do
+        expect do
+          post path,
+               params: {
+                 ink_review_submission: {
+                   url: "https://www.instagram.com/p/abc123"
+                 }
+               },
+               as: :json
+        end.not_to change(InkReviewSubmission, :count)
+      end
     end
   end
 end
