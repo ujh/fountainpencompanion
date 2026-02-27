@@ -49,4 +49,31 @@ describe InkReviewSubmission do
       )
     expect(submission).to be_valid
   end
+
+  describe "Instagram URL validation" do
+    %w[
+      https://instagram.com/p/abc123
+      https://www.instagram.com/p/abc123
+      https://m.instagram.com/p/abc123
+      http://instagram.com/reel/abc123
+      https://INSTAGRAM.COM/p/abc123
+    ].each do |instagram_url|
+      it "rejects #{instagram_url}" do
+        submission = build(:ink_review_submission, url: instagram_url)
+        expect(submission).not_to be_valid
+        expect(submission.errors[:url].first).to include("Instagram URLs are not supported")
+      end
+    end
+
+    %w[
+      https://example.com/review
+      https://youtube.com/watch?v=abc
+      https://notinstagram.com/p/abc
+    ].each do |valid_url|
+      it "allows #{valid_url}" do
+        submission = build(:ink_review_submission, url: valid_url)
+        expect(submission).to be_valid
+      end
+    end
+  end
 end
