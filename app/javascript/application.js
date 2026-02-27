@@ -34,6 +34,7 @@ import "./src/public_inks";
 import "./src/collected-inks-autocomplete";
 import "./src/collected-pens-autocomplete";
 import "./src/review-submission";
+import "./src/usage_records";
 import setTimeZone from "./src/setTimeZone";
 
 window.setTimeZone = setTimeZone;

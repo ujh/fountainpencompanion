@@ -20,8 +20,28 @@ class UsageRecordsController < ApplicationController
   end
 
   def create
-    @currently_inked.usage_records.find_or_create_by(used_on: Date.current) if @currently_inked
-    head :created
+    if @currently_inked
+      used_on = params[:used_on].present? ? Date.parse(params[:used_on]) : Date.current
+      @usage_record = @currently_inked.usage_records.find_or_initialize_by(used_on: used_on)
+      if @usage_record.save
+        respond_to do |format|
+          format.html { redirect_to usage_records_path, notice: "Usage record created." }
+          format.any { head :created }
+        end
+      else
+        respond_to do |format|
+          format.html do
+            redirect_to usage_records_path, alert: @usage_record.errors.full_messages.join(", ")
+          end
+          format.any { head :unprocessable_entity }
+        end
+      end
+    else
+      respond_to do |format|
+        format.html { redirect_to usage_records_path, alert: "Currently inked entry not found." }
+        format.any { head :not_found }
+      end
+    end
   end
 
   def destroy

@@ -114,7 +114,7 @@ describe CurrentlyInked do
   end
 
   describe "#last_used_on" do
-    subject { create(:currently_inked) }
+    subject { create(:currently_inked, inked_on: 30.days.ago.to_date) }
 
     it "returns the date of latest usage record" do
       create(:usage_record, currently_inked: subject, used_on: 1.day.ago)
@@ -130,6 +130,7 @@ describe CurrentlyInked do
           user: subject.user,
           collected_ink: subject.collected_ink,
           collected_pen: subject.collected_pen,
+          inked_on: 30.days.ago.to_date,
           archived_on: Date.today
         )
 
@@ -148,6 +149,7 @@ describe CurrentlyInked do
           user: subject.user,
           collected_ink: subject.collected_ink,
           collected_pen: subject.collected_pen,
+          inked_on: 30.days.ago.to_date,
           archived_on: Date.today
         )
       create(:usage_record, currently_inked: previous_ci, used_on: 1.day.ago)
@@ -161,6 +163,7 @@ describe CurrentlyInked do
         user: subject.user,
         collected_ink: subject.collected_ink,
         collected_pen: subject.collected_pen,
+        inked_on: 30.days.ago.to_date,
         archived_on: Date.today,
         created_at: 2.days.ago
       )
@@ -170,6 +173,7 @@ describe CurrentlyInked do
           user: subject.user,
           collected_ink: subject.collected_ink,
           collected_pen: subject.collected_pen,
+          inked_on: 30.days.ago.to_date,
           archived_on: 2.days.ago,
           created_at: 3.days.ago
         )
@@ -307,7 +311,7 @@ describe CurrentlyInked do
   end
 
   describe "#used_today?" do
-    subject { create(:currently_inked) }
+    subject { create(:currently_inked, inked_on: 5.days.ago.to_date) }
 
     it "returns false if there is no UsageRecord" do
       expect(subject).to_not be_used_today

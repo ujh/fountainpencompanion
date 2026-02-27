@@ -1,7 +1,7 @@
 FactoryBot.define do
   factory :currently_inked do
     user
-    inked_on { Date.today }
+    inked_on { 1.year.ago.to_date }
     before(:create) do |ci|
       user = ci.collected_pen&.user || ci.collected_ink&.user
       ci.user = user if user
