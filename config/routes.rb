@@ -80,6 +80,7 @@ Rails.application.routes.draw do
     resources :nibs, only: [:index]
   end
   resource :account, only: %i[show edit update]
+  resource :account_deletion, only: %i[create show destroy]
   resources :authentication_tokens, only: %i[index create destroy]
 
   resources :users, only: %i[index show]

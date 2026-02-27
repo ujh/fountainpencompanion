@@ -1,0 +1,17 @@
+- content_for :title, "Confirm Account Deletion"
+div class="row"
+  div class="col-sm-12 col-md-8 offset-md-2"
+    h2 Confirm Account Deletion
+    div.alert.alert-danger
+      p
+        strong Warning:
+        |  This action is irreversible. All your data will be permanently deleted, including:
+      ul
+        li Your collected inks and pens
+        li Your currently inked entries and usage records
+        li Your profile information
+        li All other data associated with your account
+    p Are you sure you want to delete your account?
+    div.d-flex.gap-2
+      = button_to "Yes, delete my account", account_deletion_path(token: @token), method: :delete, class: "btn btn-danger"
+      = link_to "Cancel", account_path, class: "btn btn-secondary"

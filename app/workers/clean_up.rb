@@ -6,6 +6,7 @@ class CleanUp
   def perform
     remove_unused_accounts
     remove_unconfirmed_accounts
+    clear_expired_deletion_requests
     anonymize_sign_up_ip
     reject_orphaned_agent_logs
   end
@@ -28,6 +29,11 @@ class CleanUp
       .where("created_at < ?", 4.weeks.ago)
       .pluck(:id)
       .each { |user_id| CleanUp::DeleteUser.perform_async(user_id) }
+  end
+
+  # Unlock accounts where deletion was requested more than 24h ago but the account still exists
+  def clear_expired_deletion_requests
+    User.where("deletion_requested_at < ?", 24.hours.ago).update_all(deletion_requested_at: nil)
   end
 
   def anonymize_sign_up_ip
