@@ -1,0 +1,7 @@
+<p>Hi<%= @user.name.present? ? " #{@user.name}" : "" %>,</p>
+
+<p>We received a request to delete your Fountain Pen Companion account. If you made this request, please click the button below to confirm.</p>
+
+<%= render "layouts/mailer_button", url: @url, text: "Confirm account deletion" %>
+
+<p>This link will expire in 24 hours. If you did not request this, you can safely ignore this email and your account will remain unchanged.</p>

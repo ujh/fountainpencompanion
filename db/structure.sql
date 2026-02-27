@@ -1020,7 +1020,8 @@ CREATE TABLE public.users (
     review_blurb boolean DEFAULT false,
     spam boolean DEFAULT false,
     spam_reason character varying DEFAULT ''::character varying,
-    auto_approve_ink_reviews boolean DEFAULT false
+    auto_approve_ink_reviews boolean DEFAULT false,
+    deletion_requested_at timestamp(6) without time zone
 );
 
 
@@ -2306,6 +2307,7 @@ ALTER TABLE ONLY public.collected_inks
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20260227093006'),
 ('20260226105030'),
 ('20260224105335'),
 ('20260114091815'),

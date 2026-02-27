@@ -54,7 +54,7 @@ class User < ApplicationRecord
   end
 
   def active_for_authentication?
-    super and !spam?
+    super and !spam? and deletion_requested_at.nil?
   end
 
   def sign_up_ip=(value)

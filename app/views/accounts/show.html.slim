@@ -27,3 +27,12 @@ div id="account" class="row"
       = link_to "Manage API Tokens", authentication_tokens_path, class: "btn btn-outline-primary"
     p.text-muted
       small API tokens allow you to authenticate with the Fountain Pen Companion API.
+
+    hr
+    h5 Delete Account
+    p.text-muted
+      small
+        ' Clicking this button will send a confirmation email to your registered email address.
+        ' You will need to click the link in that email to complete the deletion process.
+        em Note that starting this process will log you out for 24h, even if you decide to not complete the deletion.
+    = button_to "Delete My Account", account_deletion_path, method: :post, class: "btn btn-danger"

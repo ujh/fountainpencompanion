@@ -42,5 +42,10 @@ describe User do
       user = create(:user, confirmed_at: nil, bot: true)
       expect(user).not_to be_active_for_authentication
     end
+
+    it "returns false when deletion_requested_at is set" do
+      user = create(:user, deletion_requested_at: Time.current)
+      expect(user).not_to be_active_for_authentication
+    end
   end
 end
