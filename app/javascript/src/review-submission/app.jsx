@@ -31,24 +31,24 @@ export const App = ({ url }) => {
     }
   };
 
+  const isError = message?.type === "danger";
+
   return (
     <>
       <h3 className="h5">Submit a review</h3>
-      {message && (
-        <div className={`alert alert-${message.type}`} role="alert">
-          {message.text}
-        </div>
-      )}
       <form onSubmit={handleSubmit}>
         <div className="mb-3">
           <input
             type="text"
-            className="form-control"
+            className={`form-control${isError ? " is-invalid" : ""}`}
             placeholder="Enter the URL of the review you would like to submit"
             value={reviewUrl}
             onChange={(e) => setReviewUrl(e.target.value)}
             disabled={submitting}
           />
+          {message && (
+            <small className={isError ? "text-danger" : "text-success"}>{message.text}</small>
+          )}
         </div>
         <button type="submit" className="btn btn-success mb-3" disabled={submitting}>
           {submitting ? "Submitting..." : "Submit a review"}

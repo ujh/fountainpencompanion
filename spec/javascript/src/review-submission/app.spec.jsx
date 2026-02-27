@@ -38,7 +38,7 @@ describe("ReviewSubmission App", () => {
     await waitFor(() => {
       expect(screen.getByText(/Review submitted successfully/)).toBeInTheDocument();
     });
-    expect(screen.getByRole("alert")).toHaveClass("alert-success");
+    expect(screen.getByText(/Review submitted successfully/)).toHaveClass("text-success");
     expect(input).toHaveValue("");
   });
 
@@ -68,7 +68,8 @@ describe("ReviewSubmission App", () => {
     await waitFor(() => {
       expect(screen.getByText(/Instagram URLs are not supported/)).toBeInTheDocument();
     });
-    expect(screen.getByRole("alert")).toHaveClass("alert-danger");
+    expect(screen.getByText(/Instagram URLs are not supported/)).toHaveClass("text-danger");
+    expect(screen.getByPlaceholderText(/Enter the URL/)).toHaveClass("is-invalid");
   });
 
   it("disables the button while submitting", async () => {
