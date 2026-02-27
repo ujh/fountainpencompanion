@@ -1,21 +1,9 @@
-<p>Hello <%= @email %>!</p>
+<p style="margin: 0 0 16px;">Hello <%= @email %>!</p>
 
 <% if @resource.try(:unconfirmed_email?) %>
-  <p>We're contacting you to notify you that your email is being changed to <%= @resource.unconfirmed_email %>.</p>
+  <p style="margin: 0 0 16px;">We're contacting you to notify you that your email is being changed to <%= @resource.unconfirmed_email %>.</p>
 <% else %>
-  <p>We're contacting you to notify you that your email has been changed to <%= @resource.email %>.</p>
+  <p style="margin: 0 0 16px;">We're contacting you to notify you that your email has been changed to <%= @resource.email %>.</p>
 <% end %>
 
-<p>Thanks,</p>
-<p>The Fountain Pen Capybara</p>
-
-<hr />
-<p>
-  <%= link_to 'Fountain Pen Companion', 'https://fountainpencompanion.com' %>
-  <br />
-  <%= link_to 'Privacy Policy', 'https://www.fountainpencompanion.com/pages/privacy-policy' %>
-</p>
-
-<p>
-  <img src="https://fountainpencompanion.com/images/capybara/capybara_square,w_200.png" alt="Fountain Pen Capybara" width="200" />
-</p>
+<p style="margin: 0;">Thanks,<br />The Fountain Pen Capybara</p>

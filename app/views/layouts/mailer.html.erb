@@ -2,12 +2,39 @@
 <html>
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <style>
-      /* Email styles need to be inline */
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   </head>
 
-  <body>
-    <%= yield %>
+  <body style="margin: 0; padding: 0; background-color: #f4f4f7; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color: #f4f4f7;">
+      <tr>
+        <td align="center" style="padding: 24px 16px;">
+          <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width: 600px; width: 100%;">
+            <!-- Header -->
+            <tr>
+              <td align="center" style="background-color: #ffffff; padding: 24px 32px; border-radius: 8px 8px 0 0; border-bottom: 2px solid #0D6EFD;">
+                <span style="font-size: 22px; font-weight: 600; color: #1a1a1a;">Fountain Pen Companion</span>
+              </td>
+            </tr>
+            <!-- Content -->
+            <tr>
+              <td style="background-color: #ffffff; padding: 32px; color: #333333; font-size: 16px; line-height: 1.6;">
+                <%= yield %>
+              </td>
+            </tr>
+            <!-- Footer -->
+            <tr>
+              <td align="center" style="background-color: #f9f9fb; padding: 24px 32px; border-radius: 0 0 8px 8px; border-top: 1px solid #e8e8eb;">
+                <img src="https://fountainpencompanion.com/images/capybara/capybara_square,w_200.png" alt="Fountain Pen Capybara" width="80" style="width: 80px; height: auto; margin-bottom: 12px;" />
+                <br />
+                <a href="https://fountainpencompanion.com" style="color: #0D6EFD; text-decoration: none; font-size: 14px;">Fountain Pen Companion</a>
+                <span style="color: #999999; font-size: 14px;">&nbsp;&middot;&nbsp;</span>
+                <a href="https://www.fountainpencompanion.com/pages/privacy-policy" style="color: #0D6EFD; text-decoration: none; font-size: 14px;">Privacy Policy</a>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
   </body>
 </html>
