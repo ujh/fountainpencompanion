@@ -49,9 +49,6 @@ export const App = ({ url }) => {
             onChange={(e) => setReviewUrl(e.target.value)}
             disabled={submitting}
           />
-          <small className="form-text text-muted">
-            Enter the URL of the review you would like to submit
-          </small>
         </div>
         <button type="submit" className="btn btn-success mb-3" disabled={submitting}>
           {submitting ? "Submitting..." : "Submit a review"}
