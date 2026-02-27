@@ -11,7 +11,10 @@ class InkReviewSubmissionsController < ApplicationController
     if submission.persisted?
       head :ok
     else
-      render json: { errors: submission.errors.full_messages }, status: :unprocessable_entity
+      render json: {
+               errors: submission.errors.messages.values.flatten
+             },
+             status: :unprocessable_entity
     end
   end
 
