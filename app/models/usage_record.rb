@@ -6,6 +6,7 @@ class UsageRecord < ApplicationRecord
   paginates_per 100
 
   validates :used_on, uniqueness: { scope: :currently_inked_id }, presence: true
+  validate :used_on_within_currently_inked_range
 
   delegate :pen_name, :ink_name, :collected_ink, :collected_pen, to: :currently_inked
 
@@ -43,6 +44,20 @@ class UsageRecord < ApplicationRecord
           ur.collected_ink.color
         ]
       end
+    end
+  end
+
+  private
+
+  def used_on_within_currently_inked_range
+    return unless used_on && currently_inked
+
+    if used_on < currently_inked.inked_on
+      errors.add(:used_on, "cannot be before the currently inked entry was inked")
+    elsif used_on > Date.current
+      errors.add(:used_on, "cannot be in the future")
+    elsif currently_inked.archived? && used_on > currently_inked.archived_on
+      errors.add(:used_on, "cannot be after the currently inked entry was archived")
     end
   end
 end

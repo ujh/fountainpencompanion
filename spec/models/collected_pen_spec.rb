@@ -191,7 +191,7 @@ describe CollectedPen do
     subject(:pen) { create(:collected_pen) }
 
     it "returns the correct date" do
-      ci = create(:currently_inked, collected_pen: pen)
+      ci = create(:currently_inked, collected_pen: pen, inked_on: 30.days.ago.to_date)
       create(:usage_record, currently_inked: ci, used_on: 2.days.ago)
 
       expect(pen.last_used_on).to eq(2.days.ago.to_date)

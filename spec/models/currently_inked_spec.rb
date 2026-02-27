@@ -114,7 +114,7 @@ describe CurrentlyInked do
   end
 
   describe "#last_used_on" do
-    subject { create(:currently_inked) }
+    subject { create(:currently_inked, inked_on: 30.days.ago.to_date) }
 
     it "returns the date of latest usage record" do
       create(:usage_record, currently_inked: subject, used_on: 1.day.ago)
@@ -130,6 +130,7 @@ describe CurrentlyInked do
           user: subject.user,
           collected_ink: subject.collected_ink,
           collected_pen: subject.collected_pen,
+          inked_on: 30.days.ago.to_date,
           archived_on: Date.today
         )
 
@@ -148,6 +149,7 @@ describe CurrentlyInked do
           user: subject.user,
           collected_ink: subject.collected_ink,
           collected_pen: subject.collected_pen,
+          inked_on: 30.days.ago.to_date,
           archived_on: Date.today
         )
       create(:usage_record, currently_inked: previous_ci, used_on: 1.day.ago)
@@ -161,6 +163,7 @@ describe CurrentlyInked do
         user: subject.user,
         collected_ink: subject.collected_ink,
         collected_pen: subject.collected_pen,
+        inked_on: 30.days.ago.to_date,
         archived_on: Date.today,
         created_at: 2.days.ago
       )
@@ -170,6 +173,7 @@ describe CurrentlyInked do
           user: subject.user,
           collected_ink: subject.collected_ink,
           collected_pen: subject.collected_pen,
+          inked_on: 30.days.ago.to_date,
           archived_on: 2.days.ago,
           created_at: 3.days.ago
         )
@@ -307,7 +311,7 @@ describe CurrentlyInked do
   end
 
   describe "#used_today?" do
-    subject { create(:currently_inked) }
+    subject { create(:currently_inked, inked_on: 5.days.ago.to_date) }
 
     it "returns false if there is no UsageRecord" do
       expect(subject).to_not be_used_today
@@ -402,6 +406,20 @@ describe CurrentlyInked do
       create(:currently_inked, collected_pen: currently_inked.collected_pen)
 
       expect(currently_inked).not_to be_unarchivable
+    end
+
+    context "with preloaded active_collected_pen_ids" do
+      it "uses preloaded IDs instead of querying" do
+        currently_inked.active_collected_pen_ids = []
+
+        expect(currently_inked).to be_unarchivable
+      end
+
+      it "returns false if pen ID is in the preloaded list" do
+        currently_inked.active_collected_pen_ids = [currently_inked.collected_pen_id]
+
+        expect(currently_inked).not_to be_unarchivable
+      end
     end
   end
 end

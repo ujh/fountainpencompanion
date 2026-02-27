@@ -6,7 +6,7 @@ describe UsageRecordsController do
   let(:user) { create(:user) }
 
   describe "#create" do
-    let(:currently_inked) { create(:currently_inked, user: user) }
+    let(:currently_inked) { create(:currently_inked, user: user, inked_on: 30.days.ago.to_date) }
 
     it "requires authentication" do
       post :create, params: { currently_inked_id: currently_inked.id }
@@ -18,7 +18,7 @@ describe UsageRecordsController do
 
       it "creates a usage record for today" do
         expect do
-          post :create, params: { currently_inked_id: currently_inked.id }
+          post :create, params: { currently_inked_id: currently_inked.id }, format: :json
           expect(response).to have_http_status(:created)
         end.to change { UsageRecord.count }.from(0).to(1)
         expect(currently_inked.usage_records.count).to eq(1)
@@ -28,11 +28,55 @@ describe UsageRecordsController do
 
       it "only creates one record for a given day" do
         expect do
-          post :create, params: { currently_inked_id: currently_inked.id }
+          post :create, params: { currently_inked_id: currently_inked.id }, format: :json
           expect(response).to have_http_status(:created)
-          post :create, params: { currently_inked_id: currently_inked.id }
+          post :create, params: { currently_inked_id: currently_inked.id }, format: :json
           expect(response).to have_http_status(:created)
         end.to change { UsageRecord.count }.from(0).to(1)
+      end
+
+      it "creates a usage record for a specific past date" do
+        expect do
+          post :create,
+               params: {
+                 currently_inked_id: currently_inked.id,
+                 used_on: 2.days.ago.to_date.to_s
+               },
+               format: :json
+          expect(response).to have_http_status(:created)
+        end.to change { UsageRecord.count }.from(0).to(1)
+        expect(currently_inked.usage_records.first.used_on).to eq(2.days.ago.to_date)
+      end
+
+      it "returns unprocessable_entity for invalid date" do
+        post :create,
+             params: {
+               currently_inked_id: currently_inked.id,
+               used_on: 1.day.from_now.to_date.to_s
+             },
+             format: :json
+        expect(response).to have_http_status(:unprocessable_entity)
+      end
+
+      it "returns not_found for missing currently_inked" do
+        post :create, params: { currently_inked_id: 0 }, format: :json
+        expect(response).to have_http_status(:not_found)
+      end
+
+      it "redirects with flash on HTML create" do
+        post :create, params: { currently_inked_id: currently_inked.id }
+        expect(response).to redirect_to(usage_records_path)
+        expect(flash[:notice]).to eq("Usage record created.")
+      end
+
+      it "redirects with error flash for invalid date on HTML create" do
+        post :create,
+             params: {
+               currently_inked_id: currently_inked.id,
+               used_on: 1.day.from_now.to_date.to_s
+             }
+        expect(response).to redirect_to(usage_records_path)
+        expect(flash[:alert]).to be_present
       end
     end
   end
