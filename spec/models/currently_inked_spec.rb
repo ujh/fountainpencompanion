@@ -407,5 +407,19 @@ describe CurrentlyInked do
 
       expect(currently_inked).not_to be_unarchivable
     end
+
+    context "with preloaded active_collected_pen_ids" do
+      it "uses preloaded IDs instead of querying" do
+        currently_inked.active_collected_pen_ids = []
+
+        expect(currently_inked).to be_unarchivable
+      end
+
+      it "returns false if pen ID is in the preloaded list" do
+        currently_inked.active_collected_pen_ids = [currently_inked.collected_pen_id]
+
+        expect(currently_inked).not_to be_unarchivable
+      end
+    end
   end
 end

@@ -145,7 +145,10 @@ class Api::V1::CurrentlyInkedController < Api::V1::BaseController
             }
           )
         relation = filter(relation)
-        relation.page(params.dig(:page, :number)).per(params.dig(:page, :size))
+        records = relation.page(params.dig(:page, :number)).per(params.dig(:page, :size))
+        active_pen_ids = current_user.currently_inkeds.active.pluck(:collected_pen_id)
+        records.each { |r| r.active_collected_pen_ids = active_pen_ids }
+        records
       end
   end
 

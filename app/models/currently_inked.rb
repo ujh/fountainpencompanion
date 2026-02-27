@@ -7,6 +7,8 @@ class CurrentlyInked < ApplicationRecord
   class NotRefillable < StandardError
   end
 
+  attr_writer :active_collected_pen_ids
+
   paginates_per 100
   max_paginates_per 100
 
@@ -106,7 +108,7 @@ class CurrentlyInked < ApplicationRecord
   end
 
   def unarchivable?
-    ids ||= user.currently_inkeds.active.pluck(:collected_pen_id)
+    ids = @active_collected_pen_ids || user.currently_inkeds.active.pluck(:collected_pen_id)
     !ids.include?(collected_pen_id) && collected_pen.active?
   end
 
