@@ -138,7 +138,7 @@ export const UsageRecordForm = () => {
             label: "Active",
             options: activeEntries.map((e) => ({
               value: String(e.id),
-              label: `${e.ink_name} - ${e.pen_name}`
+              label: `${e.pen_name} - ${e.ink_name}`
             }))
           }
         ]
@@ -149,7 +149,7 @@ export const UsageRecordForm = () => {
             label: "Archived",
             options: archivedEntries.map((e) => ({
               value: String(e.id),
-              label: `${e.ink_name} - ${e.pen_name} (${e.inked_on} – ${e.archived_on})`
+              label: `${e.pen_name} - ${e.ink_name} (${e.inked_on} – ${e.archived_on})`
             }))
           }
         ]
