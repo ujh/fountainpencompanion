@@ -13,6 +13,7 @@ const setup = (jsx, options) => {
 describe("<CurrentlyInkedTable />", () => {
   const currentlyInked = [
     {
+      id: 1,
       inked_on: "2023-01-15",
       archived_on: null,
       comment: "",
@@ -33,6 +34,7 @@ describe("<CurrentlyInkedTable />", () => {
       collected_pen: { model_variant_id: 123 }
     },
     {
+      id: 2,
       inked_on: "2023-01-15",
       archived_on: null,
       comment: "",
@@ -207,6 +209,7 @@ describe("<CurrentlyInkedTable />", () => {
     const dataWithNulls = [
       ...currentlyInked,
       {
+        id: 3,
         inked_on: "2023-01-10",
         archived_on: null,
         comment: "",
