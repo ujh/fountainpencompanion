@@ -133,6 +133,7 @@ export const CurrentlyInkedTable = ({ currentlyInked, onLayoutChange }) => {
   const table = useReactTable({
     columns,
     data: filteredData,
+    getRowId: (row) => String(row.id),
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
     state: {

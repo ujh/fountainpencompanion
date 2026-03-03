@@ -41,7 +41,7 @@ export const Table = ({
         {rows.map((row, i) => {
           prepareRow(row);
           return (
-            <tr key={`tbody-tr-${i}`} {...row.getRowProps()}>
+            <tr key={`tbody-tr-${row.id || i}`} {...row.getRowProps()}>
               {row.cells.map((cell, j) => {
                 return (
                   <td key={`thead-td-${i}-${j}`} {...cell.getCellProps()}>
