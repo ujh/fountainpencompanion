@@ -1,8 +1,22 @@
 - content_for :title, "Edit name of #{@ink.name}"
 
-= simple_form_for @ink, url: brand_ink_path(@ink.brand_cluster, @ink) do |f|
+= simple_form_for @ink, url: brand_ink_path(@ink.brand_cluster, @ink), html: { class: 'fpc-form' } do |f|
   = f.input :manual_brand_name, label: 'Brand name', hint: "Defaults to '#{@ink.automatic_brand_name}' if left blank"
-  = f.input :manual_line_name, label: 'Line name', hint: "Defaults to '#{@ink.automatic_line_name}' if left blank"
+  = f.input :manual_line_name, label: 'Line name', hint: "Defaults to '#{@ink.automatic_line_name}' if left blank", disabled: @ink.line_name_is_empty?, input_html: { id: 'manual_line_name_input' }
+  = f.input :line_name_is_empty, as: :boolean, label: 'Line name is empty', hint: 'Check this if the ink has no line name'
   = f.input :manual_ink_name, label: 'Ink name', hint: "Defaults to '#{@ink.automatic_ink_name}' if left blank"
-  = f.submit 'Save', class: "btn btn-success"
-  = link_to 'Cancel', brand_ink_path(@ink.brand_cluster, @ink), class: "btn btn-secondary"
+  div class="pt-2 mb-5"
+    = f.submit 'Save', class: "btn btn-success me-2"
+    = link_to 'Cancel', brand_ink_path(@ink.brand_cluster, @ink), class: "btn btn-secondary"
+
+javascript:
+  document.addEventListener('DOMContentLoaded', function() {
+    var checkbox = document.getElementById('macro_cluster_line_name_is_empty');
+    var input = document.getElementById('manual_line_name_input');
+    if (checkbox && input) {
+      checkbox.addEventListener('change', function() {
+        input.disabled = this.checked;
+        if (this.checked) { input.value = ''; }
+      });
+    }
+  });
