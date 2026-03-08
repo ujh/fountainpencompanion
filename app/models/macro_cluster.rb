@@ -6,6 +6,7 @@ class MacroCluster < ApplicationRecord
     "manual_brand_name" => "Brand Name",
     "manual_line_name" => "Line Name",
     "manual_ink_name" => "Ink Name",
+    "line_name_is_empty" => "Line Name Empty",
     "ignored_colors" => "Color"
   }.freeze
 
@@ -161,7 +162,12 @@ class MacroCluster < ApplicationRecord
   end
 
   def self.effective_column(field)
-    Arel.sql("COALESCE(NULLIF(macro_clusters.manual_#{field}, ''), macro_clusters.#{field})")
+    coalesce = "COALESCE(NULLIF(macro_clusters.manual_#{field}, ''), macro_clusters.#{field})"
+    if field.to_s == "line_name"
+      Arel.sql("CASE WHEN macro_clusters.line_name_is_empty THEN '' ELSE #{coalesce} END")
+    else
+      Arel.sql(coalesce)
+    end
   end
 
   def self.autocomplete_search(term, field)
@@ -283,6 +289,8 @@ class MacroCluster < ApplicationRecord
   end
 
   def line_name
+    return "" if has_attribute?(:line_name_is_empty) && line_name_is_empty?
+
     if has_attribute?(:manual_line_name)
       manual_line_name.presence || super
     else
@@ -308,7 +316,7 @@ class MacroCluster < ApplicationRecord
 
   def manual_edits?
     description.present? || manual_brand_name.present? || manual_line_name.present? ||
-      manual_ink_name.present?
+      manual_ink_name.present? || line_name_is_empty?
   end
 
   def recalculate_color

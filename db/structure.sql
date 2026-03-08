@@ -614,7 +614,8 @@ CREATE TABLE public.macro_clusters (
     manual_brand_name character varying DEFAULT ''::character varying,
     manual_line_name character varying DEFAULT ''::character varying,
     manual_ink_name character varying DEFAULT ''::character varying,
-    ignored_colors text[] DEFAULT '{}'::text[] NOT NULL
+    ignored_colors text[] DEFAULT '{}'::text[] NOT NULL,
+    line_name_is_empty boolean DEFAULT false NOT NULL
 );
 
 
@@ -2307,6 +2308,7 @@ ALTER TABLE ONLY public.collected_inks
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20260308164655'),
 ('20260227093006'),
 ('20260226105030'),
 ('20260224105335'),

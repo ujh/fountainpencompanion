@@ -82,6 +82,22 @@ describe MacroCluster do
       cluster = create(:macro_cluster, line_name: "Iroshizuku", manual_line_name: "iroshizuku")
       expect(cluster.line_name).to eq("iroshizuku")
     end
+
+    it "returns empty string when line_name_is_empty is true" do
+      cluster = create(:macro_cluster, line_name: "Iroshizuku", line_name_is_empty: true)
+      expect(cluster.line_name).to eq("")
+    end
+
+    it "returns empty string when line_name_is_empty is true even with manual override" do
+      cluster =
+        create(
+          :macro_cluster,
+          line_name: "Iroshizuku",
+          manual_line_name: "iroshizuku",
+          line_name_is_empty: true
+        )
+      expect(cluster.line_name).to eq("")
+    end
   end
 
   describe "#ink_name" do
@@ -145,6 +161,18 @@ describe MacroCluster do
 
     it "skips blank parts" do
       cluster = create(:macro_cluster, brand_name: "Pilot", line_name: "", ink_name: "Kon-peki")
+      expect(cluster.name).to eq("Pilot Kon-peki")
+    end
+
+    it "skips line_name when line_name_is_empty is true" do
+      cluster =
+        create(
+          :macro_cluster,
+          brand_name: "Pilot",
+          line_name: "Iroshizuku",
+          ink_name: "Kon-peki",
+          line_name_is_empty: true
+        )
       expect(cluster.name).to eq("Pilot Kon-peki")
     end
   end
@@ -215,6 +243,11 @@ describe MacroCluster do
 
     it "returns true when manual_ink_name is present" do
       cluster = create(:macro_cluster, manual_ink_name: "Kon-Peki")
+      expect(cluster.manual_edits?).to be true
+    end
+
+    it "returns true when line_name_is_empty is true" do
+      cluster = create(:macro_cluster, line_name_is_empty: true)
       expect(cluster.manual_edits?).to be true
     end
   end
