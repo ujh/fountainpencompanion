@@ -47,3 +47,5 @@ yarn-debug.log*
 
 # Crush local state
 .crush/
+
+.claude/
