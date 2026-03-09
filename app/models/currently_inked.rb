@@ -114,11 +114,14 @@ class CurrentlyInked < ApplicationRecord
 
   def collected_pens_for_active_select
     ids = user.currently_inkeds.active.pluck(:collected_pen_id) - [collected_pen_id]
-    user.collected_pens.active.where.not(id: ids)
+    user.collected_pens.active.where.not(id: ids).order("brand, model, nib, color")
   end
 
   def collected_inks_for_active_select
-    user.active_collected_inks.or(CollectedInk.where(id: collected_ink_id))
+    user
+      .active_collected_inks
+      .or(CollectedInk.where(id: collected_ink_id))
+      .order("brand_name, line_name, ink_name")
   end
 
   private
