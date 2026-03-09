@@ -37,7 +37,7 @@
     "react-scroll-into-view-if-needed": "^3.0.1",
     "react-select": "^5.10.2",
     "react-table-6": "^6.11.0",
-    "recharts": "3.7.0",
+    "recharts": "3.8.0",
     "regenerator-runtime": "^0.14.1",
     "sass": "^1.97.3",
     "sass-loader": "^16.0.7",
