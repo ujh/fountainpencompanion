@@ -1,4 +1,4 @@
-class UpdateMacroCluster
+class RunFailedClusterJobs
   include Sidekiq::Worker
 
   def perform
