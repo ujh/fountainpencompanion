@@ -19,6 +19,9 @@ refresh_pens:
   class: RefreshPens
   description: Run this to refresh what is stored as simplified data in the micro cluster (also updates micro clusters as a consequence)
   enabled: false
+run_failed_cluster_jobs:
+  cron: "*/15 * * * *" # Every 15 minutes
+  class: RunFailedClusterJobs
 clean_up:
   cron: "45 * * * *" # Every hour
   class: CleanUp
