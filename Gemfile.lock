@@ -334,11 +334,6 @@ GEM
       racc (~> 1.4)
     nokogiri (1.19.2-x86_64-linux-gnu)
       racc (~> 1.4)
-    open_router (0.3.3)
-      activesupport (>= 6.0)
-      dotenv (>= 2)
-      faraday (>= 1)
-      faraday-multipart (>= 1)
     orm_adapter (0.5.0)
     os (1.1.4)
     ostruct (0.6.3)
@@ -419,12 +414,12 @@ GEM
       thor (~> 1.0, >= 1.2.2)
       tsort (>= 0.2)
       zeitwerk (~> 2.6)
-    raix (1.0.3)
+    raix (2.0.1)
       activesupport (>= 6.0)
       faraday-retry (~> 2.0)
-      open_router (~> 0.2)
       ostruct
-      ruby-openai (~> 8.1)
+      ruby_llm (~> 1.9)
+      zeitwerk (~> 2.7)
     rake (13.3.1)
     rb-fsevent (0.11.2)
     rb-inotify (0.11.1)
@@ -479,10 +474,6 @@ GEM
       prism (>= 1.2, < 2.0)
       rbs (>= 3, < 5)
     ruby-oembed (0.18.1)
-    ruby-openai (8.3.0)
-      event_stream_parser (>= 0.3.0, < 2.0.0)
-      faraday (>= 1)
-      faraday-multipart (>= 1)
     ruby-progressbar (1.13.0)
     ruby-statistics (4.1.0)
     ruby2_keywords (0.0.5)
@@ -650,7 +641,7 @@ DEPENDENCIES
   rack-timeout
   rails (~> 8.1.2)
   rails-controller-testing
-  raix (= 1.0.3)
+  raix (= 2.0.1)
   redis
   rspec-rails
   rss
