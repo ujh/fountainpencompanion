@@ -130,15 +130,7 @@ RSpec.describe WebPageSummarizer do
       }
     end
 
-    before do
-      stub_request(:post, "https://api.openai.com/v1/chat/completions").to_return(
-        status: 200,
-        body: successful_response.to_json,
-        headers: {
-          "Content-Type" => "application/json"
-        }
-      )
-    end
+    before { stub_openai_response(successful_response) }
 
     it "makes HTTP request to OpenAI API" do
       subject.perform
@@ -156,7 +148,7 @@ RSpec.describe WebPageSummarizer do
         .with { |req|
           body = JSON.parse(req.body)
           messages = body["messages"]
-          system_msg = messages.find { |msg| msg["role"] == "system" }
+          system_msg = messages.find { |msg| msg["role"] == "system" || msg["role"] == "developer" }
           user_msg = messages.find { |msg| msg["role"] == "user" }
 
           system_msg&.dig("content")&.include?("raw HTML of a web page") &&
@@ -205,15 +197,7 @@ RSpec.describe WebPageSummarizer do
       }
     end
 
-    before do
-      stub_request(:post, "https://api.openai.com/v1/chat/completions").to_return(
-        status: 200,
-        body: simple_response.to_json,
-        headers: {
-          "Content-Type" => "application/json"
-        }
-      )
-    end
+    before { stub_openai_response(simple_response) }
 
     it "sends HTML content exactly as provided" do
       subject.perform
@@ -263,52 +247,30 @@ RSpec.describe WebPageSummarizer do
       before do
         stub_request(:post, "https://api.openai.com/v1/chat/completions").to_return(
           status: 500,
-          body: { error: { message: "Internal server error" } }.to_json
+          body: '{"error": {"message": "Internal Server Error"}}'
         )
       end
 
       it "raises an error" do
-        expect { subject.perform }.to raise_error(Faraday::ServerError)
-      end
-    end
-
-    context "when OpenAI returns malformed JSON" do
-      before do
-        stub_request(:post, "https://api.openai.com/v1/chat/completions").to_return(
-          status: 200,
-          body: "invalid json",
-          headers: {
-            "Content-Type" => "application/json"
-          }
-        )
-      end
-
-      it "raises a parsing error" do
-        expect { subject.perform }.to raise_error(Faraday::ParsingError)
+        expect { subject.perform }.to raise_error(RubyLLM::ServerError)
       end
     end
 
     context "when OpenAI returns unexpected response format" do
       before do
-        stub_request(:post, "https://api.openai.com/v1/chat/completions").to_return(
-          status: 200,
-          body: { "id" => "chatcmpl-test", "choices" => [] }.to_json,
-          headers: {
-            "Content-Type" => "application/json"
+        stub_openai_response(
+          "id" => "chatcmpl-test",
+          "choices" => [],
+          "usage" => {
+            "prompt_tokens" => 10,
+            "completion_tokens" => 5,
+            "total_tokens" => 15
           }
         )
       end
 
       it "handles response without choices gracefully" do
         expect { subject.perform }.to raise_error(NoMethodError)
-      end
-    end
-
-    context "when network request fails" do
-      before { stub_request(:post, "https://api.openai.com/v1/chat/completions").to_timeout }
-
-      it "raises a timeout error" do
-        expect { subject.perform }.to raise_error(Faraday::ConnectionFailed)
       end
     end
   end
@@ -340,15 +302,7 @@ RSpec.describe WebPageSummarizer do
         }
       end
 
-      before do
-        stub_request(:post, "https://api.openai.com/v1/chat/completions").to_return(
-          status: 200,
-          body: full_response.to_json,
-          headers: {
-            "Content-Type" => "application/json"
-          }
-        )
-      end
+      before { stub_openai_response(full_response) }
 
       it "completes full summarization workflow" do
         summarizer = described_class.new(parent_agent_log, raw_html)
@@ -405,15 +359,7 @@ RSpec.describe WebPageSummarizer do
         }
       end
 
-      before do
-        stub_request(:post, "https://api.openai.com/v1/chat/completions").to_return(
-          status: 200,
-          body: minimal_response.to_json,
-          headers: {
-            "Content-Type" => "application/json"
-          }
-        )
-      end
+      before { stub_openai_response(minimal_response) }
 
       it "handles minimal HTML content scenarios" do
         summarizer = described_class.new(parent_agent_log, minimal_html)

@@ -12,17 +12,14 @@ class EmbeddingsClient
     Rails
       .cache
       .fetch("embedding:#{digest}", expires_in: 1.week) do
-        response = client.embeddings(parameters: { model: "text-embedding-3-small", input: text })
-        response.dig("data", 0, "embedding")
+        ctx = RubyLLM.context { |c| c.openai_api_key = access_token }
+        response = ctx.embed(text, model: "text-embedding-3-small")
+        response.vectors
       end
   end
 
   def digest
     Digest::MD5.hexdigest(text)
-  end
-
-  def client
-    @client ||= OpenAI::Client.new(access_token:, log_errors: !Rails.env.production?)
   end
 
   def access_token

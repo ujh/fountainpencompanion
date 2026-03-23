@@ -155,15 +155,7 @@ RSpec.describe CheckInkClustering::Assign do
         }
       end
 
-      before do
-        stub_request(:post, openai_url).to_return(
-          status: 200,
-          body: approve_response.to_json,
-          headers: {
-            "Content-Type" => "application/json"
-          }
-        )
-      end
+      before { stub_openai_tool_call(approve_response) }
 
       it "sends correct request to OpenAI" do
         subject.perform
@@ -237,15 +229,7 @@ RSpec.describe CheckInkClustering::Assign do
         }
       end
 
-      before do
-        stub_request(:post, openai_url).to_return(
-          status: 200,
-          body: reject_response.to_json,
-          headers: {
-            "Content-Type" => "application/json"
-          }
-        )
-      end
+      before { stub_openai_tool_call(reject_response) }
 
       it "updates agent log with rejection" do
         subject.perform
@@ -306,11 +290,14 @@ RSpec.describe CheckInkClustering::Assign do
 
     context "with OpenAI API errors" do
       before do
-        stub_request(:post, openai_url).to_return(status: 500, body: "Internal Server Error")
+        stub_request(:post, openai_url).to_return(
+          status: 500,
+          body: '{"error": {"message": "Internal Server Error"}}'
+        )
       end
 
       it "raises API errors as expected" do
-        expect { subject.perform }.to raise_error(Faraday::ServerError)
+        expect { subject.perform }.to raise_error(RubyLLM::ServerError)
       end
     end
 
@@ -404,15 +391,7 @@ RSpec.describe CheckInkClustering::Assign do
         }
       end
 
-      before do
-        stub_request(:post, openai_url).to_return(
-          status: 200,
-          body: approve_response.to_json,
-          headers: {
-            "Content-Type" => "application/json"
-          }
-        )
-      end
+      before { stub_openai_tool_call(approve_response) }
 
       it "completes full approval workflow" do
         expect_any_instance_of(InkClusterer).to receive(:approve!).with(agent: true)
@@ -468,15 +447,7 @@ RSpec.describe CheckInkClustering::Assign do
         }
       end
 
-      before do
-        stub_request(:post, openai_url).to_return(
-          status: 200,
-          body: reject_response.to_json,
-          headers: {
-            "Content-Type" => "application/json"
-          }
-        )
-      end
+      before { stub_openai_tool_call(reject_response) }
 
       it "completes full rejection workflow with reprocessing" do
         returned_clusters = [create(:micro_cluster), create(:micro_cluster)]

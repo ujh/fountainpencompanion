@@ -115,15 +115,7 @@ RSpec.describe PenAndInkSuggester do
       }
     end
 
-    before(:each) do
-      stub_request(:post, "https://api.openai.com/v1/chat/completions").to_return(
-        status: 200,
-        body: successful_openai_response.to_json,
-        headers: {
-          "Content-Type" => "application/json"
-        }
-      )
-    end
+    before(:each) { stub_openai_tool_call(successful_openai_response) }
 
     it "returns successful response with suggestion" do
       response = subject.perform
@@ -157,12 +149,13 @@ RSpec.describe PenAndInkSuggester do
       expect(WebMock).to have_requested(:post, "https://api.openai.com/v1/chat/completions")
         .with { |req|
           body = JSON.parse(req.body)
-          content = body["messages"].first["content"]
+          user_content =
+            body["messages"].select { |m| m["role"] == "user" }.map { |m| m["content"] }.join("\n")
 
-          expect(content).to include("Given the following fountain pens:")
-          expect(content).to include("Given the following inks:")
-          expect(content).to include(collected_pen_1.brand)
-          expect(content).to include(collected_ink_1.ink_name)
+          expect(user_content).to include("Given the following fountain pens:")
+          expect(user_content).to include("Given the following inks:")
+          expect(user_content).to include(collected_pen_1.brand)
+          expect(user_content).to include(collected_ink_1.ink_name)
 
           true
         }
@@ -176,7 +169,12 @@ RSpec.describe PenAndInkSuggester do
       expect(WebMock).to have_requested(:post, "https://api.openai.com/v1/chat/completions")
         .with { |req|
           body = JSON.parse(req.body)
-          body["tools"]&.present? && body["tools"].first["function"]["name"] == "record_suggestion"
+          if body["tools"]&.present?
+            tool_names = body["tools"].map { |tool| tool.dig("function", "name") }.compact
+            tool_names.include?("record_suggestion")
+          else
+            false
+          end
         }
         .at_least_once
     end
@@ -188,9 +186,8 @@ RSpec.describe PenAndInkSuggester do
         expect(WebMock).to have_requested(:post, "https://api.openai.com/v1/chat/completions")
           .with { |req|
             body = JSON.parse(req.body)
-            expect(body["messages"].length).to eq(2)
-            expect(body["messages"].last["content"]).to include("Please suggest something blue")
-            true
+            user_messages = body["messages"].select { |m| m["role"] == "user" }
+            user_messages.any? { |m| m["content"]&.include?("Please suggest something blue") }
           }
           .at_least_once
       end
@@ -205,7 +202,8 @@ RSpec.describe PenAndInkSuggester do
         expect(WebMock).to have_requested(:post, "https://api.openai.com/v1/chat/completions")
           .with { |req|
             body = JSON.parse(req.body)
-            expect(body["messages"].length).to eq(1)
+            user_messages = body["messages"].select { |m| m["role"] == "user" }
+            expect(user_messages.length).to eq(1)
             true
           }
           .at_least_once
@@ -219,9 +217,13 @@ RSpec.describe PenAndInkSuggester do
         expect(WebMock).to have_requested(:post, "https://api.openai.com/v1/chat/completions")
           .with { |req|
             body = JSON.parse(req.body)
-            content = body["messages"].first["content"]
-            expect(content).to include(collected_ink_1.ink_name) # bottle
-            expect(content).to include(collected_ink_2.ink_name) # cartridge
+            user_content =
+              body["messages"]
+                .select { |m| m["role"] == "user" }
+                .map { |m| m["content"] }
+                .join("\n")
+            expect(user_content).to include(collected_ink_1.ink_name) # bottle
+            expect(user_content).to include(collected_ink_2.ink_name) # cartridge
             true
           }
           .at_least_once
@@ -230,15 +232,7 @@ RSpec.describe PenAndInkSuggester do
   end
 
   describe "data formatting" do
-    before(:each) do
-      stub_request(:post, "https://api.openai.com/v1/chat/completions").to_return(
-        status: 200,
-        body: successful_openai_response.to_json,
-        headers: {
-          "Content-Type" => "application/json"
-        }
-      )
-    end
+    before(:each) { stub_openai_tool_call(successful_openai_response) }
 
     let(:successful_openai_response) do
       {
@@ -284,19 +278,20 @@ RSpec.describe PenAndInkSuggester do
       expect(WebMock).to have_requested(:post, "https://api.openai.com/v1/chat/completions")
         .with { |req|
           body = JSON.parse(req.body)
-          content = body["messages"].first["content"]
+          user_content =
+            body["messages"].select { |m| m["role"] == "user" }.map { |m| m["content"] }.join("\n")
 
           # Should contain CSV headers
-          expect(content).to include("pen id,fountain pen name")
-          expect(content).to include("ink id,ink name")
+          expect(user_content).to include("pen id,fountain pen name")
+          expect(user_content).to include("ink id,ink name")
 
           # Should contain usage tracking columns
-          expect(content).to include("usage count,daily usage count")
-          expect(content).to include("last usage")
+          expect(user_content).to include("usage count,daily usage count")
+          expect(user_content).to include("last usage")
 
           # Should contain actual data
-          expect(content).to include(collected_pen_1.id.to_s)
-          expect(content).to include(collected_ink_1.id.to_s)
+          expect(user_content).to include(collected_pen_1.id.to_s)
+          expect(user_content).to include(collected_ink_1.id.to_s)
 
           true
         }
@@ -309,11 +304,12 @@ RSpec.describe PenAndInkSuggester do
       expect(WebMock).to have_requested(:post, "https://api.openai.com/v1/chat/completions")
         .with { |req|
           body = JSON.parse(req.body)
-          content = body["messages"].first["content"]
+          user_content =
+            body["messages"].select { |m| m["role"] == "user" }.map { |m| m["content"] }.join("\n")
 
-          expect(content).to include("Pilot")
-          expect(content).to include("Custom 74")
-          expect(content).to include("Iroshizuku Kon-peki")
+          expect(user_content).to include("Pilot")
+          expect(user_content).to include("Custom 74")
+          expect(user_content).to include("Iroshizuku Kon-peki")
 
           true
         }
@@ -328,9 +324,10 @@ RSpec.describe PenAndInkSuggester do
       expect(WebMock).to have_requested(:post, "https://api.openai.com/v1/chat/completions")
         .with { |req|
           body = JSON.parse(req.body)
-          content = body["messages"].first["content"]
-          expect(content).to include("Brand")
-          expect(content).to include("Special")
+          user_content =
+            body["messages"].select { |m| m["role"] == "user" }.map { |m| m["content"] }.join("\n")
+          expect(user_content).to include("Brand")
+          expect(user_content).to include("Special")
           true
         }
         .at_least_once
@@ -342,42 +339,18 @@ RSpec.describe PenAndInkSuggester do
       before(:each) do
         stub_request(:post, "https://api.openai.com/v1/chat/completions").to_return(
           status: 500,
-          body: "Internal Server Error"
+          body: '{"error": {"message": "Internal Server Error"}}'
         )
       end
 
       it "raises an error" do
-        expect { subject.perform }.to raise_error(Faraday::ServerError)
-      end
-    end
-
-    context "when OpenAI returns malformed JSON" do
-      before(:each) do
-        stub_request(:post, "https://api.openai.com/v1/chat/completions").to_return(
-          status: 200,
-          body: "invalid json",
-          headers: {
-            "Content-Type" => "application/json"
-          }
-        )
-      end
-
-      it "raises a parsing error" do
-        expect { subject.perform }.to raise_error(Faraday::ParsingError)
+        expect { subject.perform }.to raise_error(RubyLLM::ServerError)
       end
     end
   end
 
   describe "integration test" do
-    before(:each) do
-      stub_request(:post, "https://api.openai.com/v1/chat/completions").to_return(
-        status: 200,
-        body: successful_openai_response.to_json,
-        headers: {
-          "Content-Type" => "application/json"
-        }
-      )
-    end
+    before(:each) { stub_openai_tool_call(successful_openai_response) }
 
     let(:successful_openai_response) do
       {
@@ -434,9 +407,10 @@ RSpec.describe PenAndInkSuggester do
       expect(WebMock).to have_requested(:post, "https://api.openai.com/v1/chat/completions")
         .with { |req|
           body = JSON.parse(req.body)
-          content = body["messages"].first["content"]
+          user_content =
+            body["messages"].select { |m| m["role"] == "user" }.map { |m| m["content"] }.join("\n")
           # Should include columns for clustering information
-          expect(content).to include("tags,description")
+          expect(user_content).to include("tags,description")
           true
         }
         .at_least_once

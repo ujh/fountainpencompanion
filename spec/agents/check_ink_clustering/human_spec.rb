@@ -135,13 +135,7 @@ RSpec.describe CheckInkClustering::Human do
       end
 
       before do
-        stub_request(:post, openai_url).to_return(
-          status: 200,
-          body: email_response.to_json,
-          headers: {
-            "Content-Type" => "application/json"
-          }
-        )
+        stub_openai_tool_call(email_response)
 
         # Mock the mailer
         allow(AdminMailer).to receive(:agent_mail).and_return(double("mail", deliver_later: true))
@@ -210,15 +204,18 @@ RSpec.describe CheckInkClustering::Human do
 
     context "with OpenAI API errors" do
       before do
-        stub_request(:post, openai_url).to_return(status: 500, body: "Internal Server Error")
+        stub_request(:post, openai_url).to_return(
+          status: 500,
+          body: '{"error": {"message": "Internal Server Error"}}'
+        )
       end
 
       it "raises API errors as expected" do
-        expect { subject.perform }.to raise_error(Faraday::ServerError)
+        expect { subject.perform }.to raise_error(RubyLLM::ServerError)
       end
 
       it "does not approve on API error" do
-        expect { subject.perform }.to raise_error(Faraday::ServerError)
+        expect { subject.perform }.to raise_error(RubyLLM::ServerError)
       end
     end
 
@@ -303,13 +300,7 @@ RSpec.describe CheckInkClustering::Human do
       end
 
       before do
-        stub_request(:post, openai_url).to_return(
-          status: 200,
-          body: email_response.to_json,
-          headers: {
-            "Content-Type" => "application/json"
-          }
-        )
+        stub_openai_tool_call(email_response)
 
         allow(AdminMailer).to receive(:agent_mail).and_return(double("mail", deliver_later: true))
       end
@@ -397,13 +388,7 @@ RSpec.describe CheckInkClustering::Human do
       end
 
       before do
-        stub_request(:post, openai_url).to_return(
-          status: 200,
-          body: complex_email_response.to_json,
-          headers: {
-            "Content-Type" => "application/json"
-          }
-        )
+        stub_openai_tool_call(complex_email_response)
 
         allow(AdminMailer).to receive(:agent_mail).and_return(double("mail", deliver_later: true))
       end

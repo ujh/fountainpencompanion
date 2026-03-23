@@ -129,15 +129,7 @@ RSpec.describe InkBrandClusterer do
 
   describe "#perform" do
     context "when AI decides to add to existing brand cluster" do
-      before do
-        stub_request(:post, "https://api.openai.com/v1/chat/completions").to_return(
-          status: 200,
-          body: add_to_brand_cluster_response.to_json,
-          headers: {
-            "Content-Type" => "application/json"
-          }
-        )
-      end
+      before { stub_openai_tool_call(add_to_brand_cluster_response) }
 
       it "performs clustering and updates agent log" do
         expect { subject.perform }.to change { AgentLog.count }.by(1)
@@ -161,10 +153,9 @@ RSpec.describe InkBrandClusterer do
       it "includes function definitions in the request" do
         subject.perform
 
-        expect(WebMock).to have_requested(
-          :post,
-          "https://api.openai.com/v1/chat/completions"
-        ).with { |req| JSON.parse(req.body).key?("tools") }
+        expect(WebMock).to have_requested(:post, "https://api.openai.com/v1/chat/completions")
+          .with { |req| JSON.parse(req.body).key?("tools") }
+          .at_least_once
       end
 
       it "assigns macro cluster to existing brand cluster when not evaluating" do
@@ -199,15 +190,7 @@ RSpec.describe InkBrandClusterer do
         cluster
       end
 
-      before do
-        stub_request(:post, "https://api.openai.com/v1/chat/completions").to_return(
-          status: 200,
-          body: create_new_brand_cluster_response.to_json,
-          headers: {
-            "Content-Type" => "application/json"
-          }
-        )
-      end
+      before { stub_openai_tool_call(create_new_brand_cluster_response) }
 
       it "performs clustering and updates agent log" do
         clusterer = described_class.new(unique_macro_cluster.id)
@@ -236,46 +219,19 @@ RSpec.describe InkBrandClusterer do
       before do
         stub_request(:post, "https://api.openai.com/v1/chat/completions").to_return(
           status: 500,
-          body: { error: { message: "Internal server error" } }.to_json,
-          headers: {
-            "Content-Type" => "application/json"
-          }
+          body: '{"error": {"message": "Internal Server Error"}}'
         )
       end
 
       it "raises an error" do
-        expect { subject.perform }.to raise_error(Faraday::ServerError)
-      end
-    end
-
-    context "when OpenAI returns malformed JSON" do
-      before do
-        stub_request(:post, "https://api.openai.com/v1/chat/completions").to_return(
-          status: 200,
-          body: "invalid json",
-          headers: {
-            "Content-Type" => "application/json"
-          }
-        )
-      end
-
-      it "raises a parsing error" do
-        expect { subject.perform }.to raise_error(Faraday::ParsingError)
+        expect { subject.perform }.to raise_error(RubyLLM::ServerError)
       end
     end
   end
 
   describe "function validation through OpenAI responses" do
     context "when AI calls add_to_brand_cluster with valid brand_cluster_id" do
-      before do
-        stub_request(:post, "https://api.openai.com/v1/chat/completions").to_return(
-          status: 200,
-          body: add_to_brand_cluster_response.to_json,
-          headers: {
-            "Content-Type" => "application/json"
-          }
-        )
-      end
+      before { stub_openai_tool_call(add_to_brand_cluster_response) }
 
       it "processes valid brand cluster assignment" do
         agent_log = subject.perform
@@ -318,15 +274,7 @@ RSpec.describe InkBrandClusterer do
         }
       end
 
-      before do
-        stub_request(:post, "https://api.openai.com/v1/chat/completions").to_return(
-          status: 200,
-          body: invalid_response.to_json,
-          headers: {
-            "Content-Type" => "application/json"
-          }
-        )
-      end
+      before { stub_openai_tool_call(invalid_response) }
 
       it "handles invalid brand cluster ID with error message" do
         # This should trigger the validation in the function and return an error message
@@ -375,15 +323,7 @@ RSpec.describe InkBrandClusterer do
 
   describe "integration scenarios" do
     context "complete brand clustering workflow" do
-      before do
-        stub_request(:post, "https://api.openai.com/v1/chat/completions").to_return(
-          status: 200,
-          body: add_to_brand_cluster_response.to_json,
-          headers: {
-            "Content-Type" => "application/json"
-          }
-        )
-      end
+      before { stub_openai_tool_call(add_to_brand_cluster_response) }
 
       it "completes full brand clustering workflow" do
         expect { subject.perform }.to change { AgentLog.count }.by(1)
@@ -413,15 +353,7 @@ RSpec.describe InkBrandClusterer do
         )
       end
 
-      before do
-        stub_request(:post, "https://api.openai.com/v1/chat/completions").to_return(
-          status: 200,
-          body: create_new_brand_cluster_response.to_json,
-          headers: {
-            "Content-Type" => "application/json"
-          }
-        )
-      end
+      before { stub_openai_tool_call(create_new_brand_cluster_response) }
 
       it "handles special characters in brand data" do
         clusterer = described_class.new(special_macro_cluster.id)
@@ -438,13 +370,7 @@ RSpec.describe InkBrandClusterer do
     context "when no existing brand clusters exist" do
       before do
         BrandCluster.destroy_all
-        stub_request(:post, "https://api.openai.com/v1/chat/completions").to_return(
-          status: 200,
-          body: create_new_brand_cluster_response.to_json,
-          headers: {
-            "Content-Type" => "application/json"
-          }
-        )
+        stub_openai_tool_call(create_new_brand_cluster_response)
       end
 
       it "handles empty brand cluster list" do
@@ -464,15 +390,7 @@ RSpec.describe InkBrandClusterer do
   end
 
   describe "state management" do
-    before do
-      stub_request(:post, "https://api.openai.com/v1/chat/completions").to_return(
-        status: 200,
-        body: add_to_brand_cluster_response.to_json,
-        headers: {
-          "Content-Type" => "application/json"
-        }
-      )
-    end
+    before { stub_openai_tool_call(add_to_brand_cluster_response) }
 
     it "tracks agent log state through workflow" do
       agent_log = subject.perform

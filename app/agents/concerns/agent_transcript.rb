@@ -24,11 +24,17 @@ module AgentTranscript
     def <<(data)
       entries = data.is_a?(Array) ? data : [data]
       entries.each { |e| @transcript << e }
-      role = entries.first[:role]
-      if role == "assistant"
-        @agent_log.usage["model"] = Thread.current[:chat_completion_response][:model]
+      # Detect assistant messages in both full ({role: "assistant"}) and
+      # abbreviated ({assistant: "content"}) formats.
+      entry = entries.first
+      is_assistant = entry[:role] == "assistant" || entry.key?(:assistant)
+      # Thread.current[:chat_completion_response] is only set after ruby_llm_request
+      # returns. During RubyLLM's internal tool dispatch loop, it is nil.
+      response = Thread.current[:chat_completion_response]
+      if is_assistant && response
+        @agent_log.usage["model"] = response[:model]
         %w[prompt_tokens completion_tokens total_tokens].each do |key|
-          @agent_log.usage[key] += Thread.current[:chat_completion_response]["usage"][key]
+          @agent_log.usage[key] += response[:usage][key]
         end
       end
       @agent_log.transcript = @transcript

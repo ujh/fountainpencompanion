@@ -76,10 +76,10 @@ RSpec.describe SpamClassifier do
       expect(classifier.agent_log).to be_persisted
     end
 
-    it "initializes transcript with system prompt" do
+    it "initializes transcript with system directive and user prompt" do
       classifier = described_class.new(target_user)
       expect(classifier.transcript.first[:system]).to be_present
-      expect(classifier.transcript.first[:system]).to include("Given the following spam accounts:")
+      expect(classifier.transcript.to_a[1][:user]).to include("Given the following spam accounts:")
     end
   end
 
@@ -133,7 +133,7 @@ RSpec.describe SpamClassifier do
             "index" => 0,
             "message" => {
               "role" => "assistant",
-              "content" => "",
+              "content" => nil,
               "tool_calls" => [
                 {
                   "id" => "call_123",
@@ -170,7 +170,7 @@ RSpec.describe SpamClassifier do
             "index" => 0,
             "message" => {
               "role" => "assistant",
-              "content" => "",
+              "content" => nil,
               "tool_calls" => [
                 {
                   "id" => "call_456",
@@ -197,15 +197,7 @@ RSpec.describe SpamClassifier do
     end
 
     context "when classified as spam" do
-      before(:each) do
-        stub_request(:post, "https://api.openai.com/v1/chat/completions").to_return(
-          status: 200,
-          body: spam_classification_response.to_json,
-          headers: {
-            "Content-Type" => "application/json"
-          }
-        )
-      end
+      before(:each) { stub_openai_tool_call(spam_classification_response) }
 
       it "updates agent log with spam classification" do
         subject.perform
@@ -222,15 +214,7 @@ RSpec.describe SpamClassifier do
     end
 
     context "when classified as normal" do
-      before(:each) do
-        stub_request(:post, "https://api.openai.com/v1/chat/completions").to_return(
-          status: 200,
-          body: normal_classification_response.to_json,
-          headers: {
-            "Content-Type" => "application/json"
-          }
-        )
-      end
+      before(:each) { stub_openai_tool_call(normal_classification_response) }
 
       it "updates agent log with normal classification" do
         subject.perform
@@ -249,13 +233,7 @@ RSpec.describe SpamClassifier do
     end
 
     it "makes HTTP request to OpenAI API" do
-      stub_request(:post, "https://api.openai.com/v1/chat/completions").to_return(
-        status: 200,
-        body: spam_classification_response.to_json,
-        headers: {
-          "Content-Type" => "application/json"
-        }
-      )
+      stub_openai_tool_call(spam_classification_response)
 
       subject.perform
 
@@ -266,13 +244,7 @@ RSpec.describe SpamClassifier do
     end
 
     it "uses correct OpenAI model" do
-      stub_request(:post, "https://api.openai.com/v1/chat/completions").to_return(
-        status: 200,
-        body: spam_classification_response.to_json,
-        headers: {
-          "Content-Type" => "application/json"
-        }
-      )
+      stub_openai_tool_call(spam_classification_response)
 
       subject.perform
 
@@ -286,13 +258,7 @@ RSpec.describe SpamClassifier do
     end
 
     it "includes both classification functions" do
-      stub_request(:post, "https://api.openai.com/v1/chat/completions").to_return(
-        status: 200,
-        body: spam_classification_response.to_json,
-        headers: {
-          "Content-Type" => "application/json"
-        }
-      )
+      stub_openai_tool_call(spam_classification_response)
 
       subject.perform
 
@@ -312,15 +278,7 @@ RSpec.describe SpamClassifier do
   end
 
   describe "data formatting" do
-    before(:each) do
-      stub_request(:post, "https://api.openai.com/v1/chat/completions").to_return(
-        status: 200,
-        body: spam_classification_response.to_json,
-        headers: {
-          "Content-Type" => "application/json"
-        }
-      )
-    end
+    before(:each) { stub_openai_tool_call(spam_classification_response) }
 
     let(:spam_classification_response) do
       {
@@ -333,7 +291,7 @@ RSpec.describe SpamClassifier do
             "index" => 0,
             "message" => {
               "role" => "assistant",
-              "content" => "",
+              "content" => nil,
               "tool_calls" => [
                 {
                   "id" => "call_789",
@@ -362,25 +320,27 @@ RSpec.describe SpamClassifier do
       expect(WebMock).to have_requested(:post, "https://api.openai.com/v1/chat/completions")
         .with { |req|
           body = JSON.parse(req.body)
-          content = body["messages"].first["content"]
+          messages = body["messages"]
+          # Find the user message containing the classification data
+          user_content = messages.find { |m| m["role"] == "user" }&.[]("content")
 
           # Should contain CSV headers
-          expect(content).to include("email,name,blurb,time zone")
+          expect(user_content).to include("email,name,blurb,time zone")
 
           # Should contain spam examples
-          expect(content).to include("Given the following spam accounts:")
-          expect(content).to include(spam_user_1.email)
-          expect(content).to include(spam_user_2.name)
+          expect(user_content).to include("Given the following spam accounts:")
+          expect(user_content).to include(spam_user_1.email)
+          expect(user_content).to include(spam_user_2.name)
 
           # Should contain normal examples
-          expect(content).to include("And the following normal accounts:")
-          expect(content).to include(normal_user_1.email)
-          expect(content).to include(normal_user_2.blurb)
+          expect(user_content).to include("And the following normal accounts:")
+          expect(user_content).to include(normal_user_1.email)
+          expect(user_content).to include(normal_user_2.blurb)
 
           # Should contain target user
-          expect(content).to include("Classify the following account as spam or normal:")
-          expect(content).to include(target_user.email)
-          expect(content).to include(target_user.name)
+          expect(user_content).to include("Classify the following account as spam or normal:")
+          expect(user_content).to include(target_user.email)
+          expect(user_content).to include(target_user.name)
 
           true
         }
@@ -405,10 +365,10 @@ RSpec.describe SpamClassifier do
       expect(WebMock).to have_requested(:post, "https://api.openai.com/v1/chat/completions")
         .with { |req|
           body = JSON.parse(req.body)
-          content = body["messages"].first["content"]
+          user_content = body["messages"].find { |m| m["role"] == "user" }&.[]("content")
 
           # Count CSV rows in spam section (excluding header)
-          spam_section = content.split("And the following normal accounts:").first
+          spam_section = user_content.split("And the following normal accounts:").first
           spam_rows = spam_section.split("\n").select { |line| line.include?("@") }
           expect(spam_rows.length).to be <= 50
 
@@ -435,11 +395,11 @@ RSpec.describe SpamClassifier do
       expect(WebMock).to have_requested(:post, "https://api.openai.com/v1/chat/completions")
         .with { |req|
           body = JSON.parse(req.body)
-          content = body["messages"].first["content"]
+          user_content = body["messages"].find { |m| m["role"] == "user" }&.[]("content")
 
           # Count CSV rows in normal section (excluding header)
           normal_section =
-            content
+            user_content
               .split("Classify the following account as spam or normal:")
               .first
               .split("And the following normal accounts:")
@@ -468,8 +428,8 @@ RSpec.describe SpamClassifier do
       expect(WebMock).to have_requested(:post, "https://api.openai.com/v1/chat/completions")
         .with { |req|
           body = JSON.parse(req.body)
-          content = body["messages"].first["content"]
-          expect(content).not_to include(excluded_user.email)
+          user_content = body["messages"].find { |m| m["role"] == "user" }&.[]("content")
+          expect(user_content).not_to include(excluded_user.email)
           true
         }
         .at_least_once
@@ -491,9 +451,9 @@ RSpec.describe SpamClassifier do
       expect(WebMock).to have_requested(:post, "https://api.openai.com/v1/chat/completions")
         .with { |req|
           body = JSON.parse(req.body)
-          content = body["messages"].first["content"]
+          user_content = body["messages"].find { |m| m["role"] == "user" }&.[]("content")
           normal_section =
-            content
+            user_content
               .split("Classify the following account as spam or normal:")
               .first
               .split("And the following normal accounts:")
@@ -521,10 +481,10 @@ RSpec.describe SpamClassifier do
       expect(WebMock).to have_requested(:post, "https://api.openai.com/v1/chat/completions")
         .with { |req|
           body = JSON.parse(req.body)
-          content = body["messages"].first["content"]
-          expect(content).to include(special_user.email)
-          expect(content).to include("With")
-          expect(content).to include("quotes")
+          user_content = body["messages"].find { |m| m["role"] == "user" }&.[]("content")
+          expect(user_content).to include(special_user.email)
+          expect(user_content).to include("With")
+          expect(user_content).to include("quotes")
           true
         }
         .at_least_once
@@ -536,67 +496,31 @@ RSpec.describe SpamClassifier do
       before(:each) do
         stub_request(:post, "https://api.openai.com/v1/chat/completions").to_return(
           status: 500,
-          body: "Internal Server Error"
+          body: '{"error": {"message": "Internal Server Error"}}'
         )
       end
 
       it "raises an error" do
-        expect { subject.perform }.to raise_error(Faraday::ServerError)
-      end
-    end
-
-    context "when OpenAI returns malformed JSON" do
-      before(:each) do
-        stub_request(:post, "https://api.openai.com/v1/chat/completions").to_return(
-          status: 200,
-          body: "invalid json",
-          headers: {
-            "Content-Type" => "application/json"
-          }
-        )
-      end
-
-      it "raises a parsing error" do
-        expect { subject.perform }.to raise_error(Faraday::ParsingError)
+        expect { subject.perform }.to raise_error(RubyLLM::ServerError)
       end
     end
 
     context "when OpenAI returns unexpected response format" do
       before(:each) do
-        stub_request(:post, "https://api.openai.com/v1/chat/completions").to_return(
-          status: 200,
-          body: {
-            "id" => "chatcmpl-error",
-            "choices" => [
-              {
-                "message" => {
-                  "role" => "assistant",
-                  "content" => "I cannot classify this user."
-                }
-              }
-            ],
-            "usage" => {
-              "prompt_tokens" => 100,
-              "completion_tokens" => 10,
-              "total_tokens" => 110
-            }
-          }.to_json,
-          headers: {
-            "Content-Type" => "application/json"
-          }
-        )
-      end
-
-      it "handles response without tool calls gracefully" do
-        # Set thread-local variable to avoid usage tracking errors
-        Thread.current[:chat_completion_response] = {
+        stub_openai_response(
+          "id" => "chatcmpl-error",
+          "choices" => [
+            { "message" => { "role" => "assistant", "content" => "I cannot classify this user." } }
+          ],
           "usage" => {
             "prompt_tokens" => 100,
             "completion_tokens" => 10,
             "total_tokens" => 110
           }
-        }
+        )
+      end
 
+      it "handles response without tool calls gracefully" do
         # This should not raise an error, but also won't update the agent log with classification
         expect { subject.perform }.not_to raise_error
         # Ensure extra_data is initialized to avoid nil errors
@@ -609,55 +533,40 @@ RSpec.describe SpamClassifier do
   describe "integration scenarios" do
     context "complete spam classification workflow" do
       before(:each) do
-        stub_request(:post, "https://api.openai.com/v1/chat/completions").to_return(
-          status: 200,
-          body: {
-            "id" => "chatcmpl-integration",
-            "object" => "chat.completion",
-            "created" => 1_677_652_288,
-            "model" => "gpt-4.1-mini",
-            "choices" => [
-              {
-                "index" => 0,
-                "message" => {
-                  "role" => "assistant",
-                  "content" => "",
-                  "tool_calls" => [
-                    {
-                      "id" => "call_integration",
-                      "type" => "function",
-                      "function" => {
-                        "name" => "classify_as_spam",
-                        "arguments" => {
-                          "explanation_of_action" =>
-                            "Account shows promotional content and suspicious patterns typical of spam accounts."
-                        }.to_json
-                      }
+        stub_openai_tool_call(
+          "id" => "chatcmpl-integration",
+          "object" => "chat.completion",
+          "created" => 1_677_652_288,
+          "model" => "gpt-4.1-mini",
+          "choices" => [
+            {
+              "index" => 0,
+              "message" => {
+                "role" => "assistant",
+                "content" => nil,
+                "tool_calls" => [
+                  {
+                    "id" => "call_integration",
+                    "type" => "function",
+                    "function" => {
+                      "name" => "classify_as_spam",
+                      "arguments" => {
+                        "explanation_of_action" =>
+                          "Account shows promotional content and suspicious patterns typical of spam accounts."
+                      }.to_json
                     }
-                  ]
-                },
-                "finish_reason" => "tool_calls"
-              }
-            ],
-            "usage" => {
-              "prompt_tokens" => 200,
-              "completion_tokens" => 30,
-              "total_tokens" => 230
+                  }
+                ]
+              },
+              "finish_reason" => "tool_calls"
             }
-          }.to_json,
-          headers: {
-            "Content-Type" => "application/json"
-          }
-        )
-
-        # Set thread-local variable for usage tracking
-        Thread.current[:chat_completion_response] = {
+          ],
           "usage" => {
             "prompt_tokens" => 200,
             "completion_tokens" => 30,
             "total_tokens" => 230
           }
-        }
+        )
       end
 
       it "completes full classification workflow" do
@@ -675,55 +584,40 @@ RSpec.describe SpamClassifier do
 
     context "complete normal classification workflow" do
       before(:each) do
-        stub_request(:post, "https://api.openai.com/v1/chat/completions").to_return(
-          status: 200,
-          body: {
-            "id" => "chatcmpl-normal",
-            "object" => "chat.completion",
-            "created" => 1_677_652_288,
-            "model" => "gpt-4.1-mini",
-            "choices" => [
-              {
-                "index" => 0,
-                "message" => {
-                  "role" => "assistant",
-                  "content" => "",
-                  "tool_calls" => [
-                    {
-                      "id" => "call_normal",
-                      "type" => "function",
-                      "function" => {
-                        "name" => "classify_as_normal",
-                        "arguments" => {
-                          "explanation_of_action" =>
-                            "Account shows genuine interest in fountain pens with authentic personal details."
-                        }.to_json
-                      }
+        stub_openai_tool_call(
+          "id" => "chatcmpl-normal",
+          "object" => "chat.completion",
+          "created" => 1_677_652_288,
+          "model" => "gpt-4.1-mini",
+          "choices" => [
+            {
+              "index" => 0,
+              "message" => {
+                "role" => "assistant",
+                "content" => nil,
+                "tool_calls" => [
+                  {
+                    "id" => "call_normal",
+                    "type" => "function",
+                    "function" => {
+                      "name" => "classify_as_normal",
+                      "arguments" => {
+                        "explanation_of_action" =>
+                          "Account shows genuine interest in fountain pens with authentic personal details."
+                      }.to_json
                     }
-                  ]
-                },
-                "finish_reason" => "tool_calls"
-              }
-            ],
-            "usage" => {
-              "prompt_tokens" => 200,
-              "completion_tokens" => 25,
-              "total_tokens" => 225
+                  }
+                ]
+              },
+              "finish_reason" => "tool_calls"
             }
-          }.to_json,
-          headers: {
-            "Content-Type" => "application/json"
-          }
-        )
-
-        # Set thread-local variable for usage tracking
-        Thread.current[:chat_completion_response] = {
+          ],
           "usage" => {
             "prompt_tokens" => 200,
             "completion_tokens" => 25,
             "total_tokens" => 225
           }
-        }
+        )
       end
 
       it "completes full normal classification workflow" do

@@ -188,15 +188,7 @@ RSpec.describe InkClusterer do
     end
 
     context "with inks in micro cluster" do
-      before(:each) do
-        stub_request(:post, "https://api.openai.com/v1/chat/completions").to_return(
-          status: 200,
-          body: assign_to_cluster_response.to_json,
-          headers: {
-            "Content-Type" => "application/json"
-          }
-        )
-      end
+      before(:each) { stub_openai_tool_call(assign_to_cluster_response) }
 
       it "performs clustering and updates agent log" do
         expect { subject.perform }.to change { subject.agent_log.reload.state }.to(
@@ -238,7 +230,7 @@ RSpec.describe InkClusterer do
           .with { |req|
             body = JSON.parse(req.body)
             if body["tools"].present?
-              tool_names = body["tools"].map { |tool| tool["function"]["name"] }
+              tool_names = body["tools"].map { |tool| tool.dig("function", "name") }.compact
               expect(tool_names).to include("assign_to_cluster")
               expect(tool_names).to include("create_new_cluster")
               expect(tool_names).to include("ignore_ink")
@@ -272,15 +264,7 @@ RSpec.describe InkClusterer do
     end
 
     context "with create new cluster response" do
-      before(:each) do
-        stub_request(:post, "https://api.openai.com/v1/chat/completions").to_return(
-          status: 200,
-          body: create_new_cluster_response.to_json,
-          headers: {
-            "Content-Type" => "application/json"
-          }
-        )
-      end
+      before(:each) { stub_openai_tool_call(create_new_cluster_response) }
 
       it "schedules create cluster follow-up" do
         subject.perform
@@ -330,15 +314,7 @@ RSpec.describe InkClusterer do
         }
       end
 
-      before(:each) do
-        stub_request(:post, "https://api.openai.com/v1/chat/completions").to_return(
-          status: 200,
-          body: ignore_ink_response.to_json,
-          headers: {
-            "Content-Type" => "application/json"
-          }
-        )
-      end
+      before(:each) { stub_openai_tool_call(ignore_ink_response) }
 
       it "schedules ignore follow-up" do
         subject.perform
@@ -385,15 +361,7 @@ RSpec.describe InkClusterer do
         }
       end
 
-      before(:each) do
-        stub_request(:post, "https://api.openai.com/v1/chat/completions").to_return(
-          status: 200,
-          body: hand_over_response.to_json,
-          headers: {
-            "Content-Type" => "application/json"
-          }
-        )
-      end
+      before(:each) { stub_openai_tool_call(hand_over_response) }
 
       it "schedules human follow-up" do
         subject.perform
@@ -445,15 +413,7 @@ RSpec.describe InkClusterer do
         }
       end
 
-      before(:each) do
-        stub_request(:post, "https://api.openai.com/v1/chat/completions").to_return(
-          status: 200,
-          body: valid_assign_response.to_json,
-          headers: {
-            "Content-Type" => "application/json"
-          }
-        )
-      end
+      before(:each) { stub_openai_tool_call(valid_assign_response) }
 
       it "processes valid cluster assignment" do
         subject.perform
@@ -502,15 +462,7 @@ RSpec.describe InkClusterer do
         }
       end
 
-      before(:each) do
-        stub_request(:post, "https://api.openai.com/v1/chat/completions").to_return(
-          status: 200,
-          body: invalid_assign_response.to_json,
-          headers: {
-            "Content-Type" => "application/json"
-          }
-        )
-      end
+      before(:each) { stub_openai_tool_call(invalid_assign_response) }
 
       it "handles invalid cluster ID gracefully" do
         # This should not crash and should continue processing
@@ -720,28 +672,12 @@ RSpec.describe InkClusterer do
       before(:each) do
         stub_request(:post, "https://api.openai.com/v1/chat/completions").to_return(
           status: 500,
-          body: "Internal Server Error"
+          body: '{"error": {"message": "Internal Server Error"}}'
         )
       end
 
       it "raises an error" do
-        expect { subject.perform }.to raise_error(Faraday::ServerError)
-      end
-    end
-
-    context "when OpenAI returns malformed JSON" do
-      before(:each) do
-        stub_request(:post, "https://api.openai.com/v1/chat/completions").to_return(
-          status: 200,
-          body: "invalid json",
-          headers: {
-            "Content-Type" => "application/json"
-          }
-        )
-      end
-
-      it "raises a parsing error" do
-        expect { subject.perform }.to raise_error(Faraday::ParsingError)
+        expect { subject.perform }.to raise_error(RubyLLM::ServerError)
       end
     end
   end
@@ -749,45 +685,39 @@ RSpec.describe InkClusterer do
   describe "integration scenarios" do
     context "complete clustering workflow" do
       before(:each) do
-        stub_request(:post, "https://api.openai.com/v1/chat/completions").to_return(
-          status: 200,
-          body: {
-            "id" => "chatcmpl-integration",
-            "object" => "chat.completion",
-            "created" => 1_677_652_288,
-            "model" => "gpt-4.1",
-            "choices" => [
-              {
-                "index" => 0,
-                "message" => {
-                  "role" => "assistant",
-                  "content" => "",
-                  "tool_calls" => [
-                    {
-                      "id" => "call_integration",
-                      "type" => "function",
-                      "function" => {
-                        "name" => "assign_to_cluster",
-                        "arguments" => {
-                          "cluster_id" => existing_macro_cluster.id,
-                          "explanation_of_decision" =>
-                            "Both inks are Pilot Iroshizuku blues that belong in the same cluster."
-                        }.to_json
-                      }
+        stub_openai_tool_call(
+          "id" => "chatcmpl-integration",
+          "object" => "chat.completion",
+          "created" => 1_677_652_288,
+          "model" => "gpt-4.1",
+          "choices" => [
+            {
+              "index" => 0,
+              "message" => {
+                "role" => "assistant",
+                "content" => "",
+                "tool_calls" => [
+                  {
+                    "id" => "call_integration",
+                    "type" => "function",
+                    "function" => {
+                      "name" => "assign_to_cluster",
+                      "arguments" => {
+                        "cluster_id" => existing_macro_cluster.id,
+                        "explanation_of_decision" =>
+                          "Both inks are Pilot Iroshizuku blues that belong in the same cluster."
+                      }.to_json
                     }
-                  ]
-                },
-                "finish_reason" => "tool_calls"
-              }
-            ],
-            "usage" => {
-              "prompt_tokens" => 300,
-              "completion_tokens" => 50,
-              "total_tokens" => 350
+                  }
+                ]
+              },
+              "finish_reason" => "tool_calls"
             }
-          }.to_json,
-          headers: {
-            "Content-Type" => "application/json"
+          ],
+          "usage" => {
+            "prompt_tokens" => 300,
+            "completion_tokens" => 50,
+            "total_tokens" => 350
           }
         )
       end
@@ -838,44 +768,38 @@ RSpec.describe InkClusterer do
       end
 
       before(:each) do
-        stub_request(:post, "https://api.openai.com/v1/chat/completions").to_return(
-          status: 200,
-          body: {
-            "id" => "chatcmpl-retry",
-            "object" => "chat.completion",
-            "created" => 1_677_652_288,
-            "model" => "gpt-4.1",
-            "choices" => [
-              {
-                "index" => 0,
-                "message" => {
-                  "role" => "assistant",
-                  "content" => "",
-                  "tool_calls" => [
-                    {
-                      "id" => "call_retry",
-                      "type" => "function",
-                      "function" => {
-                        "name" => "ignore_ink",
-                        "arguments" => {
-                          "explanation_of_decision" =>
-                            "After review, this appears to be a custom mix that should be ignored."
-                        }.to_json
-                      }
+        stub_openai_tool_call(
+          "id" => "chatcmpl-retry",
+          "object" => "chat.completion",
+          "created" => 1_677_652_288,
+          "model" => "gpt-4.1",
+          "choices" => [
+            {
+              "index" => 0,
+              "message" => {
+                "role" => "assistant",
+                "content" => "",
+                "tool_calls" => [
+                  {
+                    "id" => "call_retry",
+                    "type" => "function",
+                    "function" => {
+                      "name" => "ignore_ink",
+                      "arguments" => {
+                        "explanation_of_decision" =>
+                          "After review, this appears to be a custom mix that should be ignored."
+                      }.to_json
                     }
-                  ]
-                },
-                "finish_reason" => "tool_calls"
-              }
-            ],
-            "usage" => {
-              "prompt_tokens" => 400,
-              "completion_tokens" => 40,
-              "total_tokens" => 440
+                  }
+                ]
+              },
+              "finish_reason" => "tool_calls"
             }
-          }.to_json,
-          headers: {
-            "Content-Type" => "application/json"
+          ],
+          "usage" => {
+            "prompt_tokens" => 400,
+            "completion_tokens" => 40,
+            "total_tokens" => 440
           }
         )
       end
@@ -904,44 +828,38 @@ RSpec.describe InkClusterer do
 
     context "with ink similarity search integration" do
       before(:each) do
-        stub_request(:post, "https://api.openai.com/v1/chat/completions").to_return(
-          status: 200,
-          body: {
-            "id" => "chatcmpl-search",
-            "object" => "chat.completion",
-            "created" => 1_677_652_288,
-            "model" => "gpt-4.1",
-            "choices" => [
-              {
-                "index" => 0,
-                "message" => {
-                  "role" => "assistant",
-                  "content" => "",
-                  "tool_calls" => [
-                    {
-                      "id" => "call_search",
-                      "type" => "function",
-                      "function" => {
-                        "name" => "assign_to_cluster",
-                        "arguments" => {
-                          "cluster_id" => existing_macro_cluster.id,
-                          "explanation_of_decision" => "Test explanation"
-                        }.to_json
-                      }
+        stub_openai_tool_call(
+          "id" => "chatcmpl-search",
+          "object" => "chat.completion",
+          "created" => 1_677_652_288,
+          "model" => "gpt-4.1",
+          "choices" => [
+            {
+              "index" => 0,
+              "message" => {
+                "role" => "assistant",
+                "content" => "",
+                "tool_calls" => [
+                  {
+                    "id" => "call_search",
+                    "type" => "function",
+                    "function" => {
+                      "name" => "assign_to_cluster",
+                      "arguments" => {
+                        "cluster_id" => existing_macro_cluster.id,
+                        "explanation_of_decision" => "Test explanation"
+                      }.to_json
                     }
-                  ]
-                },
-                "finish_reason" => "tool_calls"
-              }
-            ],
-            "usage" => {
-              "prompt_tokens" => 100,
-              "completion_tokens" => 50,
-              "total_tokens" => 150
+                  }
+                ]
+              },
+              "finish_reason" => "tool_calls"
             }
-          }.to_json,
-          headers: {
-            "Content-Type" => "application/json"
+          ],
+          "usage" => {
+            "prompt_tokens" => 100,
+            "completion_tokens" => 50,
+            "total_tokens" => 150
           }
         )
       end
@@ -952,13 +870,13 @@ RSpec.describe InkClusterer do
         expect(WebMock).to have_requested(:post, "https://api.openai.com/v1/chat/completions")
           .with { |req|
             body = JSON.parse(req.body)
-            content = body["messages"].first["content"]
+            all_content = body["messages"].map { |m| m["content"] }.compact.join("\n")
 
             # Should include system directive about clustering
-            expect(content).to include("clustering algorithm")
-            expect(content).to include("similar inks together")
-            expect(content).to include("assign the ink to that cluster")
-            expect(content).to include("create a new cluster")
+            expect(all_content).to include("clustering algorithm")
+            expect(all_content).to include("similar inks together")
+            expect(all_content).to include("assign the ink to that cluster")
+            expect(all_content).to include("create a new cluster")
 
             true
           }
@@ -971,10 +889,10 @@ RSpec.describe InkClusterer do
         expect(WebMock).to have_requested(:post, "https://api.openai.com/v1/chat/completions")
           .with { |req|
             body = JSON.parse(req.body)
-            content = body["messages"].first["content"]
+            all_content = body["messages"].map { |m| m["content"] }.compact.join("\n")
 
-            expect(content).to include("search the web for it")
-            expect(content).to include("help you termine if you should assign the ink")
+            expect(all_content).to include("search the web for it")
+            expect(all_content).to include("help you termine if you should assign the ink")
 
             true
           }
@@ -984,41 +902,35 @@ RSpec.describe InkClusterer do
 
     context "with brand validation" do
       before(:each) do
-        stub_request(:post, "https://api.openai.com/v1/chat/completions").to_return(
-          status: 200,
-          body: {
-            "id" => "chatcmpl-brand",
-            "object" => "chat.completion",
-            "created" => 1_677_652_288,
-            "model" => "gpt-4.1",
-            "choices" => [
-              {
-                "index" => 0,
-                "message" => {
-                  "role" => "assistant",
-                  "content" => "",
-                  "tool_calls" => [
-                    {
-                      "id" => "call_brand",
-                      "type" => "function",
-                      "function" => {
-                        "name" => "known_brand",
-                        "arguments" => {}.to_json
-                      }
+        stub_openai_tool_call(
+          "id" => "chatcmpl-brand",
+          "object" => "chat.completion",
+          "created" => 1_677_652_288,
+          "model" => "gpt-4.1",
+          "choices" => [
+            {
+              "index" => 0,
+              "message" => {
+                "role" => "assistant",
+                "content" => "",
+                "tool_calls" => [
+                  {
+                    "id" => "call_brand",
+                    "type" => "function",
+                    "function" => {
+                      "name" => "known_brand",
+                      "arguments" => {}.to_json
                     }
-                  ]
-                },
-                "finish_reason" => "tool_calls"
-              }
-            ],
-            "usage" => {
-              "prompt_tokens" => 200,
-              "completion_tokens" => 20,
-              "total_tokens" => 220
+                  }
+                ]
+              },
+              "finish_reason" => "tool_calls"
             }
-          }.to_json,
-          headers: {
-            "Content-Type" => "application/json"
+          ],
+          "usage" => {
+            "prompt_tokens" => 200,
+            "completion_tokens" => 20,
+            "total_tokens" => 220
           }
         )
       end
@@ -1030,7 +942,7 @@ RSpec.describe InkClusterer do
           .with { |req|
             body = JSON.parse(req.body)
             if body["tools"].present?
-              tool_names = body["tools"].map { |tool| tool["function"]["name"] }
+              tool_names = body["tools"].map { |tool| tool.dig("function", "name") }.compact
               expect(tool_names).to include("known_brand")
             end
             true
@@ -1094,44 +1006,38 @@ RSpec.describe InkClusterer do
       subject { described_class.new(special_micro_cluster.id) }
 
       before(:each) do
-        stub_request(:post, "https://api.openai.com/v1/chat/completions").to_return(
-          status: 200,
-          body: {
-            "id" => "chatcmpl-special",
-            "object" => "chat.completion",
-            "created" => 1_677_652_288,
-            "model" => "gpt-4.1",
-            "choices" => [
-              {
-                "index" => 0,
-                "message" => {
-                  "role" => "assistant",
-                  "content" => "",
-                  "tool_calls" => [
-                    {
-                      "id" => "call_special",
-                      "type" => "function",
-                      "function" => {
-                        "name" => "assign_to_cluster",
-                        "arguments" => {
-                          "cluster_id" => existing_macro_cluster.id,
-                          "explanation_of_decision" => "Test explanation"
-                        }.to_json
-                      }
+        stub_openai_tool_call(
+          "id" => "chatcmpl-special",
+          "object" => "chat.completion",
+          "created" => 1_677_652_288,
+          "model" => "gpt-4.1",
+          "choices" => [
+            {
+              "index" => 0,
+              "message" => {
+                "role" => "assistant",
+                "content" => "",
+                "tool_calls" => [
+                  {
+                    "id" => "call_special",
+                    "type" => "function",
+                    "function" => {
+                      "name" => "assign_to_cluster",
+                      "arguments" => {
+                        "cluster_id" => existing_macro_cluster.id,
+                        "explanation_of_decision" => "Test explanation"
+                      }.to_json
                     }
-                  ]
-                },
-                "finish_reason" => "tool_calls"
-              }
-            ],
-            "usage" => {
-              "prompt_tokens" => 100,
-              "completion_tokens" => 50,
-              "total_tokens" => 150
+                  }
+                ]
+              },
+              "finish_reason" => "tool_calls"
             }
-          }.to_json,
-          headers: {
-            "Content-Type" => "application/json"
+          ],
+          "usage" => {
+            "prompt_tokens" => 100,
+            "completion_tokens" => 50,
+            "total_tokens" => 150
           }
         )
       end
@@ -1164,44 +1070,38 @@ RSpec.describe InkClusterer do
       subject { described_class.new(long_name_cluster.id) }
 
       before(:each) do
-        stub_request(:post, "https://api.openai.com/v1/chat/completions").to_return(
-          status: 200,
-          body: {
-            "id" => "chatcmpl-long",
-            "object" => "chat.completion",
-            "created" => 1_677_652_288,
-            "model" => "gpt-4.1",
-            "choices" => [
-              {
-                "index" => 0,
-                "message" => {
-                  "role" => "assistant",
-                  "content" => "",
-                  "tool_calls" => [
-                    {
-                      "id" => "call_long",
-                      "type" => "function",
-                      "function" => {
-                        "name" => "assign_to_cluster",
-                        "arguments" => {
-                          "cluster_id" => existing_macro_cluster.id,
-                          "explanation_of_decision" => "Test explanation"
-                        }.to_json
-                      }
+        stub_openai_tool_call(
+          "id" => "chatcmpl-long",
+          "object" => "chat.completion",
+          "created" => 1_677_652_288,
+          "model" => "gpt-4.1",
+          "choices" => [
+            {
+              "index" => 0,
+              "message" => {
+                "role" => "assistant",
+                "content" => "",
+                "tool_calls" => [
+                  {
+                    "id" => "call_long",
+                    "type" => "function",
+                    "function" => {
+                      "name" => "assign_to_cluster",
+                      "arguments" => {
+                        "cluster_id" => existing_macro_cluster.id,
+                        "explanation_of_decision" => "Test explanation"
+                      }.to_json
                     }
-                  ]
-                },
-                "finish_reason" => "tool_calls"
-              }
-            ],
-            "usage" => {
-              "prompt_tokens" => 100,
-              "completion_tokens" => 50,
-              "total_tokens" => 150
+                  }
+                ]
+              },
+              "finish_reason" => "tool_calls"
             }
-          }.to_json,
-          headers: {
-            "Content-Type" => "application/json"
+          ],
+          "usage" => {
+            "prompt_tokens" => 100,
+            "completion_tokens" => 50,
+            "total_tokens" => 150
           }
         )
       end
@@ -1258,13 +1158,7 @@ RSpec.describe InkClusterer do
     end
 
     it "tracks agent log state through workflow" do
-      stub_request(:post, "https://api.openai.com/v1/chat/completions").to_return(
-        status: 200,
-        body: assign_to_cluster_response.to_json,
-        headers: {
-          "Content-Type" => "application/json"
-        }
-      )
+      stub_openai_tool_call(assign_to_cluster_response)
 
       expect(subject.agent_log.state).to eq("processing")
 

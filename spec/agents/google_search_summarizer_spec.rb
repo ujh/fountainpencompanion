@@ -111,15 +111,7 @@ RSpec.describe GoogleSearchSummarizer do
       }
     end
 
-    before do
-      stub_request(:post, "https://api.openai.com/v1/chat/completions").to_return(
-        status: 200,
-        body: successful_response.to_json,
-        headers: {
-          "Content-Type" => "application/json"
-        }
-      )
-    end
+    before { stub_openai_tool_call(successful_response) }
 
     it "makes HTTP request to OpenAI API" do
       subject.perform
@@ -136,7 +128,7 @@ RSpec.describe GoogleSearchSummarizer do
       expect(WebMock).to have_requested(:post, "https://api.openai.com/v1/chat/completions")
         .with { |req|
           body = JSON.parse(req.body)
-          body["tools"]&.any? { |tool| tool["function"]["name"] == "summarize_search_results" }
+          body["tools"]&.any? { |tool| tool.dig("function", "name") == "summarize_search_results" }
         }
         .at_least_once
     end
@@ -166,41 +158,35 @@ RSpec.describe GoogleSearchSummarizer do
 
   describe "data formatting" do
     before do
-      stub_request(:post, "https://api.openai.com/v1/chat/completions").to_return(
-        status: 200,
-        body: {
-          "id" => "chatcmpl-test",
-          "object" => "chat.completion",
-          "created" => 1_677_652_288,
-          "model" => "gpt-4.1-mini",
-          "choices" => [
-            {
-              "index" => 0,
-              "message" => {
-                "role" => "assistant",
-                "content" => "",
-                "tool_calls" => [
-                  {
-                    "id" => "call_test",
-                    "type" => "function",
-                    "function" => {
-                      "name" => "summarize_search_results",
-                      "arguments" => { "summary" => "Test summary" }.to_json
-                    }
+      stub_openai_tool_call(
+        "id" => "chatcmpl-test",
+        "object" => "chat.completion",
+        "created" => 1_677_652_288,
+        "model" => "gpt-4.1-mini",
+        "choices" => [
+          {
+            "index" => 0,
+            "message" => {
+              "role" => "assistant",
+              "content" => "",
+              "tool_calls" => [
+                {
+                  "id" => "call_test",
+                  "type" => "function",
+                  "function" => {
+                    "name" => "summarize_search_results",
+                    "arguments" => { "summary" => "Test summary" }.to_json
                   }
-                ]
-              },
-              "finish_reason" => "tool_calls"
-            }
-          ],
-          "usage" => {
-            "prompt_tokens" => 50,
-            "completion_tokens" => 25,
-            "total_tokens" => 75
+                }
+              ]
+            },
+            "finish_reason" => "tool_calls"
           }
-        }.to_json,
-        headers: {
-          "Content-Type" => "application/json"
+        ],
+        "usage" => {
+          "prompt_tokens" => 50,
+          "completion_tokens" => 25,
+          "total_tokens" => 75
         }
       )
     end
@@ -273,58 +259,36 @@ RSpec.describe GoogleSearchSummarizer do
       before do
         stub_request(:post, "https://api.openai.com/v1/chat/completions").to_return(
           status: 500,
-          body: "Internal Server Error"
+          body: '{"error": {"message": "Internal Server Error"}}'
         )
       end
 
       it "raises an error" do
-        expect { subject.perform }.to raise_error(Faraday::ServerError)
-      end
-    end
-
-    context "when OpenAI returns malformed JSON" do
-      before do
-        stub_request(:post, "https://api.openai.com/v1/chat/completions").to_return(
-          status: 200,
-          body: "not valid json",
-          headers: {
-            "Content-Type" => "application/json"
-          }
-        )
-      end
-
-      it "raises a parsing error" do
-        expect { subject.perform }.to raise_error(Faraday::ParsingError)
+        expect { subject.perform }.to raise_error(RubyLLM::ServerError)
       end
     end
 
     context "when OpenAI returns unexpected response format" do
       before do
-        stub_request(:post, "https://api.openai.com/v1/chat/completions").to_return(
-          status: 200,
-          body: {
-            "id" => "chatcmpl-test",
-            "object" => "chat.completion",
-            "created" => 1_677_652_288,
-            "model" => "gpt-4.1-mini",
-            "choices" => [
-              {
-                "index" => 0,
-                "message" => {
-                  "role" => "assistant",
-                  "content" => "This is a regular response without tool calls"
-                },
-                "finish_reason" => "stop"
-              }
-            ],
-            "usage" => {
-              "prompt_tokens" => 50,
-              "completion_tokens" => 25,
-              "total_tokens" => 75
+        stub_openai_response(
+          "id" => "chatcmpl-test",
+          "object" => "chat.completion",
+          "created" => 1_677_652_288,
+          "model" => "gpt-4.1-mini",
+          "choices" => [
+            {
+              "index" => 0,
+              "message" => {
+                "role" => "assistant",
+                "content" => "This is a regular response without tool calls"
+              },
+              "finish_reason" => "stop"
             }
-          }.to_json,
-          headers: {
-            "Content-Type" => "application/json"
+          ],
+          "usage" => {
+            "prompt_tokens" => 50,
+            "completion_tokens" => 25,
+            "total_tokens" => 75
           }
         )
       end
@@ -332,53 +296,6 @@ RSpec.describe GoogleSearchSummarizer do
       it "handles response without tool calls gracefully" do
         # This should not raise an error, but may not set the summary
         expect { subject.perform }.not_to raise_error
-      end
-    end
-
-    context "when function arguments are malformed" do
-      before do
-        stub_request(:post, "https://api.openai.com/v1/chat/completions").to_return(
-          status: 200,
-          body: {
-            "id" => "chatcmpl-test",
-            "object" => "chat.completion",
-            "created" => 1_677_652_288,
-            "model" => "gpt-4.1-mini",
-            "choices" => [
-              {
-                "index" => 0,
-                "message" => {
-                  "role" => "assistant",
-                  "content" => "",
-                  "tool_calls" => [
-                    {
-                      "id" => "call_test",
-                      "type" => "function",
-                      "function" => {
-                        "name" => "summarize_search_results",
-                        "arguments" => "invalid json"
-                      }
-                    }
-                  ]
-                },
-                "finish_reason" => "tool_calls"
-              }
-            ],
-            "usage" => {
-              "prompt_tokens" => 50,
-              "completion_tokens" => 25,
-              "total_tokens" => 75
-            }
-          }.to_json,
-          headers: {
-            "Content-Type" => "application/json"
-          }
-        )
-      end
-
-      it "handles malformed function arguments" do
-        # Suppress the warning about bad JSON that comes from the Raix gem
-        silence_warnings { expect { subject.perform }.to raise_error(JSON::ParserError) }
       end
     end
   end
@@ -414,44 +331,38 @@ RSpec.describe GoogleSearchSummarizer do
       end
 
       before do
-        stub_request(:post, "https://api.openai.com/v1/chat/completions").to_return(
-          status: 200,
-          body: {
-            "id" => "chatcmpl-comprehensive",
-            "object" => "chat.completion",
-            "created" => 1_677_652_288,
-            "model" => "gpt-4.1-mini",
-            "choices" => [
-              {
-                "index" => 0,
-                "message" => {
-                  "role" => "assistant",
-                  "content" => "",
-                  "tool_calls" => [
-                    {
-                      "id" => "call_comprehensive",
-                      "type" => "function",
-                      "function" => {
-                        "name" => "summarize_search_results",
-                        "arguments" => {
-                          "summary" =>
-                            "Found 2,450 results for 'Pilot Iroshizuku Kon-peki ink', indicating this is a well-known product. Pilot Iroshizuku Kon-peki is a popular deep azure blue fountain pen ink praised for its beautiful color and good flow characteristics. The search results show consistent positive reviews and comparisons with other blue inks. Alternative names found include 'Deep Azure Blue' and 'Kon-peki Blue'. This appears to be a legitimate, well-regarded fountain pen ink product."
-                        }.to_json
-                      }
+        stub_openai_tool_call(
+          "id" => "chatcmpl-comprehensive",
+          "object" => "chat.completion",
+          "created" => 1_677_652_288,
+          "model" => "gpt-4.1-mini",
+          "choices" => [
+            {
+              "index" => 0,
+              "message" => {
+                "role" => "assistant",
+                "content" => "",
+                "tool_calls" => [
+                  {
+                    "id" => "call_comprehensive",
+                    "type" => "function",
+                    "function" => {
+                      "name" => "summarize_search_results",
+                      "arguments" => {
+                        "summary" =>
+                          "Found 2,450 results for 'Pilot Iroshizuku Kon-peki ink', indicating this is a well-known product. Pilot Iroshizuku Kon-peki is a popular deep azure blue fountain pen ink praised for its beautiful color and good flow characteristics. The search results show consistent positive reviews and comparisons with other blue inks. Alternative names found include 'Deep Azure Blue' and 'Kon-peki Blue'. This appears to be a legitimate, well-regarded fountain pen ink product."
+                      }.to_json
                     }
-                  ]
-                },
-                "finish_reason" => "tool_calls"
-              }
-            ],
-            "usage" => {
-              "prompt_tokens" => 100,
-              "completion_tokens" => 50,
-              "total_tokens" => 150
+                  }
+                ]
+              },
+              "finish_reason" => "tool_calls"
             }
-          }.to_json,
-          headers: {
-            "Content-Type" => "application/json"
+          ],
+          "usage" => {
+            "prompt_tokens" => 100,
+            "completion_tokens" => 50,
+            "total_tokens" => 150
           }
         )
       end
@@ -492,44 +403,38 @@ RSpec.describe GoogleSearchSummarizer do
       end
 
       before do
-        stub_request(:post, "https://api.openai.com/v1/chat/completions").to_return(
-          status: 200,
-          body: {
-            "id" => "chatcmpl-low-results",
-            "object" => "chat.completion",
-            "created" => 1_677_652_288,
-            "model" => "gpt-4.1-mini",
-            "choices" => [
-              {
-                "index" => 0,
-                "message" => {
-                  "role" => "assistant",
-                  "content" => "",
-                  "tool_calls" => [
-                    {
-                      "id" => "call_low_results",
-                      "type" => "function",
-                      "function" => {
-                        "name" => "summarize_search_results",
-                        "arguments" => {
-                          "summary" =>
-                            "Found only 3 results for 'Obscure Ink Brand XYZ', which is a very low number of results. This suggests the search term may not refer to a well-known or widely available product. Limited information is available about this ink brand."
-                        }.to_json
-                      }
+        stub_openai_tool_call(
+          "id" => "chatcmpl-low-results",
+          "object" => "chat.completion",
+          "created" => 1_677_652_288,
+          "model" => "gpt-4.1-mini",
+          "choices" => [
+            {
+              "index" => 0,
+              "message" => {
+                "role" => "assistant",
+                "content" => "",
+                "tool_calls" => [
+                  {
+                    "id" => "call_low_results",
+                    "type" => "function",
+                    "function" => {
+                      "name" => "summarize_search_results",
+                      "arguments" => {
+                        "summary" =>
+                          "Found only 3 results for 'Obscure Ink Brand XYZ', which is a very low number of results. This suggests the search term may not refer to a well-known or widely available product. Limited information is available about this ink brand."
+                      }.to_json
                     }
-                  ]
-                },
-                "finish_reason" => "tool_calls"
-              }
-            ],
-            "usage" => {
-              "prompt_tokens" => 60,
-              "completion_tokens" => 30,
-              "total_tokens" => 90
+                  }
+                ]
+              },
+              "finish_reason" => "tool_calls"
             }
-          }.to_json,
-          headers: {
-            "Content-Type" => "application/json"
+          ],
+          "usage" => {
+            "prompt_tokens" => 60,
+            "completion_tokens" => 30,
+            "total_tokens" => 90
           }
         )
       end

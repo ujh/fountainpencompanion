@@ -5,9 +5,15 @@ class SpamClassifier
   include Raix::FunctionDispatch
   include AgentTranscript
 
+  SYSTEM_DIRECTIVE = <<~TEXT
+    You are a spam classifier. You will be given examples of spam and normal accounts,
+    then asked to classify a specific account. Call one of the two available functions to classify the account.
+  TEXT
+
   def initialize(user)
     self.user = user
-    transcript << { system: prompt }
+    transcript << { system: SYSTEM_DIRECTIVE }
+    transcript << { user: prompt }
   end
 
   def perform

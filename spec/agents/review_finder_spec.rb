@@ -284,15 +284,7 @@ RSpec.describe ReviewFinder do
         }
       end
 
-      before do
-        stub_request(:post, openai_url).to_return(
-          status: 200,
-          body: submit_review_response.to_json,
-          headers: {
-            "Content-Type" => "application/json"
-          }
-        )
-      end
+      before { stub_openai_tool_call(submit_review_response) }
 
       it "enqueues review submission job when AI calls submit_review" do
         subject.perform
@@ -368,15 +360,7 @@ RSpec.describe ReviewFinder do
         }
       end
 
-      before do
-        stub_request(:post, openai_url).to_return(
-          status: 200,
-          body: done_response.to_json,
-          headers: {
-            "Content-Type" => "application/json"
-          }
-        )
-      end
+      before { stub_openai_tool_call(done_response) }
 
       it "does not enqueue any review submission jobs" do
         subject.perform
@@ -451,15 +435,7 @@ RSpec.describe ReviewFinder do
         }
       end
 
-      before do
-        stub_request(:post, openai_url).to_return(
-          status: 200,
-          body: multiple_reviews_response.to_json,
-          headers: {
-            "Content-Type" => "application/json"
-          }
-        )
-      end
+      before { stub_openai_tool_call(multiple_reviews_response) }
 
       it "enqueues multiple review submission jobs" do
         subject.perform
@@ -487,13 +463,16 @@ RSpec.describe ReviewFinder do
 
     context "when OpenAI API returns an error" do
       before do
-        stub_request(:post, openai_url).to_return(status: 500, body: "Internal Server Error")
+        stub_request(:post, openai_url).to_return(
+          status: 500,
+          body: '{"error": {"message": "Internal Server Error"}}'
+        )
       end
 
       it "raises an error and does not enqueue jobs" do
         initial_job_count = FetchReviews::SubmitReview.jobs.size
 
-        expect { subject.perform }.to raise_error(Faraday::ServerError)
+        expect { subject.perform }.to raise_error(RubyLLM::ServerError)
 
         # Job count should remain the same
         expect(FetchReviews::SubmitReview.jobs.size).to eq(initial_job_count)
