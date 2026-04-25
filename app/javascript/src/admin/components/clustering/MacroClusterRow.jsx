@@ -1,6 +1,5 @@
 import { useCallback, useContext, useEffect, useState } from "react";
 import ScrollIntoViewIfNeeded from "react-scroll-into-view-if-needed";
-
 import { DispatchContext, StateContext } from "./App";
 import { EntriesList } from "./EntriesList";
 import { SearchLink } from "./SearchLink";

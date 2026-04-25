@@ -1,8 +1,7 @@
 import { render, screen } from "@testing-library/react";
+import { LeaderboardRankingWidget } from "dashboard/leaderboard_ranking_widget";
 import { rest } from "msw";
 import { setupServer } from "msw/node";
-
-import { LeaderboardRankingWidget } from "dashboard/leaderboard_ranking_widget";
 
 describe("LeaderboardRankingWidget", () => {
   const server = setupServer(

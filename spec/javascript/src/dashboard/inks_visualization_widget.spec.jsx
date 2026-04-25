@@ -1,8 +1,7 @@
 import { render, screen } from "@testing-library/react";
+import { InksVisualizationWidget } from "dashboard/inks_visualization_widget";
 import { rest } from "msw";
 import { setupServer } from "msw/node";
-
-import { InksVisualizationWidget } from "dashboard/inks_visualization_widget";
 
 describe("InksVisualizationWidget", () => {
   const server = setupServer(

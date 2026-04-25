@@ -1,8 +1,7 @@
 import { render, screen } from "@testing-library/react";
+import { CurrentlyInkedSummaryWidget } from "dashboard/currently_inked_summary_widget";
 import { rest } from "msw";
 import { setupServer } from "msw/node";
-
-import { CurrentlyInkedSummaryWidget } from "dashboard/currently_inked_summary_widget";
 
 describe("CurrentlyInkedSummaryWidget", () => {
   const server = setupServer(

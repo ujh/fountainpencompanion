@@ -1,8 +1,8 @@
+import { act, renderHook, waitFor } from "@testing-library/react";
+import * as storage from "localStorage";
 import { rest } from "msw";
 import { setupServer } from "msw/node";
-import { renderHook, act, waitFor } from "@testing-library/react";
 import { useHiddenFields } from "useHiddenFields";
-import * as storage from "localStorage";
 
 const server = setupServer();
 

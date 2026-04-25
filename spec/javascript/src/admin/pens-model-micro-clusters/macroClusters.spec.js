@@ -1,10 +1,11 @@
+import { UPDATING } from "admin/components/clustering/actions";
 import {
-  getMacroClusters,
   createMacroClusterAndAssign,
+  getMacroClusters,
   updateMacroCluster
 } from "admin/pens-model-micro-clusters/macroClusters";
+import { assignCluster } from "admin/pens-model-micro-clusters/microClusters";
 import { getRequest, postRequest } from "fetch";
-import { UPDATING } from "admin/components/clustering/actions";
 
 // Mock the fetch functions
 jest.mock("fetch", () => ({
@@ -23,8 +24,6 @@ jest.mock("jsona", () => {
 jest.mock("admin/pens-model-micro-clusters/microClusters", () => ({
   assignCluster: jest.fn()
 }));
-
-import { assignCluster } from "admin/pens-model-micro-clusters/microClusters";
 
 describe("macroClusters", () => {
   let mockDispatch;

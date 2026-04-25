@@ -1,7 +1,6 @@
-import { createMacroClusterAndAssign } from "admin/micro-clusters/createMacroClusterAndAssign";
+import { ADD_MACRO_CLUSTER, UPDATING } from "admin/components/clustering/actions";
 import { assignCluster } from "admin/micro-clusters/assignCluster";
-import { UPDATING, ADD_MACRO_CLUSTER } from "admin/components/clustering/actions";
-
+import { createMacroClusterAndAssign } from "admin/micro-clusters/createMacroClusterAndAssign";
 import { rest } from "msw";
 import { setupServer } from "msw/node";
 

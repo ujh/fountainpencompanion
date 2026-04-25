@@ -1,5 +1,4 @@
 import Jsona from "jsona";
-
 import { getRequest } from "../../fetch";
 import { SET_MICRO_CLUSTERS } from "../components/clustering/actions";
 import { groupedInks } from "./groupedInks";

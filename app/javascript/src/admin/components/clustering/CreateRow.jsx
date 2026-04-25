@@ -1,6 +1,5 @@
 import _ from "lodash";
 import { useCallback, useContext, useEffect } from "react";
-
 import { DispatchContext, StateContext } from "./App";
 import { REMOVE_MICRO_CLUSTER } from "./actions";
 import { keyDownListener } from "./keyDownListener";

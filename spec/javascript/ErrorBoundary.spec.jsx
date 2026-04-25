@@ -1,4 +1,6 @@
 import { render, screen } from "@testing-library/react";
+import { ErrorBoundary } from "ErrorBoundary";
+import honeybadger from "honeybadger";
 
 jest.mock("@honeybadger-io/js", () => ({
   __esModule: true,
@@ -31,9 +33,6 @@ jest.mock("@honeybadger-io/react", () => {
   }
   return { HoneybadgerErrorBoundary: MockHoneybadgerErrorBoundary };
 });
-
-import { ErrorBoundary } from "ErrorBoundary";
-import honeybadger from "honeybadger";
 
 const ThrowingComponent = () => {
   throw new Error("Test error");

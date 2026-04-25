@@ -1,7 +1,7 @@
 import { postRequest } from "../../fetch";
-import { groupedInks } from "./groupedInks";
-import { UPDATING, ADD_MACRO_CLUSTER } from "../components/clustering/actions";
+import { ADD_MACRO_CLUSTER, UPDATING } from "../components/clustering/actions";
 import { assignCluster } from "./assignCluster";
+import { groupedInks } from "./groupedInks";
 
 export const createMacroClusterAndAssign = (values, microClusterId, dispatch, afterCreate) => {
   dispatch({ type: UPDATING });

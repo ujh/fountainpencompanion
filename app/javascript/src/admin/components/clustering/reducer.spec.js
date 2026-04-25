@@ -1,4 +1,3 @@
-import { reducer, initalState } from "./reducer";
 import {
   ADD_MACRO_CLUSTER,
   ASSIGN_TO_MACRO_CLUSTER,
@@ -14,6 +13,7 @@ import {
   UPDATE_SELECTED_BRANDS,
   UPDATING
 } from "./actions";
+import { initalState, reducer } from "./reducer";
 
 describe("reducer", () => {
   describe("ADD_MACRO_CLUSTER", () => {

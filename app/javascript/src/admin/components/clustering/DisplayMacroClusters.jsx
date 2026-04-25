@@ -1,5 +1,4 @@
 import { useContext, useEffect } from "react";
-
 import { DispatchContext } from "./App";
 import { MacroClusterRows } from "./MacroClusterRows";
 import { NEXT_MACRO_CLUSTER, PREVIOUS_MACRO_CLUSTER } from "./actions";

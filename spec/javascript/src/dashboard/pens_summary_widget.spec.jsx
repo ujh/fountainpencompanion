@@ -1,8 +1,7 @@
 import { render, screen } from "@testing-library/react";
+import { PensSummaryWidget } from "dashboard/pens_summary_widget";
 import { rest } from "msw";
 import { setupServer } from "msw/node";
-
-import { PensSummaryWidget } from "dashboard/pens_summary_widget";
 
 describe("PensSummaryWidget", () => {
   const server = setupServer(

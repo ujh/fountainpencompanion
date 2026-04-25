@@ -1,5 +1,4 @@
 import Jsona from "jsona";
-
 import { getRequest } from "../../fetch";
 import {
   SET_LOADING_PERCENTAGE,

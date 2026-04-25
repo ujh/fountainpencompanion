@@ -1,7 +1,6 @@
 import _ from "lodash";
 import { useContext } from "react";
 import Select from "react-select";
-
 import { DispatchContext, StateContext } from "./App";
 import { UPDATE_SELECTED_BRANDS } from "./actions";
 import { setInBrandSelector } from "./keyDownListener";

@@ -1,8 +1,7 @@
 import { render, screen } from "@testing-library/react";
+import { InksSummaryWidget } from "dashboard/inks_summary_widget";
 import { rest } from "msw";
 import { setupServer } from "msw/node";
-
-import { InksSummaryWidget } from "dashboard/inks_summary_widget";
 
 describe("InksSummaryWidget", () => {
   const server = setupServer(

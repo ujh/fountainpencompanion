@@ -1,5 +1,4 @@
 import Jsona from "jsona";
-
 import { getRequest, putRequest } from "../../fetch";
 import { SET_LOADING_PERCENTAGE, SET_MICRO_CLUSTERS } from "../components/clustering/actions";
 import { groupedPens } from "./groupedPens";

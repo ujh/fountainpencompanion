@@ -12,5 +12,6 @@
   "arrowParens": "always",
   "endOfLine": "lf",
   "singleAttributePerLine": false,
-  "plugins": ["@prettier/plugin-ruby"]
+  "plugins": ["@prettier/plugin-ruby", "@trivago/prettier-plugin-sort-imports"],
+  "importOrder": ["^[./]"]
 }

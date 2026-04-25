@@ -1,5 +1,4 @@
 import { createRoot } from "react-dom/client";
-
 import { ErrorBoundary } from "../../ErrorBoundary";
 import { App } from "../components/clustering/App";
 import { assignCluster } from "./assignCluster";

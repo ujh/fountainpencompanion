@@ -1,9 +1,8 @@
-import { renderHook, act } from "@testing-library/react";
-import { rest } from "msw";
-import { setupServer } from "msw/node";
-
+import { act, renderHook } from "@testing-library/react";
 import { useDashboardPreferences } from "dashboard/useDashboardPreferences";
 import * as storage from "localStorage";
+import { rest } from "msw";
+import { setupServer } from "msw/node";
 
 const server = setupServer(
   rest.get("/account", (req, res, ctx) => {

@@ -1,6 +1,6 @@
 import { createRoot } from "react-dom/client";
-import { Autocomplete } from "../components/Autocomplete";
 import { ErrorBoundary } from "../ErrorBoundary";
+import { Autocomplete } from "../components/Autocomplete";
 
 const CollectedInksAutocomplete = () => {
   // Fetch brand names from API

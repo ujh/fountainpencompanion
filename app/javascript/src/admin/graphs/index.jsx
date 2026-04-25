@@ -1,16 +1,15 @@
 import { createRoot } from "react-dom/client";
-
-import { CollectedInks } from "./CollectedInks";
-import { CollectedPens } from "./CollectedPens";
-import { CurrentlyInked } from "./CurrentlyInked";
-import { SignUps } from "./SignUps";
-import { UsageRecords } from "./UsageRecords";
 // // import { BotSignUps } from "./BotSignUps";
 // import { Spam } from "./Spam";
 import { ErrorBoundary } from "../../ErrorBoundary";
-import { Agents } from "./Agents";
 import { AgentUsage } from "./AgentUsage";
+import { Agents } from "./Agents";
+import { CollectedInks } from "./CollectedInks";
+import { CollectedPens } from "./CollectedPens";
+import { CurrentlyInked } from "./CurrentlyInked";
 import { InkReviewChecks } from "./InkReviewChecks";
+import { SignUps } from "./SignUps";
+import { UsageRecords } from "./UsageRecords";
 
 document.addEventListener("DOMContentLoaded", () => {
   const el = document.getElementById("signups-graph");

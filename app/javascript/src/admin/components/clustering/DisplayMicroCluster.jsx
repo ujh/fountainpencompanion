@@ -1,5 +1,4 @@
 import { useContext } from "react";
-
 import { StateContext } from "./App";
 import { CreateRow } from "./CreateRow";
 import { DisplayMacroClusters } from "./DisplayMacroClusters";

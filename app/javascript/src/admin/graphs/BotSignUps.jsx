@@ -1,7 +1,6 @@
 import Highcharts from "highcharts";
 import HighchartsReact from "highcharts-react-official";
 import { useEffect, useState } from "react";
-
 import { getRequest } from "../../fetch";
 import { Spinner } from "../components/Spinner";
 

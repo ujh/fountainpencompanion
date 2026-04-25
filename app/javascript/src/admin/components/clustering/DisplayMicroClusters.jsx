@@ -1,5 +1,4 @@
 import { useCallback, useContext, useEffect } from "react";
-
 import { DispatchContext, StateContext } from "./App";
 import { DisplayMicroCluster } from "./DisplayMicroCluster";
 import { NEXT, PREVIOUS, REMOVE_MICRO_CLUSTER } from "./actions";

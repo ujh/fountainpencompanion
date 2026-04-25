@@ -1,5 +1,4 @@
 import Jsona from "jsona";
-
 import { getRequest, postRequest } from "../../fetch";
 import {
   ADD_MACRO_CLUSTER,

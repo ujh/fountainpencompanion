@@ -1,28 +1,27 @@
-import "./stylesheets/application.scss";
+import "@popperjs/core";
+import Rails from "@rails/ujs";
+import { Dropdown, Tooltip } from "bootstrap";
 import "core-js/stable";
 import "regenerator-runtime/runtime";
-import Rails from "@rails/ujs";
-
-Rails.start();
-import "./src/slim-select-init";
-import { Tooltip, Dropdown } from "bootstrap";
-import "@popperjs/core";
-
 import "./color-mode";
-import "./src/color-picker";
+import "./src/add-ink-button";
+import "./src/collected-inks-autocomplete";
+import "./src/collected-pens-autocomplete";
 import "./src/collected_inks";
 import "./src/collected_pens";
+import "./src/color-picker";
 import "./src/currently_inked";
 import "./src/dashboard";
-import "./src/add-ink-button";
 import "./src/edit-colors";
 import "./src/ink-search-hint";
 import "./src/public_inks";
-import "./src/collected-inks-autocomplete";
-import "./src/collected-pens-autocomplete";
 import "./src/review-submission";
-import "./src/usage_records";
 import setTimeZone from "./src/setTimeZone";
+import "./src/slim-select-init";
+import "./src/usage_records";
+import "./stylesheets/application.scss";
+
+Rails.start();
 
 window.setTimeZone = setTimeZone;
 

@@ -1,8 +1,7 @@
 import { render, screen } from "@testing-library/react";
+import { buildGrid, UsageVisualizationWidget } from "dashboard/usage_visualization_widget";
 import { rest } from "msw";
 import { setupServer } from "msw/node";
-
-import { UsageVisualizationWidget, buildGrid } from "dashboard/usage_visualization_widget";
 
 beforeAll(() => {
   global.IntersectionObserver = class {

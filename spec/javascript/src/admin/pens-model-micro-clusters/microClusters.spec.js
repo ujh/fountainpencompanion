@@ -1,10 +1,10 @@
+import { SET_LOADING_PERCENTAGE, SET_MICRO_CLUSTERS } from "admin/components/clustering/actions";
 import {
+  assignCluster,
   getMicroClusters,
-  ignoreCluster,
-  assignCluster
+  ignoreCluster
 } from "admin/pens-model-micro-clusters/microClusters";
 import { getRequest, putRequest } from "fetch";
-import { SET_LOADING_PERCENTAGE, SET_MICRO_CLUSTERS } from "admin/components/clustering/actions";
 
 // Mock the fetch functions
 jest.mock("fetch", () => ({

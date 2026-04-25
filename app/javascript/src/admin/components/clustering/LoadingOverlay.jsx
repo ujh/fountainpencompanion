@@ -1,5 +1,4 @@
 import { useContext } from "react";
-
 import { StateContext } from "./App";
 
 export const LoadingOverlay = () => {

@@ -1,6 +1,6 @@
 import { createRoot } from "react-dom/client";
-import { Autocomplete } from "../components/Autocomplete";
 import { ErrorBoundary } from "../ErrorBoundary";
+import { Autocomplete } from "../components/Autocomplete";
 
 const CollectedPensAutocomplete = () => {
   // Simple fetch function for endpoints that return an array directly

@@ -1,5 +1,4 @@
 import React, { useEffect, useReducer } from "react";
-
 import { Spinner } from "../Spinner";
 import { BrandSelector } from "./BrandSelector";
 import { DisplayMicroClusters } from "./DisplayMicroClusters";

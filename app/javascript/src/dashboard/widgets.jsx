@@ -2,7 +2,6 @@ import Jsona from "jsona";
 import ResizeObserver from "rc-resize-observer";
 import React, { useEffect, useState } from "react";
 import TrackVisibility from "react-on-screen";
-
 import { getRequest } from "../fetch";
 
 const formatter = new Jsona();

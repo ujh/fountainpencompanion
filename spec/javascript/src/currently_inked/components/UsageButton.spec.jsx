@@ -1,9 +1,8 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { UsageButton } from "currently_inked/components/UsageButton";
 import { rest } from "msw";
 import { setupServer } from "msw/node";
-
-import { UsageButton } from "currently_inked/components/UsageButton";
 
 const jsonApiResponse = {
   data: {

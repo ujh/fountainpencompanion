@@ -1,8 +1,7 @@
 import { render, screen } from "@testing-library/react";
+import { PensGroupedByBrandWidget } from "dashboard/pens_grouped_by_brand_widget";
 import { rest } from "msw";
 import { setupServer } from "msw/node";
-
-import { PensGroupedByBrandWidget } from "dashboard/pens_grouped_by_brand_widget";
 
 describe("PensGroupedByBrandWidget", () => {
   const server = setupServer(

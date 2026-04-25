@@ -1,4 +1,4 @@
-import { ignoreCluster, assignCluster } from "admin/pens-micro-clusters/microClusters";
+import { assignCluster, ignoreCluster } from "admin/pens-micro-clusters/microClusters";
 import * as fetchModule from "fetch";
 
 // Mock the fetch functions
