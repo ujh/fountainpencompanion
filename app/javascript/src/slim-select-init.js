@@ -11,6 +11,7 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   if (penSelect) {
+    penSelect.classList.remove("form-control", "form-select");
     new SlimSelect({
       select: penSelect,
       settings: {
@@ -21,6 +22,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   if (inkSelect) {
+    inkSelect.classList.remove("form-control", "form-select");
     new SlimSelect({
       select: inkSelect,
       settings: {
