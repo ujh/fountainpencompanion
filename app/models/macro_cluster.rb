@@ -102,6 +102,8 @@ class MacroCluster < ApplicationRecord
 
   # NOTE: This is not performant, and should only be used in the background
   def self.embedding_search(query)
+    return [] if query.blank?
+
     connection.execute("SET hnsw.ef_search = 200")
     query_embedding = EmbeddingsClient.new.fetch(query)
     # This needs to do multiple queries as it is not possible to do the filtering

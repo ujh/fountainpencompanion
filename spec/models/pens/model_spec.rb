@@ -36,4 +36,13 @@ describe Pens::Model do
       expect(described_class.search("two")).to eq([m2])
     end
   end
+
+  describe "embedding_search" do
+    it "returns an empty array for a blank query without calling the embeddings client" do
+      expect(EmbeddingsClient).not_to receive(:new)
+
+      expect(described_class.embedding_search(nil)).to eq([])
+      expect(described_class.embedding_search("")).to eq([])
+    end
+  end
 end
