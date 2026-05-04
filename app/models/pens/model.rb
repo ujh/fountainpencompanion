@@ -28,6 +28,8 @@ class Pens::Model < ApplicationRecord
   end
 
   def self.embedding_search(query)
+    return [] if query.blank?
+
     connection.execute("SET hnsw.ef_search = 1000")
     query_embedding = EmbeddingsClient.new.fetch(query)
     model_embeddings =
