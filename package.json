@@ -2,7 +2,7 @@
   "license": "UNLICENSED",
   "dependencies": {
     "@babel/core": "^7.29.0",
-    "@babel/preset-env": "^7.29.3",
+    "@babel/preset-env": "^7.29.5",
     "@babel/preset-react": "^7.28.5",
     "@honeybadger-io/js": "^6.12.3",
     "@honeybadger-io/react": "^6.1.27",
