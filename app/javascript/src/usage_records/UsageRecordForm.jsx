@@ -45,6 +45,11 @@ const csrfToken = () => {
   return el ? el.getAttribute("content") : null;
 };
 
+const fullName = (entry) => `${entry.pen_name} - ${entry.ink_name}`;
+
+const sortByFullName = (a, b) =>
+  fullName(a).localeCompare(fullName(b), undefined, { sensitivity: "base" });
+
 export const UsageRecordForm = () => {
   const [entries, setEntries] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -58,13 +63,7 @@ export const UsageRecordForm = () => {
       try {
         const active = await fetchAllCurrentlyInked("false");
 
-        const sortByInkedOn = (a, b) => {
-          if (a.inked_on < b.inked_on) return -1;
-          if (a.inked_on > b.inked_on) return 1;
-          return 0;
-        };
-
-        active.sort(sortByInkedOn);
+        active.sort(sortByFullName);
 
         setEntries(active.map((e) => ({ ...e, group: "active" })));
       } finally {
@@ -94,13 +93,7 @@ export const UsageRecordForm = () => {
       try {
         const archived = await fetchAllCurrentlyInked("true");
 
-        const sortByInkedOn = (a, b) => {
-          if (a.inked_on < b.inked_on) return -1;
-          if (a.inked_on > b.inked_on) return 1;
-          return 0;
-        };
-
-        archived.sort(sortByInkedOn);
+        archived.sort(sortByFullName);
 
         if (!cancelled) {
           setEntries((prev) => [

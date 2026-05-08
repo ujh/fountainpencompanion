@@ -229,4 +229,125 @@ describe("<UsageRecordForm />", () => {
     const form = select.closest("form");
     expect(form.getAttribute("action")).toBe("/currently_inked/1/usage_record");
   });
+
+  it("orders active entries alphabetically by full name", async () => {
+    const zebra = {
+      id: "10",
+      type: "currently_inked",
+      attributes: {
+        inked_on: "2024-01-01",
+        archived_on: null,
+        pen_name: "Zebra Pen",
+        ink_name: "Zebra Ink",
+        archived: false
+      },
+      relationships: {}
+    };
+    const apple = {
+      id: "11",
+      type: "currently_inked",
+      attributes: {
+        inked_on: "2026-01-01",
+        archived_on: null,
+        pen_name: "Apple Pen",
+        ink_name: "Apple Ink",
+        archived: false
+      },
+      relationships: {}
+    };
+    const middle = {
+      id: "12",
+      type: "currently_inked",
+      attributes: {
+        inked_on: "2025-01-01",
+        archived_on: null,
+        pen_name: "Mango Pen",
+        ink_name: "Mango Ink",
+        archived: false
+      },
+      relationships: {}
+    };
+
+    server.use(
+      rest.get("/api/v1/currently_inked.json", (req, res, ctx) => {
+        const archived = req.url.searchParams.get("filter[archived]");
+        if (archived === "false") {
+          return res(ctx.json(makeResponse([zebra, apple, middle])));
+        }
+        return res(ctx.json(makeResponse([])));
+      })
+    );
+
+    setup(<UsageRecordForm />);
+
+    await screen.findByLabelText("Currently inked");
+
+    const labels = screen
+      .getAllByRole("option")
+      .map((o) => o.textContent)
+      .filter((t) => t.includes(" - "));
+
+    expect(labels).toEqual([
+      "Apple Pen - Apple Ink",
+      "Mango Pen - Mango Ink",
+      "Zebra Pen - Zebra Ink"
+    ]);
+  });
+
+  it("orders archived entries alphabetically by full name", async () => {
+    const zebra = {
+      id: "20",
+      type: "currently_inked",
+      attributes: {
+        inked_on: "2024-01-01",
+        archived_on: "2024-12-31",
+        pen_name: "Zebra Pen",
+        ink_name: "Zebra Ink",
+        archived: true
+      },
+      relationships: {}
+    };
+    const apple = {
+      id: "21",
+      type: "currently_inked",
+      attributes: {
+        inked_on: "2025-01-01",
+        archived_on: "2025-12-31",
+        pen_name: "Apple Pen",
+        ink_name: "Apple Ink",
+        archived: true
+      },
+      relationships: {}
+    };
+
+    server.use(
+      rest.get("/api/v1/currently_inked.json", (req, res, ctx) => {
+        const archived = req.url.searchParams.get("filter[archived]");
+        if (archived === "false") {
+          return res(ctx.json(makeResponse([activeEntry])));
+        }
+        if (archived === "true") {
+          return res(ctx.json(makeResponse([zebra, apple])));
+        }
+        return res(ctx.json(makeResponse([])));
+      })
+    );
+
+    const { user } = setup(<UsageRecordForm />);
+
+    await screen.findByLabelText("Currently inked");
+    await user.click(screen.getByLabelText("Include archived entries"));
+
+    await screen.findByText(/Apple Pen - Apple Ink/);
+
+    const labels = screen
+      .getAllByRole("option")
+      .map((o) => o.textContent)
+      .filter((t) => t.includes(" - "));
+
+    const appleIdx = labels.findIndex((l) => l.startsWith("Apple Pen"));
+    const zebraIdx = labels.findIndex((l) => l.startsWith("Zebra Pen"));
+    expect(appleIdx).toBeGreaterThanOrEqual(0);
+    expect(zebraIdx).toBeGreaterThan(appleIdx);
+  });
 });
