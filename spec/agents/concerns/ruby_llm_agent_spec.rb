@@ -163,6 +163,71 @@ RSpec.describe RubyLlmAgent do
       result = agent.send(:trim_dangling_tool_calls, transcript)
       expect(result.length).to eq(1)
     end
+
+    it "truncates at an assistant with parallel tool_calls when one response is missing" do
+      transcript = [
+        { role: "user", content: "hello" },
+        {
+          role: "assistant",
+          content: "",
+          tool_calls: [
+            { id: "call_a", name: "my_tool", arguments: {} },
+            { id: "call_b", name: "my_tool", arguments: {} }
+          ]
+        },
+        { role: "tool", content: "result a", tool_call_id: "call_a" }
+      ]
+
+      result = agent.send(:trim_dangling_tool_calls, transcript)
+      expect(result.length).to eq(1)
+      expect(result.first[:role].to_s).to eq("user")
+    end
+
+    it "keeps an assistant with parallel tool_calls when all responses are present" do
+      transcript = [
+        { role: "user", content: "hello" },
+        {
+          role: "assistant",
+          content: "",
+          tool_calls: [
+            { id: "call_a", name: "my_tool", arguments: {} },
+            { id: "call_b", name: "my_tool", arguments: {} }
+          ]
+        },
+        { role: "tool", content: "result a", tool_call_id: "call_a" },
+        { role: "tool", content: "result b", tool_call_id: "call_b" }
+      ]
+
+      result = agent.send(:trim_dangling_tool_calls, transcript)
+      expect(result.length).to eq(4)
+    end
+
+    it "truncates at a mid-transcript assistant whose tool response is missing" do
+      transcript = [
+        { role: "user", content: "hello" },
+        {
+          role: "assistant",
+          content: "",
+          tool_calls: [{ id: "call_1", name: "my_tool", arguments: {} }]
+        },
+        { role: "user", content: "nudge" }
+      ]
+
+      result = agent.send(:trim_dangling_tool_calls, transcript)
+      expect(result.length).to eq(1)
+      expect(result.first[:role].to_s).to eq("user")
+    end
+
+    it "leaves transcripts with no tool_calls untouched" do
+      transcript = [
+        { role: "user", content: "hello" },
+        { role: "assistant", content: "hi there" },
+        { role: "user", content: "thanks" }
+      ]
+
+      result = agent.send(:trim_dangling_tool_calls, transcript)
+      expect(result.length).to eq(3)
+    end
   end
 
   describe "#ask!" do
