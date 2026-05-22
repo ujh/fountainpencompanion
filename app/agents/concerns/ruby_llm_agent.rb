@@ -167,19 +167,29 @@ module RubyLlmAgent
     end
   end
 
-  # If the transcript ends with an assistant message containing tool_calls
-  # but the corresponding tool responses are missing (e.g. due to a crash),
-  # remove the dangling assistant message so the API won't reject the transcript.
+  # Enforce the OpenAI invariant: every tool_call_id in an assistant message
+  # must be followed by a tool message with that tool_call_id. If a worker
+  # crashed mid-tool-loop the saved transcript can violate this — sometimes
+  # with the dangling assistant at the end (single tool_call), sometimes in
+  # the middle (parallel tool_calls partially completed, or an ask! nudge
+  # appended after a partial save). Walk the transcript and truncate at the
+  # first assistant-with-tool_calls that is missing any response.
   def trim_dangling_tool_calls(transcript)
     entries = transcript.map(&:deep_symbolize_keys)
-    return entries if entries.empty?
 
-    last = entries.last
-    if last[:tool_calls].present? && last[:role].to_s == "assistant"
-      entries[0...-1]
-    else
-      entries
+    entries.each_with_index do |entry, idx|
+      next unless entry[:role].to_s == "assistant" && entry[:tool_calls].present?
+
+      required_ids = entry[:tool_calls].map { |tc| tc.deep_symbolize_keys[:id] }
+      later_tool_ids =
+        entries[(idx + 1)..].each_with_object([]) do |e, acc|
+          acc << e[:tool_call_id] if e[:role].to_s == "tool" && e[:tool_call_id]
+        end
+
+      return entries[0...idx] unless required_ids.all? { |id| later_tool_ids.include?(id) }
     end
+
+    entries
   end
 
   def deserialize_tool_calls(tool_calls_array)
