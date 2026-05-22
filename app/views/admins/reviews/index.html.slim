@@ -64,4 +64,13 @@ table class="table table-striped"
         pre= JSON.pretty_generate(ink_review.extra_data)
         pre= JSON.pretty_generate(ink_review.ink_review_submissions.pluck(:extra_data))
 
+    - review_log = ink_review.agent_logs.select { |l| l.name == "ReviewApprover" }.max_by(&:created_at)
+    - if review_log&.transcript.present?
+      dt class="col-sm-3" Transcript
+      dd class="col-sm-9"
+        details
+          summary= "Show LLM conversation (#{review_log.transcript.size} messages)"
+          - review_log.transcript.each do |message|
+            pre= jsonify(message)
+
 = paginate @ink_reviews
