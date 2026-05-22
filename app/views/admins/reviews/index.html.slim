@@ -16,7 +16,27 @@ table class="table table-striped"
         td= number_to_percentage value[:incorrect_percentage]
 
 - @ink_reviews.each do |ink_review|
+  - action = ink_review.extra_data&.dig("action")
+  - explanation = ink_review.extra_data&.dig("explanation_of_decision")
   dl class="row" id="admin_ink_review"
+    - if action.present?
+      - emoji = action == "approve_review" ? "✅" : (action == "reject_review" ? "❌" : "ℹ️")
+      dt class="col-sm-3" Action Taken
+      dd class="col-sm-9"
+        = emoji
+        b= " #{action} "
+        = emoji
+    - if explanation.present?
+      dt class="col-sm-3" Explanation
+      dd class="col-sm-9"= explanation
+
+    dt class="col-sm-3" Actions
+    dd class="col-sm-9"
+      = link_to "Approve (a)", admins_review_path(ink_review, page: params[:page]), method: :put, class: 'btn btn-success me-2', data: { shortcut: "approve" }
+      = link_to "Reject (r)", admins_review_path(ink_review, page: params[:page]), method: :delete, class: 'btn btn-danger', data: { shortcut: "reject" }
+      - if ink_review.you_tube_channel.present?
+        = link_to "Reject AND ignore channel", admins_review_path(ink_review, page: params[:page], ignore_youtube_channel: true), method: :delete, class: 'btn btn-secondary ms-2'
+
     dt class="col-sm-3" Ink
     dd class="col-sm-9" = link_to ink_review.macro_cluster.name, ink_path(ink_review.macro_cluster)
 
@@ -37,13 +57,6 @@ table class="table table-striped"
 
     dt class="col-sm-3" Image
     dd class="col-sm-9"= image_tag(ink_review.image)
-
-    dt class="col-sm-3" Actions
-    dd class="col-sm-9"
-      = link_to "Approve",  admins_review_path(ink_review, page: params[:page]), method: :put, class: 'btn btn-success me-2'
-      = link_to "Reject", admins_review_path(ink_review, page: params[:page]), method: :delete, class: 'btn btn-secondary'
-      - if ink_review.you_tube_channel.present?
-        = link_to "Reject AND ignore channel", admins_review_path(ink_review, page: params[:page], ignore_youtube_channel: true), method: :delete, class: 'btn btn-secondary ms-2'
 
     - if ink_review.extra_data.present?
       dt class="col-sm-3" Extra Data
