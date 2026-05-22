@@ -32,6 +32,7 @@ class Admins::Agents::InkClustererController < Admins::BaseController
   end
 
   def destroy
+    persist_manual_rejection_note!
     if agent_log.agent_approved?
       if agent_log.approved?
         # If agent approved it, but it needed to be rejected we need to clean
@@ -51,7 +52,16 @@ class Admins::Agents::InkClustererController < Admins::BaseController
   private
 
   def agent_log
-    AgentLog.find(params[:id])
+    @agent_log ||= AgentLog.find(params[:id])
+  end
+
+  def persist_manual_rejection_note!
+    note = params[:manual_rejection_note].to_s.strip
+    return if note.blank?
+
+    agent_log.update!(
+      extra_data: (agent_log.extra_data || {}).merge("manual_rejection_note" => note)
+    )
   end
 
   def micro_cluster

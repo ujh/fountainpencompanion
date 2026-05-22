@@ -5,9 +5,11 @@ import "core-js/stable";
 import "regenerator-runtime/runtime";
 import "./color-mode";
 import "./src/admin/graphs";
+import "./src/admin/ink-clusterer-shortcuts";
 import "./src/admin/micro-clusters";
 import "./src/admin/pens-micro-clusters";
 import "./src/admin/pens-model-micro-clusters";
+import "./src/admin/reject-with-note";
 import "./src/admin/stats";
 import "./stylesheets/admin.scss";
 
