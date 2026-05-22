@@ -220,29 +220,39 @@ class InkClusterer
   end
 
   def reject!(agent: false)
-    to_reprocess = [micro_cluster]
-    to_reprocess += Array(clean_up_rejected_approval!) if agent_log.approved?
-    to_reprocess = to_reprocess.uniq.reject { |mi| mi.collected_inks.empty? }
-    to_reprocess.map(&:touch)
-    agent ? agent_log.reject_by_agent! : agent_log.reject!
-    to_reprocess
+    AgentLog.transaction do
+      agent_log.lock!
+      return [] if agent_log.state == AgentLog::REJECTED
+
+      to_reprocess = [micro_cluster]
+      to_reprocess += Array(clean_up_rejected_approval!) if agent_log.approved?
+      to_reprocess = to_reprocess.uniq.reject { |mi| mi.collected_inks.empty? }
+      to_reprocess.map(&:touch)
+      agent ? agent_log.reject_by_agent! : agent_log.reject!
+      to_reprocess
+    end
   end
 
   def approve!(agent: false)
-    case agent_log.extra_data["action"]
-    when "assign_to_cluster"
-      micro_cluster.update!(macro_cluster_id: agent_log.extra_data["cluster_id"])
-      UpdateMicroCluster.perform_async(micro_cluster.id)
-    when "create_new_cluster"
-      cluster = MacroCluster.create!(ink_name: SecureRandom.uuid)
-      micro_cluster.update!(macro_cluster_id: cluster.id)
-      UpdateMicroCluster.perform_async(micro_cluster.id)
-    when "ignore_ink"
-      micro_cluster.update!(ignored: true)
-    when "hand_over_to_human"
-      micro_cluster.touch # Move it to the end of the queue for now
+    AgentLog.transaction do
+      agent_log.lock!
+      return if agent_log.approved?
+
+      case agent_log.extra_data["action"]
+      when "assign_to_cluster"
+        micro_cluster.update!(macro_cluster_id: agent_log.extra_data["cluster_id"])
+        UpdateMicroCluster.perform_async(micro_cluster.id)
+      when "create_new_cluster"
+        cluster = MacroCluster.create!(ink_name: SecureRandom.uuid)
+        micro_cluster.update!(macro_cluster_id: cluster.id)
+        UpdateMicroCluster.perform_async(micro_cluster.id)
+      when "ignore_ink"
+        micro_cluster.update!(ignored: true)
+      when "hand_over_to_human"
+        micro_cluster.touch # Move it to the end of the queue for now
+      end
+      agent ? agent_log.approve_by_agent! : agent_log.approve!
     end
-    agent ? agent_log.approve_by_agent! : agent_log.approve!
   end
 
   private
