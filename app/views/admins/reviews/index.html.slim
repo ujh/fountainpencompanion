@@ -40,12 +40,27 @@ table class="table table-striped"
 
     dt class="col-sm-3" Actions
     dd class="col-sm-9"
-      = link_to "Approve",  admins_review_path(ink_review, page: params[:page]), method: :put, class: 'btn btn-success me-2'
-      = link_to "Reject", admins_review_path(ink_review, page: params[:page]), method: :delete, class: 'btn btn-secondary'
-      - if ink_review.you_tube_channel.present?
-        = link_to "Reject AND ignore channel", admins_review_path(ink_review, page: params[:page], ignore_youtube_channel: true), method: :delete, class: 'btn btn-secondary ms-2'
+      - if ink_review.approved?
+        = link_to "Approve", admins_review_path(ink_review, page: params[:page]), method: :put, class: 'btn btn-success me-2'
+        = link_to "Reject approval", admins_review_path(ink_review, page: params[:page]), method: :delete, class: 'btn btn-danger'
+        - if ink_review.you_tube_channel.present?
+          = link_to "Reject approval AND ignore channel", admins_review_path(ink_review, page: params[:page], ignore_youtube_channel: true), method: :delete, class: 'btn btn-danger ms-2'
+      - else
+        = link_to "Approve rejection", admins_review_path(ink_review, page: params[:page]), method: :delete, class: 'btn btn-success me-2'
+        = link_to "Should have been approved", admins_review_path(ink_review, page: params[:page]), method: :put, class: 'btn btn-danger'
+        - if ink_review.you_tube_channel.present?
+          = link_to "Approve rejection AND ignore channel", admins_review_path(ink_review, page: params[:page], ignore_youtube_channel: true), method: :delete, class: 'btn btn-success ms-2'
 
     - if ink_review.extra_data.present?
+      - action = ink_review.extra_data["action"]
+      - explanation = ink_review.extra_data["explanation_of_decision"]
+      - if action.present?
+        dt class="col-sm-3" Action Taken
+        dd class="col-sm-9"
+          b= action
+      - if explanation.present?
+        dt class="col-sm-3" Explanation
+        dd class="col-sm-9"= explanation
       dt class="col-sm-3" Extra Data
       dd class="col-sm-9"
         pre= JSON.pretty_generate(ink_review.extra_data)
