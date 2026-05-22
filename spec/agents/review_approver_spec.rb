@@ -620,6 +620,35 @@ RSpec.describe ReviewApprover do
         expect(approved_data).to be_an(Array)
         expect(rejected_data).to be_an(Array)
       end
+
+      it "matches reviews whose extra_data has keys beyond `action`" do
+        approved_with_explanation =
+          create(
+            :ink_review,
+            title: "Approved with explanation",
+            url: "https://example.com/approved-explanation",
+            macro_cluster: macro_cluster,
+            approved_at: 1.day.ago,
+            extra_data: {
+              action: "approve_review",
+              explanation_of_decision: "Looks like a real review"
+            }
+          )
+        create(
+          :ink_review_submission,
+          ink_review: approved_with_explanation,
+          user: user,
+          macro_cluster: macro_cluster,
+          url: approved_with_explanation.url
+        )
+
+        approver = described_class.new(ink_review.id)
+        approved_message = approver.send(:approved_reviews_data)
+        approved_data =
+          JSON.parse(approved_message.gsub("Here are some examples of approved reviews: ", ""))
+
+        expect(approved_data.map { |r| r["title"] }).to include("Approved with explanation")
+      end
     end
 
     describe "#format_cluster_data" do

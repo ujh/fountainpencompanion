@@ -177,8 +177,8 @@ class ReviewApprover
     data =
       [admin_reviews, user_reviews].flat_map do |relation|
           [
-            relation.where(extra_data: { action: "approve_review" }),
-            relation.where(extra_data: { action: "reject_review" })
+            relation.where("ink_reviews.extra_data->>'action' = ?", "approve_review"),
+            relation.where("ink_reviews.extra_data->>'action' = ?", "reject_review")
           ]
         end
         .flat_map { |relation| relation.approved.limit(5).map { |r| format_review_data(r) } }
@@ -189,8 +189,8 @@ class ReviewApprover
     data =
       [admin_reviews, user_reviews].flat_map do |relation|
           [
-            relation.where(extra_data: { action: "approve_review" }),
-            relation.where(extra_data: { action: "reject_review" })
+            relation.where("ink_reviews.extra_data->>'action' = ?", "approve_review"),
+            relation.where("ink_reviews.extra_data->>'action' = ?", "reject_review")
           ]
         end
         .flat_map { |relation| relation.rejected.limit(5).map { |r| format_review_data(r) } }

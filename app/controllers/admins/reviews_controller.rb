@@ -42,51 +42,61 @@ class Admins::ReviewsController < Admins::BaseController
         .pluck(:id)
     rel = InkReview.where(id: ids)
 
-    analysis = { total: {}, approved: {}, rejected: {} }
+    analysis = {}
+    analysis[:total] = stats_for(rel)
 
-    approved = rel.approved
-    approved_correct = approved.where(extra_data: { action: "approve_review" })
-    approved_incorrect = approved.where(extra_data: { action: "reject_review" })
-    analysis[:approved] = {
-      count: approved.count,
-      correct: approved_correct.count,
-      incorrect: approved_incorrect.count
-    }
+    actions = rel.distinct.pluck(Arel.sql("extra_data->>'action'")).compact.sort
+    actions.each { |action| analysis[action] = stats_for(rel, agent_action: action) }
 
-    rejected = rel.rejected
-    rejected_correct = rejected.where(extra_data: { action: "reject_review" })
-    rejected_incorrect = rejected.where(extra_data: { action: "approve_review" })
-    analysis[:rejected] = {
-      count: rejected.count,
-      correct: rejected_correct.count,
-      incorrect: rejected_incorrect.count
-    }
-
-    analysis[:approved].keys.each do |key|
-      analysis[:total][key] = analysis[:approved][key] + analysis[:rejected][key]
-    end
-
-    agent_submitted =
-      rel
-        .joins(:ink_review_submissions)
-        .where(ink_review_submissions: { user: User.find_by(email: "urban@bettong.net") })
-        .where("ink_reviews.created_at > ?", Time.parse("2025-05-08 12:25 +0200"))
-
-    analysis[:agent_submitted] = {
-      count: agent_submitted.count,
-      correct: agent_submitted.approved.count,
-      incorrect: agent_submitted.rejected.count
-    }
-
-    %i[total approved rejected agent_submitted].each do |key|
-      analysis[key][:correct_percentage] = (
-        analysis[key][:correct].to_f / analysis[key][:count].to_f * 100
-      )
-      analysis[key][:incorrect_percentage] = (
-        analysis[key][:incorrect].to_f / analysis[key][:count].to_f * 100
-      )
-    end
-
+    analysis[:agent_submitted] = stats_for_agent_submitted(rel)
     analysis
+  end
+
+  def stats_for(rel, agent_action: nil)
+    scope = agent_action ? rel.where("extra_data->>'action' = ?", agent_action) : rel
+    approved = scope.approved.count
+    rejected = scope.rejected.count
+    count = approved + rejected
+
+    case agent_action
+    when "approve_review"
+      correct = approved
+      incorrect = rejected
+    when "reject_review"
+      correct = rejected
+      incorrect = approved
+    else
+      correct =
+        scope.approved.where("extra_data->>'action' = ?", "approve_review").count +
+          scope.rejected.where("extra_data->>'action' = ?", "reject_review").count
+      incorrect = count - correct
+    end
+
+    { count: count, correct: correct, incorrect: incorrect }.merge(
+      percentages(count, correct, incorrect)
+    )
+  end
+
+  def stats_for_agent_submitted(rel)
+    agent_submitted =
+      rel.joins(:ink_review_submissions).where(
+        ink_review_submissions: {
+          user: User.find_by(email: "urban@bettong.net")
+        }
+      )
+    count = agent_submitted.count
+    correct = agent_submitted.approved.count
+    incorrect = agent_submitted.rejected.count
+    { count: count, correct: correct, incorrect: incorrect }.merge(
+      percentages(count, correct, incorrect)
+    )
+  end
+
+  def percentages(count, correct, incorrect)
+    return { correct_percentage: 0.0, incorrect_percentage: 0.0 } if count.zero?
+    {
+      correct_percentage: correct.to_f / count * 100,
+      incorrect_percentage: incorrect.to_f / count * 100
+    }
   end
 end
