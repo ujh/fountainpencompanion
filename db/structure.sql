@@ -576,7 +576,11 @@ CREATE TABLE public.ink_reviews (
     you_tube_short boolean DEFAULT false,
     agent_approved boolean DEFAULT false,
     next_check_at timestamp(6) without time zone,
-    check_count integer DEFAULT 0 NOT NULL
+    check_count integer DEFAULT 0 NOT NULL,
+    youtube_tags jsonb DEFAULT '[]'::jsonb NOT NULL,
+    youtube_comments jsonb DEFAULT '[]'::jsonb NOT NULL,
+    youtube_captions text,
+    youtube_metadata_fetched_at timestamp(6) without time zone
 );
 
 
@@ -2389,6 +2393,7 @@ ALTER TABLE ONLY public.collected_inks
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20260522123500'),
 ('20260413083719'),
 ('20260325150042'),
 ('20260308164655'),

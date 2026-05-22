@@ -42,6 +42,16 @@ RSpec.describe ReviewFinder do
 
   subject { described_class.new(page) }
 
+  def user_message_text(body)
+    user_msg = body["messages"].find { |m| m["role"] == "user" }
+    content = user_msg&.[]("content")
+    return content if content.is_a?(String)
+    return "" unless content.is_a?(Array)
+
+    text_part = content.find { |p| p["type"] == "text" }
+    text_part&.[]("text") || ""
+  end
+
   describe "#initialize" do
     it "creates agent with correct page" do
       finder = described_class.new(page)
@@ -171,13 +181,17 @@ RSpec.describe ReviewFinder do
         )
       end
 
-      it "returns message for YouTube videos without calling WebPageSummarizer" do
+      it "summarizes YouTube videos via YoutubeSummarizer" do
         allow(WebPageSummarizer).to receive(:new)
+        allow(YoutubeSummarizer).to receive(:new).with(
+          tool_agent_log,
+          youtube_unfurler_result
+        ).and_return(double(perform: "Reviews Pilot Tsuki-yo."))
 
         tool = described_class.new(youtube_unfurler_result, tool_agent_log)
         result = tool.call({})
 
-        expect(result).to eq("This is a Youtube video. I can't summarize it.")
+        expect(result).to eq("Here is a summary of the YouTube video:\n\nReviews Pilot Tsuki-yo.")
         expect(WebPageSummarizer).not_to have_received(:new)
       end
     end
@@ -344,14 +358,75 @@ RSpec.describe ReviewFinder do
         expect(WebMock).to have_requested(:post, openai_url)
           .with { |req|
             body = JSON.parse(req.body)
-            content = body["messages"].find { |m| m["role"] == "user" }&.[]("content")
+            text = user_message_text(body)
 
-            expect(content).to include("page data")
-            expect(content).to include(page.url)
+            expect(text).to include("page data")
+            expect(text).to include(page.url)
 
             true
           }
           .at_least_once
+      end
+
+      it "attaches the thumbnail as an image_url part" do
+        subject.perform
+
+        expect(WebMock).to have_requested(:post, openai_url)
+          .with { |req|
+            body = JSON.parse(req.body)
+            user_msg = body["messages"].find { |m| m["role"] == "user" }
+            parts = user_msg["content"]
+
+            parts.is_a?(Array) &&
+              parts.any? do |p|
+                p["type"] == "image_url" && p["image_url"]["url"] == unfurler_result.image
+              end
+          }
+          .at_least_once
+      end
+
+      context "with a YouTube page" do
+        let(:youtube_unfurler_result_with_metadata) do
+          Unfurler::Result.new(
+            "https://www.youtube.com/watch?v=abc123",
+            "YouTube Ink Review",
+            "Video review",
+            "https://img.youtube.com/vi/abc123/maxresdefault.jpg",
+            "Channel",
+            "UC123",
+            false,
+            nil,
+            {
+              tags: %w[fountain-pen ink-review],
+              comments: [{ author: "Eve", text: "Loved this!", like_count: 3 }],
+              captions: "Today we review Pilot Tsuki-yo."
+            }
+          )
+        end
+
+        before do
+          allow_any_instance_of(Unfurler).to receive(:perform).and_return(
+            youtube_unfurler_result_with_metadata
+          )
+        end
+
+        it "passes through the full YouTube metadata in the prompt JSON" do
+          subject.perform
+
+          expect(WebMock).to have_requested(:post, openai_url)
+            .with { |req|
+              body = JSON.parse(req.body)
+              text = user_message_text(body)
+
+              expect(text).to include("fountain-pen")
+              expect(text).to include("ink-review")
+              expect(text).to include("Loved this!")
+              expect(text).to include("Today we review Pilot Tsuki-yo")
+
+              true
+            }
+            .at_least_once
+        end
       end
     end
 

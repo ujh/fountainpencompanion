@@ -93,7 +93,8 @@ describe ProcessInkReviewSubmission do
             description: "description",
             thumbnails: double(:thumbnails, maxres: double(:t, url: "url")),
             channel_title: "channel title",
-            channel_id: "channel_id"
+            channel_id: "channel_id",
+            tags: %w[ink review fountain-pen]
           }
         )
       video = double(:video, snippet: video_snippet)
@@ -133,6 +134,22 @@ describe ProcessInkReviewSubmission do
       described_class.new.perform(ink_review_submission.id)
       review = InkReview.first
       expect(review.you_tube_short).to eq(true)
+    end
+
+    it "persists youtube tags from the video snippet" do
+      described_class.new.perform(ink_review_submission.id)
+      review = InkReview.first
+      expect(review.youtube_tags).to eq(%w[ink review fountain-pen])
+    end
+
+    it "does not fetch comments or captions during submission processing" do
+      expect(Unfurler::Youtube::Comments).not_to receive(:new)
+      expect(Unfurler::Youtube::Captions).not_to receive(:new)
+      described_class.new.perform(ink_review_submission.id)
+      review = InkReview.first
+      expect(review.youtube_comments).to eq([])
+      expect(review.youtube_captions).to be_nil
+      expect(review.youtube_metadata_fetched_at).to be_nil
     end
   end
 

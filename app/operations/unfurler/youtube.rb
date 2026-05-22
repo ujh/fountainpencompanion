@@ -5,7 +5,9 @@ class Unfurler
     end
 
     def perform
-      Result.new(url, title, description, image, author, channel_id, is_short)
+      result =
+        Result.new(url, title, description, image, author, channel_id, is_short, nil, youtube_data)
+      result
     end
 
     private
@@ -40,6 +42,12 @@ class Unfurler
 
     def is_short
       Faraday.get("https://www.youtube.com/shorts/#{video_id}").status == 200
+    end
+
+    # Eager: tags ship with the snippet call we already make. Comments and
+    # captions are fetched lazily by the caller when needed.
+    def youtube_data
+      { tags: Array(video.snippet.tags), comments: nil, captions: nil }
     end
 
     def video

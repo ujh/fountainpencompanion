@@ -128,6 +128,16 @@ RSpec.describe ReviewApprover do
 
   subject { described_class.new(ink_review.id) }
 
+  def user_message_text(body)
+    user_msg = body["messages"].find { |m| m["role"] == "user" }
+    content = user_msg&.[]("content")
+    return content if content.is_a?(String)
+    return "" unless content.is_a?(Array)
+
+    text_part = content.find { |p| p["type"] == "text" }
+    text_part&.[]("text") || ""
+  end
+
   describe "#initialize" do
     it "creates agent with correct owner" do
       approver = described_class.new(ink_review.id)
@@ -279,16 +289,22 @@ RSpec.describe ReviewApprover do
         )
       end
 
-      it "returns message for YouTube videos without calling WebPageSummarizer" do
-        allow(Unfurler).to receive(:new).with(ink_review.url).and_return(
-          double(perform: youtube_unfurler_result)
+      it "summarizes YouTube videos via YoutubeSummarizer" do
+        ink_review.update!(
+          you_tube_channel: youtube_channel,
+          url: "https://www.youtube.com/watch?v=abc123"
         )
+        allow(ink_review).to receive(:ensure_youtube_metadata!)
         allow(WebPageSummarizer).to receive(:new)
+        allow(YoutubeSummarizer).to receive(:new).with(tool_agent_log, ink_review).and_return(
+          double(perform: "Reviews Pilot Tsuki-yo.")
+        )
 
         tool = described_class.new(ink_review, tool_agent_log)
         result = tool.call({})
 
-        expect(result).to eq("This is a Youtube video. I can't summarize it.")
+        expect(result).to eq("Here is a summary of the YouTube video:\n\nReviews Pilot Tsuki-yo.")
+        expect(ink_review).to have_received(:ensure_youtube_metadata!)
         expect(WebPageSummarizer).not_to have_received(:new)
       end
     end
@@ -426,18 +442,108 @@ RSpec.describe ReviewApprover do
         expect(WebMock).to have_requested(:post, "https://api.openai.com/v1/chat/completions")
           .with { |req|
             body = JSON.parse(req.body)
-            content = body["messages"].find { |m| m["role"] == "user" }&.[]("content")
+            text = user_message_text(body)
 
-            expect(content).to include("The data for the ink is:")
-            expect(content).to include("Pilot Iroshizuku Tsuki-yo")
-            expect(content).to include("The review data is:")
-            expect(content).to include("Great ink review")
-            expect(content).to include("Here are some examples of approved reviews:")
-            expect(content).to include("Here are some examples of rejected reviews:")
+            expect(text).to include("The data for the ink is:")
+            expect(text).to include("Pilot Iroshizuku Tsuki-yo")
+            expect(text).to include("The review data is:")
+            expect(text).to include("Great ink review")
+            expect(text).to include("Here are some examples of approved reviews:")
+            expect(text).to include("Here are some examples of rejected reviews:")
 
             true
           }
           .at_least_once
+      end
+
+      it "attaches the thumbnail as an image_url part" do
+        subject.perform
+
+        expect(WebMock).to have_requested(:post, "https://api.openai.com/v1/chat/completions")
+          .with { |req|
+            body = JSON.parse(req.body)
+            user_msg = body["messages"].find { |m| m["role"] == "user" }
+            parts = user_msg["content"]
+
+            parts.is_a?(Array) &&
+              parts.any? do |p|
+                p["type"] == "image_url" && p["image_url"]["url"] == ink_review.image
+              end
+          }
+          .at_least_once
+      end
+
+      context "when the review has a blank image" do
+        before { ink_review.update_column(:image, "") }
+
+        it "sends a plain string user message" do
+          subject.perform
+
+          expect(WebMock).to have_requested(:post, "https://api.openai.com/v1/chat/completions")
+            .with { |req|
+              body = JSON.parse(req.body)
+              user_msg = body["messages"].find { |m| m["role"] == "user" }
+              user_msg["content"].is_a?(String)
+            }
+            .at_least_once
+        end
+      end
+
+      context "for a YouTube review with metadata" do
+        before do
+          create(
+            :ink_review_submission,
+            ink_review: youtube_ink_review,
+            user: user,
+            macro_cluster: macro_cluster,
+            url: youtube_ink_review.url
+          )
+          youtube_ink_review.update!(
+            youtube_tags: %w[ink review pilot],
+            youtube_comments: [
+              { author: "Alice", text: "Tsuki-yo is gorgeous", like_count: 5 },
+              { author: "Bob", text: "Which nib?", like_count: 2 },
+              { author: "Carol", text: "Great review!", like_count: 1 },
+              { author: "Dave", text: "I prefer Asa-gao", like_count: 0 }
+            ],
+            youtube_captions: "We are reviewing Pilot Iroshizuku Tsuki-yo today.",
+            youtube_metadata_fetched_at: Time.current
+          )
+        end
+
+        subject { described_class.new(youtube_ink_review.id) }
+
+        it "includes youtube_tags, top_comments, and has_captions in the prompt JSON" do
+          subject.perform
+
+          expect(WebMock).to have_requested(:post, "https://api.openai.com/v1/chat/completions")
+            .with { |req|
+              body = JSON.parse(req.body)
+              text = user_message_text(body)
+
+              expect(text).to include("youtube_tags")
+              expect(text).to include("pilot")
+              expect(text).to include("top_comments")
+              expect(text).to include("Tsuki-yo is gorgeous")
+              expect(text).to include("has_captions")
+
+              true
+            }
+            .at_least_once
+        end
+
+        it "caps top_comments at three" do
+          subject.perform
+
+          expect(WebMock).to have_requested(:post, "https://api.openai.com/v1/chat/completions")
+            .with { |req|
+              body = JSON.parse(req.body)
+              text = user_message_text(body)
+              # Dave's comment is fourth — must not appear.
+              !text.include?("I prefer Asa-gao")
+            }
+            .at_least_once
+        end
       end
     end
 

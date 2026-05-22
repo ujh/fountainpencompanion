@@ -117,6 +117,28 @@ class InkReview < ApplicationRecord
     macro_cluster.ink_reviews.live.exists?
   end
 
+  # Fetches YouTube comments and captions and persists them on the review.
+  # Lazy / fetch-once: re-runs are skipped once youtube_metadata_fetched_at is
+  # set. Tags are not (re-)fetched here — they're populated synchronously in
+  # ProcessInkReviewSubmission from the snippet response.
+  def ensure_youtube_metadata!
+    return if you_tube_channel_id.blank?
+    return if youtube_metadata_fetched_at.present?
+
+    vid = video_id
+    return if vid.blank?
+
+    update!(
+      youtube_comments: Unfurler::Youtube::Comments.new(vid).fetch,
+      youtube_captions: Unfurler::Youtube::Captions.new(vid).fetch,
+      youtube_metadata_fetched_at: Time.current
+    )
+  end
+
+  def video_id
+    Youtube::VideoIdParser.parse(url)
+  end
+
   private
 
   def set_host!(value)
