@@ -40,15 +40,11 @@ class Unfurler
   end
 
   def youtube?
-    uri.host =~ /youtube.com|youtu.be/ && video_id.present?
+    video_id.present?
   end
 
   def video_id
-    if uri.host =~ /youtube.com/
-      Rack::Utils.parse_query(uri.query)["v"]
-    elsif uri.host =~ /youtu.be/
-      uri.path[1..-1]
-    end
+    @video_id ||= ::Youtube::VideoIdParser.parse(uri.to_s)
   end
 
   def html

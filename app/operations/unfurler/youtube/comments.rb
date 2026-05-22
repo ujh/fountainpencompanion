@@ -33,8 +33,7 @@ class Unfurler
 
       def comments_unavailable?(error)
         message = error.message.to_s
-        message.include?("commentsDisabled") || message.include?("forbidden") ||
-          message.include?("disabled comments")
+        message.include?("commentsDisabled") || message.include?("disabled comments")
       end
     end
   end

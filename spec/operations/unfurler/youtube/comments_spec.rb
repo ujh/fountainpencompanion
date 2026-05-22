@@ -46,11 +46,11 @@ RSpec.describe Unfurler::Youtube::Comments do
     expect(fetcher.fetch).to eq([])
   end
 
-  it "returns an empty array when access is forbidden" do
+  it "re-raises generic forbidden errors so auth/quota issues surface" do
     allow(client).to receive(:list_comment_threads).and_raise(
       Google::Apis::ClientError.new("forbidden")
     )
-    expect(fetcher.fetch).to eq([])
+    expect { fetcher.fetch }.to raise_error(Google::Apis::ClientError)
   end
 
   it "re-raises other client errors" do

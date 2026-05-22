@@ -128,11 +128,15 @@ class InkReview < ApplicationRecord
     vid = video_id
     return if vid.blank?
 
-    update!(
-      youtube_comments: Unfurler::Youtube::Comments.new(vid).fetch,
-      youtube_captions: Unfurler::Youtube::Captions.new(vid).fetch,
-      youtube_metadata_fetched_at: Time.current
-    )
+    with_lock do
+      return if youtube_metadata_fetched_at.present?
+
+      update!(
+        youtube_comments: Unfurler::Youtube::Comments.new(vid).fetch,
+        youtube_captions: Unfurler::Youtube::Captions.new(vid).fetch,
+        youtube_metadata_fetched_at: Time.current
+      )
+    end
   end
 
   def video_id

@@ -51,7 +51,7 @@ class Unfurler
       end
 
       def default_connection
-        Faraday.new { |c| c.response :follow_redirects }
+        Faraday.new(request: { open_timeout: 3, timeout: 8 }) { |c| c.response :follow_redirects }
       end
     end
   end

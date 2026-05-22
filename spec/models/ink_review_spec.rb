@@ -169,6 +169,20 @@ describe InkReview do
       review.ensure_youtube_metadata!
     end
 
+    it "re-checks the fetched-at flag inside with_lock to avoid concurrent double-fetches" do
+      # Simulate a competing worker that finished the fetch between the
+      # pre-check and the lock acquisition. The reloaded record inside the
+      # lock now has youtube_metadata_fetched_at present, so the body skips.
+      allow(review).to receive(:with_lock).and_wrap_original do |orig, &block|
+        review.update_column(:youtube_metadata_fetched_at, Time.current)
+        orig.call(&block)
+      end
+
+      expect(Unfurler::Youtube::Comments).not_to receive(:new)
+      expect(Unfurler::Youtube::Captions).not_to receive(:new)
+      review.ensure_youtube_metadata!
+    end
+
     it "handles nil captions gracefully" do
       allow(Unfurler::Youtube::Comments).to receive(:new).and_return(double(fetch: []))
       allow(Unfurler::Youtube::Captions).to receive(:new).and_return(double(fetch: nil))

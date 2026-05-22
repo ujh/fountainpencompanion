@@ -181,7 +181,9 @@ class ReviewApprover
       data[:is_you_tube_video] = true
       data[:is_youtube_short] = review.you_tube_short?
       data[:youtube_tags] = review.youtube_tags
-      data[:top_comments] = review.youtube_comments.first(3).map { |c| c.slice("author", "text") }
+      data[:top_comments] = Array(review.youtube_comments)
+        .first(3)
+        .map { |c| c.slice("author", "text") }
       data[:has_captions] = review.youtube_captions.present?
     end
     data

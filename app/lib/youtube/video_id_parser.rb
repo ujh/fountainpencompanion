@@ -4,9 +4,10 @@ class Youtube
 
     def parse(url)
       uri = URI(url)
-      if uri.host =~ /youtube\.com/
+      host = uri.host.to_s.downcase
+      if host == "youtube.com" || host.end_with?(".youtube.com")
         Rack::Utils.parse_query(uri.query)["v"] || shorts_id(uri.path)
-      elsif uri.host =~ /youtu\.be/
+      elsif host == "youtu.be" || host.end_with?(".youtu.be")
         uri.path[1..-1]
       end
     rescue URI::InvalidURIError
