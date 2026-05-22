@@ -34,7 +34,7 @@ WEB_CONCURRENCY = "2"
 
 [processes]
 web = "bundle exec puma"
-worker = "bundle exec sidekiq"
+worker = "bin/sidekiq-with-healthcheck"
 
 [http_service]
 internal_port = 3000

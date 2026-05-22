@@ -113,7 +113,7 @@ FROM base AS prod
 
 # Install packages needed to run the app
 RUN apt-get update -qq && \
-  apt-get install --no-install-recommends -y libpq5 && \
+  apt-get install --no-install-recommends -y libpq5 curl && \
   rm -rf /var/lib/apt/lists /var/cache/apt/archives
 
 # Copy built artifacts: gems, application
