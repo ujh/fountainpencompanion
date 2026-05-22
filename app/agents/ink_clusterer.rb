@@ -306,21 +306,39 @@ class InkClusterer
   end
 
   def processed_tries_data
-    data =
-      processed_tries.map do |log|
-        case log.extra_data["action"]
-        when "assign_to_cluster"
-          "Assigning ink to existing cluster with id #{log.extra_data["cluster_id"]}. Assignments to other clusters can be considered."
-        when "create_new_cluster"
-          "Creating a new cluster for ink"
-        when "ignore_ink"
-          "Ignoring this ink"
-        end
-      end
+    entries = processed_tries.map { |log| processed_try_entry(log) }.compact
 
     "This ink was processed before #{processed_tries.count} times and the action taken
-    was manually rejected. Therefore the following outcomes cannot be taken again:
-    #{data.map { |str| "* #{str}" }.join("\n")}"
+    was rejected. Therefore the following outcomes cannot be taken again:
+    #{entries.map { |entry| "* #{entry}" }.join("\n")}"
+  end
+
+  def processed_try_entry(log)
+    data = log.extra_data || {}
+    summary = action_summary(data)
+    return nil unless summary
+
+    parts = [summary]
+    if data["manual_rejection_note"].present?
+      parts << "Rejection reason: #{data["manual_rejection_note"]}"
+    elsif data["follow_up_action"] == "reject" && data["follow_up_action_explanation"].present?
+      if data["explanation_of_decision"].present?
+        parts << "AI reasoning: #{data["explanation_of_decision"]}"
+      end
+      parts << "Rejection reason: #{data["follow_up_action_explanation"]}"
+    end
+    parts.join(" | ")
+  end
+
+  def action_summary(data)
+    case data["action"]
+    when "assign_to_cluster"
+      "Assigning ink to existing cluster with id #{data["cluster_id"]}. Assignments to other clusters can be considered."
+    when "create_new_cluster"
+      "Creating a new cluster for ink"
+    when "ignore_ink"
+      "Ignoring this ink"
+    end
   end
 
   def micro_cluster_data

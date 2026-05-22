@@ -939,6 +939,92 @@ RSpec.describe InkClusterer do
         expect(subject.agent_log.extra_data["action"]).to eq("ignore_ink")
         expect(subject.agent_log.extra_data["explanation_of_decision"]).to include("custom mix")
       end
+
+      context "with manual rejection notes and auto-checker explanations" do
+        before do
+          rejected_assign_log.update!(
+            extra_data:
+              rejected_assign_log.extra_data.merge(
+                "explanation_of_decision" => "Looks like Kon-peki",
+                "manual_rejection_note" => "Wrong cluster, the colors differ a lot"
+              )
+          )
+          rejected_create_log.update!(
+            extra_data:
+              rejected_create_log.extra_data.merge(
+                "explanation_of_decision" => "Not in DB yet",
+                "follow_up_action" => "reject",
+                "follow_up_action_explanation" => "Auto-checker found a near duplicate"
+              )
+          )
+        end
+
+        it "surfaces manual notes and auto-checker rejection reasons in the prompt" do
+          subject.perform
+
+          processed_tries_message =
+            subject.agent_log.transcript.find do |msg|
+              msg["content"]&.include?("processed before")
+            end[
+              "content"
+            ]
+
+          expect(processed_tries_message).to include(
+            "Rejection reason: Wrong cluster, the colors differ a lot"
+          )
+          expect(processed_tries_message).not_to include("AI reasoning: Looks like Kon-peki")
+          expect(processed_tries_message).to include("AI reasoning: Not in DB yet")
+          expect(processed_tries_message).to include(
+            "Rejection reason: Auto-checker found a near duplicate"
+          )
+        end
+
+        it "ignores follow_up_action_explanation when follow_up_action is not reject" do
+          rejected_create_log.update!(
+            extra_data:
+              rejected_create_log.extra_data.merge(
+                "follow_up_action" => "approve",
+                "follow_up_action_explanation" => "Auto-checker approved this"
+              )
+          )
+
+          subject.perform
+
+          processed_tries_message =
+            subject.agent_log.transcript.find do |msg|
+              msg["content"]&.include?("processed before")
+            end[
+              "content"
+            ]
+
+          expect(processed_tries_message).not_to include("Auto-checker approved this")
+          expect(processed_tries_message).not_to include("AI reasoning: Not in DB yet")
+        end
+
+        it "omits AI reasoning for manual rejection without a note" do
+          rejected_create_log.destroy!
+          rejected_assign_log.update!(
+            extra_data: {
+              "action" => "assign_to_cluster",
+              "cluster_id" => existing_macro_cluster.id,
+              "explanation_of_decision" => "Looks like Kon-peki"
+            }
+          )
+
+          subject.perform
+
+          processed_tries_message =
+            subject.agent_log.transcript.find do |msg|
+              msg["content"]&.include?("processed before")
+            end[
+              "content"
+            ]
+
+          expect(processed_tries_message).to include("Assigning ink to existing cluster")
+          expect(processed_tries_message).not_to include("AI reasoning")
+          expect(processed_tries_message).not_to include("Rejection reason")
+        end
+      end
     end
 
     context "with ink similarity search integration" do

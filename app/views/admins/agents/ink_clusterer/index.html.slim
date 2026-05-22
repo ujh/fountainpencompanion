@@ -67,17 +67,22 @@ table class="table"
       dd class="col-sm-9"
         - if agent_log.agent_approved?
           - if agent_log.approved?
-            = link_to "Approve", admins_agents_ink_clusterer_path(agent_log, page: params[:page]), method: :put, class: 'btn btn-success me-5'
-            = link_to "Reject approval and reprocess", admins_agents_ink_clusterer_path(agent_log, page: params[:page]), method: :delete, class: 'btn btn-danger me-5'
-            = link_to "Reject approval and reprocess (delete history)", admins_agents_ink_clusterer_path(agent_log, page: params[:page], delete_history: true), method: :delete, class: 'btn btn-danger me-5'
+            = link_to "Approve (a)", admins_agents_ink_clusterer_path(agent_log, page: params[:page]), method: :put, class: 'btn btn-success me-5', data: { shortcut: "approve" }
+            = form_with url: admins_agents_ink_clusterer_path(agent_log, page: params[:page]), method: :delete, local: true, class: "d-inline reject-form" do |f|
+              = f.text_field :manual_rejection_note, class: "form-control d-inline-block w-auto me-3 reject-note", placeholder: "Optional rejection note", style: "display: none !important;"
+              = f.submit "Reject approval and reprocess (r)", class: "btn btn-danger me-5 reject-btn", data: { shortcut: "reject" }
+              button.btn.btn-danger.me-5.reject-btn type="submit" formaction=admins_agents_ink_clusterer_path(agent_log, page: params[:page], delete_history: true) data-shortcut="reject-delete"
+                | Reject approval and reprocess (delete history) (d)
           - else
             / Note how the URLs are switched around as if it's already rejected then a rejection will be the implicit approval.
-            = link_to "Approve rejection", admins_agents_ink_clusterer_path(agent_log, page: params[:page]), method: :delete, class: 'btn btn-success me-5'
-            = link_to "Should have been approved", admins_agents_ink_clusterer_path(agent_log, page: params[:page]), method: :put, class: 'btn btn-danger me-5'
+            = link_to "Approve rejection (a)", admins_agents_ink_clusterer_path(agent_log, page: params[:page]), method: :delete, class: 'btn btn-success me-5', data: { shortcut: "approve" }
+            = link_to "Should have been approved (r)", admins_agents_ink_clusterer_path(agent_log, page: params[:page]), method: :put, class: 'btn btn-danger me-5', data: { shortcut: "reject" }
         - else
-          = link_to "Approve", admins_agents_ink_clusterer_path(agent_log, page: params[:page]), method: :put, class: 'btn btn-success me-5'
-          = link_to "Reject", admins_agents_ink_clusterer_path(agent_log, page: params[:page]), method: :delete, class: 'btn btn-danger me-5'
-        = link_to "Search", "https://www.google.com/search?#{{q: agent_log.owner.all_names.first}.to_query}", class: 'btn btn-secondary', target: "_blank"
+          = link_to "Approve (a)", admins_agents_ink_clusterer_path(agent_log, page: params[:page]), method: :put, class: 'btn btn-success me-5', data: { shortcut: "approve" }
+          = form_with url: admins_agents_ink_clusterer_path(agent_log, page: params[:page]), method: :delete, local: true, class: "d-inline reject-form" do |f|
+            = f.text_field :manual_rejection_note, class: "form-control d-inline-block w-auto me-3 reject-note", placeholder: "Optional rejection note", style: "display: none !important;"
+            = f.submit "Reject (r)", class: "btn btn-danger me-5 reject-btn", data: { shortcut: "reject" }
+        = link_to "Search (s)", "https://www.google.com/search?#{{q: agent_log.owner.all_names.first}.to_query}", class: 'btn btn-secondary', target: "_blank", data: { shortcut: "search" }
     dt class="col-sm-3" Transcript
     dd class="col-sm-9"
       - agent_log.transcript.each do |transcript|
