@@ -17,6 +17,74 @@ describe "Admins::Reviews" do
         expect(response).to be_successful
       end
 
+      describe "transcript section" do
+        let(:agent_processed_review) do
+          review =
+            create(
+              :ink_review,
+              extra_data: {
+                "action" => "approve_review",
+                "explanation_of_decision" => "ok"
+              },
+              approved_at: Time.current,
+              agent_approved: true
+            )
+          create(
+            :ink_review_submission,
+            ink_review: review,
+            macro_cluster: review.macro_cluster,
+            url: review.url
+          )
+          review
+        end
+
+        it "renders the latest ReviewApprover transcript inside a collapsed <details>" do
+          agent_processed_review.agent_logs.create!(
+            name: "ReviewApprover",
+            state: "approved",
+            transcript: [
+              { "role" => "system", "content" => "system msg" },
+              { "role" => "user", "content" => "user msg" },
+              { "role" => "assistant", "content" => "assistant msg" }
+            ]
+          )
+
+          get "/admins/reviews"
+
+          expect(response.body).to include("Transcript")
+          expect(response.body).to include("<details>")
+          expect(response.body).to include("Show LLM conversation (3 messages)")
+          expect(response.body).to include("system msg")
+          expect(response.body).to include("user msg")
+          expect(response.body).to include("assistant msg")
+        end
+
+        it "picks the latest ReviewApprover log when multiple exist" do
+          agent_processed_review.agent_logs.create!(
+            name: "ReviewApprover",
+            state: "rejected",
+            transcript: [{ "role" => "user", "content" => "old run" }],
+            created_at: 2.days.ago
+          )
+          agent_processed_review.agent_logs.create!(
+            name: "ReviewApprover",
+            state: "approved",
+            transcript: [{ "role" => "user", "content" => "latest run" }]
+          )
+
+          get "/admins/reviews"
+
+          expect(response.body).to include("latest run")
+          expect(response.body).not_to include("old run")
+        end
+
+        it "omits the transcript section when no ReviewApprover log exists" do
+          agent_processed_review # ensure review exists without an agent log
+          get "/admins/reviews"
+          expect(response.body).not_to include("Show LLM conversation")
+        end
+      end
+
       describe "stats table" do
         def manually_processed_review(agent_action:, final:)
           review =

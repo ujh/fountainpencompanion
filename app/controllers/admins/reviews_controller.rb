@@ -1,6 +1,6 @@
 class Admins::ReviewsController < Admins::BaseController
   def index
-    query = InkReview.agent_processed.order("created_at asc")
+    query = InkReview.agent_processed.includes(:agent_logs).order("created_at asc")
     @ink_reviews = query.page(params[:page])
     @ink_reviews = query.page(0) if @ink_reviews.empty?
 
