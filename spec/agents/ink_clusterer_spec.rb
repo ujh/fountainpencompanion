@@ -564,6 +564,27 @@ RSpec.describe InkClusterer do
         expect(subject.agent_log.state).to eq("approved")
       end
     end
+
+    context "idempotency" do
+      before { subject.agent_log.update!(extra_data: { "action" => "create_new_cluster" }) }
+
+      it "does not create a second MacroCluster when called twice" do
+        expect { subject.approve! }.to change { MacroCluster.count }.by(1)
+        macro_cluster_id = micro_cluster.reload.macro_cluster_id
+
+        expect { subject.approve! }.not_to change { MacroCluster.count }
+        expect(micro_cluster.reload.macro_cluster_id).to eq(macro_cluster_id)
+        expect(UpdateMicroCluster.jobs.size).to eq(1)
+      end
+
+      it "does not run the action block when the log is already approved" do
+        subject.agent_log.update!(state: "approved")
+
+        expect { subject.approve! }.not_to change { MacroCluster.count }
+        expect(micro_cluster.reload.macro_cluster_id).to be_nil
+        expect(UpdateMicroCluster.jobs.size).to eq(0)
+      end
+    end
   end
 
   describe "#reject!" do
