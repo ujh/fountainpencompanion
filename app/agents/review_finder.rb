@@ -56,7 +56,8 @@ class ReviewFinder
 
     def execute
       if page_data.you_tube_channel_id.present?
-        "This is a Youtube video. I can't summarize it."
+        summary = YoutubeSummarizer.new(agent_log, page_data).perform
+        "Here is a summary of the YouTube video:\n\n#{summary}"
       else
         summary = WebPageSummarizer.new(agent_log, page_data.raw_html).perform
         "Here is a summary of the page:\n\n#{summary}"
@@ -85,11 +86,18 @@ class ReviewFinder
        reviews.
 
     You will be given a prompt with the page data, which contains information
-    about the page or video, such as its title, description, and content. You
-    can use this information to determine if the page or video contains reviews
-    of inks. For web pages call the `summarize` function to get a more detailed
-    summary of the page, which might contain more information than is available
-    in the page data.
+    about the page or video, such as its title, description, and content. For
+    Youtube videos the page data also includes a `youtube` sub-hash with tags,
+    top comments, and captions (when available). Use these to determine if the
+    page or video contains reviews of inks.
+
+    For web pages and Youtube videos alike you can call the `summarize` function
+    to get a more detailed summary. For Youtube videos the summary draws on the
+    captions and thumbnail.
+
+    A thumbnail image of the page or video is attached to this message. Use it
+    to confirm the ink identity when the text is ambiguous — many ink-review
+    thumbnails show the ink bottle and/or the ink name as a text overlay.
   TEXT
 
   def initialize(page)
@@ -97,7 +105,7 @@ class ReviewFinder
   end
 
   def perform
-    ask(user_prompt)
+    ask(user_prompt, with: page_data.image.presence)
     agent_log.waiting_for_approval!
   end
 
@@ -126,6 +134,6 @@ class ReviewFinder
   end
 
   def page_data
-    @page_data ||= Unfurler.new(page.url).perform
+    @page_data ||= Unfurler.new(page.url, with_full_metadata: true).perform
   end
 end

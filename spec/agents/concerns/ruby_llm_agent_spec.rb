@@ -409,4 +409,137 @@ RSpec.describe RubyLlmAgent do
       expect(result).to be_a(RubyLLM::Tool::Halt)
     end
   end
+
+  describe "#ask with attachments" do
+    let(:agent_with_tools) { test_class_with_tools.new(agent_log, decide_tool_class.new) }
+
+    def text_completion
+      {
+        "id" => "chatcmpl-attach",
+        "object" => "chat.completion",
+        "created" => 1_677_652_288,
+        "model" => "gpt-4.1-mini",
+        "choices" => [
+          {
+            "index" => 0,
+            "message" => {
+              "role" => "assistant",
+              "content" => "ok"
+            },
+            "finish_reason" => "stop"
+          }
+        ],
+        "usage" => {
+          "prompt_tokens" => 10,
+          "completion_tokens" => 5,
+          "total_tokens" => 15
+        }
+      }
+    end
+
+    it "sends a multipart user message when `with:` is a URL" do
+      stub_request(:post, "https://api.openai.com/v1/chat/completions").to_return(
+        status: 200,
+        body: text_completion.to_json,
+        headers: {
+          "Content-Type" => "application/json"
+        }
+      )
+
+      agent_with_tools.ask("Describe this", with: "https://example.com/img.jpg")
+
+      expect(WebMock).to have_requested(
+        :post,
+        "https://api.openai.com/v1/chat/completions"
+      ).with { |req|
+        body = JSON.parse(req.body)
+        user_msg = body["messages"].find { |m| m["role"] == "user" }
+        parts = user_msg["content"]
+        parts.is_a?(Array) && parts.any? { |p| p["type"] == "image_url" } &&
+          parts.any? { |p| p["type"] == "text" }
+      }
+    end
+
+    it "sends a multipart user message when `with:` is an array of URLs" do
+      stub_request(:post, "https://api.openai.com/v1/chat/completions").to_return(
+        status: 200,
+        body: text_completion.to_json,
+        headers: {
+          "Content-Type" => "application/json"
+        }
+      )
+
+      agent_with_tools.ask(
+        "Describe these",
+        with: %w[https://example.com/a.jpg https://example.com/b.jpg]
+      )
+
+      expect(WebMock).to have_requested(
+        :post,
+        "https://api.openai.com/v1/chat/completions"
+      ).with { |req|
+        body = JSON.parse(req.body)
+        user_msg = body["messages"].find { |m| m["role"] == "user" }
+        parts = user_msg["content"]
+        parts.is_a?(Array) && parts.count { |p| p["type"] == "image_url" } == 2
+      }
+    end
+
+    it "sends a plain string user message when `with:` is nil" do
+      stub_request(:post, "https://api.openai.com/v1/chat/completions").to_return(
+        status: 200,
+        body: text_completion.to_json,
+        headers: {
+          "Content-Type" => "application/json"
+        }
+      )
+
+      agent_with_tools.ask("Just text")
+
+      expect(WebMock).to have_requested(
+        :post,
+        "https://api.openai.com/v1/chat/completions"
+      ).with { |req|
+        body = JSON.parse(req.body)
+        user_msg = body["messages"].find { |m| m["role"] == "user" }
+        user_msg["content"] == "Just text"
+      }
+    end
+
+    it "sends a plain string user message when `with:` is blank" do
+      stub_request(:post, "https://api.openai.com/v1/chat/completions").to_return(
+        status: 200,
+        body: text_completion.to_json,
+        headers: {
+          "Content-Type" => "application/json"
+        }
+      )
+
+      agent_with_tools.ask("Just text", with: "")
+
+      expect(WebMock).to have_requested(
+        :post,
+        "https://api.openai.com/v1/chat/completions"
+      ).with { |req|
+        body = JSON.parse(req.body)
+        user_msg = body["messages"].find { |m| m["role"] == "user" }
+        user_msg["content"] == "Just text"
+      }
+    end
+
+    it "persists only the text portion of an attachment message in the transcript" do
+      stub_request(:post, "https://api.openai.com/v1/chat/completions").to_return(
+        status: 200,
+        body: text_completion.to_json,
+        headers: {
+          "Content-Type" => "application/json"
+        }
+      )
+
+      agent_with_tools.ask("Describe this", with: "https://example.com/img.jpg")
+
+      user_entry = agent_log.reload.transcript.find { |m| m["role"] == "user" }
+      expect(user_entry["content"]).to eq("Describe this")
+    end
+  end
 end

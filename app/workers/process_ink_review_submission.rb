@@ -26,7 +26,11 @@ class ProcessInkReviewSubmission
     end
     if you_tube_channel_id
       channel = YouTubeChannel.find_or_create_by(channel_id: you_tube_channel_id)
-      ink_review.update!(you_tube_channel: channel, you_tube_short: is_youtube_short)
+      ink_review.update!(
+        you_tube_channel: channel,
+        you_tube_short: is_youtube_short,
+        youtube_tags: Array(page_data.youtube&.[](:tags))
+      )
       if ink_review.auto_reject?
         ink_review.auto_reject!
         schedule_approval = false

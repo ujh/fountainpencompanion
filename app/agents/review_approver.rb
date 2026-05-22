@@ -62,10 +62,12 @@ class ReviewApprover
     end
 
     def execute
-      page_data = Unfurler.new(ink_review.url).perform
-      if page_data.you_tube_channel_id.present?
-        "This is a Youtube video. I can't summarize it."
+      if ink_review.you_tube_channel_id.present?
+        ink_review.ensure_youtube_metadata!
+        summary = YoutubeSummarizer.new(agent_log, ink_review).perform
+        "Here is a summary of the YouTube video:\n\n#{summary}"
       else
+        page_data = Unfurler.new(ink_review.url).perform
         summary = WebPageSummarizer.new(agent_log, page_data.raw_html).perform
         "Here is a summary of the page:\n\n#{summary}"
       end
@@ -89,9 +91,17 @@ class ReviewApprover
       that the ink does not appear in the review, after all.
     * Reviews that are not submitted by user "System" have a higher likelihood of being correct.
 
-    If the review is not a Youtube video, you can also use the `summarize` function to get a summary of the page
-    to better understand which inks are being reviewed. For Youtube videos, you need to rely on the
-    information provided in the review.
+    For both web pages and Youtube videos you can call the `summarize` function to get a summary.
+    For Youtube videos the summary draws on the video's captions (when available) and thumbnail.
+
+    For Youtube videos the review data also includes `youtube_tags`, the top three relevance-ranked
+    `top_comments`, and a `has_captions` boolean. Use these to judge the review without always calling
+    `summarize` — call it for borderline cases or when `has_captions` is true and you want the
+    transcript-derived content.
+
+    A thumbnail image of the video or page is attached to this message. Use it to confirm the ink
+    identity when the text is ambiguous — many ink-review thumbnails show the ink bottle and/or the
+    ink name as a text overlay.
   TEXT
 
   def initialize(ink_review_id)
@@ -99,7 +109,8 @@ class ReviewApprover
   end
 
   def perform
-    ask!(user_prompt)
+    ink_review.ensure_youtube_metadata!
+    ask!(user_prompt, with: ink_review.image.presence)
     agent_log.update!(extra_data: ink_review.extra_data)
     agent_log.waiting_for_approval!
   end
@@ -169,6 +180,11 @@ class ReviewApprover
     if review.you_tube_channel
       data[:is_you_tube_video] = true
       data[:is_youtube_short] = review.you_tube_short?
+      data[:youtube_tags] = review.youtube_tags
+      data[:top_comments] = Array(review.youtube_comments)
+        .first(3)
+        .map { |c| c.slice("author", "text") }
+      data[:has_captions] = review.youtube_captions.present?
     end
     data
   end

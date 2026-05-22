@@ -131,4 +131,85 @@ describe InkReview do
       expect(InkReview.due_for_check).not_to include(removed)
     end
   end
+
+  describe "#ensure_youtube_metadata!" do
+    let(:channel) { create(:you_tube_channel, channel_id: "UCabc") }
+    let(:review) do
+      create(:ink_review, url: "https://www.youtube.com/watch?v=vid_abc", you_tube_channel: channel)
+    end
+
+    it "fetches and persists comments and captions" do
+      comments = [{ author: "A", text: "nice", like_count: 1 }]
+      allow(Unfurler::Youtube::Comments).to receive(:new).with("vid_abc").and_return(
+        double(fetch: comments)
+      )
+      allow(Unfurler::Youtube::Captions).to receive(:new).with("vid_abc").and_return(
+        double(fetch: "Some caption text")
+      )
+
+      review.ensure_youtube_metadata!
+      review.reload
+
+      expect(review.youtube_comments.first.symbolize_keys).to eq(comments.first)
+      expect(review.youtube_captions).to eq("Some caption text")
+      expect(review.youtube_metadata_fetched_at).to be_present
+    end
+
+    it "does nothing for non-YouTube reviews" do
+      non_yt = create(:ink_review, url: "https://example.com/x")
+      expect(Unfurler::Youtube::Comments).not_to receive(:new)
+      expect(Unfurler::Youtube::Captions).not_to receive(:new)
+      non_yt.ensure_youtube_metadata!
+    end
+
+    it "is idempotent: skips when already fetched" do
+      review.update_column(:youtube_metadata_fetched_at, 1.day.ago)
+      expect(Unfurler::Youtube::Comments).not_to receive(:new)
+      expect(Unfurler::Youtube::Captions).not_to receive(:new)
+      review.ensure_youtube_metadata!
+    end
+
+    it "re-checks the fetched-at flag inside with_lock to avoid concurrent double-fetches" do
+      # Simulate a competing worker that finished the fetch between the
+      # pre-check and the lock acquisition. The reloaded record inside the
+      # lock now has youtube_metadata_fetched_at present, so the body skips.
+      allow(review).to receive(:with_lock).and_wrap_original do |orig, &block|
+        review.update_column(:youtube_metadata_fetched_at, Time.current)
+        orig.call(&block)
+      end
+
+      expect(Unfurler::Youtube::Comments).not_to receive(:new)
+      expect(Unfurler::Youtube::Captions).not_to receive(:new)
+      review.ensure_youtube_metadata!
+    end
+
+    it "handles nil captions gracefully" do
+      allow(Unfurler::Youtube::Comments).to receive(:new).and_return(double(fetch: []))
+      allow(Unfurler::Youtube::Captions).to receive(:new).and_return(double(fetch: nil))
+
+      review.ensure_youtube_metadata!
+      review.reload
+
+      expect(review.youtube_captions).to be_nil
+      expect(review.youtube_comments).to eq([])
+      expect(review.youtube_metadata_fetched_at).to be_present
+    end
+  end
+
+  describe "#video_id" do
+    it "extracts the v param from a youtube.com URL" do
+      review = build(:ink_review, url: "https://www.youtube.com/watch?v=abc123")
+      expect(review.video_id).to eq("abc123")
+    end
+
+    it "extracts the path from a youtu.be URL" do
+      review = build(:ink_review, url: "https://youtu.be/xyz789")
+      expect(review.video_id).to eq("xyz789")
+    end
+
+    it "extracts the path from a YouTube shorts URL" do
+      review = build(:ink_review, url: "https://www.youtube.com/shorts/short42")
+      expect(review.video_id).to eq("short42")
+    end
+  end
 end

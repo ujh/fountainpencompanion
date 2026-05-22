@@ -15,8 +15,9 @@ module RubyLlmAgent
 
   # Use this instead of chat.ask to ensure the transcript is saved
   # before the API call, matching the old AgentTranscript behavior.
-  def ask(prompt)
-    chat.add_message(role: :user, content: prompt)
+  # Pass `with:` (URL/path or array) to attach images/files for vision-capable models.
+  def ask(prompt, with: nil)
+    chat.add_message(role: :user, content: build_user_content(prompt, with))
     save_transcript
     chat.complete
   end
@@ -25,8 +26,8 @@ module RubyLlmAgent
   # tool_choice: required only forces the first response to include a tool call,
   # but after that RubyLLM resets it. If the LLM calls a non-halting tool first
   # and then responds with text, we retry with a nudge message.
-  def ask!(prompt)
-    chat.add_message(role: :user, content: prompt)
+  def ask!(prompt, with: nil)
+    chat.add_message(role: :user, content: build_user_content(prompt, with))
     save_transcript
     chat.with_tool(nil, choice: :required)
     result = chat.complete
@@ -58,6 +59,16 @@ module RubyLlmAgent
   end
 
   private
+
+  # Wraps text + optional attachments into a RubyLLM::Content when attachments
+  # are present, otherwise returns the plain string. Attachments may be a single
+  # URL/path or an array.
+  def build_user_content(prompt, with)
+    attachments = Array(with).compact.reject { |a| a.respond_to?(:blank?) && a.blank? }
+    return prompt if attachments.empty?
+
+    RubyLLM::Content.new(prompt, attachments)
+  end
 
   def model_id
     self.class::MODEL_ID
@@ -131,11 +142,20 @@ module RubyLlmAgent
 
   def serialize_messages(messages)
     messages.map do |msg|
-      entry = { role: msg.role.to_s, content: sanitize_for_pg(msg.content.to_s) }
+      entry = { role: msg.role.to_s, content: sanitize_for_pg(extract_text(msg.content)) }
       entry[:tool_calls] = serialize_tool_calls(msg.tool_calls) if msg.tool_call?
       entry[:tool_call_id] = msg.tool_call_id if msg.tool_result?
       entry
     end
+  end
+
+  # Attachments (RubyLLM::Content) are not persisted in the transcript — only
+  # the text portion is. On resume, the original image is lost; this is
+  # acceptable because resumes only continue tool loops, not re-pose the
+  # original prompt.
+  def extract_text(content)
+    return content.text if content.respond_to?(:text)
+    content.to_s
   end
 
   def serialize_tool_calls(tool_calls)

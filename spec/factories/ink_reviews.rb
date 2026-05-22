@@ -3,7 +3,7 @@ FactoryBot.define do
     title { "MyText" }
     sequence(:url) { |n| "http://example#{n}.com" }
     description { "MyText" }
-    image { "MyText" }
+    sequence(:image) { |n| "https://example.com/image#{n}.jpg" }
     macro_cluster
   end
 end

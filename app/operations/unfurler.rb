@@ -8,37 +8,43 @@ class Unfurler
       :author,
       :you_tube_channel_id,
       :is_youtube_short,
-      :raw_html
+      :raw_html,
+      :youtube
     )
 
-  def initialize(url)
+  def initialize(url, with_full_metadata: false)
     self.uri = URI(url)
+    self.with_full_metadata = with_full_metadata
   end
 
   def perform
     result = unfurler.perform
     result.url ||= uri.to_s
+    enrich_youtube_metadata(result) if with_full_metadata && result.you_tube_channel_id.present?
     result
   end
 
   private
 
-  attr_accessor :uri
+  attr_accessor :uri, :with_full_metadata
 
   def unfurler
     youtube? ? Unfurler::Youtube.new(video_id) : Unfurler::Html.new(html)
   end
 
+  def enrich_youtube_metadata(result)
+    yt = result.youtube || { tags: [], comments: nil, captions: nil }
+    yt[:comments] ||= Unfurler::Youtube::Comments.new(video_id).fetch
+    yt[:captions] ||= Unfurler::Youtube::Captions.new(video_id).fetch
+    result.youtube = yt
+  end
+
   def youtube?
-    uri.host =~ /youtube.com|youtu.be/ && video_id.present?
+    video_id.present?
   end
 
   def video_id
-    if uri.host =~ /youtube.com/
-      Rack::Utils.parse_query(uri.query)["v"]
-    elsif uri.host =~ /youtu.be/
-      uri.path[1..-1]
-    end
+    @video_id ||= ::Youtube::VideoIdParser.parse(uri.to_s)
   end
 
   def html
