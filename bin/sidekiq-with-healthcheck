@@ -1,0 +1,39 @@
+#!/bin/sh
+set -eu
+
+PORT="${SIDEKIQ_ALIVE_PORT:-7433}"
+HOST="${SIDEKIQ_ALIVE_HOST:-127.0.0.1}"
+INTERVAL="${SIDEKIQ_HEALTHCHECK_INTERVAL:-30}"
+THRESHOLD="${SIDEKIQ_HEALTHCHECK_THRESHOLD:-3}"
+START_GRACE="${SIDEKIQ_HEALTHCHECK_START_GRACE:-60}"
+TERM_GRACE="${SIDEKIQ_HEALTHCHECK_TERM_GRACE:-30}"
+
+bundle exec sidekiq &
+SIDEKIQ_PID=$!
+
+trap 'kill -TERM "$SIDEKIQ_PID" 2>/dev/null || true' TERM INT
+trap 'kill -QUIT "$SIDEKIQ_PID" 2>/dev/null || true' QUIT
+trap 'kill -TSTP "$SIDEKIQ_PID" 2>/dev/null || true' TSTP
+
+sleep "$START_GRACE"
+
+FAILURES=0
+while kill -0 "$SIDEKIQ_PID" 2>/dev/null; do
+  if curl -fsS --max-time 5 "http://${HOST}:${PORT}/" >/dev/null 2>&1; then
+    FAILURES=0
+  else
+    FAILURES=$((FAILURES + 1))
+    echo "sidekiq-with-healthcheck: probe failed (${FAILURES}/${THRESHOLD})" >&2
+    if [ "$FAILURES" -ge "$THRESHOLD" ]; then
+      echo "sidekiq-with-healthcheck: unhealthy, terminating sidekiq" >&2
+      kill -TERM "$SIDEKIQ_PID" 2>/dev/null || true
+      sleep "$TERM_GRACE"
+      kill -KILL "$SIDEKIQ_PID" 2>/dev/null || true
+      wait "$SIDEKIQ_PID" 2>/dev/null || true
+      exit 1
+    fi
+  fi
+  sleep "$INTERVAL"
+done
+
+wait "$SIDEKIQ_PID"
