@@ -105,7 +105,7 @@ class ReviewFinder
   end
 
   def perform
-    ask(user_prompt, with: page_data.image.presence)
+    ask(user_prompt, with: resolved_image_url)
     agent_log.waiting_for_approval!
   end
 
@@ -135,5 +135,9 @@ class ReviewFinder
 
   def page_data
     @page_data ||= Unfurler.new(page.url, with_full_metadata: true).perform
+  end
+
+  def resolved_image_url
+    ResolveImageUrl.new(page_data.image).perform
   end
 end

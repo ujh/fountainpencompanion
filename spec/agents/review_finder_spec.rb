@@ -39,6 +39,11 @@ RSpec.describe ReviewFinder do
   end
 
   before { allow_any_instance_of(Unfurler).to receive(:perform).and_return(unfurler_result) }
+  before do
+    allow(ResolveImageUrl).to receive(:new) do |passed_url|
+      double("ResolveImageUrl", perform: passed_url.presence)
+    end
+  end
 
   subject { described_class.new(page) }
 
@@ -383,6 +388,23 @@ RSpec.describe ReviewFinder do
               end
           }
           .at_least_once
+      end
+
+      context "when ResolveImageUrl returns nil (e.g. broken image link)" do
+        before { allow(ResolveImageUrl).to receive(:new).and_return(double(perform: nil)) }
+
+        it "sends no image_url part" do
+          subject.perform
+
+          expect(WebMock).to have_requested(:post, openai_url)
+            .with { |req|
+              body = JSON.parse(req.body)
+              user_msg = body["messages"].find { |m| m["role"] == "user" }
+              content = user_msg["content"]
+              content.is_a?(Array) ? content.none? { |p| p["type"] == "image_url" } : true
+            }
+            .at_least_once
+        end
       end
 
       context "with a YouTube page" do
