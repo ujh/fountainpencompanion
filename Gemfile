@@ -9,6 +9,7 @@ end
 
 gem "rails", "~> 8.1.3"
 
+gem "after_commit_everywhere"
 gem "apipie-rails"
 gem "bcrypt"
 gem "bootsnap"

@@ -654,6 +654,18 @@ RSpec.describe InkClusterer do
         expect(subject.agent_log.reload.state).to eq("approved")
         expect(subject.agent_log.agent_approved).to be true
       end
+
+      it "defers UpdateMicroCluster enqueue until the outer transaction commits" do
+        size_inside = nil
+        ActiveRecord::Base.transaction do
+          subject.approve!
+          size_inside = UpdateMicroCluster.jobs.size
+        end
+
+        expect(size_inside).to eq(0)
+        expect(UpdateMicroCluster.jobs.size).to eq(1)
+        expect(UpdateMicroCluster.jobs.last["args"]).to eq([micro_cluster.id])
+      end
     end
 
     context "create_new_cluster action" do
@@ -673,6 +685,18 @@ RSpec.describe InkClusterer do
         cluster = micro_cluster.reload.macro_cluster
         expect(cluster.ink_name).to be_present
         expect(cluster.ink_name).not_to eq("")
+      end
+
+      it "defers UpdateMicroCluster enqueue until the outer transaction commits" do
+        size_inside = nil
+        ActiveRecord::Base.transaction do
+          subject.approve!
+          size_inside = UpdateMicroCluster.jobs.size
+        end
+
+        expect(size_inside).to eq(0)
+        expect(UpdateMicroCluster.jobs.size).to eq(1)
+        expect(UpdateMicroCluster.jobs.last["args"]).to eq([micro_cluster.id])
       end
     end
 
