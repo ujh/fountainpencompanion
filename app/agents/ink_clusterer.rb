@@ -1,5 +1,6 @@
 class InkClusterer
   include RubyLlmAgent
+  include AfterCommitEverywhere
 
   class BaseTool < RubyLLM::Tool
     attr_accessor :micro_cluster, :agent_log
@@ -243,11 +244,11 @@ class InkClusterer
       case agent_log.extra_data["action"]
       when "assign_to_cluster"
         micro_cluster.update!(macro_cluster_id: agent_log.extra_data["cluster_id"])
-        UpdateMicroCluster.perform_async(micro_cluster.id)
+        after_commit { UpdateMicroCluster.perform_async(micro_cluster.id) }
       when "create_new_cluster"
         cluster = MacroCluster.create!(ink_name: SecureRandom.uuid)
         micro_cluster.update!(macro_cluster_id: cluster.id)
-        UpdateMicroCluster.perform_async(micro_cluster.id)
+        after_commit { UpdateMicroCluster.perform_async(micro_cluster.id) }
       when "ignore_ink"
         micro_cluster.update!(ignored: true)
       when "hand_over_to_human"
