@@ -175,6 +175,8 @@ class InkClusterer
   end
 
   def perform
+    return if already_resolved?
+
     if micro_cluster.collected_inks.present?
       ask!(user_prompt)
       agent_log.waiting_for_approval!
@@ -258,6 +260,22 @@ class InkClusterer
   private
 
   attr_accessor :micro_cluster, :agent_log_id
+
+  def already_resolved?
+    return true if micro_cluster.ignored?
+    return true if micro_cluster.macro_cluster_id.present?
+
+    latest =
+      micro_cluster
+        .agent_logs
+        .ink_clusterer
+        .where(state: [AgentLog::APPROVED, AgentLog::WAITING_FOR_APPROVAL])
+        .order(updated_at: :desc)
+        .first
+    return false unless latest
+
+    micro_cluster.collected_inks.where("updated_at > ?", latest.updated_at).none?
+  end
 
   def tools
     [

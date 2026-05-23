@@ -367,6 +367,141 @@ RSpec.describe InkClusterer do
         )
       end
     end
+
+    context "idempotency guard" do
+      it "skips when micro_cluster is already assigned to a macro cluster" do
+        micro_cluster.update!(macro_cluster: existing_macro_cluster)
+
+        expect { subject.perform }.not_to change { AgentLog.count }
+        expect(WebMock).not_to have_requested(:post, "https://api.openai.com/v1/chat/completions")
+        expect(RunInkClustererAgent.jobs.size).to eq(0)
+      end
+
+      it "skips when micro_cluster is ignored" do
+        micro_cluster.update!(ignored: true)
+
+        expect { subject.perform }.not_to change { AgentLog.count }
+        expect(WebMock).not_to have_requested(:post, "https://api.openai.com/v1/chat/completions")
+        expect(RunInkClustererAgent.jobs.size).to eq(0)
+      end
+
+      it "skips when a prior APPROVED log exists and no collected_ink updated after" do
+        AgentLog.create!(
+          name: "InkClusterer",
+          owner: micro_cluster,
+          transcript: [],
+          state: "approved",
+          extra_data: {
+            "action" => "hand_over_to_human"
+          }
+        )
+        # Make sure the inks predate the log
+        collected_ink_1.update_columns(updated_at: 1.hour.ago)
+        collected_ink_2.update_columns(updated_at: 1.hour.ago)
+
+        expect { subject.perform }.not_to change { AgentLog.count }
+        expect(WebMock).not_to have_requested(:post, "https://api.openai.com/v1/chat/completions")
+        expect(RunInkClustererAgent.jobs.size).to eq(0)
+      end
+
+      it "skips when a WAITING_FOR_APPROVAL log exists" do
+        AgentLog.create!(
+          name: "InkClusterer",
+          owner: micro_cluster,
+          transcript: [],
+          state: "waiting-for-approval",
+          extra_data: {
+            "action" => "create_new_cluster"
+          }
+        )
+        collected_ink_1.update_columns(updated_at: 1.hour.ago)
+        collected_ink_2.update_columns(updated_at: 1.hour.ago)
+
+        expect { subject.perform }.not_to change { AgentLog.count }
+        expect(WebMock).not_to have_requested(:post, "https://api.openai.com/v1/chat/completions")
+        expect(RunInkClustererAgent.jobs.size).to eq(0)
+      end
+
+      it "re-runs when a collected_ink was updated after the latest APPROVED log" do
+        stub_request(:post, "https://api.openai.com/v1/chat/completions").to_return(
+          status: 200,
+          body: assign_to_cluster_response.to_json,
+          headers: {
+            "Content-Type" => "application/json"
+          }
+        )
+
+        log =
+          AgentLog.create!(
+            name: "InkClusterer",
+            owner: micro_cluster,
+            transcript: [],
+            state: "approved",
+            extra_data: {
+              "action" => "hand_over_to_human"
+            }
+          )
+        log.update_columns(updated_at: 1.hour.ago)
+        collected_ink_1.touch
+
+        subject.perform
+
+        expect(WebMock).to have_requested(
+          :post,
+          "https://api.openai.com/v1/chat/completions"
+        ).at_least_once
+      end
+
+      it "re-runs when the latest log is REJECTED" do
+        stub_request(:post, "https://api.openai.com/v1/chat/completions").to_return(
+          status: 200,
+          body: assign_to_cluster_response.to_json,
+          headers: {
+            "Content-Type" => "application/json"
+          }
+        )
+
+        AgentLog.create!(
+          name: "InkClusterer",
+          owner: micro_cluster,
+          transcript: [],
+          state: "rejected",
+          extra_data: {
+            "action" => "create_new_cluster"
+          }
+        )
+
+        subject.perform
+
+        expect(WebMock).to have_requested(
+          :post,
+          "https://api.openai.com/v1/chat/completions"
+        ).at_least_once
+      end
+
+      it "resumes an existing PROCESSING log without creating a new one" do
+        stub_request(:post, "https://api.openai.com/v1/chat/completions").to_return(
+          status: 200,
+          body: assign_to_cluster_response.to_json,
+          headers: {
+            "Content-Type" => "application/json"
+          }
+        )
+
+        existing =
+          AgentLog.create!(
+            name: "InkClusterer",
+            owner: micro_cluster,
+            transcript: [],
+            state: "processing"
+          )
+
+        subject.perform
+
+        expect(existing.reload.state).to eq("waiting-for-approval")
+        expect(micro_cluster.agent_logs.ink_clusterer.count).to eq(1)
+      end
+    end
   end
 
   describe InkClusterer::AssignToCluster do
