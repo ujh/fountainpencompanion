@@ -3,7 +3,10 @@ class Youtube
     APPLICATION_NAME = "Fountain Pen Companion"
     CREDENTIALS = YAML.load(ENV["GOOGLE_CREDENTIALS"])
     SECRETS = YAML.load(ENV["GOOGLE_CLIENT_SECRETS"])
-    SCOPE = Google::Apis::YoutubeV3::AUTH_YOUTUBE_READONLY
+    SCOPE = [
+      Google::Apis::YoutubeV3::AUTH_YOUTUBE_READONLY,
+      Google::Apis::YoutubeV3::AUTH_YOUTUBE_FORCE_SSL
+    ].freeze
 
     class Credentials
       def initialize
