@@ -163,6 +163,9 @@ describe "Admins::Reviews" do
             macro_cluster: waiting.macro_cluster,
             url: waiting.url
           )
+          # Excluded: verdict older than the 6-month stats window
+          stale = manually_processed_review(agent_action: "approve_review", final: :approved)
+          stale.update_columns(approved_at: 7.months.ago)
 
           get "/admins/reviews"
           stats = controller.instance_variable_get(:@stats)
