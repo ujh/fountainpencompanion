@@ -127,6 +127,25 @@ describe "Admins::Reviews" do
 
           # Excluded: empty extra_data
           create(:ink_review, extra_data: {}).approve!
+          # Excluded: final state set by auto_approve!/auto_reject! after the
+          # admin had already clicked through; current state no longer
+          # reflects a manual verdict
+          auto_overridden =
+            create(
+              :ink_review,
+              extra_data: {
+                "action" => "approve_review"
+              },
+              approved_at: Time.current,
+              agent_approved: false,
+              auto_approved: true
+            )
+          create(
+            :ink_review_submission,
+            ink_review: auto_overridden,
+            macro_cluster: auto_overridden.macro_cluster,
+            url: auto_overridden.url
+          )
           # Excluded: still waiting on a human (agent_processed scope)
           waiting =
             create(

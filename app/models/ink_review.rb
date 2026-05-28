@@ -20,7 +20,7 @@ class InkReview < ApplicationRecord
   scope :approved, -> { where.not(approved_at: nil) }
   scope :rejected, -> { where.not(rejected_at: nil) }
   scope :processed, -> { where.not(approved_at: nil).or(where.not(rejected_at: nil)) }
-  scope :manually_processed, -> { processed.where(agent_approved: false) }
+  scope :manually_processed, -> { processed.where(agent_approved: false, auto_approved: false) }
   scope :agent_processed, -> { processed.where(agent_approved: true) }
   scope :live, -> { approved.where(check_count: 0) }
   scope :due_for_check, -> { approved.where("next_check_at <= ?", Time.zone.now) }
