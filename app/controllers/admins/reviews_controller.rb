@@ -32,15 +32,15 @@ class Admins::ReviewsController < Admins::BaseController
     end
   end
 
+  STATS_WINDOW = 6.months
+
   def calculate_stats
-    ids =
+    cutoff = STATS_WINDOW.ago
+    rel =
       InkReview
         .manually_processed
         .where.not(extra_data: {})
-        .order(created_at: :desc)
-        .limit(1000)
-        .pluck(:id)
-    rel = InkReview.where(id: ids)
+        .where("approved_at >= :cutoff OR rejected_at >= :cutoff", cutoff: cutoff)
 
     analysis = {}
     analysis[:total] = stats_for(rel)
