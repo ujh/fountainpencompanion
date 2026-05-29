@@ -74,6 +74,9 @@ RSpec.describe InkClusterer do
     end
   end
 
+  # Age inks past the debounce window so the agent runs immediately during tests.
+  before(:each) { CollectedInk.update_all(updated_at: 1.hour.ago) }
+
   describe "#perform" do
     let(:assign_to_cluster_response) do
       {
@@ -442,7 +445,8 @@ RSpec.describe InkClusterer do
             }
           )
         log.update_columns(updated_at: 1.hour.ago)
-        collected_ink_1.touch
+        # Updated after the prior log but still outside the debounce window.
+        collected_ink_1.update_columns(updated_at: 5.minutes.ago)
 
         subject.perform
 
@@ -500,6 +504,37 @@ RSpec.describe InkClusterer do
 
         expect(existing.reload.state).to eq("waiting-for-approval")
         expect(micro_cluster.agent_logs.ink_clusterer.count).to eq(1)
+      end
+    end
+
+    context "debounce" do
+      before(:each) do
+        stub_request(:post, "https://api.openai.com/v1/chat/completions").to_return(
+          status: 200,
+          body: assign_to_cluster_response.to_json,
+          headers: {
+            "Content-Type" => "application/json"
+          }
+        )
+      end
+
+      it "reschedules itself when a collected ink was updated within the debounce window" do
+        collected_ink_1.update_columns(updated_at: 5.seconds.ago)
+
+        expect { subject.perform }.not_to change { AgentLog.count }
+        expect(WebMock).not_to have_requested(:post, "https://api.openai.com/v1/chat/completions")
+        expect(RunInkClustererAgent.jobs.size).to eq(1)
+        expect(RunInkClustererAgent.jobs.last["args"]).to eq(["InkClusterer", micro_cluster.id])
+        expect(RunInkClustererAgent.jobs.last["at"]).to be_within(2).of(
+          (Time.current + InkClusterer::DEBOUNCE_WINDOW).to_f
+        )
+      end
+
+      it "runs the LLM once no collected ink has been updated within the debounce window" do
+        subject.perform
+
+        expect(WebMock).to have_requested(:post, "https://api.openai.com/v1/chat/completions")
+        expect(subject.agent_log.reload.state).to eq("waiting-for-approval")
       end
     end
   end
@@ -1452,6 +1487,7 @@ RSpec.describe InkClusterer do
       end
 
       it "handles special characters in ink data" do
+        CollectedInk.update_all(updated_at: 1.hour.ago)
         subject.perform
 
         transcript = subject.agent_log.transcript
@@ -1521,6 +1557,7 @@ RSpec.describe InkClusterer do
       end
 
       it "handles very long ink names" do
+        CollectedInk.update_all(updated_at: 1.hour.ago)
         expect { subject.perform }.not_to raise_error
 
         transcript = subject.agent_log.transcript

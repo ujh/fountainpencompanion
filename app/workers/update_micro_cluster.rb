@@ -8,7 +8,7 @@ class UpdateMicroCluster
     if cluster.macro_cluster_id
       UpdateMacroCluster.perform_async(cluster.macro_cluster_id)
     else
-      RunInkClustererAgent.perform_async("InkClusterer", cluster.id)
+      RunInkClustererAgent.perform_in(InkClusterer::DEBOUNCE_WINDOW, "InkClusterer", cluster.id)
     end
   end
 end

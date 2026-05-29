@@ -122,6 +122,8 @@ class InkClusterer
 
   MODEL_ID = "gpt-4.1"
 
+  DEBOUNCE_WINDOW = 30.seconds
+
   SYSTEM_DIRECTIVE = <<~TEXT
     You are a clustering algorithm that groups similar inks together based on their properties.
 
@@ -177,6 +179,11 @@ class InkClusterer
 
   def perform
     return if already_resolved?
+
+    if recent_activity?
+      RunInkClustererAgent.perform_in(DEBOUNCE_WINDOW, "InkClusterer", micro_cluster.id)
+      return
+    end
 
     if micro_cluster.collected_inks.present?
       ask!(user_prompt)
@@ -261,6 +268,11 @@ class InkClusterer
   private
 
   attr_accessor :micro_cluster, :agent_log_id
+
+  def recent_activity?
+    last_update = micro_cluster.collected_inks.maximum(:updated_at)
+    last_update.present? && last_update > DEBOUNCE_WINDOW.ago
+  end
 
   def already_resolved?
     return true if micro_cluster.ignored?
