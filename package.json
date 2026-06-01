@@ -22,7 +22,7 @@
     "highcharts": "^12.6.0",
     "highcharts-react-official": "^3.2.3",
     "husky": "^9.1.7",
-    "js-cookie": "^3.0.7",
+    "js-cookie": "^3.0.8",
     "jsona": "^1.14.0",
     "jstz": "^2.1.1",
     "lint-staged": "^17.0.7",
