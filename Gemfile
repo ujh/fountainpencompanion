@@ -58,6 +58,7 @@ gem "simple_form"
 gem "slim"
 gem "slodown"
 gem "sprockets-rails"
+gem "ssrf_filter"
 gem "strong_migrations"
 
 group :development, :test do

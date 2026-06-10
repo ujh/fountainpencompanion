@@ -232,4 +232,35 @@ describe Unfurler::Html do
       expect(subject.author).to eq(nil)
     end
   end
+
+  context "image hosted on a private/blocked address (SSRF regression)" do
+    let(:html) { <<~HTML }
+        <html>
+          <head>
+            <meta property="og:image" content="http://169.254.169.254/latest/meta-data/">
+          </head>
+        </html>
+      HTML
+
+    it "drops the image rather than persisting an attacker-controlled internal URL" do
+      allow(Resolv).to receive(:getaddresses).with("169.254.169.254").and_return(
+        ["169.254.169.254"]
+      )
+      expect(subject.image).to be_nil
+    end
+  end
+
+  context "image with a non-http scheme (SSRF regression)" do
+    let(:html) { <<~HTML }
+        <html>
+          <head>
+            <meta property="og:image" content="data:text/html,<script>alert(1)</script>">
+          </head>
+        </html>
+      HTML
+
+    it "drops data: URIs and other non-http schemes" do
+      expect(subject.image).to be_nil
+    end
+  end
 end

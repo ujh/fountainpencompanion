@@ -31,5 +31,21 @@ RSpec.describe Unfurler do
       )
       described_class.new("https://notyoutube.com/watch?v=abc").perform
     end
+
+    it "refuses to fetch URLs whose host resolves to a private address (SSRF regression)" do
+      allow(Resolv).to receive(:getaddresses).with("metadata.internal").and_return(
+        ["169.254.169.254"]
+      )
+
+      expect { described_class.new("http://metadata.internal/latest/").perform }.to raise_error(
+        Faraday::Error
+      )
+    end
+
+    it "refuses to fetch loopback URLs (SSRF regression)" do
+      expect { described_class.new("http://127.0.0.1:6379/").perform }.to raise_error(
+        Faraday::Error
+      )
+    end
   end
 end
