@@ -134,5 +134,24 @@ describe HistoriesController do
         expect(result).to eq([])
       end
     end
+
+    context "with HTML in changeset values (XSS regression)" do
+      let(:version) do
+        double("version", changeset: { "description" => ["safe old", "<script>alert(1)</script>"] })
+      end
+
+      it "HTML-escapes inputs before passing to Differ" do
+        allow(Differ).to receive(:diff_by_word).and_return(
+          double("diff", format_as: double("formatted", html_safe: "formatted diff"))
+        )
+
+        controller.send(:calculate_diffs, version)
+
+        expect(Differ).to have_received(:diff_by_word).with(
+          "&lt;script&gt;alert(1)&lt;/script&gt;",
+          "safe old"
+        )
+      end
+    end
   end
 end
