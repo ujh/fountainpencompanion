@@ -2,7 +2,7 @@ require "rails_helper"
 
 describe FpcFormatter do
   def render(source)
-    described_class.new(source).complete.to_s
+    described_class.render(source).to_s
   end
 
   describe "iframe is disallowed completely" do
