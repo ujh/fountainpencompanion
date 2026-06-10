@@ -2,10 +2,7 @@ require "rails_helper"
 
 describe "Rack::Attack throttles", type: :request do
   before do
-    # Use a real (memory) cache so throttle counters persist across requests
-    # within a test. The test environment normally uses :null_store / clears
-    # Rails.cache between tests via the global before(:each), so isolation
-    # between examples is already handled.
+    # Per-example cache so throttle counters don't leak between tests.
     @original_cache = Rack::Attack.cache.store
     Rack::Attack.cache.store = ActiveSupport::Cache::MemoryStore.new
     Rack::Attack.enabled = true
@@ -13,57 +10,70 @@ describe "Rack::Attack throttles", type: :request do
 
   after { Rack::Attack.cache.store = @original_cache }
 
-  describe "login throttles on POST /users/sign_in" do
-    it "throttles by IP after 5 attempts in 20 seconds" do
-      6.times do |i|
-        post "/users/sign_in",
-             params: {
-               user: {
-                 email: "ip-victim-#{i}@example.com",
-                 password: "wrong"
-               }
-             },
-             env: {
-               "REMOTE_ADDR" => "203.0.113.1"
-             }
-      end
+  def statuses(count, &block)
+    Array.new(count) do |i|
+      block.call(i)
+      response.status
+    end
+  end
 
-      expect(response).to have_http_status(:too_many_requests)
+  describe "login throttles on POST /users/sign_in" do
+    it "allows the first 5 attempts and throttles the 6th from the same IP" do
+      results =
+        statuses(6) do |i|
+          post "/users/sign_in",
+               params: {
+                 user: {
+                   email: "ip-victim-#{i}@example.com",
+                   password: "wrong"
+                 }
+               },
+               env: {
+                 "REMOTE_ADDR" => "203.0.113.1"
+               }
+        end
+
+      expect(results.first(5)).to all(be < 429)
+      expect(results.last).to eq(429)
     end
 
-    it "throttles by email regardless of IP" do
-      6.times do |i|
-        post "/users/sign_in",
-             params: {
-               user: {
-                 email: "victim@example.com",
-                 password: "wrong"
+    it "allows the first 5 attempts and throttles the 6th for the same email across IPs" do
+      results =
+        statuses(6) do |i|
+          post "/users/sign_in",
+               params: {
+                 user: {
+                   email: "victim@example.com",
+                   password: "wrong"
+                 }
+               },
+               env: {
+                 "REMOTE_ADDR" => "203.0.113.#{i + 10}"
                }
-             },
-             env: {
-               "REMOTE_ADDR" => "203.0.113.#{i + 10}"
-             }
-      end
+        end
 
-      expect(response).to have_http_status(:too_many_requests)
+      expect(results.first(5)).to all(be < 429)
+      expect(results.last).to eq(429)
     end
   end
 
   describe "password reset throttles on POST /users/password" do
-    it "throttles by email after 3 attempts in 1 hour" do
-      4.times do |i|
-        post "/users/password",
-             params: {
-               user: {
-                 email: "reset-victim@example.com"
+    it "allows the first 3 attempts and throttles the 4th for the same email" do
+      results =
+        statuses(4) do |i|
+          post "/users/password",
+               params: {
+                 user: {
+                   email: "reset-victim@example.com"
+                 }
+               },
+               env: {
+                 "REMOTE_ADDR" => "203.0.113.#{i + 20}"
                }
-             },
-             env: {
-               "REMOTE_ADDR" => "203.0.113.#{i + 20}"
-             }
-      end
+        end
 
-      expect(response).to have_http_status(:too_many_requests)
+      expect(results.first(3)).to all(be < 429)
+      expect(results.last).to eq(429)
     end
   end
 
@@ -78,21 +88,23 @@ describe "Rack::Attack throttles", type: :request do
       )
     end
 
-    it "throttles by IP after 5 attempts in 1 hour" do
-      6.times do |i|
-        post "/users",
-             params: {
-               user: {
-                 email: "signup-#{i}@example.com",
-                 password: "password123"
+    it "allows the first 5 attempts and throttles the 6th from the same IP" do
+      results =
+        statuses(6) do |i|
+          post "/users",
+               params: {
+                 user: {
+                   email: "signup-#{i}@example.com",
+                   password: "password123"
+                 }
+               },
+               env: {
+                 "REMOTE_ADDR" => "203.0.113.50"
                }
-             },
-             env: {
-               "REMOTE_ADDR" => "203.0.113.50"
-             }
-      end
+        end
 
-      expect(response).to have_http_status(:too_many_requests)
+      expect(results.first(5)).to all(be < 429)
+      expect(results.last).to eq(429)
     end
   end
 end
