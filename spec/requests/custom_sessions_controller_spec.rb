@@ -39,6 +39,20 @@ describe CustomSessionsController, type: :request do
 
         expect(magic_link_calls).to eq(1)
       end
+
+      it "does not 500 when the email param is missing" do
+        post "/users/sign_in", params: { user: { password: "" } }
+
+        expect(response).to have_http_status(:ok)
+        expect(flash[:notice]).to eq(I18n.t("devise.passwordless.magic_link_sent_paranoid"))
+      end
+
+      it "does not 500 when the email param is blank" do
+        post "/users/sign_in", params: { user: { email: "   " } }
+
+        expect(response).to have_http_status(:ok)
+        expect(flash[:notice]).to eq(I18n.t("devise.passwordless.magic_link_sent_paranoid"))
+      end
     end
   end
 end

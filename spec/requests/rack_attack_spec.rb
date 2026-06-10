@@ -4,11 +4,15 @@ describe "Rack::Attack throttles", type: :request do
   before do
     # Per-example cache so throttle counters don't leak between tests.
     @original_cache = Rack::Attack.cache.store
+    @original_enabled = Rack::Attack.enabled
     Rack::Attack.cache.store = ActiveSupport::Cache::MemoryStore.new
     Rack::Attack.enabled = true
   end
 
-  after { Rack::Attack.cache.store = @original_cache }
+  after do
+    Rack::Attack.cache.store = @original_cache
+    Rack::Attack.enabled = @original_enabled
+  end
 
   def statuses(count, &block)
     Array.new(count) do |i|
