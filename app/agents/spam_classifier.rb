@@ -77,11 +77,11 @@ class SpamClassifier
   end
 
   def spam_accounts
-    formatted_as_csv(users.spammer.order(created_at: :desc).limit(50))
+    formatted_as_csv(users.spammer.order(created_at: :desc).limit(50), prefix: "spam")
   end
 
   def normal_accounts
-    formatted_as_csv(users.not_spam.where.not(blurb: "").shuffle.take(50))
+    formatted_as_csv(users.not_spam.where.not(blurb: "").shuffle.take(50), prefix: "normal")
   end
 
   def users
@@ -89,13 +89,21 @@ class SpamClassifier
   end
 
   def unclassified_account
-    formatted_as_csv([user])
+    formatted_as_csv([user], prefix: "subject")
   end
 
-  def formatted_as_csv(users)
+  # Examples are shipped to OpenAI and persisted into AgentLog.transcript on
+  # every classification. The first column used to be the user's email,
+  # which scattered every example user's address into every unrelated
+  # subject's transcript. Replace it with an opaque per-prompt token so
+  # the example rows carry no PII at all and the agent still has a stable
+  # identifier per row.
+  def formatted_as_csv(users, prefix:)
     CSV.generate do |csv|
-      csv << ["email", "name", "blurb", "time zone"]
-      users.each { |user| csv << [user.email, user.name, user.blurb, user.time_zone] }
+      csv << ["id", "name", "blurb", "time zone"]
+      users.each_with_index do |user, i|
+        csv << ["#{prefix}_#{i + 1}", user.name, user.blurb, user.time_zone]
+      end
     end
   end
 end
