@@ -48,11 +48,6 @@ class Unfurler
   end
 
   def html
-    connection =
-      Faraday.new do |c|
-        c.response :follow_redirects
-        c.response :raise_error
-      end
-    connection.get(uri).body
+    SafeHttp.get(uri.to_s).body
   end
 end

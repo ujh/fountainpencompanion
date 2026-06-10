@@ -254,4 +254,24 @@ describe InkReviewChecker do
       )
     end
   end
+
+  describe "image hosted on a blocked address (SSRF regression)" do
+    let(:bad_image) { "http://169.254.169.254/latest/meta-data/" }
+    let(:fresh_data) do
+      Unfurler::Result.new("http://example.com/review", "t", "d", bad_image, "a", nil, false, "")
+    end
+
+    before do
+      allow(Resolv).to receive(:getaddresses).with("169.254.169.254").and_return(
+        ["169.254.169.254"]
+      )
+    end
+
+    it "records a failure rather than issuing the HEAD request" do
+      described_class.new(review).perform
+      expect(review.reload.ink_review_checks.last.result).to eq("error")
+      # No HEAD request should have been emitted at all.
+      expect(WebMock).not_to have_requested(:head, bad_image)
+    end
+  end
 end

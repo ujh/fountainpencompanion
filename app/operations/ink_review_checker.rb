@@ -33,8 +33,8 @@ class InkReviewChecker
 
   def image_reachable?(url)
     return false if url.blank?
-    Faraday.new { |c| c.response :follow_redirects }.head(url).success?
-  rescue Faraday::Error
+    (200..299).cover?(SafeHttp.head(url).status)
+  rescue Faraday::Error, URI::InvalidURIError
     false
   end
 

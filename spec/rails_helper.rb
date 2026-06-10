@@ -24,6 +24,23 @@ RSpec.configure do |config|
   config.before(:each) { Sidekiq::Worker.clear_all }
   config.before(:each) { Rails.cache.clear }
 
+  # SafeHttp (and ssrf_filter under the hood) resolve hostnames before
+  # opening sockets, but test hosts are not real and we don't want to
+  # depend on container DNS. Default every spec to a public IPv4 for
+  # non-IP hostnames. Literal IPs pass through unchanged so SSRF guards
+  # actually see the address the test used. Tests that exercise a
+  # specific SSRF scenario can still override per-host.
+  config.before(:each) do
+    allow(Resolv).to receive(:getaddresses) do |host|
+      begin
+        IPAddr.new(host.to_s)
+        [host.to_s]
+      rescue IPAddr::InvalidAddressError
+        ["93.184.216.34"]
+      end
+    end
+  end
+
   config.before(:each, type: :request) { Rails.application.reload_routes_unless_loaded }
   config.before(:each, type: :controller) { Rails.application.reload_routes_unless_loaded }
 end

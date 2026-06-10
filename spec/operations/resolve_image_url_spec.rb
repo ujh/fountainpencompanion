@@ -42,8 +42,8 @@ RSpec.describe ResolveImageUrl do
       expect(described_class.new(start_url).perform).to be_nil
     end
 
-    it "returns nil when the redirect chain exceeds MAX_REDIRECTS" do
-      urls = (0..described_class::MAX_REDIRECTS).map { |i| "https://example.com/r#{i}" }
+    it "returns nil when the redirect chain exceeds SafeHttp::MAX_REDIRECTS" do
+      urls = (0..SafeHttp::MAX_REDIRECTS).map { |i| "https://example.com/r#{i}" }
       urls.each_with_index do |u, i|
         next_u = urls[i + 1] || "https://example.com/final"
         stub_request(:head, u).to_return(status: 301, headers: { "Location" => next_u })
