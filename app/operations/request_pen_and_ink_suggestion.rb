@@ -14,7 +14,7 @@ class RequestPenAndInkSuggestion
 
       suggestion[:ink] = user.collected_inks.find_by(id: suggestion[:ink])
       suggestion[:pen] = user.collected_pens.find_by(id: suggestion[:pen])
-      suggestion[:message] = Slodown::Formatter.new(suggestion[:message]).markdown.to_s.html_safe
+      suggestion[:message] = FpcFormatter.render(suggestion[:message])
       suggestion
     else
       new_suggestion_id = generate_suggestion_id
