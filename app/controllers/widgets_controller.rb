@@ -144,7 +144,7 @@ class WidgetsController < ApplicationController
         ink_id = safe_integer(entry["ink_id"])
         pen_id = safe_integer(entry["pen_id"])
         next unless ink_id && pen_id
-        { ink_id: ink_id, pen_id: pen_id }
+        { "ink_id" => ink_id, "pen_id" => pen_id }
       end
   rescue JSON::ParserError
     []
