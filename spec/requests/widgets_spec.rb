@@ -294,7 +294,7 @@ describe WidgetsController do
         get url, params: { rejected_suggestions: payload }
 
         expect(captured[:rejected_suggestions]).to eq(
-          [{ ink_id: 1, pen_id: 2 }, { ink_id: 5, pen_id: 6 }]
+          [{ "ink_id" => 1, "pen_id" => 2 }, { "ink_id" => 5, "pen_id" => 6 }]
         )
       end
 
@@ -324,6 +324,18 @@ describe WidgetsController do
         expect(captured[:rejected_suggestions].length).to eq(
           WidgetsController::MAX_REJECTED_SUGGESTIONS
         )
+      end
+
+      it "enqueues the worker with Sidekiq-safe (string-keyed) args" do
+        payload = [{ "ink_id" => 1, "pen_id" => 2 }].to_json
+
+        expect { get url, params: { rejected_suggestions: payload } }.to change(
+          SchedulePenAndInkSuggestion.jobs,
+          :size
+        ).by(1)
+
+        enqueued_rejected = SchedulePenAndInkSuggestion.jobs.last["args"].last
+        expect(enqueued_rejected).to eq([{ "ink_id" => 1, "pen_id" => 2 }])
       end
     end
   end
