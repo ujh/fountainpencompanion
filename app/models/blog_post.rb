@@ -11,7 +11,7 @@ class BlogPost < ApplicationRecord
   end
 
   def html_body
-    Slodown::Formatter.new(body).complete.to_s.html_safe
+    FpcFormatter.new(body).complete.to_s.html_safe
   end
 
   def first_image

@@ -11,7 +11,7 @@ class AfterUserSaved
   attr_accessor :user
 
   def check_user!
-    markdown = Slodown::Formatter.new(user.blurb).complete.to_s
+    markdown = FpcFormatter.new(user.blurb).complete.to_s
     found_link = markdown.include?("http") || markdown.include?("<a ")
     user.update(review_blurb: found_link)
     ClassifyUser.perform_async(user.id) if found_link
