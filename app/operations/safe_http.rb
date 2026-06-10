@@ -65,7 +65,14 @@ class SafeHttp
     uri = parse_uri(url)
     return false unless uri
 
-    addresses_for(uri.host).any? { |ip| globally_routable?(ip) }
+    addresses = addresses_for(uri.host)
+    return false if addresses.empty?
+
+    # Require *all* resolved addresses to be routable. A hostname that
+    # resolves to both a public IP and an internal IP (mixed-answer DNS)
+    # would otherwise pass the gate, and an admin's browser could pick
+    # the internal address when later fetching the URL.
+    addresses.all? { |ip| globally_routable?(ip) }
   rescue URI::InvalidURIError, IPAddr::InvalidAddressError, Resolv::ResolvError
     false
   end

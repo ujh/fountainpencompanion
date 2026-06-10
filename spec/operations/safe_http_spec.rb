@@ -59,6 +59,11 @@ describe SafeHttp do
       stub_resolv("evil.example", ["10.0.0.1"])
       expect(SafeHttp.allowed?("http://evil.example/")).to be false
     end
+
+    it "returns false when the host returns mixed public + private answers" do
+      stub_resolv("mixed.example", %w[93.184.216.34 10.0.0.1])
+      expect(SafeHttp.allowed?("http://mixed.example/")).to be false
+    end
   end
 
   describe ".get" do
