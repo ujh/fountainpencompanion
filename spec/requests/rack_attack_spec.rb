@@ -1,15 +1,21 @@
 require "rails_helper"
 
 describe "Rack::Attack throttles", type: :request do
+  include ActiveSupport::Testing::TimeHelpers
+
   before do
     # Per-example cache so throttle counters don't leak between tests.
     @original_cache = Rack::Attack.cache.store
     @original_enabled = Rack::Attack.enabled
     Rack::Attack.cache.store = ActiveSupport::Cache::MemoryStore.new
     Rack::Attack.enabled = true
+    # Freeze time so a burst of requests can't straddle a Rack::Attack
+    # period boundary and reset the counter mid-test.
+    freeze_time
   end
 
   after do
+    travel_back
     Rack::Attack.cache.store = @original_cache
     Rack::Attack.enabled = @original_enabled
   end
