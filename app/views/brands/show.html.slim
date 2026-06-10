@@ -6,7 +6,7 @@
 
 div class='brand-description'
   div class="content"
-    = FpcFormatter.new(@brand.description).complete.to_s.html_safe
+    = FpcFormatter.render(@brand.description)
   - if @brand.description.present?
     div class="meta-data"
       - latest_version = @brand.versions.last

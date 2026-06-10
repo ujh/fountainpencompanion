@@ -18,6 +18,14 @@ require "slodown"
 class FpcFormatter < Slodown::Formatter
   STRIPPED_ELEMENTS = %w[iframe object embed].freeze
 
+  # Run the full markdown -> autolink -> sanitize pipeline and return
+  # the resulting HTML marked html_safe so it can be interpolated
+  # directly into Slim/ERB views. Callers should never reach into the
+  # underlying Slodown chain themselves — this is the only entry point.
+  def self.render(source)
+    new(source).complete.to_s.html_safe
+  end
+
   # Slodown's default transformers list contains `embed_transformer`,
   # which calls `URI(node['src'])` on every iframe/embed it sees and
   # raises on malformed input — turning any stored `<iframe src="not a

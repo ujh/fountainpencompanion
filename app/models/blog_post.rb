@@ -11,7 +11,7 @@ class BlogPost < ApplicationRecord
   end
 
   def html_body
-    FpcFormatter.new(body).complete.to_s.html_safe
+    FpcFormatter.render(body)
   end
 
   def first_image
