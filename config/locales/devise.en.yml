@@ -16,6 +16,7 @@ en:
       unauthenticated: "You need to sign in or sign up before continuing."
       unconfirmed: "You have to confirm your email address before continuing."
       magic_link_invalid: "Invalid or expired login link."
+      failed_captcha: "We could not verify the captcha. Please try again."
     mailer:
       confirmation_instructions:
         subject: "[fountainpencompanion.com] Confirmation instructions"

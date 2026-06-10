@@ -67,8 +67,14 @@ class User < ApplicationRecord
     super
   end
 
+  # Recovery path for users wrongly flagged by the sign_up_ip_24h_timeframe
+  # heuristic. Their initial confirmation email is suppressed by
+  # `check_if_we_should_skip_confirmation`, but Devise's resend_confirmation
+  # endpoint still delivers — so if a real human clicks the link we clear
+  # the bot flag and the matching reason rather than leaving them in the
+  # bot bucket forever.
   def after_confirmation
-    update_attribute(:bot, false)
+    update_columns(bot: false, bot_reason: nil)
   end
 
   def unread
