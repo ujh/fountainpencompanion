@@ -134,5 +134,43 @@ describe HistoriesController do
         expect(result).to eq([])
       end
     end
+
+    context "with HTML in changeset values (XSS regression)" do
+      let(:version) do
+        double("version", changeset: { "description" => ["safe old", "<script>alert(1)</script>"] })
+      end
+
+      it "HTML-escapes inputs before passing to Differ" do
+        allow(Differ).to receive(:diff_by_word).and_return(
+          double("diff", format_as: double("formatted", html_safe: "formatted diff"))
+        )
+
+        controller.send(:calculate_diffs, version)
+
+        expect(Differ).to have_received(:diff_by_word).with(
+          "&lt;script&gt;alert(1)&lt;/script&gt;",
+          "safe old"
+        )
+      end
+    end
+
+    context "with line_name_is_empty change" do
+      let(:object) { double("object", automatic_line_name: "<line> Iroshizuku") }
+      let(:version) { double("version", changeset: { "line_name_is_empty" => [true, false] }) }
+
+      before { allow(controller).to receive(:object).and_return(object) }
+
+      it "HTML-escapes the automatic_line_name and labels it 'Line Name'" do
+        allow(Differ).to receive(:diff_by_word).and_return(
+          double("diff", format_as: double("formatted", html_safe: "formatted diff"))
+        )
+
+        result = controller.send(:calculate_diffs, version)
+
+        expect(result).to eq([{ label: "Line Name", type: :text, diff: "formatted diff" }])
+        # old_value=true => old_display="", new_value=false => new_display=automatic_line_name
+        expect(Differ).to have_received(:diff_by_word).with("&lt;line&gt; Iroshizuku", "")
+      end
+    end
   end
 end
