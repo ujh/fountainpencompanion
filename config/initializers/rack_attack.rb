@@ -1,6 +1,33 @@
-# Throttle API requests by authorization token
-Rack::Attack.throttle("api requests", limit: 15, period: 30) do |request|
-  request.env["HTTP_AUTHORIZATION"] if request.env["HTTP_AUTHORIZATION"].present?
+# Throttle API requests. Two complementary rules:
+#
+# - Per-IP throttle on every /api/* request, so rotating bearer tokens
+#   (or sending garbage tokens) cannot evade the throttle by handing
+#   each request a fresh bucket key. This catches CPU-amplified DoS
+#   that forces a bcrypt-compare on every garbage token.
+# - Per-token-id throttle so a single legitimate user with a valid
+#   token still hits a per-token ceiling regardless of source IP. Keyed
+#   on the *id* portion of the token (everything before the first
+#   ".") rather than the full Authorization header, because the secret
+#   half is high-entropy and attackers could rotate it freely.
+
+def fpc_api_token_id(request)
+  auth = request.env["HTTP_AUTHORIZATION"].to_s
+  return nil if auth.empty?
+
+  # Token-authenticator format: `Token token="<id>.<secret>"` (or with
+  # the `Bearer` scheme, or no scheme at all). Pull out the value, then
+  # take the id half.
+  raw = auth[/token=("?)([^"\s,]+)\1/i, 2] || auth.sub(/\ABearer\s+/i, "").strip
+  id, _secret = raw.to_s.split(".", 2)
+  id.presence
+end
+
+Rack::Attack.throttle("api/ip", limit: 60, period: 60.seconds) do |request|
+  request.ip if request.path.starts_with?("/api/")
+end
+
+Rack::Attack.throttle("api/token-id", limit: 15, period: 30.seconds) do |request|
+  fpc_api_token_id(request) if request.path.starts_with?("/api/")
 end
 
 # Brute-force / credential-stuffing protection on Devise endpoints.

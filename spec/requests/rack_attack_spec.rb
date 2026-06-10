@@ -111,4 +111,39 @@ describe "Rack::Attack throttles", type: :request do
       expect(results.last).to eq(429)
     end
   end
+
+  describe "API token throttles" do
+    it "throttles /api/* requests by IP when the Authorization header changes per request" do
+      # Rotate a fake bearer token on every request. The old per-header
+      # throttle would have given each value its own bucket; the new
+      # per-IP /api/* throttle catches this pattern.
+      results =
+        statuses(61) do |i|
+          get "/api/v1/collected_inks",
+              env: {
+                "REMOTE_ADDR" => "203.0.113.77",
+                "HTTP_AUTHORIZATION" => %(Token token="garbage-#{i}.secret")
+              }
+        end
+
+      expect(results.first(60)).to all(be < 429)
+      expect(results.last).to eq(429)
+    end
+
+    it "throttles /api/* by token id across rotating secrets" do
+      # Same token id with rotating secret halves should hit the
+      # per-token-id throttle even from different IPs.
+      results =
+        statuses(16) do |i|
+          get "/api/v1/collected_inks",
+              env: {
+                "REMOTE_ADDR" => "203.0.113.#{100 + i}",
+                "HTTP_AUTHORIZATION" => %(Token token="same-id.secret-#{i}")
+              }
+        end
+
+      expect(results.first(15)).to all(be < 429)
+      expect(results.last).to eq(429)
+    end
+  end
 end

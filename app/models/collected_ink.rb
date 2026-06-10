@@ -4,6 +4,9 @@ class CollectedInk < ApplicationRecord
   include Archivable
   include PgSearch::Model
 
+  paginates_per 100
+  max_paginates_per 100
+
   KINDS = %w[bottle sample cartridge swab]
 
   validates :kind, inclusion: { in: KINDS, allow_blank: true }

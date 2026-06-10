@@ -50,6 +50,24 @@ describe Api::V1::CollectedInksController do
         )
       end
 
+      it "caps page[size] at CollectedInk.max_paginates_per" do
+        # max_paginates_per is 100. Even when the client requests a huge
+        # size, the response must not exceed it.
+        150.times { create(:collected_ink, user: user) }
+
+        get "/api/v1/collected_inks",
+            params: {
+              page: {
+                size: 10_000
+              }
+            },
+            headers: {
+              "ACCEPT" => "application/json"
+            }
+
+        expect(json[:data].size).to be <= CollectedInk.max_per_page
+      end
+
       it "allows supports pagination" do
         create(:collected_ink, user: user, brand_name: "Aurora", ink_name: "Black")
         create(:collected_ink, user: user, brand_name: "Waldmann", ink_name: "Blue")
