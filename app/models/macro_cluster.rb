@@ -52,6 +52,7 @@ class MacroCluster < ApplicationRecord
   after_commit :enqueue_update, if: :saved_change_to_color?
 
   paginates_per 100
+  max_paginates_per 100
 
   scope :unassigned, -> { where(brand_cluster_id: nil) }
   scope :without_description, -> { where(description: "") }
