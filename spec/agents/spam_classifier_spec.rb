@@ -427,23 +427,45 @@ RSpec.describe SpamClassifier do
           messages = body["messages"]
           content = messages.find { |m| m["role"] == "user" }&.[]("content")
 
-          # Should contain CSV headers
-          expect(content).to include("email,name,blurb,time zone")
+          # Should contain CSV headers (id column instead of email — see
+          # PII-stripping spec below)
+          expect(content).to include("id,name,blurb,time zone")
 
           # Should contain spam examples
           expect(content).to include("Given the following spam accounts:")
-          expect(content).to include(spam_user_1.email)
+          expect(content).to include(spam_user_1.name)
           expect(content).to include(spam_user_2.name)
 
           # Should contain normal examples
           expect(content).to include("And the following normal accounts:")
-          expect(content).to include(normal_user_1.email)
+          expect(content).to include(normal_user_1.name)
           expect(content).to include(normal_user_2.blurb)
 
-          # Should contain target user
+          # Should contain target user (by name; emails are stripped)
           expect(content).to include("Classify the following account as spam or normal:")
-          expect(content).to include(target_user.email)
           expect(content).to include(target_user.name)
+
+          true
+        }
+        .at_least_once
+    end
+
+    it "does not ship any user email addresses to OpenAI" do
+      subject.perform
+
+      expect(WebMock).to have_requested(:post, "https://api.openai.com/v1/chat/completions")
+        .with { |req|
+          body = JSON.parse(req.body)
+          content = body["messages"].find { |m| m["role"] == "user" }&.[]("content")
+
+          # No example user's email and no @ from email rows. The CSV
+          # header used to be "email,name,..."; verify it has changed.
+          expect(content).not_to include(spam_user_1.email)
+          expect(content).not_to include(spam_user_2.email)
+          expect(content).not_to include(normal_user_1.email)
+          expect(content).not_to include(normal_user_2.email)
+          expect(content).not_to include(target_user.email)
+          expect(content).not_to include("email,name,blurb,time zone")
 
           true
         }
@@ -470,7 +492,7 @@ RSpec.describe SpamClassifier do
           content = body["messages"].find { |m| m["role"] == "user" }&.[]("content")
 
           spam_section = content.split("And the following normal accounts:").first
-          spam_rows = spam_section.split("\n").select { |line| line.include?("@") }
+          spam_rows = spam_section.split("\n").select { |line| line.start_with?("spam_") }
           expect(spam_rows.length).to be <= 50
 
           true
@@ -503,7 +525,7 @@ RSpec.describe SpamClassifier do
               .first
               .split("And the following normal accounts:")
               .last
-          normal_rows = normal_section.split("\n").select { |line| line.include?("@") }
+          normal_rows = normal_section.split("\n").select { |line| line.start_with?("normal_") }
           expect(normal_rows.length).to be <= 50
 
           true
@@ -581,7 +603,6 @@ RSpec.describe SpamClassifier do
         .with { |req|
           body = JSON.parse(req.body)
           content = body["messages"].find { |m| m["role"] == "user" }&.[]("content")
-          expect(content).to include(special_user.email)
           expect(content).to include("With")
           expect(content).to include("quotes")
           true

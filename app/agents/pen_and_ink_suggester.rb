@@ -45,10 +45,10 @@ class PenAndInkSuggester
   MAX_PER_DAY = 20
   MAX_PER_DAY_PATRON = 50
 
-  def initialize(user, extra_user_input = nil, hidden_input = nil)
+  def initialize(user, extra_user_input = nil, rejected_suggestions = [])
     self.user = user
     self.extra_user_input = extra_user_input
-    self.hidden_input = hidden_input
+    self.rejected_suggestions = rejected_suggestions || []
   end
 
   def perform
@@ -73,7 +73,7 @@ class PenAndInkSuggester
 
   private
 
-  attr_accessor :user, :extra_user_input, :hidden_input
+  attr_accessor :user, :extra_user_input, :rejected_suggestions
 
   def model_id
     premium? ? "gpt-4.1" : "gpt-4.1-mini"
@@ -93,8 +93,16 @@ class PenAndInkSuggester
     parts = [prompt]
     parts << additional_premium_prompt if premium?
     parts << extra_user_prompt if extra_user_input.present?
-    parts << hidden_input if hidden_input.present?
+    parts << rejected_suggestions_prompt if rejected_suggestions.present?
     parts.join("\n\n")
+  end
+
+  # Build the "rejected suggestions" instruction server-side from the
+  # validated {ink_id, pen_id} pairs. Attacker-controlled free-form text
+  # cannot reach the LLM through this path.
+  def rejected_suggestions_prompt
+    "The following suggestions were rejected. Do not recommend them again:\n" \
+      "#{JSON.generate(rejected_suggestions)}"
   end
 
   def prompt

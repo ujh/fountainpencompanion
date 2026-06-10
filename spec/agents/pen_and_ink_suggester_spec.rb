@@ -102,6 +102,24 @@ RSpec.describe PenAndInkSuggester do
     end
   end
 
+  describe "rejected suggestions in the user prompt" do
+    it "embeds the validated {ink_id, pen_id} pairs as JSON" do
+      pairs = [{ ink_id: 1, pen_id: 2 }, { ink_id: 3, pen_id: 4 }]
+      suggester = described_class.new(user, nil, pairs)
+      prompt = suggester.send(:user_prompt)
+
+      expect(prompt).to include('"ink_id":1')
+      expect(prompt).to include('"pen_id":4')
+      expect(prompt).to include("rejected. Do not recommend them again")
+    end
+
+    it "does not include the section when no pairs are passed" do
+      suggester = described_class.new(user, nil, [])
+      prompt = suggester.send(:user_prompt)
+      expect(prompt).not_to include("rejected")
+    end
+  end
+
   describe "#agent_log" do
     it "creates and memoizes agent log" do
       log1 = subject.agent_log

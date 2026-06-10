@@ -1,10 +1,10 @@
 class RequestPenAndInkSuggestion
-  def initialize(user:, suggestion_id: nil, extra_user_input: nil, hidden_input: nil)
+  def initialize(user:, suggestion_id: nil, extra_user_input: nil, rejected_suggestions: [])
     self.suggestion_id = suggestion_id
     self.user = user
 
     self.extra_user_input = extra_user_input
-    self.hidden_input = hidden_input
+    self.rejected_suggestions = rejected_suggestions || []
   end
 
   def perform
@@ -22,7 +22,7 @@ class RequestPenAndInkSuggestion
         user.id,
         new_suggestion_id,
         extra_user_input,
-        hidden_input
+        rejected_suggestions
       )
       { suggestion_id: new_suggestion_id }
     end
@@ -30,7 +30,7 @@ class RequestPenAndInkSuggestion
 
   private
 
-  attr_accessor :suggestion_id, :user, :extra_user_input, :hidden_input
+  attr_accessor :suggestion_id, :user, :extra_user_input, :rejected_suggestions
 
   def generate_suggestion_id
     prefix = self.class.name.underscore.dasherize

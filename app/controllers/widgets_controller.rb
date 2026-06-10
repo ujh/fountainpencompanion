@@ -116,13 +116,44 @@ class WidgetsController < ApplicationController
     index.succ if index
   end
 
+  MAX_REJECTED_SUGGESTIONS = 50
+
   def pen_and_ink_suggestion_data
     RequestPenAndInkSuggestion.new(
       user: current_user,
       suggestion_id: params[:suggestion_id].presence,
       extra_user_input: params[:extra_user_input].presence,
-      hidden_input: params[:hidden_input].presence
+      rejected_suggestions: parse_rejected_suggestions(params[:rejected_suggestions])
     ).perform
+  end
+
+  # The "rejected suggestions" list is built client-side from prior agent
+  # outputs. Parse it as a strict JSON array of {ink_id, pen_id} integer
+  # pairs and discard anything else, so attacker-supplied free-form text
+  # can never reach the LLM prompt under this param.
+  def parse_rejected_suggestions(raw)
+    return [] if raw.blank?
+
+    parsed = JSON.parse(raw)
+    return [] unless parsed.is_a?(Array)
+
+    parsed
+      .first(MAX_REJECTED_SUGGESTIONS)
+      .filter_map do |entry|
+        next unless entry.is_a?(Hash)
+        ink_id = safe_integer(entry["ink_id"])
+        pen_id = safe_integer(entry["pen_id"])
+        next unless ink_id && pen_id
+        { ink_id: ink_id, pen_id: pen_id }
+      end
+  rescue JSON::ParserError
+    []
+  end
+
+  def safe_integer(value)
+    Integer(value)
+  rescue ArgumentError, TypeError
+    nil
   end
 
   USAGE_VIZ_RANGES = {

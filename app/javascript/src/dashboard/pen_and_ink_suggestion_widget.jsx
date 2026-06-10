@@ -80,12 +80,11 @@ const AskForSuggestion = ({
     try {
       let url = `/dashboard/widgets/pen_and_ink_suggestion.json?extra_user_input=${encodeURIComponent(extraInstructions)}`;
       if (allSuggestions.length > 0) {
-        const hiddenInputData = allSuggestions.map((s) => ({
+        const rejectedSuggestions = allSuggestions.map((s) => ({
           ink_id: s.ink?.id,
           pen_id: s.pen?.id
         }));
-        const hiddenInput = `The following suggestions were rejected. Do not recommend them again:\n${JSON.stringify(hiddenInputData)}`;
-        url += `&hidden_input=${encodeURIComponent(hiddenInput)}`;
+        url += `&rejected_suggestions=${encodeURIComponent(JSON.stringify(rejectedSuggestions))}`;
       }
       const response = await getRequest(url);
       const json = await response.json();
