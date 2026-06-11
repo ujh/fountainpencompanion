@@ -55,6 +55,12 @@ RSpec.describe YoutubeSummarizer do
         "Content-Type" => "application/json"
       }
     )
+    stub_request(:head, %r{https://img\.youtube\.com/vi/.+/maxresdefault\.jpg}).to_return(
+      status: 200,
+      headers: {
+        "Content-Type" => "image/jpeg"
+      }
+    )
   end
 
   subject { described_class.new(parent_agent_log, source) }
@@ -118,6 +124,23 @@ RSpec.describe YoutubeSummarizer do
       content = user_msg["content"]
       text = content.is_a?(Array) ? content.find { |p| p["type"] == "text" }&.[]("text") : content
       text.include?("(none available)")
+    }
+  end
+
+  it "omits the thumbnail when the URL is unreachable" do
+    stub_request(:head, "https://img.youtube.com/vi/abc/maxresdefault.jpg").to_return(status: 404)
+
+    subject.perform
+
+    expect(WebMock).to have_requested(
+      :post,
+      "https://api.openai.com/v1/chat/completions"
+    ).with { |req|
+      body = JSON.parse(req.body)
+      user_msg = body["messages"].find { |m| m["role"] == "user" }
+      content = user_msg["content"]
+      content.is_a?(String) ||
+        (content.is_a?(Array) && content.none? { |p| p["type"] == "image_url" })
     }
   end
 
