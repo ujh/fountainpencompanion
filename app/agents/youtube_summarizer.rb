@@ -18,7 +18,7 @@ class YoutubeSummarizer
   end
 
   def perform
-    response = ask(prompt_text, with: source_image.presence)
+    response = ask(prompt_text, with: resolved_image_url)
     agent_log.waiting_for_approval!
     response.content
   end
@@ -50,6 +50,10 @@ class YoutubeSummarizer
   def source_title = source.respond_to?(:title) ? source.title.to_s : ""
   def source_description = source.respond_to?(:description) ? source.description.to_s : ""
   def source_image = source.respond_to?(:image) ? source.image.to_s : ""
+
+  def resolved_image_url
+    ResolveImageUrl.new(source_image).perform
+  end
 
   def source_tags
     if source.respond_to?(:youtube_tags)
