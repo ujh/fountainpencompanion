@@ -19,7 +19,7 @@
     "date-fns": "^4.4.0",
     "fast-levenshtein": "^3.0.0",
     "font-awesome": "^4.7.0",
-    "highcharts": "^12.6.0",
+    "highcharts": "^13.0.0",
     "highcharts-react-official": "^3.2.3",
     "husky": "^9.1.7",
     "js-cookie": "^3.0.8",
