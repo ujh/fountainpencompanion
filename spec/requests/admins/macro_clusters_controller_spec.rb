@@ -354,6 +354,19 @@ describe Admins::MacroClustersController do
           expect(response).to be_successful
         end.to change { MacroCluster.count }.by(-1)
       end
+
+      it "re-clusters the freed micro clusters without blocking the run" do
+        micro_cluster = create(:micro_cluster, macro_cluster:)
+
+        expect do
+          delete "/admins/macro_clusters/#{macro_cluster.id}"
+          expect(response).to be_successful
+        end.to change { UpdateMicroCluster.jobs.count }.by(1)
+
+        expect(UpdateMicroCluster.jobs.last["args"]).to eq([micro_cluster.id])
+        expect(micro_cluster.reload.macro_cluster_id).to be_nil
+        expect(micro_cluster.agent_logs.ink_clusterer.where(state: AgentLog::APPROVED)).to be_empty
+      end
     end
   end
 end

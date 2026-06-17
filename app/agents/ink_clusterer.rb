@@ -278,13 +278,12 @@ class InkClusterer
     return true if micro_cluster.ignored?
     return true if micro_cluster.macro_cluster_id.present?
 
+    # Only an in-flight run (waiting for approval) should block a new run. The
+    # ignored?/macro_cluster_id checks above already cover resolved states, and
+    # APPROVED logs must not block re-clustering triggered by admin actions
+    # (deleting a macro cluster, unignoring or unassigning a micro cluster).
     latest =
-      micro_cluster
-        .agent_logs
-        .ink_clusterer
-        .where(state: [AgentLog::APPROVED, AgentLog::WAITING_FOR_APPROVAL])
-        .order(updated_at: :desc)
-        .first
+      micro_cluster.agent_logs.ink_clusterer.waiting_for_approval.order(updated_at: :desc).first
     return false unless latest
 
     micro_cluster.collected_inks.where("updated_at > ?", latest.updated_at).none?

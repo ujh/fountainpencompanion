@@ -130,6 +130,27 @@ describe Admins::MicroClustersController do
         expect(response).to be_successful
         expect(micro_cluster.reload.macro_cluster).to eq(macro_cluster)
       end
+
+      it "records a rejected ignore log and schedules a run when unignoring" do
+        micro_cluster.update!(ignored: true)
+
+        expect do
+          put "/admins/micro_clusters/#{micro_cluster.id}",
+              params: {
+                "data" => {
+                  "id" => micro_cluster.id.to_s,
+                  "type" => "micro_cluster",
+                  "attributes" => {
+                    "ignored" => false
+                  }
+                }
+              }
+        end.to change { UpdateMicroCluster.jobs.count }.by(1)
+
+        log = micro_cluster.agent_logs.ink_clusterer.last
+        expect(log.state).to eq(AgentLog::REJECTED)
+        expect(log.extra_data["action"]).to eq("ignore_ink")
+      end
     end
   end
 
@@ -153,6 +174,15 @@ describe Admins::MicroClustersController do
       end.to change { UpdateMicroCluster.jobs.count }.from(0).to(1)
       job = UpdateMicroCluster.jobs.first
       expect(job["args"]).to eq([micro_cluster.id])
+    end
+
+    it "records the undone assignment as a rejected log" do
+      delete "/admins/micro_clusters/#{micro_cluster.id}/unassign"
+
+      log = micro_cluster.agent_logs.ink_clusterer.last
+      expect(log.state).to eq(AgentLog::REJECTED)
+      expect(log.extra_data["action"]).to eq("assign_to_cluster")
+      expect(log.extra_data["cluster_id"]).to eq(macro_cluster.id)
     end
   end
 end
