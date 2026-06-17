@@ -388,7 +388,15 @@ RSpec.describe InkClusterer do
         expect(RunInkClustererAgent.jobs.size).to eq(0)
       end
 
-      it "skips when a prior APPROVED log exists and no collected_ink updated after" do
+      it "re-runs when only a prior APPROVED log exists (no in-flight run)" do
+        stub_request(:post, "https://api.openai.com/v1/chat/completions").to_return(
+          status: 200,
+          body: assign_to_cluster_response.to_json,
+          headers: {
+            "Content-Type" => "application/json"
+          }
+        )
+
         AgentLog.create!(
           name: "InkClusterer",
           owner: micro_cluster,
@@ -398,13 +406,16 @@ RSpec.describe InkClusterer do
             "action" => "hand_over_to_human"
           }
         )
-        # Make sure the inks predate the log
+        # Make sure the inks predate the log and are outside the debounce window.
         collected_ink_1.update_columns(updated_at: 1.hour.ago)
         collected_ink_2.update_columns(updated_at: 1.hour.ago)
 
-        expect { subject.perform }.not_to change { AgentLog.count }
-        expect(WebMock).not_to have_requested(:post, "https://api.openai.com/v1/chat/completions")
-        expect(RunInkClustererAgent.jobs.size).to eq(0)
+        subject.perform
+
+        expect(WebMock).to have_requested(
+          :post,
+          "https://api.openai.com/v1/chat/completions"
+        ).at_least_once
       end
 
       it "skips when a WAITING_FOR_APPROVAL log exists" do

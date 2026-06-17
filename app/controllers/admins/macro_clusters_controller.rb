@@ -32,18 +32,9 @@ class Admins::MacroClustersController < Admins::BaseController
 
   def destroy
     cluster = MacroCluster.find(params[:id])
-    micro_cluster_ids = []
-    cluster.micro_clusters.each do |micro_cluster|
-      micro_cluster.agent_logs.create!(
-        name: "InkClusterer",
-        state: AgentLog::APPROVED,
-        transcript: [],
-        extra_data: {
-          action: "create_new_cluster"
-        }
-      )
-      micro_cluster_ids << micro_cluster.id
-    end
+    # Capture the ids before destroy nullifies the association so the freed
+    # micro clusters can be re-clustered from scratch.
+    micro_cluster_ids = cluster.micro_clusters.pluck(:id)
     cluster.destroy!
     micro_cluster_ids.each { |micro_cluster_id| UpdateMicroCluster.perform_async(micro_cluster_id) }
     head :ok

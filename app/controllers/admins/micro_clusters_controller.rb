@@ -34,9 +34,11 @@ class Admins::MicroClustersController < Admins::BaseController
     cluster.update!(update_params)
     UpdateMicroCluster.perform_async(cluster.id)
     if cluster.previous_changes["ignored"] == [true, false]
+      # Record the undone "ignore" as rejected so the clusterer is told not to
+      # ignore this ink again, without blocking the re-clustering run.
       cluster.agent_logs.create!(
         name: "InkClusterer",
-        state: AgentLog::APPROVED,
+        state: AgentLog::REJECTED,
         transcript: [],
         extra_data: {
           action: "ignore_ink"
@@ -52,16 +54,18 @@ class Admins::MicroClustersController < Admins::BaseController
 
   def unassign
     cluster = MicroCluster.find(params[:id])
+    previous_macro_cluster_id = cluster.macro_cluster_id
     cluster.update!(macro_cluster_id: nil)
     UpdateMicroCluster.perform_async(cluster.id)
-    # Fake entry, to avoid generating the same outcome in the clustering agent again
+    # Record the undone assignment as rejected so the clusterer is told not to
+    # reassign to the same macro cluster, without blocking the re-clustering run.
     cluster.agent_logs.create!(
       name: "InkClusterer",
-      state: AgentLog::APPROVED,
+      state: AgentLog::REJECTED,
       transcript: [],
       extra_data: {
         action: "assign_to_cluster",
-        cluster_id: cluster.id
+        cluster_id: previous_macro_cluster_id
       }
     )
     head :ok
