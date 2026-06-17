@@ -32,7 +32,6 @@ class Admins::MicroClustersController < Admins::BaseController
   def update
     cluster = MicroCluster.find(params[:id])
     cluster.update!(update_params)
-    UpdateMicroCluster.perform_async(cluster.id)
     if cluster.previous_changes["ignored"] == [true, false]
       # Record the undone "ignore" as rejected so the clusterer is told not to
       # ignore this ink again, without blocking the re-clustering run.
@@ -45,6 +44,8 @@ class Admins::MicroClustersController < Admins::BaseController
         }
       )
     end
+    # Enqueue after the guidance log is persisted so the clusterer run sees it.
+    UpdateMicroCluster.perform_async(cluster.id)
     if request.referrer == ignored_admins_micro_clusters_url
       redirect_to ignored_admins_micro_clusters_url
     else
@@ -56,7 +57,6 @@ class Admins::MicroClustersController < Admins::BaseController
     cluster = MicroCluster.find(params[:id])
     previous_macro_cluster_id = cluster.macro_cluster_id
     cluster.update!(macro_cluster_id: nil)
-    UpdateMicroCluster.perform_async(cluster.id)
     # Record the undone assignment as rejected so the clusterer is told not to
     # reassign to the same macro cluster, without blocking the re-clustering run.
     cluster.agent_logs.create!(
@@ -68,6 +68,8 @@ class Admins::MicroClustersController < Admins::BaseController
         cluster_id: previous_macro_cluster_id
       }
     )
+    # Enqueue after the guidance log is persisted so the clusterer run sees it.
+    UpdateMicroCluster.perform_async(cluster.id)
     head :ok
   end
 
