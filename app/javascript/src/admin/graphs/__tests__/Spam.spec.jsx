@@ -1,18 +1,19 @@
-/* eslint-env jest */
-/* global jest, describe, it, expect, beforeAll, afterAll, beforeEach, afterEach, global */
 import { render, screen, waitFor } from "@testing-library/react";
 import * as fetchModule from "../../../fetch";
-import { UsageRecords } from "../UsageRecords";
+import { Spam } from "../Spam";
 
 jest.mock("highcharts", () => ({}));
 
-// Mock HighchartsReact to just render a div with its props for inspection
+// Mock HighchartsReact to just render a div with the options as JSON for inspection
 jest.mock("highcharts-react-official", () => {
   const MockHighchartsReact = (props) => (
     <div data-testid="highcharts-mock">{JSON.stringify(props.options)}</div>
   );
   MockHighchartsReact.displayName = "MockHighchartsReact";
-  return MockHighchartsReact;
+  return {
+    __esModule: true,
+    default: MockHighchartsReact
+  };
 });
 
 // Mock Spinner
@@ -31,10 +32,15 @@ afterAll(() => {
   delete global.navigator.locks;
 });
 
-describe("UsageRecords", () => {
+describe("Spam", () => {
   const mockData = [
-    [1717200000000, 8],
-    [1717286400000, 12]
+    {
+      name: "Spam Accounts",
+      data: [
+        [1714608000000, 1],
+        [1714694400000, 2]
+      ]
+    }
   ];
 
   beforeEach(() => {
@@ -64,14 +70,14 @@ describe("UsageRecords", () => {
         })
     );
 
-    render(<UsageRecords />);
+    render(<Spam />);
     expect(screen.getByTestId("spinner")).toBeInTheDocument();
     // Wait for spinner to disappear
     await waitFor(() => expect(screen.queryByTestId("spinner")).not.toBeInTheDocument());
   });
 
   it("fetches data and renders HighchartsReact with correct options", async () => {
-    render(<UsageRecords />);
+    render(<Spam />);
     // Wait for chart to appear
     const chart = await screen.findByTestId("highcharts-mock");
     expect(chart).toBeInTheDocument();
@@ -79,10 +85,9 @@ describe("UsageRecords", () => {
     // Parse the options passed to HighchartsReact
     const options = JSON.parse(chart.textContent);
     expect(options.chart.type).toBe("spline");
-    expect(options.series[0].data).toEqual(mockData);
-    expect(options.series[0].name).toBe("Usage Records");
-    expect(options.title.text).toMatch(/Usage records per day/i);
+    expect(options.series).toEqual(mockData);
+    expect(options.title.text).toMatch(/Spam accounts/i);
     expect(options.xAxis.type).toBe("datetime");
-    expect(options.legend.enabled).toBe(false);
+    expect(options.legend.enabled).toBe(true);
   });
 });

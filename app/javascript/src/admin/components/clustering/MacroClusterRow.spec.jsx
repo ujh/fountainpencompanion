@@ -16,10 +16,14 @@ jest.mock("react-scroll-into-view-if-needed", () => {
 });
 
 jest.mock("./EntriesList", () => ({
+  // The real EntriesList renders <tr> rows; mock it with valid table markup so
+  // it doesn't trigger invalid-nesting warnings inside the surrounding <tbody>.
   EntriesList: ({ entries }) => (
-    <div data-testid="entries-list" data-entries-count={entries.length}>
-      Entries List
-    </div>
+    <tr>
+      <td data-testid="entries-list" data-entries-count={entries.length}>
+        Entries List
+      </td>
+    </tr>
   )
 }));
 
@@ -172,7 +176,7 @@ describe("MacroClusterRow", () => {
       renderWithContext({ selected: true });
 
       const rows = screen.getAllByRole("row");
-      expect(rows).toHaveLength(2); // Main row + expanded row
+      expect(rows).toHaveLength(3); // Main row + expanded row + EntriesList row
       expect(screen.getByTestId("entries-list")).toBeInTheDocument();
     });
   });
@@ -189,7 +193,7 @@ describe("MacroClusterRow", () => {
 
       // Click to show
       await user.click(scrollComponent);
-      expect(screen.getAllByRole("row")).toHaveLength(2);
+      expect(screen.getAllByRole("row")).toHaveLength(3);
       expect(screen.getByTestId("entries-list")).toBeInTheDocument();
 
       // Click to hide
@@ -205,7 +209,7 @@ describe("MacroClusterRow", () => {
 
       // Click to show
       await user.click(brandCell);
-      expect(screen.getAllByRole("row")).toHaveLength(2);
+      expect(screen.getAllByRole("row")).toHaveLength(3);
 
       // Click to hide
       await user.click(brandCell);

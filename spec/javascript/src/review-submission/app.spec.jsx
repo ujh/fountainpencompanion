@@ -3,10 +3,11 @@ import userEvent from "@testing-library/user-event";
 import { rest } from "msw";
 import { setupServer } from "msw/node";
 import { App } from "review-submission/app";
+import { accountHandlers } from "../../support/accountHandlers";
 
 describe("ReviewSubmission App", () => {
   const submitUrl = "/brands/1/inks/2/ink_review_submissions";
-  const server = setupServer();
+  const server = setupServer(...accountHandlers);
 
   beforeAll(() => server.listen());
   afterEach(() => server.resetHandlers());

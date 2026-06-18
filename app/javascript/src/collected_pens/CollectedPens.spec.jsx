@@ -2,6 +2,7 @@ import { render } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { rest } from "msw";
 import { setupServer } from "msw/node";
+import { accountHandlers } from "../../../../spec/javascript/support/accountHandlers";
 import { CollectedPens, storageKeyLayout } from "./CollectedPens";
 
 const setup = (jsx, options) => {
@@ -31,7 +32,8 @@ describe("<CollectedPens />", () => {
         }
       ];
       return res(ctx.json({ data, meta }));
-    })
+    }),
+    ...accountHandlers
   );
 
   beforeAll(() => server.listen());
