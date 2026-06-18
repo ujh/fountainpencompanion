@@ -2,6 +2,7 @@ import { render } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { rest } from "msw";
 import { setupServer } from "msw/node";
+import { accountHandlers } from "../../../../spec/javascript/support/accountHandlers";
 import { CollectedInks, storageKeyLayout } from "./CollectedInks";
 
 const setup = (jsx, options) => {
@@ -98,7 +99,8 @@ describe("<CollectedInks />", () => {
           ]
         })
       )
-    )
+    ),
+    ...accountHandlers
   );
 
   beforeAll(() => {

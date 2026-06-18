@@ -1,5 +1,3 @@
-/* eslint-env jest */
-/* global jest, describe, it, expect, beforeAll, afterAll, beforeEach, global */
 import { render, screen, waitFor } from "@testing-library/react";
 import HighchartsReact from "highcharts-react-official";
 import * as fetchModule from "../../../fetch";

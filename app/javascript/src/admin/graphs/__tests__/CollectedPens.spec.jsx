@@ -1,5 +1,3 @@
-/* eslint-env jest */
-/* global jest, describe, it, expect, beforeAll, afterAll, global */
 import { render, screen, waitFor } from "@testing-library/react";
 import * as fetchModule from "../../../fetch";
 import { CollectedPens } from "../CollectedPens";
