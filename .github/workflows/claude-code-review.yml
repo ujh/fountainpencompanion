@@ -1,0 +1,49 @@
+name: Claude Code Review
+
+# Claude reviews pull requests and posts inline findings.
+#
+# SECURITY MODEL (this repo is open source):
+#   - Trigger is `pull_request`, NOT `pull_request_target`. GitHub does
+#     not expose repository secrets to workflows triggered by a PR from
+#     a fork, so `secrets.CLAUDE_CODE_OAUTH_TOKEN` is EMPTY on fork PRs.
+#     The guard step below detects the empty token and skips cleanly
+#     (green), so external-contributor PRs are simply not reviewed —
+#     there is no path for a fork to obtain the token. This is the
+#     deliberate trade-off: no token exposure, no fork reviews.
+#   - The reviewer never checks out or executes PR head code; it works
+#     off the diff/metadata fetched via the `gh`/`git` read-only tools.
+#   - Claude runs with a hardened, read-only tool allowlist (see
+#     .github/actions/claude-review/action.yml). It can post review
+#     comments via GITHUB_TOKEN (pull-requests: write) but cannot push
+#     code, write files, or run arbitrary shell.
+#
+# SETUP (one-time, by a maintainer):
+#   1. Generate a token:  claude setup-token
+#   2. Add it as a repository secret named CLAUDE_CODE_OAUTH_TOKEN
+#      (Settings -> Secrets and variables -> Actions).
+#   The token is tied to a personal Claude subscription — treat it like
+#   a password.
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+concurrency:
+  group: claude-review-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      pull-requests: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - uses: ./.github/actions/claude-review
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}

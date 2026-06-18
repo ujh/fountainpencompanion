@@ -1,0 +1,223 @@
+name: Claude Code Review
+description: >
+  Run Claude Code as a PR reviewer using a prompt assembled from
+  prompts/*.md. Generic guidance lives in prompts/base.md and
+  prompts/review-checks.md; the fixed Ruby/Rails and React toolset
+  fragments under prompts/tools/ are always appended.
+
+inputs:
+  claude_code_oauth_token:
+    description: >
+      Claude Code OAuth token. EMPTY on fork PRs (secrets are not
+      exposed to fork-triggered workflows); the guard step skips the
+      review cleanly in that case.
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Decide whether to skip review
+      id: guard
+      shell: bash
+      env:
+        OAUTH: ${{ inputs.claude_code_oauth_token }}
+        PR_AUTHOR: ${{ github.event.pull_request.user.login }}
+      run: |
+        set -euo pipefail
+        reason=""
+        if [ -z "$OAUTH" ]; then
+          # No token: either a fork PR (secrets withheld by GitHub) or
+          # the CLAUDE_CODE_OAUTH_TOKEN secret is unset. Skip cleanly —
+          # there is nothing to authenticate with, and this must not
+          # fail-red on every external-contributor PR.
+          reason="no Claude token (fork PR or unconfigured secret)"
+        elif [ "$PR_AUTHOR" = "dependabot[bot]" ]; then
+          reason="PR authored by dependabot[bot]"
+        fi
+        if [ -n "$reason" ]; then
+          echo "Skipping review: $reason"
+          echo "skip=true" >> "$GITHUB_OUTPUT"
+        else
+          echo "skip=false" >> "$GITHUB_OUTPUT"
+        fi
+
+    - name: Pre-fetch PR context
+      if: steps.guard.outputs.skip != 'true'
+      shell: bash
+      env:
+        PR_NUMBER: ${{ github.event.pull_request.number }}
+        REPO: ${{ github.repository }}
+        BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        GH_TOKEN: ${{ github.token }}
+        DEST: ${{ github.workspace }}/.pr-context
+      run: |
+        set -euo pipefail
+        mkdir -p "$DEST"
+        gh pr view "$PR_NUMBER" \
+          --repo "$REPO" \
+          --json title,body,number,headRefOid,baseRefName,headRefName,additions,deletions,changedFiles,author,isDraft,labels,files \
+          > "$DEST/meta.json"
+        # --paginate writes each page as its own JSON array,
+        # which is not valid JSON. Slurp pages and `add` to
+        # merge them into one flat array.
+        gh api "repos/$REPO/pulls/$PR_NUMBER/comments" --paginate \
+          | jq -s 'add // []' > "$DEST/inline-comments.json"
+        gh api "repos/$REPO/issues/$PR_NUMBER/comments" --paginate \
+          | jq -s 'add // []' > "$DEST/issue-comments.json"
+        # checkout@v6 with fetch-depth: 0 already fetched all
+        # history; the explicit fetch is a safety net for repos
+        # configured with a different depth.
+        git fetch --no-tags origin "$BASE_SHA" "$HEAD_SHA" 2>/dev/null || true
+        # Three-dot diff: head vs. merge-base(base, head). Matches
+        # GitHub's "Files changed" tab. Two-dot would fold in any
+        # base-branch commits made after the PR branched off,
+        # producing false positives on code the PR didn't touch.
+        git diff "$BASE_SHA...$HEAD_SHA" > "$DEST/diff.patch"
+        git diff --stat "$BASE_SHA...$HEAD_SHA" > "$DEST/diff-stat.txt"
+        # Filtered code-only diff: excludes generated/lockfile noise
+        # that bloats every subagent's cache_read without adding
+        # review signal. Subagents default to this; full diff stays
+        # at diff.patch for the rare case (e.g. correctness on a
+        # schema change) where the excluded paths matter.
+        #
+        # The `glob` magic is mandatory for `**/...` patterns. In
+        # default pathspec magic, `**` is two `*`s and matches at
+        # least one path component, so `:(exclude)**/yarn.lock`
+        # silently fails on a root-level `yarn.lock`. `:(exclude,glob)`
+        # switches to gitignore-style globbing where `**/` collapses
+        # to "any depth, including zero".
+        git diff "$BASE_SHA...$HEAD_SHA" -- . \
+          ':(exclude,glob)**/*.lock' \
+          ':(exclude,glob)**/yarn.lock' \
+          ':(exclude,glob)**/package-lock.json' \
+          ':(exclude,glob)**/db/structure.sql' \
+          ':(exclude,glob)**/db/schema.rb' \
+          ':(exclude,glob)**/app/assets/builds/**' \
+          ':(exclude,glob)**/*.snap' \
+          ':(exclude,glob)**/__snapshots__/**' \
+          ':(exclude,glob)**/*.min.js' \
+          ':(exclude,glob)**/*.min.css' \
+          > "$DEST/diff-code.patch"
+        printf '%s' "$BASE_SHA" > "$DEST/base-sha"
+        printf '%s' "$HEAD_SHA" > "$DEST/head-sha"
+
+    - name: Assemble prompt
+      id: assemble
+      if: steps.guard.outputs.skip != 'true'
+      shell: bash
+      env:
+        ACTION_PATH: ${{ github.action_path }}
+        PR_NUMBER: ${{ github.event.pull_request.number }}
+        REPO: ${{ github.repository }}
+        BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+      run: |
+        set -euo pipefail
+        {
+          echo "prompt<<PROMPT_EOF"
+          # Inline REVIEW.md (if present) at the top so subagents
+          # do not each re-read it from disk on every run. The
+          # inlined copy is canonical; the on-disk file is not read
+          # by the reviewer.
+          if [ -s "$GITHUB_WORKSPACE/REVIEW.md" ]; then
+            echo "# Repository review rules (inlined from REVIEW.md)"
+            echo
+            echo "These rules are the highest-priority review guidance and override the default checks below. Apply them in every subagent and in the verification pass. Do not Read REVIEW.md from disk — this inlined copy is canonical."
+            echo
+            cat "$GITHUB_WORKSPACE/REVIEW.md"
+            echo
+            echo "---"
+            echo
+          fi
+          envsubst '$PR_NUMBER $REPO $BASE_SHA $HEAD_SHA' < "$ACTION_PATH/prompts/base.md"
+          echo
+          envsubst '$PR_NUMBER $REPO $BASE_SHA $HEAD_SHA' < "$ACTION_PATH/prompts/review-checks.md"
+          echo
+          envsubst '$PR_NUMBER $REPO $BASE_SHA $HEAD_SHA' < "$ACTION_PATH/prompts/blocked-tools-comment.md"
+          # Fixed toolset for this repo: Ruby/Rails + React frontend.
+          echo
+          envsubst '$PR_NUMBER $REPO $BASE_SHA $HEAD_SHA' < "$ACTION_PATH/prompts/tools/ruby.md"
+          echo
+          envsubst '$PR_NUMBER $REPO $BASE_SHA $HEAD_SHA' < "$ACTION_PATH/prompts/tools/frontend.md"
+          echo "PROMPT_EOF"
+        } >> "$GITHUB_OUTPUT"
+
+    - name: Stage review helper
+      if: steps.guard.outputs.skip != 'true'
+      shell: bash
+      env:
+        ACTION_PATH: ${{ github.action_path }}
+        DEST: ${{ github.workspace }}/.claude-review-post
+      run: |
+        set -euo pipefail
+        cp "$ACTION_PATH/scripts/post-review.sh" "$DEST"
+        chmod +x "$DEST"
+
+    - uses: anthropics/claude-code-action@806af32823ef69c8ef357086c573a902af641307 # v1
+      id: claude
+      if: steps.guard.outputs.skip != 'true'
+      with:
+        claude_code_oauth_token: ${{ inputs.claude_code_oauth_token }}
+        github_token: ${{ github.token }}
+        prompt: ${{ steps.assemble.outputs.prompt }}
+        claude_args: |
+          --model opus
+          --allowedTools "Bash(gh:*),Bash(git fetch:*),Bash(git log:*),Bash(git show:*),Bash(git blame:*),Bash(git diff:*),Bash(git ls-files:*),Bash(git ls-tree:*),Bash(git cat-file:*),Bash(git status),Bash(grep:*),Bash(head:*),Bash(tail:*),Bash(ls:*),Bash(cat:*),Bash(wc:*),Bash(./.claude-review-post:*),Task,Agent"
+          --append-system-prompt "Repo-specific review rules are inlined at the top of the review prompt under the 'Repository review rules' section. Apply them in every subagent and validation pass — they override default rules. Findings that violate the inlined skip rules must not be reported. Do not Read REVIEW.md from disk; the inlined copy is canonical."
+
+    - name: Remove staged review helper
+      if: always() && steps.guard.outputs.skip != 'true'
+      shell: bash
+      env:
+        DEST: ${{ github.workspace }}/.claude-review-post
+      run: rm -f "$DEST"
+
+    - name: Remove pre-fetched PR context
+      if: always() && steps.guard.outputs.skip != 'true'
+      shell: bash
+      env:
+        DEST: ${{ github.workspace }}/.pr-context
+      run: rm -rf "$DEST"
+
+    - name: Upload Claude execution log
+      if: always() && steps.guard.outputs.skip != 'true' && steps.claude.outputs.execution_file != ''
+      uses: actions/upload-artifact@v4
+      with:
+        name: claude-execution-log
+        path: ${{ steps.claude.outputs.execution_file }}
+        if-no-files-found: ignore
+        retention-days: 30
+
+    - name: Render reviewer transcript to step summary
+      if: always() && steps.guard.outputs.skip != 'true' && steps.claude.outputs.execution_file != ''
+      shell: bash
+      env:
+        EXECUTION_FILE: ${{ steps.claude.outputs.execution_file }}
+      run: |
+        set -euo pipefail
+        {
+          echo "## Claude reviewer transcript"
+          echo
+          jq -r '
+            (.[] | select(.type == "result")) as $r
+            | "**Duration:** \(($r.duration_ms / 1000) | floor)s  ·  **Turns:** \($r.num_turns)  ·  **Cost:** $\($r.total_cost_usd)  ·  **Error:** \($r.is_error)"
+          ' "$EXECUTION_FILE"
+          echo
+          echo "### Turns"
+          echo
+          jq -r '
+            .[]
+            | select(.type == "assistant")
+            | .message.content[]?
+            | if .type == "text" then
+                "**assistant:**\n\n" + .text + "\n"
+              elif .type == "tool_use" then
+                "**tool_use** `" + .name + "`:\n\n```json\n" + (.input | tojson) + "\n```\n"
+              else empty end
+          ' "$EXECUTION_FILE"
+          echo
+          echo "### Final result"
+          echo
+          jq -r '(.[] | select(.type == "result")).result' "$EXECUTION_FILE"
+        } >> "$GITHUB_STEP_SUMMARY"
