@@ -117,8 +117,8 @@ module RubyLlmAgent
   # interaction so the agent log reflects progress incrementally.
   def register_callbacks(c)
     @tool_call_count = 0
-    c.on_end_message { |message| save_transcript_and_usage(message) }
-    c.on_tool_call do
+    c.after_message { |message| save_transcript_and_usage(message) }
+    c.before_tool_call do
       @tool_call_count += 1
       raise "Max tool calls (#{MAX_TOOL_CALLS}) exceeded" if @tool_call_count > MAX_TOOL_CALLS
       save_transcript
