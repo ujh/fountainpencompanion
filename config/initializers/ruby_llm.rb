@@ -1,3 +1,10 @@
+RubyLLM.configure do |config|
+  # Opt into the new acts_as API. The app uses RubyLLM::Chat directly and no
+  # acts_as_* ActiveRecord models, so this only silences the legacy deprecation
+  # warning without changing behavior. Required before RubyLLM 2.0.
+  config.use_new_acts_as = true
+end
+
 RubyLLM::Tool.prepend(
   Module.new do
     def name
