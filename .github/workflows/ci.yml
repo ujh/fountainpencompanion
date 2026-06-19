@@ -49,7 +49,7 @@ jobs:
         ports:
           - 6379:6379
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - name: Install correct Node version
         uses: actions/setup-node@v6.4.0
         with:
@@ -73,7 +73,7 @@ jobs:
     env:
       PRETTIER_RUBY_TIMEOUT_MS: 50000
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - name: Install correct Node version
         uses: actions/setup-node@v6.4.0
         with:
@@ -97,7 +97,7 @@ jobs:
   docker-build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v4
       - name: Build Docker image
@@ -116,7 +116,7 @@ jobs:
     runs-on: ubuntu-latest
     concurrency: deploy-group # optional: ensure only one action runs at a time
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: superfly/flyctl-actions/setup-flyctl@master
       - name: Stage Honeybadger revision secret
         run: flyctl secrets set HONEYBADGER_REVISION=${{ github.sha }} --stage
