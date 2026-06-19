@@ -1712,13 +1712,13 @@
     "@types/aws-lambda" "^8.10.89"
     "@types/express" "^5.0.3"
 
-"@honeybadger-io/plugin-core@^1.4.1":
-  version "1.4.1"
-  resolved "https://registry.yarnpkg.com/@honeybadger-io/plugin-core/-/plugin-core-1.4.1.tgz#6781fb02b3a96ef961d25bf9803517e1dd41af38"
-  integrity sha512-p4fNPwAm7G2z24lx4gBBWjCrD4YfAgGqRMNI9es4WYe94bbukuIzr2d+x0qv09QkIWh/RyhejnIqe0pegj2LSw==
+"@honeybadger-io/plugin-core@^1.4.2":
+  version "1.4.2"
+  resolved "https://registry.yarnpkg.com/@honeybadger-io/plugin-core/-/plugin-core-1.4.2.tgz#be6f19ccac9729f86f14ac6e90d125ae772bca95"
+  integrity sha512-BE+GajV7n1CV179CTUAA03F8UO8xMWwS8zEE/+m/S+s2nCy/0D4laiVX0mtfMEK7gP/LMDLq4dOzHncILbJeLg==
   dependencies:
     fetch-retry "^5.0.3"
-    form-data "^4.0.0"
+    form-data "^4.0.6"
     node-fetch "^2.6.9"
 
 "@honeybadger-io/react@^6.1.27":
@@ -1726,13 +1726,13 @@
   resolved "https://registry.yarnpkg.com/@honeybadger-io/react/-/react-6.1.27.tgz#ca95f277931df0209e604dfcfe096fc3fa14a69e"
   integrity sha512-StLfYo+/e0V3K1LybRmqctUFMdI5mgSHpBQr8xbSTUel6Q7VFsHrSoRSBZQCE/hFNBewHCOw3//RleChEsPrQA==
 
-"@honeybadger-io/webpack@^6.3.1":
-  version "6.3.1"
-  resolved "https://registry.yarnpkg.com/@honeybadger-io/webpack/-/webpack-6.3.1.tgz#d2310375c3123883242d64b948fb10137b031d8b"
-  integrity sha512-JmNGwVF8kttVYbVaAnXtS+k/hU+tHaIN9jJ5av9eBslxBVlguNV5vZhNwS6jjHJcpi7vE9XR6KeWme3lKt85Ug==
+"@honeybadger-io/webpack@^6.3.2":
+  version "6.3.2"
+  resolved "https://registry.yarnpkg.com/@honeybadger-io/webpack/-/webpack-6.3.2.tgz#7618c1bea40617468b82085537836ba33f9b5aea"
+  integrity sha512-HexFk+M4vEDa1nPiP8kAYvr5o8s0mjiowy86lWRj4oa16oS164zPxACCEE9p2diJhLB8saetpIjTXGeZ9IX6qg==
   dependencies:
     "@babel/runtime" "^7.14.5"
-    "@honeybadger-io/plugin-core" "^1.4.1"
+    "@honeybadger-io/plugin-core" "^1.4.2"
     verror "^1.6.1"
 
 "@humanfs/core@^0.19.1":
@@ -4872,7 +4872,7 @@ foreground-child@^3.1.0:
     cross-spawn "^7.0.6"
     signal-exit "^4.0.1"
 
-form-data@^4.0.0:
+form-data@^4.0.6:
   version "4.0.6"
   resolved "https://registry.yarnpkg.com/form-data/-/form-data-4.0.6.tgz#28e864e1b786dbebb68db1f452f9635278665827"
   integrity sha512-vKatAh4SlVfgbv+YtmhiRjhEMJsYpsG1Y2rMQtR+SVSbytsSD1YGzDIcrAJmdFec88u/+VoGmxnl+80gL1tRCQ==
