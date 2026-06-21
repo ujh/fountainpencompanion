@@ -28,6 +28,7 @@ class ImportCollectedInk
     row["kind"] = "bottle" unless row["kind"].present?
     row["kind"] = row["kind"].strip.downcase
     row["tags_as_string"] = row["tags"] || ""
+    row["created_at"] = row["date_added"].present? ? Date.parse(row["date_added"]) : nil
     row.slice(
       "brand_name",
       "line_name",
