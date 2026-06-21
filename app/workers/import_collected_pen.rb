@@ -32,7 +32,21 @@ class ImportCollectedPen
 
   def params(row)
     row["archived_on"] = row["archived"].present? ? Date.current : nil
-    row["created_at"] = row["date_added"].present? ? Date.parse(row["date_added"]) : nil
-    row.slice("material", "trim_color", "filling_system", "price", "comment", "archived_on")
+    row["created_at"] = parse_date(row["date_added"])
+    row.slice(
+      "material",
+      "trim_color",
+      "filling_system",
+      "price",
+      "comment",
+      "archived_on",
+      "created_at"
+    )
+  end
+
+  def parse_date(value)
+    value.present? ? Date.parse(value) : nil
+  rescue Date::Error
+    nil
   end
 end

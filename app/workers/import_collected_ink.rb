@@ -28,7 +28,7 @@ class ImportCollectedInk
     row["kind"] = "bottle" unless row["kind"].present?
     row["kind"] = row["kind"].strip.downcase
     row["tags_as_string"] = row["tags"] || ""
-    row["created_at"] = row["date_added"].present? ? Date.parse(row["date_added"]) : nil
+    row["created_at"] = parse_date(row["date_added"])
     row.slice(
       "brand_name",
       "line_name",
@@ -42,11 +42,18 @@ class ImportCollectedInk
       "private_comment",
       "swabbed",
       "tags_as_string",
-      "color"
+      "color",
+      "created_at"
     )
   end
 
   def to_b(str)
     str.present? && !%w[false f 0].include?(str.downcase)
+  end
+
+  def parse_date(value)
+    value.present? ? Date.parse(value) : nil
+  rescue Date::Error
+    nil
   end
 end
