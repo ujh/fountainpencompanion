@@ -1,5 +1,6 @@
 class ImportCollectedInk
   include Sidekiq::Worker
+  include ImportDateParser
 
   def perform(user_id, row)
     SaveCollectedInk.new(collected_ink(user_id, row), params(row)).perform
@@ -28,21 +29,25 @@ class ImportCollectedInk
     row["kind"] = "bottle" unless row["kind"].present?
     row["kind"] = row["kind"].strip.downcase
     row["tags_as_string"] = row["tags"] || ""
-    row.slice(
-      "brand_name",
-      "line_name",
-      "ink_name",
-      "maker",
-      "kind",
-      "private",
-      "comment",
-      "used",
-      "archived_on",
-      "private_comment",
-      "swabbed",
-      "tags_as_string",
-      "color"
-    )
+    sliced =
+      row.slice(
+        "brand_name",
+        "line_name",
+        "ink_name",
+        "maker",
+        "kind",
+        "private",
+        "comment",
+        "used",
+        "archived_on",
+        "private_comment",
+        "swabbed",
+        "tags_as_string",
+        "color"
+      )
+    created_at = parse_date(row["date_added"])
+    sliced["created_at"] = created_at if created_at
+    sliced
   end
 
   def to_b(str)

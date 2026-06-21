@@ -1,5 +1,6 @@
 class ImportCollectedPen
   include Sidekiq::Worker
+  include ImportDateParser
 
   def perform(user_id, row)
     save_pen(user_id, row)
@@ -32,6 +33,10 @@ class ImportCollectedPen
 
   def params(row)
     row["archived_on"] = row["archived"].present? ? Date.current : nil
-    row.slice("material", "trim_color", "filling_system", "price", "comment", "archived_on")
+    sliced =
+      row.slice("material", "trim_color", "filling_system", "price", "comment", "archived_on")
+    created_at = parse_date(row["date_added"])
+    sliced["created_at"] = created_at if created_at
+    sliced
   end
 end
