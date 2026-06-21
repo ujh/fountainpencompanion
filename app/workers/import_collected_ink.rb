@@ -1,5 +1,6 @@
 class ImportCollectedInk
   include Sidekiq::Worker
+  include ImportDateParser
 
   def perform(user_id, row)
     SaveCollectedInk.new(collected_ink(user_id, row), params(row)).perform
@@ -51,11 +52,5 @@ class ImportCollectedInk
 
   def to_b(str)
     str.present? && !%w[false f 0].include?(str.downcase)
-  end
-
-  def parse_date(value)
-    value.present? ? Date.parse(value) : nil
-  rescue Date::Error
-    nil
   end
 end

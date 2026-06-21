@@ -35,4 +35,11 @@ describe ImportCollectedInk do
     described_class.new.perform(user.id, row("date_added" => ""))
     expect(user.collected_inks.first.created_at).to be_present
   end
+
+  it "re-imports an existing ink with a blank date_added" do
+    described_class.new.perform(user.id, row)
+    expect { described_class.new.perform(user.id, row("date_added" => "")) }.not_to raise_error
+    expect(user.collected_inks.count).to eq(1)
+    expect(user.collected_inks.first.created_at).to be_present
+  end
 end
