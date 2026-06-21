@@ -28,23 +28,25 @@ class ImportCollectedInk
     row["kind"] = "bottle" unless row["kind"].present?
     row["kind"] = row["kind"].strip.downcase
     row["tags_as_string"] = row["tags"] || ""
-    row["created_at"] = parse_date(row["date_added"])
-    row.slice(
-      "brand_name",
-      "line_name",
-      "ink_name",
-      "maker",
-      "kind",
-      "private",
-      "comment",
-      "used",
-      "archived_on",
-      "private_comment",
-      "swabbed",
-      "tags_as_string",
-      "color",
-      "created_at"
-    )
+    sliced =
+      row.slice(
+        "brand_name",
+        "line_name",
+        "ink_name",
+        "maker",
+        "kind",
+        "private",
+        "comment",
+        "used",
+        "archived_on",
+        "private_comment",
+        "swabbed",
+        "tags_as_string",
+        "color"
+      )
+    created_at = parse_date(row["date_added"])
+    sliced["created_at"] = created_at if created_at
+    sliced
   end
 
   def to_b(str)
