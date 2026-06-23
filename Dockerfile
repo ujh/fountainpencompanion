@@ -16,23 +16,24 @@ WORKDIR /app
 
 ENV BUNDLE_PATH="/usr/local/bundle"
 
-# Install packages needed to run the app
+# Install packages needed to run the app. These live in `base` so both the
+# `common-build`/`dev` and the slim `prod` runtime stages inherit them.
 RUN apt-get update -qq && \
-  apt-get install --no-install-recommends -y libyaml-dev && \
+  apt-get install --no-install-recommends -y libyaml-dev libjemalloc2 && \
   rm -rf /var/lib/apt/lists /var/cache/apt/archives
+
+# Set up jemalloc for better memory management (runtime concern, so it lives in base)
+RUN ln -s /usr/lib/*-linux-gnu/libjemalloc.so.2 /usr/lib/libjemalloc.so.2
+ENV LD_PRELOAD=/usr/lib/libjemalloc.so.2
+ENV MALLOC_CONF="dirty_decay_ms:1000,narenas:2,background_thread:true"
 
 # The development stage is used to run the app locally as serves as the base for building the version
 # that will contain the data for prod.
 FROM base AS common-build
 # Install base packages
 RUN apt-get update -qq && \
-  apt-get install --no-install-recommends -y curl libjemalloc2 libvips lsb-release gnupg2 && \
+  apt-get install --no-install-recommends -y curl libvips lsb-release gnupg2 && \
   rm -rf /var/lib/apt/lists /var/cache/apt/archives
-
-# Set up jemalloc for better memory management
-RUN ln -s /usr/lib/*-linux-gnu/libjemalloc.so.2 /usr/lib/libjemalloc.so.2
-ENV LD_PRELOAD=/usr/lib/libjemalloc.so.2
-ENV MALLOC_CONF="dirty_decay_ms:1000,narenas:2,background_thread:true"
 
 # Install Postgres 17, so that schema dumping works
 RUN echo "deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list
@@ -81,10 +82,9 @@ CMD ["bundle exec puma"]
 
 FROM common-build AS prod-build
 
-# Copy application code
-COPY . .
-
-# Bundle but without dev and test groups
+# Bundle but without dev and test groups. Gemfile/Gemfile.lock are already present
+# from common-build, so installing gems BEFORE copying the app keeps this layer cached
+# across deploys that don't touch the Gemfile.
 ENV RAILS_ENV="production" \
   BUNDLE_DEPLOYMENT="1" \
   BUNDLE_WITHOUT="development:test"
@@ -93,6 +93,9 @@ RUN rm -rf "${BUNDLE_PATH}" && \
   bundle install && \
   rm -rf ~/.bundle/ "${BUNDLE_PATH}"/ruby/*/cache "${BUNDLE_PATH}"/ruby/*/bundler/gems/*/.git && \
   bundle exec bootsnap precompile --gemfile
+
+# Copy application code
+COPY . .
 
 # Precompile bootsnap code for faster boot times
 RUN bundle exec bootsnap precompile app/ lib/
