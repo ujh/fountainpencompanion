@@ -42,6 +42,10 @@ class CheckInkClustering::Base
         }
       )
       agent_log.approve_by_agent!
+      update_micro_cluster_agent_log!
+      # The micro cluster lost its inks between clustering and review. Reject the
+      # parent log outright so it never reaches a human reviewer.
+      micro_cluster_agent_log.reject!
     end
   end
 

@@ -226,8 +226,8 @@ RSpec.describe InkClusterer do
 
         expect(subject.agent_log.extra_data["action"]).to eq("reject")
         expect(subject.agent_log.extra_data["explanation_of_decision"]).to include("no inks in it")
-        expect(subject.agent_log.state).to eq("approved")
-        expect(subject.agent_log.agent_approved).to be true
+        expect(subject.agent_log.state).to eq("rejected")
+        expect(subject.agent_log.agent_approved).to be false
       end
 
       it "does not make OpenAI request for empty cluster" do

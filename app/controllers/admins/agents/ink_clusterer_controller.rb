@@ -73,6 +73,7 @@ class Admins::Agents::InkClustererController < Admins::BaseController
       .ink_clusterer
       .where(state: [AgentLog::WAITING_FOR_APPROVAL, AgentLog::PROCESSING])
       .or(AgentLog.ink_clusterer.agent_processed)
+      .with_collected_inks
       .order(:id)
   end
 

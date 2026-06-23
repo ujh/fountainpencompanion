@@ -45,6 +45,8 @@ class CheckInkClustering::Human < CheckInkClustering::Base
     if micro_cluster.collected_inks.present?
       prompt = [clustering_explanation, micro_cluster_data].compact.join("\n\n")
       ask(prompt)
+      agent_log.waiting_for_approval!
+      micro_cluster_agent_log.approve!
     else
       agent_log.update(
         extra_data: {
@@ -53,9 +55,11 @@ class CheckInkClustering::Human < CheckInkClustering::Base
             "The micro cluster has no inks in it. It is not possible to cluster an empty micro cluster."
         }
       )
+      agent_log.waiting_for_approval!
+      # The micro cluster lost its inks between clustering and review. Reject the
+      # parent log outright so it never reaches a human reviewer.
+      micro_cluster_agent_log.reject!
     end
-    agent_log.waiting_for_approval!
-    micro_cluster_agent_log.approve!
   end
 
   private

@@ -13,6 +13,17 @@ class AgentLog < ApplicationRecord
 
   scope :ink_clusterer, -> { where(name: "InkClusterer") }
 
+  # Only logs whose owning micro cluster still has collected inks. Empty micro
+  # clusters don't show up anywhere in the app, so their review logs should be
+  # hidden from the review queue. Relies on ink_clusterer logs always owning a
+  # MicroCluster (owner_id -> micro_clusters.id).
+  scope :with_collected_inks,
+        -> do
+          where(
+            "EXISTS (SELECT 1 FROM collected_inks WHERE collected_inks.micro_cluster_id = agent_logs.owner_id)"
+          )
+        end
+
   scope :processing, -> { where(state: PROCESSING) }
   scope :waiting_for_approval, -> { where(state: WAITING_FOR_APPROVAL) }
   scope :approved, -> { where(state: APPROVED) }

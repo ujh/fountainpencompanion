@@ -176,9 +176,12 @@ RSpec.describe CheckInkClustering::Human do
         expect(agent_log.extra_data["explanation_of_decision"]).to include("no inks in it")
       end
 
-      it "still approves the micro cluster agent log" do
-        expect_any_instance_of(AgentLog).to receive(:approve!)
+      it "rejects the micro cluster agent log so it never reaches a reviewer" do
         subject.perform
+
+        empty_agent_log.reload
+        expect(empty_agent_log.state).to eq("rejected")
+        expect(empty_agent_log.agent_approved).to be false
       end
     end
 
