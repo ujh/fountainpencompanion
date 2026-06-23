@@ -245,7 +245,7 @@ RSpec.describe CheckInkClustering::Ignore do
 
       subject { described_class.new(empty_agent_log.id) }
 
-      it "auto-approves empty micro cluster without calling OpenAI" do
+      it "rejects the parent log for an empty micro cluster without calling OpenAI" do
         subject.perform
 
         expect(WebMock).not_to have_requested(:post, openai_url)
@@ -254,6 +254,10 @@ RSpec.describe CheckInkClustering::Ignore do
         expect(agent_log.extra_data["action"]).to eq("reject")
         expect(agent_log.extra_data["explanation_of_decision"]).to include("no inks in it")
         expect(agent_log.state).to eq("approved")
+
+        empty_agent_log.reload
+        expect(empty_agent_log.state).to eq("rejected")
+        expect(empty_agent_log.agent_approved).to be false
       end
     end
 

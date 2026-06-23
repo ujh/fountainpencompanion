@@ -198,7 +198,9 @@ class InkClusterer
               "The micro cluster has no inks in it. It is not possible to cluster an empty micro cluster."
           )
       )
-      agent_log.approve_by_agent!
+      # Empty micro clusters can't be clustered and shouldn't reach a human
+      # reviewer, so reject the log outright.
+      agent_log.reject!
     end
   end
 

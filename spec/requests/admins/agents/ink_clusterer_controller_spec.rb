@@ -16,6 +16,34 @@ describe Admins::Agents::InkClustererController do
         get "/admins/agents/ink_clusterer"
         expect(response).to be_successful
       end
+
+      it "hides logs whose micro cluster has no collected inks" do
+        ink = create(:collected_ink)
+        with_inks = create(:micro_cluster)
+        with_inks.collected_inks = [ink]
+        empty = create(:micro_cluster)
+
+        shown =
+          AgentLog.create!(
+            name: "InkClusterer",
+            owner: with_inks,
+            transcript: [],
+            state: AgentLog::WAITING_FOR_APPROVAL
+          )
+        hidden =
+          AgentLog.create!(
+            name: "InkClusterer",
+            owner: empty,
+            transcript: [],
+            state: AgentLog::WAITING_FOR_APPROVAL
+          )
+
+        get "/admins/agents/ink_clusterer"
+
+        expect(controller.view_assigns["queue_length"]).to eq(1)
+        expect(controller.view_assigns["agent_logs"]).to include(shown)
+        expect(controller.view_assigns["agent_logs"]).not_to include(hidden)
+      end
     end
   end
 
