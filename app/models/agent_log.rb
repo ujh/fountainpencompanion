@@ -15,12 +15,12 @@ class AgentLog < ApplicationRecord
 
   # Only logs whose owning micro cluster still has collected inks. Empty micro
   # clusters don't show up anywhere in the app, so their review logs should be
-  # hidden from the review queue. Relies on ink_clusterer logs always owning a
-  # MicroCluster (owner_id -> micro_clusters.id).
+  # hidden from the review queue. The owner_type guard keeps the scope correct
+  # for any owner, not just the InkClusterer (MicroCluster-owned) callers.
   scope :with_collected_inks,
         -> do
           where(
-            "EXISTS (SELECT 1 FROM collected_inks WHERE collected_inks.micro_cluster_id = agent_logs.owner_id)"
+            "agent_logs.owner_type = 'MicroCluster' AND EXISTS (SELECT 1 FROM collected_inks WHERE collected_inks.micro_cluster_id = agent_logs.owner_id)"
           )
         end
 
