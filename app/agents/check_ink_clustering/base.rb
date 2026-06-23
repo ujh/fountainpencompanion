@@ -34,18 +34,7 @@ class CheckInkClustering::Base
       update_micro_cluster_agent_log!
       execute_decision!
     else
-      agent_log.update(
-        extra_data: {
-          "action" => "reject",
-          "explanation_of_decision" =>
-            "The micro cluster has no inks in it. It is not possible to cluster an empty micro cluster."
-        }
-      )
-      agent_log.approve_by_agent!
-      update_micro_cluster_agent_log!
-      # The micro cluster lost its inks between clustering and review. Reject the
-      # parent log outright so it never reaches a human reviewer.
-      micro_cluster_agent_log.reject!
+      reject_empty_micro_cluster!
     end
   end
 
@@ -54,6 +43,24 @@ class CheckInkClustering::Base
   private
 
   attr_accessor :micro_cluster_agent_log
+
+  EMPTY_MICRO_CLUSTER_EXPLANATION =
+    "The micro cluster has no inks in it. It is not possible to cluster an empty micro cluster."
+
+  # The micro cluster lost its inks between clustering and review. Record the
+  # reason on the child log, annotate the parent, then reject the parent log
+  # outright so it never reaches a human reviewer.
+  def reject_empty_micro_cluster!
+    agent_log.update(
+      extra_data: {
+        "action" => "reject",
+        "explanation_of_decision" => EMPTY_MICRO_CLUSTER_EXPLANATION
+      }
+    )
+    agent_log.approve_by_agent!
+    update_micro_cluster_agent_log!
+    micro_cluster_agent_log.reject!
+  end
 
   def base_tools
     [

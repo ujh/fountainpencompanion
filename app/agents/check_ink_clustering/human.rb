@@ -48,17 +48,7 @@ class CheckInkClustering::Human < CheckInkClustering::Base
       agent_log.waiting_for_approval!
       micro_cluster_agent_log.approve!
     else
-      agent_log.update(
-        extra_data: {
-          "action" => "reject",
-          "explanation_of_decision" =>
-            "The micro cluster has no inks in it. It is not possible to cluster an empty micro cluster."
-        }
-      )
-      # Match Base#perform: mark the child log done, then reject the parent log
-      # outright so it never reaches a human reviewer.
-      agent_log.approve_by_agent!
-      micro_cluster_agent_log.reject!
+      reject_empty_micro_cluster!
     end
   end
 
