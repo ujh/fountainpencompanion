@@ -54,6 +54,19 @@ class User < ApplicationRecord
     where(admin: true)
   end
 
+  # Maps each Patreon member to the matching user (or nil), preferring a
+  # linked patreon_user_id over a case-insensitive email match. Bulk-loads in
+  # two queries so callers iterating many members avoid N+1s.
+  def self.match_patreon_members(members)
+    ids = members.filter_map(&:user_id).uniq
+    emails = members.filter_map { |member| member.email&.downcase }.uniq
+    by_id = where(patreon_user_id: ids).index_by(&:patreon_user_id)
+    by_email = where("lower(email) IN (?)", emails).index_by { |user| user.email.downcase }
+    members.index_with do |member|
+      (member.user_id && by_id[member.user_id]) || (member.email && by_email[member.email.downcase])
+    end
+  end
+
   def active_for_authentication?
     super and !spam? and deletion_requested_at.nil?
   end

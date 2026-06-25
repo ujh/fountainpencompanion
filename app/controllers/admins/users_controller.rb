@@ -27,7 +27,12 @@ class Admins::UsersController < Admins::BaseController
   end
 
   def update
-    if @user.update(update_params)
+    @user.assign_attributes(update_params)
+    # Pin the patron flag as admin-owned only when the admin actually changes
+    # it, so the Patreon sync leaves it alone. Saving an unrelated field does
+    # not claim ownership.
+    @user.patron_source = "manual" if @user.patron_changed?
+    if @user.save
       redirect_to admins_user_path(@user)
     else
       render :show

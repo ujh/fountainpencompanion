@@ -1,0 +1,53 @@
+- content_for :title, "Patreon reconciliation"
+
+h1 class="mb-4" Patreon reconciliation
+
+- unless @configured
+  div class="alert alert-warning"
+    | Patreon is not configured. Set the
+    code> PATREON_CAMPAIGN_ID
+    | environment variable and seed a
+    code> PatreonCredential
+    | record.
+
+- if @error
+  div class="alert alert-danger" = "Patreon API error: #{@error}"
+
+- if @configured && !@error
+  p class="text-muted"
+    | Active Patreon members are matched to FPC users by linked Patreon account
+      first, then by email. Unmatched members need a manual patron flag or for
+      the user to link their account.
+
+  h2 class="mt-4 mb-3" = "Unmatched (#{@unmatched.size})"
+  - if @unmatched.empty?
+    p class="text-success" Every active member is matched. 🎉
+  - else
+    table class="table table-striped"
+      thead
+        tr
+          th Patreon email
+          th Patreon user id
+          th Pledge (cents)
+      tbody
+        - @unmatched.each do |member, _user|
+          tr
+            td = member.email
+            td = member.user_id
+            td = member.amount_cents
+
+  h2 class="mt-5 mb-3" = "Matched (#{@matched.size})"
+  table class="table table-striped"
+    thead
+      tr
+        th FPC user
+        th Patreon email
+        th Patron?
+        th Source
+    tbody
+      - @matched.each do |member, user|
+        tr
+          td = link_to(user.public_name.presence || user.email, admins_user_path(user))
+          td = member.email
+          td = user.patron? ? "yes" : "no"
+          td = user.patron_source || "—"

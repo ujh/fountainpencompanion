@@ -31,3 +31,6 @@ analyze:
 enqueue_ink_review_checks:
   cron: "*/15 * * * *" # Every 15 minutes
   class: EnqueueInkReviewChecks
+sync_patreon_patrons:
+  cron: "0 4 * * *" # Every day at 4am
+  class: SyncPatreonPatrons

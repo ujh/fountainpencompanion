@@ -10,6 +10,14 @@ div class="row"
       = f.input :patron
       = f.input :auto_approve_ink_reviews
       = f.submit class: "btn btn-success"
+    - if @user.patron_source.present? || @user.patreon_status.present?
+      p class="text-muted mt-2"
+        | Patron source:
+        strong<> #{@user.patron_source || "—"}
+        - if @user.patreon_status.present?
+          |  · Patreon status: #{@user.patreon_status}
+        - if @user.patreon_synced_at.present?
+          |  · synced #{time_ago_in_words(@user.patreon_synced_at)} ago
 
 div class="row"
   div class="col-sm-12"

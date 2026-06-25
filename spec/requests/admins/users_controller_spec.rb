@@ -20,6 +20,40 @@ describe Admins::UsersController do
     end
   end
 
+  describe "#update" do
+    let(:user) { create(:user) }
+
+    it "requires authentication" do
+      put "/admins/users/#{user.id}", params: { user: { patron: true } }
+      expect(response).to redirect_to(new_user_session_path)
+    end
+
+    context "signed in" do
+      before(:each) { sign_in(admin) }
+
+      it "pins the patron flag as manual when the admin changes it" do
+        put "/admins/users/#{user.id}", params: { user: { patron: true } }
+        user.reload
+        expect(user.patron).to be(true)
+        expect(user.patron_source).to eq("manual")
+      end
+
+      it "does not claim ownership when patron is unchanged" do
+        user.update!(patron: true, patron_source: "patreon")
+        put "/admins/users/#{user.id}",
+            params: {
+              user: {
+                patron: true,
+                auto_approve_ink_reviews: true
+              }
+            }
+        user.reload
+        expect(user.auto_approve_ink_reviews).to be(true)
+        expect(user.patron_source).to eq("patreon")
+      end
+    end
+  end
+
   describe "#ink_import" do
     include ActionDispatch::TestProcess
 
