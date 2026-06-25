@@ -9,7 +9,11 @@ nav class="fpc-header navbar navbar-dark navbar-expand-md" id="header"
     div class="collapse navbar-collapse" id="header-menu"
       ul class="navbar-nav me-auto flex-grow-1 mb-2 mb-lg-0"
         li= link_to "Dashboard", admins_dashboard_path, class: "nav-link"
-        li= link_to "Users", admins_users_path, class: "nav-link"
+        li class="nav-item dropdown"
+          a href="#" class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false" Users
+          ul class="dropdown-menu"
+            li= link_to "Users", admins_users_path, class: "dropdown-item"
+            li= link_to "Patreon", admins_patreon_path, class: "dropdown-item"
         li class="nav-item dropdown"
           a href="#" class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false" Inks
           ul class="dropdown-menu"
