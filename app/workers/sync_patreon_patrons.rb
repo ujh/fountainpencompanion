@@ -18,25 +18,25 @@ class SyncPatreonPatrons
     return unless campaign_id.present? && PatreonCredential.configured?
 
     active_members = client.members(campaign_id).select(&:active?)
-    matched_user_ids = grant(active_members)
+    matched_user_ids = grant(User.match_patreon_members(active_members))
     revoke_churned(matched_user_ids)
   end
 
   private
 
-  def grant(active_members)
-    active_members.filter_map do |member|
-      user = match_user(member)
+  def grant(matches)
+    matches.filter_map do |member, user|
       next unless user
 
-      user.update!(
+      attrs = {
         patreon_member_id: member.member_id,
         patreon_user_id: user.patreon_user_id || member.user_id,
         patreon_email: member.email,
         patreon_status: member.status,
         patreon_synced_at: Time.current
-      )
-      user.update!(patron: true, patron_source: "patreon") unless user.patron_source == "manual"
+      }
+      attrs.merge!(patron: true, patron_source: "patreon") unless user.patron_source == "manual"
+      user.update!(attrs)
       user.id
     end
   end
@@ -53,22 +53,6 @@ class SyncPatreonPatrons
           patreon_synced_at: Time.current
         )
       end
-  end
-
-  def match_user(member)
-    by_linked_id(member) || by_email(member)
-  end
-
-  def by_linked_id(member)
-    return if member.user_id.blank?
-
-    User.find_by(patreon_user_id: member.user_id)
-  end
-
-  def by_email(member)
-    return if member.email.blank?
-
-    User.where("lower(email) = ?", member.email.downcase).first
   end
 
   def client

@@ -8,6 +8,8 @@ class PatreonClient
   TOKEN_URL = "https://www.patreon.com/api/oauth2/token".freeze
   PAGE_SIZE = 1000
   MEMBER_FIELDS = "patron_status,currently_entitled_amount_cents,email".freeze
+  OPEN_TIMEOUT = 5
+  READ_TIMEOUT = 15
 
   # One Patreon member, flattened to the fields the sync cares about.
   Member =
@@ -46,7 +48,11 @@ class PatreonClient
   def self.refresh_token(refresh_token)
     response =
       Faraday
-        .new { |f| f.response :raise_error }
+        .new do |f|
+          f.options.open_timeout = OPEN_TIMEOUT
+          f.options.timeout = READ_TIMEOUT
+          f.response :raise_error
+        end
         .post(
           TOKEN_URL,
           URI.encode_www_form(
@@ -71,6 +77,8 @@ class PatreonClient
     @connection ||=
       Faraday.new(url: API_BASE) do |f|
         f.headers["Authorization"] = "Bearer #{access_token}"
+        f.options.open_timeout = OPEN_TIMEOUT
+        f.options.timeout = READ_TIMEOUT
         f.response :raise_error
       end
   end

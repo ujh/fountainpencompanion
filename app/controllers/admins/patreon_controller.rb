@@ -8,23 +8,13 @@ class Admins::PatreonController < Admins::BaseController
     return unless @configured
 
     members = client.members(ENV["PATREON_CAMPAIGN_ID"]).select(&:active?)
-    rows = members.map { |member| [member, match_user(member)] }
+    rows = User.match_patreon_members(members).to_a
     @matched, @unmatched = rows.partition { |(_member, user)| user }
   rescue Faraday::Error => e
     @error = e.message
   end
 
   private
-
-  def match_user(member)
-    if member.user_id.present?
-      user = User.find_by(patreon_user_id: member.user_id)
-      return user if user
-    end
-    return if member.email.blank?
-
-    User.where("lower(email) = ?", member.email.downcase).first
-  end
 
   def client
     @client ||= PatreonClient.new(PatreonCredential.access_token!)

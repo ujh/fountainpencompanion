@@ -48,4 +48,44 @@ describe User do
       expect(user).not_to be_active_for_authentication
     end
   end
+
+  describe ".match_patreon_members" do
+    def member(user_id: nil, email: nil)
+      PatreonClient::Member.new(
+        member_id: "m",
+        user_id: user_id,
+        email: email,
+        status: "active_patron",
+        amount_cents: 500
+      )
+    end
+
+    it "matches by linked patreon_user_id first, even when the email differs" do
+      user = create(:user, email: "fpc@example.com", patreon_user_id: "u1")
+      m = member(user_id: "u1", email: "other@example.com")
+      expect(described_class.match_patreon_members([m])).to eq(m => user)
+    end
+
+    it "falls back to a case-insensitive email match" do
+      user = create(:user, email: "match@example.com")
+      m = member(email: "Match@Example.com")
+      expect(described_class.match_patreon_members([m])).to eq(m => user)
+    end
+
+    it "maps unmatched members to nil" do
+      m = member(user_id: "nope", email: "nobody@example.com")
+      expect(described_class.match_patreon_members([m])).to eq(m => nil)
+    end
+
+    it "resolves a mix of members in one pass" do
+      by_email = create(:user, email: "a@example.com")
+      by_id = create(:user, email: "b@example.com", patreon_user_id: "u2")
+      members = [
+        member(email: "a@example.com"),
+        member(user_id: "u2", email: "x@example.com"),
+        member(email: "missing@example.com")
+      ]
+      expect(described_class.match_patreon_members(members).values).to eq([by_email, by_id, nil])
+    end
+  end
 end
