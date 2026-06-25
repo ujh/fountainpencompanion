@@ -749,6 +749,39 @@ ALTER SEQUENCE public.new_ink_names_id_seq OWNED BY public.new_ink_names.id;
 
 
 --
+-- Name: patreon_credentials; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.patreon_credentials (
+    id bigint NOT NULL,
+    access_token character varying NOT NULL,
+    refresh_token character varying NOT NULL,
+    expires_at timestamp(6) without time zone,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
+);
+
+
+--
+-- Name: patreon_credentials_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.patreon_credentials_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: patreon_credentials_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.patreon_credentials_id_seq OWNED BY public.patreon_credentials.id;
+
+
+--
 -- Name: pen_embeddings; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -1063,7 +1096,13 @@ CREATE TABLE public.users (
     spam_reason character varying DEFAULT ''::character varying,
     auto_approve_ink_reviews boolean DEFAULT false,
     deletion_requested_at timestamp(6) without time zone,
-    preferences jsonb DEFAULT '{}'::jsonb NOT NULL
+    preferences jsonb DEFAULT '{}'::jsonb NOT NULL,
+    patreon_user_id character varying,
+    patreon_member_id character varying,
+    patreon_email character varying,
+    patreon_status character varying,
+    patron_source character varying,
+    patreon_synced_at timestamp(6) without time zone
 );
 
 
@@ -1314,6 +1353,13 @@ ALTER TABLE ONLY public.new_ink_names ALTER COLUMN id SET DEFAULT nextval('publi
 
 
 --
+-- Name: patreon_credentials id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.patreon_credentials ALTER COLUMN id SET DEFAULT nextval('public.patreon_credentials_id_seq'::regclass);
+
+
+--
 -- Name: pen_embeddings id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -1547,6 +1593,14 @@ ALTER TABLE ONLY public.micro_clusters
 
 ALTER TABLE ONLY public.new_ink_names
     ADD CONSTRAINT new_ink_names_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: patreon_credentials patreon_credentials_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.patreon_credentials
+    ADD CONSTRAINT patreon_credentials_pkey PRIMARY KEY (id);
 
 
 --
@@ -2102,6 +2156,13 @@ CREATE UNIQUE INDEX index_users_on_email ON public.users USING btree (email);
 
 
 --
+-- Name: index_users_on_patreon_user_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_users_on_patreon_user_id ON public.users USING btree (patreon_user_id) WHERE (patreon_user_id IS NOT NULL);
+
+
+--
 -- Name: index_users_on_reset_password_token; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -2393,6 +2454,9 @@ ALTER TABLE ONLY public.collected_inks
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20260625120200'),
+('20260625120100'),
+('20260625120000'),
 ('20260522123500'),
 ('20260413083719'),
 ('20260325150042'),

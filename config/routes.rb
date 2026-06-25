@@ -116,6 +116,7 @@ Rails.application.routes.draw do
 
   namespace :admins do
     resource :dashboard, only: [:show]
+    resource :patreon, only: [:show], controller: "patreon"
     resources :agent_logs, only: [:index]
     namespace :agents do
       resources :ink_clusterer, only: %i[index destroy update]
