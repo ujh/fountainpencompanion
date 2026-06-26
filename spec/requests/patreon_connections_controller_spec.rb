@@ -21,6 +21,12 @@ describe PatreonConnectionsController do
     keys.each_with_index { |k, i| ENV[k] = previous[i] }
   end
 
+  before do
+    allow(AdminMailer).to receive(:patreon_badges_to_deliver).and_return(
+      double(deliver_later: true)
+    )
+  end
+
   describe "#connect" do
     it "requires authentication" do
       get patreon_connect_path
@@ -80,6 +86,42 @@ describe PatreonConnectionsController do
       user.reload
       expect(user.patreon_user_id).to eq("pu-1")
       expect(user.patron).to be(false)
+    end
+
+    it "reports the newly connected patron to the admin and stamps them" do
+      state = connect_and_state
+      allow(PatreonClient).to receive(:exchange_code).and_return("access_token" => "tok")
+      allow(PatreonClient).to receive(:new).and_return(
+        instance_double(
+          PatreonClient,
+          identity:
+            identity_double(
+              email: "other@example.com",
+              memberships: [membership(campaign_id: "camp-1")]
+            )
+        )
+      )
+      expect(AdminMailer).to receive(:patreon_badges_to_deliver) do |users|
+        expect(users.map(&:id)).to eq([user.id])
+        double(deliver_later: true)
+      end
+
+      get patreon_callback_path(code: "c", state: state)
+
+      expect(user.reload.patreon_badge_reported_at).to be_present
+    end
+
+    it "does not report when no active membership is found" do
+      state = connect_and_state
+      allow(PatreonClient).to receive(:exchange_code).and_return("access_token" => "tok")
+      allow(PatreonClient).to receive(:new).and_return(
+        instance_double(PatreonClient, identity: identity_double(email: "other@example.com"))
+      )
+      expect(AdminMailer).not_to receive(:patreon_badges_to_deliver)
+
+      get patreon_callback_path(code: "c", state: state)
+
+      expect(user.reload.patreon_badge_reported_at).to be_nil
     end
 
     it "does not downgrade an admin-pinned (manual) patron's source" do

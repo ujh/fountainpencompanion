@@ -1,0 +1,9 @@
+Mark the "Add badge" benefit delivered in Patreon for these patrons:
+
+<% @users.each do |user| %>
+- <%= user.name.presence || "(no name)" %>
+  FPC email:     <%= user.email %>
+  Patreon email: <%= user.patreon_email.presence || "(unknown)" %>
+  Patreon user:  <%= user.patreon_user_id %>
+  FPC admin:     <%= admins_user_url(user) %>
+<% end %>

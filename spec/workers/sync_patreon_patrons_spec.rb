@@ -24,6 +24,12 @@ describe SyncPatreonPatrons do
     ENV["PATREON_CAMPAIGN_ID"] = previous
   end
 
+  before do
+    allow(AdminMailer).to receive(:patreon_badges_to_deliver).and_return(
+      double(deliver_later: true)
+    )
+  end
+
   it "grants patron status by email match" do
     user = create(:user, email: "match@example.com", patron: false)
     stub_members([member(member_id: "m1", user_id: "u1", email: "Match@Example.com")])
@@ -111,5 +117,52 @@ describe SyncPatreonPatrons do
     described_class.new.perform
 
     expect(user.reload.patron).to be(false)
+  end
+
+  it "reports newly confirmed patrons to the admin and stamps them" do
+    user = create(:user, email: "new@example.com", patron: false)
+    stub_members([member(member_id: "m1", user_id: "u1", email: "new@example.com")])
+    expect(AdminMailer).to receive(:patreon_badges_to_deliver) do |users|
+      expect(users.map(&:id)).to include(user.id)
+      double(deliver_later: true)
+    end
+
+    described_class.new.perform
+
+    expect(user.reload.patreon_badge_reported_at).to be_present
+  end
+
+  it "does not re-report patrons already reported" do
+    create(
+      :user,
+      email: "known@example.com",
+      patron: true,
+      patron_source: "patreon",
+      patreon_user_id: "u1",
+      patreon_badge_reported_at: 1.day.ago
+    )
+    stub_members([member(member_id: "m1", user_id: "u1", email: "known@example.com")])
+    expect(AdminMailer).not_to receive(:patreon_badges_to_deliver)
+
+    described_class.new.perform
+  end
+
+  it "resets the badge report flag when revoking a patron" do
+    user =
+      create(
+        :user,
+        email: "churned@example.com",
+        patron: true,
+        patron_source: "patreon",
+        patreon_member_id: "m1",
+        patreon_badge_reported_at: 1.day.ago
+      )
+    stub_members([])
+
+    described_class.new.perform
+
+    user.reload
+    expect(user.patron).to be(false)
+    expect(user.patreon_badge_reported_at).to be_nil
   end
 end
