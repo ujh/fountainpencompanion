@@ -82,18 +82,6 @@ describe PatreonConnectionsController do
       expect(user.patron).to be(false)
     end
 
-    it "grants for the temporary test email even without a membership" do
-      state = connect_and_state
-      allow(PatreonClient).to receive(:exchange_code).and_return("access_token" => "tok")
-      allow(PatreonClient).to receive(:new).and_return(
-        instance_double(PatreonClient, identity: identity_double(email: "urban@bettong.net"))
-      )
-
-      get patreon_callback_path(code: "c", state: state)
-
-      expect(user.reload.patron).to be(true)
-    end
-
     it "does not downgrade an admin-pinned (manual) patron's source" do
       user.update!(patron: true, patron_source: "manual")
       state = connect_and_state

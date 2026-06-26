@@ -5,11 +5,6 @@
 class PatreonConnectionsController < ApplicationController
   before_action :authenticate_user!
 
-  # TEMPORARY test affordance: there is no way to be an active patron of one's
-  # own campaign, so to verify the grant path end-to-end with a real login we
-  # treat this specific Patreon email as entitled. Remove once verified.
-  TEST_GRANT_EMAIL = "urban@bettong.net".freeze
-
   def connect
     state = SecureRandom.hex(24)
     session[:patreon_oauth_state] = state
@@ -70,10 +65,8 @@ class PatreonConnectionsController < ApplicationController
 
   def entitled?(identity)
     campaign_id = ENV["PATREON_CAMPAIGN_ID"]
-    on_campaign =
-      campaign_id.present? &&
-        identity.memberships.any? { |m| m.campaign_id == campaign_id && m.active? }
-    on_campaign || identity.email&.casecmp?(TEST_GRANT_EMAIL)
+    campaign_id.present? &&
+      identity.memberships.any? { |m| m.campaign_id == campaign_id && m.active? }
   end
 
   def reject(message)
