@@ -61,9 +61,9 @@ class SyncPatreonPatrons
   # Email the admin the confirmed Patreon patrons whose "Add badge" benefit
   # still needs marking delivered (Patreon has no API for this).
   def report_pending_badges
-    PatreonBadgeReporter.call(
+    PatreonBadgeReporter.new(
       User.where(patron: true, patron_source: "patreon", patreon_badge_reported_at: nil)
-    )
+    ).perform
   end
 
   def client

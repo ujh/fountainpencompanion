@@ -6,9 +6,15 @@
 # stamped), via the nightly sync or immediately on manual connect. The flag is
 # reset when a patron is revoked, so a returning patron is reported again.
 class PatreonBadgeReporter
+  attr_accessor :users
+
   # Accepts users or a relation; reports only those that are confirmed Patreon
   # patrons not yet reported, so callers can pass a broad set safely.
-  def self.call(users)
+  def initialize(users)
+    self.users = users
+  end
+
+  def perform
     pending =
       Array(users).select do |user|
         user.patron? && user.patron_source == "patreon" && user.patreon_badge_reported_at.nil?

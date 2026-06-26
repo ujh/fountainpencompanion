@@ -16,7 +16,7 @@ describe PatreonBadgeReporter do
       mailer
     end
 
-    described_class.call([user])
+    described_class.new([user]).perform
 
     expect(user.reload.patreon_badge_reported_at).to be_present
   end
@@ -27,7 +27,7 @@ describe PatreonBadgeReporter do
     not_patron = patron(patron: false, patron_source: "patreon")
     expect(AdminMailer).not_to receive(:patreon_badges_to_deliver)
 
-    described_class.call([manual, legacy, not_patron])
+    described_class.new([manual, legacy, not_patron]).perform
 
     expect(manual.reload.patreon_badge_reported_at).to be_nil
   end
@@ -36,7 +36,7 @@ describe PatreonBadgeReporter do
     reported = patron(patreon_badge_reported_at: 1.day.ago)
     expect(AdminMailer).not_to receive(:patreon_badges_to_deliver)
 
-    described_class.call([reported])
+    described_class.new([reported]).perform
   end
 
   it "reports only the pending users when given a mix" do
@@ -47,6 +47,6 @@ describe PatreonBadgeReporter do
       double(deliver_later: true)
     end
 
-    described_class.call([pending, reported])
+    described_class.new([pending, reported]).perform
   end
 end
