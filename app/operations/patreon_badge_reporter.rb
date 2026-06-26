@@ -22,6 +22,11 @@ class PatreonBadgeReporter
     return if pending.empty?
 
     AdminMailer.patreon_badges_to_deliver(pending).deliver_later
+    # Stamped on enqueue, so "report once" is really "at most once": if the
+    # mail job exhausts its retries the digest is lost and these patrons won't
+    # resurface (only a Patreon revoke resets the flag). Acceptable for an
+    # admin digest — a dropped email is low-stakes and the /admins/patreon
+    # reconciliation page is a backstop.
     User.where(id: pending.map(&:id)).update_all(patreon_badge_reported_at: Time.current)
   end
 end
