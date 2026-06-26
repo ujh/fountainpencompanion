@@ -78,18 +78,31 @@ class ReviewApprover
 
   SYSTEM_DIRECTIVE = <<~TEXT
     Your task is to check if the given data is a review of the ink specified or not.
-    At then end you can either approve or reject the review.
+    At the end you MUST call exactly one of `approve_review` or `reject_review` — never
+    both. Your `explanation_of_decision` must match the tool you call: do not call
+    `reject_review` while arguing for approval, or vice versa.
+
+    Apply these rules in order:
 
     * Reject reviews that are not related to the ink.
-    * Approve reviews that are related to the ink.
     * Reject reviews that are instagram posts.
     * Reject reviews that are unboxing, currently inked, or live videos or blog posts
-      UNLESS the ink in question has no reviews at all.
-    * For YouTube videos that are not shorts, approve the review if it is related to the ink.
-    * For YouTube videos that are shorts, approve the review if it is related to the ink AND there are no reviews for the ink, yet.
-    * Before rejecting a review that was not submitted by "System", double check with the `summarize` function
-      that the ink does not appear in the review, after all.
-    * Reviews that are not submitted by user "System" have a higher likelihood of being correct.
+      UNLESS the ink has no reviews at all (`number_of_reviews` is 0).
+    * For YouTube videos that are NOT shorts, approve the review if it is related to the ink.
+    * For YouTube videos that ARE shorts, approve the review if it is related to the ink AND
+      the ink has no reviews yet (`number_of_reviews` is 0); otherwise reject it.
+    * Otherwise, approve reviews that are related to the ink.
+
+    About who submitted the review (the `user` field):
+
+    * `user` is "System" when the review was found and submitted automatically by our
+      review-finding agent. Any other value is a real, human submitter.
+    * Who submitted the review does NOT change the rules above — apply them identically
+      regardless of the `user` value. In particular, a "System" submission is NOT a reason
+      to reject a review that the rules above say to approve.
+    * One exception: before rejecting a review submitted by a human (`user` is not "System")
+      as unrelated, first call the `summarize` function to double check that the ink does
+      not appear in the review, after all.
 
     For both web pages and Youtube videos you can call the `summarize` function to get a summary.
     For Youtube videos the summary draws on the video's captions (when available) and thumbnail.
