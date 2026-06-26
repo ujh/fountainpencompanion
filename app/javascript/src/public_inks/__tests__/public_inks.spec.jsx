@@ -117,6 +117,26 @@ describe("Table component", () => {
       expect(params.get("utm_source")).toEqual("foo");
     });
 
+    it("never syncs the viewer-relative comparison filter to the URL", () => {
+      window.history.replaceState(null, "", "/users/1?comparison=you");
+      const instance = new Table({});
+      // a hand-crafted ?comparison value is not restored as a filter
+      expect(instance.state.filtered).toEqual([]);
+    });
+
+    it("does not write the comparison filter to the URL", () => {
+      window.history.replaceState(null, "", "/users/1");
+      const instance = new Table({});
+      instance.setState = jest.fn();
+      instance.onFilteredChange([
+        { id: "comparison", value: "you" },
+        { id: "kind", value: "bottle" }
+      ]);
+      const params = new URLSearchParams(window.location.search);
+      expect(params.has("comparison")).toBe(false);
+      expect(params.get("kind")).toEqual("bottle");
+    });
+
     it("clears a filter param when its value is reset", () => {
       window.history.replaceState(null, "", "/users/1?kind=sample");
       const instance = new Table({});

@@ -9,7 +9,9 @@ export default class Table extends React.Component {
   }
 
   filterableIds() {
-    return ["comparison", "brand_name", "line_name", "ink_name", "maker", "kind", "comment"];
+    // "comparison" is intentionally excluded: its values are relative to the
+    // logged-in viewer, so it isn't a meaningful shareable/bookmarkable filter.
+    return ["brand_name", "line_name", "ink_name", "maker", "kind", "comment"];
   }
 
   filtersFromUrl() {
