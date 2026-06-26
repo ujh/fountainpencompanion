@@ -174,4 +174,130 @@ describe PatreonClient do
       )
     end
   end
+
+  describe ".authorize_url" do
+    around do |example|
+      previous = ENV["PATREON_CLIENT_ID"]
+      ENV["PATREON_CLIENT_ID"] = "client-id"
+      example.run
+      ENV["PATREON_CLIENT_ID"] = previous
+    end
+
+    it "builds the authorize URL with scopes, redirect, and state" do
+      url =
+        described_class.authorize_url(
+          redirect_uri: "https://fpc.test/patreon/callback",
+          state: "xyz"
+        )
+      params = Rack::Utils.parse_query(URI(url).query)
+
+      expect(url).to start_with("https://www.patreon.com/oauth2/authorize?")
+      expect(params["response_type"]).to eq("code")
+      expect(params["client_id"]).to eq("client-id")
+      expect(params["redirect_uri"]).to eq("https://fpc.test/patreon/callback")
+      expect(params["scope"]).to eq("identity identity[email] identity.memberships")
+      expect(params["state"]).to eq("xyz")
+    end
+  end
+
+  describe ".exchange_code" do
+    around do |example|
+      previous = ENV.values_at("PATREON_CLIENT_ID", "PATREON_CLIENT_SECRET")
+      ENV["PATREON_CLIENT_ID"] = "client"
+      ENV["PATREON_CLIENT_SECRET"] = "secret"
+      example.run
+      ENV["PATREON_CLIENT_ID"], ENV["PATREON_CLIENT_SECRET"] = previous
+    end
+
+    it "exchanges the authorization code for tokens" do
+      stub =
+        stub_request(:post, "https://www.patreon.com/api/oauth2/token").with(
+          body: hash_including("grant_type" => "authorization_code", "code" => "the-code")
+        ).to_return(
+          status: 200,
+          headers: {
+            "Content-Type" => "application/json"
+          },
+          body: { access_token: "user-access", refresh_token: "user-refresh" }.to_json
+        )
+
+      result = described_class.exchange_code("the-code", redirect_uri: "https://fpc.test/cb")
+
+      expect(stub).to have_been_requested
+      expect(result["access_token"]).to eq("user-access")
+    end
+  end
+
+  describe "#identity" do
+    it "parses the user and their memberships" do
+      stub_request(:get, "https://www.patreon.com/api/oauth2/v2/identity").with(
+        query: hash_including({})
+      ).to_return(
+        status: 200,
+        headers: {
+          "Content-Type" => "application/json"
+        },
+        body: {
+          data: {
+            id: "user-1",
+            type: "user",
+            attributes: {
+              email: "me@example.com"
+            }
+          },
+          included: [
+            {
+              id: "member-1",
+              type: "member",
+              attributes: {
+                patron_status: "active_patron",
+                currently_entitled_amount_cents: 500
+              },
+              relationships: {
+                campaign: {
+                  data: {
+                    id: "camp-9"
+                  }
+                }
+              }
+            }
+          ]
+        }.to_json
+      )
+
+      identity = described_class.new("user-access").identity
+
+      expect(identity.patreon_user_id).to eq("user-1")
+      expect(identity.email).to eq("me@example.com")
+      expect(identity.memberships.size).to eq(1)
+      membership = identity.memberships.first
+      expect(membership.campaign_id).to eq("camp-9")
+      expect(membership).to be_active
+    end
+
+    it "returns no memberships when the user has none" do
+      stub_request(:get, "https://www.patreon.com/api/oauth2/v2/identity").with(
+        query: hash_including({})
+      ).to_return(
+        status: 200,
+        headers: {
+          "Content-Type" => "application/json"
+        },
+        body: {
+          data: {
+            id: "user-2",
+            type: "user",
+            attributes: {
+              email: "x@example.com"
+            }
+          }
+        }.to_json
+      )
+
+      identity = described_class.new("user-access").identity
+
+      expect(identity.patreon_user_id).to eq("user-2")
+      expect(identity.memberships).to eq([])
+    end
+  end
 end

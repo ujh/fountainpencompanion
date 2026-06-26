@@ -22,6 +22,21 @@ div id="account" class="row"
         = f.button :button, "Save", class: "btn-success"
 
     hr
+    h5 Patreon
+    - if current_user.patreon_user_id.present?
+      p.text-muted
+        small
+          ' Connected
+          - if current_user.patreon_email.present?
+            ' as #{current_user.patreon_email}
+          | . Your patron status updates automatically.
+      = button_to "Disconnect Patreon", patreon_disconnect_path, method: :delete, class: "btn btn-outline-secondary"
+    - else
+      p.text-muted
+        small Link your Patreon account so your patron status is recognized automatically, even if you use a different email here.
+      = link_to "Connect Patreon", patreon_connect_path, class: "btn btn-outline-primary"
+
+    hr
     h5 API Access
     p
       = link_to "Manage API Tokens", authentication_tokens_path, class: "btn btn-outline-primary"

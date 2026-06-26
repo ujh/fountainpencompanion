@@ -86,6 +86,9 @@ Rails.application.routes.draw do
   end
   resource :account, only: %i[show edit update]
   resource :account_deletion, only: %i[create show destroy]
+  get "patreon/connect", to: "patreon_connections#connect", as: :patreon_connect
+  get "patreon/callback", to: "patreon_connections#callback", as: :patreon_callback
+  delete "patreon/disconnect", to: "patreon_connections#destroy", as: :patreon_disconnect
   resources :authentication_tokens, only: %i[index create destroy]
 
   resources :users, only: %i[index show]
