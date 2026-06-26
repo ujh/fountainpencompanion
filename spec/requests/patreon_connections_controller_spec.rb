@@ -130,6 +130,19 @@ describe PatreonConnectionsController do
       expect(user.reload.patreon_user_id).to be_nil
     end
 
+    it "rejects and alerts when Patreon returns a non-JSON body" do
+      state = connect_and_state
+      allow(PatreonClient).to receive(:exchange_code).and_raise(
+        JSON::ParserError.new("unexpected token")
+      )
+
+      get patreon_callback_path(code: "c", state: state)
+
+      expect(response).to redirect_to(account_path)
+      expect(flash[:alert]).to be_present
+      expect(user.reload.patreon_user_id).to be_nil
+    end
+
     it "rejects a mismatched state without exchanging the code" do
       connect_and_state
       expect(PatreonClient).not_to receive(:exchange_code)

@@ -26,7 +26,9 @@ class PatreonConnectionsController < ApplicationController
     link_account(identity)
   rescue ActiveRecord::RecordNotUnique, ActiveRecord::RecordInvalid
     reject("That Patreon account is already linked to another Fountain Pen Companion account.")
-  rescue Faraday::Error
+  rescue Faraday::Error, JSON::ParserError
+    # Faraday::Error covers HTTP failures; JSON::ParserError covers a 200 that
+    # carries a non-JSON body (e.g. an HTML error page served under load).
     reject("Couldn't reach Patreon. Please try again.")
   end
 
