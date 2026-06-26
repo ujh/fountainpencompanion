@@ -82,4 +82,80 @@ describe("Table component", () => {
     expect(within(table).getByText("Brand")).toBeInTheDocument();
     expect(within(table).getByText("Ink")).toBeInTheDocument();
   });
+
+  describe("URL filter sync", () => {
+    afterEach(() => {
+      window.history.replaceState(null, "", "/users/1");
+    });
+
+    it("initializes filters from known query params and ignores unknown ones", () => {
+      window.history.replaceState(null, "", "/users/1?kind=sample&utm_source=foo");
+      const instance = new Table({});
+      expect(instance.state.filtered).toEqual([{ id: "kind", value: "sample" }]);
+    });
+
+    it("starts with no filters when no query params are present", () => {
+      window.history.replaceState(null, "", "/users/1");
+      const instance = new Table({});
+      expect(instance.state.filtered).toEqual([]);
+    });
+
+    it("writes active filters to the URL and drops 'all' and empty values", () => {
+      window.history.replaceState(null, "", "/users/1?utm_source=foo");
+      const instance = new Table({});
+      instance.setState = jest.fn();
+      instance.onFilteredChange([
+        { id: "kind", value: "bottle" },
+        { id: "comparison", value: "all" },
+        { id: "brand_name", value: "" }
+      ]);
+      const params = new URLSearchParams(window.location.search);
+      expect(params.get("kind")).toEqual("bottle");
+      expect(params.has("comparison")).toBe(false);
+      expect(params.has("brand_name")).toBe(false);
+      // preserves unrelated query params
+      expect(params.get("utm_source")).toEqual("foo");
+    });
+
+    it("never syncs the viewer-relative comparison filter to the URL", () => {
+      window.history.replaceState(null, "", "/users/1?comparison=you");
+      const instance = new Table({});
+      // a hand-crafted ?comparison value is not restored as a filter
+      expect(instance.state.filtered).toEqual([]);
+    });
+
+    it("does not write the comparison filter to the URL", () => {
+      window.history.replaceState(null, "", "/users/1");
+      const instance = new Table({});
+      instance.setState = jest.fn();
+      instance.onFilteredChange([
+        { id: "comparison", value: "you" },
+        { id: "kind", value: "bottle" }
+      ]);
+      const params = new URLSearchParams(window.location.search);
+      expect(params.has("comparison")).toBe(false);
+      expect(params.get("kind")).toEqual("bottle");
+    });
+
+    it("applies a kind filter from the URL without crashing on null-kind rows", async () => {
+      window.history.replaceState(null, "", "/users/1?kind=sample");
+      const mixedData = [
+        { ...data[0], ink_id: 1, ink_name: "InkA", kind: "sample" },
+        { ...data[0], ink_id: 2, ink_name: "InkB", kind: null }
+      ];
+      render(<Table data={mixedData} additionalData={true} name="Test User" />);
+      const table = await screen.findByRole("grid");
+      // matching row shown, null-kind row filtered out, no TypeError thrown
+      expect(within(table).getByText("InkA")).toBeInTheDocument();
+      expect(within(table).queryByText("InkB")).not.toBeInTheDocument();
+    });
+
+    it("clears a filter param when its value is reset", () => {
+      window.history.replaceState(null, "", "/users/1?kind=sample");
+      const instance = new Table({});
+      instance.setState = jest.fn();
+      instance.onFilteredChange([]);
+      expect(window.location.search).toEqual("");
+    });
+  });
 });
