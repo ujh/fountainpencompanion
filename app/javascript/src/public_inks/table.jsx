@@ -221,7 +221,7 @@ export default class Table extends React.Component {
       columns: this.columnConfig(),
       data: this.props.data,
       defaultFilterMethod: (filter, row) => {
-        let rowData = row[filter.id].replace(/\W/g, "");
+        let rowData = (row[filter.id] || "").replace(/\W/g, "");
         let searchData = filter.value.replace(/\W/g, "");
         return rowData.match(new RegExp(searchData, "i"));
       },

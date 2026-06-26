@@ -137,6 +137,19 @@ describe("Table component", () => {
       expect(params.get("kind")).toEqual("bottle");
     });
 
+    it("applies a kind filter from the URL without crashing on null-kind rows", async () => {
+      window.history.replaceState(null, "", "/users/1?kind=sample");
+      const mixedData = [
+        { ...data[0], ink_id: 1, ink_name: "InkA", kind: "sample" },
+        { ...data[0], ink_id: 2, ink_name: "InkB", kind: null }
+      ];
+      render(<Table data={mixedData} additionalData={true} name="Test User" />);
+      const table = await screen.findByRole("grid");
+      // matching row shown, null-kind row filtered out, no TypeError thrown
+      expect(within(table).getByText("InkA")).toBeInTheDocument();
+      expect(within(table).queryByText("InkB")).not.toBeInTheDocument();
+    });
+
     it("clears a filter param when its value is reset", () => {
       window.history.replaceState(null, "", "/users/1?kind=sample");
       const instance = new Table({});
