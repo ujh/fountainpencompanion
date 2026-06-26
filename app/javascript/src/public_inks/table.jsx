@@ -5,8 +5,33 @@ import ReactTable from "react-table-6";
 export default class Table extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {};
+    this.state = { filtered: this.filtersFromUrl() };
   }
+
+  filterableIds() {
+    return ["comparison", "brand_name", "line_name", "ink_name", "maker", "kind", "comment"];
+  }
+
+  filtersFromUrl() {
+    let params = new URLSearchParams(window.location.search);
+    let allowed = this.filterableIds();
+    return allowed.filter((id) => params.has(id)).map((id) => ({ id, value: params.get(id) }));
+  }
+
+  onFilteredChange = (filtered) => {
+    this.setState({ filtered });
+    let params = new URLSearchParams(window.location.search);
+    let allowed = this.filterableIds();
+    allowed.forEach((id) => params.delete(id));
+    filtered.forEach(({ id, value }) => {
+      if (allowed.includes(id) && value && value !== "all") {
+        params.set(id, value);
+      }
+    });
+    let query = params.toString();
+    let url = query ? `${window.location.pathname}?${query}` : window.location.pathname;
+    window.history.replaceState(null, "", url);
+  };
 
   calculateWidth = () => {
     this.setState({ width: window.innerWidth });
@@ -199,7 +224,9 @@ export default class Table extends React.Component {
         return rowData.match(new RegExp(searchData, "i"));
       },
       defaultSorted: [{ id: "brand_name" }, { id: "line_name" }, { id: "ink_name" }],
-      filterable: true
+      filterable: true,
+      filtered: this.state.filtered,
+      onFilteredChange: this.onFilteredChange
     };
     let hidden = this.hiddenColumns();
     if (hidden.length) {
