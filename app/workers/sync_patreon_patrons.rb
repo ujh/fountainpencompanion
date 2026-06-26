@@ -20,6 +20,7 @@ class SyncPatreonPatrons
     active_members = client.members(campaign_id).select(&:active?)
     matched_user_ids = grant(User.match_patreon_members(active_members))
     revoke_churned(matched_user_ids)
+    report_pending_badges
   end
 
   private
@@ -50,9 +51,19 @@ class SyncPatreonPatrons
         user.update!(
           patron: false,
           patreon_status: "former_patron",
-          patreon_synced_at: Time.current
+          patreon_synced_at: Time.current,
+          # so a returning patron is reported to the admin again
+          patreon_badge_reported_at: nil
         )
       end
+  end
+
+  # Email the admin the confirmed Patreon patrons whose "Add badge" benefit
+  # still needs marking delivered (Patreon has no API for this).
+  def report_pending_badges
+    PatreonBadgeReporter.new(
+      User.where(patron: true, patron_source: "patreon", patreon_badge_reported_at: nil)
+    ).perform
   end
 
   def client

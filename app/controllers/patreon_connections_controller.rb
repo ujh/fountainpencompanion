@@ -55,6 +55,9 @@ class PatreonConnectionsController < ApplicationController
     end
     current_user.update!(attrs)
     if granted
+      # Tell the admin to mark the badge benefit delivered (no-op for an
+      # admin-pinned patron or one already reported).
+      PatreonBadgeReporter.new([current_user]).perform
       redirect_to account_path,
                   notice: "Patreon connected — your patron status is active. Thank you!"
     else

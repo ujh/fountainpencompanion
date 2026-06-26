@@ -1102,7 +1102,8 @@ CREATE TABLE public.users (
     patreon_email character varying,
     patreon_status character varying,
     patron_source character varying,
-    patreon_synced_at timestamp(6) without time zone
+    patreon_synced_at timestamp(6) without time zone,
+    patreon_badge_reported_at timestamp(6) without time zone
 );
 
 
@@ -2454,6 +2455,7 @@ ALTER TABLE ONLY public.collected_inks
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20260626130000'),
 ('20260625120200'),
 ('20260625120100'),
 ('20260625120000'),

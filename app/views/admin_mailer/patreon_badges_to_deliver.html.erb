@@ -1,0 +1,26 @@
+<p style="margin: 0 0 16px; line-height: 1.6;">
+  Mark the &ldquo;Add badge&rdquo; benefit delivered in Patreon for these patrons:
+</p>
+
+<table cellpadding="6" cellspacing="0" border="0" style="border-collapse: collapse; line-height: 1.5;">
+  <thead>
+    <tr>
+      <th align="left" style="border-bottom: 1px solid #ccc;">Name</th>
+      <th align="left" style="border-bottom: 1px solid #ccc;">FPC email</th>
+      <th align="left" style="border-bottom: 1px solid #ccc;">Patreon email</th>
+      <th align="left" style="border-bottom: 1px solid #ccc;">Patreon user</th>
+      <th align="left" style="border-bottom: 1px solid #ccc;">FPC admin</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @users.each do |user| %>
+      <tr>
+        <td><%= user.name.presence || "(no name)" %></td>
+        <td><%= user.email %></td>
+        <td><%= user.patreon_email.presence || "(unknown)" %></td>
+        <td><%= user.patreon_user_id %></td>
+        <td><%= link_to "open", admins_user_url(user) %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
