@@ -46,14 +46,18 @@ class PatreonConnectionsController < ApplicationController
   end
 
   def link_account(identity)
-    current_user.update!(patreon_user_id: identity.patreon_user_id, patreon_email: identity.email)
-    if entitled?(identity)
-      current_user.update!(
-        patron: true,
-        patron_source: "patreon",
-        patreon_status: "active_patron",
-        patreon_synced_at: Time.current
-      )
+    granted = entitled?(identity)
+    attrs = { patreon_user_id: identity.patreon_user_id, patreon_email: identity.email }
+    if granted
+      attrs.merge!(patreon_status: "active_patron", patreon_synced_at: Time.current)
+      # Mirror SyncPatreonPatrons: never overwrite an admin-pinned ("manual")
+      # patron, otherwise we'd make them eligible for auto-revocation later.
+      unless current_user.patron_source == "manual"
+        attrs.merge!(patron: true, patron_source: "patreon")
+      end
+    end
+    current_user.update!(attrs)
+    if granted
       redirect_to account_path,
                   notice: "Patreon connected — your patron status is active. Thank you!"
     else
