@@ -1,9 +1,18 @@
 class FetchReviews
   include Sidekiq::Worker
 
+  STAGGER_INTERVAL = 30 # seconds between enqueued source jobs
+
   def perform
-    feeds.each { |url| FetchReviews::GenericRss.perform_async(url) }
-    youtube_channels.each { |channel_id| FetchReviews::YoutubeChannel.perform_async(channel_id) }
+    jobs = feeds.map { |url| [FetchReviews::GenericRss, url] }
+    jobs += youtube_channels.map { |channel_id| [FetchReviews::YoutubeChannel, channel_id] }
+
+    # Spread the per-source jobs out instead of enqueueing them all at once. Each
+    # source can fan out into embedding-heavy ProcessWebPageForReview work, so
+    # bunching them at the top of the hour is what spikes the DB.
+    jobs.each_with_index do |(worker, arg), i|
+      worker.perform_in((i * STAGGER_INTERVAL).seconds, arg)
+    end
   end
 
   private
