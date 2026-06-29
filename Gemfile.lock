@@ -80,7 +80,7 @@ GEM
     after_commit_everywhere (1.6.0)
       activerecord (>= 4.2)
       activesupport
-    apipie-rails (1.5.0)
+    apipie-rails (1.5.1)
       actionpack (>= 5.0)
       activesupport (>= 5.0)
     base64 (0.3.0)
@@ -103,7 +103,7 @@ GEM
     crack (1.0.1)
       bigdecimal
       rexml
-    crass (1.0.6)
+    crass (1.0.7)
     csv (3.3.5)
     date (3.5.1)
     declarative (0.0.20)
@@ -224,7 +224,7 @@ GEM
     honeybadger (6.9.0)
       logger
       ostruct
-    i18n (1.14.8)
+    i18n (1.15.2)
       concurrent-ruby (~> 1.0)
     io-console (0.8.2)
     irb (1.18.0)
