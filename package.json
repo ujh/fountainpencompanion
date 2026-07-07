@@ -43,7 +43,7 @@
     "regenerator-runtime": "^0.14.1",
     "sass": "^1.101.0",
     "sass-loader": "^17.0.0",
-    "slim-select": "^4.0.3",
+    "slim-select": "^4.0.4",
     "webpack": "^5.108.4",
     "webpack-cli": "^7.2.1",
     "webpack-remove-empty-scripts": "^1.1.1",
