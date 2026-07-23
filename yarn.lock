@@ -8136,10 +8136,10 @@ slash@^3.0.0:
   resolved "https://registry.yarnpkg.com/slash/-/slash-3.0.0.tgz#6539be870c165adbd5240220dbe361f1bc4d4634"
   integrity sha512-g9Q1haeby36OSStwb4ntCGGGaKsaVSjQ68fBxoQcutl5fS1vuY18H3wSt3jFyFtrkx+Kz0V1G85A4MyAdDMi2Q==
 
-slim-select@^4.0.6:
-  version "4.0.6"
-  resolved "https://registry.yarnpkg.com/slim-select/-/slim-select-4.0.6.tgz#b82405aa3f5898283f419e822a536d21c626ca2b"
-  integrity sha512-I4SFyvSsfq4eIPUZBwvgQW2XFB0rZtFZ0P2bwTum5nNmBIbJoEjaK15KPeBIeaP+jLAY39gHnsbWfkm2i7EmAQ==
+slim-select@^4.0.7:
+  version "4.0.7"
+  resolved "https://registry.yarnpkg.com/slim-select/-/slim-select-4.0.7.tgz#75313c5e0f7ad1f04cd96220c0fe9e8957e714dd"
+  integrity sha512-2lotyeUu9YusUOCPni7S/iP5o7AsZDozMWP2deQFDmWTmUrt9iIg+i3Yq2r7J7KsbimzVvlFyhqVb3jwFMFJqg==
 
 "source-map-js@>=0.6.2 <2.0.0", source-map-js@^1.2.1:
   version "1.2.1"
