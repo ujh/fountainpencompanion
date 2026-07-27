@@ -104,7 +104,7 @@ GEM
       bigdecimal
       rexml
     crass (1.0.7)
-    csv (3.3.5)
+    csv (3.3.6)
     date (3.5.1)
     declarative (0.0.20)
     derailed (0.1.0)
