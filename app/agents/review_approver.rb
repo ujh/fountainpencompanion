@@ -112,9 +112,9 @@ class ReviewApprover
     `summarize` — call it for borderline cases or when `has_captions` is true and you want the
     transcript-derived content.
 
-    A thumbnail image of the video or page is attached to this message. Use it to confirm the ink
-    identity when the text is ambiguous — many ink-review thumbnails show the ink bottle and/or the
-    ink name as a text overlay.
+    When available, a thumbnail image of the video or page is attached to this message. Use it to
+    confirm the ink identity when the text is ambiguous — many ink-review thumbnails show the ink
+    bottle and/or the ink name as a text overlay.
   TEXT
 
   def initialize(ink_review_id)
@@ -123,7 +123,7 @@ class ReviewApprover
 
   def perform
     ink_review.ensure_youtube_metadata!
-    ask!(user_prompt, with: ink_review.image.presence)
+    ask!(user_prompt, with: resolved_image_url)
     agent_log.update!(extra_data: ink_review.extra_data)
     agent_log.waiting_for_approval!
   end
@@ -142,6 +142,14 @@ class ReviewApprover
       RejectReview.new(ink_review),
       Summarize.new(ink_review, agent_log)
     ]
+  end
+
+  # Resolves the stored thumbnail URL before attaching it: the URL may redirect
+  # (e.g. http -> https) or lack a file extension, and RubyLLM cannot determine a
+  # MIME type in that case, which would abort the whole run. Returns nil when the
+  # URL does not serve an image, in which case no thumbnail is attached.
+  def resolved_image_url
+    ResolveImageUrl.new(ink_review.image).perform
   end
 
   def user_prompt

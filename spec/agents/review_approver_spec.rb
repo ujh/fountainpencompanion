@@ -126,6 +126,12 @@ RSpec.describe ReviewApprover do
     ink_review_submission # Create the submission
   end
 
+  before do
+    allow(ResolveImageUrl).to receive(:new) do |passed_url|
+      double("ResolveImageUrl", perform: passed_url.presence)
+    end
+  end
+
   subject { described_class.new(ink_review.id) }
 
   def user_message_text(body)
@@ -471,6 +477,97 @@ RSpec.describe ReviewApprover do
               end
           }
           .at_least_once
+      end
+
+      it "attaches the resolved URL rather than the stored one" do
+        resolved = "https://cdn.example.com/resolved.jpg"
+        allow(ResolveImageUrl).to receive(:new).with(ink_review.image).and_return(
+          double(perform: resolved)
+        )
+
+        subject.perform
+
+        expect(WebMock).to have_requested(:post, "https://api.openai.com/v1/chat/completions")
+          .with { |req|
+            body = JSON.parse(req.body)
+            user_msg = body["messages"].find { |m| m["role"] == "user" }
+            parts = user_msg["content"]
+
+            parts.is_a?(Array) &&
+              parts.any? { |p| p["type"] == "image_url" && p["image_url"]["url"] == resolved }
+          }
+          .at_least_once
+      end
+
+      context "when ResolveImageUrl returns nil (e.g. a redirecting or extensionless URL)" do
+        before { allow(ResolveImageUrl).to receive(:new).and_return(double(perform: nil)) }
+
+        it "sends a plain string user message instead of failing" do
+          subject.perform
+
+          expect(WebMock).to have_requested(:post, "https://api.openai.com/v1/chat/completions")
+            .with { |req|
+              body = JSON.parse(req.body)
+              user_msg = body["messages"].find { |m| m["role"] == "user" }
+              user_msg["content"].is_a?(String)
+            }
+            .at_least_once
+        end
+
+        it "still reaches a decision" do
+          subject.perform
+
+          expect(ink_review.reload.approved_at).to be_present
+        end
+      end
+
+      # Regression: an http:// thumbnail that redirects to https and whose path has
+      # no file extension used to raise RubyLLM::UnsupportedAttachmentError, because
+      # RubyLLM's MIME sniffing does not follow redirects and so saw an empty body.
+      context "with a redirecting, extensionless thumbnail URL" do
+        let(:stored_url) { "http://static.example.com/t/thumbnail?format=1500w" }
+        let(:final_url) { "https://static.example.com/t/thumbnail?format=1500w" }
+
+        before do
+          allow(ResolveImageUrl).to receive(:new).and_call_original
+          ink_review.update_column(:image, stored_url)
+
+          stub_request(:head, stored_url).to_return(
+            status: 301,
+            headers: {
+              "Location" => final_url
+            }
+          )
+          stub_request(:head, final_url).to_return(
+            status: 200,
+            headers: {
+              "Content-Type" => "image/jpeg"
+            }
+          )
+          stub_request(:get, final_url).to_return(
+            status: 200,
+            body: "\xFF\xD8\xFF\xE0 JFIF  ".b,
+            headers: {
+              "Content-Type" => "image/jpeg"
+            }
+          )
+        end
+
+        it "attaches the redirect target and reaches a decision" do
+          expect { subject.perform }.not_to raise_error
+
+          expect(ink_review.reload.approved_at).to be_present
+          expect(WebMock).to have_requested(:post, "https://api.openai.com/v1/chat/completions")
+            .with { |req|
+              body = JSON.parse(req.body)
+              user_msg = body["messages"].find { |m| m["role"] == "user" }
+              parts = user_msg["content"]
+
+              parts.is_a?(Array) &&
+                parts.any? { |p| p["type"] == "image_url" && p["image_url"]["url"] == final_url }
+            }
+            .at_least_once
+        end
       end
 
       context "when the review has a blank image" do
