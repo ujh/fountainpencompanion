@@ -1705,20 +1705,20 @@
   dependencies:
     "@floating-ui/core" "^1.0.1"
 
-"@honeybadger-io/core@^6.11.0":
-  version "6.11.0"
-  resolved "https://registry.yarnpkg.com/@honeybadger-io/core/-/core-6.11.0.tgz#48975109fdd97be19b0df97c8aabac41221f5913"
-  integrity sha512-cIo4VzV7PvQ3urJ3lA9f/sz5hEJavaypgALhhK0Kye+lBXLE1nttsG+W6e30Ii8mygyoRcla0uVgk2pDcTJTvw==
+"@honeybadger-io/core@^6.11.1":
+  version "6.11.1"
+  resolved "https://registry.yarnpkg.com/@honeybadger-io/core/-/core-6.11.1.tgz#fb7c0555cf3906fbde12384329816e910247173b"
+  integrity sha512-ojVk6q2GUXqW80szrk/zp2XC1YQFJWQvGHdNNyc1RPGTekguSMpa7Pp9jKitHpdYIsbmEnj1wPTyZassOfSLeg==
   dependencies:
     json-nd "^1.0.0"
     stacktrace-parser "^0.1.10"
 
-"@honeybadger-io/js@^6.16.0":
-  version "6.16.0"
-  resolved "https://registry.yarnpkg.com/@honeybadger-io/js/-/js-6.16.0.tgz#1a9497c125842354b2cdfa60afe92d520f7bae7c"
-  integrity sha512-5xGyk6+1W//a+wcHNrR7u0KMAqkoNFtaOCl3RGOtTeUxKFlAmo7jHp90zOmOvrU+Z/NbDB4U8fLhroBw7A028g==
+"@honeybadger-io/js@^6.16.1":
+  version "6.16.1"
+  resolved "https://registry.yarnpkg.com/@honeybadger-io/js/-/js-6.16.1.tgz#7c1a213ae197470c90f7b0c8e7e5fa595287dfd5"
+  integrity sha512-QN16xawSoTytzNj2A/+eZ0N/iOo1sCETfm70A+mFSlwFqQF0Y50NMKK9DQ4WpeKUleESl5Szmv3FJCR9bW76sQ==
   dependencies:
-    "@honeybadger-io/core" "^6.11.0"
+    "@honeybadger-io/core" "^6.11.1"
     "@types/aws-lambda" "^8.10.89"
     "@types/express" "^5.0.3"
 

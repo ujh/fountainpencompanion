@@ -4,7 +4,7 @@
     "@babel/core": "^7.29.7",
     "@babel/preset-env": "^7.29.7",
     "@babel/preset-react": "^7.29.7",
-    "@honeybadger-io/js": "^6.16.0",
+    "@honeybadger-io/js": "^6.16.1",
     "@honeybadger-io/react": "^6.1.32",
     "@honeybadger-io/webpack": "^6.3.4",
     "@popperjs/core": "^2.11.8",
