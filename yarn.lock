@@ -1059,7 +1059,7 @@
     "@csstools/color-helpers" "^5.0.2"
     "@csstools/css-calc" "^2.1.4"
 
-"@csstools/css-color-parser@^4.2.1":
+"@csstools/css-color-parser@^4.2.2":
   version "4.2.2"
   resolved "https://registry.yarnpkg.com/@csstools/css-color-parser/-/css-color-parser-4.2.2.tgz#f590bc710a26914dbe64c4656813eafc93f4e45e"
   integrity sha512-3QKjR/vxyjcSXBLgb6lP0S3MGdvwbmqSsvLPbYdVORqPDc8FX1HAJ0Spk38bxaRXgvENTA47tlhhbb5Z2e8hEg==
@@ -1092,15 +1092,15 @@
   resolved "https://registry.yarnpkg.com/@csstools/media-query-list-parser/-/media-query-list-parser-5.0.0.tgz#99e8d03ff6f9f8df8cf9876e0f17d075e6dae9e7"
   integrity sha512-T9lXmZOfnam3eMERPsszjY5NK0jX8RmThmmm99FZ8b7z8yMaFZWKwLWGZuTwdO3ddRY5fy13GmmEYZXB4I98Eg==
 
-"@csstools/postcss-alpha-function@^2.0.10":
-  version "2.0.10"
-  resolved "https://registry.yarnpkg.com/@csstools/postcss-alpha-function/-/postcss-alpha-function-2.0.10.tgz#ce1addb8cc8769d7f0fec1e9dd3b0b639b86a8a4"
-  integrity sha512-I3BXq/sZqqvPNqLKLtkFYhAQosnKMByGP6bi7oLPfLdkkxxjOcF0sXhFr/uss1QzRnrIFevEGqXNztuhUDUwTQ==
+"@csstools/postcss-alpha-function@^2.0.11":
+  version "2.0.12"
+  resolved "https://registry.yarnpkg.com/@csstools/postcss-alpha-function/-/postcss-alpha-function-2.0.12.tgz#3093b611a708c14618afa255a9b161cf17b7266f"
+  integrity sha512-GB5vcGYVfUiuHENjczjteKRV9B1ULI4a/OXOrJMN1dEAqU7cmdSXYnhU38/BwHKqPPU+3ti6nwKNJjqkU+cGLw==
   dependencies:
-    "@csstools/css-color-parser" "^4.2.1"
+    "@csstools/css-color-parser" "^4.2.2"
     "@csstools/css-parser-algorithms" "^4.0.0"
     "@csstools/css-tokenizer" "^4.0.0"
-    "@csstools/postcss-progressive-custom-properties" "^5.1.2"
+    "@csstools/postcss-progressive-custom-properties" "^5.1.3"
     "@csstools/utilities" "^3.0.0"
 
 "@csstools/postcss-cascade-layers@^6.0.0":
@@ -1111,48 +1111,48 @@
     "@csstools/selector-specificity" "^6.0.0"
     postcss-selector-parser "^7.1.1"
 
-"@csstools/postcss-color-function-display-p3-linear@^2.0.9":
-  version "2.0.9"
-  resolved "https://registry.yarnpkg.com/@csstools/postcss-color-function-display-p3-linear/-/postcss-color-function-display-p3-linear-2.0.9.tgz#76693cbdfd38e6cfc87d2569b8874da0835c1958"
-  integrity sha512-IqPfcNZCGt0xiSu+QJxpSurOgql1ltOraGOp98h4+79yzrSO2bvV4HH4NtQ3DlxFtdsDZHv78gtRtJ5sIypocA==
+"@csstools/postcss-color-function-display-p3-linear@^2.0.10":
+  version "2.0.11"
+  resolved "https://registry.yarnpkg.com/@csstools/postcss-color-function-display-p3-linear/-/postcss-color-function-display-p3-linear-2.0.11.tgz#f2718f07295ae430d622d0d5b62eece4f8eb785f"
+  integrity sha512-7O81Tl/qOcx0C162pD4h1P12tazfpXl23By4v0YDEld7NKJ2CX4YK7UWtoly25Nz3173MLVssr7FfJCgCip6Yg==
   dependencies:
-    "@csstools/css-color-parser" "^4.2.1"
+    "@csstools/css-color-parser" "^4.2.2"
     "@csstools/css-parser-algorithms" "^4.0.0"
     "@csstools/css-tokenizer" "^4.0.0"
-    "@csstools/postcss-progressive-custom-properties" "^5.1.2"
+    "@csstools/postcss-progressive-custom-properties" "^5.1.3"
     "@csstools/utilities" "^3.0.0"
 
-"@csstools/postcss-color-function@^5.0.9":
-  version "5.0.9"
-  resolved "https://registry.yarnpkg.com/@csstools/postcss-color-function/-/postcss-color-function-5.0.9.tgz#8a5afb1f878d1c1d3208707bf05675e22f04c226"
-  integrity sha512-2dDdkB/GaAaAmlpdidkEVhcnUfAc1d0bQvaj0x/RmO5X9tEmN94P50qecxx7vqVLgjpudxvzrQx/rF/unXSw/Q==
+"@csstools/postcss-color-function@^5.0.10":
+  version "5.0.11"
+  resolved "https://registry.yarnpkg.com/@csstools/postcss-color-function/-/postcss-color-function-5.0.11.tgz#854b4ca6be051d3504d890318a9ae5b21807b23f"
+  integrity sha512-Hj96Yk4o/XKxSKESb9D8nJIGocL9NN/KJ/Bl5Y/p8ghXhKt9EPUut+oxkgg3opbEaF9ma8mnq2PO+pG1koBhvg==
   dependencies:
-    "@csstools/css-color-parser" "^4.2.1"
+    "@csstools/css-color-parser" "^4.2.2"
     "@csstools/css-parser-algorithms" "^4.0.0"
     "@csstools/css-tokenizer" "^4.0.0"
-    "@csstools/postcss-progressive-custom-properties" "^5.1.2"
+    "@csstools/postcss-progressive-custom-properties" "^5.1.3"
     "@csstools/utilities" "^3.0.0"
 
-"@csstools/postcss-color-mix-function@^4.0.9":
-  version "4.0.9"
-  resolved "https://registry.yarnpkg.com/@csstools/postcss-color-mix-function/-/postcss-color-mix-function-4.0.9.tgz#f7fa65179b47b7d60b216b8ffcd203cb58caf13e"
-  integrity sha512-xswYldAM3z9qLjoa/Jr95nbLZ0oWJ2ziK4BTyuOb0F2AgnwdJ0XammjkdyuEHOXifTQeUfm10/4Ffz3d1uzi6w==
+"@csstools/postcss-color-mix-function@^4.0.10":
+  version "4.0.11"
+  resolved "https://registry.yarnpkg.com/@csstools/postcss-color-mix-function/-/postcss-color-mix-function-4.0.11.tgz#5ea9d05e0236c2c06e6a3b21f2c0ad5f579c0557"
+  integrity sha512-pGwI6XNLnYj+IbdigiqPVWletsmDQTdqXEjbepZazYpVDS34p+ijzM5JXeB0PXh+E4yjOAxs7ZHeWeyhwYqGBA==
   dependencies:
-    "@csstools/css-color-parser" "^4.2.1"
+    "@csstools/css-color-parser" "^4.2.2"
     "@csstools/css-parser-algorithms" "^4.0.0"
     "@csstools/css-tokenizer" "^4.0.0"
-    "@csstools/postcss-progressive-custom-properties" "^5.1.2"
+    "@csstools/postcss-progressive-custom-properties" "^5.1.3"
     "@csstools/utilities" "^3.0.0"
 
-"@csstools/postcss-color-mix-variadic-function-arguments@^2.0.9":
-  version "2.0.9"
-  resolved "https://registry.yarnpkg.com/@csstools/postcss-color-mix-variadic-function-arguments/-/postcss-color-mix-variadic-function-arguments-2.0.9.tgz#534bc9ce61e1100db16ce77c2f3ae686e93dc408"
-  integrity sha512-6VacpZLKKm2Jzm0w8MAVeW8r3xGbfa30v1/CV7LISFVFwXHpJIAzFm/ow381zjpdKV0163VmBnQLbaEo7FZeFA==
+"@csstools/postcss-color-mix-variadic-function-arguments@^2.0.10":
+  version "2.0.11"
+  resolved "https://registry.yarnpkg.com/@csstools/postcss-color-mix-variadic-function-arguments/-/postcss-color-mix-variadic-function-arguments-2.0.11.tgz#d4146b62f5f01c0e2bad68633415cbd70be22d19"
+  integrity sha512-ac67iL7jm4GmE21jZ6Q8aoGShjMrQttG/wt8anwi5XhYw4wy/Coe2d26LiSxGFRBvyQf4GiqTqd2qmzl5kX0Zw==
   dependencies:
-    "@csstools/css-color-parser" "^4.2.1"
+    "@csstools/css-color-parser" "^4.2.2"
     "@csstools/css-parser-algorithms" "^4.0.0"
     "@csstools/css-tokenizer" "^4.0.0"
-    "@csstools/postcss-progressive-custom-properties" "^5.1.2"
+    "@csstools/postcss-progressive-custom-properties" "^5.1.3"
     "@csstools/utilities" "^3.0.0"
 
 "@csstools/postcss-container-rule-prelude-list@^1.0.1":
@@ -1173,15 +1173,15 @@
     "@csstools/postcss-progressive-custom-properties" "^5.1.2"
     "@csstools/utilities" "^3.0.0"
 
-"@csstools/postcss-contrast-color-function@^3.0.9":
-  version "3.0.9"
-  resolved "https://registry.yarnpkg.com/@csstools/postcss-contrast-color-function/-/postcss-contrast-color-function-3.0.9.tgz#5474f250da401b5842a1971ab81499dffb4f40a7"
-  integrity sha512-ADJAc/GvuxNFAFlAfKVeJNV+1Y1uKglwfcc9/X/TiE/c46b2TGflVXE99FwuIL9pd4j8YgRfNwpTiO346YzeBA==
+"@csstools/postcss-contrast-color-function@^3.0.10":
+  version "3.0.11"
+  resolved "https://registry.yarnpkg.com/@csstools/postcss-contrast-color-function/-/postcss-contrast-color-function-3.0.11.tgz#3df1aa1218f93ce8171211544cd270b0ae423cb1"
+  integrity sha512-q/Glit1zXEGN1iAfd5BZ8wC8A0GEfVZXS3+Lfhw498S+8by8QackelSTYrIdSsEqScLEhFdv4JpFHWQxwuXv1A==
   dependencies:
-    "@csstools/css-color-parser" "^4.2.1"
+    "@csstools/css-color-parser" "^4.2.2"
     "@csstools/css-parser-algorithms" "^4.0.0"
     "@csstools/css-tokenizer" "^4.0.0"
-    "@csstools/postcss-progressive-custom-properties" "^5.1.2"
+    "@csstools/postcss-progressive-custom-properties" "^5.1.3"
     "@csstools/utilities" "^3.0.0"
 
 "@csstools/postcss-exponential-functions@^3.0.4":
@@ -1213,35 +1213,35 @@
   dependencies:
     "@csstools/utilities" "^3.0.0"
 
-"@csstools/postcss-gamut-mapping@^3.0.9":
-  version "3.0.9"
-  resolved "https://registry.yarnpkg.com/@csstools/postcss-gamut-mapping/-/postcss-gamut-mapping-3.0.9.tgz#448b953773a0a857860b7edfc2c4cba40db04531"
-  integrity sha512-CsPRwH/pRfRA8ZNehKgtdyerL3iQXnwqWNgQGl2KBMVUz5plgrxanE2Sp69yz6mO86UONM3OKrAIph4zGtTzCw==
+"@csstools/postcss-gamut-mapping@^3.0.10":
+  version "3.0.11"
+  resolved "https://registry.yarnpkg.com/@csstools/postcss-gamut-mapping/-/postcss-gamut-mapping-3.0.11.tgz#e998035fcc5d7f3a1d0ce674e6b454944c29d04a"
+  integrity sha512-BkyCWsRQdWWJPfxaZHUANYXPyyDX5hoMwzQL7HldNNbwGv6hM+zdz15+hRU1oCs8hayms1lTwdhQRKyrTM91OQ==
   dependencies:
-    "@csstools/css-color-parser" "^4.2.1"
+    "@csstools/css-color-parser" "^4.2.2"
     "@csstools/css-parser-algorithms" "^4.0.0"
     "@csstools/css-tokenizer" "^4.0.0"
 
-"@csstools/postcss-gradients-interpolation-method@^6.0.9":
-  version "6.0.9"
-  resolved "https://registry.yarnpkg.com/@csstools/postcss-gradients-interpolation-method/-/postcss-gradients-interpolation-method-6.0.9.tgz#b6420616fbc6f9a27fe99a55b71d786939ef64e9"
-  integrity sha512-usfLEBPgFiNkuB3BHbGxyM9NnYDlPuiN9XrzooJoAdKu6dyyTQ2XHageS6gfHDpWw4dRvVKR3qDkz2QkFlXp4A==
+"@csstools/postcss-gradients-interpolation-method@^6.0.10":
+  version "6.0.11"
+  resolved "https://registry.yarnpkg.com/@csstools/postcss-gradients-interpolation-method/-/postcss-gradients-interpolation-method-6.0.11.tgz#aea404a8e191a7c20c85a5f34fd0dd79d4d92f2e"
+  integrity sha512-PUvtTEZwHsIWbyQ7E/nesAqZvI/ppx8QprvlIxpu40UYQzF9VSDAvKjAeVJISeBsrM4XoJFAi4Dc1zIDfS+Y5w==
   dependencies:
-    "@csstools/css-color-parser" "^4.2.1"
+    "@csstools/css-color-parser" "^4.2.2"
     "@csstools/css-parser-algorithms" "^4.0.0"
     "@csstools/css-tokenizer" "^4.0.0"
-    "@csstools/postcss-progressive-custom-properties" "^5.1.2"
+    "@csstools/postcss-progressive-custom-properties" "^5.1.3"
     "@csstools/utilities" "^3.0.0"
 
-"@csstools/postcss-hwb-function@^5.0.9":
-  version "5.0.9"
-  resolved "https://registry.yarnpkg.com/@csstools/postcss-hwb-function/-/postcss-hwb-function-5.0.9.tgz#d48dcefa49c760cd40e03a19884f64f452d41704"
-  integrity sha512-IazupZq2PYo9XoSGNybBmKCC6MzEnRHEvtmWdPuUfqRMv2kie20+1HafQo2sf1uURN9DcfbYo7mM6SeBg+IvEA==
+"@csstools/postcss-hwb-function@^5.0.10":
+  version "5.0.11"
+  resolved "https://registry.yarnpkg.com/@csstools/postcss-hwb-function/-/postcss-hwb-function-5.0.11.tgz#c62f8b51deef3f8b068ec889c7bca73f9f7cdfde"
+  integrity sha512-bmweW79W70BRMkV9gwq5cNGtZVrvKgCFDLydhMg4r/K93QNHeAZ79ZEya4R7Kx7W9RiR17zkUV3cXCuf0faj0g==
   dependencies:
-    "@csstools/css-color-parser" "^4.2.1"
+    "@csstools/css-color-parser" "^4.2.2"
     "@csstools/css-parser-algorithms" "^4.0.0"
     "@csstools/css-tokenizer" "^4.0.0"
-    "@csstools/postcss-progressive-custom-properties" "^5.1.2"
+    "@csstools/postcss-progressive-custom-properties" "^5.1.3"
     "@csstools/utilities" "^3.0.0"
 
 "@csstools/postcss-ic-unit@^5.0.3":
@@ -1358,15 +1358,15 @@
   dependencies:
     postcss-value-parser "^4.2.0"
 
-"@csstools/postcss-oklab-function@^5.0.9":
-  version "5.0.9"
-  resolved "https://registry.yarnpkg.com/@csstools/postcss-oklab-function/-/postcss-oklab-function-5.0.9.tgz#b1b4984b7ecb8a2f796718346a1902122def23da"
-  integrity sha512-YpF8jjUsyHYWt1JZUarMNKNuP9SJZ3d+PEoQIlTtL9IilETIBZwH92JrrAzXamorfuaLlysntSY8QDWjCvLoYg==
+"@csstools/postcss-oklab-function@^5.0.10":
+  version "5.0.11"
+  resolved "https://registry.yarnpkg.com/@csstools/postcss-oklab-function/-/postcss-oklab-function-5.0.11.tgz#ba4a4072c3780beb0fb5074a9a26eb22ac46bb8d"
+  integrity sha512-PhAHlZbekxfmeMpcWq8c2BUFCiNFQeTrXDCC6HLeIm2/30TbWcm5t4uYIeA4VIKZ67c3WOapSNUW8ctnSXVx+Q==
   dependencies:
-    "@csstools/css-color-parser" "^4.2.1"
+    "@csstools/css-color-parser" "^4.2.2"
     "@csstools/css-parser-algorithms" "^4.0.0"
     "@csstools/css-tokenizer" "^4.0.0"
-    "@csstools/postcss-progressive-custom-properties" "^5.1.2"
+    "@csstools/postcss-progressive-custom-properties" "^5.1.3"
     "@csstools/utilities" "^3.0.0"
 
 "@csstools/postcss-position-area-property@^2.0.0":
@@ -1374,10 +1374,10 @@
   resolved "https://registry.yarnpkg.com/@csstools/postcss-position-area-property/-/postcss-position-area-property-2.0.0.tgz#3eb4cdc133584c5f413456099fa370a6ccf20140"
   integrity sha512-TeEfzsJGB23Syv7yCm8AHCD2XTFujdjr9YYu9ebH64vnfCEvY4BG319jXAYSlNlf3Yc9PNJ6WnkDkUF5XVgSKQ==
 
-"@csstools/postcss-progressive-custom-properties@^5.1.2":
-  version "5.1.2"
-  resolved "https://registry.yarnpkg.com/@csstools/postcss-progressive-custom-properties/-/postcss-progressive-custom-properties-5.1.2.tgz#541e03a140def3b177fe429b620d8627810ed161"
-  integrity sha512-aGHhh/haanBUxYTqr+mXC52iCNuG/p68CSqz3aoQyqSAgwyxNQGofFYwWo7sd8iQUS8BDoQ/khkPb4ymGyt3aw==
+"@csstools/postcss-progressive-custom-properties@^5.1.2", "@csstools/postcss-progressive-custom-properties@^5.1.3":
+  version "5.1.3"
+  resolved "https://registry.yarnpkg.com/@csstools/postcss-progressive-custom-properties/-/postcss-progressive-custom-properties-5.1.3.tgz#7d514e207e101647e218c2d28112d9af92f478d6"
+  integrity sha512-H7Qt6Vr3RKuY+4rEk5scyRLyDZBFJ0l/Bzhkd5C/gMFaAlCqmjKFDKfMjsjVjzhTQV6/4b0fWFAgIVckVUp0qA==
   dependencies:
     postcss-value-parser "^4.2.0"
 
@@ -1403,15 +1403,15 @@
     "@csstools/css-parser-algorithms" "^4.0.0"
     "@csstools/css-tokenizer" "^4.0.0"
 
-"@csstools/postcss-relative-color-syntax@^4.0.9":
-  version "4.0.9"
-  resolved "https://registry.yarnpkg.com/@csstools/postcss-relative-color-syntax/-/postcss-relative-color-syntax-4.0.9.tgz#46decc89a0356f60de58e877b4b18b5b6fa81b2b"
-  integrity sha512-CuLG2I0Psvs2P5lzd/csCX1b1ZNbnjkqRaKGee9hVZZ325YCSn3dbu7zNoRSIjdpb79LHkmHtOQzcWvj/XJYsw==
+"@csstools/postcss-relative-color-syntax@^4.0.10":
+  version "4.0.11"
+  resolved "https://registry.yarnpkg.com/@csstools/postcss-relative-color-syntax/-/postcss-relative-color-syntax-4.0.11.tgz#3e2e60366751c401c2f80e7f27b8fef9dfcdf729"
+  integrity sha512-eZ0n1pKoW3NkCkThle4sfHwLhVkKP7UCb4C0kCf99OP8HCXnvR82kayvx0XG2hWS2BMpY5SO7DF6Qi1s4nuElA==
   dependencies:
-    "@csstools/css-color-parser" "^4.2.1"
+    "@csstools/css-color-parser" "^4.2.2"
     "@csstools/css-parser-algorithms" "^4.0.0"
     "@csstools/css-tokenizer" "^4.0.0"
-    "@csstools/postcss-progressive-custom-properties" "^5.1.2"
+    "@csstools/postcss-progressive-custom-properties" "^5.1.3"
     "@csstools/utilities" "^3.0.0"
 
 "@csstools/postcss-scope-pseudo-class@^5.0.0":
@@ -7125,15 +7125,15 @@ postcss-clamp@^4.1.0:
   dependencies:
     postcss-value-parser "^4.2.0"
 
-postcss-color-functional-notation@^8.0.9:
-  version "8.0.9"
-  resolved "https://registry.yarnpkg.com/postcss-color-functional-notation/-/postcss-color-functional-notation-8.0.9.tgz#934e3a7d00d4b07ae2ca1c211c2158546fc8144b"
-  integrity sha512-FnOFNz+AthsHFRquy+aPtdmc35qYdkqMiHRvqzPhPBQOjLRPs89paHxAQapYh8b1DNwzccyTneYevBlzRk1j7Q==
+postcss-color-functional-notation@^8.0.10:
+  version "8.0.11"
+  resolved "https://registry.yarnpkg.com/postcss-color-functional-notation/-/postcss-color-functional-notation-8.0.11.tgz#6cd5f96504ffdfd517fa6213084c5f4845e62c1a"
+  integrity sha512-0KUE/mv45e2j9EudDPOXxUodSZ84gYiwypWD3NtFzdkcwwb0tYPC0+3sx0hhfL7TYLXQeCy7PKY7nHXyjTJZZQ==
   dependencies:
-    "@csstools/css-color-parser" "^4.2.1"
+    "@csstools/css-color-parser" "^4.2.2"
     "@csstools/css-parser-algorithms" "^4.0.0"
     "@csstools/css-tokenizer" "^4.0.0"
-    "@csstools/postcss-progressive-custom-properties" "^5.1.2"
+    "@csstools/postcss-progressive-custom-properties" "^5.1.3"
     "@csstools/utilities" "^3.0.0"
 
 postcss-color-hex-alpha@^11.0.0:
@@ -7231,15 +7231,15 @@ postcss-image-set-function@^8.0.0:
     "@csstools/utilities" "^3.0.0"
     postcss-value-parser "^4.2.0"
 
-postcss-lab-function@^8.0.9:
-  version "8.0.9"
-  resolved "https://registry.yarnpkg.com/postcss-lab-function/-/postcss-lab-function-8.0.9.tgz#128822e79e36a16803bc2ab544fbf3877e443b67"
-  integrity sha512-EIq0C2LruZgAZjtUxisv1O6u8HIBoYAGJnC80ksND9PJ4nIJn98+KRNl2sTH6h/ZcR31CCSjEdvR11NFxyCNpg==
+postcss-lab-function@^8.0.10:
+  version "8.0.11"
+  resolved "https://registry.yarnpkg.com/postcss-lab-function/-/postcss-lab-function-8.0.11.tgz#fdefcd458d322f932e6ac55b0c7ac52519417f0c"
+  integrity sha512-wBpSwnW5aKiz3wspg4w5RJQvTXy8Q9gX3glf2WRrXszkQ6RjgxA+ag5oGk1rFotcXTK4OkNPfTPDE+aS1HxVTQ==
   dependencies:
-    "@csstools/css-color-parser" "^4.2.1"
+    "@csstools/css-color-parser" "^4.2.2"
     "@csstools/css-parser-algorithms" "^4.0.0"
     "@csstools/css-tokenizer" "^4.0.0"
-    "@csstools/postcss-progressive-custom-properties" "^5.1.2"
+    "@csstools/postcss-progressive-custom-properties" "^5.1.3"
     "@csstools/utilities" "^3.0.0"
 
 postcss-logical@^9.0.0:
@@ -7310,27 +7310,27 @@ postcss-place@^11.0.0:
   dependencies:
     postcss-value-parser "^4.2.0"
 
-postcss-preset-env@^11.5.0:
-  version "11.5.0"
-  resolved "https://registry.yarnpkg.com/postcss-preset-env/-/postcss-preset-env-11.5.0.tgz#5c9c6f69175d26ea6d193e1df9048463818ecf6c"
-  integrity sha512-r/2b6lLYUw1Dq4kMDhlRhOyNWCj7F6iEOKDGmEBcd9q+5PCSVeU0i4oQrGdn9ygaNM2aPe0IPMzZ8E7ep34Kkg==
+postcss-preset-env@^11.5.1:
+  version "11.5.1"
+  resolved "https://registry.yarnpkg.com/postcss-preset-env/-/postcss-preset-env-11.5.1.tgz#ef0a99130ded179fad87e0f29c016a5ad8a5fe9b"
+  integrity sha512-qRKCvyrSbIF1sLj6DxNCQtlQnhwX80k+e8QPKIZ3DSvzYNMTzqfzfDHkEECtw12uLqNn6NCz4pz532j5EZIHFw==
   dependencies:
-    "@csstools/postcss-alpha-function" "^2.0.10"
+    "@csstools/postcss-alpha-function" "^2.0.11"
     "@csstools/postcss-cascade-layers" "^6.0.0"
-    "@csstools/postcss-color-function" "^5.0.9"
-    "@csstools/postcss-color-function-display-p3-linear" "^2.0.9"
-    "@csstools/postcss-color-mix-function" "^4.0.9"
-    "@csstools/postcss-color-mix-variadic-function-arguments" "^2.0.9"
+    "@csstools/postcss-color-function" "^5.0.10"
+    "@csstools/postcss-color-function-display-p3-linear" "^2.0.10"
+    "@csstools/postcss-color-mix-function" "^4.0.10"
+    "@csstools/postcss-color-mix-variadic-function-arguments" "^2.0.10"
     "@csstools/postcss-container-rule-prelude-list" "^1.0.1"
     "@csstools/postcss-content-alt-text" "^3.0.3"
-    "@csstools/postcss-contrast-color-function" "^3.0.9"
+    "@csstools/postcss-contrast-color-function" "^3.0.10"
     "@csstools/postcss-exponential-functions" "^3.0.4"
     "@csstools/postcss-fit-tolerance-property" "^1.0.0"
     "@csstools/postcss-font-format-keywords" "^5.0.0"
     "@csstools/postcss-font-width-property" "^1.0.0"
-    "@csstools/postcss-gamut-mapping" "^3.0.9"
-    "@csstools/postcss-gradients-interpolation-method" "^6.0.9"
-    "@csstools/postcss-hwb-function" "^5.0.9"
+    "@csstools/postcss-gamut-mapping" "^3.0.10"
+    "@csstools/postcss-gradients-interpolation-method" "^6.0.10"
+    "@csstools/postcss-hwb-function" "^5.0.10"
     "@csstools/postcss-ic-unit" "^5.0.3"
     "@csstools/postcss-image-function" "^1.0.2"
     "@csstools/postcss-initial" "^3.0.0"
@@ -7346,13 +7346,13 @@ postcss-preset-env@^11.5.0:
     "@csstools/postcss-mixins" "^1.0.0"
     "@csstools/postcss-nested-calc" "^5.0.0"
     "@csstools/postcss-normalize-display-values" "^5.0.1"
-    "@csstools/postcss-oklab-function" "^5.0.9"
+    "@csstools/postcss-oklab-function" "^5.0.10"
     "@csstools/postcss-position-area-property" "^2.0.0"
     "@csstools/postcss-progressive-custom-properties" "^5.1.2"
     "@csstools/postcss-property-rule-optional-descriptors" "^1.0.0"
     "@csstools/postcss-property-rule-prelude-list" "^2.0.0"
     "@csstools/postcss-random-function" "^4.0.0"
-    "@csstools/postcss-relative-color-syntax" "^4.0.9"
+    "@csstools/postcss-relative-color-syntax" "^4.0.10"
     "@csstools/postcss-scope-pseudo-class" "^5.0.0"
     "@csstools/postcss-sign-functions" "^2.0.4"
     "@csstools/postcss-stepped-value-functions" "^5.0.4"
@@ -7369,7 +7369,7 @@ postcss-preset-env@^11.5.0:
     cssdb "^8.10.0"
     postcss-attribute-case-insensitive "^8.0.0"
     postcss-clamp "^4.1.0"
-    postcss-color-functional-notation "^8.0.9"
+    postcss-color-functional-notation "^8.0.10"
     postcss-color-hex-alpha "^11.0.0"
     postcss-color-rebeccapurple "^11.0.0"
     postcss-custom-media "^12.0.1"
@@ -7382,7 +7382,7 @@ postcss-preset-env@^11.5.0:
     postcss-font-variant "^5.0.0"
     postcss-gap-properties "^7.0.0"
     postcss-image-set-function "^8.0.0"
-    postcss-lab-function "^8.0.9"
+    postcss-lab-function "^8.0.10"
     postcss-logical "^9.0.0"
     postcss-nesting "^14.0.1"
     postcss-opacity-percentage "^3.0.0"
