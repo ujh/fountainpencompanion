@@ -28,6 +28,15 @@ Ground rules this roadmap follows:
   facts and test cases a less experienced implementer would otherwise have to rediscover, and a
   **Decisions applied** item naming the decisions that shaped it.
 
+**Progress is tracked outside this file.** A private status board (a Claude Artifact, link kept in
+the owner's notes — not in this public repo) carries every step's status, the date it was finished,
+its definition-of-done ticks and a free-text note, and computes which steps are unblocked. Keep it
+current: set a step to "in progress" when its PR is opened and to "done" when it merges (or when a
+non-code activity ends), ticking the definition-of-done items as they are met. This file stays the
+specification — edit it only when a step's *content* changes (scope, a corrected fact, a new
+decision), never to record progress. When a step's text changes here, the board's copy of its goal
+and definition of done has to be regenerated from this file.
+
 Legend: size XS (hours) / S (about a day) / M (1-3 days) / L (3-5 days; the step says how to split
 if wanted). Prod risk `medium*` means the PR changes prod behaviour or schema on merge and the
 owner should be available when it merges (auto-deploy).
