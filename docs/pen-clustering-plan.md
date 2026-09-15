@@ -1,7 +1,9 @@
 # Pen Clustering Automation Plan
 
 Status: plan agreed 2026-09-12 (all open questions decided, see bottom), implementation not
-started.
+started. `docs/implementation-roadmap.md` is the authoritative ordering across this plan and
+the LLM migration plan; the owner's 2026-09-14 decisions there supersede several items below
+(marked inline).
 
 ## Goals
 
@@ -100,18 +102,22 @@ color"). Ignored model micro clusters (6) are line names entered as model ("Pilo
 
 `InkClusterer` on gpt-4.1, last 30 days: 999 runs, avg 5,337 prompt / 165 completion tokens,
 roughly $0.012/run. Pen L1 prompts will be larger because variant lists are long (a Lamy Safari
-candidate carries 50 variants); assume $0.015–0.02/run on gpt-4.1.
+candidate carries 50 variants); assume $0.015–0.02/run at gpt-4.1-class pricing, used here only
+as a reference price point. Per Q32, the pen agents never actually run on gpt-4.1: they launch
+on whichever DigitalOcean model the S01 compatibility spike picks, so the real per-run cost is
+whatever that model's DO pricing works out to — re-price this table once the spike records its
+pick.
 
-| Scope                                | Runs   | gpt-4.1 est. | Haiku-4.5-class est. (~1/5) |
-| ------------------------------------ | ------ | ------------ | --------------------------- |
-| Inflow, steady state                 | 57/day | ~$1/day      | ~$0.2/day                   |
-| Backlog, ≥2 pens                     | 4,075  | ~$70         | ~$15                        |
-| Backlog, singletons with known brand | ~70k   | ~$1,200      | ~$250                       |
-| Backlog, everything                  | 96.7k  | ~$1,700      | ~$350                       |
+| Scope                                | Runs   | gpt-4.1-class ref. est. | Haiku-4.5-class est. (~1/5) |
+| ------------------------------------ | ------ | ----------------------- | --------------------------- |
+| Inflow, steady state                 | 57/day | ~$1/day                 | ~$0.2/day                   |
+| Backlog, ≥2 pens                     | 4,075  | ~$70                    | ~$15                        |
+| Backlog, singletons with known brand | ~70k   | ~$1,200                 | ~$250                       |
+| Backlog, everything                  | 96.7k  | ~$1,700                 | ~$350                       |
 
-Current total LLM spend is ~$35/month. Draining the full backlog on gpt-4.1 would cost four
-years of the current bill, so the backlog waits for the cheaper model from the migration plan
-and for a checker agent that removes the human bottleneck.
+Current total LLM spend is ~$35/month. Draining the full backlog at gpt-4.1-class pricing would
+cost four years of the current bill, so the backlog waits for the cheap chat model migration P3
+picks and for a checker agent that removes the human bottleneck.
 
 ## Design
 
@@ -123,20 +129,31 @@ Three decision agents, mirroring the ink agents one to one, plus checkers later.
 requiring an explanation, all writing only `agent_log.extra_data` like `InkClusterer`:
 
 - `assign_to_variant(variant_id, explanation)`
-- `create_new_variant(explanation)` — no attributes, see "derived" above
+- `create_new_variant(explanation)` — no attributes, see "derived" above. The tool itself first
+  checks for an existing identical variant row; if one is found it returns a message telling the
+  model to assign instead (not a `halt`, so the model can retry with `assign_to_variant`). This is
+  the only duplicate-prevention mechanism (Q20); the same pattern applies to
+  `create_new_model`/`create_new_brand` at L2/L3.
 - `ignore_pen(explanation)`
 - `hand_over_to_human`
 
 Lookup tools:
 
 - `Tools::PenSimilaritySearchTool` — wraps `Pens::Model.embedding_search`, returns the top N
-  models with distance, and for each the variants (id, name, number of micro clusters). Grouping
-  variants under their model is the key difference from the ink tool: the agent must see that
-  "Safari Petrol" and "Safari Dark Lilac" are sibling variants, not candidates for each other.
+  models with distance, and for each the top K variants by micro-cluster count (id, name, count),
+  K a public constant (15), plus an "and N more variants" line when the model has more;
+  `PenFullTextSearchTool` finds the rest, and the bench reports capped cases as their own stratum
+  (Q17). Grouping variants under their model is the key difference from the ink tool: the agent must
+  see that "Safari Petrol" and "Safari Dark Lilac" are sibling variants, not candidates for each
+  other.
 - `Tools::PenFullTextSearchTool` — `Pens::ModelVariant.search` fallback.
-- `KnownBrand` — `Pens::Brand.simplified_names` includes the micro cluster's simplified brand.
+- `KnownBrand` (Q18) — one EXISTS query: does the micro cluster's simplified brand match a brand
+  spelling already seen on an ASSIGNED pen micro cluster? Mirrors the ink `KnownBrand`, not
+  `Pens::Brand.simplified_names`. The system directive tells the model an unknown brand may be a
+  misspelling and to check spelling or search the web.
 - `Tools::PenWebSearchTool` — `GoogleSearchSummarizer` with " fountain pen" appended. Same
-  sub-agent-log pattern as `InkWebSearchTool`. Open question whether to enable at first.
+  sub-agent-log pattern as `InkWebSearchTool`. Enabled from the first run (open question 4); watch
+  the calls-per-run ratio during hand review.
 
 Prompt data: the micro cluster's distinct (brand, model, color, material, trim_color,
 filling_system) tuples from collected pens with counts. Nib is deliberately excluded: it is not
@@ -154,12 +171,26 @@ separately sold version).
   then `Pens::UpdateMicroCluster` (which triggers `UpdateModelVariant` → `AssignModelMicroCluster`
   → possibly a new unassigned `Pens::ModelMicroCluster`, which is L2's trigger).
 - ignore → `ignored: true`.
-- human → `touch` to move it back in the queue.
+- human → no timestamp touch; the cluster is excluded from top-up refills until a human assigns or
+  ignores it in the `pens-micro-clusters` React app (Q23).
 - Rejection cleanup: unassign / destroy the created variant if it only holds this micro cluster
   (nullifying its micro clusters and re-queueing them) / unignore. Rejected logs with a manual
   note are fed back into the next attempt exactly like `processed_tries_data`.
+- Cross-level cascade on reject (Q21): rejecting an approved L1 create fully cascades — destroy
+  the now-empty model micro cluster it produced, reject any L2 log sitting on that model micro
+  cluster, then re-run the model update (or destroy the model if it is now empty too). The L1
+  half of this (plus cleaning up any unassigned empty model micro cluster) ships with L1's
+  apply/reject code; the L2 half ships with L2's wiring.
+- If a collision still reaches `approve!` — a race between the model's decision and the human's
+  approval, where an identical row now exists that the create tool did not see — `approve!`
+  refuses and rejects the log, the same as the stale-approval guard below (Q20).
 - `already_resolved?` guards against the human having assigned it in the React app meanwhile.
   `approve!` re-checks that the micro cluster is still unassigned and rejects the log if not.
+  This is a minimal safety check only (Q22): no tag, no stats exclusion, no flash-message
+  design, and no auto-reject hook wired from the React controllers. The owner confirmed the
+  React app and the agent queue are never worked at the same time — the React app is only the
+  fallback destination for hand-overs — so this guard exists for correctness, not to prevent
+  double-work.
 
 **`PenModelClusterer`** (L2, owner `Pens::ModelMicroCluster`). Same shape with
 `assign_to_model(model_id)`, `create_new_model`, `ignore`, `hand_over_to_human`. Lookup:
@@ -170,14 +201,22 @@ just returns), behind an on/off flag but not limited by the L1 queue depth. Volu
 variant whose simplified brand+model is new.
 
 **`PenBrandClusterer`** (L3, owner `Pens::Model`). Mirror of `InkBrandClusterer`: full list of
-286 brands with synonyms in the prompt, tools `add_to_brand(brand_id)` /
-`create_new_brand`, applies immediately and logs `waiting_for_approval` like the ink version.
-Triggered from `Pens::AssignBrand` when the exact match finds nothing. Lowest priority; exact
-match covers the current 100%.
+286 brands with synonyms in the prompt, tools `add_to_brand(brand_id)` / `create_new_brand`.
+**Correction (Q39, overrides the ink-mirrored text above): L3 uses the L1 shape, not the ink
+brand clusterer's shape** — the agent decides, the log parks in `waiting_for_approval`, a human
+approval applies the decision (create tool duplicate-checks per Q20 above), and a rejection
+re-queues the model to the manual brand admin page. It does not apply immediately, and there is
+no undo code. Triggered from `Pens::AssignBrand` when the exact match finds nothing. Lowest
+priority; exact match covers the current 100%.
 
 **`CheckPenClustering::{Assign,Create,Ignore,Human}`** (phase 4). Copy of
 `CheckInkClustering::*` with pen tools and pen prompt. Only built once L1 has a measured
 human approval rate; until then humans review 100% and the checker would just add cost.
+`CheckPenClustering::Human` copies the ink checker's behaviour (Q34): it emails hello@ and
+approves the parent log with `agent_approved=false`, but — unlike the ink checker, which
+leaves its own child log `waiting_for_approval` forever — the pen `Human` checker finalises its
+own child log. `RunFailedClusterJobs` restarts stuck pen checker runs the same way it does for
+L1 runs.
 
 ### Pull-based rollout
 
@@ -186,16 +225,27 @@ schedule. The agent runs only to refill a small review queue after a human has e
 it. No review, no runs, no spend.
 
 - `TopUpPenClusteringQueue` worker. Reads `PEN_CLUSTERING_QUEUE_DEPTH` (default `0` = off,
-  planned prod value `10`). Counts `PenVariantClusterer` logs in `waiting-for-approval` or
-  `processing`; if below the target it enqueues one `RunPenClustererAgent` per missing slot
-  from the priority order below. Idempotent, so calling it twice is harmless.
+  planned prod value `10`). Depth counting (Q24): counts `PenVariantClusterer` logs in
+  `waiting-for-approval` or `processing` only — a queued-but-not-yet-started job does not
+  count, so a brief overshoot past the target is accepted rather than guarded against. Once the
+  checker (P4) exists, agent-decided logs still show on the human review page (human spot checks on
+  them feed the "correct auto review" percentages) but do not count toward this depth. Hand-over exclusion
+  (Q23): a cluster whose latest `PenVariantClusterer` log is an approved `hand_over_to_human` is
+  excluded from top-up refills entirely until a human assigns or ignores it in the
+  `pens-micro-clusters` React app — no timestamp touch, no other special handling. If the
+  counted total is below the target, the worker enqueues one `RunPenClustererAgent` per missing
+  slot from the priority order below. Idempotent, so calling it twice is harmless.
 - Trigger: the admin review controller enqueues `TopUpPenClusteringQueue` after every human
   approve or reject. Reviewing 3 decisions refills 3; not reviewing for a week costs nothing.
-  A run that ends without a reviewable log (empty micro cluster, error) also calls the top-up
-  so the queue does not silently shrink. `RunFailedClusterJobs` re-enqueues stuck
-  `processing` logs but never adds new ones.
+  Empty-cluster marker (Q19): a run whose micro cluster is already empty by the time it runs
+  skips deciding, writes a small marker log outside the review queue (its own name or tag, a
+  terminal state, excluded from every stats query), and calls the top-up so the queue does not
+  silently shrink; any other run that ends without a reviewable log (e.g. an error) calls the
+  same top-up. `RunFailedClusterJobs` re-enqueues stuck `processing` logs but never adds new
+  ones.
 - `RunPenClustererAgent`: own throttled worker, concurrency 1, `agents` queue, so pen runs
-  never starve `RunInkClustererAgent`.
+  never starve `RunInkClustererAgent`. A single worker is accepted as-is for now (Q35); watch
+  queue latency as volume rises and revisit only once the drain actually starts falling behind.
 - Priority order for the L1 queue: most collected pens per micro cluster first, random
   after that. Same ordering the manual review app uses. No brand preference: the hand-review
   phase should see a mix of everything the data contains.
@@ -204,19 +254,30 @@ it. No review, no runs, no spend.
 - Real-time triggering from `Pens::UpdateMicroCluster` (with the 30s debounce inks use) is
   phase 5, after the checker exists and approval rates are known. With a checker in place the
   queue depth counts only logs that still need a human, so agent-approved logs do not block
-  refills.
+  refills. The trigger respects the cap (Q36): it performs a run-time check first, and if the
+  human review queue is already at its cap, the run skips entirely without writing a log,
+  leaving the cluster for the next top-up refill.
 
 ### Admin
 
 - `Admins::Agents::PenVariantClustererController` + `PenModelClustererController`, views
   extracted from the ink clusterer view into a shared partial (state, extra data, owner dump,
-  transcript, approve/reject/reject-with-note, shortcuts). Same reject-and-reprocess and
-  delete-history semantics.
+  transcript, approve/reject/reject-with-note, shortcuts). Same reject-and-reprocess semantics.
+  Stats are computed over the latest 500 manually processed logs, as on the ink page. Delete-history
+  is fixed (Q25): it preserves the just-typed rejection note on a fresh guidance log and does not
+  wipe sibling clusters' history — the same fix is applied to the ink page.
 - Dashboard: pending-review counts for pen agents next to the existing pen cluster counts.
-- The existing React apps stay as the "hand over to human" destination. They should show a
-  marker on micro clusters that have a pending agent log so the human does not double-work.
+- The existing React apps stay as the "hand over to human" destination, used only as that
+  fallback — the owner confirmed humans never work the React app and the agent queue at the
+  same time, so this is not a double-work-prevention feature. Once the agent queue is live (Q26:
+  after the P1 hand-review drip is underway, not alongside it), the app adds a badge plus a
+  filter covering two cases: clusters whose latest agent log is an approved
+  `hand_over_to_human`, and clusters with a pending agent log. Purpose is to make the hand-over
+  fallback workable.
 - `AgentLog.with_collected_inks` is ink-specific; replace with a generic "owner still has
   members" scope or per-agent scopes.
+- Keep all `agent_log` history indefinitely — no trimming policy of any kind (Q37); transcripts
+  stay available in bench dumps too.
 
 ### Bench
 
@@ -226,7 +287,13 @@ state, leave-one-out, exactly as for inks:
 - L1 label: the 16k human-assigned micro clusters. Null out `pens_model_variant_id` inside a
   rolled-back transaction; if the variant has other micro clusters expect
   `assign_to_variant(id)`, else expect `create_new_variant` and also hide the variant's own
-  `pen_embeddings` row. The 361 ignored expect `ignore_pen`. Stratify: singleton vs multi-pen
+  `pen_embeddings` row. Singleton cells are OVER-SAMPLED, because the labelled set is 99% multi-pen
+  while the backlog is 96% singletons; for every singleton case, re-derive the held-out variant's
+  (and a single-variant model's) name and embedding from the remaining pens inside the same
+  rolled-back transaction — one extra embedding call per case — rather than reuse the pre-existing
+  name and vector (Q12). The ignored micro clusters expect `ignore_pen`, minus those whose existing
+  ignore does not match the decided ignore policy (open question 3) — those are excluded from the
+  bench entirely (Q13), so fewer than 361 cases survive. Stratify: singleton vs multi-pen
   cluster, known vs unknown brand, big model (Safari, Vanishing Point) vs rare.
 - L2 label: the 3,320 assigned model micro clusters, same trick on `pens_model_id`.
 - Same caveat as inks: today's DB is richer than at decision time, so numbers are relative, not
@@ -239,12 +306,21 @@ state, leave-one-out, exactly as for inks:
 
 ### Interaction with the LLM migration plan
 
-- Build the agents on `MODEL_ID = "gpt-4.1"` like the ink agents now; adopt the per-agent
-  config from migration P0 when it lands. Do not block on it.
+- **Superseded (Q32):** the pen agents are NOT built on `MODEL_ID = "gpt-4.1"`. They are built
+  on DigitalOcean models from the start, via the migration plan's per-agent config
+  (`config/llm.yml`). This flips the dependency the other way round: the chat config layer
+  (migration P0 / roadmap S04-llm-config-chat) now comes before the pen agent work (roadmap S06 and
+  S10-S16) instead of being adopted opportunistically afterwards. (Q32 states this with v1 step
+  numbers — "S15 moves before S04-S13" — which the v2 renumbering has since inverted; the named ids
+  here are authoritative.) The starting model is whichever
+  candidate the compatibility spike (migration P0 / roadmap S01) finds handles forced tool
+  choice and transcript replay cleanly; record the pick and its date here once chosen. OpenAI
+  stays the default for ink agents until their own cutover — there is no separate pen cutover
+  step any more.
 - The pen bench cases live in the shared harness and are also what migration P2/P3 use to
   evaluate embeddings and chat models for pens. Build them once.
 - Do not drain the backlog before migration P3 picks a cheaper chat model. Inflow and the
-  multi-pen backlog are affordable on gpt-4.1; the singleton backlog is not.
+  multi-pen backlog are affordable on the spike's starting model; the singleton backlog is not.
 - If migration P2 swaps embeddings, `Pens::Model.embedding_search`'s 0.6 cutoff changes, and
   the L1 bench must be re-run.
 
@@ -257,8 +333,21 @@ dependent: :destroy`. Generic replacement for `AgentLog.with_collected_inks`.
 - `Tools::PenSimilaritySearchTool`, `Tools::PenFullTextSearchTool`, `Tools::PenWebSearchTool`
   with specs. Measure `embedding_search` latency on prod-sized data; it loads up to 2,400
   embedding rows per call.
-- Clean up stale rows: 69 empty unassigned model micro clusters, 5 empty variants, 305
-  `pen_embeddings` with NULL vectors (re-enqueue `FetchEmbedding`).
+- Clean up stale rows (Q8, cleanup option (c)): DELETE the unassigned-and-empty rows — 9,333
+  empty pen micro clusters, the 69 empty unassigned model micro clusters (Q8's shorthand "69/75"
+  contradicts this document's own hierarchy table, which counts 69 unassigned model micro clusters,
+  all empty; re-count before running), 25 empty variants, 7 empty models — plus orphaned embedding rows, and re-embed the NULL-vector
+  `pen_embeddings` rows (re-enqueue `FetchEmbedding`) and fix any other missing rows found along
+  the way. KEEP the empty but ASSIGNED micro clusters (453 pen micro clusters, 349 model micro
+  clusters): they encode human spelling rules and must stay, filtered out of every query and
+  count from here on (bench cases, dashboard counts, top-up eligibility, everything).
+- CSV import routing (Q9): route `ImportCollectedPen` through `SaveCollectedPen` (roadmap
+  S07-csv-import-routing), plus a one-off re-save of only the ~1,407 pens that currently have no
+  micro cluster, not the argument-less `RefreshPens` (roadmap S08-stale-data-cleanup). That one-off
+  re-save must run before the first bench dump (P1 below / roadmap S17-bench-db) and before the
+  embedding backfill (roadmap S24-embedding-v2-backfill), so do it here in P0 rather than later.
+  (Q9 names these by their v1 step numbers; the roadmap has since been renumbered, so the named ids
+  above are authoritative.)
 - Retrieval sanity check (bench-lite): script over ~200 leave-one-out L1 cases reporting
   whether the correct model/variant appears in `embedding_search` top 20. This is cheap (no
   chat calls) and decides whether the tool needs work before P1.
@@ -268,8 +357,9 @@ dependent: :destroy`. Generic replacement for `AgentLog.with_collected_inks`.
 - Agent, decision tools, `approve!`/`reject!`, `already_resolved?`, rejected-try feedback.
 - `RunPenClustererAgent`, `TopUpPenClusteringQueue` (queue depth default 0, triggered from the
   review controller), `RunFailedClusterJobs` extension.
-- Admin review controller + shared view partial + dashboard counts + pending marker in the
-  React app.
+- Admin review controller + shared view partial + dashboard counts. The React app's
+  hand-over/pending badge and filter do NOT ship with this phase — per Q26 they ship only after
+  the queue goes live and the hand-review drip (below) is underway.
 - Specs modelled on `spec/agents/ink_clusterer_spec.rb`: tool unit tests, WebMock
   integration per action, approve/reject side effects and cleanup, resolved-meanwhile guard,
   top-up gating (never exceeds depth, no-op when off).
@@ -283,11 +373,13 @@ dependent: :destroy`. Generic replacement for `AgentLog.with_collected_inks`.
 
 - Pen case exporter and leave-one-out runner in the shared harness (migration P1). If the
   harness is not there yet, this phase builds the pen half of it.
-- Run gpt-4.1 baseline on ~200 L1 cases, stratified. Compare to the prod approval rate from P1
-  as a sanity check that bench and prod agree.
-- Iterate on the system directive against the bench, not against prod. Raise the prod queue
-  size once bench and prod both look acceptable (target: at least the ink clusterer's ~85%
-  human approval rate).
+- Run a baseline on the spike-picked starting model (Q32) on ~200 L1 cases, stratified.
+  Compare to the prod approval rate from P1 as a sanity check that bench and prod agree.
+- Iterate on the system directive against the bench, not against prod. Raising the prod queue
+  depth (and later enabling the checkers, P4) is gated on the owner setting the acceptance bar
+  after the two-week hand-review drip (P1) shows real per-action approval rates (Q27) — not
+  before. Record both candidate yardsticks for that later decision: the ink clusterer's
+  per-action approval rate over the recent months, and its all-time rate of ~85%.
 
 ### P3 — `PenModelClusterer` (L2)
 
@@ -307,8 +399,12 @@ dependent: :destroy`. Generic replacement for `AgentLog.with_collected_inks`.
 
 - `Pens::UpdateMicroCluster` enqueues the L1 agent with debounce for new and edited pens.
 - Backlog drain in priority order, on the cheap model chosen in migration P3, still gated by
-  the pending cap. Decide then whether singletons with unknown brands are worth running at all.
-- `PenBrandClusterer` as fallback for `Pens::AssignBrand`.
+  the pending cap. Unknown-brand singletons run LAST, after `PenBrandClusterer` (L3, next
+  bullet) is live, watching the hand-over rate; stop early if hand-overs dominate (Q38).
+- `PenBrandClusterer` as fallback for `Pens::AssignBrand`, using the L1 decide /
+  wait-for-approval / approve-applies shape (Q39, see the PenBrandClusterer paragraph above):
+  approving applies the brand assignment, rejecting re-queues the model to the manual brand
+  admin page, and there is no undo code.
 
 ## Follow-ups (not part of this plan)
 
@@ -347,11 +443,20 @@ Answers decide the shape of P1, so they come before implementation.
    itself (Serper query, gpt-4.1-mini summary) is basic and not always right; making it more
    reliable is its own research task for both ink and pen agents, see follow-ups.
 5. **Queue depth.** Decided 2026-09-12: pull-based, no schedule, refill to ~10 unreviewed
-   decisions after each human review. Open detail: should `processing` logs count towards the
-   depth (proposed yes, otherwise a slow run lets the queue overshoot)?
+   decisions after each human review. Open detail resolved 2026-09-14 (Q24): yes, `processing`
+   logs count towards the depth alongside `waiting-for-approval`; queued-but-not-yet-started
+   jobs do not count, so a brief overshoot is accepted rather than guarded against. Once the
+   checker (P4) is live, agent-decided logs show on the review page but do not count toward the
+   depth.
 6. **Model.** Decided 2026-09-12: gpt-4.1 with a constant `MODEL_ID`, same pattern as
    `InkClusterer`, no dependency on the migration plan. Approval rates stay comparable to the
-   ink baseline; the bench picks a cheaper model later.
+   ink baseline; the bench picks a cheaper model later. **Superseded 2026-09-14 (Q32):** the
+   pen agents are built on DigitalOcean models from the start, via the migration plan's
+   per-agent config — not gpt-4.1, not a constant `MODEL_ID`. The starting model is picked by
+   the migration plan's compatibility spike (whichever candidate handles forced tool choice and
+   transcript replay cleanly); record the pick and its date here once chosen. See "Interaction
+   with the LLM migration plan" above for the full consequence (config layer moves earlier,
+   no separate pen cutover step).
 7. **Bench ordering.** Decided 2026-09-12: retrieval sanity check (P0), then the
    hand-reviewed prod drip (P1), then the full bench (P2) built in parallel and used for
    prompt and model tuning. Rejected prod decisions feed the bench's hard-negative subset.
