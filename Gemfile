@@ -7,7 +7,7 @@ git_source(:github) do |repo_name|
   "https://github.com/#{repo_name}.git"
 end
 
-gem "rails", "~> 8.1.3"
+gem "rails", "~> 8.1.4"
 
 gem "after_commit_everywhere"
 gem "apipie-rails"
