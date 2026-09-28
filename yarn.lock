@@ -1714,10 +1714,10 @@
     json-nd "^1.0.0"
     stacktrace-parser "^0.1.10"
 
-"@honeybadger-io/js@^6.16.3":
-  version "6.16.3"
-  resolved "https://registry.yarnpkg.com/@honeybadger-io/js/-/js-6.16.3.tgz#e305fa22dbc0377f1e767a825162779a6b77853d"
-  integrity sha512-AsQaFji3Qu9z7r7RAhkCzkaveWvqGglA+ytaVOUnAsIYihojrnV1D3t0T34/gRHsjme23VWop4X3buSXPq8jzw==
+"@honeybadger-io/js@^6.16.4":
+  version "6.16.4"
+  resolved "https://registry.yarnpkg.com/@honeybadger-io/js/-/js-6.16.4.tgz#5d932f73a89baf702cb12c289daf029edcd93798"
+  integrity sha512-7ZHUVpU7/BeR16fGGzJKa70Q9JB266qBEAno+kvJs22PbSqcAge8DiI8ge701n9FtI7olXIRHOehfOIhmXX0iQ==
   dependencies:
     "@honeybadger-io/core" "^6.11.1"
     "@types/aws-lambda" "^8.10.89"
