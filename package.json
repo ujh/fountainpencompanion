@@ -68,7 +68,7 @@
     "jest": "^30.5.2",
     "jest-environment-jsdom": "^30.5.2",
     "msw": "1.0.1",
-    "prettier": "^3.9.8"
+    "prettier": "^3.9.9"
   },
   "engines": {
     "node": "v24.14.0"
