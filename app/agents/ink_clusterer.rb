@@ -250,6 +250,15 @@ class InkClusterer
       agent_log.lock!
       return if agent_log.approved?
 
+      # The inks can move to another micro cluster between the run and the
+      # approval (e.g. a typo gets fixed). A new macro cluster created for an
+      # empty micro cluster would never get a name and stays orphaned.
+      if agent_log.extra_data["action"] == "create_new_cluster" &&
+           micro_cluster.collected_inks.empty?
+        agent ? agent_log.reject_by_agent! : agent_log.reject!
+        return
+      end
+
       case agent_log.extra_data["action"]
       when "assign_to_cluster"
         micro_cluster.update!(macro_cluster_id: agent_log.extra_data["cluster_id"])

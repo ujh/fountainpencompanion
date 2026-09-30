@@ -733,6 +733,26 @@ RSpec.describe InkClusterer do
         expect(cluster.ink_name).not_to eq("")
       end
 
+      context "when the micro cluster lost its inks in the meantime" do
+        before { micro_cluster.collected_inks.update_all(micro_cluster_id: nil) }
+
+        it "rejects instead of creating an empty macro cluster" do
+          expect { subject.approve! }.not_to change { MacroCluster.count }
+
+          expect(micro_cluster.reload.macro_cluster_id).to be_nil
+          expect(subject.agent_log.state).to eq("rejected")
+          expect(subject.agent_log.agent_approved).to be false
+          expect(UpdateMicroCluster.jobs.size).to eq(0)
+        end
+
+        it "marks the rejection as done by the agent when approved by the agent" do
+          subject.approve!(agent: true)
+
+          expect(subject.agent_log.state).to eq("rejected")
+          expect(subject.agent_log.agent_approved).to be true
+        end
+      end
+
       it "defers UpdateMicroCluster enqueue until the outer transaction commits" do
         size_inside = nil
         ActiveRecord::Base.transaction do
