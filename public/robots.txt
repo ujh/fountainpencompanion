@@ -32,3 +32,7 @@ User-agent: Omgili
 Disallow: /
 User-agent: YouBot
 Disallow: /
+User-agent: *
+Disallow: /descriptions/
+Disallow: /reviews/missing
+Disallow: /reviews/my_missing
