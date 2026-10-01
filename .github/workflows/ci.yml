@@ -111,7 +111,7 @@ jobs:
           cache-to: type=gha,mode=max
   deploy:
     name: Deploy app
-    needs: [rspec, jest]
+    needs: [rspec, jest, docker-build]
     if: github.ref_name == 'master'
     runs-on: ubuntu-latest
     concurrency: deploy-group # optional: ensure only one action runs at a time
