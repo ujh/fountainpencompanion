@@ -342,6 +342,20 @@ export const Autocomplete = ({ inputSelector, source, getDependencies }) => {
     };
   }, [updatePosition]);
 
+  // Keep the highlighted suggestion visible when navigating with the keyboard. This only scrolls
+  // the dropdown itself, unlike scrollIntoView, which can also scroll the page.
+  useEffect(() => {
+    const list = dropdownRef.current;
+    const item = list && list.children[highlightedIndex];
+    if (!item) return;
+
+    if (item.offsetTop < list.scrollTop) {
+      list.scrollTop = item.offsetTop;
+    } else if (item.offsetTop + item.offsetHeight > list.scrollTop + list.clientHeight) {
+      list.scrollTop = item.offsetTop + item.offsetHeight - list.clientHeight;
+    }
+  }, [highlightedIndex]);
+
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (e) => {

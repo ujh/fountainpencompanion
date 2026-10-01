@@ -426,6 +426,52 @@ describe("Autocomplete", () => {
     });
   });
 
+  describe("scrolling", () => {
+    // jsdom doesn't do layout, so give every item a fixed height in a 100px high list
+    const ITEM_HEIGHT = 40;
+
+    beforeEach(() => {
+      jest.spyOn(HTMLElement.prototype, "offsetTop", "get").mockImplementation(function () {
+        return this.classList.contains("fpc-autocomplete-item")
+          ? Array.from(this.parentNode.children).indexOf(this) * ITEM_HEIGHT
+          : 0;
+      });
+      jest.spyOn(HTMLElement.prototype, "offsetHeight", "get").mockReturnValue(ITEM_HEIGHT);
+      jest.spyOn(HTMLElement.prototype, "clientHeight", "get").mockReturnValue(100);
+    });
+
+    afterEach(() => {
+      jest.restoreAllMocks();
+    });
+
+    it("keeps the highlighted suggestion in view when navigating with the arrow keys", async () => {
+      const mockSource = jest.fn().mockResolvedValue(["A1", "A2", "A3", "A4", "A5"]);
+      render(<Autocomplete inputSelector="#test-input" source={mockSource} />);
+      fireEvent.input(inputElement, { target: { value: "A" } });
+      await waitFor(() => expect(screen.getByRole("listbox")).toBeInTheDocument());
+      const list = screen.getByRole("listbox");
+
+      // Items 1 and 2 (0-80px) are visible, item 3 (80-120px) is partially hidden
+      fireEvent.keyDown(inputElement, { key: "ArrowDown" });
+      fireEvent.keyDown(inputElement, { key: "ArrowDown" });
+      expect(list.scrollTop).toBe(0);
+
+      fireEvent.keyDown(inputElement, { key: "ArrowDown" });
+      expect(list.scrollTop).toBe(20);
+
+      fireEvent.keyDown(inputElement, { key: "ArrowDown" });
+      fireEvent.keyDown(inputElement, { key: "ArrowDown" });
+      expect(list.scrollTop).toBe(100);
+
+      // Moving back up scrolls up once the item leaves the top of the list
+      fireEvent.keyDown(inputElement, { key: "ArrowUp" });
+      expect(list.scrollTop).toBe(100);
+      fireEvent.keyDown(inputElement, { key: "ArrowUp" });
+      fireEvent.keyDown(inputElement, { key: "ArrowUp" });
+      expect(list.scrollTop).toBe(40);
+    });
+  });
+
   describe("with empty results", () => {
     it("does not show dropdown when no suggestions", async () => {
       const mockSource = jest.fn().mockResolvedValue([]);
