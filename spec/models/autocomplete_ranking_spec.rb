@@ -64,6 +64,19 @@ describe AutocompleteRanking do
     expect(names).to eq(["Pelikan Ink", "Pelica Pens"])
   end
 
+  it "matches compact names without punctuation in the term" do
+    expect(rank("custom74", ["Custom 74", 1])).to eq(["Custom 74"])
+  end
+
+  it "matches similar names with a typo at the start or the end" do
+    expect(rank("pelikam", ["Pelikan", 1])).to eq(["Pelikan"])
+    expect(rank("belikan", ["Pelikan", 1])).to eq(["Pelikan"])
+  end
+
+  it "does not match similar names when both the first and last two characters are wrong" do
+    expect(rank("ablueberryzz", ["Blueberry", 1])).to eq([])
+  end
+
   it "does not match similar names for short terms" do
     expect(rank("pio", ["Pilot", 1])).to eq([])
   end

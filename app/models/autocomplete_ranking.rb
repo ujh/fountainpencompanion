@@ -12,6 +12,11 @@
 # Within each tier, more popular names come first. Similar names are ordered
 # by their similarity weighted with (the logarithm of) their popularity, so
 # that a well known name beats a rare one that happens to be slightly closer.
+#
+# The expensive checks (regular expressions, trigram similarity) are guarded
+# by cheap LIKE conditions, as most candidates don't match at all. For similar
+# names this assumes that either the first or the last two characters of the
+# term are typed correctly.
 class AutocompleteRanking
   LIMIT = 15
   # Trigram similarity is too noisy for very short terms
@@ -28,11 +33,14 @@ class AutocompleteRanking
   end
 
   def relation
+    # OFFSET 0 keeps Postgres from pushing the tier filter down into the
+    # candidates query. Otherwise aggregated names (e.g. array_agg(...)[1]) get
+    # recomputed for every condition of the tier.
     scored =
       model
         .unscoped
-        .from(candidates, :candidates)
-        .select("candidates.*", "#{tier_sql} AS tier", "#{similarity_sql} AS similarity")
+        .from(candidates.offset(0), :candidates)
+        .select("candidates.*", "#{tier_sql} AS tier")
     model
       .unscoped
       .from(scored, :scored)
@@ -41,7 +49,7 @@ class AutocompleteRanking
       .order(
         Arel.sql(
           "scored.tier, " \
-            "CASE WHEN scored.tier = 4 THEN scored.similarity * ln(scored.popularity + 1) END DESC, " \
+            "CASE WHEN scored.tier = 4 THEN #{similarity_sql("scored")} * ln(scored.popularity + 1) END DESC, " \
             "scored.popularity DESC, scored.name"
         )
       )
@@ -63,51 +71,65 @@ class AutocompleteRanking
   end
 
   def tier_sql
-    conditions = [
-      ["#{name_sql} = ?", term],
-      ["#{name_sql} LIKE ?", "#{like(term)}%"],
-      ["#{words_sql} LIKE ?", "% #{like(words_term)}%"],
-      [
-        "(#{name_sql} LIKE ? OR #{compact_sql} LIKE ?)",
-        "%#{like(term)}%",
-        "%#{like(compact_term.presence || term)}%"
-      ]
-    ]
-    conditions << ["word_similarity(?, candidates.name) >= ?", term, SIMILARITY_THRESHOLD] if fuzzy?
-    whens =
-      conditions.each_with_index.map do |condition, tier|
-        "WHEN #{sanitize(condition)} THEN #{tier}"
-      end
+    whens = tier_conditions.map { |tier, condition| "WHEN #{sanitize(condition)} THEN #{tier}" }
     "(CASE #{whens.join(" ")} ELSE #{NO_MATCH} END)"
   end
 
-  def similarity_sql
-    return "0" unless fuzzy?
-
-    sanitize(["word_similarity(?, candidates.name)", term])
+  def tier_conditions
+    conditions = [[0, ["#{name_sql} = ?", term]], [1, ["#{name_sql} LIKE ?", "#{like(term)}%"]]]
+    conditions << [2, word_start_condition] if words.any?
+    conditions << [3, ["#{name_sql} LIKE ?", "%#{like(term)}%"]]
+    conditions << [3, compact_condition] if compact_term.present?
+    conditions << [4, similarity_condition] if fuzzy?
+    conditions
   end
 
-  # The name with every run of non-alphanumeric characters replaced by a single
-  # space and prefixed with a space, so that word starts can be matched with LIKE
-  def words_sql
-    "(' ' || regexp_replace(#{name_sql}, '[^[:alnum:]]+', ' ', 'g'))"
+  # A word in the name starts with the term. Words in the term can be separated
+  # by any non-alphanumeric characters in the name, e.g. "kon peki" matches
+  # "Kon-Peki". The words only contain alphanumeric characters, so they can be
+  # used in LIKE patterns and regular expressions as they are.
+  def word_start_condition
+    [
+      "#{name_sql} LIKE ? AND #{name_sql} ~ ?",
+      "%#{words.join("%")}%",
+      "(^|[^[:alnum:]])#{words.join("[^[:alnum:]]+")}"
+    ]
   end
 
-  # The name without any non-alphanumeric characters, e.g. "kon-peki" => "konpeki"
-  def compact_sql
-    "regexp_replace(#{name_sql}, '[^[:alnum:]]+', '', 'g')"
+  # The name contains the term when ignoring punctuation and spaces, e.g.
+  # "konpeki" matches "Kon-Peki"
+  def compact_condition
+    [
+      "#{name_sql} LIKE ? AND regexp_replace(#{name_sql}, '[^[:alnum:]]+', '', 'g') LIKE ?",
+      "%#{compact_term.chars.join("%")}%",
+      "%#{compact_term}%"
+    ]
+  end
+
+  def similarity_condition
+    [
+      "(#{name_sql} LIKE ? OR #{name_sql} LIKE ?) AND word_similarity(?, candidates.name) >= ?",
+      "%#{like(term.first(2))}%",
+      "%#{like(term.last(2))}%",
+      term,
+      SIMILARITY_THRESHOLD
+    ]
+  end
+
+  def similarity_sql(table)
+    sanitize(["word_similarity(?, #{table}.name)", term])
   end
 
   def fuzzy?
     term.length >= FUZZY_MIN_LENGTH
   end
 
-  def words_term
-    term.gsub(/[^[:alnum:]]+/, " ").strip
+  def words
+    term.scan(/[[:alnum:]]+/)
   end
 
   def compact_term
-    term.gsub(/[^[:alnum:]]+/, "")
+    words.join
   end
 
   def like(value)

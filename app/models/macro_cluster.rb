@@ -204,8 +204,8 @@ class MacroCluster < ApplicationRecord
     end
     candidates =
       unscoped
-        .from(variants, :variants)
-        .group("lower(variants.name)")
+        .from(variants, :variants) # The C collation makes sorting for the grouping much faster
+        .group(Arel.sql('lower(variants.name) COLLATE "C"'))
         .having("sum(variants.popularity) > 2")
         .select(
           "(array_agg(variants.name ORDER BY variants.popularity DESC))[1] AS name",

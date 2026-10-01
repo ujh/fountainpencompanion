@@ -88,15 +88,20 @@ describe PenNamePopularity do
       expect(rows("brand")).to eq([%w[pilot pilot Pilot] + [2], %w[sailor sailor Sailor] + [1]])
     end
 
-    it "counts the users per model of a brand" do
+    it "counts the users per model, per brand and across all brands" do
+      user = create(:user)
+      create(:collected_pen, user: user, brand: "Pilot", model: "Custom 74")
+      create(:collected_pen, user: user, brand: "Namiki", model: "Custom 74")
       create(:collected_pen, brand: "Pilot", model: "Custom 74")
-      create(:collected_pen, brand: "Pilot", model: "Custom 74")
-      create(:collected_pen, brand: "Namiki", model: "Custom 74")
 
       described_class.refresh
 
       expect(rows("model")).to eq(
-        [["namiki", "custom 74", "Custom 74", 1], ["pilot", "custom 74", "Custom 74", 2]]
+        [
+          ["", "custom 74", "Custom 74", 2],
+          ["namiki", "custom 74", "Custom 74", 1],
+          ["pilot", "custom 74", "Custom 74", 2]
+        ]
       )
     end
 
