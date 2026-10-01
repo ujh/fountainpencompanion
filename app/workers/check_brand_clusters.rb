@@ -7,13 +7,20 @@ class CheckBrandClusters
     if ids.present?
       Array(ids).each { |id| check_cluster(id) }
     else
-      MacroCluster
-        .pluck(:id)
-        .in_groups_of(50, false) { |ids| CheckBrandClusters.perform_async(ids) }
+      mismatched_cluster_ids.in_groups_of(50, false) { |ids| CheckBrandClusters.perform_async(ids) }
     end
   end
 
   private
+
+  # Only clusters whose brand name differs from the name of their brand cluster
+  # can need a different brand cluster.
+  def mismatched_cluster_ids
+    MacroCluster
+      .joins(:brand_cluster)
+      .where("#{MacroCluster.effective_column(:brand_name)} <> brand_clusters.name")
+      .pluck(:id)
+  end
 
   def check_cluster(id)
     cluster = MacroCluster.find_by(id:)
