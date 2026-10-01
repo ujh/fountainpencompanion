@@ -4,6 +4,9 @@ check_brand_clusters:
 fetch_reviews:
   cron: "0 * * * *" # Every hour
   class: FetchReviews
+refresh_autocomplete_popularities:
+  cron: "15 * * * *" # Every hour
+  class: RefreshAutocompletePopularities
 refresh_leaderboards:
   cron: "45 */3 * * *" # Every three hours
   class: RefreshLeaderBoards

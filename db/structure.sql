@@ -637,6 +637,36 @@ ALTER SEQUENCE public.leader_board_rows_id_seq OWNED BY public.leader_board_rows
 
 
 --
+-- Name: micro_clusters; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.micro_clusters (
+    id bigint NOT NULL,
+    simplified_brand_name text NOT NULL,
+    simplified_line_name text DEFAULT ''::text,
+    simplified_ink_name text NOT NULL,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL,
+    macro_cluster_id bigint,
+    ignored boolean DEFAULT false
+);
+
+
+--
+-- Name: macro_cluster_popularities; Type: MATERIALIZED VIEW; Schema: public; Owner: -
+--
+
+CREATE MATERIALIZED VIEW public.macro_cluster_popularities AS
+ SELECT micro_clusters.macro_cluster_id,
+    count(collected_inks.id) AS public_collected_inks_count
+   FROM (public.collected_inks
+     JOIN public.micro_clusters ON ((micro_clusters.id = collected_inks.micro_cluster_id)))
+  WHERE ((collected_inks.private = false) AND (micro_clusters.macro_cluster_id IS NOT NULL))
+  GROUP BY micro_clusters.macro_cluster_id
+  WITH NO DATA;
+
+
+--
 -- Name: macro_clusters; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -676,22 +706,6 @@ CREATE SEQUENCE public.macro_clusters_id_seq
 --
 
 ALTER SEQUENCE public.macro_clusters_id_seq OWNED BY public.macro_clusters.id;
-
-
---
--- Name: micro_clusters; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.micro_clusters (
-    id bigint NOT NULL,
-    simplified_brand_name text NOT NULL,
-    simplified_line_name text DEFAULT ''::text,
-    simplified_ink_name text NOT NULL,
-    created_at timestamp(6) without time zone NOT NULL,
-    updated_at timestamp(6) without time zone NOT NULL,
-    macro_cluster_id bigint,
-    ignored boolean DEFAULT false
-);
 
 
 --
@@ -813,6 +827,31 @@ CREATE SEQUENCE public.pen_embeddings_id_seq
 --
 
 ALTER SEQUENCE public.pen_embeddings_id_seq OWNED BY public.pen_embeddings.id;
+
+
+--
+-- Name: pen_name_popularities; Type: MATERIALIZED VIEW; Schema: public; Owner: -
+--
+
+CREATE MATERIALIZED VIEW public.pen_name_popularities AS
+ SELECT 'brand'::text AS field,
+    lower(TRIM(BOTH FROM collected_pens.brand)) AS brand_key,
+    lower(TRIM(BOTH FROM collected_pens.brand)) AS value_key,
+    mode() WITHIN GROUP (ORDER BY (TRIM(BOTH FROM collected_pens.brand))) AS value,
+    count(DISTINCT collected_pens.user_id) AS popularity
+   FROM public.collected_pens
+  WHERE (TRIM(BOTH FROM collected_pens.brand) <> ''::text)
+  GROUP BY (lower(TRIM(BOTH FROM collected_pens.brand)))
+UNION ALL
+ SELECT 'model'::text AS field,
+    lower(TRIM(BOTH FROM collected_pens.brand)) AS brand_key,
+    lower(TRIM(BOTH FROM collected_pens.model)) AS value_key,
+    mode() WITHIN GROUP (ORDER BY (TRIM(BOTH FROM collected_pens.model))) AS value,
+    count(DISTINCT collected_pens.user_id) AS popularity
+   FROM public.collected_pens
+  WHERE (TRIM(BOTH FROM collected_pens.model) <> ''::text)
+  GROUP BY (lower(TRIM(BOTH FROM collected_pens.brand))), (lower(TRIM(BOTH FROM collected_pens.model)))
+  WITH NO DATA;
 
 
 --
@@ -1716,6 +1755,13 @@ CREATE UNIQUE INDEX idx_on_brand_model_color_material_trim_color_fillin_c4996a67
 
 
 --
+-- Name: idx_on_field_brand_key_value_key_7e03ce443a; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX idx_on_field_brand_key_value_key_7e03ce443a ON public.pen_name_popularities USING btree (field, brand_key, value_key);
+
+
+--
 -- Name: idx_on_simplified_brand_simplified_model_70c232c961; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -2000,6 +2046,13 @@ CREATE INDEX index_leader_board_rows_on_user_id ON public.leader_board_rows USIN
 --
 
 CREATE INDEX index_leader_board_rows_on_value ON public.leader_board_rows USING btree (value);
+
+
+--
+-- Name: index_macro_cluster_popularities_on_macro_cluster_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_macro_cluster_popularities_on_macro_cluster_id ON public.macro_cluster_popularities USING btree (macro_cluster_id);
 
 
 --
@@ -2455,6 +2508,8 @@ ALTER TABLE ONLY public.collected_inks
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20261001065641'),
+('20261001065639'),
 ('20260626130000'),
 ('20260625120200'),
 ('20260625120100'),
