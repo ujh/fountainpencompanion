@@ -18,7 +18,7 @@ class CheckBrandClusters
   def mismatched_cluster_ids
     MacroCluster
       .joins(:brand_cluster)
-      .where("#{MacroCluster.effective_column(:brand_name)} <> brand_clusters.name")
+      .where("#{MacroCluster.effective_column(:brand_name)} IS DISTINCT FROM brand_clusters.name")
       .pluck(:id)
   end
 

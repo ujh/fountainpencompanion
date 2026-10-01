@@ -54,6 +54,15 @@ describe CheckBrandClusters do
       expect(scheduled_ids).not_to include(matching.id, manual_matching.id, unassigned.id)
     end
 
+    it "schedules clusters whose brand cluster has no name" do
+      brand_cluster = create(:brand_cluster)
+      brand_cluster.update_column(:name, nil)
+      macro_cluster = create(:macro_cluster, brand_name: "Brand", brand_cluster: brand_cluster)
+
+      described_class.new.perform
+      expect(described_class.jobs.last["args"].first).to eq([macro_cluster.id])
+    end
+
     it "schedules clusters in groups of 50" do
       brand_cluster = create(:brand_cluster, name: "Brand")
       create_list(:macro_cluster, 51, brand_name: "Other", brand_cluster: brand_cluster)
