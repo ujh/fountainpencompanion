@@ -1,4 +1,5 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { Autocomplete } from "./Autocomplete";
 
 describe("Autocomplete", () => {
@@ -208,6 +209,266 @@ describe("Autocomplete", () => {
       await waitFor(() => {
         expect(screen.queryByText("Apple")).not.toBeInTheDocument();
       });
+    });
+  });
+
+  describe("inline completion", () => {
+    const selectedText = () =>
+      inputElement.value.slice(inputElement.selectionStart, inputElement.selectionEnd);
+
+    // Blur and wait for the delayed dropdown close so it happens inside act()
+    const blur = async () => {
+      fireEvent.blur(inputElement);
+      await act(() => new Promise((resolve) => setTimeout(resolve, 200)));
+    };
+
+    const renderAndType = async (text, suggestions = ["Pilot", "Pelikan"]) => {
+      const user = userEvent.setup();
+      const mockSource = jest.fn().mockResolvedValue(suggestions);
+      render(<Autocomplete inputSelector="#test-input" source={mockSource} />);
+      await user.type(inputElement, text);
+      await waitFor(() => expect(screen.getByRole("listbox")).toBeInTheDocument());
+      return { user, mockSource };
+    };
+
+    it("shows the rest of the first matching suggestion as a selection", async () => {
+      await renderAndType("pi");
+
+      await waitFor(() => expect(inputElement.value).toBe("pilot"));
+      expect(selectedText()).toBe("lot");
+      expect(screen.getByText("Pilot")).toHaveClass("fpc-autocomplete-item--highlighted");
+    });
+
+    it("skips suggestions that don't start with the typed text", async () => {
+      await renderAndType("pe", ["Diamine Pelikan Blue", "Pelikan"]);
+
+      await waitFor(() => expect(inputElement.value).toBe("pelikan"));
+      expect(selectedText()).toBe("likan");
+      expect(screen.getByText("Pelikan")).toHaveClass("fpc-autocomplete-item--highlighted");
+    });
+
+    it("does not complete when no suggestion starts with the typed text", async () => {
+      await renderAndType("lot", ["Pilot"]);
+
+      expect(inputElement.value).toBe("lot");
+      expect(selectedText()).toBe("");
+    });
+
+    it("does not complete when the input is not focused", async () => {
+      const mockSource = jest.fn().mockResolvedValue(["Pilot"]);
+      render(<Autocomplete inputSelector="#test-input" source={mockSource} />);
+
+      fireEvent.input(inputElement, { target: { value: "pi" } });
+
+      await waitFor(() => expect(screen.getByText("Pilot")).toBeInTheDocument());
+      expect(inputElement.value).toBe("pi");
+    });
+
+    it("fills in the suggestion when tabbing out of the field", async () => {
+      const { user } = await renderAndType("pi");
+      await waitFor(() => expect(inputElement.value).toBe("pilot"));
+
+      await user.tab();
+
+      expect(inputElement.value).toBe("Pilot");
+      expect(screen.queryByRole("listbox")).not.toBeInTheDocument();
+    });
+
+    it("fills in the suggestion when the field loses focus", async () => {
+      await renderAndType("pi");
+      await waitFor(() => expect(inputElement.value).toBe("pilot"));
+
+      await blur();
+
+      expect(inputElement.value).toBe("Pilot");
+    });
+
+    it("dispatches change and input events when filling in the suggestion", async () => {
+      const { mockSource } = await renderAndType("pi");
+      await waitFor(() => expect(inputElement.value).toBe("pilot"));
+      const onChange = jest.fn();
+      inputElement.addEventListener("change", onChange);
+
+      await blur();
+
+      expect(onChange).toHaveBeenCalled();
+      await new Promise((resolve) => setTimeout(resolve, 300));
+      expect(mockSource).toHaveBeenCalledTimes(1);
+    });
+
+    it("selects the completed suggestion with Enter", async () => {
+      const { user } = await renderAndType("pi");
+      await waitFor(() => expect(inputElement.value).toBe("pilot"));
+
+      await user.keyboard("{Enter}");
+
+      expect(inputElement.value).toBe("Pilot");
+      expect(screen.queryByRole("listbox")).not.toBeInTheDocument();
+    });
+
+    it("replaces the completion when typing another character", async () => {
+      const mockSource = jest
+        .fn()
+        .mockResolvedValueOnce(["Pilot", "Pelikan"])
+        .mockResolvedValue(["Pelikan"]);
+      const user = userEvent.setup();
+      render(<Autocomplete inputSelector="#test-input" source={mockSource} />);
+
+      await user.type(inputElement, "p");
+      await waitFor(() => expect(inputElement.value).toBe("pilot"));
+
+      await user.keyboard("e");
+
+      expect(inputElement.value.startsWith("pe")).toBe(true);
+      await waitFor(() => expect(inputElement.value).toBe("pelikan"));
+      expect(selectedText()).toBe("likan");
+    });
+
+    it("keeps the completion while typing along with it", async () => {
+      const { user } = await renderAndType("p");
+      await waitFor(() => expect(inputElement.value).toBe("pilot"));
+
+      await user.keyboard("i");
+
+      expect(inputElement.value).toBe("pilot");
+      expect(selectedText()).toBe("lot");
+    });
+
+    it("removes only the completion on Backspace, then deletes typed characters", async () => {
+      const { user, mockSource } = await renderAndType("pil");
+      await waitFor(() => expect(inputElement.value).toBe("pilot"));
+
+      await user.keyboard("{Backspace}");
+      expect(inputElement.value).toBe("pil");
+
+      // The completion must not come back once the new suggestions arrive
+      await waitFor(() => expect(mockSource).toHaveBeenCalledTimes(2));
+      await new Promise((resolve) => setTimeout(resolve, 50));
+      expect(inputElement.value).toBe("pil");
+
+      await user.keyboard("{Backspace}");
+      expect(inputElement.value).toBe("pi");
+    });
+
+    it("removes only the completion on Delete", async () => {
+      const { user } = await renderAndType("pil");
+      await waitFor(() => expect(inputElement.value).toBe("pilot"));
+
+      await user.keyboard("{Delete}");
+
+      expect(inputElement.value).toBe("pil");
+    });
+
+    it("does not fill in anything on blur after the completion was deleted", async () => {
+      const { user } = await renderAndType("pil");
+      await waitFor(() => expect(inputElement.value).toBe("pilot"));
+
+      await user.keyboard("{Backspace}");
+      await blur();
+
+      expect(inputElement.value).toBe("pil");
+    });
+
+    it("removes the completion on Escape", async () => {
+      const { user } = await renderAndType("pi");
+      await waitFor(() => expect(inputElement.value).toBe("pilot"));
+
+      await user.keyboard("{Escape}");
+      await blur();
+
+      expect(inputElement.value).toBe("pi");
+    });
+
+    it("updates the completion when navigating with the arrow keys", async () => {
+      const { user } = await renderAndType("p", ["Pilot", "Diamine", "Pelikan"]);
+      await waitFor(() => expect(inputElement.value).toBe("pilot"));
+
+      // Non-matching suggestion: only the typed text remains
+      await user.keyboard("{ArrowDown}");
+      expect(inputElement.value).toBe("p");
+
+      await user.keyboard("{ArrowDown}");
+      expect(inputElement.value).toBe("pelikan");
+      expect(selectedText()).toBe("elikan");
+
+      await user.tab();
+      expect(inputElement.value).toBe("Pelikan");
+    });
+
+    it("lets the user click a different suggestion", async () => {
+      const { user } = await renderAndType("p");
+      await waitFor(() => expect(inputElement.value).toBe("pilot"));
+
+      await user.click(screen.getByText("Pelikan"));
+
+      expect(inputElement.value).toBe("Pelikan");
+    });
+
+    it("ignores responses for outdated requests", async () => {
+      let resolveFirst;
+      const mockSource = jest
+        .fn()
+        .mockImplementationOnce(() => new Promise((resolve) => (resolveFirst = resolve)))
+        .mockResolvedValue(["Pelikan"]);
+      const user = userEvent.setup();
+      render(<Autocomplete inputSelector="#test-input" source={mockSource} />);
+
+      await user.type(inputElement, "p");
+      await waitFor(() => expect(mockSource).toHaveBeenCalledTimes(1));
+      await user.type(inputElement, "e");
+      await waitFor(() => expect(inputElement.value).toBe("pelikan"));
+
+      resolveFirst(["Pilot"]);
+      await new Promise((resolve) => setTimeout(resolve, 50));
+
+      expect(screen.queryByText("Pilot")).not.toBeInTheDocument();
+      expect(inputElement.value).toBe("pelikan");
+    });
+  });
+
+  describe("scrolling", () => {
+    // jsdom doesn't do layout, so give every item a fixed height in a 100px high list
+    const ITEM_HEIGHT = 40;
+
+    beforeEach(() => {
+      jest.spyOn(HTMLElement.prototype, "offsetTop", "get").mockImplementation(function () {
+        return this.classList.contains("fpc-autocomplete-item")
+          ? Array.from(this.parentNode.children).indexOf(this) * ITEM_HEIGHT
+          : 0;
+      });
+      jest.spyOn(HTMLElement.prototype, "offsetHeight", "get").mockReturnValue(ITEM_HEIGHT);
+      jest.spyOn(HTMLElement.prototype, "clientHeight", "get").mockReturnValue(100);
+    });
+
+    afterEach(() => {
+      jest.restoreAllMocks();
+    });
+
+    it("keeps the highlighted suggestion in view when navigating with the arrow keys", async () => {
+      const mockSource = jest.fn().mockResolvedValue(["A1", "A2", "A3", "A4", "A5"]);
+      render(<Autocomplete inputSelector="#test-input" source={mockSource} />);
+      fireEvent.input(inputElement, { target: { value: "A" } });
+      await waitFor(() => expect(screen.getByRole("listbox")).toBeInTheDocument());
+      const list = screen.getByRole("listbox");
+
+      // Items 1 and 2 (0-80px) are visible, item 3 (80-120px) is partially hidden
+      fireEvent.keyDown(inputElement, { key: "ArrowDown" });
+      fireEvent.keyDown(inputElement, { key: "ArrowDown" });
+      expect(list.scrollTop).toBe(0);
+
+      fireEvent.keyDown(inputElement, { key: "ArrowDown" });
+      expect(list.scrollTop).toBe(20);
+
+      fireEvent.keyDown(inputElement, { key: "ArrowDown" });
+      fireEvent.keyDown(inputElement, { key: "ArrowDown" });
+      expect(list.scrollTop).toBe(100);
+
+      // Moving back up scrolls up once the item leaves the top of the list
+      fireEvent.keyDown(inputElement, { key: "ArrowUp" });
+      expect(list.scrollTop).toBe(100);
+      fireEvent.keyDown(inputElement, { key: "ArrowUp" });
+      fireEvent.keyDown(inputElement, { key: "ArrowUp" });
+      expect(list.scrollTop).toBe(40);
     });
   });
 

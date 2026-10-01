@@ -174,38 +174,59 @@ class MacroCluster < ApplicationRecord
     end
   end
 
-  def self.autocomplete_search(term, field)
+  # Names of the given field for public inks, ranked by AutocompleteRanking.
+  # Names that only differ in case are merged and shown with their most popular
+  # spelling. Names need more than two public collected inks to show up. If a
+  # brand name is given, only inks of that brand are considered.
+  #
+  # Popularity comes from MacroClusterPopularity, so new inks only show up once
+  # that view has been refreshed.
+  def self.autocomplete_search(term, field, brand_name = nil)
     effective = effective_column(field)
-    simplified_term = Simplifier.send(field, term.to_s)
-    joins(micro_clusters: :collected_inks)
-      .where(collected_inks: { private: false })
-      .where("collected_inks.simplified_#{field} LIKE ?", "%#{simplified_term}%")
-      .where("#{effective} != ''")
-      .group(effective)
-      .select("min(macro_clusters.id)")
-      .having("count(collected_inks.id) > 2")
+    variants =
+      joins(:popularity)
+        .where("#{effective} != ''")
+        .group(effective)
+        .select(
+          "#{effective} AS name",
+          "sum(macro_cluster_popularities.public_collected_inks_count) AS popularity",
+          "min(macro_clusters.id) AS id"
+        )
+    simplified_brand_name = Simplifier.brand_name(brand_name.to_s.strip)
+    if simplified_brand_name.present?
+      variants =
+        variants.where(
+          id:
+            MicroCluster.where(simplified_brand_name: simplified_brand_name).select(
+              :macro_cluster_id
+            )
+        )
+    end
+    candidates =
+      unscoped
+        .from(variants, :variants) # The C collation makes sorting for the grouping much faster
+        .group(Arel.sql('lower(variants.name) COLLATE "C"'))
+        .having("sum(variants.popularity) > 2")
+        .select(
+          "(array_agg(variants.name ORDER BY variants.popularity DESC))[1] AS name",
+          "(array_agg(variants.id ORDER BY variants.popularity DESC))[1] AS id",
+          "sum(variants.popularity) AS popularity"
+        )
+    AutocompleteRanking.new(candidates, term).relation
   end
 
   def self.autocomplete_line_search(term, brand_name)
-    effective = effective_column(:line_name)
-    simplified_brand_name = Simplifier.brand_name(brand_name.to_s)
-    query = autocomplete_search(term, :line_name)
-    if simplified_brand_name.present?
-      query =
-        query.where("collected_inks.simplified_brand_name LIKE ?", "%#{simplified_brand_name}%")
-    end
-    where(id: query).order(effective)
+    autocomplete_cluster_search(term, :line_name, brand_name)
   end
 
   def self.autocomplete_ink_search(term, brand_name)
-    effective = effective_column(:ink_name)
-    simplified_brand_name = Simplifier.brand_name(brand_name.to_s)
-    query = autocomplete_search(term, :ink_name)
-    if simplified_brand_name.present?
-      query =
-        query.where("collected_inks.simplified_brand_name LIKE ?", "%#{simplified_brand_name}%")
-    end
-    where(id: query).order(effective)
+    autocomplete_cluster_search(term, :ink_name, brand_name)
+  end
+
+  # One macro cluster per ranked name, in ranking order
+  def self.autocomplete_cluster_search(term, field, brand_name)
+    ids = unscoped { autocomplete_search(term, field, brand_name).map(&:id) }
+    where(id: ids).in_order_of(:id, ids)
   end
 
   def self.public

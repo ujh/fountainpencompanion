@@ -849,8 +849,17 @@ UNION ALL
     mode() WITHIN GROUP (ORDER BY (TRIM(BOTH FROM collected_pens.model))) AS value,
     count(DISTINCT collected_pens.user_id) AS popularity
    FROM public.collected_pens
-  WHERE (TRIM(BOTH FROM collected_pens.model) <> ''::text)
+  WHERE ((TRIM(BOTH FROM collected_pens.model) <> ''::text) AND (TRIM(BOTH FROM collected_pens.brand) <> ''::text))
   GROUP BY (lower(TRIM(BOTH FROM collected_pens.brand))), (lower(TRIM(BOTH FROM collected_pens.model)))
+UNION ALL
+ SELECT 'model'::text AS field,
+    ''::text AS brand_key,
+    lower(TRIM(BOTH FROM collected_pens.model)) AS value_key,
+    mode() WITHIN GROUP (ORDER BY (TRIM(BOTH FROM collected_pens.model))) AS value,
+    count(DISTINCT collected_pens.user_id) AS popularity
+   FROM public.collected_pens
+  WHERE (TRIM(BOTH FROM collected_pens.model) <> ''::text)
+  GROUP BY (lower(TRIM(BOTH FROM collected_pens.model)))
   WITH NO DATA;
 
 
@@ -2508,6 +2517,7 @@ ALTER TABLE ONLY public.collected_inks
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20261001073038'),
 ('20261001065641'),
 ('20261001065639'),
 ('20260626130000'),

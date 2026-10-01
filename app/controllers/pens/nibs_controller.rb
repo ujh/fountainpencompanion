@@ -4,8 +4,8 @@ class Pens::NibsController < ApplicationController
   def index
     respond_to do |format|
       format.json do
-        brands = current_user.collected_pens.search(:nib, params[:term])
-        render json: brands
+        nibs = current_user.collected_pens.autocomplete_search(params[:term], :nib)
+        render json: nibs
       end
     end
   end

@@ -111,6 +111,7 @@ describe Api::V1::InksController do
             )
           end
           non_matching = create(:macro_cluster, ink_name: "Oxblood")
+          MacroClusterPopularity.refresh
           get :index,
               params: {
                 filter: {
@@ -129,6 +130,30 @@ describe Api::V1::InksController do
         end
       end
 
+      context "filtering by ink_name with multiple matches" do
+        it "returns the best matches first" do
+          [["Royal Blue", 5], ["Blue Velvet", 3]].each do |ink_name, count|
+            macro_cluster = create(:macro_cluster, ink_name: ink_name)
+            micro_cluster = create(:micro_cluster, macro_cluster: macro_cluster)
+            create_list(:collected_ink, count, ink_name: ink_name, micro_cluster: micro_cluster)
+          end
+          MacroClusterPopularity.refresh
+          get :index,
+              params: {
+                filter: {
+                  ink_name: "blue"
+                },
+                fields: {
+                  macro_cluster: "ink_name"
+                }
+              },
+              format: :json
+          expect(response).to have_http_status(:ok)
+          names = JSON.parse(response.body)["data"].map { |d| d["attributes"]["ink_name"] }
+          expect(names).to eq(["Blue Velvet", "Royal Blue"])
+        end
+      end
+
       context "filtering by line_name" do
         it "returns matching macro clusters" do
           macro_cluster = create(:macro_cluster, line_name: "Flower")
@@ -143,6 +168,7 @@ describe Api::V1::InksController do
             )
           end
           non_matching = create(:macro_cluster, line_name: "Standard")
+          MacroClusterPopularity.refresh
           get :index,
               params: {
                 filter: {
@@ -197,6 +223,7 @@ describe Api::V1::InksController do
               private: false
             )
           end
+          MacroClusterPopularity.refresh
           get :index,
               params: {
                 filter: {
@@ -252,6 +279,7 @@ describe Api::V1::InksController do
               private: false
             )
           end
+          MacroClusterPopularity.refresh
           get :index,
               params: {
                 filter: {
@@ -271,6 +299,7 @@ describe Api::V1::InksController do
         end
 
         it "filtering works even if brand_name is empty string" do
+          MacroClusterPopularity.refresh
           get :index,
               params: {
                 filter: {

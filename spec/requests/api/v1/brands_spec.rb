@@ -11,6 +11,9 @@ RSpec.describe "Api::V1::Brands", type: :request do
       let(:user) { create(:user) }
       before(:each) { sign_in(user) }
 
+      # Brand popularity comes from the materialized view
+      before(:each) { MacroClusterPopularity.refresh }
+
       it "returns all brands in alphabetical order" do
         create(:brand_cluster, name: "Diamine")
         create(:brand_cluster, name: "Robert Oster")
@@ -33,6 +36,34 @@ RSpec.describe "Api::V1::Brands", type: :request do
         get "/api/v1/brands", params: { term: "rob" }, headers: { "ACCEPT" => "application/json" }
 
         expect(json).to match(data: [hash_including(attributes: { name: "Robert Oster" })])
+      end
+
+      it "ranks brands starting with the search term first" do
+        create(:brand_cluster, name: "Anderson Pens")
+        create(:brand_cluster, name: "Pebeo")
+
+        get "/api/v1/brands", params: { term: "pe" }, headers: { "ACCEPT" => "application/json" }
+
+        expect(json).to match(
+          data: [
+            hash_including(attributes: { name: "Pebeo" }),
+            hash_including(attributes: { name: "Anderson Pens" })
+          ]
+        )
+      end
+
+      it "finds brands with typos" do
+        create(:brand_cluster, name: "Pelikan")
+
+        get "/api/v1/brands",
+            params: {
+              term: "pelican"
+            },
+            headers: {
+              "ACCEPT" => "application/json"
+            }
+
+        expect(json).to match(data: [hash_including(attributes: { name: "Pelikan" })])
       end
     end
   end

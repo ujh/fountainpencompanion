@@ -260,4 +260,96 @@ describe MacroCluster do
       expect(described_class.embedding_search("")).to eq([])
     end
   end
+
+  describe ".autocomplete_search" do
+    def add_inks(count, brand_name: "Diamine", ink_name: "Blue", private: false, macro_cluster: nil)
+      macro_cluster ||= create(:macro_cluster, brand_name: brand_name, ink_name: ink_name)
+      micro_cluster =
+        create(
+          :micro_cluster,
+          macro_cluster: macro_cluster,
+          simplified_brand_name: Simplifier.brand_name(brand_name)
+        )
+      create_list(
+        :collected_ink,
+        count,
+        brand_name: brand_name,
+        ink_name: ink_name,
+        micro_cluster: micro_cluster,
+        private: private
+      )
+      macro_cluster
+    end
+
+    def search(term, brand_name = nil)
+      MacroClusterPopularity.refresh
+      described_class.autocomplete_search(term, :ink_name, brand_name).map { |c| c[:name] }
+    end
+
+    it "ranks names by match quality and then by number of public inks" do
+      add_inks(3, ink_name: "Royal Blue")
+      add_inks(5, ink_name: "Blue Velvet")
+      add_inks(3, ink_name: "Blue Black")
+
+      expect(search("blue")).to eq(["Blue Velvet", "Blue Black", "Royal Blue"])
+    end
+
+    it "only includes names with more than two public inks" do
+      add_inks(3, ink_name: "Blue Velvet")
+      add_inks(2, ink_name: "Blue Black")
+      add_inks(5, ink_name: "Bluebell", private: true)
+
+      expect(search("blue")).to eq(["Blue Velvet"])
+    end
+
+    it "merges names that only differ in case, using the most popular spelling" do
+      add_inks(4, brand_name: "Diamine", ink_name: "Oxblood")
+      add_inks(2, brand_name: "Pilot", ink_name: "oxblood")
+
+      expect(search("oxb")).to eq(["Oxblood"])
+    end
+
+    it "counts the merged names together for the threshold" do
+      add_inks(2, brand_name: "Diamine", ink_name: "Oxblood")
+      add_inks(1, brand_name: "Pilot", ink_name: "oxblood")
+
+      expect(search("oxb")).to eq(["Oxblood"])
+    end
+
+    it "uses the manual name if present" do
+      cluster = create(:macro_cluster, ink_name: "Oxblod", manual_ink_name: "Oxblood")
+      add_inks(3, ink_name: "Oxblod", macro_cluster: cluster)
+
+      expect(search("oxb")).to eq(["Oxblood"])
+    end
+
+    it "only includes inks of the given brand" do
+      add_inks(3, brand_name: "Diamine", ink_name: "Blue Velvet")
+      add_inks(3, brand_name: "Pilot Namiki", ink_name: "Blue Black")
+      add_inks(3, brand_name: "Pilot", ink_name: "Blue")
+
+      expect(search("blue", "pilot")).to eq(["Blue"])
+    end
+
+    it "finds names with typos" do
+      add_inks(3, ink_name: "Oxblood")
+
+      expect(search("oxbld")).to eq(["Oxblood"])
+    end
+  end
+
+  describe ".autocomplete_ink_search" do
+    it "returns one macro cluster per name in ranking order" do
+      velvet = create(:macro_cluster, ink_name: "Blue Velvet")
+      royal = create(:macro_cluster, ink_name: "Royal Blue")
+      [[velvet, 3], [royal, 5]].each do |cluster, count|
+        micro_cluster = create(:micro_cluster, macro_cluster: cluster)
+        create_list(:collected_ink, count, ink_name: cluster.ink_name, micro_cluster: micro_cluster)
+      end
+
+      MacroClusterPopularity.refresh
+
+      expect(described_class.autocomplete_ink_search("blue", "")).to eq([velvet, royal])
+    end
+  end
 end
