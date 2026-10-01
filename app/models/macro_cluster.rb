@@ -39,6 +39,7 @@ class MacroCluster < ApplicationRecord
            as: :item
 
   has_many :micro_clusters, dependent: :nullify
+  has_one :popularity, class_name: "MacroClusterPopularity"
   has_many :collected_inks, through: :micro_clusters
   has_many :public_collected_inks, through: :micro_clusters
   has_many :ink_reviews, dependent: :destroy
