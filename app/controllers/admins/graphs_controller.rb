@@ -1,32 +1,41 @@
 class Admins::GraphsController < Admins::BaseController
+  # The dashboard polls every graph. The data is grouped by day and some of the
+  # queries scan big tables, so it is shared between requests for a while.
+  CACHE_DURATION = 10.minutes
+
   def show
-    data =
-      case params[:id]
-      when "signups"
-        signups
-      when "collected-inks"
-        collected_inks
-      when "collected-pens"
-        collected_pens
-      when "currently-inked"
-        currently_inked
-      when "usage-records"
-        usage_records
-      when "bot-signups"
-        bot_signups
-      when "spam"
-        spam
-      when "agents"
-        agents
-      when "agent-usage"
-        agent_usage
-      when "ink-review-checks"
-        ink_review_checks
-      end
-    render json: data
+    render json:
+             Rails
+               .cache
+               .fetch(["admin_graphs", params[:id].to_s], expires_in: CACHE_DURATION) { data }
   end
 
   private
+
+  def data
+    case params[:id]
+    when "signups"
+      signups
+    when "collected-inks"
+      collected_inks
+    when "collected-pens"
+      collected_pens
+    when "currently-inked"
+      currently_inked
+    when "usage-records"
+      usage_records
+    when "bot-signups"
+      bot_signups
+    when "spam"
+      spam
+    when "agents"
+      agents
+    when "agent-usage"
+      agent_usage
+    when "ink-review-checks"
+      ink_review_checks
+    end
+  end
 
   def ink_review_checks
     InkReviewCheck::RESULTS.map do |result|

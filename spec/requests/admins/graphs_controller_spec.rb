@@ -1,6 +1,8 @@
 require "rails_helper"
 
 describe Admins::GraphsController do
+  include ActiveSupport::Testing::TimeHelpers
+
   let(:admin) { create(:user, :admin, created_at: 1.year.ago) }
 
   describe "#show" do
@@ -52,6 +54,21 @@ describe Admins::GraphsController do
             [1.day.ago.at_beginning_of_day.to_i * 1000, 1]
           ]
         )
+      end
+
+      it "caches the data for a while" do
+        day = 1.day.ago.at_beginning_of_day.to_i * 1000
+        create(:collected_ink, created_at: 1.day.ago)
+        get "/admins/graphs/collected-inks"
+        create(:collected_ink, created_at: 1.day.ago)
+
+        get "/admins/graphs/collected-inks"
+        expect(JSON.parse(response.body)).to eq([[day, 1]])
+
+        travel(Admins::GraphsController::CACHE_DURATION + 1.second) do
+          get "/admins/graphs/collected-inks"
+          expect(JSON.parse(response.body)).to eq([[day, 2]])
+        end
       end
 
       it "returns the collected pens data" do

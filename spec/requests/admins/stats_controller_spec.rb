@@ -1,6 +1,8 @@
 require "rails_helper"
 
 describe Admins::StatsController, type: :request do
+  include ActiveSupport::Testing::TimeHelpers
+
   let(:admin) { create(:user, :admin) }
   let(:regular_user) { create(:user) }
 
@@ -63,6 +65,33 @@ describe Admins::StatsController, type: :request do
       it "returns 400 when arg is not coercible to Integer" do
         get "/admins/stats/pens_micro_clusters_prio_to_assign_count?arg=notanint"
         expect(response).to have_http_status(:bad_request)
+      end
+
+      it "caches the value for a short while" do
+        get "/admins/stats/user_count"
+        count = JSON.parse(response.body)
+        create(:user)
+
+        get "/admins/stats/user_count"
+        expect(JSON.parse(response.body)).to eq(count)
+
+        travel(Admins::StatsController::CACHE_DURATION + 1.second) do
+          get "/admins/stats/user_count"
+          expect(JSON.parse(response.body)).to eq(count + 1)
+        end
+      end
+
+      it "caches arg-taking stats per arg" do
+        stats = AdminStats.new
+        allow(AdminStats).to receive(:new).and_return(stats)
+        allow(stats).to receive(:relevant_pens_micro_clusters_count) { |count| count + 3 }
+
+        2.times { get "/admins/stats/relevant_pens_micro_clusters_count?arg=2" }
+        expect(response.body).to eq("5")
+        2.times { get "/admins/stats/relevant_pens_micro_clusters_count?arg=3" }
+        expect(response.body).to eq("6")
+        expect(stats).to have_received(:relevant_pens_micro_clusters_count).with(2).once
+        expect(stats).to have_received(:relevant_pens_micro_clusters_count).with(3).once
       end
     end
   end
