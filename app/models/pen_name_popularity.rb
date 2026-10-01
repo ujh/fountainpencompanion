@@ -8,7 +8,7 @@ class PenNamePopularity < ApplicationRecord
 
   # Values of the given field ranked by AutocompleteRanking. If a brand is
   # given, only models of that brand are considered.
-  def self.autocomplete_search(field, term, brand: nil)
+  def self.autocomplete_search(term, field, brand: nil)
     field = field.to_s
     raise ArgumentError, "Unsupported field: #{field}" unless FIELDS.include?(field)
 

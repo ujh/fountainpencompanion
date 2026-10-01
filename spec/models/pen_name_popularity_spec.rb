@@ -14,7 +14,7 @@ describe PenNamePopularity do
 
   def search(field, term, **options)
     described_class.refresh
-    described_class.autocomplete_search(field, term, **options)
+    described_class.autocomplete_search(term, field, **options)
   end
 
   describe ".autocomplete_search" do
@@ -72,7 +72,7 @@ describe PenNamePopularity do
     end
 
     it "rejects unsupported fields" do
-      expect { described_class.autocomplete_search(:nib, "x") }.to raise_error(ArgumentError)
+      expect { described_class.autocomplete_search("x", :nib) }.to raise_error(ArgumentError)
     end
   end
 

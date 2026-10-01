@@ -30,7 +30,7 @@ class CollectedPen < ApplicationRecord
   #
   # This aggregates the pens on every call, so only use it on small scopes (e.g.
   # a single user's pens). PenNamePopularity covers brands and models of all pens.
-  def self.autocomplete_search(field, term)
+  def self.autocomplete_search(term, field)
     field = field.to_s
     raise ArgumentError, "Unsupported field: #{field}" unless AUTOCOMPLETE_FIELDS.include?(field)
 
