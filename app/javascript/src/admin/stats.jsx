@@ -33,7 +33,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 });
 
-const Stat = ({ id, arg }) => {
+const useAdminStat = (id, arg) => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   usePolling(() => {
@@ -46,6 +46,11 @@ const Stat = ({ id, arg }) => {
       setLoading(false);
     });
   }, 1000 * 30);
+  return { data, loading };
+};
+
+const Stat = ({ id, arg }) => {
+  const { data, loading } = useAdminStat(id, arg);
   if (loading) {
     return (
       <>
@@ -59,18 +64,7 @@ const Stat = ({ id, arg }) => {
 };
 
 const ConditionalStat = ({ id, arg, href, template }) => {
-  const [data, setData] = useState(null);
-  const [loading, setLoading] = useState(true);
-  usePolling(() => {
-    navigator.locks.request("admin-dashboard-stats", async () => {
-      let url = `/admins/stats/${id}`;
-      if (arg) url += `?arg=${arg}`;
-      const response = await getRequest(url);
-      const json = await response.json();
-      setData(json);
-      setLoading(false);
-    });
-  }, 1000 * 30);
+  const { data, loading } = useAdminStat(id, arg);
   if (loading) {
     return (
       <>
