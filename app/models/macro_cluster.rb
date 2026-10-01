@@ -58,24 +58,16 @@ class MacroCluster < ApplicationRecord
   scope :unassigned, -> { where(brand_cluster_id: nil) }
   scope :without_description, -> { where(description: "") }
 
+  # Clusters without any review that is approved or still waiting for
+  # approval, i.e. no reviews at all or only rejected ones.
   def self.without_review
-    MacroCluster.find_by_sql(<<~SQL)
-      WITH no_reviews AS (
-        SELECT macro_clusters.*
-        FROM macro_clusters
-        LEFT OUTER JOIN ink_reviews ON macro_clusters.id = ink_reviews.macro_cluster_id
-        WHERE ink_reviews.id IS NULL
-      ),
-      only_rejected_reviews AS (
-        SELECT macro_clusters.* FROM macro_clusters
-        JOIN ink_reviews ON macro_clusters.id = ink_reviews.macro_cluster_id
-        GROUP BY macro_clusters.id
-        HAVING EVERY(ink_reviews.rejected_at IS NOT NULL)
-      )
-      SELECT * FROM no_reviews
-      UNION
-      SELECT * FROM only_rejected_reviews
-    SQL
+    where.not(
+      InkReview
+        .where(rejected_at: nil)
+        .where("ink_reviews.macro_cluster_id = macro_clusters.id")
+        .arel
+        .exists
+    )
   end
 
   def self.of_user(user)
@@ -83,8 +75,7 @@ class MacroCluster < ApplicationRecord
   end
 
   def self.without_review_of_user(user)
-    unreviewed_ids = without_review.pluck(:id)
-    where(id: unreviewed_ids).of_user(user)
+    without_review.of_user(user)
   end
 
   def self.without_description_of_user(user)

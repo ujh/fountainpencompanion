@@ -27,6 +27,47 @@ describe DescriptionsController do
       expect(response.body).to include(brand_cluster1.name)
       expect(response.body).to_not include(brand_cluster2.name)
     end
+
+    it "does not show inks that only have private collected inks" do
+      macro_cluster = create(:macro_cluster)
+      micro_cluster = create(:micro_cluster, macro_cluster: macro_cluster)
+      create(:collected_ink, micro_cluster: micro_cluster, private: true)
+      get "/descriptions/missing"
+      expect(response.body).to_not include(macro_cluster.name)
+    end
+
+    it "paginates the inks sorted by name" do
+      macro_clusters =
+        11.times.map do |i|
+          macro_cluster = create(:macro_cluster, brand_name: "Brand #{format("%02d", i)}")
+          micro_cluster = create(:micro_cluster, macro_cluster: macro_cluster)
+          create(:collected_ink, micro_cluster: micro_cluster)
+          macro_cluster
+        end
+      first, *middle, last = macro_clusters
+
+      get "/descriptions/missing"
+      expect(response.body).to include(first.name)
+      expect(response.body).to_not include(last.name)
+
+      get "/descriptions/missing", params: { inks_page: 2 }
+      expect(response.body).to include(last.name)
+      middle.each { |macro_cluster| expect(response.body).to_not include(macro_cluster.name) }
+    end
+
+    it "paginates the brands sorted by name" do
+      brand_clusters =
+        11.times.map { |i| create(:brand_cluster, name: "Brand #{format("%02d", i)}") }
+      first, *middle, last = brand_clusters
+
+      get "/descriptions/missing"
+      expect(response.body).to include(first.name)
+      expect(response.body).to_not include(last.name)
+
+      get "/descriptions/missing", params: { brands_page: 2 }
+      expect(response.body).to include(last.name)
+      middle.each { |brand_cluster| expect(response.body).to_not include(brand_cluster.name) }
+    end
   end
 
   describe "#my_missing" do

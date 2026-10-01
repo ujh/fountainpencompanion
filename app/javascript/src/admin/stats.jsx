@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { createRoot } from "react-dom/client";
 import { ErrorBoundary } from "../ErrorBoundary";
 import { getRequest } from "../fetch";
+import { usePolling } from "../usePolling";
 
 document.addEventListener("DOMContentLoaded", () => {
   const elements = document.querySelectorAll(".stats");
@@ -32,24 +33,24 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 });
 
-const Stat = ({ id, arg }) => {
+const useAdminStat = (id, arg) => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
-  useEffect(() => {
-    const fetchData = () => {
-      navigator.locks.request("admin-dashboard-stats", async () => {
-        let url = `/admins/stats/${id}`;
-        if (arg) url += `?arg=${arg}`;
-        const response = await getRequest(url);
-        const json = await response.json();
-        setData(json);
-        setLoading(false);
-      });
-    };
-    fetchData();
-    const interval = setInterval(fetchData(), 1000 * 30);
-    return () => clearInterval(interval);
-  });
+  usePolling(() => {
+    navigator.locks.request("admin-dashboard-stats", async () => {
+      let url = `/admins/stats/${id}`;
+      if (arg) url += `?arg=${arg}`;
+      const response = await getRequest(url);
+      const json = await response.json();
+      setData(json);
+      setLoading(false);
+    });
+  }, 1000 * 30);
+  return { data, loading };
+};
+
+const Stat = ({ id, arg }) => {
+  const { data, loading } = useAdminStat(id, arg);
   if (loading) {
     return (
       <>
@@ -63,23 +64,7 @@ const Stat = ({ id, arg }) => {
 };
 
 const ConditionalStat = ({ id, arg, href, template }) => {
-  const [data, setData] = useState(null);
-  const [loading, setLoading] = useState(true);
-  useEffect(() => {
-    const fetchData = () => {
-      navigator.locks.request("admin-dashboard-stats", async () => {
-        let url = `/admins/stats/${id}`;
-        if (arg) url += `?arg=${arg}`;
-        const response = await getRequest(url);
-        const json = await response.json();
-        setData(json);
-        setLoading(false);
-      });
-    };
-    fetchData();
-    const interval = setInterval(fetchData, 1000 * 30);
-    return () => clearInterval(interval);
-  });
+  const { data, loading } = useAdminStat(id, arg);
   if (loading) {
     return (
       <>
