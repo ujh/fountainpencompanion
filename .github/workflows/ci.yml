@@ -125,6 +125,16 @@ jobs:
       - run: flyctl deploy --remote-only --build-secret HONEYBADGER_API_KEY=${{ secrets.FRONTEND_HONEYBADGER_API_KEY }} --build-arg HONEYBADGER_REVISION=${{ github.sha }} --build-arg HONEYBADGER_ASSETS_URL=https://www.fountainpencompanion.com/assets
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+      - name: Create New Relic deployment marker
+        uses: newrelic/deployment-marker-action@d88a59ea8f713ad6935e60de27273157790b1e3b # v2.6.2
+        with:
+          apiKey: ${{ secrets.NEW_RELIC_API_KEY }}
+          guid: NjMwNTQyOXxBUE18QVBQTElDQVRJT058NTg4OTg1Mzkw # FPC (account 6305429)
+          region: US
+          version: ${{ github.sha }}
+          commit: ${{ github.sha }}
+          deeplink: ${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}
+          user: ${{ github.actor }}
       - name: Notify Honeybadger (backend)
         uses: honeybadger-io/github-notify-deploy-action@v1
         with:
