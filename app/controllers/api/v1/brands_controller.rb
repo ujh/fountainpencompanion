@@ -1,6 +1,9 @@
 class Api::V1::BrandsController < Api::V1::BaseController
   api :GET, "/api/v1/brands", "Retrieve the global list of ink brands"
-  param :term, String, desc: "Search term for brand name", required: false
+  param :term,
+        String,
+        desc: "Search term for brand name. Returns the best matches, ranked by relevance.",
+        required: false
   returns code: 200, desc: "List of brands" do
     property :data, array_of: Hash, desc: "Array of brand objects" do
       property :id, String, desc: "Brand ID"
@@ -101,7 +104,9 @@ class Api::V1::BrandsController < Api::V1::BaseController
   private
 
   def clusters
-    BrandCluster.autocomplete_search(params[:term]).order(:name)
+    return BrandCluster.order(:name) if params[:term].blank?
+
+    BrandCluster.autocomplete_search(params[:term])
   end
 
   def serializer

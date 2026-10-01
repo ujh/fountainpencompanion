@@ -37,8 +37,23 @@ class BrandCluster < ApplicationRecord
     public.count
   end
 
+  # Brands ranked by AutocompleteRanking, using the number of public
+  # collected inks (from MacroClusterPopularity) as popularity
   def self.autocomplete_search(term)
-    where("name ilike ?", "%#{term}%")
+    popularities =
+      MacroClusterPopularity
+        .joins(:macro_cluster)
+        .group("macro_clusters.brand_cluster_id")
+        .select(
+          "macro_clusters.brand_cluster_id",
+          "sum(macro_cluster_popularities.public_collected_inks_count) AS popularity"
+        )
+    candidates =
+      joins(
+        "LEFT JOIN (#{popularities.to_sql}) popularities " \
+          "ON popularities.brand_cluster_id = brand_clusters.id"
+      ).select("brand_clusters.*", "COALESCE(popularities.popularity, 0) AS popularity")
+    AutocompleteRanking.new(candidates, term).relation
   end
 
   def public_ink_count

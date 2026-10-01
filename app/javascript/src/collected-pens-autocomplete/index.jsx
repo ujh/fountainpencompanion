@@ -4,16 +4,29 @@ import { Autocomplete } from "../components/Autocomplete";
 
 const CollectedPensAutocomplete = () => {
   // Simple fetch function for endpoints that return an array directly
-  const fetchSimple = (url) => async (term) => {
-    const response = await fetch(`${url}?term=${encodeURIComponent(term)}`);
-    const data = await response.json();
-    return data;
+  const fetchSimple =
+    (url) =>
+    async (term, dependencies = {}) => {
+      const params = new URLSearchParams({ term, ...dependencies });
+      const response = await fetch(`${url}?${params.toString()}`);
+      const data = await response.json();
+      return data;
+    };
+
+  // Get the current brand value so that models can be narrowed down to it
+  const getBrand = () => {
+    const brandInput = document.getElementById("collected_pen_brand");
+    return { brand: brandInput ? brandInput.value : "" };
   };
 
   return (
     <>
       <Autocomplete inputSelector="#collected_pen_brand" source={fetchSimple("/pens/brands")} />
-      <Autocomplete inputSelector="#collected_pen_model" source={fetchSimple("/pens/models")} />
+      <Autocomplete
+        inputSelector="#collected_pen_model"
+        source={fetchSimple("/pens/models")}
+        getDependencies={getBrand}
+      />
       <Autocomplete inputSelector="#collected_pen_nib" source={fetchSimple("/pens/nibs")} />
     </>
   );

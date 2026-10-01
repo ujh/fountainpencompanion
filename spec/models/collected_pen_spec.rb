@@ -39,18 +39,68 @@ describe CollectedPen do
     expect { pen.destroy }.to change(CurrentlyInked, :count).by(-2)
   end
 
-  describe "#search" do
-    let(:pens) do
-      [
-        create(:collected_pen),
-        create(:collected_pen, brand: "Platinum", model: "3776", nib: "XF", color: "pink"),
-        create(:collected_pen, brand: "Pilot", model: "Custom 74", nib: "M", color: "orange")
-      ]
+  describe ".autocomplete_search" do
+    def add_pens(count, **attributes)
+      count.times { create(:collected_pen, **attributes) }
     end
 
-    before { pens }
-    it "finds matching entries by substring search" do
-      expect(described_class.search(:brand, "P")).to eq(%w[Pilot Platinum])
+    it "ranks values by match quality and then by number of users" do
+      add_pens(1, brand: "Platinum")
+      add_pens(2, brand: "Pilot")
+      add_pens(3, brand: "Kaweco Sport")
+      add_pens(3, brand: "Pelikan")
+
+      expect(described_class.autocomplete_search(:brand, "p")).to eq(
+        ["Pelikan", "Pilot", "Platinum", "Kaweco Sport"]
+      )
+    end
+
+    it "counts users instead of pens" do
+      user = create(:user)
+      3.times { create(:collected_pen, user: user, brand: "Platinum") }
+      add_pens(2, brand: "Pilot")
+
+      expect(described_class.autocomplete_search(:brand, "p")).to eq(%w[Pilot Platinum])
+    end
+
+    it "merges values that only differ in case or surrounding spaces" do
+      add_pens(2, brand: "Pilot")
+      add_pens(1, brand: "pilot ")
+
+      expect(described_class.autocomplete_search(:brand, "pil")).to eq(["Pilot"])
+    end
+
+    it "returns results even when there are many matches" do
+      150.times { |i| create(:collected_pen, model: "Model #{i}") }
+
+      expect(described_class.autocomplete_search(:model, "mod").length).to eq(
+        AutocompleteRanking::LIMIT
+      )
+    end
+
+    it "finds values with typos" do
+      add_pens(1, brand: "Pelikan")
+
+      expect(described_class.autocomplete_search(:brand, "pelican")).to eq(["Pelikan"])
+    end
+
+    it "ignores empty values" do
+      add_pens(1, nib: "")
+      create(:collected_pen).update_column(:nib, nil)
+
+      expect(described_class.autocomplete_search(:nib, "")).to eq([])
+    end
+
+    it "respects the current scope" do
+      user = create(:user)
+      create(:collected_pen, user: user, nib: "Fine")
+      add_pens(1, nib: "Fude")
+
+      expect(user.collected_pens.autocomplete_search(:nib, "f")).to eq(["Fine"])
+    end
+
+    it "rejects unsupported fields" do
+      expect { described_class.autocomplete_search(:comment, "x") }.to raise_error(ArgumentError)
     end
   end
 

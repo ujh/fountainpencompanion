@@ -16,7 +16,10 @@ describe Pens::BrandsController do
   let(:platinum) { create(:collected_pen, brand: "Platinum", model: "3776 Chartres") }
   let(:pens) { [wing_sung, custom74, platinum] }
 
-  before { pens }
+  before do
+    pens
+    PenNamePopularity.refresh
+  end
 
   describe "#index" do
     it "returns all brands with an empty search term" do
