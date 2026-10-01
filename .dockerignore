@@ -1,0 +1,56 @@
+# See https://docs.docker.com/engine/reference/builder/#dockerignore-file for more about ignoring files.
+
+# Version control and CI
+/.git/
+/.gitignore
+/.git-blame-ignore-revs
+/.github/
+/.husky/
+
+# Environment files (may contain secrets)
+/.env*
+
+# Dependencies are installed inside the image
+/node_modules/
+/.bundle/
+
+# Logs, temp files and build output
+/log/*
+/tmp/*
+!/log/.keep
+!/tmp/.keep
+/tmp/pids/*
+!/tmp/pids/
+!/tmp/pids/.keep
+/app/assets/builds/*
+!/app/assets/builds/.keep
+/coverage/
+/js-coverage/
+/yarn-error.log
+yarn-debug.log*
+
+# Tests and docs aren't needed at runtime
+/spec/
+/docs/
+/*.md
+/capybara_square,w_1400.png
+
+# Editor, tooling and local agent state
+/.claude/
+/.crush/
+/.ruby-lsp/
+/.zed/
+/.vscode/
+.DS_Store
+/.rspec
+/.rubocop.yml
+/.prettierrc
+/.prettierignore
+/.coveralls.yml
+/codecov.yml
+/eslint.config.mjs
+
+# Docker files
+/Dockerfile
+/.dockerignore
+/docker-compose.yml
