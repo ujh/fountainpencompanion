@@ -27,7 +27,7 @@ jobs:
 
     services:
       postgres:
-        image: pgvector/pgvector:pg17
+        image: pgvector/pgvector:pg18
         env:
           POSTGRES_USER: test
           POSTGRES_DB: fountainpencompanion_test

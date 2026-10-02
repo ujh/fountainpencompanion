@@ -35,13 +35,13 @@ RUN apt-get update -qq && \
   apt-get install --no-install-recommends -y curl libvips lsb-release gnupg2 && \
   rm -rf /var/lib/apt/lists /var/cache/apt/archives
 
-# Install Postgres 17, so that schema dumping works
+# Install Postgres 18, so that schema dumping works
 RUN echo "deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list
 # Trust the PGDG gpg key
 RUN curl -fsSL https://www.postgresql.org/media/keys/ACCC4CF8.asc| gpg --dearmor -o /etc/apt/trusted.gpg.d/postgresql.gpg
 # Install packages needed to build gems
 RUN apt-get update -qq && \
-  apt-get install --no-install-recommends -y build-essential git pkg-config libpq-dev postgresql-client-17 && \
+  apt-get install --no-install-recommends -y build-essential git pkg-config libpq-dev postgresql-client-18 && \
   rm -rf /var/lib/apt/lists /var/cache/apt/archives
 
 # Install application gems
