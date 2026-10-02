@@ -31,4 +31,8 @@ class MissingReviews
         AdminStats.new.macro_clusters_without_reviews_percentage
       end
   end
+
+  def self.expire
+    Rails.cache.delete_multi([SORTED_IDS_KEY, PERCENTAGE_KEY])
+  end
 end

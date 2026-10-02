@@ -16,6 +16,8 @@ class InkReview < ApplicationRecord
   validates :image, presence: true
   validate :url_format
 
+  after_commit :expire_missing_reviews, if: :changes_missing_reviews?
+
   scope :queued, -> { where(approved_at: nil, rejected_at: nil) }
   scope :approved, -> { where.not(approved_at: nil) }
   scope :rejected, -> { where.not(rejected_at: nil) }
@@ -144,6 +146,16 @@ class InkReview < ApplicationRecord
   end
 
   private
+
+  # Only reviews that are not rejected count as a review of the cluster.
+  def changes_missing_reviews?
+    previously_new_record? || destroyed? || saved_change_to_rejected_at? ||
+      saved_change_to_macro_cluster_id?
+  end
+
+  def expire_missing_reviews
+    MissingReviews.expire
+  end
 
   def set_host!(value)
     self.host = URI(value).host
