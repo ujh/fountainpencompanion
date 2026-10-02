@@ -2,6 +2,7 @@ class ReviewsController < ApplicationController
   include PaginatesCachedIds
 
   before_action :authenticate_user!, only: [:my_missing]
+  before_action :set_percentage
 
   def missing
     @macro_clusters = paginate_ids(MissingReviews.sorted_ids, MacroCluster.all, :page, per_page: 10)
@@ -12,6 +13,10 @@ class ReviewsController < ApplicationController
   end
 
   private
+
+  def set_percentage
+    @percentage = MissingReviews.percentage
+  end
 
   def my_unreviewed_ids
     MacroCluster.without_review_of_user(current_user).pluck(:id)

@@ -1,6 +1,6 @@
 - content_for :title, "Missing reviews of inks you own"
 - content_for :subtitle do
-  = number_to_percentage(AdminStats.new.macro_clusters_without_reviews_percentage, precision: 2)
+  = number_to_percentage(@percentage, precision: 2)
   |  inks without review
 
 div class='fpc-hint alert alert-secondary'

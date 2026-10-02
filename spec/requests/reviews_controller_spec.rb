@@ -65,6 +65,13 @@ describe ReviewsController do
       expect(response.body).to include(macro_cluster1.name)
       expect(response.body).to_not include(macro_cluster2.name)
     end
+
+    it "shows the percentage of clusters without reviews" do
+      create(:macro_cluster)
+      create(:ink_review, macro_cluster: create(:macro_cluster))
+      get "/reviews/missing"
+      expect(response.body).to include("50.00% inks without review")
+    end
   end
 
   describe "#my_missing" do
