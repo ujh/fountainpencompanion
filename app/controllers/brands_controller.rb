@@ -5,7 +5,7 @@ class BrandsController < ApplicationController
   before_action :set_paper_trail_whodunnit, only: %i[edit update]
 
   def index
-    @brands = BrandCluster.public.order(:name)
+    @brands = BrandCluster.public.order(:name).to_a
   end
 
   def show

@@ -28,10 +28,6 @@ class BrandCluster < ApplicationRecord
     where(id: MacroCluster.joins(:popularity).select(:brand_cluster_id))
   end
 
-  def self.public_count
-    public.count
-  end
-
   # Brands ranked by AutocompleteRanking, using the number of public
   # collected inks (from MacroClusterPopularity) as popularity
   def self.autocomplete_search(term)

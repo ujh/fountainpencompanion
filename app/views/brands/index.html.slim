@@ -4,7 +4,7 @@
 
 
 h2.mt-5.mb-3 Browse by brand
-p #{BrandCluster.public_count} brands
+p #{@brands.size} brands
 ol class="fpc-brands-list"
   - @brands.each_with_index do |brand, i|
     li
