@@ -1,4 +1,6 @@
 class DescriptionsController < ApplicationController
+  include PaginatesCachedIds
+
   before_action :authenticate_user!, only: [:my_missing]
 
   PER_PAGE = 10
@@ -8,10 +10,16 @@ class DescriptionsController < ApplicationController
       paginate_ids(
         clusters_without_descriptions_ids,
         MacroCluster.select(:id, :brand_name, :line_name, :ink_name),
-        :inks_page
+        :inks_page,
+        per_page: PER_PAGE
       )
     @missing_brands =
-      paginate_ids(brands_without_descriptions_ids, BrandCluster.select(:id, :name), :brands_page)
+      paginate_ids(
+        brands_without_descriptions_ids,
+        BrandCluster.select(:id, :name),
+        :brands_page,
+        per_page: PER_PAGE
+      )
   end
 
   def my_missing
@@ -59,17 +67,6 @@ class DescriptionsController < ApplicationController
 
   def my_clusters_without_descriptions_ids
     MacroCluster.without_description_of_user(current_user).pluck(:id)
-  end
-
-  # Paginates the sorted ids and only loads the records of the current page.
-  # This avoids sending the whole list of ids to the database on every request.
-  def paginate_ids(ids, scope, page_param)
-    page_ids = Kaminari.paginate_array(ids).page(params[page_param]).per(PER_PAGE).to_a
-    records = scope.where(id: page_ids).index_by(&:id)
-    Kaminari
-      .paginate_array(records.values_at(*page_ids).compact, total_count: ids.size)
-      .page(params[page_param])
-      .per(PER_PAGE)
   end
 
   def sorted_inks(ids)
