@@ -5,6 +5,7 @@ class BrandsController < ApplicationController
   before_action :set_paper_trail_whodunnit, only: %i[edit update]
 
   def index
+    # Loaded here so that the view can count them without a second query
     @brands = BrandCluster.public.order(:name).to_a
   end
 
