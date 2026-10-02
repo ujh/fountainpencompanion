@@ -220,8 +220,8 @@ run the migration in its decided order with every long wait filled by independen
   question; S02 writes the logic once under `lib/bench/` (docs/llm-migration-plan.md:190), S23 runs it
   per candidate model with the Q12 hide step.
 - **Pen P0 "measure `embedding_search` latency on prod-sized data".** Prod `pg_stat_statements` is
-  unreadable by the read-only role; S02 measures on the dev copy (0.5-2 s per call; pgvector 0.8.2
-  locally vs 0.7.4 in prod).
+  unreadable by the read-only role; S02 measures on the dev copy (0.5-2 s per call; pgvector 0.8.7
+  locally vs 0.8.6 in prod).
 - **The six `0.6` cutoffs, two `hnsw.ef_search` literals and the hard-coded column.** Constants in S09,
   config keys in S18, per-column entries (`legacy`/`current`/`read`/`dual_write`) in S24, sweep in S23,
   flip in S27. The public `PenModelsController#index` is covered automatically and gets its first
@@ -596,7 +596,7 @@ rails runner - < spike.rb`, or place it under the gitignored `tmp/` (.gitignore:
     `docs/pen-clustering-plan.md`, with the leakage caveat (variant names, tier 2, and for models
     with a single variant also model names, tier 1, were derived from the held-out pens by
     `Pens::UpdateModelVariant`/`Pens::UpdateModel`; both inflate recall) and the pgvector
-    0.8.2-vs-0.7.4 note. Q12's re-derivation of the held-out variant's (and single-variant model's)
+    0.8.7-vs-0.8.6 note. Q12's re-derivation of the held-out variant's (and single-variant model's)
     name and embedding is deliberately NOT done here — this is a cheap pre-tool probe, so its recall
     numbers are inflated and are not directly comparable with S21/S23, which add the re-derivation
     inside the same rolled-back transaction. Run `docker-compose exec -T app yarn prettier-fix` before pushing (CI
@@ -1140,9 +1140,9 @@ cucumber]` means `Honeybadger.notify` is normally a no-op in the test environmen
     `#pens_model_micro_clusters_to_assign_count` (admin_stats.rb:23-33) use the new scopes; the
     dashboard numbers do not change (the joins+group+count.count they replace already excluded
     empties).
-  - Migration merged; `db/structure.sql` regenerated from the container's pg_dump 17.x
+  - Migration merged; `db/structure.sql` regenerated from the container's pg_dump 18.x
     (`docker-compose exec app bundle exec rails db:migrate` rewrites it), never from the host's
-    Postgres.app 18.1; the diff contains exactly one new `CREATE INDEX index_agent_logs_on_name_and_state ON public.agent_logs USING btree (name, state);`
+    Postgres.app; the diff contains exactly one new `CREATE INDEX index_agent_logs_on_name_and_state ON public.agent_logs USING btree (name, state);`
     line and one new `schema_migrations` version. Full suite green, no new warnings, `yarn lint`
     clean (Prettier formats `.rb` via @prettier/plugin-ruby).
 - **Implementation notes.**
@@ -3268,8 +3268,8 @@ owner_type = 'Pens::MicroCluster' ORDER BY owner_id, id DESC`, then filtered to 
 
 ### S17-bench-db — Bench database tooling; kick off the first dump
 
-- **Goal.** Scripts that run inside the `app`/`postgres` containers (PostgreSQL 17.x tools; the host's
-  Postgres.app 18.1 must never be used):
+- **Goal.** Scripts that run inside the `app`/`postgres` containers (PostgreSQL 18.x tools; the host's
+  Postgres.app must never be used):
   `pg_dump -Fd -j4 --no-owner --no-privileges` from `PRODUCTION_READONLY_DATABASE_URL`, with **no
   `--exclude-table-data` at all**. Q7 decides "full prod copy, no PII blanking, no retention rule", so
   every table's data is dumped — including `versions` (the PaperTrail table on
@@ -3349,8 +3349,8 @@ owner_type = 'Pens::MicroCluster' ORDER BY owner_id, id DESC`, then filtered to 
     `public/`, `spec/fixtures/`, `tmp/`, `vendor/`).
   - Document on merge: ~14 GB on disk for the dump, roughly 15 GB+ of text-serialized vectors within it,
     a transfer rate of 1-1.5 MB/s from DO (so hours, not minutes, for the full dump), and that prod runs
-    pgvector 0.7.4 while local/dev runs 0.8.2 — a version gap worth knowing about if an index-build or
-    query-plan difference ever looks suspicious.
+    pgvector 0.8.6 while local/dev runs 0.8.7 — a patch-level gap, unlikely to matter, but worth
+    checking if an index-build or query-plan difference ever looks suspicious.
   - Kick off the first dump right after this PR merges; it runs in the background while S18 (embeddings
     config) and S19 (ink `decide` entry point) are being built. This first dump serves S20's smoke run
     and ink-exporter development, and S21's pen-exporter development. The pen CASES S22 grades come
@@ -3402,7 +3402,7 @@ owner_type = 'Pens::MicroCluster' ORDER BY owner_id, id DESC`, then filtered to 
   Q7 (full prod copy, no PII blanking, no retention rule — this replaces the v1 text's conditional
   blanking-SQL branch entirely).
 - **Implementation notes.**
-  - Run the dump from the `app` container: it has `pg_dump` 17.10 and
+  - Run the dump from the `app` container: it has `pg_dump` 18.6 and
     `PRODUCTION_READONLY_DATABASE_URL` available via `env_file: .env.local`
     (`docker-compose.yml:19-23`); the `postgres` container has neither by default. Write the `-Fd`
     directory output under `tmp/bench_dump/` (a bind mount, already gitignored) — or, alternatively, pass
@@ -4460,7 +4460,8 @@ reviews` (config/sidekiq.yml:4-8), so a saturated `low` queue starves `reviews` 
 db:schema:dump` (the project sets `config.active_record.schema_format = :sql` at
     config/application.rb:30, so this is what writes `db/structure.sql`; `bin/rails db:migrate`
     regenerates it too). `db:structure:dump` does NOT exist in Rails 8 — never hand-edit the file,
-    never run the dump on the host (host Postgres.app is 18.x, the container has pg_dump 17.x).
+    never run the dump on the host (host Postgres.app's minor version can drift from the
+    container's pg_dump 18.x and produce a noisy diff).
   - Specs: dual-write on and off (both write paths asserted independently), a batch of exactly 100
     ids processed in one job, the self-chaining behavior (enqueue-the-next-batch) proven down to zero
     remaining rows so resumability is demonstrated, the two-column dimension validation spec, the
@@ -4796,8 +4797,7 @@ opclass: :vector_cosine_ops` inside a `safety_assured do ... end` block — note
   better": `shared_buffers` is only ~391 MB on the current node, so 1 GB is already asking for more
   than half the node's shared buffer allocation just for one maintenance operation — do not go higher
   without checking the node's actual RAM first. `max_parallel_maintenance_workers` is 2, and pgvector
-  0.7.4 (prod's version — the bench DB runs 0.8.2 locally, a version mismatch to keep in mind when
-  rehearsing) supports parallel HNSW builds, so the by-hand build can use both. The existing 1536-d
+  0.8.6 (prod's version — the bench DB runs 0.8.7 locally, a patch-level mismatch) supports parallel HNSW builds, so the by-hand build can use both. The existing 1536-d
   indexes are 2,184 MB (`ink_embeddings`) and 1,336 MB (`pen_embeddings`) over 796,559 and 210,232
   vectors respectively — at 1024 dims (roughly 2/3 the byte width per vector) expect proportionally
   smaller new indexes, roughly ~1.5 GB (ink) and ~0.9 GB (pen), as a sizing sanity check while
@@ -4884,8 +4884,8 @@ opclass: :vector_cosine_ops` inside a `safety_assured do ... end` block — note
     LIMIT 200;
     ```
     which must show `Index Scan using index_ink_embeddings_on_embedding_v2` in its plan.
-  - The bench DB is pgvector 0.8.2 (vs prod's 0.7.4), so treat any rehearsed duration as an
-    order-of-magnitude estimate only. It has no `embedding_v2` column of its own at this point in the
+  - The bench DB runs on a laptop (pgvector 0.8.7 vs prod's 0.8.6, different hardware), so treat any
+    rehearsed duration as an order-of-magnitude estimate only. It has no `embedding_v2` column of its own at this point in the
     roadmap (Q6: refreshes happen only at S22 and S30), which is why the Goal says to add and fill the
     column there by hand from `bench_embeddings` before timing anything — an empty or absent column
     makes the rehearsal meaningless.
@@ -5950,7 +5950,7 @@ cluster.pens_model_id` branch at app/workers/pens/update_model_micro_cluster.rb:
 - **Definition of done.**
   - A per-agent table (models compared, Wilson interval per model, point-estimate delta vs baseline,
     cost per run, pass/fail against the Q16 bar) recorded in `docs/llm-migration-plan.md`, with the
-    round date(s) and the pgvector 0.7.4 (prod) vs 0.8.2 (dev/bench) caveat noted next to the numbers
+    round date(s) and the pgvector 0.8.6 (prod) vs 0.8.7 (dev/bench) caveat noted next to the numbers
     (carried over from S22/S23).
   - Picks written down per agent: for the ink agents this becomes S31/S37's config-flip target; for
     the pen agents, either "confirmed: keep S01's model" or "replaced with `<model>`" plus the exact

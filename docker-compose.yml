@@ -31,9 +31,9 @@ x-rails: &rails
 
 services:
   postgres:
-    image: pgvector/pgvector:pg17
+    image: pgvector/pgvector:pg18
     volumes:
-      - postgres_data:/var/lib/postgresql/data:cached
+      - postgres18_data:/var/lib/postgresql:cached
     environment:
       POSTGRES_USER: fpc
       POSTGRES_PASSWORD: fpc
@@ -60,5 +60,5 @@ services:
 
 volumes:
   gem_cache:
-  postgres_data:
+  postgres18_data:
   redis_data:
