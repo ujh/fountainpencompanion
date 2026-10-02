@@ -8,6 +8,8 @@ class BrandCluster < ApplicationRecord
   has_many :macro_clusters, dependent: :nullify
   has_many :collected_inks, through: :macro_clusters
 
+  after_commit :expire_missing_descriptions, if: -> { destroyed? || saved_change_to_description? }
+
   scope :without_description, -> { where(description: "") }
 
   def self.without_description_of_user(user)
@@ -80,5 +82,11 @@ class BrandCluster < ApplicationRecord
 
   def synonyms
     macro_clusters.pluck(:brand_name).uniq.sort - [name]
+  end
+
+  private
+
+  def expire_missing_descriptions
+    MissingDescriptions.expire_brands
   end
 end

@@ -51,6 +51,7 @@ class MacroCluster < ApplicationRecord
 
   before_save :recalculate_color, if: :will_save_change_to_ignored_colors?
   after_commit :enqueue_update, if: :saved_change_to_color?
+  after_commit :expire_missing_descriptions, if: -> { destroyed? || saved_change_to_description? }
 
   paginates_per 100
   max_paginates_per 100
@@ -350,6 +351,10 @@ class MacroCluster < ApplicationRecord
   end
 
   private
+
+  def expire_missing_descriptions
+    MissingDescriptions.expire_inks
+  end
 
   def enqueue_update
     UpdateMacroCluster.perform_async(id)

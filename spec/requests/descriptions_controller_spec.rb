@@ -68,6 +68,18 @@ describe DescriptionsController do
       expect(response.body).to include(last.name)
       middle.each { |brand_cluster| expect(response.body).to_not include(brand_cluster.name) }
     end
+
+    it "removes an ink from the list as soon as it gets a description" do
+      macro_cluster = create(:macro_cluster)
+      micro_cluster = create(:micro_cluster, macro_cluster: macro_cluster)
+      create(:collected_ink, micro_cluster: micro_cluster)
+      get "/descriptions/missing"
+      expect(response.body).to include(macro_cluster.name)
+
+      macro_cluster.update!(description: "description")
+      get "/descriptions/missing"
+      expect(response.body).to_not include(macro_cluster.name)
+    end
   end
 
   describe "#my_missing" do

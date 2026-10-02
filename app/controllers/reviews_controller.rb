@@ -1,8 +1,11 @@
 class ReviewsController < ApplicationController
+  include PaginatesCachedIds
+
   before_action :authenticate_user!, only: [:my_missing]
+  before_action :set_percentage
 
   def missing
-    @macro_clusters = sorted_clusters(unreviewed_ids)
+    @macro_clusters = paginate_ids(MissingReviews.sorted_ids, MacroCluster.all, :page, per_page: 10)
   end
 
   def my_missing
@@ -11,20 +14,8 @@ class ReviewsController < ApplicationController
 
   private
 
-  def unreviewed_ids
-    unfiltered_ids = MacroCluster.without_review.pluck(:id)
-    clusters_hash = unfiltered_ids.hash
-    key = "ReviewsController#unreviewed_ids-#{clusters_hash}"
-    Rails
-      .cache
-      .fetch(key, expires_in: 1.hour) do
-        MacroCluster
-          .where(id: unfiltered_ids)
-          .joins(micro_clusters: :collected_inks)
-          .where(collected_inks: { private: false })
-          .distinct
-          .pluck(:id)
-      end
+  def set_percentage
+    @percentage = MissingReviews.percentage
   end
 
   def my_unreviewed_ids
