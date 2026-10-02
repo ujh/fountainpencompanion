@@ -21,22 +21,11 @@ class BrandCluster < ApplicationRecord
     joins(:collected_inks).where(collected_inks: { user_id: user.id, archived_on: nil })
   end
 
+  # Brands with at least one public collected ink. MacroClusterPopularity
+  # only has rows for clusters with public collected inks and is refreshed
+  # hourly, so this avoids joining all collected inks.
   def self.public
-    hash = BrandCluster.pluck(:id).hash
-    ids =
-      Rails
-        .cache
-        .fetch("BrandCluster#public-#{hash}", expires_in: 1.hour) do
-          joins(macro_clusters: { micro_clusters: :collected_inks })
-            .where(collected_inks: { private: false })
-            .group("brand_clusters.id")
-            .pluck(:id)
-        end
-    where(id: ids)
-  end
-
-  def self.public_count
-    public.count
+    where(id: MacroCluster.joins(:popularity).select(:brand_cluster_id))
   end
 
   # Brands ranked by AutocompleteRanking, using the number of public

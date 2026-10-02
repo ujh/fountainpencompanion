@@ -15,6 +15,38 @@ describe BrandCluster do
     end
   end
 
+  describe ".public" do
+    def add_inks(brand_cluster, count, private: false)
+      macro_cluster = create(:macro_cluster, brand_cluster: brand_cluster)
+      micro_cluster = create(:micro_cluster, macro_cluster: macro_cluster)
+      create_list(:collected_ink, count, micro_cluster: micro_cluster, private: private)
+    end
+
+    it "returns brands with public collected inks" do
+      public_brand = create(:brand_cluster)
+      add_inks(public_brand, 1)
+      add_inks(public_brand, 1, private: true)
+      private_brand = create(:brand_cluster)
+      add_inks(private_brand, 2, private: true)
+      create(:brand_cluster)
+      MacroClusterPopularity.refresh
+
+      expect(described_class.public).to contain_exactly(public_brand)
+    end
+
+    it "only includes new public inks after the popularities are refreshed" do
+      brand_cluster = create(:brand_cluster)
+      MacroClusterPopularity.refresh
+      add_inks(brand_cluster, 1)
+
+      expect(described_class.public).to be_empty
+
+      MacroClusterPopularity.refresh
+
+      expect(described_class.public).to contain_exactly(brand_cluster)
+    end
+  end
+
   describe ".autocomplete_search" do
     def add_inks(brand_cluster, count, private: false)
       macro_cluster = create(:macro_cluster, brand_cluster: brand_cluster)
