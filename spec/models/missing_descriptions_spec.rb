@@ -101,6 +101,18 @@ describe MissingDescriptions do
       expect(described_class.sorted_ink_ids).to eq([])
     end
 
+    it "expires the cache when an ink loses its description" do
+      described_cluster = create_public_cluster(description: "description")
+      described_class.sorted_ink_ids
+
+      described_cluster.update!(description: "")
+
+      expect(described_class.sorted_ink_ids).to contain_exactly(
+        macro_cluster.id,
+        described_cluster.id
+      )
+    end
+
     it "expires the cache when an ink is destroyed" do
       macro_cluster.destroy!
 

@@ -20,17 +20,7 @@ class MissingDescriptions
     Rails
       .cache
       .fetch(SORTED_INK_IDS_KEY, expires_in: EXPIRES_IN) do
-        MacroCluster
-          .without_description
-          .where(
-            id:
-              MicroCluster
-                .joins(:collected_inks)
-                .where(collected_inks: { private: false })
-                .select(:macro_cluster_id)
-          )
-          .order(:brand_name, :line_name, :ink_name)
-          .pluck(:id)
+        MacroCluster.without_description.public.order(:brand_name, :line_name, :ink_name).pluck(:id)
       end
   end
 
