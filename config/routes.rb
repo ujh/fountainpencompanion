@@ -17,6 +17,8 @@ Rails.application.routes.draw do
                sessions: "custom_sessions"
              }
 
+  resource :csrf_token, only: [:show]
+
   resource :dashboard, only: [:show] do
     resources :widgets, only: [:show]
   end
