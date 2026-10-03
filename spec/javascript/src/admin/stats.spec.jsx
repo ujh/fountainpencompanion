@@ -45,6 +45,13 @@ describe("admin stats", () => {
     await act(async () => requests[index].resolve(json));
   };
 
+  const fail = async (index) => {
+    await act(async () => {
+      requests[index].reject(new Error("network"));
+      await expect(lastLock).rejects.toThrow("network");
+    });
+  };
+
   const poll = async () => {
     await act(async () => jest.advanceTimersByTime(1000 * 30));
   };
@@ -87,12 +94,15 @@ describe("admin stats", () => {
       await respond(0, 42);
 
       await poll();
-      await act(async () => {
-        requests[1].reject(new Error("network"));
-        await expect(lastLock).rejects.toThrow("network");
-      });
+      await fail(1);
       expect(screen.getByText(/42/)).toBeInTheDocument();
       expect(spinner(container)).toBeNull();
+    });
+
+    it("hides the spinner when the first load fails", async () => {
+      const { container } = render(<Stat id="users" />);
+      await fail(0);
+      expect(container).toBeEmptyDOMElement();
     });
 
     it("shows a zero value", async () => {
@@ -138,6 +148,22 @@ describe("admin stats", () => {
       await respond(1, 6);
       expect(screen.getByRole("link", { name: "6 to review" })).toBeInTheDocument();
       expect(spinner(container)).toBeNull();
+    });
+
+    it("keeps the old link and hides the spinner when a reload fails", async () => {
+      const { container } = render(<ConditionalStat {...props} />);
+      await respond(0, 5);
+
+      await poll();
+      await fail(1);
+      expect(screen.getByRole("link", { name: "5 to review" })).toBeInTheDocument();
+      expect(spinner(container)).toBeNull();
+    });
+
+    it("renders nothing when the first load fails", async () => {
+      const { container } = render(<ConditionalStat {...props} />);
+      await fail(0);
+      expect(container).toBeEmptyDOMElement();
     });
 
     it("shows only a spinner while reloading when there was nothing to show", async () => {
