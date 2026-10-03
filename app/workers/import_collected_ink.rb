@@ -2,19 +2,30 @@ class ImportCollectedInk
   include Sidekiq::Worker
   include ImportDateParser
 
-  def perform(user_id, row)
-    SaveCollectedInk.new(collected_ink(user_id, row), params(row)).perform
+  NAME_FIELDS = %w[brand_name line_name ink_name].freeze
+
+  # Rows describing the same ink (and kind) more than once are imported as
+  # separate inks. They need to be passed to the same job, so that they are
+  # processed in order and re-importing a file updates the same records.
+  def self.duplicate_key(row)
+    NAME_FIELDS.map { |field| row[field].to_s.strip } + [row["kind"].to_s.strip.downcase]
   end
 
-  def collected_ink(user_id, row)
-    User
-      .find(user_id)
-      .collected_inks
-      .find_or_initialize_by(
-        brand_name: row["brand_name"].to_s,
-        line_name: row["line_name"].to_s,
-        ink_name: row["ink_name"].to_s
-      )
+  attr_accessor :user
+
+  def perform(user_id, rows)
+    self.user = User.find(user_id)
+    rows.each_with_index do |row, occurrence|
+      SaveCollectedInk.new(collected_ink(row, occurrence), params(row)).perform
+    end
+  end
+
+  def collected_ink(row, occurrence)
+    *names, kind = self.class.duplicate_key(row)
+    name_attributes = NAME_FIELDS.zip(names).to_h
+    existing = user.collected_inks.where(name_attributes)
+    existing = existing.where(kind: kind) if kind.present?
+    existing.order(:id).offset(occurrence).first || user.collected_inks.build(name_attributes)
   end
 
   def params(row)
