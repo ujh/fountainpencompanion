@@ -146,12 +146,13 @@ describe("CSRF token refresh", () => {
     expect(tokenRequests).toBe(0);
   });
 
-  it("returns the original response if refreshing the token fails", async () => {
+  it.each([
+    ["errors", (req, res, ctx) => res(ctx.status(500))],
+    ["returns no token", (req, res, ctx) => res(ctx.json({}))],
+    ["fails with a network error", (req, res) => res.networkError("offline")]
+  ])("returns the original response if refreshing the token %s", async (_, tokenHandler) => {
     const { handler, receivedTokens } = protectedHandler("fresh-token");
-    server.use(
-      rest.post("/things", handler),
-      rest.get("/csrf_token", (req, res, ctx) => res(ctx.status(500)))
-    );
+    server.use(rest.post("/things", handler), rest.get("/csrf_token", tokenHandler));
 
     const response = await postRequest("/things");
 

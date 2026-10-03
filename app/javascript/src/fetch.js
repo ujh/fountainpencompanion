@@ -59,8 +59,10 @@ async function req(path, method, body, retries = 5, csrfRefreshed = false) {
   }
 }
 
+const csrfTokenElement = () => document.querySelector("meta[name='csrf-token']");
+
 const csrfToken = () => {
-  const tokenElement = document.querySelector("meta[name='csrf-token']");
+  const tokenElement = csrfTokenElement();
   return tokenElement ? tokenElement.getAttribute("content") : null;
 };
 
@@ -87,7 +89,7 @@ const refreshCsrfToken = () => {
 };
 
 const fetchCsrfToken = async () => {
-  const tokenElement = document.querySelector("meta[name='csrf-token']");
+  const tokenElement = csrfTokenElement();
   if (!tokenElement) return false;
   try {
     const response = await fetch("/csrf_token", {
