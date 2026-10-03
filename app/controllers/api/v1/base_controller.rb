@@ -47,13 +47,6 @@ class Api::V1::BaseController < ApplicationController
     request.authorization.present?
   end
 
-  def render_csrf_error
-    render json: {
-             errors: [{ detail: "CSRF token verification failed" }]
-           },
-           status: :unprocessable_entity
-  end
-
   def render_param_error(exception)
     render json: { errors: [{ detail: exception.message }] }, status: :bad_request
   end
