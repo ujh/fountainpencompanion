@@ -38,51 +38,52 @@ const useAdminStat = (id, arg) => {
   const [loading, setLoading] = useState(true);
   usePolling(() => {
     navigator.locks.request("admin-dashboard-stats", async () => {
-      let url = `/admins/stats/${id}`;
-      if (arg) url += `?arg=${arg}`;
-      const response = await getRequest(url);
-      const json = await response.json();
-      setData(json);
-      setLoading(false);
+      setLoading(true);
+      try {
+        let url = `/admins/stats/${id}`;
+        if (arg) url += `?arg=${arg}`;
+        const response = await getRequest(url);
+        const json = await response.json();
+        setData(json);
+      } finally {
+        setLoading(false);
+      }
     });
   }, 1000 * 30);
   return { data, loading };
 };
 
-const Stat = ({ id, arg }) => {
+const LoadingIndicator = () => (
+  <>
+    <i className="fa fa-spin fa-refresh" />
+    &nbsp;
+  </>
+);
+
+export const Stat = ({ id, arg }) => {
   const { data, loading } = useAdminStat(id, arg);
-  if (loading) {
-    return (
-      <>
-        <i className="fa fa-spin fa-refresh" />
-        &nbsp;
-      </>
-    );
-  } else {
-    return <>{data} </>;
-  }
+  return (
+    <>
+      {data !== null && <>{data} </>}
+      {loading && <LoadingIndicator />}
+    </>
+  );
 };
 
-const ConditionalStat = ({ id, arg, href, template }) => {
+export const ConditionalStat = ({ id, arg, href, template }) => {
   const { data, loading } = useAdminStat(id, arg);
-  if (loading) {
-    return (
-      <>
-        &nbsp;
-        <i className="fa fa-spin fa-refresh" />
-        &nbsp;
-      </>
-    );
-  } else if (data) {
-    return (
-      <>
-        &nbsp;
+  if (!data && !loading) return null;
+
+  return (
+    <>
+      &nbsp;
+      {data && (
         <b>
           ( <a href={href}>{template.replace("%count%", data)}</a> )
         </b>
-      </>
-    );
-  } else {
-    return null;
-  }
+      )}
+      {data && loading && <>&nbsp;</>}
+      {loading && <LoadingIndicator />}
+    </>
+  );
 };
