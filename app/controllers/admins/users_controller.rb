@@ -45,13 +45,12 @@ class Admins::UsersController < Admins::BaseController
   end
 
   def ink_import
-    count = 0
     content = params[:file].read.force_encoding("UTF-8")
-    CSV.parse(content, headers: true) do |row|
-      row = row.to_hash
-      ImportCollectedInk.perform_async(@user.id, row)
-      count += 1
-    end
+    rows = CSV.parse(content, headers: true).map(&:to_hash)
+    rows
+      .group_by { |row| ImportCollectedInk.duplicate_key(row) }
+      .each_value { |duplicates| ImportCollectedInk.perform_async(@user.id, duplicates) }
+    count = rows.size
     flash[:notice] = "#{count} inks scheduled for import for #{@user.email}"
     redirect_to admins_users_path
   end

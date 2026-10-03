@@ -89,6 +89,26 @@ describe Admins::UsersController do
         # Removes whitespace
         expect(user.collected_inks.find_by(ink_name: "Aventurine").line_name).to eq("Edelstein")
       end
+
+      it "imports duplicate rows as separate inks" do
+        name = Rails.root.join("tmp", "import_duplicates.csv")
+        CSV.open(name, "w") do |csv|
+          csv << %w[brand_name line_name ink_name kind]
+          csv << ["Diamine", "", "Oxblood", "Sample"]
+          csv << ["Diamine", "", "Oxblood", "Bottle"]
+          csv << ["Diamine", "", "Oxblood", "Sample"]
+        end
+
+        post "/admins/users/#{user.id}/ink_import", params: { file: fixture_file_upload(name) }
+        expect(ImportCollectedInk.jobs.size).to eq(2)
+        ImportCollectedInk.drain
+
+        expect(user.collected_inks.pluck(:kind, :comment)).to contain_exactly(
+          ["sample", ""],
+          ["bottle", ""],
+          ["sample", "Sample no. 2"]
+        )
+      end
     end
   end
 
