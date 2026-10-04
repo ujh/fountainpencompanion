@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
 import { ErrorBoundary } from "../ErrorBoundary";
 import { getRequest } from "../fetch";
@@ -36,7 +36,12 @@ document.addEventListener("DOMContentLoaded", () => {
 const useAdminStat = (id, arg) => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
+  // All stats share one lock, so a reload can wait in the queue for a while. Skip
+  // polls while one is pending so reloads don't stack up (e.g. after tab focus).
+  const pending = useRef(false);
   usePolling(() => {
+    if (pending.current) return;
+    pending.current = true;
     navigator.locks.request("admin-dashboard-stats", async () => {
       setLoading(true);
       try {
@@ -46,6 +51,7 @@ const useAdminStat = (id, arg) => {
         const json = await response.json();
         setData(json);
       } finally {
+        pending.current = false;
         setLoading(false);
       }
     });

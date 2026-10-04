@@ -56,6 +56,10 @@ describe("admin stats", () => {
     await act(async () => jest.advanceTimersByTime(1000 * 30));
   };
 
+  const refocus = async () => {
+    await act(async () => document.dispatchEvent(new Event("visibilitychange")));
+  };
+
   describe("Stat", () => {
     it("requests the stat with the arg", () => {
       render(<Stat id="users" arg="7" />);
@@ -103,6 +107,26 @@ describe("admin stats", () => {
       const { container } = render(<Stat id="users" />);
       await fail(0);
       expect(container).toBeEmptyDOMElement();
+    });
+
+    it("does not stack up reloads while one is still pending", async () => {
+      render(<Stat id="users" />);
+      await refocus();
+      await poll();
+      await poll();
+      expect(requests.length).toEqual(1);
+
+      await respond(0, 42);
+      await poll();
+      expect(requests.length).toEqual(2);
+    });
+
+    it("reloads again after a failed load", async () => {
+      render(<Stat id="users" />);
+      await fail(0);
+
+      await refocus();
+      expect(requests.length).toEqual(2);
     });
 
     it("shows a zero value", async () => {
