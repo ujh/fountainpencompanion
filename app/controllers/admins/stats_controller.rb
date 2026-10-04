@@ -6,17 +6,13 @@ class Admins::StatsController < Admins::BaseController
   # that isn't in ARG_STATS. Anything not in one of these two sets returns 404.
   NO_ARG_STATS = (AdminStats.instance_methods(false).map(&:to_s) - ARG_STATS).freeze
 
-  # The dashboard polls every stat. Some of them are expensive counts over big
-  # tables, so they are shared between requests for a short while.
-  CACHE_DURATION = 1.minute
-
   def show
     return head :not_found unless stat_allowed?
 
     args = stat_args
     return head :bad_request if args.nil?
 
-    render json: cached_statistic(args)
+    render json: AdminStats.new.public_send(stat_name, *args)
   end
 
   private
@@ -36,13 +32,5 @@ class Admins::StatsController < Admins::BaseController
     [Integer(params[:arg])]
   rescue ArgumentError, TypeError
     nil
-  end
-
-  def cached_statistic(args)
-    Rails
-      .cache
-      .fetch(["admin_stats", stat_name, *args], expires_in: CACHE_DURATION) do
-        AdminStats.new.public_send(stat_name, *args)
-      end
   end
 end
