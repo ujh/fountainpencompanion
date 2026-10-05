@@ -35,16 +35,41 @@ describe("usePolling", () => {
     expect(callback).toHaveBeenCalledTimes(1);
   });
 
-  it("calls the callback when the page becomes visible again", () => {
+  it("calls the callback when the page becomes visible again after missing a poll", () => {
     const callback = jest.fn();
     renderHook(() => usePolling(callback, 1000));
     setHidden(true);
-    jest.advanceTimersByTime(3000);
+    jest.advanceTimersByTime(3500);
+
+    setHidden(false);
+    expect(callback).toHaveBeenCalledTimes(2);
+  });
+
+  it("restarts the interval after calling the callback on becoming visible", () => {
+    const callback = jest.fn();
+    renderHook(() => usePolling(callback, 1000));
+    setHidden(true);
+    jest.advanceTimersByTime(3500);
+    setHidden(false);
+
+    jest.advanceTimersByTime(999);
+    expect(callback).toHaveBeenCalledTimes(2);
+
+    jest.advanceTimersByTime(1);
+    expect(callback).toHaveBeenCalledTimes(3);
+  });
+
+  it("does not call the callback when the page becomes visible again before the next poll", () => {
+    const callback = jest.fn();
+    renderHook(() => usePolling(callback, 1000));
+    jest.advanceTimersByTime(1000);
+    setHidden(true);
+    jest.advanceTimersByTime(500);
 
     setHidden(false);
     expect(callback).toHaveBeenCalledTimes(2);
 
-    jest.advanceTimersByTime(1000);
+    jest.advanceTimersByTime(500);
     expect(callback).toHaveBeenCalledTimes(3);
   });
 
