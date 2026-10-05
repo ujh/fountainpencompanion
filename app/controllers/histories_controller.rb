@@ -47,6 +47,6 @@ class HistoriesController < ApplicationController
 
   def object
     @object ||=
-      MacroCluster.find_by(id: params[:ink_id]) || BrandCluster.find_by(id: params[:brand_id])
+      (params[:ink_id] ? MacroCluster.find(params[:ink_id]) : BrandCluster.find(params[:brand_id]))
   end
 end

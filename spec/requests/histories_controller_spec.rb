@@ -1,6 +1,41 @@
 require "rails_helper"
 
 describe HistoriesController do
+  describe "GET /inks/:ink_id/history" do
+    it "shows the history of the ink" do
+      brand = create(:brand_cluster, name: "Pelikan")
+      ink = create(:macro_cluster, brand_cluster: brand, manual_ink_name: "Blue Black")
+
+      get "/inks/#{ink.id}/history"
+
+      expect(response).to have_http_status(:ok)
+      expect(response.body).to include("History for #{ink.name}")
+    end
+
+    it "returns 404 when the ink does not exist" do
+      get "/inks/0-deleted-ink/history"
+
+      expect(response).to have_http_status(:not_found)
+    end
+  end
+
+  describe "GET /brands/:brand_id/history" do
+    it "shows the history of the brand" do
+      brand = create(:brand_cluster, name: "Pelikan")
+
+      get "/brands/#{brand.id}/history"
+
+      expect(response).to have_http_status(:ok)
+      expect(response.body).to include("History for Pelikan")
+    end
+
+    it "returns 404 when the brand does not exist" do
+      get "/brands/0-deleted-brand/history"
+
+      expect(response).to have_http_status(:not_found)
+    end
+  end
+
   describe "#calculate_diffs" do
     let(:controller) { described_class.new }
 
