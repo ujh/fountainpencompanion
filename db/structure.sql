@@ -2517,6 +2517,7 @@ ALTER TABLE ONLY public.collected_inks
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20261006120000'),
 ('20261001073038'),
 ('20261001065641'),
 ('20261001065639'),
