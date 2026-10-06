@@ -206,7 +206,7 @@ describe Api::V1::CurrentlyInkedController do
           2.times do
             ci = create(:currently_inked, user: user)
             ci.collected_ink.update!(
-              micro_cluster: create(:micro_cluster, macro_cluster: macro_cluster)
+              micro_cluster: create(:micro_cluster, macro_cluster: create(:macro_cluster))
             )
           end
 
