@@ -1,6 +1,9 @@
 require "rails_helper"
+require "active_record/testing/query_assertions"
 
 describe Api::V1::CurrentlyInkedController do
+  include ActiveRecord::Assertions::QueryAssertions
+
   describe "GET /index" do
     it "requires authentication" do
       get "/api/v1/currently_inked", headers: { "ACCEPT" => "application/json" }
@@ -197,6 +200,27 @@ describe Api::V1::CurrentlyInkedController do
             %w[collected_ink micro_cluster macro_cluster]
           )
           expect(included_of("macro_cluster").map { |r| r[:id] }).to eq([macro_cluster.id.to_s])
+        end
+
+        it "eager loads the macro cluster when it is included" do
+          2.times do
+            ci = create(:currently_inked, user: user)
+            ci.collected_ink.update!(
+              micro_cluster: create(:micro_cluster, macro_cluster: macro_cluster)
+            )
+          end
+
+          assert_queries_match(/FROM "macro_clusters"/, count: 1) do
+            get "/api/v1/currently_inked",
+                params: {
+                  include:
+                    "collected_ink,collected_ink.micro_cluster,collected_ink.micro_cluster.macro_cluster"
+                },
+                headers: {
+                  "ACCEPT" => "application/json"
+                }
+          end
+          expect(response).to have_http_status(:ok)
         end
 
         it "returns no included resources for a blank include" do

@@ -233,7 +233,9 @@ class Api::V1::CurrentlyInkedController < Api::V1::BaseController
       assocs << :collected_pen
     end
 
-    if inc.include?(:"collected_ink.micro_cluster")
+    if inc.include?(:"collected_ink.micro_cluster.macro_cluster")
+      assocs << { collected_ink: { micro_cluster: :macro_cluster } }
+    elsif inc.include?(:"collected_ink.micro_cluster")
       assocs << { collected_ink: :micro_cluster }
     else
       assocs << :collected_ink
