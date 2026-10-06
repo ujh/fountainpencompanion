@@ -10,10 +10,12 @@ class AccountsController < ApplicationController
 
   def update
     successful = current_user.update(accounts_params)
+    if successful && current_user.saved_change_to_blurb?
+      AfterUserSaved.perform_async(current_user.id)
+    end
     respond_to do |format|
       format.html do
         if successful
-          AfterUserSaved.perform_async(current_user.id)
           redirect_to account_path
         else
           render :edit
