@@ -38,6 +38,17 @@ suppress the finding (and log the suppression in the step summary).
   not require PR descriptions to link an issue or ticket. A `#123`
   GitHub issue reference is welcome but its absence is never a finding.
 
+## Must-flag rules
+
+- **Ruby version must match in three places.** The Ruby version is
+  declared in `.ruby-version`, in `ruby "x.y.z"` in the `Gemfile`
+  (and the `RUBY VERSION` stanza of `Gemfile.lock`), and in
+  `ARG RUBY_VERSION=` in the `Dockerfile`. Dependabot's `docker`
+  updater only bumps the Dockerfile. Whenever a PR changes any one
+  of these, verify all of them agree and raise a `correctness`
+  finding if they diverge — the production image would run a
+  different Ruby than the one bundler and developers use.
+
 ## Calibration
 
 - CLAUDE.md notes existing code quality varies and that older code is
