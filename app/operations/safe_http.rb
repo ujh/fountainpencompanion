@@ -77,11 +77,7 @@ class SafeHttp
     false
   end
 
-  # Stricter variant of `.allowed?` for URLs we persist and later render
-  # as clickable links (e.g. an unfurled `og:url`). In addition to the
-  # scheme/routability checks it rejects embedded credentials
-  # (`http://user:pass@host/`), which have no legitimate use in a review
-  # link and are a phishing vector.
+  # Like `.allowed?`, but also rejects URLs with embedded credentials.
   def self.safe_link?(url)
     uri = parse_uri(url)
     return false unless uri

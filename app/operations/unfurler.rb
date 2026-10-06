@@ -47,8 +47,6 @@ class Unfurler
     @video_id ||= ::Youtube::VideoIdParser.parse(uri.to_s)
   end
 
-  # The URL the page was actually served from (after redirects), falling
-  # back to the submitted URL when nothing was fetched (YouTube path).
   def final_url
     response&.final_url.presence || uri.to_s
   end

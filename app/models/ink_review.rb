@@ -162,11 +162,6 @@ class InkReview < ApplicationRecord
   rescue URI::InvalidURIError
   end
 
-  # The stored URL is usually the page's own `og:url`, i.e. attacker
-  # controlled. It is rendered via `link_to` on public pages and in the
-  # admin queue, so it must be a plain http(s) link without credentials
-  # that points at a globally routable host. The DNS lookup in
-  # `SafeHttp.allowed?` only runs when the URL actually changed.
   def url_format
     return if url.blank?
 
