@@ -5,6 +5,9 @@ on:
     branches: [master]
   pull_request:
 
+permissions:
+  contents: read
+
 jobs:
   rspec:
     env:
@@ -49,14 +52,14 @@ jobs:
         ports:
           - 6379:6379
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Install correct Node version
-        uses: actions/setup-node@v7.0.0
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: "v24.14.0"
           cache: yarn
       - name: Set up Ruby
-        uses: ruby/setup-ruby@v1
+        uses: ruby/setup-ruby@14594264cd68ce8a2345dd349bc3d138a4ef85c8 # v1.327.0
         with:
           bundler-cache: true # runs 'bundle install' and caches installed gems automatically
       - name: Install JS dependencies
@@ -64,7 +67,7 @@ jobs:
       - name: Run tests
         run: bundle exec rake
       - name: Report to CodeCov
-        uses: codecov/codecov-action@v7
+        uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
         with:
           flags: ruby
           token: ${{ secrets.CODECOV_TOKEN }}
@@ -73,14 +76,14 @@ jobs:
     env:
       PRETTIER_RUBY_TIMEOUT_MS: 50000
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Install correct Node version
-        uses: actions/setup-node@v7.0.0
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: "v24.14.0"
           cache: yarn
       - name: Set up Ruby
-        uses: ruby/setup-ruby@v1
+        uses: ruby/setup-ruby@14594264cd68ce8a2345dd349bc3d138a4ef85c8 # v1.327.0
         with:
           bundler-cache: true # runs 'bundle install' and caches installed gems automatically
       - name: Install JS dependencies
@@ -90,18 +93,18 @@ jobs:
       - name: Run tests
         run: yarn jest
       - name: Report to CodeCov
-        uses: codecov/codecov-action@v7
+        uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
         with:
           flags: javascript
           token: ${{ secrets.CODECOV_TOKEN }}
   docker-build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v4
+        uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
       - name: Build Docker image
-        uses: docker/build-push-action@v7
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
         with:
           context: .
           file: Dockerfile
@@ -116,15 +119,18 @@ jobs:
     runs-on: ubuntu-latest
     concurrency: deploy-group # optional: ensure only one action runs at a time
     steps:
-      - uses: actions/checkout@v7
-      - uses: superfly/flyctl-actions/setup-flyctl@master
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: superfly/flyctl-actions/setup-flyctl@ed8efb33836e8b2096c7fd3ba1c8afe303ebbff1 # 1.6
+        with:
+          version: 0.4.112
       - name: Stage Honeybadger revision secret
         run: flyctl secrets set HONEYBADGER_REVISION=${{ github.sha }} --stage
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
-      - run: flyctl deploy --remote-only --build-secret HONEYBADGER_API_KEY=${{ secrets.FRONTEND_HONEYBADGER_API_KEY }} --build-arg HONEYBADGER_REVISION=${{ github.sha }} --build-arg HONEYBADGER_ASSETS_URL=https://www.fountainpencompanion.com/assets
+      - run: flyctl deploy --remote-only --build-secret HONEYBADGER_API_KEY="$HONEYBADGER_API_KEY" --build-arg HONEYBADGER_REVISION=${{ github.sha }} --build-arg HONEYBADGER_ASSETS_URL=https://www.fountainpencompanion.com/assets
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+          HONEYBADGER_API_KEY: ${{ secrets.FRONTEND_HONEYBADGER_API_KEY }}
       - name: Create New Relic deployment marker
         uses: newrelic/deployment-marker-action@d88a59ea8f713ad6935e60de27273157790b1e3b # v2.6.2
         with:
@@ -136,10 +142,10 @@ jobs:
           deeplink: ${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}
           user: ${{ github.actor }}
       - name: Notify Honeybadger (backend)
-        uses: honeybadger-io/github-notify-deploy-action@v1
+        uses: honeybadger-io/github-notify-deploy-action@50838a23920642c5f587909e759f1e9e6db15a8a # v1.0.0
         with:
           api_key: ${{ secrets.HONEYBADGER_API_KEY }}
       - name: Notify Honeybadger (frontend)
-        uses: honeybadger-io/github-notify-deploy-action@v1
+        uses: honeybadger-io/github-notify-deploy-action@50838a23920642c5f587909e759f1e9e6db15a8a # v1.0.0
         with:
           api_key: ${{ secrets.FRONTEND_HONEYBADGER_API_KEY }}
