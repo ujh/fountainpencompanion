@@ -180,9 +180,8 @@ class SafeHttp
     buffer
   end
 
-  # Mirror Faraday's `raise_error` middleware so callers that match on
-  # specific subclasses (e.g. ProcessInkReviewSubmission's 403 carve-out)
-  # keep working.
+  # Mirror Faraday's `raise_error` middleware so callers can match on the
+  # same status-specific subclasses Faraday raises.
   def self.raise_for_status!(response)
     case response.status
     when 200..399
