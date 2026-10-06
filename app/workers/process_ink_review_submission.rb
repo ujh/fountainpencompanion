@@ -12,14 +12,14 @@ class ProcessInkReviewSubmission
         ink_review.author = author
       end
     if ink_review.rejected?
-      ink_review_submission.update(ink_review:, unfurling_errors: nil, html: nil)
+      link_submission(ink_review)
       return
     end
 
     new_record = ink_review.new_record?
     schedule_approval = false
     if ink_review.save
-      ink_review_submission.update(ink_review:, unfurling_errors: nil, html: nil)
+      link_submission(ink_review)
       if ink_review.auto_approve?
         ink_review.auto_approve!
       else
@@ -61,6 +61,10 @@ class ProcessInkReviewSubmission
 
   def macro_cluster
     ink_review_submission.macro_cluster
+  end
+
+  def link_submission(ink_review)
+    ink_review_submission.update(ink_review:, unfurling_errors: nil, html: nil)
   end
 
   def page_data
