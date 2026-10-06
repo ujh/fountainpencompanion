@@ -65,6 +65,19 @@ class SafeHttp
     uri = parse_uri(url)
     return false unless uri
 
+    allowed_uri?(uri)
+  end
+
+  # Like `.allowed?`, but also rejects URLs with embedded credentials.
+  def self.safe_link?(url)
+    uri = parse_uri(url)
+    return false unless uri
+    return false if uri.userinfo.present?
+
+    allowed_uri?(uri)
+  end
+
+  def self.allowed_uri?(uri)
     addresses = addresses_for(uri.host)
     return false if addresses.empty?
 
@@ -75,15 +88,6 @@ class SafeHttp
     addresses.all? { |ip| globally_routable?(ip) }
   rescue URI::InvalidURIError, IPAddr::InvalidAddressError, Resolv::ResolvError
     false
-  end
-
-  # Like `.allowed?`, but also rejects URLs with embedded credentials.
-  def self.safe_link?(url)
-    uri = parse_uri(url)
-    return false unless uri
-    return false if uri.userinfo.present?
-
-    allowed?(url)
   end
 
   def self.parse_uri(url)
