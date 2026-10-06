@@ -1,6 +1,8 @@
 class ProcessInkReviewSubmission
   include Sidekiq::Worker
 
+  sidekiq_options retry: 3
+
   def perform(id)
     self.ink_review_submission = InkReviewSubmission.find(id)
 
@@ -41,9 +43,8 @@ class ProcessInkReviewSubmission
       end
     end
     RunAgent.perform_async("ReviewApprover", ink_review.id) if new_record && schedule_approval
-  rescue URI::InvalidURIError, Faraday::ForbiddenError
-    ink_review&.destroy
-    ink_review_submission&.destroy
+  rescue URI::InvalidURIError, Faraday::Error => e
+    ink_review_submission.update(unfurling_errors: { url: [e.message] }.to_json)
   end
 
   private

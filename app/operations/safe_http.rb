@@ -19,18 +19,15 @@ require "resolv"
 #   IO, EOF) into `Faraday::ConnectionFailed`, again so callers that
 #   already rescue `Faraday::Error` cover the same failure modes they
 #   did before.
-#
-# Note on response-size protection: ssrf_filter calls `Net::HTTP#request`
-# without a streaming block, which buffers the response body. The
-# post-fetch size check below is a backstop only; the primary defense
-# against giant payloads is the read timeout.
 class SafeHttp
   MAX_REDIRECTS = 5
   OPEN_TIMEOUT = 5
   READ_TIMEOUT = 10
+  TOTAL_TIMEOUT = 30
   MAX_BODY_BYTES = 5 * 1024 * 1024
 
   HTTP_OPTIONS = { open_timeout: OPEN_TIMEOUT, read_timeout: READ_TIMEOUT }.freeze
+  DEFAULT_HEADERS = { "accept-encoding" => "identity" }.freeze
 
   class BlockedError < Faraday::Error
   end
@@ -131,21 +128,19 @@ class SafeHttp
   end
 
   def self.fetch(verb, url, headers:)
+    body = ""
     raw =
-      SsrfFilter.public_send(
-        verb,
-        url.to_s,
-        max_redirects: MAX_REDIRECTS,
-        scheme_whitelist: %w[http https],
-        headers: headers,
-        http_options: HTTP_OPTIONS,
-        on_cross_origin_redirect: :strip
-      )
-
-    body = raw.body.to_s
-    if body.bytesize > MAX_BODY_BYTES
-      raise ResponseTooLarge, "Response exceeded #{MAX_BODY_BYTES} bytes"
-    end
+      Timeout.timeout(TOTAL_TIMEOUT) do
+        SsrfFilter.public_send(
+          verb,
+          url.to_s,
+          max_redirects: MAX_REDIRECTS,
+          scheme_whitelist: %w[http https],
+          headers: headers.merge(DEFAULT_HEADERS),
+          http_options: HTTP_OPTIONS,
+          on_cross_origin_redirect: :strip
+        ) { |hop| body = read_body(hop) }
+      end
 
     response = Response.new(raw.code.to_i, headers_hash(raw), body, raw.uri.to_s)
 
@@ -168,6 +163,21 @@ class SafeHttp
          Net::HTTPBadResponse,
          Net::ProtocolError => e
     raise Faraday::ConnectionFailed, e.message
+  end
+
+  def self.read_body(hop)
+    if hop["content-length"].to_i > MAX_BODY_BYTES
+      raise ResponseTooLarge, "Content-Length exceeded #{MAX_BODY_BYTES} bytes"
+    end
+
+    buffer = +""
+    hop.read_body do |chunk|
+      buffer << chunk
+      if buffer.bytesize > MAX_BODY_BYTES
+        raise ResponseTooLarge, "Response exceeded #{MAX_BODY_BYTES} bytes"
+      end
+    end
+    buffer
   end
 
   # Mirror Faraday's `raise_error` middleware so callers that match on

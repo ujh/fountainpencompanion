@@ -204,6 +204,49 @@ describe ProcessInkReviewSubmission do
     end
   end
 
+  context "when the page cannot be fetched" do
+    before { stub_request(:get, ink_review_submission.url).to_return(status: 403, body: "nope") }
+
+    it "keeps the submission and records the error" do
+      expect do described_class.new.perform(ink_review_submission.id) end.not_to change(
+        InkReviewSubmission,
+        :count
+      )
+      expect(JSON.parse(ink_review_submission.reload.unfurling_errors)["url"]).to be_present
+    end
+
+    it "does not create an ink review" do
+      expect do described_class.new.perform(ink_review_submission.id) end.not_to change(
+        InkReview,
+        :count
+      )
+    end
+
+    it "does not raise for oversized responses" do
+      stub_request(:get, ink_review_submission.url).to_return(
+        status: 200,
+        headers: {
+          "Content-Length" => (SafeHttp::MAX_BODY_BYTES + 1).to_s
+        },
+        body: "x"
+      )
+
+      expect { described_class.new.perform(ink_review_submission.id) }.not_to raise_error
+      expect(ink_review_submission.reload.unfurling_errors).to include("Content-Length")
+    end
+
+    it "does not raise on connection failures" do
+      stub_request(:get, ink_review_submission.url).to_raise(Errno::ECONNREFUSED)
+
+      expect { described_class.new.perform(ink_review_submission.id) }.not_to raise_error
+      expect(ink_review_submission.reload.unfurling_errors).to be_present
+    end
+  end
+
+  it "retries at most three times" do
+    expect(described_class.get_sidekiq_options["retry"]).to eq(3)
+  end
+
   context "no url found" do
     let(:content) { file_fixture("kobe-hatoba-blue-no-url.html") }
 
