@@ -1,6 +1,9 @@
 require "rails_helper"
+require "active_record/testing/query_assertions"
 
 describe Api::V1::CurrentlyInkedController do
+  include ActiveRecord::Assertions::QueryAssertions
+
   describe "GET /index" do
     it "requires authentication" do
       get "/api/v1/currently_inked", headers: { "ACCEPT" => "application/json" }
@@ -123,6 +126,115 @@ describe Api::V1::CurrentlyInkedController do
               ]
             )
         )
+      end
+
+      describe "include parameter" do
+        let(:macro_cluster) { create(:macro_cluster) }
+        let(:micro_cluster) { create(:micro_cluster, macro_cluster: macro_cluster) }
+        let!(:own) do
+          ci = create(:currently_inked, user: user)
+          ci.collected_ink.update!(micro_cluster: micro_cluster)
+          ci
+        end
+        let(:other_user) { create(:user) }
+        let!(:other_ink) do
+          create(
+            :collected_ink,
+            user: other_user,
+            micro_cluster: micro_cluster,
+            private: true,
+            private_comment: "secret"
+          )
+        end
+        let!(:other_ci) { create(:currently_inked, user: other_user, collected_ink: other_ink) }
+
+        def included_of(type)
+          Array(json[:included]).select { |r| r[:type] == type }
+        end
+
+        it "does not expose other users' records through nested includes" do
+          get "/api/v1/currently_inked",
+              params: {
+                include:
+                  "collected_ink,collected_ink.micro_cluster.collected_inks.currently_inkeds.collected_pen",
+                fields: {
+                  collected_ink: "brand_name,private,private_comment"
+                }
+              },
+              headers: {
+                "ACCEPT" => "application/json"
+              }
+
+          expect(response).to have_http_status(:ok)
+          expect(included_of("collected_ink").map { |r| r[:id] }).to eq([own.collected_ink_id.to_s])
+          expect(included_of("collected_pen")).to be_empty
+          expect(included_of("currently_inked")).to be_empty
+          expect(response.body).not_to include("secret")
+        end
+
+        it "ignores unknown includes but keeps the supported ones" do
+          get "/api/v1/currently_inked",
+              params: {
+                include: "collected_ink,collected_ink.micro_cluster.collected_inks,bogus"
+              },
+              headers: {
+                "ACCEPT" => "application/json"
+              }
+
+          expect(response).to have_http_status(:ok)
+          expect(json[:included].map { |r| r[:type] }).to eq(["collected_ink"])
+        end
+
+        it "supports including the macro cluster through the micro cluster" do
+          get "/api/v1/currently_inked",
+              params: {
+                include:
+                  "collected_ink,collected_ink.micro_cluster,collected_ink.micro_cluster.macro_cluster"
+              },
+              headers: {
+                "ACCEPT" => "application/json"
+              }
+
+          expect(response).to have_http_status(:ok)
+          expect(json[:included].map { |r| r[:type] }).to match_array(
+            %w[collected_ink micro_cluster macro_cluster]
+          )
+          expect(included_of("macro_cluster").map { |r| r[:id] }).to eq([macro_cluster.id.to_s])
+        end
+
+        it "eager loads the macro cluster when it is included" do
+          2.times do
+            ci = create(:currently_inked, user: user)
+            ci.collected_ink.update!(
+              micro_cluster: create(:micro_cluster, macro_cluster: create(:macro_cluster))
+            )
+          end
+
+          assert_queries_match(/FROM "macro_clusters"/, count: 1) do
+            get "/api/v1/currently_inked",
+                params: {
+                  include:
+                    "collected_ink,collected_ink.micro_cluster,collected_ink.micro_cluster.macro_cluster"
+                },
+                headers: {
+                  "ACCEPT" => "application/json"
+                }
+          end
+          expect(response).to have_http_status(:ok)
+        end
+
+        it "returns no included resources for a blank include" do
+          get "/api/v1/currently_inked",
+              params: {
+                include: ""
+              },
+              headers: {
+                "ACCEPT" => "application/json"
+              }
+
+          expect(response).to have_http_status(:ok)
+          expect(json[:included]).to be_blank
+        end
       end
 
       it "supports pagination" do
