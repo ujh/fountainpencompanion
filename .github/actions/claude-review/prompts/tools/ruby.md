@@ -34,10 +34,8 @@ To inspect the source of a gem this repo depends on:
 
 1. Read `Gemfile.lock` via the `Read` tool to find the gem's
    version (rubygems-sourced) or revision (GIT-sourced).
-2. For GIT-sourced gems pinned to a SHA, fetch individual
-   files via `gh api repos/<org>/<repo>/contents/<path>?ref=<sha>`
-   (the response includes base64-encoded content).
-3. For public rubygems with no readily-available GitHub
-   source, note in the finding that external gem source was
-   not inspected. Do not list this as a blocked tool in the
-   trailing comment.
+2. Gem source is not reachable from the reviewer (`gh api`
+   is not allowlisted and gems are not installed); note in
+   the finding that external gem source was not inspected.
+   Do not list this as a blocked tool in the trailing
+   comment.

@@ -61,10 +61,14 @@ runs:
         # --paginate writes each page as its own JSON array,
         # which is not valid JSON. Slurp pages and `add` to
         # merge them into one flat array.
+        # Only repo members and the reviewer bot itself make it into the
+        # model's context; drive-by comments from any GitHub account are
+        # untrusted and dropped here.
+        trusted='map(select((.author_association | IN("OWNER", "MEMBER", "COLLABORATOR")) or (.user.login | IN("github-actions[bot]", "claude[bot]"))))'
         gh api "repos/$REPO/pulls/$PR_NUMBER/comments" --paginate \
-          | jq -s 'add // []' > "$DEST/inline-comments.json"
+          | jq -s "add // [] | $trusted" > "$DEST/inline-comments.json"
         gh api "repos/$REPO/issues/$PR_NUMBER/comments" --paginate \
-          | jq -s 'add // []' > "$DEST/issue-comments.json"
+          | jq -s "add // [] | $trusted" > "$DEST/issue-comments.json"
         # checkout@v6 with fetch-depth: 0 already fetched all
         # history; the explicit fetch is a safety net for repos
         # configured with a different depth.
@@ -157,13 +161,15 @@ runs:
     - uses: anthropics/claude-code-action@806af32823ef69c8ef357086c573a902af641307 # v1
       id: claude
       if: steps.guard.outputs.skip != 'true'
+      env:
+        CLAUDE_CODE_SUBPROCESS_ENV_SCRUB: "1"
       with:
         claude_code_oauth_token: ${{ inputs.claude_code_oauth_token }}
         github_token: ${{ github.token }}
         prompt: ${{ steps.assemble.outputs.prompt }}
         claude_args: |
           --model opus
-          --allowedTools "Bash(gh:*),Bash(git fetch:*),Bash(git log:*),Bash(git show:*),Bash(git blame:*),Bash(git diff:*),Bash(git ls-files:*),Bash(git ls-tree:*),Bash(git cat-file:*),Bash(git status),Bash(grep:*),Bash(head:*),Bash(tail:*),Bash(ls:*),Bash(cat:*),Bash(wc:*),Bash(./.claude-review-post:*),Task,Agent"
+          --allowedTools "Bash(gh pr comment:*),Bash(git fetch:*),Bash(git log:*),Bash(git show:*),Bash(git blame:*),Bash(git diff:*),Bash(git ls-files:*),Bash(git ls-tree:*),Bash(git cat-file:*),Bash(git status),Bash(grep:*),Bash(head:*),Bash(tail:*),Bash(ls:*),Bash(cat:*),Bash(wc:*),Bash(./.claude-review-post:*),Task,Agent"
           --append-system-prompt "Repo-specific review rules are inlined at the top of the review prompt under the 'Repository review rules' section. Apply them in every subagent and validation pass — they override default rules. Findings that violate the inlined skip rules must not be reported. Do not Read REVIEW.md from disk; the inlined copy is canonical."
 
     - name: Remove staged review helper
@@ -179,15 +185,6 @@ runs:
       env:
         DEST: ${{ github.workspace }}/.pr-context
       run: rm -rf "$DEST"
-
-    - name: Upload Claude execution log
-      if: always() && steps.guard.outputs.skip != 'true' && steps.claude.outputs.execution_file != ''
-      uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
-      with:
-        name: claude-execution-log
-        path: ${{ steps.claude.outputs.execution_file }}
-        if-no-files-found: ignore
-        retention-days: 30
 
     - name: Render reviewer transcript to step summary
       if: always() && steps.guard.outputs.skip != 'true' && steps.claude.outputs.execution_file != ''
