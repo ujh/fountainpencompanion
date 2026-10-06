@@ -433,6 +433,7 @@ GEM
       uber (< 0.2.0)
     request_store (1.7.0)
       rack (>= 1.4)
+    resolv (0.8.0)
     responders (3.2.0)
       actionpack (>= 7.0)
       railties (>= 7.0)
@@ -629,6 +630,7 @@ DEPENDENCIES
   rails (~> 8.1.4)
   rails-controller-testing
   redis
+  resolv (>= 0.7.2)
   rspec-rails
   rss
   ruby-lsp
@@ -656,7 +658,7 @@ DEPENDENCIES
   webmock
 
 RUBY VERSION
-  ruby 4.0.1
+  ruby 4.0.7
 
 BUNDLED WITH
   4.0.3

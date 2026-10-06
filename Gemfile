@@ -1,6 +1,6 @@
 source "https://rubygems.org"
 
-ruby "4.0.1"
+ruby "4.0.7"
 
 git_source(:github) do |repo_name|
   repo_name = "#{repo_name}/#{repo_name}" unless repo_name.include?("/")
@@ -48,6 +48,7 @@ gem "puma_worker_killer"
 gem "rack-attack"
 gem "rack-timeout"
 gem "redis"
+gem "resolv", ">= 0.7.2"
 gem "ruby_llm"
 gem "rss"
 gem "ruby-progressbar"
