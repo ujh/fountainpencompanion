@@ -181,6 +181,29 @@ describe Admins::UsersController do
         get "/admins/users/to_review"
         expect(response).to redirect_to(admins_dashboard_path)
       end
+
+      it "renders a blurb containing malformed iframes" do
+        create(
+          :user,
+          review_blurb: true,
+          blurb: 'http://x <iframe></iframe><iframe src="not a uri"></iframe>'
+        )
+        get "/admins/users/to_review"
+        expect(response).to be_successful
+        expect(response.body).not_to include("<iframe")
+      end
+
+      it "shows the blurb source as escaped text" do
+        create(:user, review_blurb: true, blurb: "<b>bold</b> and *markdown*")
+        get "/admins/users/to_review"
+        expect(response.body).to include("&lt;b&gt;bold&lt;/b&gt; and *markdown*")
+      end
+
+      it "renders the blurb without classes" do
+        create(:user, review_blurb: true, blurb: '<div class="position-fixed">x</div>')
+        get "/admins/users/to_review"
+        expect(response.body).not_to include('class="position-fixed"')
+      end
     end
   end
 
