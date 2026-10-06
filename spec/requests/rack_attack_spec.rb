@@ -225,15 +225,6 @@ describe "Rack::Attack throttles", type: :request do
   end
 
   describe "confirmation resend throttles on POST /users/confirmation" do
-    it "ignores a user parameter that is not a hash" do
-      env =
-        Rack::MockRequest.env_for("/users/confirmation", method: "POST", params: { user: "scalar" })
-      request = Rack::Request.new(env)
-
-      expect(fpc_devise_email(request)).to be_nil
-      expect(fpc_magic_link_request?(request)).to eq(false)
-    end
-
     it "allows the first 3 attempts and throttles the 4th for the same email across IPs" do
       results =
         statuses(4) do |i|
@@ -268,6 +259,16 @@ describe "Rack::Attack throttles", type: :request do
 
       expect(results.first(5)).to all(be < 429)
       expect(results.last).to eq(429)
+    end
+  end
+
+  describe "fpc_devise_user_params" do
+    it "ignores a user parameter that is not a hash" do
+      env =
+        Rack::MockRequest.env_for("/users/confirmation", method: "POST", params: { user: "scalar" })
+      request = Rack::Request.new(env)
+      expect(fpc_devise_email(request)).to be_nil
+      expect(fpc_magic_link_request?(request)).to eq(false)
     end
   end
 
