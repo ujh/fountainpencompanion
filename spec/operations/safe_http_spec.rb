@@ -154,6 +154,55 @@ describe SafeHttp do
 
       expect { SafeHttp.get("http://big.test/") }.to raise_error(SafeHttp::ResponseTooLarge)
     end
+
+    it "rejects an oversized Content-Length before reading the body" do
+      stub_resolv("big.test", ["8.8.8.8"])
+      stub_request(:get, "http://big.test/").to_return(
+        status: 200,
+        headers: {
+          "Content-Length" => (SafeHttp::MAX_BODY_BYTES + 1).to_s
+        },
+        body: "tiny"
+      )
+
+      expect { SafeHttp.get("http://big.test/") }.to raise_error(SafeHttp::ResponseTooLarge)
+    end
+
+    it "asks the server for an uncompressed body so the size cap applies to real bytes" do
+      stub_resolv("public.test", ["93.184.216.34"])
+      stub_request(:get, "http://public.test/").with(
+        headers: {
+          "Accept-Encoding" => "identity"
+        }
+      ).to_return(status: 200, body: "ok")
+
+      expect(SafeHttp.get("http://public.test/").body).to eq("ok")
+    end
+
+    it "enforces a total deadline across the whole fetch" do
+      stub_const("SafeHttp::TOTAL_TIMEOUT", 0.2)
+      stub_resolv("slow.test", ["8.8.8.8"])
+      stub_request(:get, "http://slow.test/").to_return do
+        sleep 0.5
+        { status: 200, body: "late" }
+      end
+
+      expect { SafeHttp.get("http://slow.test/") }.to raise_error(Faraday::TimeoutError)
+    end
+
+    it "returns the body of the final hop after a redirect" do
+      stub_resolv("first.test", ["93.184.216.34"])
+      stub_request(:get, "http://first.test/").to_return(
+        status: 302,
+        body: "interstitial",
+        headers: {
+          "Location" => "http://first.test/final"
+        }
+      )
+      stub_request(:get, "http://first.test/final").to_return(status: 200, body: "final")
+
+      expect(SafeHttp.get("http://first.test/").body).to eq("final")
+    end
   end
 
   describe "non-2xx status handling" do
@@ -204,6 +253,32 @@ describe SafeHttp do
       expect { SafeHttp.head("http://169.254.169.254/latest/meta-data/") }.to raise_error(
         SafeHttp::BlockedError
       )
+    end
+
+    it "enforces the total deadline on HEAD as well" do
+      stub_const("SafeHttp::TOTAL_TIMEOUT", 0.2)
+      stub_resolv("slow.test", ["8.8.8.8"])
+      stub_request(:head, "http://slow.test/").to_return do
+        sleep 0.5
+        { status: 200 }
+      end
+
+      expect { SafeHttp.head("http://slow.test/") }.to raise_error(Faraday::TimeoutError)
+    end
+
+    it "does not apply the body cap to HEAD responses advertising a large resource" do
+      stub_resolv("big.test", ["8.8.8.8"])
+      stub_request(:head, "http://big.test/photo.jpg").to_return(
+        status: 200,
+        headers: {
+          "Content-Length" => (SafeHttp::MAX_BODY_BYTES * 3).to_s,
+          "Content-Type" => "image/jpeg"
+        }
+      )
+
+      response = SafeHttp.head("http://big.test/photo.jpg")
+      expect(response.status).to eq(200)
+      expect(response.body).to eq("")
     end
 
     it "fetches a public URL with HEAD" do
