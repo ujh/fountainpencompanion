@@ -48,6 +48,38 @@ describe "API Token Authentication" do
     end
   end
 
+  describe "session handling for token requests" do
+    let(:token) { create(:authentication_token, user: user) }
+    let(:headers) do
+      { "ACCEPT" => "application/json", "Authorization" => "Bearer #{token.access_token}" }
+    end
+
+    it "does not set a session cookie" do
+      get "/api/v1/collected_pens", headers: headers
+
+      expect(response).to have_http_status(:ok)
+      expect(response.headers["Set-Cookie"].to_s).not_to include("_fountainpencompanion_session")
+    end
+
+    it "does not sign the user in for subsequent requests" do
+      get "/api/v1/collected_pens", headers: headers
+      get "/api/v1/collected_pens", headers: { "ACCEPT" => "application/json" }
+
+      expect(response).to have_http_status(:unauthorized)
+    end
+
+    it "does not update the trackable columns" do
+      expect do get "/api/v1/collected_pens", headers: headers end.not_to change {
+        user.reload.slice(
+          :sign_in_count,
+          :current_sign_in_at,
+          :last_sign_in_at,
+          :current_sign_in_ip
+        )
+      }
+    end
+  end
+
   describe "authenticating with an invalid token" do
     it "returns unauthorized when token is wrong" do
       token = create(:authentication_token, user: user)
