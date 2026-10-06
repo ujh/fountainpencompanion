@@ -66,6 +66,35 @@ describe SafeHttp do
     end
   end
 
+  describe ".safe_link?" do
+    it "returns true for a plain http(s) url to a public host" do
+      expect(SafeHttp.safe_link?("https://example.com/review")).to be true
+      expect(SafeHttp.safe_link?("http://example.com/review")).to be true
+    end
+
+    it "returns false for non-http(s) schemes, including javascript: with a host" do
+      expect(SafeHttp.safe_link?("javascript://example.com/%0aalert(1)")).to be false
+      expect(SafeHttp.safe_link?("data:text/html,<script>")).to be false
+      expect(SafeHttp.safe_link?("ftp://example.com/x")).to be false
+    end
+
+    it "returns false for urls with embedded credentials" do
+      expect(SafeHttp.safe_link?("https://user:pass@example.com/")).to be false
+      expect(SafeHttp.safe_link?("https://user@example.com/")).to be false
+    end
+
+    it "returns false for non-routable hosts" do
+      expect(SafeHttp.safe_link?("http://127.0.0.1/")).to be false
+      expect(SafeHttp.safe_link?("http://192.168.1.1/")).to be false
+    end
+
+    it "returns false for blank or unparseable input" do
+      expect(SafeHttp.safe_link?(nil)).to be false
+      expect(SafeHttp.safe_link?("")).to be false
+      expect(SafeHttp.safe_link?("http://exa mple.com/")).to be false
+    end
+  end
+
   describe ".get" do
     it "raises BlockedError on a non-http scheme" do
       expect { SafeHttp.get("file:///etc/passwd") }.to raise_error(SafeHttp::BlockedError)

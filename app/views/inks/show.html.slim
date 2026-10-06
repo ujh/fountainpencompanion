@@ -100,7 +100,7 @@ div class="row fpc-ink-details"
             div class="col-sm-12 col-md-6"
               div class="fpc-ink-review row"
                 div class="col-sm-12 col-md-6"
-                  = link_to ink_review.title, ink_review.url
+                  = ink_review_link ink_review.title, ink_review.url
                   - if admin?
                     | &nbsp;
                     = link_to "❌", admins_review_path(ink_review), method: :delete, data: { confirm: 'Reject?' }

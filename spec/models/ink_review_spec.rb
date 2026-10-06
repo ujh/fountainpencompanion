@@ -38,6 +38,79 @@ describe InkReview do
     expect(subject.host).to eq("example.com")
   end
 
+  describe "url safety validation (stored XSS / phishing regression)" do
+    subject { build(:ink_review) }
+
+    it "accepts a plain https url" do
+      subject.url = "https://example.com/review"
+      expect(subject).to be_valid
+    end
+
+    it "accepts a plain http url" do
+      subject.url = "http://example.com/review"
+      expect(subject).to be_valid
+    end
+
+    it "rejects javascript: urls even when they parse with a host" do
+      subject.url = "javascript://example.com/%0aalert(1)"
+      expect(subject).not_to be_valid
+      expect(subject.errors).to include(:url)
+    end
+
+    it "rejects data: urls" do
+      subject.url = "data:text/html,<script>alert(1)</script>"
+      expect(subject).not_to be_valid
+      expect(subject.errors).to include(:url)
+    end
+
+    it "rejects non-http schemes such as ftp" do
+      subject.url = "ftp://example.com/review"
+      expect(subject).not_to be_valid
+      expect(subject.errors).to include(:url)
+    end
+
+    it "rejects urls with embedded credentials" do
+      subject.url = "https://user:pass@example.com/review"
+      expect(subject).not_to be_valid
+      expect(subject.errors).to include(:url)
+    end
+
+    it "rejects urls that are not parseable" do
+      subject.url = "http://exa mple.com/"
+      expect { subject.valid? }.not_to raise_error
+      expect(subject.errors).to include(:url)
+    end
+
+    it "rejects urls pointing at a literal private address" do
+      subject.url = "http://127.0.0.1/admin"
+      expect(subject).not_to be_valid
+      expect(subject.errors).to include(:url)
+    end
+
+    it "rejects urls whose host resolves to a private address" do
+      allow(Resolv).to receive(:getaddresses).with("internal.example").and_return(["10.0.0.5"])
+      subject.url = "http://internal.example/"
+      expect(subject).not_to be_valid
+      expect(subject.errors).to include(:url)
+    end
+
+    it "only resolves DNS when the url changed" do
+      review = create(:ink_review, url: "https://example.com/review")
+      expect(SafeHttp).not_to receive(:allowed?)
+      review.title = "New title"
+      expect(review).to be_valid
+    end
+
+    it "still rejects a persisted non-http url without resolving DNS" do
+      review = create(:ink_review, url: "https://example.com/review")
+      review.update_column(:url, "javascript://example.com/%0aalert(1)")
+      review.reload
+      expect(SafeHttp).not_to receive(:allowed?)
+      expect(review).not_to be_valid
+      expect(review.errors).to include(:url)
+    end
+  end
+
   describe "approve/reject methods manage check state" do
     let(:review) do
       create(:ink_review, check_count: 3, next_check_at: 1.hour.from_now, rejected_at: Time.now)

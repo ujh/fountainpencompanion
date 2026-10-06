@@ -19,6 +19,14 @@ class Unfurler
       url ||= document.at_css('meta[itemprop="url"]')&.attribute("content")&.value
       url ||= document.at_css('meta[name="twitter:url"]')&.attribute("content")&.value
       url ||= document.at_css('link[rel="canonical"]')&.attribute("href")&.value
+
+      # Attacker controlled: the page author picks this value and it ends
+      # up as the stored, publicly linked review URL. Drop anything that is
+      # not a plain http(s) link to a routable host (javascript:, data:,
+      # userinfo, internal hosts); the caller falls back to the fetched URL.
+      url = nil if url && !SafeHttp.safe_link?(url)
+
+      url
     end
 
     def title
