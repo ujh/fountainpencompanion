@@ -73,6 +73,9 @@ describe AccountsController do
 
     context "signed in" do
       let(:user) { create(:user, name: "the name") }
+      let(:jsonapi_headers) do
+        { "Content-Type" => "application/vnd.api+json", "Accept" => "application/vnd.api+json" }
+      end
 
       before(:each) { sign_in(user) }
 
@@ -89,10 +92,6 @@ describe AccountsController do
       end
 
       describe "blurb moderation" do
-        let(:jsonapi_headers) do
-          { "Content-Type" => "application/vnd.api+json", "Accept" => "application/vnd.api+json" }
-        end
-
         it "enqueues the after save job when the blurb changes via html" do
           expect do
             put "/account", params: { user: { blurb: "Visit https://example.com" } }
@@ -146,10 +145,6 @@ describe AccountsController do
       end
 
       describe "preferences" do
-        let(:jsonapi_headers) do
-          { "Content-Type" => "application/vnd.api+json", "Accept" => "application/vnd.api+json" }
-        end
-
         it "updates preferences" do
           put "/account",
               params: {
