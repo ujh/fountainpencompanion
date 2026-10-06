@@ -119,6 +119,9 @@ describe "Rack::Attack throttles", type: :request do
   end
 
   describe "magic link throttles on POST /users/sign_in without a password" do
+    # Windows are epoch-aligned; start at minute one so the travels below stay inside one window.
+    before { travel_to Time.zone.at((Time.now.to_i / 3600) * 3600 + 60) }
+
     it "allows the first 3 sends and throttles the 4th for the same email across IPs" do
       results =
         statuses(4) do |i|
@@ -177,7 +180,7 @@ describe "Rack::Attack throttles", type: :request do
     end
   end
 
-  describe "email change throttles on PUT /users" do
+  describe "email change throttles on PUT/PATCH /users" do
     let(:user) { create(:user, password: "password123") }
 
     before { sign_in(user) }
@@ -222,6 +225,15 @@ describe "Rack::Attack throttles", type: :request do
   end
 
   describe "confirmation resend throttles on POST /users/confirmation" do
+    it "ignores a user parameter that is not a hash" do
+      env =
+        Rack::MockRequest.env_for("/users/confirmation", method: "POST", params: { user: "scalar" })
+      request = Rack::Request.new(env)
+
+      expect(fpc_devise_email(request)).to be_nil
+      expect(fpc_magic_link_request?(request)).to eq(false)
+    end
+
     it "allows the first 3 attempts and throttles the 4th for the same email across IPs" do
       results =
         statuses(4) do |i|
