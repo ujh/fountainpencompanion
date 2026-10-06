@@ -16,7 +16,7 @@ html
     meta name="honeybadger-api-key" content=ENV['FRONTEND_HONEYBADGER_API_KEY']
     meta name="honeybadger-environment" content=Rails.env
     meta name="honeybadger-revision" content=ENV['HONEYBADGER_REVISION']
-    = render partial: "layouts/clicky"
+    = render partial: "layouts/clicky" if track_with_clicky?
     = content_for :head
   body
     div class="fpc"
