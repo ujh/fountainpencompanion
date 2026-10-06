@@ -189,14 +189,7 @@ class ReviewApprover
       thumbnail_url: review.image,
       host: review.host,
       author: review.author,
-      user:
-        (
-          if review.user.admin?
-            "System"
-          else
-            (review.user.name.presence || review.user.email)
-          end
-        )
+      user: review.user&.admin? ? "System" : "user"
     }
     if review.you_tube_channel
       data[:is_you_tube_video] = true

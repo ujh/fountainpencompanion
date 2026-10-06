@@ -462,6 +462,36 @@ RSpec.describe ReviewApprover do
           .at_least_once
       end
 
+      it "does not send any email address or submitter name to OpenAI" do
+        anonymous = create(:user, name: nil, email: "anon@example.com")
+        anonymous_review =
+          create(
+            :ink_review,
+            macro_cluster: macro_cluster,
+            approved_at: 1.day.ago,
+            extra_data: {
+              action: "approve_review"
+            }
+          )
+        create(
+          :ink_review_submission,
+          ink_review: anonymous_review,
+          user: anonymous,
+          macro_cluster: macro_cluster,
+          url: anonymous_review.url
+        )
+
+        subject.perform
+
+        expect(WebMock).to have_requested(:post, "https://api.openai.com/v1/chat/completions")
+          .with { |req|
+            expect(req.body).not_to include("@")
+            expect(req.body).not_to include("John Doe")
+            true
+          }
+          .at_least_once
+      end
+
       it "attaches the thumbnail as an image_url part" do
         subject.perform
 
@@ -732,7 +762,7 @@ RSpec.describe ReviewApprover do
         expect(data["thumbnail_url"]).to eq("https://example.com/image.jpg")
         expect(data["host"]).to eq("example.com")
         expect(data["author"]).to eq("Review Author")
-        expect(data["user"]).to eq("John Doe")
+        expect(data["user"]).to eq("user")
         expect(data["is_you_tube_video"]).to be_falsy
       end
 
@@ -786,7 +816,7 @@ RSpec.describe ReviewApprover do
         expect(data["user"]).to eq("System")
       end
 
-      it "handles users without names" do
+      it "does not send the email of users without names" do
         user_without_name = create(:user, name: nil, email: "noname@example.com")
         create(
           :ink_review_submission,
@@ -801,7 +831,18 @@ RSpec.describe ReviewApprover do
         message = approver.send(:review_data)
 
         data = JSON.parse(message.gsub("The review data is: ", ""))
-        expect(data["user"]).to eq("noname@example.com")
+        expect(data["user"]).to eq("user")
+        expect(message).not_to include("noname@example.com")
+      end
+
+      it "treats a review whose submitter deleted their account as a user submission" do
+        ink_review.ink_review_submissions.destroy_all
+
+        approver = described_class.new(ink_review.id)
+        message = approver.send(:review_data)
+
+        data = JSON.parse(message.gsub("The review data is: ", ""))
+        expect(data["user"]).to eq("user")
       end
     end
 
@@ -874,7 +915,7 @@ RSpec.describe ReviewApprover do
         expect(review_data[:thumbnail_url]).to eq(ink_review.image)
         expect(review_data[:host]).to eq(ink_review.host)
         expect(review_data[:author]).to eq(ink_review.author)
-        expect(review_data[:user]).to eq("John Doe")
+        expect(review_data[:user]).to eq("user")
         expect(review_data[:is_you_tube_video]).to be_falsy
       end
 

@@ -111,6 +111,65 @@ describe InkReview do
     end
   end
 
+  describe "submitter lookups" do
+    let(:review) { create(:ink_review) }
+
+    context "with a submission" do
+      let(:submitter) { create(:user) }
+
+      before do
+        create(
+          :ink_review_submission,
+          ink_review: review,
+          user: submitter,
+          macro_cluster: review.macro_cluster,
+          url: review.url
+        )
+      end
+
+      it "returns the first submitter" do
+        expect(review.user).to eq(submitter)
+      end
+
+      it "auto approves when the submitter has that privilege" do
+        submitter.update!(auto_approve_ink_reviews: true)
+        expect(review.auto_approve?).to be true
+      end
+
+      it "does not auto approve a single submission from a regular user" do
+        expect(review.auto_approve?).to be false
+      end
+    end
+
+    context "when the submitter deleted their account" do
+      before do
+        submitter = create(:user)
+        create(
+          :ink_review_submission,
+          ink_review: review,
+          user: submitter,
+          macro_cluster: review.macro_cluster,
+          url: review.url
+        )
+        submitter.destroy!
+      end
+
+      it "returns nil for the user" do
+        expect(review.reload.user).to be_nil
+      end
+
+      it "does not auto approve" do
+        expect(review.reload.auto_approve?).to be false
+      end
+
+      it "does not auto reject a short" do
+        review.update!(you_tube_short: true)
+        create(:ink_review, macro_cluster: review.macro_cluster, approved_at: 1.day.ago)
+        expect(review.reload.auto_reject?).to be false
+      end
+    end
+  end
+
   describe "approve/reject methods manage check state" do
     let(:review) do
       create(:ink_review, check_count: 3, next_check_at: 1.hour.from_now, rejected_at: Time.now)

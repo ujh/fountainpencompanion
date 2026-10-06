@@ -45,4 +45,37 @@ describe InkReviewsHelper, type: :helper do
     expect(html).not_to include("<script>")
     expect(html).to include("&lt;script&gt;")
   end
+
+  describe "#ink_review_submitter" do
+    let(:ink_review) { create(:ink_review) }
+
+    def submit_as(user)
+      create(
+        :ink_review_submission,
+        ink_review: ink_review,
+        user: user,
+        macro_cluster: ink_review.macro_cluster,
+        url: ink_review.url
+      )
+    end
+
+    it "returns the public name of a named user" do
+      submit_as(create(:user, name: "Jane Doe"))
+      expect(helper.ink_review_submitter(ink_review)).to eq("Jane Doe")
+    end
+
+    it "returns Anonymous for a user without a name" do
+      submit_as(create(:user, name: nil, email: "anon@example.com"))
+      expect(helper.ink_review_submitter(ink_review)).to eq("Anonymous")
+    end
+
+    it "returns System for an admin" do
+      submit_as(create(:user, :admin, name: "Admin"))
+      expect(helper.ink_review_submitter(ink_review)).to eq("System")
+    end
+
+    it "returns Deleted user when there is no submission" do
+      expect(helper.ink_review_submitter(ink_review)).to eq("Deleted user")
+    end
+  end
 end

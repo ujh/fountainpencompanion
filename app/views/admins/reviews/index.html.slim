@@ -53,7 +53,7 @@ table class="table table-striped"
     dd class="col-sm-9"= ink_review.author.presence || "-"
 
     dt class="col-sm-3" Submitted by
-    dd class="col-sm-9"= ink_review.user.admin? ? "System" : (ink_review.user.name.presence || ink_review.user.email)
+    dd class="col-sm-9"= ink_review_submitter(ink_review)
 
     dt class="col-sm-3" Image
     dd class="col-sm-9"= image_tag(ink_review.image)
