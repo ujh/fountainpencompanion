@@ -44,10 +44,11 @@ describe "Search query handling" do
       expect(response).to have_http_status(:ok)
     end
 
-    it "renders without a query" do
+    it "renders without a query and without a search results title" do
       expect(EmbeddingsClient).not_to receive(:new)
       get "/pen_models"
       expect(response).to have_http_status(:ok)
+      expect(response.body).not_to include("Search results for")
     end
   end
 end
