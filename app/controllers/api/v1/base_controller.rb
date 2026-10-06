@@ -31,7 +31,9 @@ class Api::V1::BaseController < ApplicationController
       auth_token = AuthenticationToken.authenticate_by(id: id, token: token)
       if auth_token
         auth_token.touch_last_used!
-        sign_in(auth_token.user)
+        request.env["devise.skip_trackable"] = true
+        request.session_options[:skip] = true
+        sign_in(auth_token.user, store: false)
         true
       else
         false
