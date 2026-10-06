@@ -158,6 +158,25 @@ runs:
         cp "$ACTION_PATH/scripts/post-review.sh" "$DEST"
         chmod +x "$DEST"
 
+    - name: Install subprocess isolation dependencies
+      # claude-code-action only installs these itself when
+      # allowed_non_write_users is set; CLAUDE_CODE_SUBPROCESS_ENV_SCRUB
+      # hard-fails without bubblewrap.
+      if: steps.guard.outputs.skip != 'true'
+      shell: bash
+      run: |
+        set -euo pipefail
+        for i in 1 2 3; do
+          sudo apt-get update -qq && sudo apt-get install -y --no-install-recommends bubblewrap socat && break
+          echo "apt-get attempt $i failed, retrying..."
+          sleep 5
+        done
+        command -v bwrap
+        # Ubuntu 24.04+ restricts unprivileged user namespaces via AppArmor.
+        if [ -f /proc/sys/kernel/apparmor_restrict_unprivileged_userns ]; then
+          sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
+        fi
+
     - uses: anthropics/claude-code-action@806af32823ef69c8ef357086c573a902af641307 # v1
       id: claude
       if: steps.guard.outputs.skip != 'true'
