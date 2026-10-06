@@ -60,8 +60,16 @@ Rack::Attack.throttle("signups/ip", limit: 5, period: 1.hour) do |request|
   request.ip if request.post? && request.path == "/users"
 end
 
+def fpc_search_query?(request)
+  request.params["q"].present?
+end
+
 Rack::Attack.throttle("full text search limit", limit: 1, period: 3) do |request|
-  request.ip if request.path.starts_with?("/inks") && request.query_string.include?("q=")
+  request.ip if request.path.starts_with?("/inks") && fpc_search_query?(request)
+end
+
+Rack::Attack.throttle("pen model search limit", limit: 1, period: 3) do |request|
+  request.ip if request.path.starts_with?("/pen_models") && fpc_search_query?(request)
 end
 
 Rack::Attack.throttle("missing descriptions", limit: 10, period: 20) do |request|

@@ -51,15 +51,15 @@ class InksController < ApplicationController
   end
 
   def redirect_if_no_search
-    return if params[:q].present?
+    return if search_query.present?
     return if params[:tag].present?
 
     redirect_to brands_path
   end
 
   def find_clusters
-    if params[:q].present?
-      MacroCluster.full_text_search(params[:q])
+    if search_query.present?
+      MacroCluster.full_text_search(search_query)
     else
       MacroCluster
         .where("? = ANY(tags)", params[:tag])
