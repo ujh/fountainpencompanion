@@ -88,11 +88,61 @@ describe AccountsController do
         expect(user.reload.name).to eq("new name")
       end
 
-      it "fires off a after save job if successful" do
-        expect do put "/account", params: { user: { name: "new name" } } end.to change(
-          AfterUserSaved.jobs,
-          :count
-        ).by(1)
+      describe "blurb moderation" do
+        let(:jsonapi_headers) do
+          { "Content-Type" => "application/vnd.api+json", "Accept" => "application/vnd.api+json" }
+        end
+
+        it "enqueues the after save job when the blurb changes via html" do
+          expect do
+            put "/account", params: { user: { blurb: "Visit https://example.com" } }
+          end.to change(AfterUserSaved.jobs, :count).by(1)
+        end
+
+        it "enqueues the after save job when the blurb changes via json" do
+          expect do
+            put "/account", params: { user: { blurb: "Visit https://example.com" } }, as: :json
+          end.to change(AfterUserSaved.jobs, :count).by(1)
+          expect(response).to be_successful
+        end
+
+        it "enqueues the after save job when the blurb changes via jsonapi" do
+          expect do
+            put "/account",
+                params: { user: { blurb: "Visit https://example.com" } }.to_json,
+                headers: jsonapi_headers
+          end.to change(AfterUserSaved.jobs, :count).by(1)
+          expect(response).to be_successful
+        end
+
+        it "does not enqueue the job when only the name changes" do
+          expect do put "/account", params: { user: { name: "new name" } } end.not_to change(
+            AfterUserSaved.jobs,
+            :count
+          )
+        end
+
+        it "does not enqueue the job when only preferences change" do
+          expect do
+            put "/account",
+                params: { user: { preferences: { dashboard_widgets: [] } } }.to_json,
+                headers: jsonapi_headers
+          end.not_to change(AfterUserSaved.jobs, :count)
+        end
+
+        it "does not enqueue the job when the blurb is unchanged" do
+          user.update!(blurb: "same")
+          expect do
+            put "/account", params: { user: { blurb: "same" } }, as: :json
+          end.not_to change(AfterUserSaved.jobs, :count)
+        end
+
+        it "does not enqueue the job when the update fails" do
+          expect do
+            put "/account", params: { user: { blurb: "new", name: "x" * 101 } }, as: :json
+          end.not_to change(AfterUserSaved.jobs, :count)
+          expect(user.reload.blurb).not_to eq("new")
+        end
       end
 
       describe "preferences" do
