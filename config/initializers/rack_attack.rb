@@ -33,11 +33,16 @@ end
 # Brute-force / credential-stuffing protection on Devise endpoints.
 # Throttle sign-in / sign-up / password-reset by both IP and submitted email so
 # that distributed attacks against a single account and noisy single-IP attacks
-# are both blunted. Magic-link sends are covered by the sign-in throttles since
-# they share the same endpoint.
+# are both blunted. Mail-sending endpoints (magic link, email change,
+# confirmation resend) get tighter hourly limits on top.
+
+def fpc_devise_user_params(request)
+  user = request.params["user"]
+  user.is_a?(Hash) ? user : {}
+end
 
 def fpc_devise_email(request)
-  request.params.dig("user", "email").to_s.downcase.strip.presence
+  fpc_devise_user_params(request)["email"].to_s.downcase.strip.presence
 end
 
 Rack::Attack.throttle("logins/ip", limit: 5, period: 20.seconds) do |request|
@@ -58,6 +63,39 @@ end
 
 Rack::Attack.throttle("signups/ip", limit: 5, period: 1.hour) do |request|
   request.ip if request.post? && request.path == "/users"
+end
+
+def fpc_magic_link_request?(request)
+  request.post? && request.path == "/users/sign_in" &&
+    fpc_devise_user_params(request)["password"].blank?
+end
+
+Rack::Attack.throttle("magic_link/ip", limit: 10, period: 1.hour) do |request|
+  request.ip if fpc_magic_link_request?(request)
+end
+
+Rack::Attack.throttle("magic_link/email", limit: 3, period: 1.hour) do |request|
+  fpc_devise_email(request) if fpc_magic_link_request?(request)
+end
+
+def fpc_email_change_request?(request)
+  (request.put? || request.patch?) && request.path == "/users"
+end
+
+Rack::Attack.throttle("email_change/ip", limit: 3, period: 1.hour) do |request|
+  request.ip if fpc_email_change_request?(request)
+end
+
+Rack::Attack.throttle("email_change/email", limit: 3, period: 1.hour) do |request|
+  fpc_devise_email(request) if fpc_email_change_request?(request)
+end
+
+Rack::Attack.throttle("confirmation/ip", limit: 5, period: 1.hour) do |request|
+  request.ip if request.post? && request.path == "/users/confirmation"
+end
+
+Rack::Attack.throttle("confirmation/email", limit: 3, period: 1.hour) do |request|
+  fpc_devise_email(request) if request.post? && request.path == "/users/confirmation"
 end
 
 Rack::Attack.throttle("full text search limit", limit: 1, period: 3) do |request|

@@ -118,6 +118,160 @@ describe "Rack::Attack throttles", type: :request do
     end
   end
 
+  describe "magic link throttles on POST /users/sign_in without a password" do
+    # Windows are epoch-aligned; start at minute one so the travels below stay inside one window.
+    before { travel_to Time.zone.at((Time.now.to_i / 3600) * 3600 + 60) }
+
+    it "allows the first 3 sends and throttles the 4th for the same email across IPs" do
+      results =
+        statuses(4) do |i|
+          post "/users/sign_in",
+               params: {
+                 user: {
+                   email: "magic-victim@example.com",
+                   password: ""
+                 }
+               },
+               env: {
+                 "REMOTE_ADDR" => "203.0.113.#{i + 60}"
+               }
+        end
+
+      expect(results.first(3)).to all(be < 429)
+      expect(results.last).to eq(429)
+    end
+
+    it "allows the first 10 sends and throttles the 11th from the same IP" do
+      results =
+        statuses(11) do |i|
+          travel 30.seconds
+          post "/users/sign_in",
+               params: {
+                 user: {
+                   email: "magic-#{i}@example.com"
+                 }
+               },
+               env: {
+                 "REMOTE_ADDR" => "203.0.113.70"
+               }
+        end
+
+      expect(results.first(10)).to all(be < 429)
+      expect(results.last).to eq(429)
+    end
+
+    it "does not count password logins against the magic link limits" do
+      results =
+        statuses(4) do |i|
+          travel 30.seconds
+          post "/users/sign_in",
+               params: {
+                 user: {
+                   email: "pw-user@example.com",
+                   password: "wrong"
+                 }
+               },
+               env: {
+                 "REMOTE_ADDR" => "203.0.113.#{i + 80}"
+               }
+        end
+
+      expect(results).to all(be < 429)
+    end
+  end
+
+  describe "email change throttles on PUT/PATCH /users" do
+    let(:user) { create(:user, password: "password123") }
+
+    before { sign_in(user) }
+
+    it "allows the first 3 attempts and throttles the 4th from the same IP" do
+      results =
+        statuses(4) do |i|
+          put "/users",
+              params: {
+                user: {
+                  email: "change-#{i}@example.com",
+                  current_password: "password123"
+                }
+              },
+              env: {
+                "REMOTE_ADDR" => "203.0.113.90"
+              }
+        end
+
+      expect(results.first(3)).to all(be < 429)
+      expect(results.last).to eq(429)
+    end
+
+    it "allows the first 3 attempts and throttles the 4th for the same email across IPs" do
+      results =
+        statuses(4) do |i|
+          patch "/users",
+                params: {
+                  user: {
+                    email: "mail-victim@example.com",
+                    current_password: "password123"
+                  }
+                },
+                env: {
+                  "REMOTE_ADDR" => "203.0.113.#{i + 100}"
+                }
+        end
+
+      expect(results.first(3)).to all(be < 429)
+      expect(results.last).to eq(429)
+    end
+  end
+
+  describe "confirmation resend throttles on POST /users/confirmation" do
+    it "allows the first 3 attempts and throttles the 4th for the same email across IPs" do
+      results =
+        statuses(4) do |i|
+          post "/users/confirmation",
+               params: {
+                 user: {
+                   email: "unconfirmed@example.com"
+                 }
+               },
+               env: {
+                 "REMOTE_ADDR" => "203.0.113.#{i + 120}"
+               }
+        end
+
+      expect(results.first(3)).to all(be < 429)
+      expect(results.last).to eq(429)
+    end
+
+    it "allows the first 5 attempts and throttles the 6th from the same IP" do
+      results =
+        statuses(6) do |i|
+          post "/users/confirmation",
+               params: {
+                 user: {
+                   email: "unconfirmed-#{i}@example.com"
+                 }
+               },
+               env: {
+                 "REMOTE_ADDR" => "203.0.113.130"
+               }
+        end
+
+      expect(results.first(5)).to all(be < 429)
+      expect(results.last).to eq(429)
+    end
+  end
+
+  describe "fpc_devise_user_params" do
+    it "ignores a user parameter that is not a hash" do
+      env =
+        Rack::MockRequest.env_for("/users/confirmation", method: "POST", params: { user: "scalar" })
+      request = Rack::Request.new(env)
+      expect(fpc_devise_email(request)).to be_nil
+      expect(fpc_magic_link_request?(request)).to eq(false)
+    end
+  end
+
   describe "API token throttles" do
     it "throttles /api/* requests by IP when the Authorization header changes per request" do
       # Rotate a fake bearer token on every request. The old per-header
