@@ -1,4 +1,11 @@
 class Api::V1::CurrentlyInkedController < Api::V1::BaseController
+  ALLOWED_INCLUDES = %w[
+    collected_ink
+    collected_pen
+    collected_ink.micro_cluster
+    collected_ink.micro_cluster.macro_cluster
+  ].freeze
+
   resource_description do
     short "Currently Inked. A user's currently inked pens and inks"
     formats ["json"]
@@ -13,6 +20,11 @@ class Api::V1::CurrentlyInkedController < Api::V1::BaseController
   param :filter, Hash, desc: "Filtering parameters" do
     param :archived, %w[true false], desc: "Filter by archived status"
   end
+  param :include,
+        String,
+        allow_blank: true,
+        desc:
+          "Comma-separated list of related resources to include. Supported: collected_ink, collected_pen, collected_ink.micro_cluster, collected_ink.micro_cluster.macro_cluster. Anything else is ignored."
   param :fields, Hash, desc: "Sparse fieldsets" do
     param :currently_inked,
           String,
@@ -176,10 +188,10 @@ class Api::V1::CurrentlyInkedController < Api::V1::BaseController
 
   def includes
     if params.key?(:include)
-      include_param = params[:include].to_s
-      include_param.blank? ? [] : include_param.split(",").map(&:strip)
+      requested = params[:include].to_s.split(",").map(&:strip)
+      requested & ALLOWED_INCLUDES
     else
-      %i[collected_ink collected_pen collected_ink.micro_cluster]
+      %w[collected_ink collected_pen collected_ink.micro_cluster]
     end
   end
 
