@@ -164,7 +164,10 @@ class InkReview < ApplicationRecord
 
   def url_format
     return if url.blank?
-    uri = URI(url)
-    errors.add(:url, :invalid) if uri.host.blank?
+
+    uri = SafeHttp.parse_uri(url)
+    return errors.add(:url, :invalid) if uri.nil? || uri.userinfo.present?
+
+    errors.add(:url, :invalid) if url_changed? && !SafeHttp.allowed?(url)
   end
 end

@@ -19,6 +19,9 @@ class Unfurler
       url ||= document.at_css('meta[itemprop="url"]')&.attribute("content")&.value
       url ||= document.at_css('meta[name="twitter:url"]')&.attribute("content")&.value
       url ||= document.at_css('link[rel="canonical"]')&.attribute("href")&.value
+      url = nil if url && !SafeHttp.safe_link?(url)
+
+      url
     end
 
     def title

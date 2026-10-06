@@ -19,14 +19,14 @@ class Unfurler
 
   def perform
     result = unfurler.perform
-    result.url ||= uri.to_s
+    result.url ||= final_url
     enrich_youtube_metadata(result) if with_full_metadata && result.you_tube_channel_id.present?
     result
   end
 
   private
 
-  attr_accessor :uri, :with_full_metadata
+  attr_accessor :uri, :with_full_metadata, :response
 
   def unfurler
     youtube? ? Unfurler::Youtube.new(video_id) : Unfurler::Html.new(html)
@@ -47,7 +47,12 @@ class Unfurler
     @video_id ||= ::Youtube::VideoIdParser.parse(uri.to_s)
   end
 
+  def final_url
+    response&.final_url.presence || uri.to_s
+  end
+
   def html
-    SafeHttp.get(uri.to_s).body
+    self.response = SafeHttp.get(uri.to_s)
+    response.body
   end
 end

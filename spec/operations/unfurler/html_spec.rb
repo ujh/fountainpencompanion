@@ -250,6 +250,65 @@ describe Unfurler::Html do
     end
   end
 
+  context "og:url with a javascript: scheme (stored XSS regression)" do
+    let(:html) { <<~HTML }
+        <html>
+          <head>
+            <meta property="og:url" content="javascript://evil.example/%0aalert(1)">
+            <meta property="og:title" content="Totally legit review">
+          </head>
+        </html>
+      HTML
+
+    it "drops the url so the caller falls back to the fetched url" do
+      expect(subject.url).to be_nil
+      expect(subject.title).to eq("Totally legit review")
+    end
+  end
+
+  context "og:url with embedded credentials" do
+    let(:html) { <<~HTML }
+        <html>
+          <head>
+            <meta property="og:url" content="https://admin:admin@evil.example/review">
+          </head>
+        </html>
+      HTML
+
+    it "drops the url" do
+      expect(subject.url).to be_nil
+    end
+  end
+
+  context "og:url pointing at a private/blocked address" do
+    let(:html) { <<~HTML }
+        <html>
+          <head>
+            <meta property="og:url" content="http://192.168.1.1/">
+          </head>
+        </html>
+      HTML
+
+    it "drops the url rather than publishing a link to an internal host" do
+      expect(subject.url).to be_nil
+    end
+  end
+
+  context "og:url that is not parseable" do
+    let(:html) { <<~HTML }
+        <html>
+          <head>
+            <meta property="og:url" content="http://exa mple.com/review">
+          </head>
+        </html>
+      HTML
+
+    it "drops the url without raising" do
+      expect { subject }.not_to raise_error
+      expect(subject.url).to be_nil
+    end
+  end
+
   context "image with a non-http scheme (SSRF regression)" do
     let(:html) { <<~HTML }
         <html>

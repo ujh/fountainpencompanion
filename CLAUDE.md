@@ -158,6 +158,7 @@ spec/
 ## Key Conventions
 
 - **New code should be well-structured and thoroughly tested.** Existing code quality varies; don't model new additions after poorly-tested older code.
+- **Tests document behaviour, not comments.** Don't add explanatory comments that describe why a check or branch exists; write a test that pins the behaviour instead. Comments are for the rare non-obvious implementation detail a test can't express.
 - **Ruby**: snake_case for methods/variables, CamelCase for classes/modules. Rescue specific errors only. Prefer `attr_accessor` with `self.x =` in constructors over bare `@x` instance variables.
 - **JavaScript/JSX**: PascalCase for components, camelCase for variables/functions. Tests use `*.spec.js(x)` extension.
 - **Commits**: lint-staged runs Prettier and ESLint on staged files via Husky pre-commit hook.

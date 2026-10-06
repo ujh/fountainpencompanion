@@ -32,6 +32,33 @@ RSpec.describe Unfurler do
       described_class.new("https://notyoutube.com/watch?v=abc").perform
     end
 
+    it "falls back to the final fetched url after redirects when the page has no og:url" do
+      stub_request(:get, "https://blog.example/old").to_return(
+        status: 301,
+        headers: {
+          "Location" => "https://blog.example/new"
+        }
+      )
+      stub_request(:get, "https://blog.example/new").to_return(
+        body: "<html><head><title>x</title></head></html>"
+      )
+
+      result = described_class.new("https://blog.example/old").perform
+
+      expect(result.url).to eq("https://blog.example/new")
+    end
+
+    it "falls back to the fetched url when the og:url is a javascript: link" do
+      stub_request(:get, "https://blog.example/review").to_return(
+        body:
+          '<html><head><meta property="og:url" content="javascript://evil.example/%0aalert(1)"></head></html>'
+      )
+
+      result = described_class.new("https://blog.example/review").perform
+
+      expect(result.url).to eq("https://blog.example/review")
+    end
+
     it "refuses to fetch URLs whose host resolves to a private address (SSRF regression)" do
       allow(Resolv).to receive(:getaddresses).with("metadata.internal").and_return(
         ["169.254.169.254"]

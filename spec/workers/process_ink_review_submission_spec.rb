@@ -180,6 +180,27 @@ describe ProcessInkReviewSubmission do
     end
   end
 
+  context "page declares a javascript: og:url (stored XSS regression)" do
+    let(:content) { <<~HTML }
+        <html>
+          <head>
+            <meta property="og:url" content="javascript://evil.example/%0aalert(1)">
+            <meta property="og:title" content="Legit looking review">
+            <meta property="og:description" content="desc">
+            <meta property="og:image" content="https://cdn.example/img.jpg">
+          </head>
+        </html>
+      HTML
+
+    it "stores the submitted url instead of the attacker-controlled one" do
+      described_class.new.perform(ink_review_submission.id)
+      review = InkReview.first
+      expect(review).not_to be_nil
+      expect(review.url).to eq("http://example.com")
+      expect(InkReview.where("url ILIKE 'javascript:%'")).to be_empty
+    end
+  end
+
   it "auto approves when second submission comes in" do
     macro_cluster = create(:macro_cluster)
     submissions =
