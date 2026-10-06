@@ -18,6 +18,10 @@ module ApplicationHelper
     current_user&.admin?
   end
 
+  def track_with_clicky?
+    !devise_controller? && controller_name != "account_deletions"
+  end
+
   def jsonify(object)
     JSON.pretty_generate(object).gsub('\r\n', " ").gsub('\n', "\n")
   end
