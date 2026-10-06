@@ -105,16 +105,16 @@ class InkReview < ApplicationRecord
   end
 
   def user
-    ink_review_submissions.first.user
+    ink_review_submissions.first&.user
   end
 
   def auto_approve?
-    user.auto_approve_ink_reviews? || ink_review_submissions.count > 1
+    user&.auto_approve_ink_reviews? || ink_review_submissions.count > 1
   end
 
   def auto_reject?
-    return unless you_tube_short?
-    return unless user.admin?
+    return false unless you_tube_short?
+    return false unless user&.admin?
 
     macro_cluster.ink_reviews.live.exists?
   end

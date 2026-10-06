@@ -17,6 +17,48 @@ describe "Admins::Reviews" do
         expect(response).to be_successful
       end
 
+      describe "submitted by" do
+        def agent_processed_review_by(user)
+          review = create(:ink_review, approved_at: Time.current, agent_approved: true)
+          if user
+            create(
+              :ink_review_submission,
+              ink_review: review,
+              user: user,
+              macro_cluster: review.macro_cluster,
+              url: review.url
+            )
+          end
+          review
+        end
+
+        it "shows the name of a public user" do
+          agent_processed_review_by(create(:user, name: "Jane Doe"))
+          get "/admins/reviews"
+          expect(response.body).to include("Jane Doe")
+        end
+
+        it "shows Anonymous instead of the email of a user without a name" do
+          agent_processed_review_by(create(:user, name: nil, email: "anon@example.com"))
+          get "/admins/reviews"
+          expect(response.body).to include("Anonymous")
+          expect(response.body).not_to include("anon@example.com")
+        end
+
+        it "shows System for admin submissions" do
+          agent_processed_review_by(create(:user, :admin, name: "Admin"))
+          get "/admins/reviews"
+          expect(response.body).to include("System")
+        end
+
+        it "renders a review whose submitter deleted their account" do
+          agent_processed_review_by(nil)
+          get "/admins/reviews"
+          expect(response).to be_successful
+          expect(response.body).to include("Deleted user")
+        end
+      end
+
       describe "transcript section" do
         let(:agent_processed_review) do
           review =
