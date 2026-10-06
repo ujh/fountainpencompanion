@@ -1,4 +1,5 @@
 class ApplicationController < ActionController::Base
+  include SearchQuery
   protect_from_forgery with: :exception
   around_action :set_time_zone
 

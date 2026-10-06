@@ -272,6 +272,48 @@ describe "Rack::Attack throttles", type: :request do
     end
   end
 
+  describe "search throttles" do
+    it "throttles /inks?q= by IP" do
+      results =
+        statuses(2) do
+          get "/inks", params: { q: "blue" }, env: { "REMOTE_ADDR" => "203.0.113.200" }
+        end
+      expect(results).to eq([200, 429])
+    end
+
+    it "throttles /inks when the parameter name is percent-encoded" do
+      results = statuses(2) { get "/inks?%71=blue", env: { "REMOTE_ADDR" => "203.0.113.201" } }
+      expect(results.last).to eq(429)
+    end
+
+    it "throttles /inks when q is sent as an array" do
+      results = statuses(2) { get "/inks?q[]=blue", env: { "REMOTE_ADDR" => "203.0.113.202" } }
+      expect(results.last).to eq(429)
+    end
+
+    it "does not throttle /inks tag browsing" do
+      results =
+        statuses(2) do
+          get "/inks", params: { tag: "blue" }, env: { "REMOTE_ADDR" => "203.0.113.203" }
+        end
+      expect(results).to all(be < 429)
+    end
+
+    it "throttles /pen_models?q= by IP" do
+      allow(Pens::Model).to receive(:embedding_search).and_return([])
+      results =
+        statuses(2) do
+          get "/pen_models", params: { q: "eco" }, env: { "REMOTE_ADDR" => "203.0.113.204" }
+        end
+      expect(results).to eq([200, 429])
+    end
+
+    it "does not throttle /pen_models without a query" do
+      results = statuses(2) { get "/pen_models", env: { "REMOTE_ADDR" => "203.0.113.205" } }
+      expect(results).to all(be < 429)
+    end
+  end
+
   describe "API token throttles" do
     it "throttles /api/* requests by IP when the Authorization header changes per request" do
       # Rotate a fake bearer token on every request. The old per-header

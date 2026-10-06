@@ -1,5 +1,5 @@
-- if params[:q].present?
-  - content_for :title, "Search results for '#{params[:q]}'"
+- if search_query.present?
+  - content_for :title, "Search results for '#{search_query}'"
 - elsif params[:tag].present?
   - content_for :title, "Inks tagged with '#{params[:tag]}'"
 
