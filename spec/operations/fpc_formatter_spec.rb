@@ -49,6 +49,33 @@ describe FpcFormatter do
     end
   end
 
+  describe "class and id attributes" do
+    it "strips a raw HTML full-page overlay built from Bootstrap utility classes" do
+      html =
+        '<div class="position-fixed top-0 start-0 w-100 vh-100 bg-body z-3">' \
+          '<a class="stretched-link" href="https://evil.example"></a>' \
+          '<h1 class="text-center mt-5" id="content">Session expired</h1></div>'
+      output = render(html)
+      expect(output).to include("<div>")
+      expect(output).to include('<a href="https://evil.example"></a>')
+      expect(output).to include("<h1>Session expired</h1>")
+      expect(output).not_to include("class=")
+      expect(output).not_to include("id=")
+    end
+
+    it "strips classes added through Kramdown inline attribute lists" do
+      output = render("Session expired\n{: .position-fixed .vh-100 #overlay}")
+      expect(output).to include("Session expired")
+      expect(output).not_to include("class=")
+      expect(output).not_to include("id=")
+    end
+
+    it "strips classes from spans" do
+      output = render('<p><span class="multi">x</span></p>')
+      expect(output).to include("<span>x</span>")
+    end
+  end
+
   describe "object / embed elements" do
     it "strips <object> tags" do
       html = '<object data="https://attacker.example/x.swf"></object>'

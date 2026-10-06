@@ -24,10 +24,10 @@
     dd class="col-sm-9" = user.collected_pens.count
 
     dt class="col-sm-3" Blurb
-    dd class="col-sm-9" = sanitize Slodown::Formatter.new(user.blurb).complete.to_s
+    dd class="col-sm-9" = FpcFormatter.render(user.blurb)
 
     dt class="col-sm-3" Blurb (source)
-    dd class="col-sm-9" = Slodown::Formatter.new(user.blurb).complete.to_s
+    dd class="col-sm-9" = user.blurb
 
     dt class="col-sm-3" Actions
     dd class="col-sm-9"
