@@ -48,22 +48,55 @@ describe ProcessInkReviewSubmission do
     expect(existing_review.ink_review_submissions).to eq([ink_review_submission])
   end
 
-  it "resets rejected_at of existing review" do
-    existing_review =
+  context "when the existing review was rejected" do
+    let!(:existing_review) do
       create(
         :ink_review,
         url: "https://mountainofink.com/blog/kobe-hatoba-blue",
         macro_cluster: ink_review_submission.macro_cluster,
-        approved_at: Time.now,
-        rejected_at: Time.now
+        rejected_at: 1.day.ago
       )
-    expect do described_class.new.perform(ink_review_submission.id) end.not_to change(
-      InkReview,
-      :count
-    )
-    existing_review.reload
-    expect(existing_review.approved_at).not_to eq(nil)
-    expect(existing_review.rejected_at).to eq(nil)
+    end
+
+    it "links the submission but leaves the review rejected" do
+      expect do described_class.new.perform(ink_review_submission.id) end.not_to change(
+        InkReview,
+        :count
+      )
+      existing_review.reload
+      expect(existing_review.rejected_at).not_to eq(nil)
+      expect(existing_review.approved_at).to eq(nil)
+      expect(existing_review.ink_review_submissions).to eq([ink_review_submission])
+    end
+
+    it "does not auto approve even when it is the second submission" do
+      create(
+        :ink_review_submission,
+        url: "http://example.com/other",
+        macro_cluster: ink_review_submission.macro_cluster,
+        ink_review: existing_review
+      )
+
+      described_class.new.perform(ink_review_submission.id)
+
+      existing_review.reload
+      expect(existing_review.rejected_at).not_to eq(nil)
+      expect(existing_review.approved_at).to eq(nil)
+      expect(existing_review.auto_approved).to eq(false)
+    end
+
+    it "does not schedule the review approver" do
+      described_class.new.perform(ink_review_submission.id)
+      expect(RunAgent.jobs).to be_empty
+    end
+
+    it "does not auto approve for users with auto approval enabled" do
+      ink_review_submission.user.update!(auto_approve_ink_reviews: true)
+
+      described_class.new.perform(ink_review_submission.id)
+
+      expect(existing_review.reload.approved_at).to eq(nil)
+    end
   end
 
   it "creates a new review if url submitted only to separate cluster" do
