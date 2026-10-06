@@ -139,7 +139,7 @@ class SafeHttp
           headers: headers.merge(DEFAULT_HEADERS),
           http_options: HTTP_OPTIONS,
           on_cross_origin_redirect: :strip
-        ) { |hop| body = read_body(hop) }
+        ) { |hop| body = read_body(hop) if verb == :get }
       end
 
     response = Response.new(raw.code.to_i, headers_hash(raw), body, raw.uri.to_s)

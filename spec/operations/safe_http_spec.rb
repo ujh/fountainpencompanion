@@ -266,6 +266,21 @@ describe SafeHttp do
       expect { SafeHttp.head("http://slow.test/") }.to raise_error(Faraday::TimeoutError)
     end
 
+    it "does not apply the body cap to HEAD responses advertising a large resource" do
+      stub_resolv("big.test", ["8.8.8.8"])
+      stub_request(:head, "http://big.test/photo.jpg").to_return(
+        status: 200,
+        headers: {
+          "Content-Length" => (SafeHttp::MAX_BODY_BYTES * 3).to_s,
+          "Content-Type" => "image/jpeg"
+        }
+      )
+
+      response = SafeHttp.head("http://big.test/photo.jpg")
+      expect(response.status).to eq(200)
+      expect(response.body).to eq("")
+    end
+
     it "fetches a public URL with HEAD" do
       stub_resolv("public.test", ["8.8.8.8"])
       stub_request(:head, "http://public.test/img.png").to_return(
