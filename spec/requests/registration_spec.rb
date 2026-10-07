@@ -30,6 +30,36 @@ describe "sign up" do
       end.to change { ActionMailer::Base.deliveries.count }.by(1)
     end
 
+    it "records the sign-up IP and user agent" do
+      post "/users",
+           params: full_params,
+           env: {
+             "REMOTE_ADDR" => "203.0.113.56",
+             "HTTP_USER_AGENT" => "TestAgent/1.0"
+           }
+
+      user = User.find_by(email: "user@example.com")
+      expect(user.sign_up_ip).to eq("203.0.113.56")
+      expect(user.sign_up_user_agent).to eq("TestAgent/1.0")
+    end
+
+    context "when the IP has reached the same-IP sign-up limit" do
+      before { create_list(:user, User::MAX_SAME_IP_24H, sign_up_ip: "203.0.113.57") }
+
+      it "flags the user as a bot" do
+        post "/users", params: full_params, env: { "REMOTE_ADDR" => "203.0.113.57" }
+
+        expect(User.find_by(email: "user@example.com")).to be_bot
+      end
+
+      it "does not send the confirmation email" do
+        expect do
+          post "/users", params: full_params, env: { "REMOTE_ADDR" => "203.0.113.57" }
+          Sidekiq::Worker.drain_all
+        end.not_to(change { ActionMailer::Base.deliveries.count })
+      end
+    end
+
     it "sends the request IP to hCaptcha" do
       post "/users", params: full_params, env: { "REMOTE_ADDR" => "203.0.113.55" }
 

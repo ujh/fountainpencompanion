@@ -40,7 +40,7 @@ class Admins::UsersController < Admins::BaseController
   end
 
   def become
-    sign_in(:user, @user, bypass: true)
+    bypass_sign_in(@user, scope: :user)
     redirect_to root_url
   end
 

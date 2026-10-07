@@ -1,6 +1,16 @@
 require "rails_helper"
 
 describe User do
+  describe "password length" do
+    it "rejects passwords shorter than 8 characters" do
+      expect(build(:user, password: "1234567")).not_to be_valid
+    end
+
+    it "accepts passwords of 8 characters" do
+      expect(build(:user, password: "12345678")).to be_valid
+    end
+  end
+
   describe "#sign_up_ip=" do
     it "sets the ip field" do
       user = build(:user)

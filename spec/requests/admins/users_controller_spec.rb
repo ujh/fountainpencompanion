@@ -253,6 +253,48 @@ describe Admins::UsersController do
     end
   end
 
+  describe "#become" do
+    let(:user) do
+      create(
+        :user,
+        sign_in_count: 3,
+        current_sign_in_at: 2.days.ago,
+        current_sign_in_ip: "198.51.100.7"
+      )
+    end
+
+    it "requires authentication" do
+      post "/admins/users/#{user.id}/become"
+      expect(response).to redirect_to(new_user_session_path)
+    end
+
+    context "signed in" do
+      before(:each) { sign_in(admin) }
+
+      it "signs the admin in as the user" do
+        post "/admins/users/#{user.id}/become"
+        expect(response).to redirect_to(root_url)
+
+        get "/dashboard"
+        expect(controller.current_user).to eq(user)
+      end
+
+      it "does not record the impersonation as a sign-in by the user" do
+        expect do
+          post "/admins/users/#{user.id}/become", env: { "REMOTE_ADDR" => "203.0.113.9" }
+        end.not_to(
+          change do
+            user.reload.attributes.slice(
+              "sign_in_count",
+              "current_sign_in_ip",
+              "current_sign_in_at"
+            )
+          end
+        )
+      end
+    end
+  end
+
   describe "#destroy" do
     let!(:user) { create(:user, review_blurb: true, spam: false) }
 

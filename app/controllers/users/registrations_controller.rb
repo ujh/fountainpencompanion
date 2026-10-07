@@ -15,12 +15,15 @@ class Users::RegistrationsController < Devise::RegistrationsController
       respond_with(resource) and return
     end
 
-    super do |resource|
-      resource.update(
-        sign_up_user_agent: request.headers["User-Agent"],
-        sign_up_ip: request.remote_ip
-      )
-    end
+    super
+  end
+
+  protected
+
+  def build_resource(hash = {})
+    super
+    resource.sign_up_user_agent = request.headers["User-Agent"]
+    resource.sign_up_ip = request.remote_ip
   end
 
   private
