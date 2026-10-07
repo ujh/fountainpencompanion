@@ -1,0 +1,97 @@
+{
+  "ignored_warnings": [
+    {
+      "warning_type": "SQL Injection",
+      "warning_code": 0,
+      "fingerprint": "62cbb8943132875a3720098fa627183310c8f22959d878569770fa6d7400241b",
+      "check_name": "SQL",
+      "message": "Possible SQL injection",
+      "file": "app/models/macro_cluster.rb",
+      "line": 165,
+      "link": "https://brakemanscanner.org/docs/warning_types/sql_injection/",
+      "code": "Arel.sql(\"COALESCE(NULLIF(macro_clusters.manual_#{field}, ''), macro_clusters.#{field})\")",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "MacroCluster",
+        "method": "MacroCluster.effective_column"
+      },
+      "user_input": "field",
+      "confidence": "Medium",
+      "cwe_id": [
+        89
+      ],
+      "note": "False positive: effective_column is only reached via autocomplete_line_search/autocomplete_ink_search with the literal symbols :line_name/:ink_name; user search terms are bound separately through AutocompleteRanking."
+    },
+    {
+      "warning_type": "SQL Injection",
+      "warning_code": 0,
+      "fingerprint": "91546fd9ddf3bfc221d65652f9300878d6b3a2aa7fdfc98ddb741ff6e9e8fb98",
+      "check_name": "SQL",
+      "message": "Possible SQL injection",
+      "file": "app/models/macro_cluster.rb",
+      "line": 180,
+      "link": "https://brakemanscanner.org/docs/warning_types/sql_injection/",
+      "code": "joins(:popularity).where(\"#{effective_column(field)} != ''\")",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "MacroCluster",
+        "method": "MacroCluster.autocomplete_search"
+      },
+      "user_input": "effective_column(field)",
+      "confidence": "Weak",
+      "cwe_id": [
+        89
+      ],
+      "note": "False positive: effective_column is only reached via autocomplete_line_search/autocomplete_ink_search with the literal symbols :line_name/:ink_name; user search terms are bound separately through AutocompleteRanking."
+    },
+    {
+      "warning_type": "SQL Injection",
+      "warning_code": 0,
+      "fingerprint": "b79cf24d7775edac6c0ab504246ddfc8c0a3c63edd6f34da3c9eb5b734b8a894",
+      "check_name": "SQL",
+      "message": "Possible SQL injection",
+      "file": "app/models/macro_cluster.rb",
+      "line": 163,
+      "link": "https://brakemanscanner.org/docs/warning_types/sql_injection/",
+      "code": "Arel.sql(\"CASE WHEN macro_clusters.line_name_is_empty THEN '' ELSE #{\"COALESCE(NULLIF(macro_clusters.manual_#{field}, ''), macro_clusters.#{field})\"} END\")",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "MacroCluster",
+        "method": "MacroCluster.effective_column"
+      },
+      "user_input": "field",
+      "confidence": "Medium",
+      "cwe_id": [
+        89
+      ],
+      "note": "False positive: effective_column is only reached via autocomplete_line_search/autocomplete_ink_search with the literal symbols :line_name/:ink_name; user search terms are bound separately through AutocompleteRanking."
+    },
+    {
+      "warning_type": "SQL Injection",
+      "warning_code": 0,
+      "fingerprint": "bf17fef20887e7d158122360457b96dcf08e7c152bcae0638df46dbac35f25a8",
+      "check_name": "SQL",
+      "message": "Possible SQL injection",
+      "file": "app/workers/check_brand_clusters.rb",
+      "line": 21,
+      "link": "https://brakemanscanner.org/docs/warning_types/sql_injection/",
+      "code": "MacroCluster.joins(:brand_cluster).where(\"#{MacroCluster.effective_column(:brand_name)} IS DISTINCT FROM brand_clusters.name\")",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "CheckBrandClusters",
+        "method": "mismatched_cluster_ids"
+      },
+      "user_input": "MacroCluster.effective_column(:brand_name)",
+      "confidence": "High",
+      "cwe_id": [
+        89
+      ],
+      "note": "False positive: field is the literal symbol :brand_name from code, never user input."
+    }
+  ],
+  "brakeman_version": "8.1.0"
+}

@@ -1,0 +1,7 @@
+---
+# ruby_llm 1.16.0 ReDoS advisories. The only fix is the 2.0 line; remove these
+# once the ruby_llm 2.0 migration (PR #3755) has landed.
+ignore:
+  - CVE-2026-67987
+  - CVE-2026-67989
+  - CVE-2026-67991
