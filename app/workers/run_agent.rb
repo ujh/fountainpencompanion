@@ -1,15 +1,10 @@
 class RunAgent
   include Sidekiq::Worker
   include Sidekiq::Throttled::Worker
+  include LlmJobRetries
 
   sidekiq_throttle concurrency: { limit: 2 }
-  sidekiq_options queue: "agents", retry: 3
-  sidekiq_retry_in do |_count, exception|
-    case exception
-    when RubyLLM::BadRequestError, RubyLLM::ContextLengthExceededError
-      :kill
-    end
-  end
+  sidekiq_options queue: "agents"
 
   def perform(klass, *)
     klass.constantize.new(*).perform
