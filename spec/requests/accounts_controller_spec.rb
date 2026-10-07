@@ -236,6 +236,58 @@ describe AccountsController do
           )
         end
       end
+
+      describe "malformed bodies" do
+        it "rejects a JSON:API body that is not an object" do
+          put "/account", params: "[]", headers: jsonapi_headers
+          expect(response).to have_http_status(:bad_request)
+        end
+
+        it "rejects a user that is not an object" do
+          put "/account", params: { user: "x" }.to_json, headers: jsonapi_headers
+          expect(response).to have_http_status(:bad_request)
+        end
+
+        it "rejects preferences that are not an object" do
+          put "/account", params: { user: { preferences: "abc" } }.to_json, headers: jsonapi_headers
+          expect(response).to have_http_status(:bad_request)
+        end
+
+        it "rejects a non-object _jsonapi form field" do
+          put "/account", params: { _jsonapi: "foo", user: { name: "new name" } }, as: :json
+          expect(response).to have_http_status(:ok)
+          expect(user.reload.name).to eq("new name")
+        end
+      end
+
+      describe "validation failures" do
+        it "returns 422 with errors for json requests" do
+          put "/account", params: { user: { name: "x" * 101 } }, as: :json
+          expect(response).to have_http_status(:unprocessable_content)
+          expect(JSON.parse(response.body)["errors"]).to be_present
+        end
+
+        it "returns 422 with JSON:API errors for jsonapi requests" do
+          put "/account", params: { user: { name: "x" * 101 } }.to_json, headers: jsonapi_headers
+          expect(response).to have_http_status(:unprocessable_content)
+          expect(JSON.parse(response.body)["errors"]).to eq(
+            [
+              {
+                "title" => "Invalid name",
+                "detail" => "Name is too long (maximum is 100 characters)",
+                "source" => {
+                }
+              }
+            ]
+          )
+        end
+
+        it "rejects an invalid time zone" do
+          put "/account", params: { user: { time_zone: "Not/AZone" } }, as: :json
+          expect(response).to have_http_status(:unprocessable_content)
+          expect(user.reload.time_zone).to be_blank
+        end
+      end
     end
   end
 end

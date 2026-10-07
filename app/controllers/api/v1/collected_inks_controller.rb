@@ -242,7 +242,7 @@ class Api::V1::CollectedInksController < Api::V1::BaseController
           )
         relation = sort(relation)
         relation = filter(relation)
-        relation.page(params.dig(:page, :number)).per(params.dig(:page, :size))
+        relation.page(params.dig(:page, :number)).per(page_size)
       end
   end
 

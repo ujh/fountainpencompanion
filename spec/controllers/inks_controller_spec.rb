@@ -7,6 +7,18 @@ describe InksController do
   let(:ink) { create(:macro_cluster, brand_cluster: brand) }
   let(:user) { create(:user) }
 
+  describe "#index" do
+    it "rejects a non-string tag parameter" do
+      get :index, params: { tag: ["blue"] }
+      expect(response).to have_http_status(:bad_request)
+    end
+
+    it "renders inks for a tag" do
+      get :index, params: { tag: "blue" }
+      expect(response).to be_successful
+    end
+  end
+
   describe "#edit" do
     it "requires authentication" do
       get :edit, params: { id: ink.id, brand_id: brand.id }

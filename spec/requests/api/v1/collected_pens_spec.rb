@@ -11,6 +11,20 @@ describe Api::V1::CollectedPensController do
       let(:user) { create(:user) }
       before(:each) { sign_in(user) }
 
+      it "accepts page[size]=0" do
+        get "/api/v1/collected_pens",
+            params: {
+              page: {
+                size: 0
+              }
+            },
+            headers: {
+              "ACCEPT" => "application/json"
+            }
+
+        expect(response).to have_http_status(:ok)
+      end
+
       it "returns all pens in alphabetical order" do
         create(:collected_pen, user: user, brand: "Aurora", model: "Optima")
         create(:collected_pen, user: user, brand: "Waldmann", model: "Liberty")

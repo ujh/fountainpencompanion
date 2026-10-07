@@ -50,6 +50,22 @@ describe Api::V1::CollectedInksController do
         )
       end
 
+      it "falls back to the default page size for page[size]=0" do
+        create(:collected_ink, user: user)
+        get "/api/v1/collected_inks",
+            params: {
+              page: {
+                size: 0
+              }
+            },
+            headers: {
+              "ACCEPT" => "application/json"
+            }
+
+        expect(response).to have_http_status(:ok)
+        expect(json[:data].size).to eq(1)
+      end
+
       it "caps page[size] at CollectedInk.max_paginates_per" do
         # max_paginates_per is 100. Even when the client requests a huge
         # size, the response must not exceed it.
@@ -305,6 +321,13 @@ describe Api::V1::CollectedInksController do
         get "/api/v1/collected_inks/999999", headers: { "ACCEPT" => "application/json" }
 
         expect(response).to have_http_status(:not_found)
+      end
+
+      it "returns a JSON error body for a missing ink regardless of the Accept header" do
+        get "/api/v1/collected_inks/999999.json", headers: { "ACCEPT" => "*/*" }
+
+        expect(response).to have_http_status(:not_found)
+        expect(json).to eq(errors: [{ status: "404", title: "Not Found" }])
       end
     end
   end

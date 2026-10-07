@@ -23,6 +23,7 @@ class User < ApplicationRecord
   has_many :agent_logs, as: :owner, dependent: :destroy
 
   validates :name, length: { in: 1..100, allow_blank: true }
+  validate :time_zone_valid
 
   before_save :check_if_we_should_skip_confirmation
 
@@ -178,6 +179,12 @@ class User < ApplicationRecord
   end
 
   private
+
+  def time_zone_valid
+    return if time_zone.blank? || ActiveSupport::TimeZone[time_zone]
+
+    errors.add(:time_zone, :invalid)
+  end
 
   def check_if_we_should_skip_confirmation
     skip_confirmation_notification! if bot?

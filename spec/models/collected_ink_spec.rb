@@ -253,6 +253,32 @@ describe CollectedInk do
       expect(subject.color).to eq("#bbb")
     end
 
+    it "strips whitespace" do
+      subject.color = " #aaa "
+      expect(subject.read_attribute(:color)).to eq("#aaa")
+    end
+
+    it "treats nil as no color" do
+      subject.color = nil
+      expect(subject.read_attribute(:color)).to eq("")
+    end
+
+    it "accepts 3 and 6 digit hex colors in any case" do
+      %w[#abc #ABCDEF #a1b2c3].each do |color|
+        subject.color = color
+        subject.valid?
+        expect(subject.errors[:color]).to be_empty, color
+      end
+    end
+
+    it "rejects values that only contain a hex color" do
+      %w[#fff;zz #000;po #fff{}} #ffff fff #12345678 black].each do |color|
+        subject.color = color
+        subject.valid?
+        expect(subject.errors[:color]).to be_present, color
+      end
+    end
+
     it "does not save the color if it is the same as the cluster color" do
       subject.cluster_color = "#aaa"
       subject.color = "#aaa"

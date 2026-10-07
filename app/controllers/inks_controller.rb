@@ -1,6 +1,7 @@
 class InksController < ApplicationController
   before_action :authenticate_user!, only: %i[edit edit_name edit_colors update]
   before_action :set_paper_trail_whodunnit, only: %i[edit update]
+  before_action :reject_non_string_tag, only: [:index]
   before_action :redirect_if_no_search, only: [:index]
 
   def index
@@ -48,6 +49,10 @@ class InksController < ApplicationController
       :line_name_is_empty,
       ignored_colors: []
     )
+  end
+
+  def reject_non_string_tag
+    head :bad_request if params.key?(:tag) && !params[:tag].is_a?(String)
   end
 
   def redirect_if_no_search

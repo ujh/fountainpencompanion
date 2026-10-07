@@ -1,6 +1,10 @@
 class AccountsController < ApplicationController
   before_action :authenticate_user!
 
+  rescue_from ActionController::BadRequest do
+    head :bad_request
+  end
+
   def show
     respond_to do |format|
       format.html
@@ -21,8 +25,20 @@ class AccountsController < ApplicationController
           render :edit
         end
       end
-      format.json { head :ok }
-      format.jsonapi { render jsonapi: current_user }
+      format.json do
+        if successful
+          head :ok
+        else
+          render json: { errors: current_user.errors.full_messages }, status: :unprocessable_content
+        end
+      end
+      format.jsonapi do
+        if successful
+          render jsonapi: current_user
+        else
+          render jsonapi_errors: current_user.errors, status: :unprocessable_content
+        end
+      end
     end
   end
 
@@ -49,10 +65,15 @@ class AccountsController < ApplicationController
   ].freeze
 
   def accounts_params
-    raw = (params["_jsonapi"] || params).require(:user)
+    source = params[:_jsonapi].is_a?(ActionController::Parameters) ? params[:_jsonapi] : params
+    raw = source.require(:user)
+    raise ActionController::BadRequest unless raw.is_a?(ActionController::Parameters)
+
     raw_prefs = raw[:preferences]
     permitted = raw.except(:preferences).permit(:name, :blurb, :time_zone)
     if raw_prefs.present?
+      raise ActionController::BadRequest unless raw_prefs.is_a?(ActionController::Parameters)
+
       merged = current_user.preferences.dup
       raw_prefs.each do |key, value|
         next unless PREFERENCE_KEYS.include?(key.to_s)

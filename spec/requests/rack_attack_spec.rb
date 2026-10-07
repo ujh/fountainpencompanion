@@ -69,6 +69,7 @@ describe "Rack::Attack throttles", type: :request do
 
   describe "hourly login throttle on POST /users/sign_in" do
     it "allows 20 attempts per hour for the same email and throttles the 21st" do
+      travel_to Time.current.beginning_of_hour
       results =
         statuses(21) do |i|
           travel 61.seconds if i.positive? && (i % 5).zero?
