@@ -53,7 +53,7 @@ grace_period = "10s"
 interval = "30s"
 method = "GET"
 timeout = "5s"
-path = "/"
+path = "/up"
 
 # [[statics]]
 # guest_path = "/app/public/assets"
