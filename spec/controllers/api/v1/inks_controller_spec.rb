@@ -25,6 +25,13 @@ describe Api::V1::InksController do
           expect(json_response["data"][0]["id"].to_i).to eq(macro_cluster.id)
         end
 
+        it "falls back to the default page size for page[size]=0" do
+          create(:macro_cluster)
+          get :index, params: { page: { size: 0 } }, format: :json
+          expect(response).to have_http_status(:ok)
+          expect(JSON.parse(response.body)["data"].length).to eq(1)
+        end
+
         it "returns an empty list when there are no macro clusters" do
           get :index, format: :json
           expect(response).to have_http_status(:ok)

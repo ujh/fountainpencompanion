@@ -3,21 +3,23 @@ class NormalizeCollectedInkColors
 
   sidekiq_options queue: "low"
 
-  VALID_COLOR = /\A#(\h{3}|\h{6})\z/
   BARE_HEX = /\A(\h{3}|\h{6})\z/
 
   def perform
     CollectedInk
       .where.not(color: "")
-      .where("color !~* ?", "^#([0-9a-f]{3}|[0-9a-f]{6})$")
-      .find_each { |ink| ink.update_column(:color, normalize(ink.read_attribute(:color))) }
+      .select(:id, :color)
+      .find_each do |ink|
+        color = ink.read_attribute(:color)
+        ink.update_column(:color, normalize(color)) unless color.match?(CollectedInk::COLOR_FORMAT)
+      end
   end
 
   private
 
   def normalize(color)
     value = color.strip
-    return value if value.match?(VALID_COLOR)
+    return value if value.match?(CollectedInk::COLOR_FORMAT)
     return "##{value}" if value.match?(BARE_HEX)
 
     Color::RGB.by_name(value.downcase) { nil }&.html || ""

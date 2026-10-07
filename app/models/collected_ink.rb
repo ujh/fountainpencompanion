@@ -8,6 +8,7 @@ class CollectedInk < ApplicationRecord
   max_paginates_per 100
 
   KINDS = %w[bottle sample cartridge swab]
+  COLOR_FORMAT = /\A#(\h{3}|\h{6})\z/
 
   validates :kind, inclusion: { in: KINDS, allow_blank: true }
   validates :brand_name, length: { in: 1..100 }
@@ -262,7 +263,7 @@ class CollectedInk < ApplicationRecord
 
   def color_valid
     return if read_attribute(:color).blank?
-    return if read_attribute(:color).match?(/\A#(\h{3}|\h{6})\z/)
+    return if read_attribute(:color).match?(COLOR_FORMAT)
 
     errors.add(:color, "Only valid HTML color codes are supported (e.g #fff or #efefef)")
   end
