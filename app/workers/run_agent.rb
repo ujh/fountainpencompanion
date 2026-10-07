@@ -1,6 +1,7 @@
 class RunAgent
   include Sidekiq::Worker
   include Sidekiq::Throttled::Worker
+  include LlmJobRetries
 
   sidekiq_throttle concurrency: { limit: 2 }
   sidekiq_options queue: "agents"

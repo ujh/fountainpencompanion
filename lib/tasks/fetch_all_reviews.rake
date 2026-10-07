@@ -15,7 +15,8 @@ task fetch_all_reviews: :environment do
           CreateInkReviewSubmission.new(
             url: processed.first,
             user: user,
-            macro_cluster: processed.last
+            macro_cluster: processed.last,
+            automatic: true
           ).perform
         end
         .compact

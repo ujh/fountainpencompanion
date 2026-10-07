@@ -110,6 +110,13 @@ Rack::Attack.throttle("pen model search limit", limit: 1, period: 3) do |request
   request.ip if request.path.starts_with?("/pen_models") && fpc_search_query?(request)
 end
 
+Rack::Attack.throttle("ink review submissions/ip", limit: 20, period: 60) do |request|
+  if request.post? &&
+       request.path.match?(%r{\A/brands/[^/]+/inks/[^/]+/ink_review_submissions(\.json)?\z})
+    request.ip
+  end
+end
+
 Rack::Attack.throttle("missing descriptions", limit: 10, period: 20) do |request|
   request.ip if request.path.starts_with?("/descriptions/missing")
 end

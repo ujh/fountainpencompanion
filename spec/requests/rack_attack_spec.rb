@@ -314,6 +314,30 @@ describe "Rack::Attack throttles", type: :request do
     end
   end
 
+  describe "ink review submission throttle" do
+    let(:path) { "/brands/1/inks/2/ink_review_submissions" }
+
+    it "allows the first 20 submissions and throttles the 21st from the same IP" do
+      results = statuses(21) { post path, env: { "REMOTE_ADDR" => "203.0.113.210" } }
+
+      expect(results.first(20)).to all(be < 429)
+      expect(results.last).to eq(429)
+    end
+
+    it "throttles JSON submissions" do
+      results = statuses(21) { post "#{path}.json", env: { "REMOTE_ADDR" => "203.0.113.211" } }
+
+      expect(results.last).to eq(429)
+    end
+
+    it "keeps separate buckets per IP" do
+      statuses(20) { post path, env: { "REMOTE_ADDR" => "203.0.113.212" } }
+      post path, env: { "REMOTE_ADDR" => "203.0.113.213" }
+
+      expect(response.status).to be < 429
+    end
+  end
+
   describe "API token throttles" do
     it "throttles /api/* requests by IP when the Authorization header changes per request" do
       # Rotate a fake bearer token on every request. The old per-header

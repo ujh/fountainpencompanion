@@ -301,6 +301,19 @@ RSpec.describe WebPageSummarizer do
         .at_least_once
     end
 
+    it "truncates HTML longer than the input limit" do
+      long_html = "<p>#{"a" * described_class::MAX_INPUT_CHARS}</p>"
+      described_class.new(parent_agent_log, long_html).perform
+
+      expect(WebMock).to have_requested(:post, "https://api.openai.com/v1/chat/completions")
+        .with { |req|
+          body = JSON.parse(req.body)
+          user_message = body["messages"].find { |msg| msg["role"] == "user" }
+          user_message["content"] == long_html[0, described_class::MAX_INPUT_CHARS]
+        }
+        .at_least_once
+    end
+
     it "handles empty HTML content" do
       empty_html = ""
       summarizer = described_class.new(parent_agent_log, empty_html)

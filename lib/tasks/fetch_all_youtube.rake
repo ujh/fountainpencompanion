@@ -17,7 +17,8 @@ def submit_video(video)
     CreateInkReviewSubmission.new(
       url: video[:url],
       user: User.first,
-      macro_cluster: video[:macro_cluster]
+      macro_cluster: video[:macro_cluster],
+      automatic: true
     ).perform
 end
 
