@@ -30,7 +30,7 @@ RSpec.describe SpamClassifier do
       name: "Fake Account",
       email: "fake@spam.com",
       blurb: "Amazing deals! Visit my website!",
-      time_zone: "EST",
+      time_zone: "America/New_York",
       review_blurb: false
     )
   end
@@ -42,7 +42,7 @@ RSpec.describe SpamClassifier do
       name: "Alice Smith",
       email: "alice@example.com",
       blurb: "I'm new to fountain pens and looking for advice",
-      time_zone: "PST",
+      time_zone: "America/Los_Angeles",
       review_blurb: false
     )
   end
@@ -53,7 +53,7 @@ RSpec.describe SpamClassifier do
       name: "Bob Johnson",
       email: "bob@example.com",
       blurb: "Collector of vintage fountain pens",
-      time_zone: "EST",
+      time_zone: "America/New_York",
       review_blurb: false
     )
   end

@@ -1,6 +1,20 @@
 require "rails_helper"
 
 describe User do
+  describe "time zone" do
+    it "accepts IANA time zone identifiers" do
+      expect(build(:user, time_zone: "America/Argentina/Buenos_Aires")).to be_valid
+    end
+
+    it "accepts Rails time zone names" do
+      expect(build(:user, time_zone: "Eastern Time (US & Canada)")).to be_valid
+    end
+
+    it "rejects unknown time zones" do
+      expect(build(:user, time_zone: "Not/AZone")).not_to be_valid
+    end
+  end
+
   describe "password length" do
     it "rejects passwords shorter than 8 characters" do
       expect(build(:user, password: "1234567")).not_to be_valid

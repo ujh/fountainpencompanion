@@ -29,10 +29,7 @@ class ApplicationController < ActionController::Base
   end
 
   def set_time_zone(&)
-    if current_user && current_user.time_zone.present?
-      Time.use_zone(current_user.time_zone, &)
-    else
-      yield
-    end
+    zone = current_user && ActiveSupport::TimeZone[current_user.time_zone.to_s]
+    zone ? Time.use_zone(zone, &) : yield
   end
 end
