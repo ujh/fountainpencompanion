@@ -67,6 +67,8 @@ gem "ssrf_filter"
 gem "strong_migrations"
 
 group :development, :test do
+  gem "brakeman", require: false
+  gem "bundler-audit", require: false
   gem "byebug", platform: :mri
   gem "factory_bot_rails"
   gem "letter_opener"

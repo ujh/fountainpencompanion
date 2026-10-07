@@ -90,9 +90,14 @@ GEM
     bindex (0.8.1)
     bootsnap (1.26.0)
       msgpack (~> 1.5)
+    brakeman (8.1.0)
+      racc
     breadcrumbs_on_rails (4.1.0)
       railties (>= 5.0)
     builder (3.3.0)
+    bundler-audit (0.9.3)
+      bundler (>= 1.2.0)
+      thor (~> 1.0)
     byebug (13.0.0)
       reline (>= 0.6.0)
     childprocess (5.1.0)
@@ -589,7 +594,9 @@ DEPENDENCIES
   apipie-rails
   bcrypt
   bootsnap
+  brakeman
   breadcrumbs_on_rails
+  bundler-audit
   byebug
   color
   csv
