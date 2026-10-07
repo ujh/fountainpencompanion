@@ -89,7 +89,7 @@ class Api::V1::InksController < Api::V1::BaseController
               params[:filter][:brand_name]
             )
         end
-        relation.page(params.dig(:page, :number)).per(params.dig(:page, :size))
+        relation.page(params.dig(:page, :number)).per(page_size)
       end
   end
 

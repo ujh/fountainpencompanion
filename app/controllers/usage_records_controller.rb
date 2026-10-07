@@ -21,7 +21,6 @@ class UsageRecordsController < ApplicationController
 
   def create
     if @currently_inked
-      used_on = params[:used_on].present? ? Date.parse(params[:used_on]) : Date.current
       @usage_record = @currently_inked.usage_records.find_or_initialize_by(used_on: used_on)
       if @usage_record.save
         respond_to do |format|
@@ -68,6 +67,12 @@ class UsageRecordsController < ApplicationController
   end
 
   private
+
+  def used_on
+    params[:used_on].present? ? Date.parse(params[:used_on].to_s) : Date.current
+  rescue Date::Error
+    nil
+  end
 
   def retrieve_currently_inked
     @currently_inked = current_user.currently_inkeds.find_by(id: params[:currently_inked_id])

@@ -68,6 +68,22 @@ describe UsageRecordsController do
         expect(response).to have_http_status(:unprocessable_content)
       end
 
+      it "returns unprocessable_entity for an unparseable date" do
+        post :create,
+             params: {
+               currently_inked_id: currently_inked.id,
+               used_on: "not-a-date"
+             },
+             format: :json
+        expect(response).to have_http_status(:unprocessable_content)
+      end
+
+      it "redirects with error flash for an unparseable date on HTML create" do
+        post :create, params: { currently_inked_id: currently_inked.id, used_on: "not-a-date" }
+        expect(response).to redirect_to(usage_records_path)
+        expect(flash[:alert]).to be_present
+      end
+
       it "returns not_found for missing currently_inked" do
         post :create, params: { currently_inked_id: 0 }, format: :json
         expect(response).to have_http_status(:not_found)

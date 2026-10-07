@@ -5,6 +5,7 @@ class Api::V1::BaseController < ApplicationController
 
   rescue_from ActionController::InvalidAuthenticityToken, with: :render_csrf_error
   rescue_from Apipie::ParamError, with: :render_param_error
+  rescue_from ActiveRecord::RecordNotFound, with: :render_not_found
 
   before_action :require_json
   before_action :authenticate_via_token_or_session!
@@ -51,5 +52,14 @@ class Api::V1::BaseController < ApplicationController
 
   def render_param_error(exception)
     render json: { errors: [{ detail: exception.message }] }, status: :bad_request
+  end
+
+  def render_not_found
+    render json: { errors: [{ status: "404", title: "Not Found" }] }, status: :not_found
+  end
+
+  def page_size
+    size = params.dig(:page, :size).to_i
+    size if size.positive?
   end
 end

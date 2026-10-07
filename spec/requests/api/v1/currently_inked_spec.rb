@@ -14,6 +14,20 @@ describe Api::V1::CurrentlyInkedController do
       let(:user) { create(:user) }
       before(:each) { sign_in(user) }
 
+      it "accepts page[size]=0" do
+        get "/api/v1/currently_inked",
+            params: {
+              page: {
+                size: 0
+              }
+            },
+            headers: {
+              "ACCEPT" => "application/json"
+            }
+
+        expect(response).to have_http_status(:ok)
+      end
+
       it "returns all currently inked entries" do
         create(:currently_inked, user: user)
         create(:currently_inked, user: user)

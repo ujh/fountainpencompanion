@@ -96,7 +96,7 @@ class Api::V1::CollectedPensController < Api::V1::BaseController
             )
             .order("brand, model, nib, color, comment")
         relation = filter(relation)
-        relation.page(params.dig(:page, :number)).per(params.dig(:page, :size))
+        relation.page(params.dig(:page, :number)).per(page_size)
       end
   end
 
