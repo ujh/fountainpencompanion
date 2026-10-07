@@ -192,7 +192,8 @@ class CollectedInk < ApplicationRecord
   end
 
   def color=(value)
-    super(value.strip) if value.strip != cluster_color
+    value = value.to_s.strip
+    super(value) if value != cluster_color
   end
 
   def name
@@ -261,13 +262,8 @@ class CollectedInk < ApplicationRecord
 
   def color_valid
     return if read_attribute(:color).blank?
-    if read_attribute(:color) !~ /#[0-9a-f]{3}([0-9a-f][3])?/i
-      errors.add(:color, "Only valid HTML color codes are supported (e.g #fff or #efefef)")
-      return
-    end
+    return if read_attribute(:color).match?(/\A#(\h{3}|\h{6})\z/)
 
-    Color::RGB.from_html(read_attribute(:color))
-  rescue ArgumentError
     errors.add(:color, "Only valid HTML color codes are supported (e.g #fff or #efefef)")
   end
 end
