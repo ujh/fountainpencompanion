@@ -4,6 +4,7 @@ require "sidekiq/throttled/web"
 
 Rails.application.routes.draw do
   get "up" => "rails/health#show", :as => :rails_health_check
+  post "csp-reports" => "csp_reports#create", :as => :csp_reports
 
   namespace "apipie", path: Apipie.configuration.doc_base_url do
     get "apipie_checksum", to: "apipies#apipie_checksum", format: "json"
@@ -125,6 +126,7 @@ Rails.application.routes.draw do
     resource :dashboard, only: [:show]
     resource :patreon, only: [:show], controller: "patreon"
     resources :agent_logs, only: [:index]
+    resources :csp_reports, only: [:index]
     namespace :agents do
       resources :ink_clusterer, only: %i[index destroy update]
     end

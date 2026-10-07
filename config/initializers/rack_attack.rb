@@ -142,3 +142,7 @@ Rack::Attack.blocklist("Misbehaving bots") do |request|
   request.user_agent =~
     /AhrefsBot|Baiduspider|SemrushBot|SeekportBot|BLEXBot|Buck|magpie-crawler|ZoominfoBot|HeadlessChrome|istellabot|Sogou|coccocbot|Pinterestbot|moatbot|Mediatoolkitbot|SeznamBot|trendictionbot|MJ12bot|DotBot|PetalBot|YandexBot|bingbot|ClaudeBot|imagesift|GPTBot|Bytespider|Timpibot|meta-externalagent|facebook|Amazonbot|Applebot|AliyunSecBot|DataForSeoBot|serpstatbot|ccbot|crawler|panscient/i
 end
+
+Rack::Attack.throttle("csp reports/ip", limit: 30, period: 60) do |request|
+  request.ip if request.post? && request.path == "/csp-reports"
+end

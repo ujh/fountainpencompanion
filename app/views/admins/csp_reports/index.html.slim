@@ -1,0 +1,29 @@
+- content_for :title, "CSP reports"
+
+- if @csp_reports.empty?
+  p class="text-muted" No Content Security Policy violations reported.
+- else
+  table class="table table-striped"
+    thead
+      tr
+        th Directive
+        th Blocked
+        th Page
+        th Count
+        th Sample
+        th First seen
+        th Last seen
+    tbody
+      - @csp_reports.each do |csp_report|
+        tr
+          td = csp_report.directive
+          td
+            code = csp_report.blocked_uri
+          td = csp_report.page
+          td = csp_report.count
+          td
+            - if csp_report.sample
+              code = csp_report.sample
+          td = l(csp_report.created_at, format: :short)
+          td = l(csp_report.updated_at, format: :short)
+  = paginate @csp_reports

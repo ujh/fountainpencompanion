@@ -12,7 +12,7 @@
         strong Copy this token now. You won't be able to see it again!
       .input-group.mb-3
         input.form-control type="text" value=flash[:new_access_token] readonly="" id="new-token-value"
-        button.btn.btn-outline-secondary type="button" onclick="navigator.clipboard.writeText(document.getElementById('new-token-value').value); this.textContent='Copied!'"
+        button.btn.btn-outline-secondary type="button" data-copy-target="new-token-value"
           | Copy
 
       h6.mt-3 Usage Example
@@ -20,7 +20,7 @@
         pre.bg-light.p-3.mb-0.flex-grow-1
           code#usage-example
             = "curl -H \"Authorization: Bearer #{flash[:new_access_token]}\" \\\n     \"#{request.base_url}/api/v1/collected_pens\""
-        button.btn.btn-outline-secondary type="button" onclick="navigator.clipboard.writeText(document.getElementById('usage-example').textContent); this.textContent='Copied!'"
+        button.btn.btn-outline-secondary type="button" data-copy-target="usage-example"
           | Copy
 
   .card.mt-4

@@ -11,14 +11,13 @@ html
     link rel="icon" type="image/png" href="/images/icons/icon-192x192.png"
     link rel="apple-touch-icon" type="image/png" href="/images/icons/icon-192x192.png"
     link rel="manifest" href="/application.webmanifest"
-    link href="https://fonts.googleapis.com/css?family=Droid+Serif" rel="stylesheet" type="text/css" media="screen"
     meta name="viewport" content="width=device-width, initial-scale=1"
     meta name="honeybadger-api-key" content=ENV['FRONTEND_HONEYBADGER_API_KEY']
     meta name="honeybadger-environment" content=Rails.env
     meta name="honeybadger-revision" content=ENV['HONEYBADGER_REVISION']
     = render partial: "layouts/clicky" if track_with_clicky?
     = content_for :head
-  body
+  body data-detect-time-zone=(current_user && current_user.time_zone.blank?)
     div class="fpc"
       div class="fpc-skip-link container"
         a class="visually-hidden-focusable" href="#content"
@@ -27,6 +26,3 @@ html
       = render partial: "layouts/breadcrumbs"
       = render partial: "layouts/main"
       = render partial: "layouts/footer"
-      - if current_user && current_user.time_zone.blank?
-        = javascript_tag do
-          | setTimeZone()

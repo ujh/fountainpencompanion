@@ -316,6 +316,41 @@ ALTER SEQUENCE public.collected_pens_id_seq OWNED BY public.collected_pens.id;
 
 
 --
+-- Name: csp_reports; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.csp_reports (
+    id bigint NOT NULL,
+    directive character varying NOT NULL,
+    blocked_uri character varying NOT NULL,
+    page character varying NOT NULL,
+    count integer DEFAULT 1 NOT NULL,
+    sample text,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
+);
+
+
+--
+-- Name: csp_reports_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.csp_reports_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: csp_reports_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.csp_reports_id_seq OWNED BY public.csp_reports.id;
+
+
+--
 -- Name: currently_inked; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -1318,6 +1353,13 @@ ALTER TABLE ONLY public.collected_pens ALTER COLUMN id SET DEFAULT nextval('publ
 
 
 --
+-- Name: csp_reports id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.csp_reports ALTER COLUMN id SET DEFAULT nextval('public.csp_reports_id_seq'::regclass);
+
+
+--
 -- Name: currently_inked id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -1546,6 +1588,14 @@ ALTER TABLE ONLY public.collected_inks
 
 ALTER TABLE ONLY public.collected_pens
     ADD CONSTRAINT collected_pens_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: csp_reports csp_reports_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.csp_reports
+    ADD CONSTRAINT csp_reports_pkey PRIMARY KEY (id);
 
 
 --
@@ -1908,6 +1958,13 @@ CREATE INDEX index_collected_pens_on_pens_micro_cluster_id ON public.collected_p
 --
 
 CREATE INDEX index_collected_pens_on_user_id ON public.collected_pens USING btree (user_id);
+
+
+--
+-- Name: index_csp_reports_on_directive_and_blocked_uri_and_page; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_csp_reports_on_directive_and_blocked_uri_and_page ON public.csp_reports USING btree (directive, blocked_uri, page);
 
 
 --
@@ -2517,6 +2574,7 @@ ALTER TABLE ONLY public.collected_inks
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20261007130000'),
 ('20261007120000'),
 ('20261006120000'),
 ('20261001073038'),
