@@ -3,6 +3,8 @@ require "sidekiq-scheduler/web"
 require "sidekiq/throttled/web"
 
 Rails.application.routes.draw do
+  get "up" => "rails/health#show", :as => :rails_health_check
+
   namespace "apipie", path: Apipie.configuration.doc_base_url do
     get "apipie_checksum", to: "apipies#apipie_checksum", format: "json"
     constraints version: %r{[^/]+}, resource: %r{[^/]+}, method: %r{[^/]+} do
