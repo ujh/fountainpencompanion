@@ -64,7 +64,7 @@ Rails.application.configure do
     address: "smtp.mailgun.org",
     port: 587,
     authentication: :plain,
-    enable_starttls_auto: true
+    enable_starttls: :always
   }
 
   # Enable locale fallbacks for I18n (makes lookups for any locale fall back to
