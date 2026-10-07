@@ -35,6 +35,7 @@ nav class="fpc-header navbar navbar-dark navbar-expand-md" id="header"
         li= link_to "Sidekiq", sidekiq_web_path, class: "nav-link"
         li= link_to "Blog", admins_blog_posts_path, class: "nav-link"
         li= link_to "AgentLogs", admins_agent_logs_path, class: "nav-link"
+        li= link_to "CSP", admins_csp_reports_path, class: "nav-link"
         - if Rails.env.development?
           li= link_to "Letter Opener", "/letter_opener", class: "nav-link"
         li class="dropdown"

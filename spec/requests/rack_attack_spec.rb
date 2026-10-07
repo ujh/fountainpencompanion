@@ -361,6 +361,15 @@ describe "Rack::Attack throttles", type: :request do
     end
   end
 
+  describe "CSP report throttle" do
+    it "allows the first 30 reports and throttles the 31st from the same IP" do
+      results = statuses(31) { post "/csp-reports", env: { "REMOTE_ADDR" => "203.0.113.220" } }
+
+      expect(results.first(30)).to all(be < 429)
+      expect(results.last).to eq(429)
+    end
+  end
+
   describe "API token throttles" do
     it "throttles /api/* requests by IP when the Authorization header changes per request" do
       # Rotate a fake bearer token on every request. The old per-header

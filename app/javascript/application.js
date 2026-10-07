@@ -10,10 +10,12 @@ import "./src/collected-pens-autocomplete";
 import "./src/collected_inks";
 import "./src/collected_pens";
 import "./src/color-picker";
+import { setupCopyButtons } from "./src/copy-to-clipboard";
 import "./src/currently_inked";
 import "./src/dashboard";
 import "./src/edit-colors";
 import "./src/ink-search-hint";
+import { setupLineNameToggle } from "./src/line-name-toggle";
 import "./src/public_inks";
 import "./src/review-submission";
 import setTimeZone from "./src/setTimeZone";
@@ -23,7 +25,9 @@ import "./stylesheets/application.scss";
 
 Rails.start();
 
-window.setTimeZone = setTimeZone;
+if ("detectTimeZone" in document.body.dataset) setTimeZone();
+setupCopyButtons();
+setupLineNameToggle();
 
 [...document.querySelectorAll('[data-bs-toggle="tooltip"]')].map(
   (triggerEl) => new Tooltip(triggerEl)
