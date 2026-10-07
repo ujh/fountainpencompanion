@@ -2,6 +2,7 @@ class WebPageSummarizer
   include RubyLlmAgent
 
   MODEL_ID = "gpt-4.1-mini"
+  MAX_INPUT_CHARS = 500_000
 
   SYSTEM_DIRECTIVE = <<~TEXT
     You will be given the raw HTML of a web page. Your task is to summarize the page
@@ -15,7 +16,7 @@ class WebPageSummarizer
   end
 
   def perform
-    response = ask(raw_html)
+    response = ask(raw_html[0, MAX_INPUT_CHARS])
     agent_log.waiting_for_approval!
     response.content
   end

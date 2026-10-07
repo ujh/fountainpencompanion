@@ -53,6 +53,18 @@ describe "InkReviewSubmissions" do
         expect(json["errors"].first).to include("Instagram URLs are not supported")
       end
 
+      it "rejects submissions over the daily limit with a 422 and error message" do
+        stub_const("CreateInkReviewSubmission::DAILY_LIMIT", 1)
+        create(:ink_review_submission, user: user, url: "http://example.com/other")
+
+        post path, params: { ink_review_submission: { url: "http://example.com" } }, as: :json
+
+        expect(response).to have_http_status(:unprocessable_content)
+        expect(JSON.parse(response.body)["errors"]).to eq(
+          ["You've reached the daily limit of review submissions, please try again tomorrow"]
+        )
+      end
+
       it "does not create a submission for Instagram URLs" do
         expect do
           post path,
