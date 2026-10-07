@@ -2,9 +2,10 @@ class CspReportsController < ActionController::API
   MAX_BODY_SIZE = 16.kilobytes
 
   def create
-    return head(:content_too_large) if request.content_length.to_i > MAX_BODY_SIZE
+    body = request.body.read(MAX_BODY_SIZE + 1).to_s
+    return head(:content_too_large) if body.bytesize > MAX_BODY_SIZE
 
-    payload = JSON.parse(request.raw_post)
+    payload = JSON.parse(body)
     report = payload["csp-report"] if payload.is_a?(Hash)
     CspReport.record(report) if report.is_a?(Hash)
     head :no_content

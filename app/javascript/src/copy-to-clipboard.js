@@ -2,8 +2,8 @@ function copyTextFor(target) {
   return target instanceof HTMLInputElement ? target.value : target.textContent;
 }
 
-export function setupCopyButtons(root = document) {
-  root.addEventListener("click", (event) => {
+export function setupCopyButtons() {
+  document.addEventListener("click", (event) => {
     const button = event.target.closest("[data-copy-target]");
     if (!button) return;
 
