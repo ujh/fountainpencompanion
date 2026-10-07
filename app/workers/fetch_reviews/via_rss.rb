@@ -29,12 +29,7 @@ class FetchReviews
     private
 
     def feed
-      connection =
-        Faraday.new do |c|
-          c.response :follow_redirects
-          c.response :raise_error
-        end
-      RSS::Parser.parse(connection.get(feed_url).body)
+      RSS::Parser.parse(SafeHttp.get(feed_url).body)
     end
   end
 end
