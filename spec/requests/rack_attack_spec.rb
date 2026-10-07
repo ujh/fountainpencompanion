@@ -378,20 +378,36 @@ describe "Rack::Attack throttles", type: :request do
       expect(results.last).to eq(429)
     end
 
-    it "throttles /api/* by token id across rotating secrets" do
-      # Same token id with rotating secret halves should hit the
-      # per-token-id throttle even from different IPs.
+    it "throttles /api/* by token across IPs" do
       results =
         statuses(16) do |i|
           get "/api/v1/collected_inks",
               env: {
                 "REMOTE_ADDR" => "203.0.113.#{100 + i}",
-                "HTTP_AUTHORIZATION" => %(Token token="same-id.secret-#{i}")
+                "HTTP_AUTHORIZATION" => %(Token token="same-id.same-secret")
               }
         end
 
       expect(results.first(15)).to all(be < 429)
       expect(results.last).to eq(429)
+    end
+
+    it "does not let requests with a guessed token id use up the real token's bucket" do
+      statuses(15) do |i|
+        get "/api/v1/collected_inks",
+            env: {
+              "REMOTE_ADDR" => "203.0.113.#{100 + i}",
+              "HTTP_AUTHORIZATION" => %(Token token="victim-id.garbage-#{i}")
+            }
+      end
+
+      get "/api/v1/collected_inks",
+          env: {
+            "REMOTE_ADDR" => "203.0.113.150",
+            "HTTP_AUTHORIZATION" => %(Token token="victim-id.real-secret")
+          }
+
+      expect(response.status).to be < 429
     end
   end
 end
