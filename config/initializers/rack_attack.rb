@@ -53,6 +53,10 @@ Rack::Attack.throttle("logins/email", limit: 5, period: 60.seconds) do |request|
   fpc_devise_email(request) if request.post? && request.path == "/users/sign_in"
 end
 
+Rack::Attack.throttle("logins/email/hour", limit: 20, period: 1.hour) do |request|
+  fpc_devise_email(request) if request.post? && request.path == "/users/sign_in"
+end
+
 Rack::Attack.throttle("password_reset/ip", limit: 5, period: 1.hour) do |request|
   request.ip if request.post? && request.path == "/users/password"
 end

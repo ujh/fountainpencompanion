@@ -67,6 +67,28 @@ describe "Rack::Attack throttles", type: :request do
     end
   end
 
+  describe "hourly login throttle on POST /users/sign_in" do
+    it "allows 20 attempts per hour for the same email and throttles the 21st" do
+      results =
+        statuses(21) do |i|
+          travel 61.seconds if i.positive? && (i % 5).zero?
+          post "/users/sign_in",
+               params: {
+                 user: {
+                   email: "slow-victim@example.com",
+                   password: "wrong"
+                 }
+               },
+               env: {
+                 "REMOTE_ADDR" => "203.0.113.#{150 + i}"
+               }
+        end
+
+      expect(results.first(20)).to all(be < 429)
+      expect(results.last).to eq(429)
+    end
+  end
+
   describe "password reset throttles on POST /users/password" do
     it "allows the first 3 attempts and throttles the 4th for the same email" do
       results =
