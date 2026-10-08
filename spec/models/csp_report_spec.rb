@@ -43,6 +43,34 @@ describe CspReport do
       expect(csp_report.updated_at).to be > csp_report.created_at
     end
 
+    it "stores the user agent" do
+      described_class.record(report, user_agent: "Mozilla/5.0 Firefox/157.0")
+
+      expect(described_class.sole.user_agent).to eq("Mozilla/5.0 Firefox/157.0")
+    end
+
+    it "counts violations separately per user agent" do
+      2.times { described_class.record(report, user_agent: "Mozilla/5.0 Firefox/157.0") }
+      described_class.record(report, user_agent: "ShapBot/0.1.0")
+
+      expect(described_class.order(:user_agent).pluck(:user_agent, :count)).to eq(
+        [["Mozilla/5.0 Firefox/157.0", 2], ["ShapBot/0.1.0", 1]]
+      )
+    end
+
+    it "groups reports without a user agent together" do
+      described_class.record(report)
+      described_class.record(report, user_agent: "")
+
+      expect(described_class.sole).to have_attributes(user_agent: "", count: 2)
+    end
+
+    it "truncates long user agents" do
+      described_class.record(report, user_agent: "x" * 1000)
+
+      expect(described_class.sole.user_agent.length).to eq(CspReport::USER_AGENT_LENGTH)
+    end
+
     it "groups pages by route rather than by path" do
       described_class.record(report("document-uri" => "https://fpc.example/brands/1"))
       described_class.record(report("document-uri" => "https://fpc.example/brands/2"))
@@ -103,6 +131,17 @@ describe CspReport do
       described_class.record(report("blocked-uri" => "chrome-extension://abc/content.js"))
       described_class.record(
         report("blocked-uri" => "inline", "source-file" => "moz-extension://abc/x.js")
+      )
+
+      expect(described_class.count).to eq(0)
+    end
+
+    it "ignores scripts injected by extensions and userscript managers" do
+      described_class.record(
+        report("blocked-uri" => "inline", "source-file" => "sandbox eval code", "line-number" => 17)
+      )
+      described_class.record(
+        report("blocked-uri" => "inline", "source-file" => "user-script", "line-number" => 1)
       )
 
       expect(described_class.count).to eq(0)

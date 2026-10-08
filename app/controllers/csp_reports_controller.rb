@@ -7,7 +7,7 @@ class CspReportsController < ActionController::API
 
     payload = JSON.parse(body)
     report = payload["csp-report"] if payload.is_a?(Hash)
-    CspReport.record(report) if report.is_a?(Hash)
+    CspReport.record(report, user_agent: request.user_agent) if report.is_a?(Hash)
     head :no_content
   rescue JSON::ParserError
     head :bad_request

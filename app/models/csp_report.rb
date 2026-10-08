@@ -26,14 +26,17 @@ class CspReport < ApplicationRecord
     safari-extension
     safari-web-extension
   ].freeze
+  INJECTED_SOURCE_FILES = ["sandbox eval code", "user-script"].freeze
   KEYWORD_SOURCE = /\A[a-z][a-z-]{0,31}\z/
   SAMPLE_LENGTH = 500
+  USER_AGENT_LENGTH = 500
 
-  def self.record(report)
+  def self.record(report, user_agent: nil)
     directive =
       report["effective-directive"].presence || report["violated-directive"].to_s.split.first
     return unless DIRECTIVES.include?(directive)
     return if extension_uri?(report["blocked-uri"]) || extension_uri?(report["source-file"])
+    return if INJECTED_SOURCE_FILES.include?(report["source-file"])
 
     blocked_uri = blocked_source(report["blocked-uri"].to_s)
     return unless blocked_uri
@@ -45,10 +48,12 @@ class CspReport < ApplicationRecord
         blocked_uri: blocked_uri,
         page: page_for(report["document-uri"]),
         sample: sample_for(report),
+        user_agent:
+          user_agent.to_s.dup.force_encoding(Encoding::UTF_8).scrub.truncate(USER_AGENT_LENGTH),
         created_at: now,
         updated_at: now
       },
-      unique_by: %i[directive blocked_uri page],
+      unique_by: %i[directive blocked_uri page user_agent],
       on_duplicate:
         Arel.sql(
           "count = csp_reports.count + 1, sample = EXCLUDED.sample, updated_at = EXCLUDED.updated_at"

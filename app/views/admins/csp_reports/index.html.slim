@@ -11,6 +11,7 @@
         th Page
         th Count
         th Sample
+        th User agent
         th First seen
         th Last seen
     tbody
@@ -24,6 +25,7 @@
           td
             - if csp_report.sample
               code = csp_report.sample
+          td = csp_report.user_agent
           td = l(csp_report.created_at, format: :short)
           td = l(csp_report.updated_at, format: :short)
   = paginate @csp_reports
