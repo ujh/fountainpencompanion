@@ -48,8 +48,7 @@ class CspReport < ApplicationRecord
         blocked_uri: blocked_uri,
         page: page_for(report["document-uri"]),
         sample: sample_for(report),
-        user_agent:
-          user_agent.to_s.dup.force_encoding(Encoding::UTF_8).scrub.truncate(USER_AGENT_LENGTH),
+        user_agent: user_agent_for(user_agent),
         created_at: now,
         updated_at: now
       },
@@ -100,5 +99,14 @@ class CspReport < ApplicationRecord
     [location, report["script-sample"]].compact_blank.join(" ").truncate(SAMPLE_LENGTH).presence
   end
 
-  private_class_method :extension_uri?, :blocked_source, :origin, :page_for, :sample_for
+  def self.user_agent_for(value)
+    value.to_s.dup.force_encoding(Encoding::UTF_8).scrub.truncate(USER_AGENT_LENGTH)
+  end
+
+  private_class_method :extension_uri?,
+                       :blocked_source,
+                       :origin,
+                       :page_for,
+                       :sample_for,
+                       :user_agent_for
 end

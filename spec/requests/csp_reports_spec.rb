@@ -42,10 +42,11 @@ describe "POST /csp-reports" do
   it "truncates long non-ASCII user agents without splitting characters" do
     post "/csp-reports",
          params: report.to_json,
-         headers: headers.merge("HTTP_USER_AGENT" => ("é" * 600).b)
+         headers: headers.merge("HTTP_USER_AGENT" => ("€" * 600).b)
 
     expect(response).to have_http_status(:no_content)
     expect(CspReport.sole.user_agent).to be_valid_encoding
+    expect(CspReport.sole.user_agent.length).to eq(CspReport::USER_AGENT_LENGTH)
   end
 
   it "accepts reports with CSRF protection enabled" do
