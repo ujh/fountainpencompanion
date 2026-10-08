@@ -327,7 +327,8 @@ CREATE TABLE public.csp_reports (
     count integer DEFAULT 1 NOT NULL,
     sample text,
     created_at timestamp(6) without time zone NOT NULL,
-    updated_at timestamp(6) without time zone NOT NULL
+    updated_at timestamp(6) without time zone NOT NULL,
+    user_agent character varying DEFAULT ''::character varying NOT NULL
 );
 
 
@@ -1814,6 +1815,13 @@ CREATE UNIQUE INDEX idx_on_brand_model_color_material_trim_color_fillin_c4996a67
 
 
 --
+-- Name: idx_on_directive_blocked_uri_page_user_agent_5aa33c02df; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX idx_on_directive_blocked_uri_page_user_agent_5aa33c02df ON public.csp_reports USING btree (directive, blocked_uri, page, user_agent);
+
+
+--
 -- Name: idx_on_field_brand_key_value_key_7e03ce443a; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -1958,13 +1966,6 @@ CREATE INDEX index_collected_pens_on_pens_micro_cluster_id ON public.collected_p
 --
 
 CREATE INDEX index_collected_pens_on_user_id ON public.collected_pens USING btree (user_id);
-
-
---
--- Name: index_csp_reports_on_directive_and_blocked_uri_and_page; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE UNIQUE INDEX index_csp_reports_on_directive_and_blocked_uri_and_page ON public.csp_reports USING btree (directive, blocked_uri, page);
 
 
 --
@@ -2574,6 +2575,7 @@ ALTER TABLE ONLY public.collected_inks
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20261008080000'),
 ('20261007130000'),
 ('20261007120000'),
 ('20261006120000'),

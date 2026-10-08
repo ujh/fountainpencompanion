@@ -17,13 +17,19 @@ describe Admins::CspReportsController do
         blocked_uri: "https://evil.example.com",
         page: "brands#index",
         count: 3,
-        sample: "alert(1)"
+        sample: "alert(1)",
+        user_agent: "ShapBot/0.1.0"
       )
 
       get "/admins/csp_reports"
 
       expect(response).to be_successful
-      expect(response.body).to include("https://evil.example.com", "brands#index", "alert(1)")
+      expect(response.body).to include(
+        "https://evil.example.com",
+        "brands#index",
+        "alert(1)",
+        "ShapBot/0.1.0"
+      )
     end
 
     it "shows an empty state" do

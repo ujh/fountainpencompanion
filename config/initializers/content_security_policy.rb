@@ -13,8 +13,8 @@ Rails.application.configure do
     policy.frame_ancestors :self
     policy.script_src :self, *clicky, *hcaptcha
     policy.style_src :self, :unsafe_inline, *hcaptcha
-    policy.font_src :self
-    policy.img_src :self, :data, :https
+    policy.font_src :self, :data
+    policy.img_src :self, :data, :https, :http
     policy.connect_src :self, "https://api.honeybadger.io", "https://in.getclicky.com", *hcaptcha
     policy.frame_src(*hcaptcha)
     policy.report_uri "/csp-reports"

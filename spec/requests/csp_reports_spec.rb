@@ -22,6 +22,33 @@ describe "POST /csp-reports" do
     )
   end
 
+  it "records the reporting browser's user agent" do
+    post "/csp-reports",
+         params: report.to_json,
+         headers: headers.merge("HTTP_USER_AGENT" => "Mozilla/5.0 Firefox/157.0")
+
+    expect(CspReport.sole.user_agent).to eq("Mozilla/5.0 Firefox/157.0")
+  end
+
+  it "replaces invalid bytes in the user agent" do
+    post "/csp-reports",
+         params: report.to_json,
+         headers: headers.merge("HTTP_USER_AGENT" => "Mozilla/5.0 \xFF".b)
+
+    expect(response).to have_http_status(:no_content)
+    expect(CspReport.sole.user_agent).to eq("Mozilla/5.0 �")
+  end
+
+  it "truncates long non-ASCII user agents without splitting characters" do
+    post "/csp-reports",
+         params: report.to_json,
+         headers: headers.merge("HTTP_USER_AGENT" => ("€" * 600).b)
+
+    expect(response).to have_http_status(:no_content)
+    expect(CspReport.sole.user_agent).to be_valid_encoding
+    expect(CspReport.sole.user_agent.length).to eq(CspReport::USER_AGENT_LENGTH)
+  end
+
   it "accepts reports with CSRF protection enabled" do
     ActionController::Base.allow_forgery_protection = true
     post "/csp-reports", params: report.to_json, headers: headers

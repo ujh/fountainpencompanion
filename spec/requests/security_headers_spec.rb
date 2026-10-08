@@ -12,6 +12,18 @@ describe "security headers" do
     expect(policy).to include("default-src 'self'", "object-src 'none'", "report-uri /csp-reports")
   end
 
+  it "allows images over http for review thumbnails that link to http URLs" do
+    get "/"
+
+    expect(policy).to include("img-src 'self' data: https: http:")
+  end
+
+  it "allows data: fonts" do
+    get "/"
+
+    expect(policy).to include("font-src 'self' data:")
+  end
+
   it "allows inline scripts only through a per-request nonce" do
     get "/"
     first_nonce = policy[/'nonce-([^']+)'/, 1]
