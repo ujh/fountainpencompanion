@@ -1590,3 +1590,13 @@ evidence.
 - p2c: Only the newest 200 raw `rejected_suggestions` entries (4x the 50-pair cap) are
   validated, so a huge array of invalid entries can't make the request thread do unbounded work
   before p2d's throttle lands; valid pairs older than that are dropped.
+
+**p2d decisions:**
+
+- p2d: The throttle matches the path the router sees, not the raw path: it squeezes repeated and
+  trailing slashes and percent-decodes before matching, and accepts any format extension. A
+  trailing slash, `//`, `pen%5Fand...` or `.html` all reach `WidgetsController#show` and would
+  otherwise enqueue unthrottled past the plan's literal `(\.json)?` regex.
+- p2d: The rule is method-agnostic (only GET routes there) and keyed on IP at 10 per 60 s, as the
+  plan suggested; a whitespace-only `suggestion_id` counts as an enqueue, matching the
+  controller's `.presence`.

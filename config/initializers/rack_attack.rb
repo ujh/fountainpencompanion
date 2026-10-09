@@ -118,6 +118,17 @@ Rack::Attack.throttle("ink review submissions/ip", limit: 20, period: 60) do |re
   end
 end
 
+def fpc_pen_and_ink_suggestion_enqueue?(request)
+  path =
+    Rack::Utils.unescape_path(ActionDispatch::Journey::Router::Utils.normalize_path(request.path))
+  path.match?(%r{\A/dashboard/widgets/pen_and_ink_suggestion(\.[^/.]+)?\z}) &&
+    request.params["suggestion_id"].blank?
+end
+
+Rack::Attack.throttle("pen and ink suggestions/ip", limit: 10, period: 60) do |request|
+  request.ip if fpc_pen_and_ink_suggestion_enqueue?(request)
+end
+
 Rack::Attack.throttle("missing descriptions", limit: 10, period: 20) do |request|
   request.ip if request.path.starts_with?("/descriptions/missing")
 end

@@ -361,6 +361,128 @@ describe "Rack::Attack throttles", type: :request do
     end
   end
 
+  describe "pen and ink suggestion enqueue throttle" do
+    let(:path) { "/dashboard/widgets/pen_and_ink_suggestion.json" }
+    let(:env) { { "REMOTE_ADDR" => "203.0.113.230" } }
+
+    def use_up_enqueue_limit
+      statuses(10) { get path, env: env }
+    end
+
+    it "allows the first 10 enqueues and throttles the 11th from the same IP" do
+      results = statuses(11) { get path, env: env }
+
+      expect(results.first(10)).to all(be < 429)
+      expect(results.last).to eq(429)
+    end
+
+    it "never throttles polls that carry a suggestion_id" do
+      use_up_enqueue_limit
+      results =
+        statuses(30) do |i|
+          get path, params: { suggestion_id: "request-pen-and-ink-suggestion-#{i}" }, env: env
+        end
+
+      expect(results).to all(be < 429)
+    end
+
+    it "throttles enqueues on the path without .json" do
+      use_up_enqueue_limit
+      get "/dashboard/widgets/pen_and_ink_suggestion", env: env
+
+      expect(response.status).to eq(429)
+    end
+
+    it "throttles enqueues with an empty suggestion_id" do
+      use_up_enqueue_limit
+      get path, params: { suggestion_id: "" }, env: env
+
+      expect(response.status).to eq(429)
+    end
+
+    it "throttles enqueues with a whitespace suggestion_id" do
+      use_up_enqueue_limit
+      get "#{path}?suggestion_id=%20", env: env
+
+      expect(response.status).to eq(429)
+    end
+
+    %w[
+      /dashboard/widgets/pen%5Fand%5Fink%5Fsuggestion.json
+      /dashboard/widgets/pen_and_ink_suggestion.html
+    ].each do |variant|
+      it "throttles enqueues on #{variant}" do
+        use_up_enqueue_limit
+        get variant, env: env
+
+        expect(response.status).to eq(429)
+      end
+    end
+
+    it "keeps separate buckets per IP" do
+      use_up_enqueue_limit
+      get path, env: { "REMOTE_ADDR" => "203.0.113.231" }
+
+      expect(response.status).to be < 429
+    end
+
+    it "does not throttle other dashboard widgets" do
+      use_up_enqueue_limit
+      get "/dashboard/widgets/inks_summary.json", env: env
+
+      expect(response.status).to be < 429
+    end
+  end
+
+  describe "fpc_pen_and_ink_suggestion_enqueue?" do
+    def enqueue?(path, query = "")
+      env = Rack::MockRequest.env_for("/")
+      env["PATH_INFO"] = path
+      env["QUERY_STRING"] = query
+      fpc_pen_and_ink_suggestion_enqueue?(Rack::Request.new(env))
+    end
+
+    %w[
+      /dashboard/widgets/pen_and_ink_suggestion
+      /dashboard/widgets/pen_and_ink_suggestion.json
+      /dashboard/widgets/pen_and_ink_suggestion/
+      /dashboard/widgets/pen_and_ink_suggestion.json/
+      //dashboard//widgets/pen_and_ink_suggestion
+      /dashboard/widgets/pen%5Fand%5Fink%5Fsuggestion.json
+      /dashboard/widgets/pen_and_ink_suggestion.html
+    ].each do |path|
+      it "matches #{path}, which routes to the suggestion widget" do
+        expect(Rails.application.routes.recognize_path(path)).to include(
+          controller: "widgets",
+          action: "show",
+          id: "pen_and_ink_suggestion"
+        )
+        expect(enqueue?(path)).to eq(true)
+      end
+    end
+
+    it "matches a blank suggestion_id" do
+      expect(enqueue?("/dashboard/widgets/pen_and_ink_suggestion.json", "suggestion_id=")).to eq(
+        true
+      )
+      expect(enqueue?("/dashboard/widgets/pen_and_ink_suggestion.json", "suggestion_id=%20")).to eq(
+        true
+      )
+    end
+
+    it "does not match a poll" do
+      expect(enqueue?("/dashboard/widgets/pen_and_ink_suggestion.json", "suggestion_id=abc")).to eq(
+        false
+      )
+    end
+
+    it "does not match other widgets" do
+      expect(enqueue?("/dashboard/widgets/inks_summary.json")).to eq(false)
+      expect(enqueue?("/dashboard/widgets/pen_and_ink_suggestions.json")).to eq(false)
+      expect(enqueue?("/dashboard/widgets/pen_and_ink_suggestion/extra")).to eq(false)
+    end
+  end
+
   describe "CSP report throttle" do
     it "allows the first 30 reports and throttles the 31st from the same IP" do
       results = statuses(31) { post "/csp-reports", env: { "REMOTE_ADDR" => "203.0.113.220" } }
