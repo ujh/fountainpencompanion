@@ -127,6 +127,8 @@ class PenAndInkSuggestion::InkProperties
     WORD = /[a-z']+/
     NEGATED_AFTER =
       /\A(?:[\s-]*free\b|\s*[-–—:=?]\s*(?:no|none)\b|\s+(?:version|edition|variant)s?\b)/
+    LIST_TAIL = /,?\s*\b(?:and|or|nor)\b\s*\z|,\s*\z/
+    TERM_AT_END = /(?:#{Regexp.union(PATTERNS.values.flatten).source})\z/
 
     def self.normalise_all(texts)
       Array(texts).map { |text| text.to_s.downcase.tr("’_#", "'  ").strip }.compact_blank
@@ -159,13 +161,23 @@ class PenAndInkSuggestion::InkProperties
     def affirmed?(text, match)
       return false if match[0].end_with?("less") || match.post_match.match?(NEGATED_AFTER)
 
-      words = preceding_words(text, match)
-      words.none? { |word| blocks?(word) } && !words.each_cons(2).include?(%w[as with])
+      !negated_before?(text, match.begin(0))
     end
 
-    def preceding_words(text, match)
-      clause = text[0...match.begin(0)].split(CLAUSE_BOUNDARY, -1).last.to_s
-      clause.scan(WORD).last(WINDOW)
+    def negated_before?(text, position)
+      head = text[0...position]
+      words = head.split(CLAUSE_BOUNDARY, -1).last.to_s.scan(WORD).last(WINDOW)
+      return true if words.any? { |word| blocks?(word) } || words.each_cons(2).include?(%w[as with])
+
+      negated_list_item?(text, head)
+    end
+
+    def negated_list_item?(text, head)
+      separator = LIST_TAIL.match(head)
+      return false unless separator
+
+      previous = TERM_AT_END.match(head[0...separator.begin(0)].rstrip)
+      previous.present? && negated_before?(text, previous.begin(0))
     end
 
     def blocks?(word)

@@ -1288,16 +1288,16 @@ so the checking isn't circular.
    cartridge compatibility; not an exact rejected repeat; hard-failure rate.
 2. **Named pen / named ink hit** against the labelled targets.
 3. **Hard constraints** met against the labels: kind, usage, brand/tag/comment exclusion, nib grade
-   and width (checked with `NibProfile`), colour (with `ColorProfile`), pair usage, _or_ an
-   explicit relaxation note.
+   and width (checked with `NibProfile`), colour (with `ColorProfile`), shimmer and scented (with
+   `InkProperties`), pair usage, _or_ an explicit relaxation note.
 4. **Rule leakage:** regex for `novelty|favou?rite|balance|usage count|\bid\b`, headings, links.
 5. **Default behaviour preserved** on no-instruction runs: share of never-used or ≥ 180-day-unused
    inks (by `last_activity_on` at `as_of`) within ±5 pp of baseline, and colour spread against
    currently inked.
 6. **Cost and speed:** measured tokens, $ per run, latency, `DecisionNotReachedError` rate,
    extractor fallback rate.
-7. **Normaliser correctness:** a separate hand check of 50 `NibProfile` outputs and 50
-   `ColorProfile` outputs, because the checkers reuse that code.
+7. **Normaliser correctness:** a separate hand check of 50 `NibProfile` outputs, 50
+   `ColorProfile` outputs and 50 `InkProperties` outputs, because the checkers reuse that code.
 8. **Matcher false pins:** `MentionMatcher` alone on all 592 distinct strings against hand labels
    (P8 gate ≤ 2%).
 
@@ -1467,7 +1467,7 @@ id that made it. The owner reviews them before the corresponding PR merges.
 | p5   | P5      | `CollectionSnapshot`; the current CSV prompt builder reads from it                           |
 | p6a  | P6      | bench case exporter, label format, checkers                                                  |
 | p6b  | P6      | bench runner, `as_of` replay, seeded baseline run                                            |
-| gate | P6      | **owner, not an agent:** spot-check ~50 of the drafted bench labels and hand-check 50 `NibProfile` and 50 `ColorProfile` outputs (section 8.1 metric 7) |
+| gate | P6      | **owner, not an agent:** spot-check ~50 of the drafted bench labels and hand-check 50 `NibProfile`, 50 `ColorProfile` and 50 `InkProperties` outputs (section 8.1 metric 7) |
 | p7   | P7      | v2 pick call for runs without an instruction                                                 |
 | p10  | P10     | inked named pen UX (link to the currently-inked entry)                                       |
 | p8   | P8      | `MentionMatcher` + `NameResolver`; instruction runs move to v2 in fallback mode              |
@@ -1476,8 +1476,8 @@ id that made it. The owner reviews them before the corresponding PR merges.
 | p11  | P11     | remove the old CSV path                                                                      |
 
 **Human checks before bench claims.** The bench labels are drafted by Claude Code, and the
-checkers reuse `NibProfile` and `ColorProfile`, so the `gate` row is a merge gate: until the owner
-has done both checks, no p7+ PR may claim a section 8.2 target from bench results. Bench numbers
+checkers reuse `NibProfile`, `ColorProfile` and `InkProperties`, so the `gate` row is a merge
+gate: until the owner has done both checks (labels and the three normalisers), no p7+ PR may claim a section 8.2 target from bench results. Bench numbers
 reported before then are stated as scored against unreviewed draft labels, with the label-free
 metrics (validity, hard failures, swab/cartridge violations, rule leakage, cost) as the primary
 evidence.
@@ -1708,8 +1708,18 @@ evidence.
   measured): of 608,905 active non-swab inks, 63.4% get a flag: shading 44.0%, sheen 28.0%,
   shimmer 15.6%, water-resistant 3.9%, chameleon 2.2%, pigmented 1.7%, scented 1.3%, iron gall
   0.9%, mostly from cluster tags; about 0.07 ms per ink. Known false positives remain, e.g. generic
-  sentences ("iron gall inks are generally more water-resistant") and a description that mentions
-  a separate shimmer variant in a later clause.
-- p4b: If the p6a checker scores `shimmer: exclude` with `InkProperties`, that metric passes by
-  construction. The checker should use the labelled shimmer inks instead, or the `gate` row should
-  add a hand check of 50 `InkProperties` outputs next to the `NibProfile` and `ColorProfile` ones.
+  sentences ("iron gall inks are generally more water-resistant"), a description that mentions a
+  separate shimmer variant in a later clause, an odour read as scented ("a slight chemical scent";
+  all 20 scent mentions in the dev DB's descriptions are real scents) and a name such as "Sheena"
+  (`sheen\w*` is kept for joined tags such as "sheenmonster"; no such name is in the dev DB).
+- p4b: The p6a checkers score `shimmer` and `scented` with `InkProperties`, the same way nib and
+  colour are scored with `NibProfile` and `ColorProfile`. That shows the filter is enforced, not
+  that the flags are right, so section 8.1 metric 7, the `gate` row and the merge-gate paragraph
+  now add a hand check of 50 `InkProperties` outputs. Until it is done, no p7+ PR may claim the
+  "no shimmer" target. The plan's other option (score only against labelled shimmer inks) was not
+  taken: the labels name constraints per case, not a property for every ink a run can pick.
+- p4b: A negation carries along a list of property words joined by commas, "and", "or" or "nor":
+  "without sheen and shimmer" and "no sheen, shading or shimmer" set no flag. It does not carry
+  past any other word ("no sheen and gold shimmer" is shimmer) or a weak qualifier to other
+  properties ("low water resistance and shimmer" is shimmer). In the dev DB this drops one sheen
+  and one shading flag among 2,553 cluster descriptions.
