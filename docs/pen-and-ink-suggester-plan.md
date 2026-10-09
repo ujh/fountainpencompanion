@@ -1457,8 +1457,8 @@ id that made it. The owner reviews them before the corresponding PR merges.
 | ---- | ------- | -------------------------------------------------------------------------------------------- |
 | p1   | P1      | `NibProfile` and `NibProfile::Parser` with the table spec                                    |
 | p2a  | P2      | `RubyLlmAgent`: `ToolCallLimitExceeded`, `max_tool_calls`, `tool_calls_mode`; CLAUDE.md tool names |
-| p2b  | P2      | suggester: precheck, `ask!`, first-valid-wins `RecordSuggestion`, one `AgentLog` per request |
-| p2c  | P2      | `interactive` queue, `retry: 0`, result written in `ensure`, `queue_ms`                      |
+| p2b  | P2      | suggester: precheck, `ask!`, first-valid-wins `RecordSuggestion`, one `AgentLog` per request, worker `retry: 0` |
+| p2c  | P2      | `interactive` queue, result written in `ensure`, `queue_ms`                                  |
 | p2d  | P2      | rejected-suggestion validation, 500-char cap, Rack::Attack throttle, enqueue cap check       |
 | p3   | P3      | widget reliability: poll timeout, error state, gate note, `maxLength`, message-only results  |
 | p4a  | P4      | `ColorProfile`                                                                               |
@@ -1560,3 +1560,7 @@ evidence.
   precheck treats them as unfillable. An ink without a kind counts as fillable.
 - p2b: The old "processing" logs of earlier failed runs are left as they are; they are no longer
   reused and still count toward that day's cap.
+- p2b: The worker's `retry: 0` moves here from p2c. With one new log per run, Sidekiq's default
+  25 retries would add a counted log on every attempt, so one click during an OpenAI outage could
+  use up about a dozen of a free user's 20 daily runs. Master auto-deploys, so p2b must not ship
+  without it. Until p2c's `ensure` lands, a failed run still leaves no cached result.
