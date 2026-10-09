@@ -120,6 +120,8 @@ class NibProfile
       flex: 0.45
     }.freeze
 
+    PROSE_WORDS = /(?<![[:alnum:]])(?:[Oo]f|[Ii]m)(?![[:alnum:]])/
+
     MODEL_TOKENS = /flex\w*|\bfude\b|\bparallel\b|\bmusic\b|\bzoom\b|\bstub\b|\d+\.\d+ ?mm\b/
     MODEL_TRAILING_GRADE = /\(\s*(uef|eef|xxf|ef|xf|f|mf|fm|m|b|bb|bbb)\s*\)\s*\z/i
 
@@ -143,9 +145,10 @@ class NibProfile
     private
 
     def parse(text, source:)
-      text = clean(text)
+      source_text = clean(text)
+      text = clean(without_prose_words(text))
       kind = kind_of(text)
-      attributes = { raw: nib, kind:, source:, source_text: text }
+      attributes = { raw: nib, kind:, source:, source_text: }
       return NibProfile.new(**attributes) unless kind.in?(%i[fountain dip])
 
       text, prefix_characters = strip_prefixes(text)
@@ -182,10 +185,17 @@ class NibProfile
       text
         .downcase
         .gsub(/(\d),(\d)/, '\1.\2')
-        .gsub(/(?<![\d.])\.(\d)/, '0.\1')
+        .gsub(/\bo\.(\d)/, '0.\1')
+        .gsub(/(?<![[:alnum:].])\.(\d)/, '0.\1')
         .gsub(/s\.i\.g\.?/, "sig")
         .gsub(/[<>()\[\]{},;:+|_]/, " ")
         .squish
+    end
+
+    def without_prose_words(text)
+      return text if text.split.one?
+
+      text.gsub(PROSE_WORDS, " ")
     end
 
     def kind_of(text)

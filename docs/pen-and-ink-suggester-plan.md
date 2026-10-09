@@ -1466,12 +1466,20 @@ id that made it. The owner reviews them before the corresponding PR merges.
 | p5   | P5      | `CollectionSnapshot`; the current CSV prompt builder reads from it                           |
 | p6a  | P6      | bench case exporter, label format, checkers                                                  |
 | p6b  | P6      | bench runner, `as_of` replay, seeded baseline run                                            |
+| gate | P6      | **owner, not an agent:** spot-check ~50 of the drafted bench labels and hand-check 50 `NibProfile` and 50 `ColorProfile` outputs (section 8.1 metric 7) |
 | p7   | P7      | v2 pick call for runs without an instruction                                                 |
 | p10  | P10     | inked named pen UX (link to the currently-inked entry)                                       |
 | p8   | P8      | `MentionMatcher` + `NameResolver`; instruction runs move to v2 in fallback mode              |
 | p9a  | P9      | `PenAndInkConstraintExtractor` and `Constraints`                                             |
 | p9b  | P9      | `CandidateSelector` constraint filters, boosts and relax order                               |
 | p11  | P11     | remove the old CSV path                                                                      |
+
+**Human checks before bench claims.** The bench labels are drafted by Claude Code, and the
+checkers reuse `NibProfile` and `ColorProfile`, so the `gate` row is a merge gate: until the owner
+has done both checks, no p7+ PR may claim a section 8.2 target from bench results. Bench numbers
+reported before then are stated as scored against unreviewed draft labels, with the label-free
+metrics (validity, hard failures, swab/cartridge violations, rule leakage, cost) as the primary
+evidence.
 
 **p1 decisions:**
 
@@ -1502,4 +1510,15 @@ id that made it. The owner reviews them before the corresponding PR merges.
   whole nib text is a bare decimal width ("0.38", "0.5 mm").
 - p1: Coverage of the Ruby port on the reference's 186,669-pen export (brand and model context):
   92.6% get a width class (96.5% of pens with a nib entered) vs 92.8% / 96.8% for the prototype;
-  every class is within 0.2k pens of the reference distribution.
+  every class is within 0.2k pens of the reference distribution. These figures were measured by
+  the implementing agent with an uncommitted script and only show coverage, not correctness; the
+  metric-7 hand check of 50 `NibProfile` outputs is still pending (see the `gate` row).
+- p1: The German `K`/`I`/`O` prefixes are read on every brand, not only Pelikan: in the dev DB
+  `OM`/`OB`/`OBB` are common on Lamy, Montblanc, Kaweco, Parker and Waterman pens.
+- p1: The prose words "of" and German "im" are dropped before parsing unless written in capitals
+  (`OF`, `IM`) or the whole nib text ("Made of steel" has no grade; "Gold OF" is oblique fine).
+  An all-caps sentence containing "OF" would still read as oblique fine; none exists in the data.
+- p1: A leading-dot decimal is only expanded when the dot follows no letter, digit or dot, so
+  `No.6` / `Nr.8` stay unit sizes; a letter O before a decimal (`O.6 Stub`, `O.5mm`) is read as a
+  zero. After these fixes about 80 distinct nib values changed in the dev DB; the share of pens
+  with a nib entered that get a width class moved from 96.35% to 96.34% (brand context only).
