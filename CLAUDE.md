@@ -178,6 +178,11 @@ An agent includes `RubyLlmAgent` and must implement four methods:
 
 Use `ask(prompt)` in `perform` to send a user message and get a completion. The concern handles transcript saving, usage tracking, and transcript restoration automatically.
 
+Optional private overrides:
+
+- `max_tool_calls` — individual tool calls allowed per chat (default 50); passing it raises `RubyLlmAgent::ToolCallLimitExceeded`
+- `tool_calls_mode` — passed to RubyLLM as `calls:` (`:one` sends `parallel_tool_calls: false`); default `nil` leaves the provider default
+
 ### Tool structure
 
 Tools are defined as inner classes inheriting from `RubyLLM::Tool`:
@@ -186,7 +191,7 @@ Tools are defined as inner classes inheriting from `RubyLLM::Tool`:
 class MyTool < RubyLLM::Tool
   description "What this tool does"
 
-  def name = "my_tool" # Required — auto-generated name includes module prefix for inner classes
+  def name = "my_tool" # The name the model sees; keep it stable
 
   param :some_param, desc: "Description" # string (default)
   param :other_param, type: "integer", desc: "Description" # integer
@@ -208,7 +213,7 @@ end
 
 Key points:
 
-- Always override `def name` — the auto-generated name includes module prefixes for inner classes
+- Override `def name`. Without it, `config/initializers/ruby_llm.rb` derives the name from the demodulized class name (`InkClusterer::AssignToCluster` → `assign_to_cluster`, no module prefix; a trailing `Tool` is dropped), but the name is what the system prompt and saved transcripts refer to, so an explicit name keeps it stable when the class is renamed or moved. Anonymous tool classes (`Class.new(RubyLLM::Tool)` in specs) have no class name and must define it
 - `halt "message"` stops the tool call loop; returning a plain string sends it back to the LLM
 - Tools with no parameters: omit `param` declarations and define `execute` with no arguments
 - Pass dependencies (owner objects, agent_log) via the constructor
