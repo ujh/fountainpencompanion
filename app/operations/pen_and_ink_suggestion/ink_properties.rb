@@ -136,17 +136,17 @@ class PenAndInkSuggestion::InkProperties
 
     def initialize(property)
       self.property = property
+      self.patterns = PATTERNS.fetch(property)
+      self.label_patterns = patterns + LABEL_PATTERNS.fetch(property, [])
     end
 
     def match?(text, label: false)
-      patterns = PATTERNS.fetch(property)
-      patterns += LABEL_PATTERNS.fetch(property, []) if label
-      patterns.any? { |pattern| affirmed_match?(text, pattern) }
+      (label ? label_patterns : patterns).any? { |pattern| affirmed_match?(text, pattern) }
     end
 
     private
 
-    attr_accessor :property
+    attr_accessor :property, :patterns, :label_patterns
 
     def affirmed_match?(text, pattern)
       position = 0

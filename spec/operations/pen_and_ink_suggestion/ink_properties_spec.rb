@@ -99,6 +99,7 @@ describe PenAndInkSuggestion::InkProperties do
         ["Shading and shimmering ink with a purple grey base.", %w[shimmer shading]],
         ["A deep blue, adorned with violet glitter.", %w[shimmer]],
         ["A blue-black ink with hints of bronze and red sheen. No shimmer.", %w[sheen]],
+        ["No shimmer in the cap. Gold shimmer throughout.", %w[shimmer]],
         ["Brighter blue. low shading, no sheen, and no shimmer.", %w[shading]],
         ["The inks are water soluble and shading, without shimmer or sheen.", %w[shading]],
         ["No sheen and gold shimmer.", %w[shimmer]],
