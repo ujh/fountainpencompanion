@@ -230,11 +230,12 @@ class NibProfile
 
     def characters_in(text)
       characters =
-        CHARACTERS.select do |character, pattern|
-          candidate = character == :flex ? text.gsub(SEMI_FLEX, "") : text
-          pattern.match?(candidate)
-        end
-      characters = characters.keys
+        CHARACTERS
+          .select do |character, pattern|
+            candidate = character == :flex ? text.gsub(SEMI_FLEX, "") : text
+            pattern.match?(candidate)
+          end
+          .keys
       characters << :signature if pilot_brand? && text.split.include?("s")
       characters << :zoom if japanese_brand? && text == "z"
       characters << :beginner if BEGINNER_BRANDS.match?(brand) && text == "a"
@@ -302,7 +303,7 @@ class NibProfile
     end
 
     def in_table_order(characters)
-      CHARACTERS.keys.select { |character| characters.include?(character) }
+      CHARACTERS.keys & characters
     end
 
     def character_width(characters)
