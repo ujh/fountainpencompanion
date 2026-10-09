@@ -123,9 +123,9 @@ def fpc_pen_and_ink_suggestion_enqueue?(request)
 end
 
 def fpc_pen_and_ink_suggestion_path?(request)
-  path =
-    Rack::Utils.unescape_path(ActionDispatch::Journey::Router::Utils.normalize_path(request.path))
-  path.b.match?(%r{\A/dashboard/widgets/pen_and_ink_suggestion(\.[^/.]+)?\z})
+  path = ActionDispatch::Journey::Router::Utils.normalize_path(request.path)
+  match = path.b.match(%r{\A/dashboard/widgets/([^/.?]+)(?:\.[^/.?]+)?\z})
+  match.present? && Rack::Utils.unescape_path(match[1]) == "pen_and_ink_suggestion"
 end
 
 def fpc_pen_and_ink_suggestion_poll?(request)

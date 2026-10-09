@@ -435,6 +435,7 @@ describe "Rack::Attack throttles", type: :request do
     %w[
       /dashboard/widgets/pen%5Fand%5Fink%5Fsuggestion.json
       /dashboard/widgets/pen_and_ink_suggestion.html
+      /dashboard/widgets/pen_and_ink_suggestion.json%2F
     ].each do |variant|
       it "throttles enqueues on #{variant}" do
         use_up_enqueue_limit
@@ -486,6 +487,13 @@ describe "Rack::Attack throttles", type: :request do
       //dashboard//widgets/pen_and_ink_suggestion
       /dashboard/widgets/pen%5Fand%5Fink%5Fsuggestion.json
       /dashboard/widgets/pen_and_ink_suggestion.html
+      /dashboard/widgets/pen%5fand_ink_suggestion
+      /dashboard/widgets/pen_and_ink_suggestion.json%2F
+      /dashboard/widgets/pen_and_ink_suggestion.json%2f%2F
+      /dashboard/widgets/pen_and_ink_suggestion.js%2Fon
+      /dashboard/widgets/pen_and_ink_suggestion.%2F
+      /dashboard/widgets/pen_and_ink_suggestion.json;x
+      /dashboard/widgets/pen_and_ink_suggestion.json%2E
     ].each do |path|
       it "matches #{path}, which routes to the suggestion widget" do
         expect(Rails.application.routes.recognize_path(path)).to include(
@@ -504,6 +512,20 @@ describe "Rack::Attack throttles", type: :request do
       expect(enqueue?("/dashboard/widgets/pen_and_ink_suggestion.json", "suggestion_id=%20")).to eq(
         true
       )
+    end
+
+    %w[
+      /dashboard/widgets/pen_and_ink_suggestion%2F
+      /dashboard/widgets/pen_and_ink_suggestion%2E
+      /dashboard/widgets/pen_and_ink_suggestion%2Ejson
+      /dashboard/widgets/pen_and_ink_suggestion;x
+    ].each do |path|
+      it "does not match #{path}, which routes to a different widget id" do
+        expect(Rails.application.routes.recognize_path(path)[:id]).not_to eq(
+          "pen_and_ink_suggestion"
+        )
+        expect(enqueue?(path)).to eq(false)
+      end
     end
 
     %w[/foo%FF /%E2%82 /dashboard/widgets/pen_and_ink_suggestion%FF].each do |path|

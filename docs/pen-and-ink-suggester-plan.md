@@ -1593,9 +1593,10 @@ evidence.
 
 **p2d decisions:**
 
-- p2d: The throttle matches the path the router sees, not the raw path: it squeezes repeated and
-  trailing slashes and percent-decodes before matching, and accepts any format extension. A
-  trailing slash, `//`, `pen%5Fand...` or `.html` all reach `WidgetsController#show` and would
+- p2d: The throttle matches the path the way the router does, not the raw path: it squeezes
+  repeated and trailing slashes, matches `/dashboard/widgets/:id(.:format)` on the still-encoded
+  path, and compares only the percent-decoded id. A trailing slash, `//`, `pen%5Fand...`, `.html`
+  or an encoded separator in the format (`.json%2F`) all reach `WidgetsController#show` and would
   otherwise enqueue unthrottled past the plan's literal `(\.json)?` regex.
 - p2d: The rule is method-agnostic (only GET routes there) and keyed on IP at 10 per 60 s, as the
   plan suggested; a whitespace-only `suggestion_id` counts as an enqueue, matching the
