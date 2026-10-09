@@ -1456,8 +1456,8 @@ id that made it. The owner reviews them before the corresponding PR merges.
 | Step | Plan PR | Scope                                                                                        |
 | ---- | ------- | -------------------------------------------------------------------------------------------- |
 | p1   | P1      | `NibProfile` and `NibProfile::Parser` with the table spec                                    |
-| p2a  | P2      | precheck before the LLM call, `ask!`, first-valid-wins `RecordSuggestion`, `tool_calls_mode` |
-| p2b  | P2      | `ToolCallLimitExceeded` + `max_tool_calls`, one `AgentLog` per request                       |
+| p2a  | P2      | `RubyLlmAgent`: `ToolCallLimitExceeded`, `max_tool_calls`, `tool_calls_mode`; CLAUDE.md tool names |
+| p2b  | P2      | suggester: precheck, `ask!`, first-valid-wins `RecordSuggestion`, one `AgentLog` per request |
 | p2c  | P2      | `interactive` queue, `retry: 0`, result written in `ensure`, `queue_ms`                      |
 | p2d  | P2      | rejected-suggestion validation, 500-char cap, Rack::Attack throttle, enqueue cap check       |
 | p3   | P3      | widget reliability: poll timeout, error state, gate note, `maxLength`, message-only results  |
@@ -1522,3 +1522,18 @@ evidence.
   `No.6` / `Nr.8` stay unit sizes; a letter O before a decimal (`O.6 Stub`, `O.5mm`) is read as a
   zero. After these fixes about 80 distinct nib values changed in the dev DB; the share of pens
   with a nib entered that get a width class moved from 96.35% to 96.34% (brand context only).
+
+**p2a decisions:**
+
+- p2a: The shared `RubyLlmAgent` changes (named `ToolCallLimitExceeded`, `max_tool_calls`,
+  `tool_calls_mode`) ship alone as p2a, so p2b only touches the suggester; the step table above was
+  updated to match.
+- p2a: `build_chat` registers tools with a single `with_tools(*tools, calls: tool_calls_mode)`;
+  with `nil` it sends exactly what the old per-tool `with_tool` loop sent. RubyLLM 1.16 keeps
+  `calls` across rounds (only a forced `choice` is reset), so `ask!` nudge requests also carry
+  `parallel_tool_calls: false`; the concern spec pins this.
+- p2a: The error message names the agent class and the limit; the transcript is still saved only
+  up to the call before the limit, as before.
+- p2a: CLAUDE.md keeps the explicit `def name` convention, now justified by name stability and
+  anonymous spec classes instead of the outdated module-prefix claim, and lists the two new
+  overrides. `spec/initializers/ruby_llm_spec.rb` pins the derived names.
