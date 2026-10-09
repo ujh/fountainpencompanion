@@ -1,6 +1,8 @@
 class SchedulePenAndInkSuggestion
   include Sidekiq::Worker
 
+  sidekiq_options retry: 0
+
   def perform(user_id, suggestion_id, extra_user_input = nil, rejected_suggestions = [])
     user = User.find(user_id)
     extra_user_input = nil unless extra_user_input_allowed?(user)
