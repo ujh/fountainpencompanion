@@ -8,7 +8,8 @@ open questions, and re-verified step by step on 2026-09-15. All production
 figures are as of 2026-09-12 to 2026-09-14 unless stated otherwise; they drift daily by tens to low
 hundreds, so re-count before acting on one.
 
-43 steps, S00-S42 (one v1 step dropped, one added). The "v1 id" column in section 1 maps the
+44 steps: S00-S42 (one v1 step dropped, one added) plus S29b-suggester-v2, inserted on 2026-10-09
+by owner decision (`docs/pen-and-ink-suggester-plan.md`). The "v1 id" column in section 1 maps the
 numbering of the 2026-09-14 draft (v1) to this version.
 
 Ground rules this roadmap follows:
@@ -80,7 +81,8 @@ text stands apart from renumbering and the removal of question language.
 | 27  | S27-embedding-read-flip            | Flip `read` (a PR) with recalibrated cutoffs; drip paused for the flip day; watch for a week                                                                                 | migration P2 step 4                     | XS   | medium*                        | S26                                                                  | S26   | Q29, Q1                           |
 | 28  | S28-harness-checkers-review-export | Checker `decide` + bench, ReviewApprover cases (latest run, human-confirmed, consistent), export mode and rubrics for unlabelled agents                                      | migration P1                            | L    | none                           | S20                                                                  | S27   | Q11, Q14, Q15                     |
 | 29  | S29-pen-model-clusterer-agent      | PenModelClusterer (L2) agent on the S01 DO model, tools with the create-tool duplicate check, `decide`, L2 case exporter; inert                                              | pen P3 (agent half)                     | M    | none                           | S04, S20, S10, S06, S11, S21                                         | S28   | Q32, Q20, Q12, Q8                 |
-| 30  | S30-chat-bench-round               | Chat bench round(s): OpenAI baselines for the ink agents, the S01 model as the pen baseline, DO candidates; pick per agent; bench refresh #2                                 | migration P3 + pen P2 model pick        | M    | none                           | S27, S28, S29, S21                                                   | S29   | Q32, Q5, Q6, Q14, Q15, Q16        |
+| 29b | S29b-suggester-v2                  | PenAndInkSuggester v2 per docs/pen-and-ink-suggester-plan.md (NibProfile, reliability, collection snapshot, replay bench, Ruby filtering + constraint extractor + one pick call) | neither plan (owner decision 2026-10-09) | L+ (11 PRs, multi-week) | medium*                        | S04 (soft: P9 only), S01 (soft: DO switches only)                    | -     | owner 2026-10-09                  |
+| 30  | S30-chat-bench-round               | Chat bench round(s): OpenAI baselines for the ink agents, the S01 model as the pen baseline, DO candidates; pick per agent; bench refresh #2                                 | migration P3 + pen P2 model pick        | M    | none                           | S27, S28, S29, S29b, S21                                             | S29   | Q32, Q5, Q6, Q14, Q15, Q16        |
 | 31  | S31-chat-cutover-wave-1            | Config-flip PRs for the low-risk ink agents (summarizers, SpamClassifier, PenAndInkSuggester, then ReviewFinder, InkBrandClusterer); multi-PR/ops activity                   | migration P5                            | S    | medium*                        | S30, S05                                                             | S30   | Q32, Q33, Q1                      |
 | 32  | S32-shadow-run                     | Enable shadow mode for InkClusterer and ReviewApprover for about two weeks (non-code)                                                                                        | migration P4                            | XS   | low                            | S25, S30 (S31 soft)                                                  | S31   | Q14                               |
 | 33  | S33-pen-directive-tuning           | Pen model config change if S30 picked one; tune the PenVariantClusterer directive against the bench (minor rounds); raise the queue depth once the Q27 bar is met            | pen P2                                  | M    | low                            | S30, S22, S15 (the bar)                                              | S32   | Q32, Q27, Q6, Q10                 |
@@ -172,7 +174,9 @@ run the migration in its decided order with every long wait filled by independen
 8. **Finish the harness and the L2 agent during the watch week (S28-S29), then one paid chat round
    (S30)** covering InkClusterer, the checkers, ReviewApprover, pen L1 and pen L2 (both benched against
    the S01 starting model as their baseline), plus export-mode grading for the unlabelled agents
-   (Q11, Q14, Q15, Q16 as decided).
+   (Q11, Q14, Q15, Q16 as decided). Added 2026-10-09: the PenAndInkSuggester v2 rewrite (S29b)
+   lands before S30, so the round benches the v2 suggester and its constraint extractor directly
+   and the suggester needs no bench round of its own later.
 9. **Cutover in waves (S31, S32, S37) for the ink agents only, with the shadow filled by pen tuning,
    the old-column retirement and the L2 wiring (S33-S36), the final-cutover watch week filled by the
    pen checkers (S38), then the key retirement (S39).** There is no pen cutover in any wave (Q32); a
@@ -5311,6 +5315,14 @@ agent_log.update!(extra_data: ink_review.extra_data) -> agent_log.waiting_for_ap
     (patron or not) actually resolves to; export mode also needs a bypass of `can_perform?`'s daily-limit
     check (pen_and_ink_suggester.rb — the method gating `MAX_PER_DAY`/`MAX_PER_DAY_PATRON`) so repeated
     export runs for the same user across several candidate models in one sitting don't get throttled.
+  - **Once S29b lands** (`docs/pen-and-ink-suggester-plan.md`; this applies if S29b's P6, the
+    suggester replay bench, lands before this step is built), the `PenAndInkSuggester` export uses
+    v2's pieces instead of the two bullets above: the hand-labelled cases and checkers from
+    `lib/bench/suggester/` (so it is no longer "no labels"), replay of the collection at request time
+    through `CollectionSnapshot.new(user, as_of:)` (instead of current state), and an
+    `enforce_daily_limit: false` keyword on `PenAndInkSuggester.new` (instead of patching
+    `can_perform?`). Every suggester cell also names `PenAndInkConstraintExtractor` in
+    `with_override`, next to the suggester entry.
   - `ReviewFinder`'s output is not a single value but the `FetchReviews::SubmitReview` jobs it enqueues
     (drained from `Sidekiq::Worker.jobs` under `Bench.isolate!`'s fake mode, review_finder.rb:23) plus
     its `Done` tool's summary (review_finder.rb:30-45) — export mode records both: the list of
@@ -5860,6 +5872,62 @@ cluster.pens_model_id` branch at app/workers/pens/update_model_micro_cluster.rb:
     the Rails console, confirm the resulting `agent_log.state` is `"waiting-for-approval"` with a
     plausible `extra_data["action"]`.
 
+### S29b-suggester-v2 — PenAndInkSuggester v2: NibProfile, reliability, collection snapshot, replay bench, Ruby filtering + constraint extractor + one pick call
+
+- **Goal.** Rebuild `PenAndInkSuggester` as specified in `docs/pen-and-ink-suggester-plan.md`:
+  Ruby filters the user's collection from typed constraints, a small sub-agent
+  (`PenAndInkConstraintExtractor`) turns the free-text instruction into those constraints, and the
+  model makes one pick call over pre-filtered rows. Added by owner decision on 2026-10-09; neither
+  original plan has it.
+- **Scope.** The plan's PRs P1-P11, merged in the order of the plan's section 9: P1 `NibProfile`
+  (standalone, first), P2 backend reliability, P3 widget reliability, P4
+  `ColorProfile`/`InkProperties`, P5 `CollectionSnapshot`, P6 the standalone suggester replay
+  bench in `lib/bench/suggester/`, P7 the v2 pick call for runs without an instruction, P10 the
+  inked-pen widget change, P8 name resolution (instruction runs move to v2 in fallback mode), P9
+  the extractor and constraint filters, P11 removal of the old CSV path. This is a multi-PR
+  activity like S15 or S31. There is no feature flag: each PR from P7 on goes live on merge after
+  passing the plan's replay bench against the recorded baseline. P1-P5 have no roadmap dependency;
+  they can be built in parallel branches but merge one at a time, whenever there is slack before
+  S30.
+- **Depends on.** Soft dependencies only. S04 for the extractor's `config/llm.yml` entry (P9 only;
+  until S04 lands the extractor uses a `model_id` constant). S01 for the DO-specific switches only
+  (whether `parallel_tool_calls` is honoured, whether strict tool schemas are accepted); the
+  suggester runs on OpenAI until S31 either way.
+- **Why here, and why it gates S30.** S30 benches the v2 suggester directly, so the suggester is
+  benched once, on the design that will actually run, and needs no second bench round after the
+  rewrite. The cost is that the suggester sits on S30's critical path, and so on the path of every
+  step that depends on S30, directly or transitively; the owner accepted that on 2026-10-09.
+- **Effect on other steps.**
+  - **S04.** The extractor is a third suggester-related config entry, `PenAndInkConstraintExtractor`
+    (one entry for both tiers, gpt-4.1-mini to start). If S04 has not landed when the extractor
+    PR (P9) merges, the extractor carries a `model_id` constant and S04's "nine existing
+    `MODEL_ID` constants" become ten (seed list and spec counts move by one); P9 updates S04's text
+    in the same PR.
+  - **S28.** The suggester export uses v2's hand-labelled cases, `CollectionSnapshot` `as_of:`
+    replay and the `enforce_daily_limit:` keyword (see S28 item 3) if P6 lands before S28 is
+    built; otherwise P6 adapts S28's export to them.
+  - **S30.** Every suggester cell names both `PenAndInkSuggester` (or `.premium`) and
+    `PenAndInkConstraintExtractor` in `with_override`, otherwise S04's per-class override leaves the
+    extractor on its configured model silently.
+  - **S31.** The extractor entry flips third, after `PenAndInkSuggester.premium`'s watch, unless its
+    labelled-set bench already switched it early on a clear win (plan decision SQ8).
+- **Does not include.** Model-facing query tools for the suggester, persisted preferences, or more
+  than one suggestion per run (all non-goals in the plan).
+- **Definition of done.** P1-P11 merged; the plan's acceptance bar (its section 8.2) met on the
+  replay bench's test split before P9 merged; the online watch after P11 shows no regression
+  against the pre-P7 baseline.
+- **Implementation notes.** Everything is specified in the plan; start from these anchors: data
+  flow and daily-cap rule (section 3.1), system prompt draft (3.2), `record_suggestion` and
+  `set_constraints` sketches and the constraint enforcement table (3.4), `NibProfile` summary
+  (3.5, full rules in `docs/nib-reference.md`), `CollectionSnapshot`/`CandidateSelector`/prechecks
+  (3.6), two end-to-end walkthroughs (3.7), the replay bench and acceptance bar (8.1, 8.2), and
+  the PR table with each PR's spec list (9).
+- **Rollback.** Each PR is independently revertable with `git revert`; P7-P9 are cut so that
+  reverting the newest one returns to a state that already passed the bench (the plan's
+  section 9).
+- **Decisions applied.** Owner decisions of 2026-10-09 recorded in the plan's section 10 (SD1,
+  SQ1-SQ17, SNib).
+
 ### S30-chat-bench-round — Chat bench round(s): OpenAI baselines for the ink agents, the S01 model as the pen baseline, DO candidates; pick per agent; bench refresh #2
 
 - **Goal.** Refresh the bench DB (a new dump now carries both `embedding`/`embedding_v2` columns and
@@ -5899,7 +5967,9 @@ cluster.pens_model_id` branch at app/workers/pens/update_model_micro_cluster.rb:
     — reuse S22's comparison method. For L2 the same model is the baseline by construction: the agent
     is inert until S36, so there is no prod traffic to compare against.
   - **Export-mode grading** (Claude Code, S20's export mode) for the agents with no automatic label:
-    PenAndInkSuggester (both `PenAndInkSuggester`/`PenAndInkSuggester.premium` entries),
+    PenAndInkSuggester (both `PenAndInkSuggester`/`PenAndInkSuggester.premium` entries, benched as
+    the v2 suggester from S29b, with the `PenAndInkConstraintExtractor` entry benched alongside them
+    on its hand-labelled set and named in the same `with_override` as the suggester entry),
     GoogleSearchSummarizer, YoutubeSummarizer, WebPageSummarizer, ReviewFinder, InkBrandClusterer.
     SpamClassifier gets the cheap-tier pick plus spot checks, and nothing more — migration P3 decides
     exactly that for negligible-volume agents, and S28 explicitly does not build export-mode code for
@@ -5938,7 +6008,8 @@ cluster.pens_model_id` branch at app/workers/pens/update_model_micro_cluster.rb:
     ReviewApprover) enough that a narrower short list would plausibly change the outcome.
 - **Depends on.** S27 (final embeddings live), S28 (checker `decide` + bench harness, ReviewApprover
   cases, export mode), S29 (PenModelClusterer L2 agent exists so one round covers L1 and L2 together),
-  S21 (pen L1 bench cases).
+  S29b (the v2 suggester and its extractor are live, so this round benches them and no separate
+  suggester round follows), S21 (pen L1 bench cases).
 - **Why here.** Strictly after the read flip (migration plan rule: embeddings must be final before
   chat models are compared, or a later embeddings change invalidates the pick) and after both pen
   agents exist (S11 L1 since S15, S29 L2), so no second pen-only round is needed. It is also the gate
@@ -6003,6 +6074,13 @@ cluster.pens_model_id` branch at app/workers/pens/update_model_micro_cluster.rb:
   feature and the third-largest token consumer (1.76M prompt tokens per 14 days). That placement is
   settled here, not left open; deferring the premium entry to S37 is listed in section 6 as an
   optional variation, not a fork inside this step.
+  The `PenAndInkConstraintExtractor` entry (added by S29b) flips **third**, in its own PR after
+  `PenAndInkSuggester.premium`'s 7-day watch: it serves both tiers, so flipping it earlier would
+  confound that watch. If S29b's labelled-set bench already switched it early on a clear win, this
+  PR only moves it to the S30 pick if that differs. After S29b the suggester worker
+  (`schedule_pen_and_ink_suggestion.rb`) runs with `retry: 0` and creates a fresh `AgentLog` per
+  request, so the Sidekiq-retry replay path described below does not apply to the suggester or its
+  extractor.
   Sub-agent facts (unchanged from the concern's structure): only GoogleSearchSummarizer is the
   `search_web` sub-agent of InkClusterer and `CheckInkClustering::*`
   (`app/agents/tools/ink_web_search_tool.rb:17`, used by `ink_clusterer.rb:303` and
