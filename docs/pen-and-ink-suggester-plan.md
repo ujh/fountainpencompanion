@@ -1590,3 +1590,20 @@ evidence.
 - p2c: Only the newest 200 raw `rejected_suggestions` entries (4x the 50-pair cap) are
   validated, so a huge array of invalid entries can't make the request thread do unbounded work
   before p2d's throttle lands; valid pairs older than that are dropped.
+
+**p2d decisions:**
+
+- p2d: The throttle matches the path the way the router does, not the raw path: it squeezes
+  repeated and trailing slashes, matches `/dashboard/widgets/:id(.:format)` on the still-encoded
+  path, and compares only the percent-decoded id. A trailing slash, `//`, `pen%5Fand...`, `.html`
+  or an encoded separator in the format (`.json%2F`) all reach `WidgetsController#show` and would
+  otherwise enqueue unthrottled past the plan's literal `(\.json)?` regex.
+- p2d: The rule is method-agnostic (only GET routes there) and keyed on IP at 10 per 60 s, as the
+  plan suggested; a whitespace-only `suggestion_id` counts as an enqueue, matching the
+  controller's `.presence`.
+- p2d: The throttle reads `suggestion_id` from the query string only and counts anything other
+  than a non-blank, validly encoded String (arrays, hashes, `%FF`, a malformed query) as an
+  enqueue. Rack and Rails merge query and form-body params in opposite orders, so a body value
+  could otherwise make Rack see a poll where the controller enqueues.
+- p2d: The path check runs on the decoded path as bytes, so a path that is not valid UTF-8 once
+  decoded (`/foo%FF`) passes through to the app instead of raising inside Rack::Attack.

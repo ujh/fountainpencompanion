@@ -361,6 +361,210 @@ describe "Rack::Attack throttles", type: :request do
     end
   end
 
+  describe "pen and ink suggestion enqueue throttle" do
+    let(:path) { "/dashboard/widgets/pen_and_ink_suggestion.json" }
+    let(:env) { { "REMOTE_ADDR" => "203.0.113.230" } }
+
+    def use_up_enqueue_limit
+      statuses(10) { get path, env: env }
+    end
+
+    it "allows the first 10 enqueues and throttles the 11th from the same IP" do
+      results = statuses(11) { get path, env: env }
+
+      expect(results.first(10)).to all(be < 429)
+      expect(results.last).to eq(429)
+    end
+
+    it "never throttles polls that carry a suggestion_id" do
+      use_up_enqueue_limit
+      results =
+        statuses(30) do |i|
+          get path, params: { suggestion_id: "request-pen-and-ink-suggestion-#{i}" }, env: env
+        end
+
+      expect(results).to all(be < 429)
+    end
+
+    it "throttles enqueues on the path without .json" do
+      use_up_enqueue_limit
+      get "/dashboard/widgets/pen_and_ink_suggestion", env: env
+
+      expect(response.status).to eq(429)
+    end
+
+    it "throttles enqueues with an empty suggestion_id" do
+      use_up_enqueue_limit
+      get path, params: { suggestion_id: "" }, env: env
+
+      expect(response.status).to eq(429)
+    end
+
+    it "throttles enqueues with a whitespace suggestion_id" do
+      use_up_enqueue_limit
+      get "#{path}?suggestion_id=%20", env: env
+
+      expect(response.status).to eq(429)
+    end
+
+    it "throttles enqueues with a valueless suggestion_id[]" do
+      use_up_enqueue_limit
+      get "#{path}?suggestion_id[]", env: env
+
+      expect(response.status).to eq(429)
+    end
+
+    it "throttles enqueues whose form body carries a suggestion_id" do
+      use_up_enqueue_limit
+      get "#{path}?suggestion_id=",
+          env:
+            env.merge(
+              "CONTENT_TYPE" => "application/x-www-form-urlencoded",
+              "rack.input" => StringIO.new("suggestion_id=x")
+            )
+
+      expect(response.status).to eq(429)
+    end
+
+    it "lets paths that are not valid UTF-8 through to the app" do
+      get "/brands%FF", env: env
+
+      expect(response.status).to eq(404)
+    end
+
+    %w[
+      /dashboard/widgets/pen%5Fand%5Fink%5Fsuggestion.json
+      /dashboard/widgets/pen_and_ink_suggestion.html
+      /dashboard/widgets/pen_and_ink_suggestion.json%2F
+    ].each do |variant|
+      it "throttles enqueues on #{variant}" do
+        use_up_enqueue_limit
+        get variant, env: env
+
+        expect(response.status).to eq(429)
+      end
+    end
+
+    it "keeps separate buckets per IP" do
+      use_up_enqueue_limit
+      get path, env: { "REMOTE_ADDR" => "203.0.113.231" }
+
+      expect(response.status).to be < 429
+    end
+
+    it "does not throttle other dashboard widgets" do
+      use_up_enqueue_limit
+      get "/dashboard/widgets/inks_summary.json", env: env
+
+      expect(response.status).to be < 429
+    end
+  end
+
+  describe "fpc_pen_and_ink_suggestion_enqueue?" do
+    def enqueue?(path, query = "", form_body: nil)
+      env =
+        if form_body
+          Rack::MockRequest.env_for(
+            "/",
+            "CONTENT_TYPE" => "application/x-www-form-urlencoded",
+            :input => form_body
+          )
+        else
+          Rack::MockRequest.env_for("/")
+        end
+      env["PATH_INFO"] = path
+      env["QUERY_STRING"] = query
+      fpc_pen_and_ink_suggestion_enqueue?(Rack::Request.new(env))
+    end
+
+    let(:widget) { "/dashboard/widgets/pen_and_ink_suggestion.json" }
+
+    %w[
+      /dashboard/widgets/pen_and_ink_suggestion
+      /dashboard/widgets/pen_and_ink_suggestion.json
+      /dashboard/widgets/pen_and_ink_suggestion/
+      /dashboard/widgets/pen_and_ink_suggestion.json/
+      //dashboard//widgets/pen_and_ink_suggestion
+      /dashboard/widgets/pen%5Fand%5Fink%5Fsuggestion.json
+      /dashboard/widgets/pen_and_ink_suggestion.html
+      /dashboard/widgets/pen%5fand_ink_suggestion
+      /dashboard/widgets/pen_and_ink_suggestion.json%2F
+      /dashboard/widgets/pen_and_ink_suggestion.json%2f%2F
+      /dashboard/widgets/pen_and_ink_suggestion.js%2Fon
+      /dashboard/widgets/pen_and_ink_suggestion.%2F
+      /dashboard/widgets/pen_and_ink_suggestion.json;x
+      /dashboard/widgets/pen_and_ink_suggestion.json%2E
+    ].each do |path|
+      it "matches #{path}, which routes to the suggestion widget" do
+        expect(Rails.application.routes.recognize_path(path)).to include(
+          controller: "widgets",
+          action: "show",
+          id: "pen_and_ink_suggestion"
+        )
+        expect(enqueue?(path)).to eq(true)
+      end
+    end
+
+    it "matches a blank suggestion_id" do
+      expect(enqueue?("/dashboard/widgets/pen_and_ink_suggestion.json", "suggestion_id=")).to eq(
+        true
+      )
+      expect(enqueue?("/dashboard/widgets/pen_and_ink_suggestion.json", "suggestion_id=%20")).to eq(
+        true
+      )
+    end
+
+    %w[
+      /dashboard/widgets/pen_and_ink_suggestion%2F
+      /dashboard/widgets/pen_and_ink_suggestion%2E
+      /dashboard/widgets/pen_and_ink_suggestion%2Ejson
+      /dashboard/widgets/pen_and_ink_suggestion;x
+    ].each do |path|
+      it "does not match #{path}, which routes to a different widget id" do
+        expect(Rails.application.routes.recognize_path(path)[:id]).not_to eq(
+          "pen_and_ink_suggestion"
+        )
+        expect(enqueue?(path)).to eq(false)
+      end
+    end
+
+    %w[/foo%FF /%E2%82 /dashboard/widgets/pen_and_ink_suggestion%FF].each do |path|
+      it "does not match #{path}, which is not valid UTF-8 once decoded" do
+        expect(enqueue?(path)).to eq(false)
+      end
+    end
+
+    [
+      "suggestion_id[]",
+      "suggestion_id[]=abc",
+      "suggestion_id[key]=abc",
+      "suggestion_id=%FF",
+      "suggestion_id[]=a&suggestion_id[b]=c"
+    ].each do |query|
+      it "matches #{query}, which is not a usable suggestion_id" do
+        expect(enqueue?(widget, query)).to eq(true)
+      end
+    end
+
+    it "reads suggestion_id from the query string only" do
+      expect(enqueue?(widget, "suggestion_id=", form_body: "suggestion_id=abc")).to eq(true)
+      expect(enqueue?(widget, "", form_body: "suggestion_id=abc")).to eq(true)
+      expect(enqueue?(widget, "suggestion_id=abc", form_body: "suggestion_id=")).to eq(false)
+    end
+
+    it "does not match a poll" do
+      expect(enqueue?("/dashboard/widgets/pen_and_ink_suggestion.json", "suggestion_id=abc")).to eq(
+        false
+      )
+    end
+
+    it "does not match other widgets" do
+      expect(enqueue?("/dashboard/widgets/inks_summary.json")).to eq(false)
+      expect(enqueue?("/dashboard/widgets/pen_and_ink_suggestions.json")).to eq(false)
+      expect(enqueue?("/dashboard/widgets/pen_and_ink_suggestion/extra")).to eq(false)
+    end
+  end
+
   describe "CSP report throttle" do
     it "allows the first 30 reports and throttles the 31st from the same IP" do
       results = statuses(31) { post "/csp-reports", env: { "REMOTE_ADDR" => "203.0.113.220" } }
