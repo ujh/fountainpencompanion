@@ -19,6 +19,8 @@ class PenAndInkSuggester
     end
 
     def execute(suggestion:, ink_id:, pen_id:)
+      return halt "Suggestion already recorded" if recorded?
+
       ink = inks.find { |i| i.id == ink_id }
       pen = pens.find { |p| p.id == pen_id }
 
@@ -37,6 +39,14 @@ class PenAndInkSuggester
         "Please try again. The suggestion message is blank."
       end
     end
+
+    def recorded?
+      [message, result_ink_id, result_pen_id].all?(&:present?)
+    end
+
+    def result
+      { message:, ink: result_ink_id, pen: result_pen_id } if recorded?
+    end
   end
 
   LIMIT = 50
@@ -44,6 +54,13 @@ class PenAndInkSuggester
   LIMIT_ADMIN = 200
   MAX_PER_DAY = 20
   MAX_PER_DAY_PATRON = 50
+  MAX_TOOL_CALLS = 12
+  LOG_ONLY_KEYS = %i[precheck error].freeze
+  ERROR_MESSAGE = "Sorry, that didn't work. Please try again!"
+  NO_UNINKED_PENS_MESSAGE =
+    "All your pens are currently inked (or you have none). Clean one up and try again."
+  NO_FILLABLE_INKS_MESSAGE =
+    "You have no inks to fill a pen with (swabs don't count). Add an ink and try again."
 
   def initialize(user, extra_user_input = nil, rejected_suggestions = [])
     self.user = user
@@ -52,32 +69,58 @@ class PenAndInkSuggester
   end
 
   def perform
-    response =
-      if can_perform?
-        ask(user_prompt)
-        tool = record_suggestion_tool
-        if [tool.message, tool.result_ink_id, tool.result_pen_id].all?(&:present?)
-          { message: tool.message, ink: tool.result_ink_id, pen: tool.result_pen_id }
-        else
-          { message: "Sorry, that didn't work. Please try again!" }
-        end
-      else
-        { message: out_of_requests_message }
-      end
-    agent_log.update(extra_data: response)
+    extra_data = run
+    response = extra_data.except(*LOG_ONLY_KEYS)
+    agent_log.update(extra_data:)
     agent_log.waiting_for_approval!
     response
   end
 
-  def agent_log = find_or_create_agent_log(user)
+  def agent_log
+    @agent_log ||= user.agent_logs.create!(name: self.class.name, transcript: [])
+  end
 
   private
 
   attr_accessor :user, :extra_user_input, :rejected_suggestions
 
+  def run
+    return { message: out_of_requests_message } unless can_perform?
+
+    precheck = precheck_failure
+    return { message: precheck[:message], precheck: precheck[:reason] } if precheck
+
+    suggest
+  end
+
+  def suggest
+    error = request_suggestion
+    result = record_suggestion_tool.result || { message: ERROR_MESSAGE }
+    error ? result.merge(error:) : result
+  end
+
+  def request_suggestion
+    ask!(user_prompt)
+    nil
+  rescue RubyLlmAgent::ToolCallLimitExceeded, RubyLlmAgent::DecisionNotReachedError => e
+    e.class.name.demodulize
+  end
+
+  def precheck_failure
+    if pens.empty?
+      { reason: "no_uninked_pens", message: NO_UNINKED_PENS_MESSAGE }
+    elsif inks.all? { |ink| ink.kind == "swab" }
+      { reason: "no_fillable_inks", message: NO_FILLABLE_INKS_MESSAGE }
+    end
+  end
+
   def model_id
     premium? ? "gpt-4.1" : "gpt-4.1-mini"
   end
+
+  def tool_calls_mode = :one
+
+  def max_tool_calls = MAX_TOOL_CALLS
 
   def system_directive = ""
 
@@ -258,6 +301,7 @@ class PenAndInkSuggester
     AgentLog
       .where(name: self.class.name, owner: user)
       .where("created_at >= ?", Time.current.beginning_of_day)
+      .where("extra_data->'precheck' IS NULL")
       .count
   end
 
