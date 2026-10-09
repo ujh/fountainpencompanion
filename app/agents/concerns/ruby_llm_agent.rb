@@ -82,10 +82,18 @@ module RubyLlmAgent
     []
   end
 
+  def max_tool_calls
+    MAX_TOOL_CALLS
+  end
+
+  def tool_calls_mode
+    nil
+  end
+
   def build_chat
     c = ruby_llm_context.chat(model: model_id)
     c.with_instructions(system_directive)
-    tools.each { |tool| c.with_tool(tool) }
+    c.with_tools(*tools, calls: tool_calls_mode)
     restore_transcript(c)
     register_callbacks(c)
     c
@@ -113,6 +121,9 @@ module RubyLlmAgent
   class DecisionNotReachedError < StandardError
   end
 
+  class ToolCallLimitExceeded < StandardError
+  end
+
   # Multiple saves per round-trip are intentional: we save after each
   # interaction so the agent log reflects progress incrementally.
   def register_callbacks(c)
@@ -120,7 +131,10 @@ module RubyLlmAgent
     c.after_message { |message| save_transcript_and_usage(message) }
     c.before_tool_call do
       @tool_call_count += 1
-      raise "Max tool calls (#{MAX_TOOL_CALLS}) exceeded" if @tool_call_count > MAX_TOOL_CALLS
+      if @tool_call_count > max_tool_calls
+        raise ToolCallLimitExceeded,
+              "#{self.class.name} exceeded the limit of #{max_tool_calls} tool calls"
+      end
       save_transcript
     end
   end
