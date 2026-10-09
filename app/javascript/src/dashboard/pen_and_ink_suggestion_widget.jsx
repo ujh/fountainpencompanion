@@ -87,13 +87,16 @@ const PenAndInkSuggestionWidgetContent = () => {
   );
 };
 
-const SuggestionMessage = ({ result }) => (
-  <div
-    className={isError(result) ? "suggestion text-danger" : "suggestion"}
-    role={isError(result) ? "alert" : undefined}
-    dangerouslySetInnerHTML={{ __html: result.message }}
-  />
-);
+const SuggestionMessage = ({ result }) => {
+  const error = isError(result);
+  return (
+    <div
+      className={error ? "suggestion text-danger" : "suggestion"}
+      role={error ? "alert" : undefined}
+      dangerouslySetInnerHTML={{ __html: result.message }}
+    />
+  );
+};
 
 const Spinner = () => (
   <div className="loader">
