@@ -131,6 +131,8 @@ describe NibProfile do
         ["05", "Platinum", { grade: "M", width: 3, japanese_sizing: true }],
         [".03", "Platinum", { grade: "F", width: 2 }],
         ["0.03", "Platinum", { grade: "F", width: 2 }],
+        ["0.2", "Platinum", { grade: "EF", width: 1 }],
+        ["0.3mm", "Platinum", { grade: "F", width: 2 }],
         ["0.5", "Platinum", { grade: "M", width: 3 }],
         ["F (03)", "Platinum", { grade: "F", width: 2 }],
         ["03 F", "Platinum", { grade: "F", width: 2 }],

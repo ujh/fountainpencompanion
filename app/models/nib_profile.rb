@@ -1,15 +1,6 @@
 # Implements docs/nib-reference.md, which is the source of truth for these rules.
 class NibProfile
   WIDTH_CLASS_LIMITS = { 1 => 0.27, 2 => 0.37, 3 => 0.49, 4 => 0.69, 5 => 0.94, 6 => 1.24 }.freeze
-  WIDTH_CLASS_LABELS = {
-    1 => "XXF",
-    2 => "EF",
-    3 => "F",
-    4 => "M",
-    5 => "B",
-    6 => "BB",
-    7 => "BBB+"
-  }.freeze
 
   GRADE_WIDTHS = {
     "UEF" => {
