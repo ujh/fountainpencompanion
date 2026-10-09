@@ -135,7 +135,7 @@ Characters are independent of width; a nib can carry several (a "1.1 Stub Steel"
 | left-handed     | LH, left-hand                                                                                                                                                        | Lamy left-handed nib, about M                                                               | default 0.6 mm                                         | no                     |
 | fude            | fude, bent, brush                                                                                                                                                    | tip bent up; about F upright to 1.5–2 mm+ lowered ("brush" is often a brush pen, not a nib) | default 0.9 mm (W5); range W3–W7                       | yes                    |
 | naginata family | naginata, nag, togi, Sailor N-prefixed grades, Kodachi, Long Knife / Long Blade, blade, Techo, Keiryu, Cross Concord / Cross Point, Emperor, King Cobra / King Eagle | fine upright, broader lowered; usually wet                                                  | default 0.55 mm; range −1 / +2 classes                 | yes                    |
-| zoom            | zoom                                                                                                                                                                 | Sailor: rounded tall tip, wider the lower the angle                                         | default 0.8 mm; range −2 / +1                          | yes                    |
+| zoom            | zoom; bare `Z` on a Japanese-sizing brand                                                                                                                            | Sailor: rounded tall tip, wider the lower the angle                                         | default 0.8 mm; range −2 / +1                          | yes                    |
 | music           | music, MS                                                                                                                                                            | two slits / three tines; very wet, broad verticals, narrower horizontals                    | default 0.9 mm; range −2 / +1                          | yes                    |
 | flex            | flex (not semi-flex), FA, Falcon, wet noodle, Zebra G, Omniflex, Ultra Flex, Ahab / Konrad "Flex", Esterbrook 128                                                    | fine at rest, 1–2 mm under pressure; needs wet, free-flowing ink or it railroads            | default 0.45 mm (Pilot FA 0.35); range up by 3 classes | no                     |
 | soft            | soft, elastic, semi-flex, SEF / SF / SFM / SM / SB, Sailor soft grades                                                                                               | bouncy, mild variation; not flex                                                            | base grade; range up by 1 class                        | no                     |
@@ -143,13 +143,13 @@ Characters are independent of width; a nib can carry several (a "1.1 Stub Steel"
 | posting         | posting, Pilot PO                                                                                                                                                    | hard, down-turned, very fine                                                                | default 0.22 mm                                        | no                     |
 | waverly         | waverly, waverley, Pilot WA                                                                                                                                          | up-turned tip, smooth                                                                       | default 0.5 mm                                         | no                     |
 | signature       | signature, bare `S` on Pilot/Namiki                                                                                                                                  | very broad                                                                                  | default 1.0 mm                                         | no (W6 already counts) |
-| beginner        | Lamy `A`, beginner, Anfänger                                                                                                                                         | beginner nib, about M                                                                       | default 0.6 mm                                         | no                     |
+| beginner        | Lamy or Pelikan `A`, beginner, Anfänger                                                                                                                              | beginner nib, about M                                                                       | default 0.6 mm                                         | no                     |
 
 **Material** (independent of width and character): gold for a karat number (9–22 k/kt/ct) or
-585/750/875/916; steel for steel, SS, stainless, Edelstahl, inox, "iridium point" and gold-plated,
-gold-tone or gold-coated; titanium for titan, Ti and Monoc; then a bare "gold" or palladium. Gold
-nibs tend to be softer and springier than steel, but most modern gold nibs are still firm; titanium
-is springy.
+585/750/875/916; steel for steel (and the typo "steal"), SS, stainless, Edelstahl, inox, acier,
+"iridium point" and gold-plated, gold-tone or gold-coated; titanium for titan, Ti and Monoc; then a
+bare "gold" or palladium. Gold nibs tend to be softer and springier than steel, but most modern gold
+nibs are still firm; titanium is springy.
 
 "Broad-ish" in the right-hand column is the set used for vague width requests (section 9): a nib
 counts as broad-ish when its class is W4 or more, or it carries one of these characters.
@@ -161,8 +161,8 @@ M and a Lamy F land in the same class.
 
 | Class | Label | Line (mm) | Western grades | Japanese grades    | Specialist and brand nibs (nominal)                       |
 | ----- | ----- | --------- | -------------- | ------------------ | --------------------------------------------------------- |
-| W1    | XXF   | ≤ 0.27    | UEF, EEF       | UEF, EEF, EF       | needlepoint, Pilot PO (posting)                           |
-| W2    | EF    | 0.27–0.37 | EF             | F, SF, SEF         | Pilot FA (flex)                                           |
+| W1    | XXF   | ≤ 0.27    | UEF, EEF       | UEF, EEF, EF, SEF  | needlepoint, Pilot PO (posting)                           |
+| W2    | EF    | 0.27–0.37 | EF             | F, SF              | Pilot FA (flex)                                           |
 | W3    | F     | 0.37–0.49 | F              | MF, FM, SFM, M, SM | —                                                         |
 | W4    | M     | 0.49–0.69 | MF, M          | B                  | Pilot WA, SU, CM; Journaler                               |
 | W5    | B     | 0.69–0.94 | B              | BB, C (coarse)     | Zoom, Music, fude (nominal)                               |
@@ -247,21 +247,21 @@ The order matters; each step works on what earlier steps left.
 
 | Step | Rule                                                                                                                                                                                                                                                                                                                                                                    |
 | ---- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1    | **Clean-up.** Lowercase; `1,1` → `1.1`; `.6` → `0.6`; `s.i.g.` → `sig`; `<>()[]{},;:+\|_` → space; collapse whitespace.                                                                                                                                                                                                                                                 |
+| 1    | **Clean-up.** Drop the prose words `of` and `im` (any case but all caps) unless they are the whole nib text; lowercase; `1,1` → `1.1`; letter `o.6` → `0.6`; `.6` → `0.6` unless the dot follows a letter, digit or dot (`No.6`, `Nr.8` stay unit sizes); `s.i.g.` → `sig`; `<>()[]{},;:+\|_` → space; collapse whitespace.                                                                                                                                                                                                                                                 |
 | 2    | **Kind.** Junk values (section 8) → `unknown`. Ballpoint, BP, ballpen, pencil, highlighter, marker, felt, fineliner, gel, stylus, or a gel/rollerball brand with a mm number → `non_inkable`. Rollerball, roller, RB → `rollerball`. Glass, dip, Zebra G, Nikko, crow quill → `dip`. Everything else → `fountain`.                                                      |
 | 3    | **Material.** First match wins: karat number or 585/750/875/916 → gold; steel words and gold-plated/tone/coated → steel; titan/Ti/Monoc → titanium; bare gold or palladium → gold.                                                                                                                                                                                      |
-| 4    | **Prefixes.** `[efmb]ci` → cursive italic + base grade; Sailor `n(ef\|f\|mf\|m\|b)` → naginata + base grade; Sailor `h-` → base grade; Pelikan `k`/`i`/`o` and soft `s` prefixes → character + base grade.                                                                                                                                                              |
+| 4    | **Prefixes.** `[efmb]ci` → cursive italic + base grade; Sailor `n(ef\|f\|mf\|m\|b)` → naginata + base grade; Sailor `h-` → base grade; the German `k`/`i`/`o` prefixes (Pelikan, but also Lamy, Montblanc, Kaweco, Parker, Waterman and others, so on every brand) and soft `s` prefixes → character + base grade.                                                                                                                                                              |
 | 5    | **Characters.** Every pattern in section 4 that matches is added. "Semi-flex" is soft only, never flex. A bare `s` is Signature only on Pilot/Namiki.                                                                                                                                                                                                                   |
 | 6    | **Grade.** First match wins, in this order: UEF, EEF, EF, MF, BBB, BB, C (Japanese brands only), F, M, B, using the synonyms in section 6.                                                                                                                                                                                                                              |
-| 7    | **Numbers.** A mm value or a decimal is a line width. ≥ 0.9 mm means stub, except Pilot 1.5 / 2.4 / 3.8 / 6.0, which are Parallel. `02`/`03`/`05` (and `.03`, `0.03`) are read as the grades EF / F / M and sized by brand (Platinum: W1 / W2 / W3). Bare integers (`2`, `#6`, `5`) are unit sizes and ignored. Esterbrook four-digit codes go through the style table. |
+| 7    | **Numbers.** A mm value or a decimal is a line width. ≥ 0.9 mm means stub, except Pilot 1.5 / 2.4 / 3.8 / 6.0, which are Parallel. `02`/`03`/`05` (and `.03`, `0.03`) are read as the grades EF / F / M and sized by brand (Platinum: W1 / W2 / W3); on Platinum the decimals `0.2` / `0.3` / `0.5` are read the same way. Bare integers (`2`, `#6`, `No.6`, `5`) are unit sizes and ignored. Esterbrook four-digit codes go through the style table (on an Esterbrook brand, or when the whole nib text is the code). |
 | 8    | **Width.** An explicit mm wins; then a code with its own width (Pilot SU 0.63, Pilot CM 0.6, Pilot FA 0.35, Journaler 0.57, mini stub 0.7, Scribe 0.45, Lamy Kanji/Cursive 0.6); then the grade through the Western or Japanese table (by brand); then the character's default width (section 4). The mm value is then bucketed into W1–W7 (section 5).                 |
 | 9    | **Range.** Applied from the characters (section 5).                                                                                                                                                                                                                                                                                                                     |
 | 10   | **Empty nib.** Fall back to strong tokens in the model name only: flex, fude, parallel, music, zoom, stub, an explicit `\d.\dmm`, or a trailing grade in parentheses ("Noodler's Ahab Flex", "Pilot Parallel 2.4 mm", "Nemosine .6mm Stub"). Loose matching is wrong: "Year **of** the Rabbit" would read as oblique fine.                                              |
-| 11   | **Confidence.** `high` with a grade or mm; `medium` from a character default; `material_only`, `character_only` or `none` otherwise.                                                                                                                                                                                                                                    |
+| 11   | **Confidence.** `high` with a grade, mm or code width; `medium` from a character default; `material_only`, `character_only` or `none` otherwise.                                                                                                                                                                                                                        |
 
 **Japanese-sizing brands:** Pilot, Namiki, Sailor, Platinum (also misspelt "Platinium"), Nakaya,
-Taccia, Nagasawa, Bungubox, Wancher, Kuretake, Eboya, Kakimori, Sakura, Ohashi. Extend the list from
-the data.
+Taccia, Nagasawa, Bungubox (also "Bungbox"), Wancher, Kuretake, Eboya, Kakimori, Sakura, Ohashi,
+Kyuseido, and the misspelling "Platnum". Extend the list from the data.
 
 **Representation** returned by `NibProfile.parse(nib, brand:, model:)`:
 
@@ -274,9 +274,10 @@ the data.
 | `width_min`, `width_max` | 1–7, for nibs whose line varies                                                    |
 | `characters`             | list from section 4                                                                |
 | `material`               | `gold`, `steel`, `titanium`, or nil                                                |
-| `japanese_sizing`        | true when the brand's Japanese table was used                                      |
+| `japanese_sizing`        | true when the width came from the grade through the brand's Japanese table         |
 | `confidence`             | `high`, `medium`, `material_only`, `character_only`, `none`                        |
 | `label`                  | display text, e.g. `MF → W3 (Japanese)` or `1.1 Stub → W6 stub (cross-strokes W3)` |
+| `source`, `source_text`  | `nib`, or `model` for the empty-nib fallback, and the cleaned text that was parsed |
 
 The profile is computed on the fly, with no DB column. Persisting it (`nib_width_class`,
 `nib_characters`, `nib_kind` and a version for re-backfills) is only worth it if SQL-side filtering
@@ -339,7 +340,8 @@ Soft guidance for reasoning, not hard rules.
 ## 11. Coverage (all 186,669 active pens, prod, 2026-10-09)
 
 A Python prototype of these rules was used to measure coverage; the Ruby port is P1 of the
-suggester plan.
+suggester plan. On the same export the Ruby port gives a width class to 92.6% of active pens (96.5%
+of pens with a nib entered), with every class within 0.2k pens of the distribution below.
 
 - **92.8%** of active pens get a width class (96.8% of pens with a nib entered). 4.1% have an empty
   nib, about 2.5% are material or unit only or junk, and 0.6% are non-fountain (512 rollerballs,
