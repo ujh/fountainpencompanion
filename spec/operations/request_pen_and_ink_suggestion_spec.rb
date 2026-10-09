@@ -99,12 +99,13 @@ describe RequestPenAndInkSuggestion do
       expect(result[:pen]).to be_nil
     end
 
-    it "returns an error result with its message" do
-      Rails.cache.write(suggestion_id, { message: PenAndInkSuggester::ERROR_MESSAGE })
+    it "returns an error result with its message and status" do
+      Rails.cache.write(suggestion_id, PenAndInkSuggester.error_result)
 
       result = read
 
       expect(result[:message]).to eq(FpcFormatter.render(PenAndInkSuggester::ERROR_MESSAGE))
+      expect(result[:status]).to eq("error")
       expect(result[:ink]).to be_nil
       expect(result[:pen]).to be_nil
     end

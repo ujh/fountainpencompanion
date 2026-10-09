@@ -1,13 +1,26 @@
-import _ from "lodash";
-import { useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { getRequest } from "../fetch";
 import "./pen_and_ink_suggestion_widget.css";
-import { Widget } from "./widgets";
+import { Widget, WidgetDataContext } from "./widgets";
+
+const SUGGESTION_PATH = "/dashboard/widgets/pen_and_ink_suggestion.json";
+const SETTINGS_PATH = "/dashboard/widgets/pen_and_ink_suggestion_settings.json";
+
+export const POLL_INTERVAL_MS = 1000;
+export const POLL_TIMEOUT_MS = 60 * 1000;
+
+export const ERROR_MESSAGE = "Sorry, that didn't work. Please try again!";
+export const TIMEOUT_MESSAGE = "Sorry, that took too long. Please try again!";
+export const THROTTLED_MESSAGE =
+  "You asked for a lot of suggestions in a short time. Please wait a minute and try again!";
+export const GATE_NOTE =
+  "Extra instructions become available once your account is more than two weeks old and you have more than 20 inks or 20 pens.";
 
 export const PenAndInkSuggestionWidget = ({ renderWhenInvisible }) => (
   <Widget
     header="Pen and Ink suggestion"
     subtitle="Gives suggestions on what to ink next using AI™"
+    path={SETTINGS_PATH}
     renderWhenInvisible={renderWhenInvisible}
   >
     <div className="pen-and-ink-suggestion">
@@ -17,115 +30,71 @@ export const PenAndInkSuggestionWidget = ({ renderWhenInvisible }) => (
 );
 
 const PenAndInkSuggestionWidgetContent = () => {
-  const [suggestion, setSuggestion] = useState();
-  const [allSuggestions, setAllSuggestions] = useState([]);
-  const [loading, setLoading] = useState();
+  const { data } = useContext(WidgetDataContext);
+  const {
+    instructions_allowed: instructionsAllowed,
+    instructions_max_length: instructionsMaxLength
+  } = data.attributes;
   const [extraInstructions, setExtraInstructions] = useState("");
+  const [rejectedPairs, setRejectedPairs] = useState([]);
+  const { result, loading, requestSuggestion } = useSuggestion();
 
-  if (!suggestion && !loading) {
-    return (
-      <div className="buttons">
-        <AskForSuggestion
-          setSuggestion={setSuggestion}
-          setLoading={setLoading}
-          extraInstructions={extraInstructions}
-          setExtraInstructions={setExtraInstructions}
-          allSuggestions={allSuggestions}
-          setAllSuggestions={setAllSuggestions}
-        />
-      </div>
-    );
-  } else if (!suggestion && loading) {
-    return <Spinner />;
-  } else if (_.isEmpty(suggestion)) {
-    return (
-      <div className="buttons">
-        <AskForSuggestion
-          setSuggestion={setSuggestion}
-          setLoading={setLoading}
-          extraInstructions={extraInstructions}
-          setExtraInstructions={setExtraInstructions}
-          allSuggestions={allSuggestions}
-          setAllSuggestions={setAllSuggestions}
-        />
-      </div>
-    );
-  } else if (suggestion) {
-    return (
-      <ShowSuggestion
-        suggestion={suggestion}
-        setSuggestion={setSuggestion}
-        setLoading={setLoading}
-        extraInstructions={extraInstructions}
-        setExtraInstructions={setExtraInstructions}
-        allSuggestions={allSuggestions}
-        setAllSuggestions={setAllSuggestions}
-      />
-    );
-  }
-};
-
-const AskForSuggestion = ({
-  setSuggestion,
-  setLoading,
-  text = "Suggest something!",
-  extraInstructions,
-  setExtraInstructions,
-  allSuggestions,
-  setAllSuggestions
-}) => {
-  const onClick = async () => {
-    setLoading(true);
-    setSuggestion(null);
-    try {
-      let url = `/dashboard/widgets/pen_and_ink_suggestion.json?extra_user_input=${encodeURIComponent(extraInstructions)}`;
-      if (allSuggestions.length > 0) {
-        const rejectedSuggestions = allSuggestions.map((s) => ({
-          ink_id: s.ink?.id,
-          pen_id: s.pen?.id
-        }));
-        url += `&rejected_suggestions=${encodeURIComponent(JSON.stringify(rejectedSuggestions))}`;
-      }
-      const response = await getRequest(url);
-      const json = await response.json();
-      const suggestion_id = json.suggestion_id;
-      const intervalID = setInterval(async () => {
-        try {
-          const response = await getRequest(
-            `/dashboard/widgets/pen_and_ink_suggestion.json?suggestion_id=${suggestion_id}`
-          );
-          const json = await response.json();
-          if (json.message) {
-            setSuggestion(json);
-            setAllSuggestions([...allSuggestions, json]);
-            setLoading(false);
-            clearInterval(intervalID);
-          }
-        } catch (error) {
-          console.error("Failed to poll suggestion:", error);
-          setLoading(false);
-          clearInterval(intervalID);
-        }
-      }, 1000);
-    } catch (error) {
-      console.error("Failed to fetch suggestion:", error);
-      setLoading(false);
+  const onAsk = async () => {
+    const query = suggestionQuery(instructionsAllowed ? extraInstructions : "", rejectedPairs);
+    const suggestion = await requestSuggestion(query);
+    if (suggestion && isPair(suggestion)) {
+      setRejectedPairs((pairs) => [
+        ...pairs,
+        { ink_id: suggestion.ink.id, pen_id: suggestion.pen.id }
+      ]);
     }
   };
 
+  if (loading) return <Spinner />;
+
   return (
-    <>
-      <a className="btn btn-success" onClick={onClick}>
-        {text}
-      </a>
-      <div className="extra-instructions">
-        <textarea
-          value={extraInstructions}
-          onChange={(e) => setExtraInstructions(e.target.value)}
-          placeholder="Add extra instructions, e.g. I only want ink samples ..."
-        />
+    <div>
+      {result && <SuggestionMessage result={result} />}
+      <div className="buttons">
+        {result && isPair(result) && (
+          <a className="btn btn-success" href={inkItUpUrl(result)}>
+            Ink it Up!
+          </a>
+        )}
+        <button type="button" className="btn btn-success" onClick={onAsk}>
+          {result ? "Try again!" : "Suggest something!"}
+        </button>
+        {instructionsAllowed ? (
+          <div className="extra-instructions">
+            <textarea
+              aria-label="Extra instructions"
+              value={extraInstructions}
+              maxLength={instructionsMaxLength}
+              onChange={(e) => setExtraInstructions(e.target.value)}
+              placeholder="Add extra instructions, e.g. I only want ink samples ..."
+            />
+          </div>
+        ) : (
+          <div className="gate-note text-muted">{GATE_NOTE}</div>
+        )}
       </div>
-    </>
+      {result && !isError(result) && (
+        <div className="notice text-muted">
+          Results provided by an AI. Do not take it too seriously. 😉
+        </div>
+      )}
+    </div>
+  );
+};
+
+const SuggestionMessage = ({ result }) => {
+  const error = isError(result);
+  return (
+    <div
+      className={error ? "suggestion text-danger" : "suggestion"}
+      role={error ? "alert" : undefined}
+      dangerouslySetInnerHTML={{ __html: result.message }}
+    />
   );
 };
 
@@ -135,41 +104,78 @@ const Spinner = () => (
   </div>
 );
 
-const ShowSuggestion = ({
-  suggestion,
-  setSuggestion,
-  setLoading,
-  extraInstructions,
-  setExtraInstructions,
-  allSuggestions,
-  setAllSuggestions
-}) => {
-  const inkId = suggestion.ink?.id;
-  const penId = suggestion.pen?.id;
-  let params = [];
-  if (inkId) params.push(`collected_ink_id=${inkId}`);
-  if (penId) params.push(`collected_pen_id=${penId}`);
-  const url = `/currently_inked/new?${params.join("&")}`;
-  return (
-    <div>
-      <div className="suggestion" dangerouslySetInnerHTML={{ __html: suggestion.message }}></div>
-      <div className="buttons">
-        <a className="btn btn-success" href={url}>
-          Ink it Up!
-        </a>
-        <AskForSuggestion
-          setSuggestion={setSuggestion}
-          setLoading={setLoading}
-          extraInstructions={extraInstructions}
-          setExtraInstructions={setExtraInstructions}
-          allSuggestions={allSuggestions}
-          setAllSuggestions={setAllSuggestions}
-          text="Try again!"
-        />
-      </div>
-      <div className="notice text-muted">
-        Results provided by an AI. Do not take it too seriously. 😉
-      </div>
-    </div>
-  );
+const useSuggestion = () => {
+  const [result, setResult] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const mounted = useRef(false);
+
+  useEffect(() => {
+    mounted.current = true;
+    return () => {
+      mounted.current = false;
+    };
+  }, []);
+
+  const requestSuggestion = async (query) => {
+    setLoading(true);
+    setResult(null);
+    const suggestion = await fetchSuggestion(query, () => mounted.current);
+    if (!mounted.current) return null;
+    setResult(suggestion);
+    setLoading(false);
+    return suggestion;
+  };
+
+  return { result, loading, requestSuggestion };
+};
+
+const fetchSuggestion = async (query, isMounted) => {
+  try {
+    const response = await getRequest(query ? `${SUGGESTION_PATH}?${query}` : SUGGESTION_PATH);
+    if (response?.status === 429) return errorResult(THROTTLED_MESSAGE);
+    const { suggestion_id: suggestionId } = await readJson(response);
+    if (!suggestionId) return errorResult(ERROR_MESSAGE);
+    return await pollSuggestion(suggestionId, isMounted);
+  } catch (error) {
+    console.error("Failed to fetch suggestion:", error);
+    return errorResult(ERROR_MESSAGE);
+  }
+};
+
+const pollSuggestion = async (suggestionId, isMounted) => {
+  const url = `${SUGGESTION_PATH}?suggestion_id=${encodeURIComponent(suggestionId)}`;
+  const deadline = Date.now() + POLL_TIMEOUT_MS;
+  while (Date.now() < deadline) {
+    await wait(POLL_INTERVAL_MS);
+    if (!isMounted()) return null;
+    const suggestion = await readJson(await getRequest(url));
+    if (isError(suggestion)) return errorResult(suggestion.message || ERROR_MESSAGE);
+    if (suggestion.message) return suggestion;
+  }
+  return errorResult(TIMEOUT_MESSAGE);
+};
+
+const readJson = async (response) => {
+  if (!response?.ok) throw new Error(`Request failed: ${response?.status}`);
+  return response.json();
+};
+
+const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+const errorResult = (message) => ({ status: "error", message });
+
+const isError = (result) => result.status === "error";
+
+const isPair = (result) => Boolean(result.ink?.id && result.pen?.id);
+
+const inkItUpUrl = (result) =>
+  `/currently_inked/new?collected_ink_id=${result.ink.id}&collected_pen_id=${result.pen.id}`;
+
+const suggestionQuery = (extraInstructions, rejectedPairs) => {
+  const params = new URLSearchParams();
+  if (extraInstructions.trim()) params.set("extra_user_input", extraInstructions);
+  if (rejectedPairs.length > 0) {
+    params.set("rejected_suggestions", JSON.stringify(rejectedPairs));
+  }
+  return params.toString();
 };

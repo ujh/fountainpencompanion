@@ -1607,3 +1607,27 @@ evidence.
   could otherwise make Rack see a poll where the controller enqueues.
 - p2d: The path check runs on the decoded path as bytes, so a path that is not valid UTF-8 once
   decoded (`/foo%FF`) passes through to the app instead of raising inside Rack::Attack.
+
+**p3 decisions:**
+
+- p3: The gate rule moved into `PenAndInkSuggester::InstructionGate`, used by the worker and by a
+  new `pen_and_ink_suggestion_settings` widget id that returns `instructions_allowed` and the
+  500-character limit for the textarea's `maxLength`. The widget loads it through the dashboard's
+  existing widget `path` mechanism when the card mounts, so nothing is enqueued before the click.
+  The enqueue throttle doesn't match that id.
+- p3: Handled failures and the worker's `ensure` fallback now cache
+  `PenAndInkSuggester.error_result` (`{message, status: "error"}`). Daily-cap and precheck results
+  stay message-only. The widget stops polling on `status: "error"` and shows the message (or the
+  default "Sorry" text when there is none) as an alert, without "Ink it Up!" or the AI notice.
+- p3: Client-side failures also end in that error state with fixed texts: a failed enqueue or poll
+  request, a missing `suggestion_id`, the 60 s timeout ("Sorry, that took too long") and a 429 from
+  the throttle ("please wait a minute"). Polls run one after another (the next one a second after
+  the previous answer) instead of on `setInterval`; up to 60 polls, a result on the 60th is still
+  shown, and polling stops when the widget unmounts.
+- p3: "Ink it Up!" needs both an ink and a pen id, and only such pairs go into
+  `rejected_suggestions`, so message-only and error results no longer add `{}` entries. The
+  instruction is sent only when the gate allows it and it isn't blank.
+- p3: The gate note reads "Extra instructions become available once your account is more than two
+  weeks old and you have more than 20 inks or 20 pens."
+- p3: Left as is: the shared `getRequest` helper retries a failed GET up to 5 times, so a 5xx
+  answer to the enqueue request is retried; each retry counts toward the throttle.

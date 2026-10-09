@@ -442,5 +442,55 @@ describe WidgetsController do
         expect(JSON.parse(response.body)["message"]).to include("daily limit of 20 suggestions")
       end
     end
+
+    context "pen_and_ink_suggestion_settings" do
+      let(:url) { "/dashboard/widgets/pen_and_ink_suggestion_settings.json" }
+
+      include_examples "authentication"
+
+      def attributes
+        JSON.parse(response.body).dig("data", "attributes")
+      end
+
+      it "allows instructions for an established account with more than 20 inks" do
+        user = create(:user, confirmed_at: 1.month.ago)
+        create_list(:collected_ink, 21, user:)
+        sign_in(user)
+
+        get url
+
+        expect(response).to be_successful
+        expect(attributes).to eq("instructions_allowed" => true, "instructions_max_length" => 500)
+      end
+
+      it "does not allow instructions for an account confirmed less than 2 weeks ago" do
+        user = create(:user, confirmed_at: 1.week.ago)
+        create_list(:collected_ink, 21, user:)
+        sign_in(user)
+
+        get url
+
+        expect(attributes["instructions_allowed"]).to eq(false)
+      end
+
+      it "does not allow instructions with 20 inks and 20 pens" do
+        user = create(:user, confirmed_at: 1.month.ago)
+        create_list(:collected_ink, 20, user:)
+        create_list(:collected_pen, 20, user:)
+        sign_in(user)
+
+        get url
+
+        expect(attributes["instructions_allowed"]).to eq(false)
+      end
+
+      it "neither enqueues a suggestion nor creates an agent log" do
+        user = create(:user)
+        sign_in(user)
+
+        expect { get url }.not_to change(AgentLog, :count)
+        expect(SchedulePenAndInkSuggestion.jobs).to be_empty
+      end
+    end
   end
 end

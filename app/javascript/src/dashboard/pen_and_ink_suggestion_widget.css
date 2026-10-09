@@ -10,8 +10,17 @@
   }
 
   .filter,
-  .notice {
+  .notice,
+  .gate-note {
     font-size: small;
+  }
+
+  .gate-note {
+    margin-top: 10px;
+  }
+
+  .filter,
+  .notice {
     margin-bottom: -15px;
     margin-top: 15px;
   }

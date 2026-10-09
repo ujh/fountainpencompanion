@@ -13,14 +13,10 @@ class SchedulePenAndInkSuggestion
     result = nil
     queue_ms = queue_ms_since(enqueued_at)
     user = User.find(user_id)
-    extra_user_input = nil unless extra_user_input_allowed?(user)
+    extra_user_input = nil unless PenAndInkSuggester::InstructionGate.new(user).allowed?
     result = PenAndInkSuggester.new(user, extra_user_input, rejected_suggestions, queue_ms:).perform
   ensure
-    Rails.cache.write(
-      suggestion_id,
-      result || { message: PenAndInkSuggester::ERROR_MESSAGE },
-      expires_in: 1.hour
-    )
+    Rails.cache.write(suggestion_id, result || PenAndInkSuggester.error_result, expires_in: 1.hour)
   end
 
   private
@@ -29,10 +25,5 @@ class SchedulePenAndInkSuggestion
     return unless enqueued_at
 
     [((Time.current.to_f - enqueued_at) * 1000).round, 0].max
-  end
-
-  def extra_user_input_allowed?(user)
-    user.confirmed_at.present? && user.confirmed_at < 2.weeks.ago &&
-      (user.collected_inks.count > 20 || user.collected_pens.count > 20)
   end
 end

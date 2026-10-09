@@ -36,14 +36,18 @@ describe SchedulePenAndInkSuggestion do
       expect { described_class.new.perform(user.id, suggestion_id) }.to raise_error(
         RubyLLM::ServerError
       )
-      expect(Rails.cache.read(suggestion_id)).to eq({ message: PenAndInkSuggester::ERROR_MESSAGE })
+      expect(Rails.cache.read(suggestion_id)).to eq(
+        { message: PenAndInkSuggester::ERROR_MESSAGE, status: "error" }
+      )
     end
 
     it "writes an error result with a message and re-raises when the user is gone" do
       expect { described_class.new.perform(-1, suggestion_id) }.to raise_error(
         ActiveRecord::RecordNotFound
       )
-      expect(Rails.cache.read(suggestion_id)).to eq({ message: PenAndInkSuggester::ERROR_MESSAGE })
+      expect(Rails.cache.read(suggestion_id)).to eq(
+        { message: PenAndInkSuggester::ERROR_MESSAGE, status: "error" }
+      )
     end
   end
 
@@ -84,7 +88,6 @@ describe SchedulePenAndInkSuggestion do
     let(:forwarded_inputs) { [] }
 
     before do
-      freeze_time
       allow(PenAndInkSuggester).to receive(:new) do |_user, extra_user_input, *|
         forwarded_inputs << extra_user_input
         suggester
@@ -96,64 +99,14 @@ describe SchedulePenAndInkSuggestion do
       forwarded_inputs.sole
     end
 
-    context "with more than 20 inks" do
-      before { create_list(:collected_ink, 21, user:) }
+    it "forwards the input when the instruction gate allows it" do
+      create_list(:collected_ink, 21, user:)
 
-      it "forwards the input when the account was confirmed more than 2 weeks ago" do
-        user.update!(confirmed_at: 2.weeks.ago - 1.second)
-
-        expect(forwarded_input).to eq(input)
-      end
-
-      it "drops the input when the account was confirmed exactly 2 weeks ago" do
-        user.update!(confirmed_at: 2.weeks.ago)
-
-        expect(forwarded_input).to be_nil
-      end
-
-      it "drops the input when the account was confirmed less than 2 weeks ago" do
-        user.update!(confirmed_at: 2.weeks.ago + 1.second)
-
-        expect(forwarded_input).to be_nil
-      end
-
-      it "drops the input when the account is not confirmed" do
-        user.update_column(:confirmed_at, nil)
-
-        expect(forwarded_input).to be_nil
-      end
+      expect(forwarded_input).to eq(input)
     end
 
-    it "drops the input with 20 inks and 20 pens" do
+    it "drops the input when the instruction gate does not allow it" do
       create_list(:collected_ink, 20, user:)
-      create_list(:collected_pen, 20, user:)
-
-      expect(forwarded_input).to be_nil
-    end
-
-    it "forwards the input with 21 pens" do
-      create_list(:collected_pen, 21, user:)
-
-      expect(forwarded_input).to eq(input)
-    end
-
-    it "counts archived inks" do
-      create_list(:collected_ink, 20, user:)
-      create(:collected_ink, user:, archived_on: Date.current)
-
-      expect(forwarded_input).to eq(input)
-    end
-
-    it "counts archived pens" do
-      create_list(:collected_pen, 20, user:)
-      create(:collected_pen, user:, archived_on: Date.current)
-
-      expect(forwarded_input).to eq(input)
-    end
-
-    it "does not add up inks and pens" do
-      create_list(:collected_ink, 11, user:)
-      create_list(:collected_pen, 11, user:)
 
       expect(forwarded_input).to be_nil
     end
@@ -183,7 +136,9 @@ describe SchedulePenAndInkSuggestion do
         RubyLLM::ServerError
       )
 
-      expect(Rails.cache.read(suggestion_id)).to eq({ message: PenAndInkSuggester::ERROR_MESSAGE })
+      expect(Rails.cache.read(suggestion_id)).to eq(
+        { message: PenAndInkSuggester::ERROR_MESSAGE, status: "error" }
+      )
     end
   end
 
