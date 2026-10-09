@@ -9,7 +9,7 @@ class PenAndInkSuggester
     end
 
     def message
-      if premium?
+      if user.premium?
         "You have reached your daily limit of #{MAX_PER_DAY_PATRON} suggestions. Please try again tomorrow."
       else
         "You have reached your daily limit of #{MAX_PER_DAY} suggestions. Consider becoming a [Patron](https://www.patreon.com/bePatron?u=6900241) for a higher limit!"
@@ -21,7 +21,7 @@ class PenAndInkSuggester
     attr_accessor :user
 
     def limit
-      premium? ? MAX_PER_DAY_PATRON : MAX_PER_DAY
+      user.premium? ? MAX_PER_DAY_PATRON : MAX_PER_DAY
     end
 
     def today_usage_count
@@ -30,10 +30,6 @@ class PenAndInkSuggester
         .where("created_at >= ?", Time.current.beginning_of_day)
         .where("extra_data->'precheck' IS NULL")
         .count
-    end
-
-    def premium?
-      user.patron? || user.admin?
     end
   end
 end

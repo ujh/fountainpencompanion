@@ -307,6 +307,6 @@ class PenAndInkSuggester
   end
 
   def premium?
-    user.patron? || user.admin?
+    user.premium?
   end
 end
