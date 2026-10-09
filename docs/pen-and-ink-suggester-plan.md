@@ -306,10 +306,10 @@ instead of calling `FpcFormatter.render` on it unconditionally
 
 **New plain Ruby objects** (no LLM, unit-tested):
 
-- `NibProfile` in `app/models/nib_profile.rb`, deliberately outside the suggester namespace;
-- under `app/operations/pen_and_ink_suggestion/`: `ColorProfile`, `InkProperties`,
-  `CollectionSnapshot`, `MentionMatcher`, `NameResolver`, `Constraints` (value object),
-  `CandidateSelector`.
+- `NibProfile` in `app/models/nib_profile.rb` and `ColorProfile` in `app/models/color_profile.rb`,
+  deliberately outside the suggester namespace;
+- under `app/operations/pen_and_ink_suggestion/`: `InkProperties`, `CollectionSnapshot`,
+  `MentionMatcher`, `NameResolver`, `Constraints` (value object), `CandidateSelector`.
 
 **New agent:** `PenAndInkConstraintExtractor`. It is a sub-agent that uses the `parent_agent_log:`
 pattern. Its log is owned by the suggester's log, so the daily cap
@@ -1631,3 +1631,41 @@ evidence.
   weeks old and you have more than 20 inks or 20 pens."
 - p3: Left as is: the shared `getRequest` helper retries a failed GET up to 5 times, so a 5xx
   answer to the enqueue request is retried; each retry counts toward the throttle.
+
+**p4a decisions:**
+
+- p4a: `ColorProfile` lives in `app/models/color_profile.rb` next to `NibProfile`, not under
+  `app/operations/pen_and_ink_suggestion/`: it knows nothing about the suggester and the bench
+  checkers reuse it. Section 3's object list was updated.
+- p4a: The hue band comes from the HSL hue (red < 15° or ≥ 340°, orange < 45°, yellow < 70°,
+  green < 160°, teal < 195°, blue < 255°, purple < 320°, pink < 340°); lightness and greyness come
+  from CIELAB. C\* < 10 is achromatic (black when L\* < 30, else gray); L\* < 20 with C\* < 25 is
+  black with the hue family as secondary (the darkest blue-blacks). Lightness: dark L\* < 35,
+  light ≥ 65. Saturation: vivid C\* ≥ 40.
+- p4a: Brown is derived, not a hue: dark or muted orange; yellow below L\* 55 (hue < 55° brown,
+  else green for olives); a muted mid-dark red (C\* < 30, L\* 20–60). Red at L\* ≥ 65 is pink, pink
+  below L\* 35 is purple. The original hue family becomes the secondary.
+- p4a: There is at most one secondary family, the first of: the unadjusted hue family; for teal,
+  the nearer side (green below 177.5°, else blue), so every teal has one; the neighbouring band
+  within 8° of an edge; a dusty red's pink or a dark muted red's brown; a light magenta's pink;
+  black when L\* < 25; gray when C\* < 22.
+- p4a: Cluster tags are mapped through `ColorProfile::TAG_FAMILIES`: each of the 147 CSS names
+  `FindPrimaryColor` and `FindSecondaryColors` produce maps to the one family its name says
+  (`slateblue` → blue, `indigo` → purple, `olive` → green), near-whites (`ivory`, `aliceblue`,
+  `wheat`…) to none. A few ink words seen as cluster tags are added (`blue-black`/`blue black` →
+  blue and black, `blurple` → blue and purple, `burgundy`, `dark blue`, `sepia`). Compound tags
+  such as "red sheen" never count, and only cluster tags count, not the user's own ink tags.
+- p4a: A missing or invalid hex gives an unknown profile (`family` nil, `known?` false) instead of
+  nil, so a cluster tag can still match. How an unknown colour is treated by include and exclude
+  filters is left to p9b. `ColorProfile.for(ink)` uses the ink's own colour when it is a valid hex,
+  else `cluster_color`. `matches_any?` serves the `colour_include`/`colour_exclude` lists.
+- p4a: Measured on the dev DB with an uncommitted script (coverage and a noisy name proxy, not a
+  correctness check; the metric-7 hand check of 50 `ColorProfile` outputs is still pending, see
+  the `gate` row): 99.2% of active inks have a usable hex. On the 4,746 macro clusters whose name
+  has a colour word (weighted by their 214k active inks), the named family is the primary in
+  78.6%, the primary or secondary in 92.9%, and matches leniently (tags included) in 96.1%.
+- p4a: Lenient matching is broad. Share of active inks a single family matches, hex families only
+  vs with tags: blue 33% vs 43%, purple 18% vs 29%, brown 14% vs 30%, gray 9% vs 30% (slate-grey
+  tags on muted blues and teals). So `colour_exclude: [gray]` drops about three times as many inks
+  as the hex alone would. Kept as the plan says; if the bench shows over-exclusion, restrict tag
+  matching to the 16 `FindPrimaryColor` names or to includes.
