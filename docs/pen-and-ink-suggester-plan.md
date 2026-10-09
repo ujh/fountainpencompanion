@@ -1587,3 +1587,6 @@ evidence.
   sum), archived items included.
 - p2c: A non-string `extra_user_input` or `rejected_suggestions` parameter is ignored instead of
   raising a 500. The instruction is cut to 500 characters before the blank check.
+- p2c: Only the newest 200 raw `rejected_suggestions` entries (4x the 50-pair cap) are
+  validated, so a huge array of invalid entries can't make the request thread do unbounded work
+  before p2d's throttle lands; valid pairs older than that are dropped.

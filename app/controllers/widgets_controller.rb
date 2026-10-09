@@ -117,6 +117,7 @@ class WidgetsController < ApplicationController
   end
 
   MAX_REJECTED_SUGGESTIONS = 50
+  MAX_REJECTED_SUGGESTION_ENTRIES = MAX_REJECTED_SUGGESTIONS * 4
   MAX_EXTRA_USER_INPUT_LENGTH = 500
 
   def pen_and_ink_suggestion_data
@@ -144,6 +145,7 @@ class WidgetsController < ApplicationController
     return [] unless parsed.is_a?(Array)
 
     parsed
+      .last(MAX_REJECTED_SUGGESTION_ENTRIES)
       .filter_map do |entry|
         next unless entry.is_a?(Hash)
         ink_id = safe_integer(entry["ink_id"])

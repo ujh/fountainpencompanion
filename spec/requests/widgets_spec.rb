@@ -341,6 +341,20 @@ describe WidgetsController do
         expect(captured[:rejected_suggestions]).to eq(valid.last(50))
       end
 
+      it "ignores pairs older than the newest 200 entries" do
+        captured = nil
+        allow(RequestPenAndInkSuggestion).to receive(:new) do |args|
+          captured = args
+          double(perform: { suggestion_id: "noop" })
+        end
+
+        payload = ([{ "ink_id" => 1, "pen_id" => 2 }] + Array.new(200) { {} }).to_json
+
+        get url, params: { rejected_suggestions: payload }
+
+        expect(captured[:rejected_suggestions]).to eq([])
+      end
+
       it "returns an empty list when the parameter is not a string" do
         captured = nil
         allow(RequestPenAndInkSuggestion).to receive(:new) do |args|
