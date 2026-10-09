@@ -1458,8 +1458,8 @@ id that made it. The owner reviews them before the corresponding PR merges.
 | p1   | P1      | `NibProfile` and `NibProfile::Parser` with the table spec                                    |
 | p2a  | P2      | `RubyLlmAgent`: `ToolCallLimitExceeded`, `max_tool_calls`, `tool_calls_mode`; CLAUDE.md tool names |
 | p2b  | P2      | suggester: precheck, `ask!`, first-valid-wins `RecordSuggestion`, one `AgentLog` per request, worker `retry: 0` |
-| p2c  | P2      | `interactive` queue, result written in `ensure`, `queue_ms`                                  |
-| p2d  | P2      | rejected-suggestion validation, 500-char cap, Rack::Attack throttle, enqueue cap check       |
+| p2c  | P2      | `interactive` queue, result written in `ensure`, `queue_ms`, rejected-suggestion validation, 500-char cap, enqueue cap check |
+| p2d  | P2      | Rack::Attack throttle                                                                        |
 | p3   | P3      | widget reliability: poll timeout, error state, gate note, `maxLength`, message-only results  |
 | p4a  | P4      | `ColorProfile`                                                                               |
 | p4b  | P4      | `InkProperties`                                                                              |
@@ -1564,3 +1564,29 @@ evidence.
   25 retries would add a counted log on every attempt, so one click during an OpenAI outage could
   use up about a dozen of a free user's 20 daily runs. Master auto-deploys, so p2b must not ship
   without it. Until p2c's `ensure` lands, a failed run still leaves no cached result.
+
+**p2c decisions:**
+
+- p2c: The rejected-suggestion validation, the 500-character cap and the enqueue-time cap check
+  moved from p2d into p2c with the rest of the worker, operation and controller work; p2d keeps
+  only the Rack::Attack throttle. The step table was updated to match.
+- p2c: The daily-cap rule moved into `PenAndInkSuggester::DailyCap` (limit, count, message), so
+  the suggester's authoritative check and the enqueue-time check share one query and one message.
+- p2c: Over the cap at enqueue, no job is enqueued and no `AgentLog` is created; the cap message
+  is written to the cache under a fresh `suggestion_id`, so the current widget shows it on its
+  first poll without a widget change.
+- p2c: The enqueue time travels as an optional fifth job argument (epoch seconds as a float), so
+  jobs enqueued by the old code during a deploy still run. `queue_ms` is clamped at 0 against
+  clock skew between machines and is stored only in the log, not in the cached result.
+- p2c: `interactive` sits after `mailers` (passwordless login emails are interactive too) and
+  before `agents`.
+- p2c: When nothing was written, the worker's `ensure` caches `{message: ERROR_MESSAGE}`, the same
+  text as the handled failures; this also covers a deleted user.
+- p2c: The instruction gate treats an unconfirmed account (`confirmed_at` nil) as not allowed
+  instead of raising, and keeps today's rule of more than 20 inks or more than 20 pens (not their
+  sum), archived items included.
+- p2c: A non-string `extra_user_input` or `rejected_suggestions` parameter is ignored instead of
+  raising a 500. The instruction is cut to 500 characters before the blank check.
+- p2c: Only the newest 200 raw `rejected_suggestions` entries (4x the 50-pair cap) are
+  validated, so a huge array of invalid entries can't make the request thread do unbounded work
+  before p2d's throttle lands; valid pairs older than that are dropped.
