@@ -774,7 +774,8 @@ is added to the user message. That gives depth on specialist nibs without a tool
   family, the secondary family or a cluster CSS-colour tag can each satisfy a colour filter.
   `colour_exclude` uses the same match, so an exclusion errs on the side of the user's wording.
 - **`InkProperties.for`** derives shimmer, sheen, shading, chameleon, scented, water_resistant,
-  pigmented and iron_gall from user tags, cluster tags and keywords in the description. These are
+  pigmented and iron_gall from user tags, cluster tags, the ink's names (p4b) and keywords in the
+  description. These are
   lower bounds. They are shown on rows; only shimmer and scented are filterable. On ink rows, the
   CSS colour-name tags are replaced by the colour family.
 - **Default exclusions and compatibility** (SQ15; in the selector, re-checked in
@@ -1669,3 +1670,46 @@ evidence.
   tags on muted blues and teals). So `colour_exclude: [gray]` drops about three times as many inks
   as the hex alone would. Kept as the plan says; if the bench shows over-exclusion, restrict tag
   matching to the 16 `FindPrimaryColor` names or to includes.
+
+**p4b decisions:**
+
+- p4b: `PenAndInkSuggestion::InkProperties` lives in `app/operations/pen_and_ink_suggestion/` as
+  section 3 lists. `.for(ink)` reads the ink's own tags through the `tags` association (so a
+  preloaded snapshot makes no queries; `tag_names` always plucks), its cluster tags, its brand,
+  line and ink names and the cluster description. `.from_texts(tags:, names:, descriptions:)` is
+  the pure entry point. `labels` lists the row words in a fixed order; what `shimmer`/`scented`
+  include and exclude do with them is left to p9b.
+- p4b: Names are read too, though the plan lists only tags and descriptions: lines and inks such as
+  "Shimmertastic", "Scented", "Iron Gall", "Pigmented", "Sheen Machine" or "Blau Permanent" are
+  reliable and cover inks whose cluster is untagged. Names never set shading or chameleon (Diamine
+  "Night Shade", Jungle "Chameleon").
+- p4b: Any affirmed mention in any source sets a flag. A negated one ("no shimmer") only doesn't
+  count; it never clears a flag another source set. Flags stay lower bounds, and
+  `shimmer: exclude` errs towards excluding.
+- p4b: "Shimmering blue" in a description does **not** count. In prose, "shimmering" counts only
+  before "ink(s)" or "particles" ("the shimmering ink range"), because in the dev DB the
+  description-only uses also covered a Sailor sheen ink's "shimmering effect" and poetic text. In a
+  tag or name ("shimmering blue", "Midnight Morpho Shimmering") it counts. The noun ("gold
+  shimmer"), "shimmery" and "shimmers" always count; "glitters"/"glittering" and "sparkling" count
+  only in tags and names.
+- p4b: A mention doesn't count when one of the 4 words before it in its clause (split at
+  punctuation, "and" and "but") is a negation (no, not, non, without, never, nor, n't…), a
+  comparison (like, unlike, than, add, "as with"), or, for water resistance only, a weak qualifier
+  (low, some, slight, partially, semi, a degree of…); when it is followed by "-free", "- No" or
+  ": none" (structured descriptions) or "version/edition/variant" ("there is also a shimmer
+  version"); or when the word ends in "less". "Low sheen", "low shading" and "low shimmer" still
+  count.
+- p4b: Ambiguous words are narrowed: "shade" only as a whole tag ("shade", "shade.m"), never in
+  prose ("a lighter shade of blue"); "permanent" only before ink/and/or/punctuation or at the end
+  ("a permanent reminder" doesn't count); "pigment" only before ink/based/particles or as a whole
+  tag; "scent"/"fragrance" not before "of" ("Dizzy Scent of Maehwa"); "smell(s)" only as a whole
+  tag; "archival" counts as water-resistant, the tag "archive" doesn't.
+- p4b: Measured on the dev DB with an uncommitted script (coverage only, precision is not
+  measured): of 608,905 active non-swab inks, 63.4% get a flag: shading 44.0%, sheen 28.0%,
+  shimmer 15.6%, water-resistant 3.9%, chameleon 2.2%, pigmented 1.7%, scented 1.3%, iron gall
+  0.9%, mostly from cluster tags; about 0.07 ms per ink. Known false positives remain, e.g. generic
+  sentences ("iron gall inks are generally more water-resistant") and a description that mentions
+  a separate shimmer variant in a later clause.
+- p4b: If the p6a checker scores `shimmer: exclude` with `InkProperties`, that metric passes by
+  construction. The checker should use the labelled shimmer inks instead, or the `gate` row should
+  add a hand check of 50 `InkProperties` outputs next to the `NibProfile` and `ColorProfile` ones.
