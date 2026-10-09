@@ -407,6 +407,31 @@ describe "Rack::Attack throttles", type: :request do
       expect(response.status).to eq(429)
     end
 
+    it "throttles enqueues with a valueless suggestion_id[]" do
+      use_up_enqueue_limit
+      get "#{path}?suggestion_id[]", env: env
+
+      expect(response.status).to eq(429)
+    end
+
+    it "throttles enqueues whose form body carries a suggestion_id" do
+      use_up_enqueue_limit
+      get "#{path}?suggestion_id=",
+          env:
+            env.merge(
+              "CONTENT_TYPE" => "application/x-www-form-urlencoded",
+              "rack.input" => StringIO.new("suggestion_id=x")
+            )
+
+      expect(response.status).to eq(429)
+    end
+
+    it "lets paths that are not valid UTF-8 through to the app" do
+      get "/brands%FF", env: env
+
+      expect(response.status).to eq(404)
+    end
+
     %w[
       /dashboard/widgets/pen%5Fand%5Fink%5Fsuggestion.json
       /dashboard/widgets/pen_and_ink_suggestion.html
@@ -435,12 +460,23 @@ describe "Rack::Attack throttles", type: :request do
   end
 
   describe "fpc_pen_and_ink_suggestion_enqueue?" do
-    def enqueue?(path, query = "")
-      env = Rack::MockRequest.env_for("/")
+    def enqueue?(path, query = "", form_body: nil)
+      env =
+        if form_body
+          Rack::MockRequest.env_for(
+            "/",
+            "CONTENT_TYPE" => "application/x-www-form-urlencoded",
+            :input => form_body
+          )
+        else
+          Rack::MockRequest.env_for("/")
+        end
       env["PATH_INFO"] = path
       env["QUERY_STRING"] = query
       fpc_pen_and_ink_suggestion_enqueue?(Rack::Request.new(env))
     end
+
+    let(:widget) { "/dashboard/widgets/pen_and_ink_suggestion.json" }
 
     %w[
       /dashboard/widgets/pen_and_ink_suggestion
@@ -468,6 +504,30 @@ describe "Rack::Attack throttles", type: :request do
       expect(enqueue?("/dashboard/widgets/pen_and_ink_suggestion.json", "suggestion_id=%20")).to eq(
         true
       )
+    end
+
+    %w[/foo%FF /%E2%82 /dashboard/widgets/pen_and_ink_suggestion%FF].each do |path|
+      it "does not match #{path}, which is not valid UTF-8 once decoded" do
+        expect(enqueue?(path)).to eq(false)
+      end
+    end
+
+    [
+      "suggestion_id[]",
+      "suggestion_id[]=abc",
+      "suggestion_id[key]=abc",
+      "suggestion_id=%FF",
+      "suggestion_id[]=a&suggestion_id[b]=c"
+    ].each do |query|
+      it "matches #{query}, which is not a usable suggestion_id" do
+        expect(enqueue?(widget, query)).to eq(true)
+      end
+    end
+
+    it "reads suggestion_id from the query string only" do
+      expect(enqueue?(widget, "suggestion_id=", form_body: "suggestion_id=abc")).to eq(true)
+      expect(enqueue?(widget, "", form_body: "suggestion_id=abc")).to eq(true)
+      expect(enqueue?(widget, "suggestion_id=abc", form_body: "suggestion_id=")).to eq(false)
     end
 
     it "does not match a poll" do

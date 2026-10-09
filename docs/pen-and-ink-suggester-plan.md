@@ -1600,3 +1600,9 @@ evidence.
 - p2d: The rule is method-agnostic (only GET routes there) and keyed on IP at 10 per 60 s, as the
   plan suggested; a whitespace-only `suggestion_id` counts as an enqueue, matching the
   controller's `.presence`.
+- p2d: The throttle reads `suggestion_id` from the query string only and counts anything other
+  than a non-blank, validly encoded String (arrays, hashes, `%FF`, a malformed query) as an
+  enqueue. Rack and Rails merge query and form-body params in opposite orders, so a body value
+  could otherwise make Rack see a poll where the controller enqueues.
+- p2d: The path check runs on the decoded path as bytes, so a path that is not valid UTF-8 once
+  decoded (`/foo%FF`) passes through to the app instead of raising inside Rack::Attack.
