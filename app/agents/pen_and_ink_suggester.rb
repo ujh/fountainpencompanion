@@ -55,21 +55,23 @@ class PenAndInkSuggester
   MAX_PER_DAY = 20
   MAX_PER_DAY_PATRON = 50
   MAX_TOOL_CALLS = 12
-  LOG_ONLY_KEYS = %i[precheck error].freeze
+  LOG_ONLY_KEYS = %i[precheck error queue_ms].freeze
   ERROR_MESSAGE = "Sorry, that didn't work. Please try again!"
   NO_UNINKED_PENS_MESSAGE =
     "All your pens are currently inked (or you have none). Clean one up and try again."
   NO_FILLABLE_INKS_MESSAGE =
     "You have no inks to fill a pen with (swabs don't count). Add an ink and try again."
 
-  def initialize(user, extra_user_input = nil, rejected_suggestions = [])
+  def initialize(user, extra_user_input = nil, rejected_suggestions = [], queue_ms: nil)
     self.user = user
     self.extra_user_input = extra_user_input
     self.rejected_suggestions = rejected_suggestions || []
+    self.queue_ms = queue_ms
   end
 
   def perform
     extra_data = run
+    extra_data[:queue_ms] = queue_ms if queue_ms
     response = extra_data.except(*LOG_ONLY_KEYS)
     agent_log.update(extra_data:)
     agent_log.waiting_for_approval!
@@ -82,10 +84,11 @@ class PenAndInkSuggester
 
   private
 
-  attr_accessor :user, :extra_user_input, :rejected_suggestions
+  attr_accessor :user, :extra_user_input, :rejected_suggestions, :queue_ms
 
   def run
-    return { message: out_of_requests_message } unless can_perform?
+    daily_cap = DailyCap.new(user)
+    return { message: daily_cap.message } if daily_cap.reached?
 
     precheck = precheck_failure
     return { message: precheck[:message], precheck: precheck[:reason] } if precheck
@@ -295,27 +298,6 @@ class PenAndInkSuggester
         },
         newest_currently_inked: :last_usage
       )
-  end
-
-  def today_usage_count
-    AgentLog
-      .where(name: self.class.name, owner: user)
-      .where("created_at >= ?", Time.current.beginning_of_day)
-      .where("extra_data->'precheck' IS NULL")
-      .count
-  end
-
-  def can_perform?
-    limit = premium? ? MAX_PER_DAY_PATRON : MAX_PER_DAY
-    today_usage_count < limit
-  end
-
-  def out_of_requests_message
-    if premium?
-      "You have reached your daily limit of #{MAX_PER_DAY_PATRON} suggestions. Please try again tomorrow."
-    else
-      "You have reached your daily limit of #{MAX_PER_DAY} suggestions. Consider becoming a [Patron](https://www.patreon.com/bePatron?u=6900241) for a higher limit!"
-    end
   end
 
   def limit

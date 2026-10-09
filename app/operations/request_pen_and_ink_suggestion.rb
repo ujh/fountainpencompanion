@@ -8,29 +8,39 @@ class RequestPenAndInkSuggestion
   end
 
   def perform
-    if suggestion_id
-      suggestion = Rails.cache.read(suggestion_id)
-      return {} unless suggestion
-
-      suggestion[:ink] = user.collected_inks.find_by(id: suggestion[:ink])
-      suggestion[:pen] = user.collected_pens.find_by(id: suggestion[:pen])
-      suggestion[:message] = FpcFormatter.render(suggestion[:message])
-      suggestion
-    else
-      new_suggestion_id = generate_suggestion_id
-      SchedulePenAndInkSuggestion.perform_async(
-        user.id,
-        new_suggestion_id,
-        extra_user_input,
-        rejected_suggestions
-      )
-      { suggestion_id: new_suggestion_id }
-    end
+    suggestion_id ? read_suggestion : request_suggestion
   end
 
   private
 
   attr_accessor :suggestion_id, :user, :extra_user_input, :rejected_suggestions
+
+  def read_suggestion
+    suggestion = Rails.cache.read(suggestion_id)
+    return {} unless suggestion
+
+    suggestion[:ink] = user.collected_inks.find_by(id: suggestion[:ink])
+    suggestion[:pen] = user.collected_pens.find_by(id: suggestion[:pen])
+    suggestion[:message] = FpcFormatter.render(suggestion[:message]) if suggestion[:message]
+    suggestion
+  end
+
+  def request_suggestion
+    new_suggestion_id = generate_suggestion_id
+    daily_cap = PenAndInkSuggester::DailyCap.new(user)
+    if daily_cap.reached?
+      Rails.cache.write(new_suggestion_id, { message: daily_cap.message }, expires_in: 1.hour)
+    else
+      SchedulePenAndInkSuggestion.perform_async(
+        user.id,
+        new_suggestion_id,
+        extra_user_input,
+        rejected_suggestions,
+        Time.current.to_f
+      )
+    end
+    { suggestion_id: new_suggestion_id }
+  end
 
   def generate_suggestion_id
     prefix = self.class.name.underscore.dasherize
