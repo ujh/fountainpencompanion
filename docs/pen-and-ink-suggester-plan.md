@@ -774,7 +774,8 @@ is added to the user message. That gives depth on specialist nibs without a tool
   family, the secondary family or a cluster CSS-colour tag can each satisfy a colour filter.
   `colour_exclude` uses the same match, so an exclusion errs on the side of the user's wording.
 - **`InkProperties.for`** derives shimmer, sheen, shading, chameleon, scented, water_resistant,
-  pigmented and iron_gall from user tags, cluster tags and keywords in the description. These are
+  pigmented and iron_gall from user tags, cluster tags, the ink's names (p4b) and keywords in the
+  description. These are
   lower bounds. They are shown on rows; only shimmer and scented are filterable. On ink rows, the
   CSS colour-name tags are replaced by the colour family.
 - **Default exclusions and compatibility** (SQ15; in the selector, re-checked in
@@ -1287,16 +1288,16 @@ so the checking isn't circular.
    cartridge compatibility; not an exact rejected repeat; hard-failure rate.
 2. **Named pen / named ink hit** against the labelled targets.
 3. **Hard constraints** met against the labels: kind, usage, brand/tag/comment exclusion, nib grade
-   and width (checked with `NibProfile`), colour (with `ColorProfile`), pair usage, _or_ an
-   explicit relaxation note.
+   and width (checked with `NibProfile`), colour (with `ColorProfile`), shimmer and scented (with
+   `InkProperties`), pair usage, _or_ an explicit relaxation note.
 4. **Rule leakage:** regex for `novelty|favou?rite|balance|usage count|\bid\b`, headings, links.
 5. **Default behaviour preserved** on no-instruction runs: share of never-used or ≥ 180-day-unused
    inks (by `last_activity_on` at `as_of`) within ±5 pp of baseline, and colour spread against
    currently inked.
 6. **Cost and speed:** measured tokens, $ per run, latency, `DecisionNotReachedError` rate,
    extractor fallback rate.
-7. **Normaliser correctness:** a separate hand check of 50 `NibProfile` outputs and 50
-   `ColorProfile` outputs, because the checkers reuse that code.
+7. **Normaliser correctness:** a separate hand check of 50 `NibProfile` outputs, 50
+   `ColorProfile` outputs and 50 `InkProperties` outputs, because the checkers reuse that code.
 8. **Matcher false pins:** `MentionMatcher` alone on all 592 distinct strings against hand labels
    (P8 gate ≤ 2%).
 
@@ -1466,7 +1467,7 @@ id that made it. The owner reviews them before the corresponding PR merges.
 | p5   | P5      | `CollectionSnapshot`; the current CSV prompt builder reads from it                           |
 | p6a  | P6      | bench case exporter, label format, checkers                                                  |
 | p6b  | P6      | bench runner, `as_of` replay, seeded baseline run                                            |
-| gate | P6      | **owner, not an agent:** spot-check ~50 of the drafted bench labels and hand-check 50 `NibProfile` and 50 `ColorProfile` outputs (section 8.1 metric 7) |
+| gate | P6      | **owner, not an agent:** spot-check ~50 of the drafted bench labels and hand-check 50 `NibProfile`, 50 `ColorProfile` and 50 `InkProperties` outputs (section 8.1 metric 7) |
 | p7   | P7      | v2 pick call for runs without an instruction                                                 |
 | p10  | P10     | inked named pen UX (link to the currently-inked entry)                                       |
 | p8   | P8      | `MentionMatcher` + `NameResolver`; instruction runs move to v2 in fallback mode              |
@@ -1475,8 +1476,8 @@ id that made it. The owner reviews them before the corresponding PR merges.
 | p11  | P11     | remove the old CSV path                                                                      |
 
 **Human checks before bench claims.** The bench labels are drafted by Claude Code, and the
-checkers reuse `NibProfile` and `ColorProfile`, so the `gate` row is a merge gate: until the owner
-has done both checks, no p7+ PR may claim a section 8.2 target from bench results. Bench numbers
+checkers reuse `NibProfile`, `ColorProfile` and `InkProperties`, so the `gate` row is a merge
+gate: until the owner has done both checks (labels and the three normalisers), no p7+ PR may claim a section 8.2 target from bench results. Bench numbers
 reported before then are stated as scored against unreviewed draft labels, with the label-free
 metrics (validity, hard failures, swab/cartridge violations, rule leakage, cost) as the primary
 evidence.
@@ -1669,3 +1670,56 @@ evidence.
   tags on muted blues and teals). So `colour_exclude: [gray]` drops about three times as many inks
   as the hex alone would. Kept as the plan says; if the bench shows over-exclusion, restrict tag
   matching to the 16 `FindPrimaryColor` names or to includes.
+
+**p4b decisions:**
+
+- p4b: `PenAndInkSuggestion::InkProperties` lives in `app/operations/pen_and_ink_suggestion/` as
+  section 3 lists. `.for(ink)` reads the ink's own tags through the `tags` association (so a
+  preloaded snapshot makes no queries; `tag_names` always plucks), its cluster tags, its brand,
+  line and ink names and the cluster description. `.from_texts(tags:, names:, descriptions:)` is
+  the pure entry point. `labels` lists the row words in a fixed order; what `shimmer`/`scented`
+  include and exclude do with them is left to p9b.
+- p4b: Names are read too, though the plan lists only tags and descriptions: lines and inks such as
+  "Shimmertastic", "Scented", "Iron Gall", "Pigmented", "Sheen Machine" or "Blau Permanent" are
+  reliable and cover inks whose cluster is untagged. Names never set shading or chameleon (Diamine
+  "Night Shade", Jungle "Chameleon").
+- p4b: Any affirmed mention in any source sets a flag. A negated one ("no shimmer") only doesn't
+  count; it never clears a flag another source set. Flags stay lower bounds, and
+  `shimmer: exclude` errs towards excluding.
+- p4b: "Shimmering blue" in a description does **not** count. In prose, "shimmering" counts only
+  before "ink(s)" or "particles" ("the shimmering ink range"), because in the dev DB the
+  description-only uses also covered a Sailor sheen ink's "shimmering effect" and poetic text. In a
+  tag or name ("shimmering blue", "Midnight Morpho Shimmering") it counts. The noun ("gold
+  shimmer"), "shimmery" and "shimmers" always count; "glitters"/"glittering" and "sparkling" count
+  only in tags and names.
+- p4b: A mention doesn't count when one of the 4 words before it in its clause (split at
+  punctuation, "and" and "but") is a negation (no, not, non, without, never, nor, n't…), a
+  comparison (like, unlike, than, add, "as with"), or, for water resistance only, a weak qualifier
+  (low, some, slight, partially, semi, a degree of…); when it is followed by "-free", "- No" or
+  ": none" (structured descriptions) or "version/edition/variant" ("there is also a shimmer
+  version"); or when the word ends in "less". "Low sheen", "low shading" and "low shimmer" still
+  count.
+- p4b: Ambiguous words are narrowed: "shade" only as a whole tag ("shade", "shade.m"), never in
+  prose ("a lighter shade of blue"); "permanent" only before ink/and/or/punctuation or at the end
+  ("a permanent reminder" doesn't count); "pigment" only before ink/based/particles or as a whole
+  tag; "scent"/"fragrance" not before "of" ("Dizzy Scent of Maehwa"); "smell(s)" only as a whole
+  tag; "archival" counts as water-resistant, the tag "archive" doesn't.
+- p4b: Measured on the dev DB with an uncommitted script (coverage only, precision is not
+  measured): of 608,905 active non-swab inks, 63.4% get a flag: shading 44.0%, sheen 28.0%,
+  shimmer 15.6%, water-resistant 3.9%, chameleon 2.2%, pigmented 1.7%, scented 1.3%, iron gall
+  0.9%, mostly from cluster tags; about 0.07 ms per ink. Known false positives remain, e.g. generic
+  sentences ("iron gall inks are generally more water-resistant"), a description that mentions a
+  separate shimmer variant in a later clause, an odour read as scented ("a slight chemical scent";
+  all 20 scent mentions in the dev DB's descriptions are real scents) and a name such as "Sheena"
+  (`sheen\w*` is kept for joined tags such as "sheenmonster"; no such name is in the dev DB).
+- p4b: The p6a checkers score `shimmer` and `scented` with `InkProperties`, the same way nib and
+  colour are scored with `NibProfile` and `ColorProfile`. That shows the filter is enforced, not
+  that the flags are right, so section 8.1 metric 7, the `gate` row and the merge-gate paragraph
+  now add a hand check of 50 `InkProperties` outputs. Until it is done, no p7+ PR may claim the
+  "no shimmer" target. The plan's other option (score only against labelled shimmer inks) was not
+  taken: the labels name constraints per case, not a property for every ink a run can pick.
+- p4b: A negation carries along a list of property words joined by commas, "and", "or" or "nor":
+  "without sheen and shimmer" and "no sheen, shading or shimmer" set no flag. It does not carry
+  past any other word ("no sheen and gold shimmer" is shimmer) or a weak qualifier to other
+  properties ("low water resistance and shimmer" is shimmer). In the dev DB this drops one sheen
+  and one shading flag among 2,553 cluster descriptions.
