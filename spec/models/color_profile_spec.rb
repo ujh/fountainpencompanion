@@ -59,6 +59,9 @@ describe ColorProfile do
         ["#d02769", { family: "pink", secondary_family: "red" }],
         ["#ffc0cb", { family: "pink", secondary_family: "red", saturation: "muted" }],
         ["#c71585", { family: "pink", secondary_family: "purple" }],
+        ["#6b1f4f", { family: "purple", secondary_family: "pink", lightness: "dark" }],
+        ["#6b3a3a", { family: "brown", secondary_family: "red", lightness: "dark" }],
+        ["#8a5a5a", { family: "brown", secondary_family: "red", lightness: "medium" }],
         ["#ff00ff", { family: "purple", secondary_family: "pink" }]
       ].each do |hex, expected|
         it "reads #{hex}" do
@@ -75,6 +78,10 @@ describe ColorProfile do
         ["#d2b48c", { family: "brown", secondary_family: "orange", lightness: "light" }],
         ["#cc5500", { family: "brown", secondary_family: "orange", saturation: "vivid" }],
         ["#808000", { family: "green", secondary_family: "yellow" }],
+        ["#6b631e", { family: "brown", secondary_family: "yellow", saturation: "muted" }],
+        ["#6b671e", { family: "green", secondary_family: "yellow" }],
+        ["#a39a6a", { family: "brown", secondary_family: "yellow", lightness: "medium" }],
+        ["#9a925a", { family: "yellow", secondary_family: "brown", lightness: "medium" }],
         ["#b8860b", { family: "orange", secondary_family: "yellow" }]
       ].each do |hex, expected|
         it "reads #{hex}" do
@@ -103,6 +110,7 @@ describe ColorProfile do
         ["#555555", { family: "gray", secondary_family: nil, saturation: "muted" }],
         ["#5f6b73", { family: "gray", secondary_family: "blue" }],
         ["#444444", { family: "black", secondary_family: "gray", lightness: "dark" }],
+        ["#4a4a4a", { family: "gray", secondary_family: "black", lightness: "dark" }],
         ["#333333", { family: "black", secondary_family: nil }],
         ["#1a1a1a", { family: "black", secondary_family: nil }],
         ["#0d0d0d", { family: "black", secondary_family: nil }],
@@ -251,6 +259,21 @@ describe ColorProfile do
         tags: %w[navy sheen]
       )
       expect(described_class.for(ink).matches?("blue")).to be(true)
+    end
+
+    it "prefers the ink's own colour over the cluster colour" do
+      ink = create(:collected_ink, color: "#704214", micro_cluster:)
+      ink.update_column(:cluster_color, "#008000")
+
+      expect(described_class.for(ink)).to have_attributes(hex: "#704214", family: "brown")
+    end
+
+    it "ignores the ink's own tags" do
+      ink = create(:collected_ink, color: "#704214", micro_cluster:, tags_as_string: "red, pink")
+
+      expect(ink.reload.tag_names).to match_array(%w[red pink])
+      expect(described_class.for(ink).tags).to eq(%w[navy sheen])
+      expect(described_class.for(ink).matches_any?(%w[red pink])).to be(false)
     end
 
     it "falls back to the cluster colour" do
