@@ -62,6 +62,10 @@ class PenAndInkSuggester
   NO_FILLABLE_INKS_MESSAGE =
     "You have no inks to fill a pen with (swabs don't count). Add an ink and try again."
 
+  def self.error_result
+    { message: ERROR_MESSAGE, status: "error" }
+  end
+
   def initialize(user, extra_user_input = nil, rejected_suggestions = [], queue_ms: nil)
     self.user = user
     self.extra_user_input = extra_user_input
@@ -98,7 +102,7 @@ class PenAndInkSuggester
 
   def suggest
     error = request_suggestion
-    result = record_suggestion_tool.result || { message: ERROR_MESSAGE }
+    result = record_suggestion_tool.result || self.class.error_result
     error ? result.merge(error:) : result
   end
 

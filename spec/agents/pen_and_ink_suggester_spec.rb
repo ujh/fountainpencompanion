@@ -669,9 +669,13 @@ RSpec.describe PenAndInkSuggester do
 
       response = subject.perform
 
-      expect(response).to eq({ message: described_class::ERROR_MESSAGE })
+      expect(response).to eq({ message: described_class::ERROR_MESSAGE, status: "error" })
       expect(subject.agent_log.extra_data).to eq(
-        { "message" => described_class::ERROR_MESSAGE, "error" => "DecisionNotReachedError" }
+        {
+          "message" => described_class::ERROR_MESSAGE,
+          "status" => "error",
+          "error" => "DecisionNotReachedError"
+        }
       )
       expect(subject.agent_log.state).to eq("waiting-for-approval")
     end
@@ -688,7 +692,7 @@ RSpec.describe PenAndInkSuggester do
 
       response = subject.perform
 
-      expect(response).to eq({ message: described_class::ERROR_MESSAGE })
+      expect(response).to eq({ message: described_class::ERROR_MESSAGE, status: "error" })
       expect(subject.agent_log.extra_data["error"]).to eq("ToolCallLimitExceeded")
       expect(WebMock).to have_requested(:post, openai_url).once
     end

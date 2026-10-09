@@ -17,6 +17,8 @@ class WidgetsController < ApplicationController
       render json: pens_grouped_by_brand_data
     when "pen_and_ink_suggestion"
       render json: pen_and_ink_suggestion_data
+    when "pen_and_ink_suggestion_settings"
+      render json: pen_and_ink_suggestion_settings_data
     when "usage_visualization"
       render json: usage_visualization_data
     else
@@ -127,6 +129,15 @@ class WidgetsController < ApplicationController
       extra_user_input: extra_user_input_param,
       rejected_suggestions: parse_rejected_suggestions(params[:rejected_suggestions])
     ).perform
+  end
+
+  def pen_and_ink_suggestion_settings_data
+    as_json_api("pen_and_ink_suggestion_settings") do
+      {
+        instructions_allowed: PenAndInkSuggester::InstructionGate.new(current_user).allowed?,
+        instructions_max_length: MAX_EXTRA_USER_INPUT_LENGTH
+      }
+    end
   end
 
   def extra_user_input_param

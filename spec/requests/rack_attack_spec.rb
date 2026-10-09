@@ -386,6 +386,13 @@ describe "Rack::Attack throttles", type: :request do
       expect(results).to all(be < 429)
     end
 
+    it "never throttles the suggestion settings request" do
+      use_up_enqueue_limit
+      get "/dashboard/widgets/pen_and_ink_suggestion_settings.json", env: env
+
+      expect(response.status).to be < 429
+    end
+
     it "throttles enqueues on the path without .json" do
       use_up_enqueue_limit
       get "/dashboard/widgets/pen_and_ink_suggestion", env: env
