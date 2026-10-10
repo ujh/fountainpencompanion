@@ -443,6 +443,36 @@ describe WidgetsController do
       end
     end
 
+    context "pen_and_ink_suggestion (currently inked pen)" do
+      let(:url) { "/dashboard/widgets/pen_and_ink_suggestion.json" }
+      let(:user) { create(:user) }
+
+      before { sign_in(user) }
+
+      it "returns the flag and the currently inked entry id the widget links to" do
+        pen = create(:collected_pen, user:)
+        ink = create(:collected_ink, user:)
+        inking = create(:currently_inked, user:, collected_pen: pen)
+        Rails.cache.write(
+          "request-pen-and-ink-suggestion-inked",
+          {
+            message: "Clean it first",
+            ink: ink.id,
+            pen: pen.id,
+            pen_currently_inked: true,
+            currently_inked_id: inking.id
+          }
+        )
+
+        get url, params: { suggestion_id: "request-pen-and-ink-suggestion-inked" }
+
+        expect(JSON.parse(response.body)).to include(
+          "pen_currently_inked" => true,
+          "currently_inked_id" => inking.id
+        )
+      end
+    end
+
     context "pen_and_ink_suggestion_settings" do
       let(:url) { "/dashboard/widgets/pen_and_ink_suggestion_settings.json" }
 

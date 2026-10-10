@@ -195,7 +195,7 @@ describe SchedulePenAndInkSuggestion do
       log = user.agent_logs.find_by!(name: "PenAndInkSuggester")
       expect(log.extra_data["queue_ms"]).to eq(1000)
       cached = Rails.cache.read(suggestion_id)
-      expect(cached.keys).to eq(%i[message ink pen])
+      expect(cached.keys).to eq(%i[message ink pen pen_currently_inked])
       expect(cached).to include(ink: ink.id, pen: pen.id)
       expect(cached[:message]).to end_with("\n\nInk it")
     end

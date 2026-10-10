@@ -13,6 +13,7 @@ export const ERROR_MESSAGE = "Sorry, that didn't work. Please try again!";
 export const TIMEOUT_MESSAGE = "Sorry, that took too long. Please try again!";
 export const THROTTLED_MESSAGE =
   "You asked for a lot of suggestions in a short time. Please wait a minute and try again!";
+export const CURRENTLY_INKED_LINK = "Open currently inked entry";
 export const GATE_NOTE =
   "Extra instructions become available once your account is more than two weeks old and you have more than 20 inks or 20 pens.";
 
@@ -56,11 +57,7 @@ const PenAndInkSuggestionWidgetContent = () => {
     <div>
       {result && <SuggestionMessage result={result} />}
       <div className="buttons">
-        {result && isPair(result) && (
-          <a className="btn btn-success" href={inkItUpUrl(result)}>
-            Ink it Up!
-          </a>
-        )}
+        {result && isPair(result) && <SuggestionAction result={result} />}
         <button type="button" className="btn btn-success" onClick={onAsk}>
           {result ? "Try again!" : "Suggest something!"}
         </button>
@@ -86,6 +83,17 @@ const PenAndInkSuggestionWidgetContent = () => {
     </div>
   );
 };
+
+const SuggestionAction = ({ result }) =>
+  isCurrentlyInked(result) ? (
+    <a className="btn btn-success" href={currentlyInkedUrl(result)}>
+      {CURRENTLY_INKED_LINK}
+    </a>
+  ) : (
+    <a className="btn btn-success" href={inkItUpUrl(result)}>
+      Ink it Up!
+    </a>
+  );
 
 const SuggestionMessage = ({ result }) => {
   const error = isError(result);
@@ -167,6 +175,12 @@ const errorResult = (message) => ({ status: "error", message });
 const isError = (result) => result.status === "error";
 
 const isPair = (result) => Boolean(result.ink?.id && result.pen?.id);
+
+const isCurrentlyInked = (result) =>
+  Boolean(result.pen_currently_inked && result.currently_inked_id);
+
+const currentlyInkedUrl = (result) =>
+  `/currently_inked/${encodeURIComponent(result.currently_inked_id)}/edit`;
 
 const inkItUpUrl = (result) =>
   `/currently_inked/new?collected_ink_id=${result.ink.id}&collected_pen_id=${result.pen.id}`;
