@@ -386,6 +386,33 @@ RSpec.describe PenAndInkSuggestion::PickPrompt do
       )
     end
 
+    it "lists the recent inkings of a pinned ink with the pens it was in" do
+      archived_pen = create(:collected_pen, user:, brand: "Pilot", model: "Custom 74", nib: "SF")
+      create(
+        :currently_inked,
+        user:,
+        collected_pen: archived_pen,
+        collected_ink: ink,
+        inked_on: Date.new(2025, 1, 1),
+        archived_on: Date.new(2025, 1, 20)
+      )
+      archived_pen.update!(archived_on: today - 1)
+      ink_it(pen, ink, inked_on: Date.new(2025, 3, 1), archived_on: Date.new(2025, 3, 15))
+      selection =
+        pinned_selection(
+          [snapshot_item(pen)],
+          [snapshot_item(ink)],
+          pinned_inks: [snapshot_item(ink)]
+        )
+
+      expect(prompt_for(selection).sections[:rest]).to start_with(
+        "RECENT INKINGS OF ★ ITEMS (≤3 each)\n" \
+          "I1: Lamy 2000, Black, 2025-03 → 2025-03, nib 14k B\n" \
+          "I1: a pen no longer in the collection, 2025-01 → 2025-01, nib SF\n" \
+          "REJECTED"
+      )
+    end
+
     it "leaves the recent inkings out when pinned items were never inked" do
       selection =
         pinned_selection(

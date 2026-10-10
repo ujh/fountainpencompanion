@@ -2,15 +2,7 @@ class PenAndInkSuggestion::NameIndex
   FIELD_PRIORITY = %i[brand line name extra].freeze
   MAX_RUN = 3
 
-  class Entry
-    attr_accessor :item, :side, :fields
-
-    def initialize(item:, side:, fields:)
-      self.item = item
-      self.side = side
-      self.fields = fields
-    end
-  end
+  Entry = Data.define(:item, :side, :fields)
 
   Match =
     Data.define(:entry, :covered) do
