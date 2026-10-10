@@ -116,4 +116,23 @@ RSpec.describe PenAndInkSuggestion::Selection do
       described_class.new(pens:, inks:, pen_total: 2, ink_total: 3, end_reason: :all_pairs_rejected)
     ).to be_ended
   end
+
+  describe "pins" do
+    it "knows which shown items were named" do
+      pinned =
+        described_class.new(
+          pens:,
+          inks:,
+          pen_total: 2,
+          ink_total: 3,
+          pinned_pens: [pens[0]],
+          pinned_inks: [inks[1]]
+        )
+
+      expect(pinned.pinned?(pens[0])).to be(true)
+      expect(pinned.pinned?(inks[1])).to be(true)
+      expect(pinned.pinned?(pens[1])).to be(false)
+      expect(selection).not_to be_unfiltered
+    end
+  end
 end

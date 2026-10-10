@@ -12,9 +12,7 @@ module Bench
 
       attr_accessor :as_of, :tier, :legacy
 
-      def v2?
-        !legacy && super
-      end
+      def legacy? = legacy
 
       def snapshot
         @snapshot ||= PenAndInkSuggestion::CollectionSnapshot.new(user, as_of:)

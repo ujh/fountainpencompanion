@@ -1510,6 +1510,84 @@ for merge until the owner (1) accepts the +8.0 pp mini ink novelty or asks for a
 completes both checks of the section 9 `gate` row: the ~50-label spot check and the 50 `NibProfile`,
 50 `ColorProfile` and 50 `InkProperties` hand checks.
 
+
+### 8.6 P8 bench: instruction runs in fallback mode (recorded in p8, 2026-10-10)
+
+**These numbers are scored against unreviewed draft labels** (two-pass label agreement: every
+scored field identical in 196 / 210 instruction cases, 93.3%, section 8.4). The section 9 `gate`
+row (the owner's spot check of about 50 labels and the metric-7 normaliser hand checks) is still
+open, so nothing here clears P8 for merge. The label-free rows are the primary evidence.
+
+**`MentionMatcher` false pins** (section 8.1 metric 8, `bench:suggester:mention_pins`). The plan's
+592 strings are not all labelled; the measure uses the 210 labelled instruction cases (distinct
+(user, text) pairs). The matcher's vocabulary and rules were tuned while looking at these same
+cases, so this is not a held-out figure.
+
+| Split | Strings | With a pin | With a false pin  | Named cases with a pinned hit |
+| ----- | ------- | ---------- | ----------------- | ----------------------------- |
+| dev   | 107     | 32         | 2 (1.9%)          | 30 / 48                       |
+| test  | 103     | 42         | 0 (0.0%)          | 42 / 56                       |
+| all   | 210     | 74         | **2 (0.95%)**     | 72 / 104 (69%)                |
+
+The two false pins are an ink the user names only as a reference for a similar colour, with the
+cue in another sentence, and an ink the user names as already being in a pen. Named cases without
+a pin are mostly brand-only mentions (the labels list every item of a named brand; the matcher
+pins no brand on its own), nicknames, pens named only by brand and colour and bare names in
+instructions longer than 4 words.
+
+After the review fixes (negation counted from the mention start, initials such as "J.", unknown
+codes after a partial model, leading zeros) these 210 figures are unchanged: the labelled cases
+never exercised those holes, so the figure could not have shown them.
+
+**Held-out screen** (no labels). The same dev DB window has 411 further distinct instruction
+strings that were neither labelled nor used for tuning; the matcher pins items in 221 of them.
+The review fixes change one of them (a model number written without its leading zero now pins
+the one right pen instead of three). Claude read the 18 pinned strings that contain a negation
+cue: 4 (0.97% of 411, all from one user) pin inks the user says are already in use, the same
+trailing-cue false pin as above; a pinned side sends only its pins, so those runs offer the model
+only the inks the user ruled out. The other 203 pinned strings were not checked, so this is not a
+false-pin rate, and the section 8.1 metric-8 gate on held-out strings is still open.
+
+**Runs.** The 210 instruction cases on gpt-4.1-mini (`TIER=free`, all splits) and the 103 test
+cases on gpt-4.1 (`TIER=premium`), seed 1, against the p6b baselines at the same seed, tier and
+split. Measured spend: $0.47 (mini) + $1.66 (gpt-4.1) = **$2.14**, no run above $5.
+
+| Metric (instruction cases, test split)             | mini baseline | mini P8       | gpt-4.1 baseline | gpt-4.1 P8    |
+| -------------------------------------------------- | ------------- | ------------- | ---------------- | ------------- |
+| Hard failures                                      | 0 / 103       | 0 / 103       | 0 / 103          | 0 / 103       |
+| Valid suggestions                                  | 97.1%         | 100%          | 100%             | 100%          |
+| Swab or incompatible cartridge                     | 1             | 0             | 0                | 0             |
+| Rule leakage (section 8.1 regex)                   | 94.1%         | 14.7%         | 71.6%            | 2.9%          |
+| $ per run (cached prefix at 25%)                   | $0.00254      | $0.00228      | $0.0215          | $0.0162       |
+| Latency p50 / p90                                  | 1.74 / 2.27 s | 1.54 / 1.69 s | 2.02 / 2.54 s    | 1.66 / 1.94 s |
+| Named pen hit (draft labels)                       | 52.1% (25/48) | 91.7% (44/48) | 72.9% (35/48)    | 95.8% (46/48) |
+| Named ink hit (draft labels)                       | 66.7% (6/9)   | 77.8% (7/9)   | 66.7% (6/9)      | 88.9% (8/9)   |
+| Hard constraints met or relaxed (draft labels)     | 85.1% (40/47) | 85.1% (40/47) | 93.6% (44/47)    | 95.7% (45/47) |
+| Instruction honoured (draft labels + judge)        | 57% (57/100)  | 81% (81/100)  | not graded       | not graded    |
+
+- Over all 210 mini cases: named pen hit 57.8% → 88.9% (90 cases), named ink hit 64.7% → 88.2%
+  (17 cases), hard constraints 85.6% → 87.6%, valid 97.6% → 100%, leakage 90.8% → 10.1%, $ per run
+  $0.00261 → $0.00225. 74 runs carried pins; 8 suggested a named pen that was inked at the time,
+  with the "empty and clean it first" note.
+- Leakage left on mini is the word "balance(d)" in its ordinary sense (20 of 21 hits) and one
+  "favorite".
+- Hard constraints barely move on mini, as expected: P8 sends the tier's slice unfiltered and the
+  model applies the request itself; the constraint filters arrive with P9.
+- **Judge**: Claude Code graded the mini test split blinded per case with the section 8.1 rubric,
+  in the same session that wrote P8, and v2's server-built header makes the systems easy to tell
+  apart, so treat it as weak evidence. Mean scores baseline vs P8: honoured "yes" 62% vs 84%,
+  rationale 3.10 vs 3.73, soft wishes 4.84 vs 4.94, concise 1.85 vs 4.83, notes accurate 3.68 vs
+  4.20. gpt-4.1 was not graded.
+
+Against draft labels and with the self-graded judge, P8 meets the section 9 P8 bar (named hit and
+instruction honour at or above baseline, every other row no worse) on both models, and the
+label-free rows (validity, hard failures, swab/cartridge, leakage, cost) improve on their own.
+P8 is not cleared for merge until the owner completes both checks of the section 9 `gate` row
+(about 50 labels spot-checked, and the `NibProfile`, `ColorProfile` and `InkProperties` hand
+checks). The same holds for every later suggester PR whose bench rows reuse these labels: the
+labels and the code under test come from the same system, and the change ships without a feature
+flag, so this bench is the main check before merge.
+
 ---
 
 ## 9. PR plan
@@ -2179,3 +2257,82 @@ evidence.
   it: an entry `{"pen_id" => id}` in `extra_data["pins"]` (P8 must write that shape). Until P8,
   `pins` is empty, so any inked pick is invalid on the bench. The suggester itself still flags and
   notes an unpinned inked pen, since the note is better for the user than silence.
+
+**p8 decisions:**
+
+- p8: `MentionMatcher` returns mentions (the user's words plus a side), and `NameResolver` turns
+  any mention (the matcher's now, the extractor's from P9) into pins, brand filters and notes. Both
+  read one `NameIndex` per run: brand, line, name and "extra" (pen colour, material, trim, nib)
+  words per active pen and ink, with runs of up to 3 words also indexed joined, so "konpeki"
+  matches "Kon-peki". A typo match allows one edit on alphabetic words of 5+ letters and never on
+  words with digits ("custom 742" is not the Custom 743).
+- p8: The matcher pins a phrase inside one clause whose every non-filler word one item covers by
+  brand, line or name, with either a brand or line word plus one name word, or two name words, that
+  are neither stop nor filler words. Stop words may sit inside a covered name ("Diamine Blue
+  Velvet") but never count as evidence, so "Lamy Blue" alone pins nothing. The stop vocabulary adds
+  hue words (sage, mint, rust, amber, …) and generic request words ("use", "match", "new", …) to
+  the plan's list.
+- p8: A negation cue (not, no, other, without, except, instead, unlike, similar, complement(s),
+  "n't" and German/Spanish forms) up to 3 words before a name in the same clause blocks it. "I
+  like X" still pins X.
+  The window is counted from the start of the whole mention (after it has grown over brand,
+  description and code words), so "I don't want my Pilot Custom 743" blocks the model's tail
+  too. A "." right after a single letter is an initial, not a clause break ("not J. Herbin …").
+- p8: A bare name pins only when the whole instruction has at most 4 words and at most 3 items
+  match its content words; it is tried on pens and inks. Longer requests whose only content word
+  is a name (for example "ink for <model>, no shimmer") therefore pin nothing.
+- p8: A brand followed by an unknown code (up to 2 words, one with a digit: "Asvine V-128") is a
+  mention; the resolver pins the closest model of that brand only within Levenshtein distance 2 on
+  the model and otherwise only notes `I couldn't find "…" in your collection.` The note quotes the
+  user's words without an article.
+- p8: Pen colour, material, trim and nib are never evidence, but such words right next to a match
+  ("the matte black Lamy Safari", "Pelikan M400, EF nib") join the mention so the resolver can
+  choose among pens of the same model. A "pen" or "ink" word right after a name picks the side
+  (for example "the Iroshizuku pen" when a pen and an ink share a name).
+- p8: The resolver scores brand, line and name words ×2 and extra words ×1, pins every named item
+  within 90% of the best score, and cuts ties beyond 5 by least recent activity. A mention that is
+  only a brand becomes a brand filter. The Ruby matcher never emits one, since it can't tell "one
+  of my Pilots" from "not a Parker"; P9's extractor will. The selector applies a brand filter and
+  drops it with a note when no candidate is left.
+- p8: The resolver searches all active pens and inks, so a named dip pen, rollerball or swab is
+  left out with a note ("I left out <pen>: it isn't a fountain pen I can suggest an ink for.")
+  rather than reported as missing.
+- p8: Instruction runs take v2 with the fallback slices (50/100/200 per side), unpinned lists
+  headed `PENS UNFILTERED (…)` / `INKS UNFILTERED (…)`, a pinned side headed `PENS (★ requested)`
+  with ★ after the ref, `currently inked with X` on an inked pinned pen's row, and `RECENT INKINGS
+  OF ★ ITEMS (≤3 each)` (ink or pen, months, nib, the note cut at 150 characters; left out when
+  there is none). The request is the last line, `<request>…</request>`, with any `<request>` tags
+  in the user's text removed and whitespace squished. `extra_data` gains `mentions`, `pins` in the
+  p10 shape and `constraints_source: "fallback"` (the same value P9 writes when the extractor
+  fails).
+- p8: Ink pins restrict the pen slice to pens that take one of the pinned inks (cartridges). A
+  pinned pair that can't fit or whose pairings were all rejected ends with its own message ("The
+  pens and inks you named don't fit together…", and the plan's "You've turned down every
+  combination of these…").
+- p8: The pre-extraction precheck's pen half is now "no uninked fountain pen and no instruction".
+  Its message asks the user to name a pen to re-ink only when the instruction gate lets them write
+  one. The post-resolution end (`precheck: "no_uninked_or_named_pens"`) makes no LLM call in P8,
+  so it is **not** counted toward the daily cap, following section 3.1's rule; the section 9 P8
+  cell assumed the extractor had run. P9 must count it once the extractor runs.
+- p8: The CSV path stays reachable only through a private `legacy?` hook (false in production)
+  that `Bench::Suggester::BaselineSuggester` overrides for `LEGACY=1`; its old spec file runs with
+  the hook stubbed. `LoggedRun` reads a v2 run's instruction from the final `<request>` line.
+- p8: The section 8.1 metric-8 gate was measured on the 210 labelled instruction cases, not the
+  592 strings (only those are labelled), with the matcher tuned on the same cases; results in
+  section 8.6. `bench:suggester:mention_pins` writes the per-case rows to the gitignored
+  `results/mention-pins.json` and prints aggregates per split and for owner-reviewed labels.
+- p8: The P8 bench graded only the mini test split with the judge (103 cases per system); gpt-4.1
+  ran on the test split for the label-free and label-based rows only, to stay within the spend
+  limit and the grading effort. Rerunning `bench:suggester:report` with `INSTRUCTION=with`
+  rewrites a run's checks file for those cases only; the baseline checks files were regenerated
+  for all cases afterwards.
+- p8: An item counts as named only when it covers every number in the mention, and a mention
+  whose words all stop partway into the pinned models ("Pilot Custom" for a Custom 743 and a
+  Custom 74) grows over an unknown code right after it. "Pilot Custom 742" therefore takes the
+  closest/not-found path with a note instead of silently pinning every Custom. A number after a
+  complete model ("Lamy 2000 2 times") stays out of the mention.
+- p8: Numbers are compared without leading zeros ("model 3" is the Model 03).
+- p8: A pinned cartridge ink that none of the shown pens takes is dropped from the pins with the
+  note "I left out <ink>: it's a cartridge ink, and none of the pens I chose from takes
+  cartridges.", so `Selection#pinned_inks` only ever holds shown inks. Whether a run that ends uses the "you
+  named" messages now follows the resolution's pins, since every pinned ink may have been dropped.

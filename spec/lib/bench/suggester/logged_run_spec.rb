@@ -158,7 +158,7 @@ RSpec.describe Bench::Suggester::LoggedRun do
     expect(run_for(model: "other").tier).to be_nil
   end
 
-  it "parses the prompt today's suggester writes" do
+  it "parses the CSV prompt the legacy path writes" do
     pen = create(:collected_pen, user:, brand: "Pilot", model: "Custom 74")
     ink = create(:collected_ink, user:, brand_name: "Sailor", ink_name: "Jentle")
     ink.update!(
@@ -202,7 +202,14 @@ RSpec.describe Bench::Suggester::LoggedRun do
         "model" => "gpt-4.1-mini-2025-04-14"
       }.to_json
     )
-    suggester = PenAndInkSuggester.new(user, "Something wet", [{ "ink_id" => 8, "pen_id" => 9 }])
+    suggester =
+      Bench::Suggester::BaselineSuggester.new(
+        user,
+        "Something wet",
+        [{ "ink_id" => 8, "pen_id" => 9 }],
+        as_of: Time.current,
+        legacy: true
+      )
     suggester.perform
 
     run = described_class.new(suggester.agent_log.reload)
@@ -213,6 +220,56 @@ RSpec.describe Bench::Suggester::LoggedRun do
     expect(run.shown_ink_ids).to eq([ink.id])
     expect(run.original).to include("pen_id" => pen.id, "ink_id" => ink.id, "message" => "Try it")
     expect(run.tier).to eq("free")
+  end
+
+  it "reads the instruction, rejected pairs and shown rows of an instruction run" do
+    pen = create(:collected_pen, user:)
+    ink = create(:collected_ink, user:, kind: "bottle")
+    arguments = { pen_ref: "P1", ink_ref: "I1", reasoning: "Fine." }.to_json
+    stub_request(:post, "https://api.openai.com/v1/chat/completions").to_return(
+      status: 200,
+      headers: {
+        "Content-Type" => "application/json"
+      },
+      body: {
+        "choices" => [
+          {
+            "message" => {
+              "role" => "assistant",
+              "content" => "",
+              "tool_calls" => [
+                {
+                  "id" => "call_1",
+                  "type" => "function",
+                  "function" => {
+                    "name" => "record_suggestion",
+                    "arguments" => arguments
+                  }
+                }
+              ]
+            },
+            "finish_reason" => "tool_calls"
+          }
+        ],
+        "usage" => {
+          "prompt_tokens" => 10,
+          "completion_tokens" => 5,
+          "total_tokens" => 15
+        },
+        "model" => "gpt-4.1-mini-2025-04-14"
+      }.to_json
+    )
+    rejected = [{ "ink_id" => 8, "pen_id" => 9 }]
+    suggester = PenAndInkSuggester.new(user, "Something   wet\nand dark", rejected)
+    suggester.perform
+
+    run = described_class.new(suggester.agent_log.reload)
+
+    expect(run.instruction).to eq("Something wet and dark")
+    expect(run.rejected_pairs).to eq(rejected)
+    expect(run.shown_pen_ids).to eq([pen.id])
+    expect(run.shown_ink_ids).to eq([ink.id])
+    expect(run).to be_llm_run
   end
 
   it "reads the rejected pairs and shown rows of a run without an instruction" do

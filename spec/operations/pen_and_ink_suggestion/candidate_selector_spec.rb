@@ -8,9 +8,20 @@ RSpec.describe PenAndInkSuggestion::CandidateSelector do
     create(:currently_inked, user:, collected_pen: pen, collected_ink: ink, inked_on:, archived_on:)
   end
 
-  def select(rejected_pairs: [], tier: :free, seed: 1)
+  def select(rejected_pairs: [], tier: :free, seed: 1, resolution: nil, fallback: false)
     snapshot = PenAndInkSuggestion::CollectionSnapshot.new(user)
-    described_class.new(snapshot:, rejected_pairs:, tier:, seed:).call
+    resolution ||= PenAndInkSuggestion::NameResolver::Resolution.empty
+    described_class.new(snapshot:, rejected_pairs:, tier:, seed:, resolution:, fallback:).call
+  end
+
+  def resolution(pen_pins: [], ink_pins: [], pen_brand_filter: nil, ink_brand_filter: nil)
+    PenAndInkSuggestion::NameResolver::Resolution.new(
+      pen_pins:,
+      ink_pins:,
+      pen_brand_filter:,
+      ink_brand_filter:,
+      notes: []
+    )
   end
 
   def small_slices(pens: 5, inks: 5, currently_inked: 15, full_descriptions: 2)
@@ -290,6 +301,190 @@ RSpec.describe PenAndInkSuggestion::CandidateSelector do
 
       expect(selection).not_to be_ended
       expect(selection.inks).to contain_exactly(first, second)
+    end
+  end
+
+  describe "pins" do
+    it "sends only the pinned pens and marks them, keeping the other side unpinned" do
+      pinned = create(:collected_pen, user:)
+      create_list(:collected_pen, 3, user:)
+      inks = create_list(:collected_ink, 3, user:)
+
+      selection = select(resolution: resolution(pen_pins: [pinned]))
+
+      expect(selection.pens).to eq([pinned])
+      expect(selection.pinned_pens).to eq([pinned])
+      expect(selection.pinned_inks).to be_empty
+      expect(selection.inks).to match_array(inks)
+      expect(selection.pen_total).to eq(1)
+    end
+
+    it "sends a pinned pen that is currently inked" do
+      pinned = create(:collected_pen, user:)
+      ink = create(:collected_ink, user:)
+      ink_it(pinned, ink, inked_on: today - 3)
+
+      selection = select(resolution: resolution(pen_pins: [pinned]))
+
+      expect(selection.pens).to eq([pinned])
+      expect(selection).not_to be_ended
+    end
+
+    it "sends only the pinned inks and gives them the full description" do
+      create(:collected_pen, user:)
+      pinned = create(:collected_ink, user:)
+      create_list(:collected_ink, 3, user:)
+
+      selection = select(resolution: resolution(ink_pins: [pinned]))
+
+      expect(selection.inks).to eq([pinned])
+      expect(selection.pinned_inks).to eq([pinned])
+      expect(selection.full_description?(pinned)).to be(true)
+    end
+
+    it "shows only pens that take a pinned cartridge ink" do
+      small_slices(pens: 1)
+      create_list(:collected_pen, 3, user:, filling_system: "piston")
+      cartridge_pen = create(:collected_pen, user:, filling_system: "C/C")
+      cartridge = create(:collected_ink, user:, kind: "cartridge")
+
+      selection = select(resolution: resolution(ink_pins: [cartridge]))
+
+      expect(selection.pens).to eq([cartridge_pen])
+      expect(selection.inks).to eq([cartridge])
+    end
+
+    it "ends when a pinned pen takes none of the pinned inks" do
+      pinned_pen = create(:collected_pen, user:, filling_system: "piston")
+      cartridge = create(:collected_ink, user:, kind: "cartridge")
+
+      selection = select(resolution: resolution(pen_pins: [pinned_pen], ink_pins: [cartridge]))
+
+      expect(selection.end_reason).to eq(:no_compatible_pairs)
+    end
+
+    it "drops a pinned cartridge ink no shown pen takes, with a note, and keeps the others" do
+      pinned_pen = create(:collected_pen, user:, filling_system: "piston")
+      other_pen = create(:collected_pen, user:, filling_system: "C/C")
+      bottle = create(:collected_ink, user:, kind: "bottle")
+      cartridge =
+        create(:collected_ink, user:, brand_name: "Pilot", ink_name: "Blue", kind: "cartridge")
+      ink_it(other_pen, cartridge, inked_on: today - 40, archived_on: today - 30)
+
+      selection =
+        select(resolution: resolution(pen_pins: [pinned_pen], ink_pins: [bottle, cartridge]))
+
+      expect(selection.inks).to eq([bottle])
+      expect(selection.pinned_inks).to eq([bottle])
+      expect(selection.full_description?(cartridge)).to be(false)
+      expect(selection.notes).to eq(
+        [format(described_class::PINNED_CARTRIDGE_DROPPED_NOTE, name: cartridge.short_name)]
+      )
+      expect(selection).not_to be_ended
+      prompt =
+        PenAndInkSuggestion::PickPrompt.new(
+          snapshot: PenAndInkSuggestion::CollectionSnapshot.new(user),
+          selection:,
+          rejected_pairs: [],
+          notes: [],
+          instruction: "my piston pen with the bottle or the cartridges"
+        )
+      expect(prompt.user_message).not_to include(cartridge.short_name)
+    end
+
+    it "notes a dropped pinned cartridge ink when the run ends" do
+      pinned_pen = create(:collected_pen, user:, filling_system: "piston")
+      cartridge = create(:collected_ink, user:, kind: "cartridge")
+
+      selection = select(resolution: resolution(pen_pins: [pinned_pen], ink_pins: [cartridge]))
+
+      expect(selection.pinned_inks).to be_empty
+      expect(selection.notes).to eq(
+        [format(described_class::PINNED_CARTRIDGE_DROPPED_NOTE, name: cartridge.short_name)]
+      )
+    end
+
+    it "ends when every pairing of the pins was rejected" do
+      pinned_pen = create(:collected_pen, user:)
+      pinned_ink = create(:collected_ink, user:)
+      create(:collected_ink, user:)
+      rejected_pairs = [{ "pen_id" => pinned_pen.id, "ink_id" => pinned_ink.id }]
+
+      selection =
+        select(
+          rejected_pairs:,
+          resolution: resolution(pen_pins: [pinned_pen], ink_pins: [pinned_ink])
+        )
+
+      expect(selection.end_reason).to eq(:all_pairs_rejected)
+    end
+
+    it "moves inks never paired with a pinned pen ahead of those that were" do
+      small_slices(inks: 2)
+      pinned = create(:collected_pen, user:)
+      other_pen = create(:collected_pen, user:)
+      tried =
+        create_list(:collected_ink, 3, user:).each do |ink|
+          ink_it(pinned, ink, inked_on: today - 400, archived_on: today - 390)
+        end
+      untried =
+        create_list(:collected_ink, 2, user:).each do |ink|
+          ink_it(other_pen, ink, inked_on: today - 10, archived_on: today - 5)
+        end
+
+      selection = select(resolution: resolution(pen_pins: [pinned]))
+
+      expect(selection.inks).to match_array(untried)
+      expect(selection.inks & tried).to be_empty
+    end
+  end
+
+  describe "brand filters" do
+    it "keeps only the items of the named brand" do
+      pilots = create_list(:collected_pen, 2, user:, brand: "Pilot")
+      create(:collected_pen, user:, brand: "Lamy")
+      create(:collected_ink, user:)
+
+      selection = select(resolution: resolution(pen_brand_filter: pilots))
+
+      expect(selection.pens).to match_array(pilots)
+      expect(selection.pinned_pens).to be_empty
+      expect(selection.notes).to be_empty
+    end
+
+    it "drops a filter that leaves nothing, with a note" do
+      inked_pilot = create(:collected_pen, user:, brand: "Pilot")
+      lamy = create(:collected_pen, user:, brand: "Lamy")
+      ink = create(:collected_ink, user:)
+      ink_it(inked_pilot, ink, inked_on: today - 2)
+
+      selection = select(resolution: resolution(pen_brand_filter: [inked_pilot]))
+
+      expect(selection.pens).to eq([lamy])
+      expect(selection.notes).to eq([described_class::BRAND_FILTER_DROPPED_NOTES.fetch(:pen)])
+    end
+  end
+
+  describe "the fallback path for instruction runs" do
+    it "sends 50 pens and 50 inks to free users, 100 to patrons and 200 to admins, unfiltered" do
+      create_list(:collected_pen, 201, user:)
+      create_list(:collected_ink, 201, user:)
+
+      sizes =
+        %i[free premium admin].to_h do |tier|
+          selection = select(tier:, fallback: true)
+          expect(selection).to be_unfiltered
+          [tier, [selection.pens.size, selection.inks.size]]
+        end
+
+      expect(sizes).to eq(free: [50, 50], premium: [100, 100], admin: [200, 200])
+    end
+
+    it "is not unfiltered on the default path" do
+      create(:collected_pen, user:)
+      create(:collected_ink, user:)
+
+      expect(select).not_to be_unfiltered
     end
   end
 end

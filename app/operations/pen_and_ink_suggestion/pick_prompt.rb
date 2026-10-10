@@ -99,16 +99,21 @@ class PenAndInkSuggestion::PickPrompt
   RECENT_FILLS_DAYS = 90
   REJECTED_SHOWN = 10
   PAIRED_BEFORE_SHOWN = 3
+  RECENT_INKINGS_SHOWN = 3
+  RECENT_NOTE_LENGTH = 150
+  PINNED = "★".freeze
   EMPTY = "–".freeze
   NO_REQUEST = "No request from the user: choose with the defaults.".freeze
+  REQUEST_TAG = %r{</?\s*request\s*>}i
 
-  attr_accessor :snapshot, :selection, :rejected_pairs, :notes
+  attr_accessor :snapshot, :selection, :rejected_pairs, :notes, :instruction
 
-  def initialize(snapshot:, selection:, rejected_pairs: [], notes: [])
+  def initialize(snapshot:, selection:, rejected_pairs: [], notes: [], instruction: nil)
     self.snapshot = snapshot
     self.selection = selection
     self.rejected_pairs = rejected_pairs
     self.notes = notes
+    self.instruction = instruction
   end
 
   def sections
@@ -116,7 +121,9 @@ class PenAndInkSuggestion::PickPrompt
       currently_inked: currently_inked_section,
       pens: pens_section,
       inks: inks_section,
-      rest: [rejected_section, notes_section, NO_REQUEST].join("\n")
+      rest: [recent_inkings_section, rejected_section, notes_section, request_section].compact.join(
+        "\n"
+      )
     }
   end
 
@@ -128,20 +135,21 @@ class PenAndInkSuggestion::PickPrompt
     stats = snapshot.stats_for(pen)
     profile = snapshot.nib_profile(pen)
     [
-      selection.pen_ref(pen),
+      ref(selection.pen_ref(pen), pen),
       pen_display_name(pen),
       "nib: #{cell(profile.label)}",
       profile.material || EMPTY,
       cell(pen.filling_system),
       last_used(stats),
-      "#{stats.usage_count}×"
-    ].join(" | ")
+      "#{stats.usage_count}×",
+      inked_with(pen)
+    ].compact.join(" | ")
   end
 
   def ink_row(ink)
     stats = snapshot.stats_for(ink)
     [
-      selection.ink_ref(ink),
+      ref(selection.ink_ref(ink), ink),
       cell(ink.short_name),
       cell(ink.kind),
       ColorProfile.for(ink).label || EMPTY,
@@ -189,13 +197,84 @@ class PenAndInkSuggestion::PickPrompt
   end
 
   def pens_section
-    header = "PENS (#{selection.pens.size} of #{selection.pen_total} uninked)"
+    header =
+      if selection.pinned_pens.any?
+        "PENS (#{PINNED} requested)"
+      else
+        "PENS#{unfiltered} (#{selection.pens.size} of #{selection.pen_total} uninked)"
+      end
     ([header] + selection.pens.map { |pen| pen_row(pen) }).join("\n")
   end
 
   def inks_section
-    header = "INKS (#{selection.inks.size} of #{selection.ink_total})"
+    header =
+      if selection.pinned_inks.any?
+        "INKS (#{PINNED} requested)"
+      else
+        "INKS#{unfiltered} (#{selection.inks.size} of #{selection.ink_total})"
+      end
     ([header] + selection.inks.map { |ink| ink_row(ink) }).join("\n")
+  end
+
+  def unfiltered
+    " UNFILTERED" if selection.unfiltered?
+  end
+
+  def ref(ref, item)
+    selection.pinned?(item) ? "#{ref} #{PINNED}" : ref
+  end
+
+  def inked_with(pen)
+    inking = snapshot.active_inking_for(pen) if snapshot.inked?(pen)
+    "currently inked with #{cell(inking.collected_ink.short_name)}" if inking
+  end
+
+  def recent_inkings_section
+    pinned = selection.pinned_pens + selection.pinned_inks
+    return if pinned.empty?
+
+    recent = snapshot.recent_inkings(pinned, limit: RECENT_INKINGS_SHOWN)
+    lines =
+      pinned.flat_map do |item|
+        recent.fetch(item, []).map { |inking| recent_inking_line(item, inking) }
+      end
+    return if lines.empty?
+
+    (["RECENT INKINGS OF #{PINNED} ITEMS (≤#{RECENT_INKINGS_SHOWN} each)"] + lines).join("\n")
+  end
+
+  def recent_inking_line(item, inking)
+    pen = pens_by_id[inking.collected_pen_id]
+    ink = inks_by_id[inking.collected_ink_id]
+    if item.is_a?(CollectedPen)
+      ref = selection.pen_ref(item)
+      other = ink ? cell(ink.short_name) : "an ink no longer in the collection"
+    else
+      ref = selection.ink_ref(item)
+      other = pen ? pen_display_name(pen) : "a pen no longer in the collection"
+    end
+    period =
+      "#{inking.inked_on.strftime("%Y-%m")} → #{inking.archived_on&.strftime("%Y-%m") || "now"}"
+    nib = inking.nib.presence || pen&.nib
+    parts = ["#{ref}: #{other}", period]
+    parts << "nib #{cell(nib)}" if nib.present?
+    parts << "note \"#{recent_note(inking.comment)}\"" if inking.comment.present?
+    parts.join(", ")
+  end
+
+  def recent_note(comment)
+    cell(comment.squish.truncate(RECENT_NOTE_LENGTH, omission: "…")).tr('"', "'")
+  end
+
+  def pens_by_id
+    @pens_by_id ||= snapshot.pens.index_by(&:id)
+  end
+
+  def request_section
+    request = instruction.to_s.gsub(REQUEST_TAG, " ").squish
+    return NO_REQUEST if request.empty?
+
+    "<request>#{request}</request>"
   end
 
   def rejected_section

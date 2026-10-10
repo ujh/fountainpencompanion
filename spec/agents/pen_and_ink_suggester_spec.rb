@@ -1,8 +1,10 @@
 require "rails_helper"
 
-RSpec.describe PenAndInkSuggester do
+RSpec.describe PenAndInkSuggester, "on the legacy CSV path" do
   let(:user) { create(:user) }
   let(:openai_url) { "https://api.openai.com/v1/chat/completions" }
+
+  before { allow_any_instance_of(PenAndInkSuggester).to receive(:legacy?).and_return(true) }
 
   def record_suggestion_call(id, ink_id:, pen_id:, suggestion: "Suggestion #{id}")
     {
