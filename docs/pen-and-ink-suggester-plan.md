@@ -1510,6 +1510,64 @@ for merge until the owner (1) accepts the +8.0 pp mini ink novelty or asks for a
 completes both checks of the section 9 `gate` row: the ~50-label spot check and the 50 `NibProfile`,
 50 `ColorProfile` and 50 `InkProperties` hand checks.
 
+
+### 8.6 P8 bench: instruction runs in fallback mode (recorded in p8, 2026-10-10)
+
+**These numbers are scored against unreviewed draft labels** (two-pass label agreement: every
+scored field identical in 196 / 210 instruction cases, 93.3%, section 8.4). The section 9 `gate`
+row (the owner's spot check of about 50 labels and the metric-7 normaliser hand checks) is still
+open, so nothing here clears P8 for merge. The label-free rows are the primary evidence.
+
+**`MentionMatcher` false pins** (section 8.1 metric 8, `bench:suggester:mention_pins`). The plan's
+592 strings are not all labelled; the measure uses the 210 labelled instruction cases (distinct
+(user, text) pairs). The matcher's vocabulary and rules were tuned while looking at these same
+cases, so this is not a held-out figure.
+
+| Split | Strings | With a pin | With a false pin  | Named cases with a pinned hit |
+| ----- | ------- | ---------- | ----------------- | ----------------------------- |
+| dev   | 107     | 32         | 2 (1.9%)          | 30 / 48                       |
+| test  | 103     | 42         | 0 (0.0%)          | 42 / 56                       |
+| all   | 210     | 74         | **2 (0.95%)**     | 72 / 104 (69%)                |
+
+The two false pins are an ink the user names only as a reference for a similar colour, with the cue in another sentence, and an ink the user names as already being in a pen. Named cases without a pin are mostly brand-only mentions (the labels list every item of a
+named brand; the matcher pins no brand on its own), nicknames, pens named only by brand and colour and bare names in instructions longer than 4 words.
+
+**Runs.** The 210 instruction cases on gpt-4.1-mini (`TIER=free`, all splits) and the 103 test
+cases on gpt-4.1 (`TIER=premium`), seed 1, against the p6b baselines at the same seed, tier and
+split. Measured spend: $0.47 (mini) + $1.66 (gpt-4.1) = **$2.14**, no run above $5.
+
+| Metric (instruction cases, test split)             | mini baseline | mini P8       | gpt-4.1 baseline | gpt-4.1 P8    |
+| -------------------------------------------------- | ------------- | ------------- | ---------------- | ------------- |
+| Hard failures                                      | 0 / 103       | 0 / 103       | 0 / 103          | 0 / 103       |
+| Valid suggestions                                  | 97.1%         | 100%          | 100%             | 100%          |
+| Swab or incompatible cartridge                     | 1             | 0             | 0                | 0             |
+| Rule leakage (section 8.1 regex)                   | 94.1%         | 14.7%         | 71.6%            | 2.9%          |
+| $ per run (cached prefix at 25%)                   | $0.00254      | $0.00228      | $0.0215          | $0.0162       |
+| Latency p50 / p90                                  | 1.74 / 2.27 s | 1.54 / 1.69 s | 2.02 / 2.54 s    | 1.66 / 1.94 s |
+| Named pen hit (draft labels)                       | 52.1% (25/48) | 91.7% (44/48) | 72.9% (35/48)    | 95.8% (46/48) |
+| Named ink hit (draft labels)                       | 66.7% (6/9)   | 77.8% (7/9)   | 66.7% (6/9)      | 88.9% (8/9)   |
+| Hard constraints met or relaxed (draft labels)     | 85.1% (40/47) | 85.1% (40/47) | 93.6% (44/47)    | 95.7% (45/47) |
+| Instruction honoured (draft labels + judge)        | 57% (57/100)  | 81% (81/100)  | not graded       | not graded    |
+
+- Over all 210 mini cases: named pen hit 57.8% → 88.9% (90 cases), named ink hit 64.7% → 88.2%
+  (17 cases), hard constraints 85.6% → 87.6%, valid 97.6% → 100%, leakage 90.8% → 10.1%, $ per run
+  $0.00261 → $0.00225. 74 runs carried pins; 8 suggested a named pen that was inked at the time,
+  with the "empty and clean it first" note.
+- Leakage left on mini is the word "balance(d)" in its ordinary sense (20 of 21 hits) and one
+  "favorite".
+- Hard constraints barely move on mini, as expected: P8 sends the tier's slice unfiltered and the
+  model applies the request itself; the constraint filters arrive with P9.
+- **Judge**: Claude Code graded the mini test split blinded per case with the section 8.1 rubric,
+  in the same session that wrote P8, and v2's server-built header makes the systems easy to tell
+  apart, so treat it as weak evidence. Mean scores baseline vs P8: honoured "yes" 62% vs 84%,
+  rationale 3.10 vs 3.73, soft wishes 4.84 vs 4.94, concise 1.85 vs 4.83, notes accurate 3.68 vs
+  4.20. gpt-4.1 was not graded.
+
+Against draft labels and with the self-graded judge, P8 meets the section 9 P8 bar (named hit and
+instruction honour at or above baseline, every other row no worse) on both models, and the
+label-free rows (validity, hard failures, swab/cartridge, leakage, cost) improve on their own.
+P8 is not cleared for merge until the owner completes both checks of the section 9 `gate` row.
+
 ---
 
 ## 9. PR plan
@@ -2236,3 +2294,12 @@ evidence.
 - p8: The CSV path stays reachable only through a private `legacy?` hook (false in production)
   that `Bench::Suggester::BaselineSuggester` overrides for `LEGACY=1`; its old spec file runs with
   the hook stubbed. `LoggedRun` reads a v2 run's instruction from the final `<request>` line.
+- p8: The section 8.1 metric-8 gate was measured on the 210 labelled instruction cases, not the
+  592 strings (only those are labelled), with the matcher tuned on the same cases; results in
+  section 8.6. `bench:suggester:mention_pins` writes the per-case rows to the gitignored
+  `results/mention-pins.json` and prints aggregates per split and for owner-reviewed labels.
+- p8: The P8 bench graded only the mini test split with the judge (103 cases per system); gpt-4.1
+  ran on the test split for the label-free and label-based rows only, to stay within the spend
+  limit and the grading effort. Rerunning `bench:suggester:report` with `INSTRUCTION=with`
+  rewrites a run's checks file for those cases only; the baseline checks files were regenerated
+  for all cases afterwards.
