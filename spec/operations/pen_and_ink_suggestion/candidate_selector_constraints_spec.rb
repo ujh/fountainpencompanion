@@ -595,6 +595,22 @@ RSpec.describe PenAndInkSuggestion::CandidateSelector do
       expect(selection.effective_constraints.pair_usage).to eq("any")
     end
 
+    it "shows only pens never paired with a pinned ink when a new pairing is wanted" do
+      selection = select(pair_usage: "new", ink_pins: [tried])
+
+      expect(selection.pens).to eq([other_pen])
+      expect(selection.effective_constraints.pair_usage).to eq("new")
+    end
+
+    it "relaxes a new pairing when every pen was paired with the pinned ink" do
+      ink_it(other_pen, tried)
+
+      selection = select(pair_usage: "new", ink_pins: [tried])
+
+      expect(selection.pens).to contain_exactly(pinned_pen, other_pen)
+      expect(selection.effective_constraints.pair_usage).to eq("any")
+    end
+
     it "relaxes a new pairing when every shown pair was inked before" do
       ink_it(other_pen, tried)
       untried.destroy!

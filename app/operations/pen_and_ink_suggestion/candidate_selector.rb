@@ -126,7 +126,8 @@ class PenAndInkSuggestion::CandidateSelector
     inks, ranked_inks = side(:ink, compatible_inks(ink_pool, pens), slice[:inks])
     relax_shown_pair_usage(pens, inks)
     notes.concat(relaxation_notes)
-    notes << unknown_nib_note if unknown_nib_note
+    nib_note = unknown_nib_note
+    notes << nib_note if nib_note
     note_dropped_ink_pins(inks)
     selection(
       pens:,
