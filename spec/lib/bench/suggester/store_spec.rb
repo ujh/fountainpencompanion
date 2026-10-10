@@ -60,6 +60,14 @@ RSpec.describe Bench::Suggester::Store do
     expect(store.labels["8"]).to have_attributes(named_pens: [], reviewed: false, constraints: {})
   end
 
+  it "writes the labelling sheet to its own directory, apart from the cases with outcomes" do
+    sheet = instance_double(Bench::Suggester::LabellingSheet, files: { "cases/7.json" => "{}" })
+
+    store.write_labelling(sheet)
+
+    expect(File.read(File.join(dir, "labelling/cases/7.json"))).to eq("{}")
+  end
+
   it "writes and reads results by run name" do
     store.write_results("baseline-1", { "results" => {} })
 

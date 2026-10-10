@@ -9,6 +9,7 @@ namespace :bench do
       extra_ids = ENV.fetch("EXTRA_LOG_IDS", "").split(",").map { |id| Integer(id) }
       exporter =
         Bench::Suggester::CaseExporter.new(
+          since: Time.zone.parse(ENV.fetch("SINCE", Bench::Suggester::SINCE.iso8601)),
           instruction_cases: Integer(ENV.fetch("INSTRUCTION_CASES", "200")),
           plain_cases: Integer(ENV.fetch("PLAIN_CASES", "50")),
           per_user_cap: Integer(ENV.fetch("PER_USER_CAP", "20")),
@@ -20,6 +21,25 @@ namespace :bench do
       puts "cases by source and split: #{export.cases.map { |c| [c.source, c.split] }.tally}"
       puts "users: #{export.cases.map(&:user_id).uniq.size}"
       puts "dropped by reason: #{export.dropped.transform_values(&:size)}"
+    end
+
+    desc "Write the outcome-free case files labellers read into the bench labelling directory"
+    task labelling_export: :setup do
+      store = Bench::Suggester::Store.new
+      sheet = Bench::Suggester::LabellingSheet.new(cases: store.cases)
+      store.write_labelling(sheet)
+      puts "wrote #{sheet.documents.size} of #{store.cases.size} cases to " \
+             "#{store.path(Bench::Suggester::LabellingSheet::DIRECTORY)}"
+    end
+
+    desc "Check a drafted label file against the schema and the exported cases (FILE=)"
+    task validate_labels: :setup do
+      store = Bench::Suggester::Store.new
+      path = ENV.fetch("FILE") { store.path("labels.yml").to_s }
+      errors = Bench::Suggester::LabelValidator.new(cases: store.cases).errors(path)
+      abort errors.join("\n") if errors.any?
+
+      puts "#{path}: ok"
     end
 
     desc "Add blank label entries for exported cases that have no label yet"

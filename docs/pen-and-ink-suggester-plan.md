@@ -1857,3 +1857,34 @@ evidence.
   from 2026-03-24 → 2026-10-09 need a fresh dump before p6b. The prod read-only DB could serve the
   export, but the replay reads the collection from the database the suggester runs on, so the
   baseline needs that fresh dump anyway.
+
+**p6b decisions:**
+
+- p6b: The dev DB is still the dump that ends on 2026-03-26 (agent log ids up to 45389), so it
+  holds neither the plan's 2026-03-24 → 2026-10-09 window nor any section 8.1 regression log id.
+  No fresh dump was taken: restoring one replaces the dev DB and needs about as much disk as is
+  free, and a replay can't run on the prod read-only DB. The cases come from the dev DB's own
+  window instead, `SINCE=2025-11-01` (instructions start in 2025-11: 621 distinct (user, text)
+  pairs from 127 users); the export task gained `SINCE`. The section 2 and 8.2 baseline figures
+  come from the later window, so the recorded baseline run is the comparison point, not them.
+- p6b: In place of the missing regression ids, analogues from the same window were passed as
+  `EXTRA_LOG_IDS`: samples-only and broad-nib requests 26221, 28266, 42928, 42932; filling-system
+  and cartridge requests 27591, 35773, 41943; past swab picks 34407, 35720, 38129; runs that
+  showed no pen 26139, 26694, 26931, 27230; nib requests 26253, 26578, 37372. 16 of the 17
+  reconstruct (26931 is dropped). The window has no German and no "M or B" request.
+- p6b: The export (`SEED=1`) gave 266 cases: 200 instruction, 50 plain, 16 regression; 150
+  users, no user above 3 instruction cases; 134 dev, 132 test; 8 dropped (5 `target_missing`,
+  3 `state_not_rebuilt`). Category stratification stays with the labels (p6a).
+- p6b: Labellers read an outcome-free sheet, not `cases.json`: `bench:suggester:labelling_export`
+  writes `labelling/cases/<id>.json` (instruction, named rejected pairs, the `as_of` pens with
+  raw nib, filling system and comment, the inks with kind, colour, user and cluster tags and
+  comment, each with inked flag, usage count and last activity) plus `index.json` and a
+  `README.md` with the label format generated from `Label` and `ConstraintSchema`. The sheet
+  leaves out the logged pick and message, fidelity, the user id, private comments and cluster
+  descriptions, and gives no `NibProfile`/`ColorProfile` values, so the labels don't lean on the
+  code the checkers reuse.
+- p6b: Drafted labels go to `labelling/drafts/*.yml` in the `labels.yml` format and are checked
+  with `bench:suggester:validate_labels FILE=`: schema, known case id, ids in the `as_of`
+  collection, no categories or constraints on a case without an instruction, `reviewed` false.
+- p6b: `LoggedRun` stops reading the prompt at a transcript entry that isn't a hash: two raix-era
+  logs nest tool messages in a list, which crashed the export.

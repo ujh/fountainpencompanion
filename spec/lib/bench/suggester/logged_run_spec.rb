@@ -80,6 +80,33 @@ RSpec.describe Bench::Suggester::LoggedRun do
     expect(run).to be_llm_run
   end
 
+  it "stops reading the prompt at a nested list of tool messages" do
+    log =
+      create(
+        :agent_log,
+        name: "PenAndInkSuggester",
+        owner: user,
+        transcript: [
+          { "user" => suggester_prompt(pen_ids: [4], ink_ids: [5]) },
+          [
+            { "role" => "assistant", "content" => nil, "tool_calls" => [] },
+            {
+              "role" => "user",
+              "content" =>
+                "IMPORTANT: Take extra care to follow these additional instructions:\nRed"
+            }
+          ],
+          { "user" => "IMPORTANT: Take extra care to follow these additional instructions:\nBlue" }
+        ]
+      )
+
+    run = described_class.new(log)
+
+    expect(run.shown_pen_ids).to eq([4])
+    expect(run.instruction).to be_nil
+    expect(run).to be_llm_run
+  end
+
   it "is not an LLM run without a prompt or for a precheck" do
     no_prompt = create(:agent_log, name: "PenAndInkSuggester", owner: user, transcript: [])
     precheck =
