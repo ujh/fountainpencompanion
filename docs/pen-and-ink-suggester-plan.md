@@ -1505,7 +1505,10 @@ plain cases that produce a suggestion per seed.
 
 Against draft labels and with the self-graded judge, the no-instruction rows meet the section 8.2
 bar for hard failures, swab/cartridge violations, rule leakage, judge score and $ per run on both
-models; the novelty row meets it except mini ink novelty (+8.0 pp, more novel).
+models; the novelty row meets it except mini ink novelty (+8.0 pp, more novel). p7 is not cleared
+for merge until the owner (1) accepts the +8.0 pp mini ink novelty or asks for a retune, and (2)
+completes both checks of the section 9 `gate` row: the ~50-label spot check and the 50 `NibProfile`,
+50 `ColorProfile` and 50 `InkProperties` hand checks.
 
 ---
 
@@ -2127,8 +2130,10 @@ evidence.
   `GRADE_WIDTHS`, the parsed widths of the listed codes and the reference's table.
 - p7: The cached result keeps only `message`, `ink`, `pen` and `status`. `extra_data` adds the
   sanitised `reasoning`, `constraints: nil`, `constraints_source: "none"`, `shown_pen_ids`,
-  `shown_ink_ids`, empty `pins`/`notes`/`relaxations`, `seed` and `latency_ms` (the pick call
-  only).
+  `shown_ink_ids`, the `rejected_pairs` sent with the run, empty `pins`/`notes`/`relaxations`,
+  `seed` and `latency_ms` (the pick call only). `Bench::Suggester::LoggedRun` reads rejected pairs
+  and shown ids from `extra_data` when the log has them and falls back to parsing the CSV-era
+  prompt, so `bench:suggester:check_logs` and the case exporter still check v2 logs.
 - p7: The admin slice (60/120) is used for admins only; the bench's forced `TIER` maps to the free
   or premium slice.
 - p7: `PenAndInkSuggester` takes a `seed:` (default `SecureRandom`); the bench passes the case seed.

@@ -149,7 +149,8 @@ RSpec.describe PenAndInkSuggester do
 
     it "logs what was shown and how it was chosen" do
       stub_pick
-      suggester = described_class.new(user, nil, [], queue_ms: 12, seed: 99)
+      rejected = [{ "ink_id" => 8, "pen_id" => 9 }]
+      suggester = described_class.new(user, nil, rejected, queue_ms: 12, seed: 99)
 
       suggester.perform
 
@@ -161,6 +162,7 @@ RSpec.describe PenAndInkSuggester do
         "constraints_source" => "none",
         "shown_pen_ids" => [pen.id],
         "shown_ink_ids" => [ink.id],
+        "rejected_pairs" => rejected,
         "pins" => [],
         "notes" => [],
         "relaxations" => [],

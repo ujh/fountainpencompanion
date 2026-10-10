@@ -64,6 +64,20 @@ RSpec.describe PenAndInkSuggestion::CandidateSelector do
       expect(select.inks).to eq([bottle])
     end
 
+    it "drops a cartridge ink when its only fitting pen falls outside the shown slice" do
+      small_slices(pens: 1)
+      create(:collected_pen, user:, filling_system: "piston")
+      cartridge_pen = create(:collected_pen, user:, filling_system: "C/C")
+      bottle = create(:collected_ink, user:, kind: "bottle")
+      cartridge = create(:collected_ink, user:, kind: "cartridge")
+      ink_it(cartridge_pen, cartridge, inked_on: today - 10, archived_on: today - 5)
+
+      selection = select
+
+      expect(selection.pens).not_to include(cartridge_pen)
+      expect(selection.inks).to eq([bottle])
+    end
+
     it "keeps a cartridge ink when a shown pen has a converter or no filling system" do
       create(:collected_pen, user:, filling_system: "piston")
       create(:collected_pen, user:, filling_system: "")
@@ -179,6 +193,25 @@ RSpec.describe PenAndInkSuggestion::CandidateSelector do
       expect([other.pens, other.inks]).not_to eq([first.pens, first.inks])
     end
 
+    it "shows the rows in an order that does not follow the ranking" do
+      small_slices(pens: 5, inks: 5, full_descriptions: 5)
+      ranked =
+        [1000, 800, 600, 400, 200].map do |days|
+          pen = create(:collected_pen, user:)
+          ink = create(:collected_ink, user:)
+          ink_it(pen, ink, inked_on: today - days, archived_on: today - days)
+          [pen, ink]
+        end
+      ranked_pens, ranked_inks = ranked.transpose
+
+      selections = (1..10).map { |seed| select(seed:) }
+
+      expect(selections.map(&:full_description_inks).uniq).to eq([ranked_inks])
+      expect(selections.map { |selection| selection.pens.sort_by(&:id) }.uniq).to eq([ranked_pens])
+      expect(selections.map(&:pens)).to include(satisfy { |pens| pens != ranked_pens })
+      expect(selections.map(&:inks)).to include(satisfy { |inks| inks != ranked_inks })
+    end
+
     it "jitters the order of recently used items so a retry can see other rows" do
       small_slices(pens: 1, inks: 5)
       create(:collected_ink, user:)
@@ -226,6 +259,19 @@ RSpec.describe PenAndInkSuggestion::CandidateSelector do
 
       expect(selection.end_reason).to eq(:no_compatible_pairs)
       expect(selection).to be_ended
+    end
+
+    it "ends without compatible pairs when the only cartridge pen is not shown" do
+      small_slices(pens: 1)
+      create(:collected_pen, user:, filling_system: "piston")
+      cartridge_pen = create(:collected_pen, user:, filling_system: "C/C")
+      cartridges = create_list(:collected_ink, 2, user:, kind: "cartridge")
+      ink_it(cartridge_pen, cartridges.first, inked_on: today - 10, archived_on: today - 5)
+
+      selection = select
+
+      expect(selection.inks).to be_empty
+      expect(selection.end_reason).to eq(:no_compatible_pairs)
     end
 
     it "ends when the user rejected every shown pairing" do

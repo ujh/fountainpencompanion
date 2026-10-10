@@ -122,6 +122,7 @@ class PenAndInkSuggester
       constraints_source: "none",
       shown_pen_ids: selection.shown_pen_ids,
       shown_ink_ids: selection.shown_ink_ids,
+      rejected_pairs: rejected_suggestions,
       pins: [],
       notes: [],
       relaxations: [],
