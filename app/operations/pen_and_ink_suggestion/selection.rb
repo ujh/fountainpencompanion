@@ -8,7 +8,11 @@ class PenAndInkSuggestion::Selection
                 :full_description_inks,
                 :currently_inked,
                 :end_reason,
-                :seed
+                :seed,
+                :pinned_pens,
+                :pinned_inks,
+                :unfiltered,
+                :notes
 
   def initialize(
     pens:,
@@ -18,7 +22,11 @@ class PenAndInkSuggestion::Selection
     full_description_inks: [],
     currently_inked: [],
     end_reason: nil,
-    seed: nil
+    seed: nil,
+    pinned_pens: [],
+    pinned_inks: [],
+    unfiltered: false,
+    notes: []
   )
     self.pens = pens
     self.inks = inks
@@ -28,10 +36,26 @@ class PenAndInkSuggestion::Selection
     self.currently_inked = currently_inked
     self.end_reason = end_reason
     self.seed = seed
+    self.pinned_pens = pinned_pens
+    self.pinned_inks = pinned_inks
+    self.unfiltered = unfiltered
+    self.notes = notes
   end
 
   def ended?
     end_reason.present?
+  end
+
+  def pinned?(item)
+    pinned_pens.include?(item) || pinned_inks.include?(item)
+  end
+
+  def pins?
+    pinned_pens.any? || pinned_inks.any?
+  end
+
+  def unfiltered?
+    unfiltered
   end
 
   def pen_ref(pen)

@@ -2179,3 +2179,60 @@ evidence.
   it: an entry `{"pen_id" => id}` in `extra_data["pins"]` (P8 must write that shape). Until P8,
   `pins` is empty, so any inked pick is invalid on the bench. The suggester itself still flags and
   notes an unpinned inked pen, since the note is better for the user than silence.
+
+**p8 decisions:**
+
+- p8: `MentionMatcher` returns mentions (the user's words plus a side), and `NameResolver` turns
+  any mention (the matcher's now, the extractor's from P9) into pins, brand filters and notes. Both
+  read one `NameIndex` per run: brand, line, name and "extra" (pen colour, material, trim, nib)
+  words per active pen and ink, with runs of up to 3 words also indexed joined, so "konpeki"
+  matches "Kon-peki". A typo match allows one edit on alphabetic words of 5+ letters and never on
+  words with digits ("custom 742" is not the Custom 743).
+- p8: The matcher pins a phrase inside one clause whose every non-filler word one item covers by
+  brand, line or name, with either a brand or line word plus one name word, or two name words, that
+  are neither stop nor filler words. Stop words may sit inside a covered name ("Diamine Blue
+  Velvet") but never count as evidence, so "Lamy Blue" alone pins nothing. The stop vocabulary adds
+  hue words (sage, mint, rust, amber, …) and generic request words ("use", "match", "new", …) to
+  the plan's list.
+- p8: A negation cue (not, no, other, without, except, instead, unlike, similar, complement(s),
+  "n't" and German/Spanish forms) up to 3 words before a name in the same clause blocks it. "I
+  like X" still pins X.
+- p8: A bare name pins only when the whole instruction has at most 4 words and at most 3 items
+  match its content words; it is tried on pens and inks. Longer requests whose only content word
+  is a name (for example "ink for <model>, no shimmer") therefore pin nothing.
+- p8: A brand followed by an unknown code (up to 2 words, one with a digit: "Asvine V-128") is a
+  mention; the resolver pins the closest model of that brand only within Levenshtein distance 2 on
+  the model and otherwise only notes `I couldn't find "…" in your collection.` The note quotes the
+  user's words without an article.
+- p8: Pen colour, material, trim and nib are never evidence, but such words right next to a match
+  ("the matte black Lamy Safari", "Pelikan M400, EF nib") join the mention so the resolver can
+  choose among pens of the same model. A "pen" or "ink" word right after a name picks the side
+  (for example "the Iroshizuku pen" when a pen and an ink share a name).
+- p8: The resolver scores brand, line and name words ×2 and extra words ×1, pins every named item
+  within 90% of the best score, and cuts ties beyond 5 by least recent activity. A mention that is
+  only a brand becomes a brand filter. The Ruby matcher never emits one, since it can't tell "one
+  of my Pilots" from "not a Parker"; P9's extractor will. The selector applies a brand filter and
+  drops it with a note when no candidate is left.
+- p8: The resolver searches all active pens and inks, so a named dip pen, rollerball or swab is
+  left out with a note ("I left out <pen>: it isn't a fountain pen I can suggest an ink for.")
+  rather than reported as missing.
+- p8: Instruction runs take v2 with the fallback slices (50/100/200 per side), unpinned lists
+  headed `PENS UNFILTERED (…)` / `INKS UNFILTERED (…)`, a pinned side headed `PENS (★ requested)`
+  with ★ after the ref, `currently inked with X` on an inked pinned pen's row, and `RECENT INKINGS
+  OF ★ ITEMS (≤3 each)` (ink or pen, months, nib, the note cut at 150 characters; left out when
+  there is none). The request is the last line, `<request>…</request>`, with any `<request>` tags
+  in the user's text removed and whitespace squished. `extra_data` gains `mentions`, `pins` in the
+  p10 shape and `constraints_source: "fallback"` (the same value P9 writes when the extractor
+  fails).
+- p8: Ink pins restrict the pen slice to pens that take one of the pinned inks (cartridges). A
+  pinned pair that can't fit or whose pairings were all rejected ends with its own message ("The
+  pens and inks you named don't fit together…", and the plan's "You've turned down every
+  combination of these…").
+- p8: The pre-extraction precheck's pen half is now "no uninked fountain pen and no instruction".
+  Its message asks the user to name a pen to re-ink only when the instruction gate lets them write
+  one. The post-resolution end (`precheck: "no_uninked_or_named_pens"`) makes no LLM call in P8,
+  so it is **not** counted toward the daily cap, following section 3.1's rule; the section 9 P8
+  cell assumed the extractor had run. P9 must count it once the extractor runs.
+- p8: The CSV path stays reachable only through a private `legacy?` hook (false in production)
+  that `Bench::Suggester::BaselineSuggester` overrides for `LEGACY=1`; its old spec file runs with
+  the hook stubbed. `LoggedRun` reads a v2 run's instruction from the final `<request>` line.

@@ -13,6 +13,7 @@ module Bench
         "\n\nWhich combination"
       ].freeze
       MAX_REJECTED_PAIRS = 50
+      REQUEST_LINE = %r{\n<request>(.*)</request>\z}
 
       attr_accessor :agent_log
 
@@ -46,6 +47,8 @@ module Bench
           if start
             finish = rejected_start && rejected_start > start ? rejected_start : prompt.length
             prompt[(start + INSTRUCTION_MARKER.length)...finish].strip.presence
+          else
+            prompt[REQUEST_LINE, 1]&.strip.presence
           end
       end
 

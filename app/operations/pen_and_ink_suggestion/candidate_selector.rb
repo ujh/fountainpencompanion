@@ -19,32 +19,69 @@ class PenAndInkSuggestion::CandidateSelector
       full_descriptions: 10
     }
   }.freeze
+  FALLBACK_SLICES = {
+    free: {
+      pens: 50,
+      inks: 50,
+      currently_inked: 15,
+      full_descriptions: 5
+    },
+    premium: {
+      pens: 100,
+      inks: 100,
+      currently_inked: 40,
+      full_descriptions: 10
+    },
+    admin: {
+      pens: 200,
+      inks: 200,
+      currently_inked: 40,
+      full_descriptions: 10
+    }
+  }.freeze
   NOVELTY_SHARE = 0.8
   JITTER_DAYS = 60
+  BRAND_FILTER_DROPPED_NOTES = {
+    pen: "None of your uninked pens is of the brand you named, so I chose from all of them.",
+    ink: "None of your inks is of the brand you named, so I chose from all of them."
+  }.freeze
 
-  attr_accessor :snapshot, :rejected_pairs, :tier, :seed
+  attr_accessor :snapshot, :rejected_pairs, :tier, :seed, :resolution, :fallback
 
-  def initialize(snapshot:, rejected_pairs: [], tier: :free, seed: nil)
+  def initialize(
+    snapshot:,
+    rejected_pairs: [],
+    tier: :free,
+    seed: nil,
+    resolution: PenAndInkSuggestion::NameResolver::Resolution.empty,
+    fallback: false
+  )
     self.snapshot = snapshot
     self.rejected_pairs = rejected_pairs
     self.tier = tier
     self.seed = seed || SecureRandom.random_number(2**31)
+    self.resolution = resolution
+    self.fallback = fallback
   end
 
   def call
-    pens, ranked_pens = pick(candidate_pens, slice[:pens])
-    inks, ranked_inks = pick(compatible_inks(candidate_inks, candidate_pens), slice[:inks])
+    pens, = side(:pen, pens_for_pinned_inks(pen_pool), slice[:pens])
+    inks, ranked_inks = side(:ink, compatible_inks(ink_pool, pen_pool), slice[:inks])
     inks = compatible_inks(inks, pens)
     ranked_inks &= inks
     PenAndInkSuggestion::Selection.new(
       pens:,
       inks:,
-      pen_total: candidate_pens.size,
-      ink_total: candidate_inks.size,
-      full_description_inks: ranked_inks.first(slice[:full_descriptions]),
+      pen_total: pinned(:pen).any? ? pens.size : pen_pool.size,
+      ink_total: pinned(:ink).any? ? inks.size : ink_pool.size,
+      full_description_inks: (pinned(:ink) + ranked_inks.first(slice[:full_descriptions])).uniq,
       currently_inked: currently_inked,
       end_reason: end_reason(pens, inks),
-      seed:
+      seed:,
+      pinned_pens: pinned(:pen),
+      pinned_inks: pinned(:ink),
+      unfiltered: fallback,
+      notes:
     )
   end
 
@@ -59,19 +96,73 @@ class PenAndInkSuggestion::CandidateSelector
   private
 
   def slice
-    SLICES.fetch(tier)
+    (fallback ? FALLBACK_SLICES : SLICES).fetch(tier)
   end
 
   def random
     @random ||= Random.new(seed)
   end
 
-  def pick(items, limit)
-    ranked = novelty_order(items)
+  def notes
+    @notes ||= []
+  end
+
+  def pinned(side)
+    resolution.pins(side)
+  end
+
+  def pen_pool
+    @pen_pool ||= pinned(:pen).presence || brand_filtered(:pen, candidate_pens)
+  end
+
+  def ink_pool
+    @ink_pool ||= pinned(:ink).presence || brand_filtered(:ink, candidate_inks)
+  end
+
+  def brand_filtered(side, items)
+    filter = resolution.brand_filter(side)
+    return items unless filter
+
+    filtered = items & filter
+    return filtered if filtered.any?
+
+    notes << BRAND_FILTER_DROPPED_NOTES.fetch(side)
+    items
+  end
+
+  def pens_for_pinned_inks(pens)
+    return pens if pinned(:pen).any? || pinned(:ink).empty?
+
+    pens.select do |pen|
+      pinned(:ink).any? { |ink| PenAndInkSuggestion::CartridgeCompatibility.compatible?(pen, ink) }
+    end
+  end
+
+  def side(side, items, limit)
+    return items, items if pinned(side).any?
+
+    other = pinned(side == :pen ? :ink : :pen)
+    pick(items, limit, other)
+  end
+
+  def pick(items, limit, other_pins)
+    ranked = boost(novelty_order(items), other_pins)
     chosen = ranked.first((limit * NOVELTY_SHARE).round)
-    chosen += favourites(items - chosen).first(limit - chosen.size)
+    chosen += boost(favourites(items - chosen), other_pins).first(limit - chosen.size)
     chosen += (ranked - chosen).first(limit - chosen.size)
     [chosen.shuffle(random:), chosen]
+  end
+
+  def boost(items, other_pins)
+    return items if other_pins.empty?
+
+    untried, tried = items.partition { |item| other_pins.none? { |pin| paired?(item, pin) } }
+    untried + tried
+  end
+
+  def paired?(item, pin)
+    pen, ink = item.is_a?(CollectedPen) ? [item, pin] : [pin, item]
+    snapshot.pair_history.key?([pen.id, ink.id])
   end
 
   def novelty_order(items)

@@ -153,6 +153,14 @@ namespace :bench do
            )
     end
 
+    desc "Measure the MentionMatcher false-pin rate on the labelled instruction cases"
+    task mention_pins: :setup do
+      store = Bench::Suggester::Store.new
+      pins = Bench::Suggester::MentionPins.new(cases: store.cases, labels: store.labels)
+      store.write_results("mention-pins", { "summary" => pins.summary, "rows" => pins.rows })
+      puts JSON.pretty_generate(pins.summary)
+    end
+
     desc "Run the label-free checkers on live suggester logs (SINCE=2026-10-01)"
     task check_logs: :setup do
       since = Bench::Suggester.parse_since(ENV["SINCE"], default: 4.weeks.ago.beginning_of_day)

@@ -13,6 +13,9 @@ class PenAndInkSuggester
   ERROR_MESSAGE = "Sorry, that didn't work. Please try again!"
   NO_UNINKED_PENS_MESSAGE =
     "All your pens are currently inked (or you have none). Clean one up and try again."
+  NAME_INKED_PEN_MESSAGE =
+    "All your pens are currently inked (or you have none). Name one you'd like to re-ink next, " \
+      "or clean one up and try again."
   NO_FILLABLE_INKS_MESSAGE =
     "You have no inks to fill a pen with (swabs don't count). Add an ink and try again."
   SELECTION_END_MESSAGES = {
@@ -22,6 +25,14 @@ class PenAndInkSuggester
     all_pairs_rejected:
       "You've turned down every combination of your uninked pens and inks. " \
         "Clean another pen or add an ink and try again."
+  }.freeze
+  PINNED_END_MESSAGES = {
+    no_compatible_pairs:
+      "The pens and inks you named don't fit together: cartridge inks need a pen that takes " \
+        "cartridges. Name another pen or ink, or try again without naming one.",
+    all_pairs_rejected:
+      "You've turned down every combination of these; name another pen or ink, or try again " \
+        "without the instruction."
   }.freeze
   CURRENTLY_INKED_NOTE = "Currently inked with %<ink>s — empty and clean it first."
 
@@ -75,11 +86,13 @@ class PenAndInkSuggester
     precheck = precheck_failure
     return { message: precheck[:message], precheck: precheck[:reason] } if precheck
 
-    v2? ? suggest_v2 : suggest
+    legacy? ? suggest : suggest_v2
   end
 
-  def v2?
-    extra_user_input.blank?
+  def legacy? = false
+
+  def instruction?
+    extra_user_input.present?
   end
 
   def suggest
@@ -89,10 +102,8 @@ class PenAndInkSuggester
   end
 
   def suggest_v2
-    if selection.ended?
-      reason = selection.end_reason
-      return { message: SELECTION_END_MESSAGES.fetch(reason), precheck: reason.to_s }
-    end
+    ended = resolution_end || selection_end
+    return v2_log_data.merge(ended) if ended
 
     started = Process.clock_gettime(Process::CLOCK_MONOTONIC)
     error = request_suggestion(pick_prompt.user_message)
@@ -102,6 +113,20 @@ class PenAndInkSuggester
     error ? data.merge(error:) : data
   end
 
+  def resolution_end
+    return if candidate_selector.candidate_pens.any? || resolution.pen_pins.any?
+
+    { message: NAME_INKED_PEN_MESSAGE, precheck: "no_uninked_or_named_pens" }
+  end
+
+  def selection_end
+    return unless selection.ended?
+
+    reason = selection.end_reason
+    messages = selection.pins? ? PINNED_END_MESSAGES : SELECTION_END_MESSAGES
+    { message: messages.fetch(reason), precheck: reason.to_s }
+  end
+
   def v2_result
     recorded = record_suggestion_tool.result
     return self.class.error_result unless recorded
@@ -109,7 +134,8 @@ class PenAndInkSuggester
     pen = recorded[:pen]
     reasoning = PenAndInkSuggestion::ReasoningSanitizer.call(recorded[:reasoning])
     inking = snapshot.active_inking_for(pen)
-    notes = inking ? [format(CURRENTLY_INKED_NOTE, ink: inking.collected_ink.short_name)] : []
+    notes = pick_notes
+    notes += [format(CURRENTLY_INKED_NOTE, ink: inking.collected_ink.short_name)] if inking
     message =
       PenAndInkSuggestion::SuggestionMessage.new(
         pen:,
@@ -129,17 +155,27 @@ class PenAndInkSuggester
   end
 
   def v2_log_data
-    {
+    data = {
       constraints: nil,
-      constraints_source: "none",
-      shown_pen_ids: selection.shown_pen_ids,
-      shown_ink_ids: selection.shown_ink_ids,
+      constraints_source: instruction? ? "fallback" : "none",
       rejected_pairs: rejected_suggestions,
-      pins: [],
-      notes: [],
+      pins: resolution.log_pins,
+      notes: resolution.notes,
       relaxations: [],
       seed:
     }
+    data[:mentions] = mentions.map { |mention| mention.to_h.stringify_keys } if instruction?
+    return data if resolution_end
+
+    data.merge(
+      shown_pen_ids: selection.shown_pen_ids,
+      shown_ink_ids: selection.shown_ink_ids,
+      notes: pick_notes
+    )
+  end
+
+  def pick_notes
+    resolution.notes + selection.notes
   end
 
   def request_suggestion(message)
@@ -150,11 +186,23 @@ class PenAndInkSuggester
   end
 
   def precheck_failure
-    if (v2? ? candidate_selector.candidate_pens : pens).empty?
-      { reason: "no_uninked_pens", message: NO_UNINKED_PENS_MESSAGE }
+    if no_pens_to_suggest?
+      { reason: "no_uninked_pens", message: no_uninked_pens_message }
     elsif snapshot.fillable_inks.empty?
       { reason: "no_fillable_inks", message: NO_FILLABLE_INKS_MESSAGE }
     end
+  end
+
+  def no_pens_to_suggest?
+    return pens.empty? if legacy?
+
+    candidate_selector.candidate_pens.empty? && !instruction?
+  end
+
+  def no_uninked_pens_message
+    return NO_UNINKED_PENS_MESSAGE if legacy? || !InstructionGate.new(user).allowed?
+
+    NAME_INKED_PEN_MESSAGE
   end
 
   def model_id
@@ -166,7 +214,7 @@ class PenAndInkSuggester
   def max_tool_calls = MAX_TOOL_CALLS
 
   def system_directive
-    v2? ? PenAndInkSuggestion::PickPrompt::SYSTEM_DIRECTIVE : ""
+    legacy? ? "" : PenAndInkSuggestion::PickPrompt::SYSTEM_DIRECTIVE
   end
 
   def legacy_record_suggestion_tool
@@ -178,7 +226,7 @@ class PenAndInkSuggester
   end
 
   def tools
-    [v2? ? record_suggestion_tool : legacy_record_suggestion_tool]
+    [legacy? ? legacy_record_suggestion_tool : record_suggestion_tool]
   end
 
   def candidate_selector
@@ -187,8 +235,28 @@ class PenAndInkSuggester
         snapshot:,
         rejected_pairs: rejected_suggestions,
         tier: slice_tier,
-        seed:
+        seed:,
+        resolution:,
+        fallback: instruction?
       )
+  end
+
+  def name_index
+    @name_index ||= PenAndInkSuggestion::NameIndex.for(snapshot)
+  end
+
+  def mentions
+    @mentions ||=
+      instruction? ? PenAndInkSuggestion::MentionMatcher.call(name_index, extra_user_input) : []
+  end
+
+  def resolution
+    @resolution ||=
+      if instruction?
+        PenAndInkSuggestion::NameResolver.call(snapshot, mentions, index: name_index)
+      else
+        PenAndInkSuggestion::NameResolver::Resolution.empty
+      end
   end
 
   def selection
@@ -196,7 +264,13 @@ class PenAndInkSuggester
   end
 
   def pick_prompt
-    PenAndInkSuggestion::PickPrompt.new(snapshot:, selection:, rejected_pairs: rejected_suggestions)
+    PenAndInkSuggestion::PickPrompt.new(
+      snapshot:,
+      selection:,
+      rejected_pairs: rejected_suggestions,
+      notes: pick_notes,
+      instruction: extra_user_input
+    )
   end
 
   def slice_tier

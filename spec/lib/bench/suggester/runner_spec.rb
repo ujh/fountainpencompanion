@@ -30,8 +30,8 @@ RSpec.describe Bench::Suggester::Runner do
     )
   end
 
-  def completion(model: "gpt-4.1-mini-2025-04-14", pen_id: pen.id, ink_id: ink.id)
-    arguments = { suggestion: "Ink the Kakuno with Blue Velvet.", ink_id:, pen_id: }.to_json
+  def completion(model: "gpt-4.1-mini-2025-04-14", arguments: nil)
+    arguments ||= { pen_ref: "P1", ink_ref: "I1", reasoning: "Ink the Kakuno with Blue Velvet." }
     {
       "model" => model,
       "choices" => [
@@ -45,7 +45,7 @@ RSpec.describe Bench::Suggester::Runner do
                 "type" => "function",
                 "function" => {
                   "name" => "record_suggestion",
-                  "arguments" => arguments
+                  "arguments" => arguments.to_json
                 }
               }
             ]
@@ -59,6 +59,16 @@ RSpec.describe Bench::Suggester::Runner do
         "total_tokens" => 6_150
       }
     }
+  end
+
+  def legacy_completion
+    completion(
+      arguments: {
+        suggestion: "Ink the Kakuno with Blue Velvet.",
+        ink_id: ink.id,
+        pen_id: pen.id
+      }
+    )
   end
 
   def stub_completion(body = completion)
@@ -83,7 +93,7 @@ RSpec.describe Bench::Suggester::Runner do
     expect(result["extra_data"]).to include(
       "pen" => pen.id,
       "ink" => ink.id,
-      "message" => "Ink the Kakuno with Blue Velvet."
+      "reasoning" => "Ink the Kakuno with Blue Velvet."
     )
     expect(result["cost_usd"]).to be_within(1e-9).of((6_000 * 0.40 + 150 * 1.60) / 1e6)
     expect(result["list_cost_usd"]).to eq(result["cost_usd"])
@@ -122,16 +132,16 @@ RSpec.describe Bench::Suggester::Runner do
       created_at: as_of - 40.days
     )
 
-    described_class.new(cases: [bench_case(rejected_pairs:)]).run
+    result = described_class.new(cases: [bench_case(rejected_pairs:)]).run.fetch("1")
 
     expect(WebMock).to(
       have_requested(:post, openai_url).with do |request|
         prompt = user_prompt(request)
-        prompt.include?(pen.id.to_s) && !prompt.include?(later_pen.id.to_s) &&
-          prompt.include?("about 1 month") && prompt.include?("Something blue") &&
-          prompt.include?(JSON.generate(rejected_pairs))
+        prompt.include?("Pilot Kakuno") && !prompt.include?("Bought later") &&
+          prompt.include?("3 days ago") && prompt.include?("<request>Something blue</request>")
       end
     )
+    expect(result["extra_data"]["rejected_pairs"]).to eq(rejected_pairs)
   end
 
   it "cuts the instruction to the widget's limit" do
@@ -217,29 +227,7 @@ RSpec.describe Bench::Suggester::Runner do
     create_list(:collected_pen, 30, user:, created_at: as_of - 1.day)
     create_list(:collected_ink, 50, user:, created_at: as_of - 1.day)
     prompts = []
-    arguments = { pen_ref: "P1", ink_ref: "I1", reasoning: "Fine." }.to_json
-    body =
-      completion.deep_merge(
-        "choices" => [
-          {
-            "message" => {
-              "role" => "assistant",
-              "content" => "",
-              "tool_calls" => [
-                {
-                  "id" => "call_1",
-                  "type" => "function",
-                  "function" => {
-                    "name" => "record_suggestion",
-                    "arguments" => arguments
-                  }
-                }
-              ]
-            },
-            "finish_reason" => "tool_calls"
-          }
-        ]
-      )
+    body = completion(arguments: { pen_ref: "P1", ink_ref: "I1", reasoning: "Fine." })
     stub_request(:post, openai_url).to_return do |request|
       prompts << user_prompt(request)
       { status: 200, body: body.to_json, headers: { "Content-Type" => "application/json" } }
@@ -280,10 +268,7 @@ RSpec.describe Bench::Suggester::Runner do
     allow_any_instance_of(PenAndInkSuggestion::CandidateSelector).to receive(:call).and_return(
       selection
     )
-    arguments = { pen_ref: "P1", ink_ref: "I1", reasoning: "Fine." }.to_json
-    body = completion
-    body["choices"][0]["message"]["tool_calls"][0]["function"]["arguments"] = arguments
-    stub_completion(body)
+    stub_completion(completion(arguments: { pen_ref: "P1", ink_ref: "I1", reasoning: "Fine." }))
 
     extra_data =
       described_class.new(cases: [bench_case(instruction: nil)]).run.fetch("1")["extra_data"]
@@ -296,23 +281,26 @@ RSpec.describe Bench::Suggester::Runner do
     )
   end
 
-  it "replays a run without an instruction on the CSV path when asked for the legacy path" do
-    stub_completion
+  [nil, "Something blue"].each do |instruction|
+    it "replays #{instruction ? "an instruction run" : "a run without an instruction"} on the " \
+         "CSV path when asked for the legacy path" do
+      stub_completion(legacy_completion)
 
-    result =
-      described_class
-        .new(cases: [bench_case(instruction: nil)], build: described_class::LEGACY)
-        .run
-        .fetch("1")
+      result =
+        described_class
+          .new(cases: [bench_case(instruction:)], build: described_class::LEGACY)
+          .run
+          .fetch("1")
 
-    expect(result["extra_data"]).to eq(
-      "pen" => pen.id,
-      "ink" => ink.id,
-      "message" => "Ink the Kakuno with Blue Velvet."
-    )
-    expect(WebMock).to have_requested(:post, openai_url).with { |request|
-      user_prompt(request).include?("pen id,fountain pen name")
-    }
+      expect(result["extra_data"]).to eq(
+        "pen" => pen.id,
+        "ink" => ink.id,
+        "message" => "Ink the Kakuno with Blue Velvet."
+      )
+      expect(WebMock).to have_requested(:post, openai_url).with { |request|
+        user_prompt(request).include?("pen id,fountain pen name")
+      }
+    end
   end
 
   it "records an API failure as an error result and goes on" do
