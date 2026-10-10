@@ -9,7 +9,7 @@ class PenAndInkSuggester
   MAX_PER_DAY = 20
   MAX_PER_DAY_PATRON = 50
   MAX_TOOL_CALLS = 12
-  RESULT_KEYS = %i[message ink pen status].freeze
+  RESULT_KEYS = %i[message ink pen pen_currently_inked currently_inked_id status].freeze
   ERROR_MESSAGE = "Sorry, that didn't work. Please try again!"
   NO_UNINKED_PENS_MESSAGE =
     "All your pens are currently inked (or you have none). Clean one up and try again."
@@ -23,6 +23,7 @@ class PenAndInkSuggester
       "You've turned down every combination of your uninked pens and inks. " \
         "Clean another pen or add an ink and try again."
   }.freeze
+  CURRENTLY_INKED_NOTE = "Currently inked with %<ink>s — empty and clean it first."
 
   def self.error_result
     { message: ERROR_MESSAGE, status: "error" }
@@ -96,7 +97,7 @@ class PenAndInkSuggester
     started = Process.clock_gettime(Process::CLOCK_MONOTONIC)
     error = request_suggestion(pick_prompt.user_message)
     latency_ms = ((Process.clock_gettime(Process::CLOCK_MONOTONIC) - started) * 1000).round
-    data = v2_result.merge(v2_log_data, latency_ms:)
+    data = v2_log_data.merge(v2_result, latency_ms:)
     data[:violations] = record_suggestion_tool.violations if record_suggestion_tool.violations.any?
     error ? data.merge(error:) : data
   end
@@ -105,15 +106,26 @@ class PenAndInkSuggester
     recorded = record_suggestion_tool.result
     return self.class.error_result unless recorded
 
+    pen = recorded[:pen]
     reasoning = PenAndInkSuggestion::ReasoningSanitizer.call(recorded[:reasoning])
+    inking = snapshot.active_inking_for(pen)
+    notes = inking ? [format(CURRENTLY_INKED_NOTE, ink: inking.collected_ink.short_name)] : []
     message =
       PenAndInkSuggestion::SuggestionMessage.new(
-        pen: recorded[:pen],
+        pen:,
         ink: recorded[:ink],
-        nib_profile: snapshot.nib_profile(recorded[:pen]),
+        nib_profile: snapshot.nib_profile(pen),
+        notes:,
         reasoning:
       )
-    { message: message.to_s, ink: recorded[:ink].id, pen: recorded[:pen].id, reasoning: }
+    result = {
+      message: message.to_s,
+      ink: recorded[:ink].id,
+      pen: pen.id,
+      pen_currently_inked: inking.present?
+    }
+    result[:currently_inked_id] = inking.id if inking
+    result.merge(reasoning:, notes:)
   end
 
   def v2_log_data

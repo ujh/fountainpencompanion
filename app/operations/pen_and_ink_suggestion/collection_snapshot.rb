@@ -97,6 +97,12 @@ class PenAndInkSuggestion::CollectionSnapshot
       end
   end
 
+  def active_inking_for(pen)
+    active_inkings
+      .select { |inking| inking.collected_pen_id == pen.id }
+      .max_by { |inking| [inking.inked_on, inking.id] }
+  end
+
   def inking(id)
     inkings_by_id[id]
   end

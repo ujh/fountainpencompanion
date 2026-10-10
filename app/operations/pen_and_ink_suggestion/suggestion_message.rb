@@ -27,7 +27,7 @@ class PenAndInkSuggestion::SuggestionMessage
   end
 
   def notes_block
-    notes.map { |note| "_#{note}_" }.join("\n\n")
+    notes.map { |note| "_#{escape(note)}_" }.join("\n\n")
   end
 
   def escape(text)

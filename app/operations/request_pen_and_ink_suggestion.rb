@@ -21,8 +21,19 @@ class RequestPenAndInkSuggestion
 
     suggestion[:ink] = user.collected_inks.find_by(id: suggestion[:ink])
     suggestion[:pen] = user.collected_pens.find_by(id: suggestion[:pen])
+    resolve_currently_inked(suggestion) if suggestion[:pen_currently_inked]
     suggestion[:message] = FpcFormatter.render(suggestion[:message]) if suggestion[:message]
     suggestion
+  end
+
+  def resolve_currently_inked(suggestion)
+    inking =
+      user.currently_inkeds.active.find_by(
+        id: suggestion[:currently_inked_id],
+        collected_pen: suggestion[:pen]
+      )
+    suggestion[:pen_currently_inked] = inking.present?
+    suggestion[:currently_inked_id] = inking&.id
   end
 
   def request_suggestion

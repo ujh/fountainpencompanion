@@ -129,7 +129,8 @@ RSpec.describe PenAndInkSuggester do
             "- **Ink:** Pilot Kon-peki - bottle\n\n" \
             "The **Pilot Prera** is great with this blue.",
         ink: ink.id,
-        pen: pen.id
+        pen: pen.id,
+        pen_currently_inked: false
       )
     end
 
@@ -176,7 +177,73 @@ RSpec.describe PenAndInkSuggester do
     it "returns only the result fields for the cache" do
       stub_pick
 
-      expect(described_class.new(user).perform.keys).to eq(%i[message ink pen])
+      expect(described_class.new(user).perform.keys).to eq(%i[message ink pen pen_currently_inked])
+    end
+
+    context "when the recorded pen is currently inked" do
+      let!(:inked_pen) do
+        create(:collected_pen, user:, brand: "Sailor", model: "1911", color: "Black", nib: "F")
+      end
+      let!(:current_ink) do
+        create(:collected_ink, user:, brand_name: "Sailor", ink_name: "Yama*dori", kind: "bottle")
+      end
+      let!(:inking) do
+        create(
+          :currently_inked,
+          user:,
+          collected_pen: inked_pen,
+          collected_ink: current_ink,
+          inked_on: 3.days.ago
+        )
+      end
+
+      before do
+        selection =
+          PenAndInkSuggestion::Selection.new(
+            pens: [inked_pen],
+            inks: [ink],
+            pen_total: 1,
+            ink_total: 1,
+            seed: 1
+          )
+        allow_any_instance_of(PenAndInkSuggestion::CandidateSelector).to receive(:call).and_return(
+          selection
+        )
+        stub_pick
+      end
+
+      it "flags the pen and returns the id of its currently inked entry" do
+        response = described_class.new(user).perform
+
+        expect(response).to include(
+          pen: inked_pen.id,
+          ink: ink.id,
+          pen_currently_inked: true,
+          currently_inked_id: inking.id
+        )
+      end
+
+      it "tells the user to empty and clean the pen before the reasoning" do
+        response = described_class.new(user).perform
+
+        expect(response[:message]).to eq(
+          "- **Pen:** Sailor 1911, Black, plastic, gold, F\n" \
+            "- **Ink:** Pilot Kon-peki - bottle\n\n" \
+            "_Currently inked with Sailor Yama\\*dori — empty and clean it first._\n\n" \
+            "A calm, wet blue."
+        )
+      end
+
+      it "logs the flag, the entry and the note" do
+        suggester = described_class.new(user)
+        suggester.perform
+
+        expect(suggester.agent_log.extra_data).to include(
+          "pen_currently_inked" => true,
+          "currently_inked_id" => inking.id,
+          "notes" => ["Currently inked with Sailor Yama*dori — empty and clean it first."]
+        )
+      end
     end
 
     it "lets the model retry after a wrong ref" do

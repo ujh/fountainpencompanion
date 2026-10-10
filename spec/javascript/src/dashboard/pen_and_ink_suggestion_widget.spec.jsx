@@ -1,5 +1,6 @@
 import { act, fireEvent, render, screen } from "@testing-library/react";
 import {
+  CURRENTLY_INKED_LINK,
   ERROR_MESSAGE,
   GATE_NOTE,
   PenAndInkSuggestionWidget,
@@ -166,6 +167,32 @@ describe("PenAndInkSuggestionWidget", () => {
       expect(screen.getByText(/Results provided by an AI/)).toBeInTheDocument();
     });
 
+    it("links a suggested pen that is currently inked to its currently inked entry", async () => {
+      await renderWidget();
+
+      await askAndPoll("Suggest something!", [
+        response({ ...pair(1, 2), pen_currently_inked: true, currently_inked_id: 7 })
+      ]);
+
+      expect(screen.getByRole("link", { name: CURRENTLY_INKED_LINK })).toHaveAttribute(
+        "href",
+        "/currently_inked/7/edit"
+      );
+      expect(screen.queryByRole("link", { name: "Ink it Up!" })).not.toBeInTheDocument();
+      expect(screen.getByRole("button", { name: "Try again!" })).toBeInTheDocument();
+    });
+
+    it("keeps Ink it Up! when the inked pen's entry is gone", async () => {
+      await renderWidget();
+
+      await askAndPoll("Suggest something!", [
+        response({ ...pair(1, 2), pen_currently_inked: false, currently_inked_id: null })
+      ]);
+
+      expect(screen.getByRole("link", { name: "Ink it Up!" })).toBeInTheDocument();
+      expect(screen.queryByRole("link", { name: CURRENTLY_INKED_LINK })).not.toBeInTheDocument();
+    });
+
     it("hides Ink it Up! for a message-only result", async () => {
       await renderWidget();
 
@@ -309,6 +336,19 @@ describe("PenAndInkSuggestionWidget", () => {
         { ink_id: 3, pen_id: 4 }
       ]);
       expect(enqueueParams(2).get("extra_user_input")).toEqual("Only samples & no reds");
+    });
+
+    it("sends a suggested pair with a currently inked pen as rejected on retry", async () => {
+      await renderWidget();
+
+      await askAndPoll("Suggest something!", [
+        response({ ...pair(1, 2), pen_currently_inked: true, currently_inked_id: 7 })
+      ]);
+      await askAndPoll("Try again!", [response(pair(3, 4))]);
+
+      expect(JSON.parse(enqueueParams(1).get("rejected_suggestions"))).toEqual([
+        { ink_id: 1, pen_id: 2 }
+      ]);
     });
 
     it("does not send message-only or error results as rejected pairs", async () => {

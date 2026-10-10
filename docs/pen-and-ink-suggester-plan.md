@@ -2148,3 +2148,34 @@ evidence.
   are label-free). Mini ink novelty is 8.0 pp above baseline, outside the two-sided ±5 pp band
   in the more-novel direction; that is left for the owner to accept or to tune (for example a
   smaller novelty share). The judge scores were graded by the session that wrote v2.
+
+**p10 decisions:**
+
+- p10: Every recorded v2 pick carries `pen_currently_inked` (true or false) in the cached result
+  and the log; `currently_inked_id` is added only when it is true. CSV-path, message-only and error
+  results carry neither key, and the widget treats a missing key as false.
+- p10: The entry is the snapshot's active inking of the recorded pen
+  (`CollectionSnapshot#active_inking_for`; if the data has two active inkings of one pen, the
+  latest `inked_on`, then the highest id). The note "Currently inked with {ink short name} — empty
+  and clean it first." goes into `notes`, so it is logged and shown in italics between header and
+  reasoning. `SuggestionMessage` now escapes markdown in every note, as it does in names, since
+  notes are plain server text and P8's not-found notes will quote user-typed names.
+- p10: `RequestPenAndInkSuggestion` re-checks the entry when it reads a flagged result: it must be
+  the user's, still active and for the suggested pen. Otherwise the flag becomes false and the id
+  nil, so a pen cleaned in the meantime gets "Ink it Up!" again. Unflagged results make no extra
+  query; a spec pins this.
+- p10: The link goes to `/currently_inked/:id/edit` with the label "Open currently inked entry":
+  there is no show action, and the edit page is the only page for a single entry. That page has no
+  archive button (archiving is on the Currently inked list), so the owner may prefer linking to
+  the list or adding an archive button to the edit page.
+- p10: A suggestion with an inked pen still goes into `rejected_suggestions` on "Try again!", like
+  any other pair.
+- p10: Nothing shows an inked pen before P8, so the suggester specs stub
+  `CandidateSelector#call` with a constructed `Selection` holding an inked pen. The pick prompt
+  still heads the pen list "uninked"; P8 owns the prompt wording for a pinned inked pen. No bench
+  run was made for this step.
+- p10: The suggester sets `pen_currently_inked` from the same snapshot the bench reads, so the
+  p6a validity rule now passes an inked pen only when the result flags it **and** the run pinned
+  it: an entry `{"pen_id" => id}` in `extra_data["pins"]` (P8 must write that shape). Until P8,
+  `pins` is empty, so any inked pick is invalid on the bench. The suggester itself still flags and
+  notes an unpinned inked pen, since the note is better for the user than silence.

@@ -259,6 +259,43 @@ RSpec.describe Bench::Suggester::Runner do
     expect(prompts[2]).not_to eq(prompts[0])
   end
 
+  it "records an unpinned inked pen let into the shown set so validity fails it" do
+    create(:collected_pen, user:, created_at: as_of - 1.year)
+    create(
+      :currently_inked,
+      user:,
+      collected_pen: pen,
+      collected_ink: ink,
+      inked_on: as_of.to_date - 3,
+      created_at: as_of - 3.days
+    )
+    selection =
+      PenAndInkSuggestion::Selection.new(
+        pens: [pen],
+        inks: [ink],
+        pen_total: 1,
+        ink_total: 1,
+        seed: 1
+      )
+    allow_any_instance_of(PenAndInkSuggestion::CandidateSelector).to receive(:call).and_return(
+      selection
+    )
+    arguments = { pen_ref: "P1", ink_ref: "I1", reasoning: "Fine." }.to_json
+    body = completion
+    body["choices"][0]["message"]["tool_calls"][0]["function"]["arguments"] = arguments
+    stub_completion(body)
+
+    extra_data =
+      described_class.new(cases: [bench_case(instruction: nil)]).run.fetch("1")["extra_data"]
+    snapshot = PenAndInkSuggestion::CollectionSnapshot.new(user, as_of:)
+
+    expect(extra_data).to include("pen" => pen.id, "pen_currently_inked" => true, "pins" => [])
+    expect(Bench::Suggester::Checks::Validity.new(snapshot:, extra_data:).call).to include(
+      "pen_uninked_or_flagged" => false,
+      "valid" => false
+    )
+  end
+
   it "replays a run without an instruction on the CSV path when asked for the legacy path" do
     stub_completion
 

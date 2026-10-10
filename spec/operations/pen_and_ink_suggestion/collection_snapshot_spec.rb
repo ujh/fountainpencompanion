@@ -400,6 +400,37 @@ RSpec.describe PenAndInkSuggestion::CollectionSnapshot do
     end
   end
 
+  describe "#active_inking_for" do
+    let(:pen) { create(:collected_pen, user:) }
+    let(:ink) { create(:collected_ink, user:) }
+
+    it "returns the pen's active currently-inked row" do
+      other_pen = create(:collected_pen, user:)
+      ink_it(pen, ink, inked_on: today - 30, archived_on: today - 20)
+      active = ink_it(pen, ink, inked_on: today - 3)
+      ink_it(other_pen, ink, inked_on: today - 1)
+
+      expect(described_class.new(user).active_inking_for(pen)).to eq(active)
+    end
+
+    it "returns nil for a pen without an active inking" do
+      ink_it(pen, ink, inked_on: today - 30, archived_on: today - 20)
+
+      expect(described_class.new(user).active_inking_for(pen)).to be_nil
+    end
+
+    it "returns the latest filled of two active inkings of the same pen, then the higher id" do
+      ink_it(pen, ink, inked_on: today - 10)
+      second = build(:currently_inked, user:, collected_pen: pen, collected_ink: ink)
+      second.inked_on = today - 2
+      second.save!(validate: false)
+      third = second.dup
+      third.save!(validate: false)
+
+      expect(described_class.new(user).active_inking_for(pen)).to eq(third)
+    end
+  end
+
   describe "#inkings_since" do
     it "returns the user's inkings filled on or after the date, active and archived" do
       pen = create(:collected_pen, user:)

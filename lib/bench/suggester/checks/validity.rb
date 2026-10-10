@@ -18,8 +18,7 @@ module Bench
             "ink_not_swab" => (ink.kind != "swab" if ink),
             "cartridge_compatible" => (CartridgeCompatibility.compatible?(pen, ink) if pen && ink),
             "not_rejected_repeat" => !rejected_repeat?,
-            "pen_uninked_or_flagged" =>
-              (!snapshot.inked?(pen) || extra_data["pen_currently_inked"].present? if pen)
+            "pen_uninked_or_flagged" => (!snapshot.inked?(pen) || flagged_pin? if pen)
           }
           checks.merge("valid" => checks.values.all?(true))
         end
@@ -32,6 +31,16 @@ module Bench
 
         def ink
           @ink ||= snapshot.inks.find { |candidate| candidate.id == extra_data["ink"] }
+        end
+
+        def flagged_pin?
+          extra_data["pen_currently_inked"].present? && pinned_pen?
+        end
+
+        def pinned_pen?
+          Array(extra_data["pins"]).any? do |pin|
+            pin.respond_to?(:to_h) && pin.to_h.stringify_keys["pen_id"] == pen.id
+          end
         end
 
         def rejected_repeat?

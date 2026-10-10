@@ -49,4 +49,10 @@ RSpec.describe PenAndInkSuggestion::SuggestionMessage do
         "_One combination at a time._\n\nA calm blue."
     )
   end
+
+  it "escapes markdown in server notes" do
+    expect(message(notes: ["Currently inked with Ink*Co [Blue]_one."])).to include(
+      "_Currently inked with Ink\\*Co \\[Blue\\]\\_one._"
+    )
+  end
 end

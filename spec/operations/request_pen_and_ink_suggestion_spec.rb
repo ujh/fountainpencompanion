@@ -1,7 +1,11 @@
 require "rails_helper"
+require "active_record/testing/query_assertions"
 
 describe RequestPenAndInkSuggestion do
+  include RSpec::Rails::MinitestAssertionAdapter
+  include ActiveSupport::Testing::Assertions
   include ActiveSupport::Testing::TimeHelpers
+  include ActiveRecord::Assertions::QueryAssertions
 
   let(:user) { create(:user) }
 
@@ -108,6 +112,66 @@ describe RequestPenAndInkSuggestion do
       expect(result[:status]).to eq("error")
       expect(result[:ink]).to be_nil
       expect(result[:pen]).to be_nil
+    end
+
+    context "when the suggested pen is currently inked" do
+      let(:ink) { create(:collected_ink, user:) }
+      let(:pen) { create(:collected_pen, user:) }
+      let!(:inking) { create(:currently_inked, user:, collected_pen: pen) }
+
+      def write(currently_inked_id: inking.id, pen_id: pen.id)
+        Rails.cache.write(
+          suggestion_id,
+          {
+            message: "Clean it first",
+            ink: ink.id,
+            pen: pen_id,
+            pen_currently_inked: true,
+            currently_inked_id:
+          }
+        )
+      end
+
+      it "passes the flag and the currently inked entry id through" do
+        write
+
+        expect(read).to include(
+          pen:,
+          ink:,
+          pen_currently_inked: true,
+          currently_inked_id: inking.id
+        )
+      end
+
+      it "drops the entry once the pen has been cleaned" do
+        write
+        inking.archive!
+
+        expect(read).to include(pen_currently_inked: false, currently_inked_id: nil)
+      end
+
+      it "drops another user's entry" do
+        write(currently_inked_id: create(:currently_inked).id)
+
+        expect(read).to include(pen_currently_inked: false, currently_inked_id: nil)
+      end
+
+      it "drops an entry of a different pen" do
+        other_pen = create(:collected_pen, user:)
+        write(pen_id: other_pen.id)
+
+        expect(read).to include(pen: other_pen, pen_currently_inked: false, currently_inked_id: nil)
+      end
+    end
+
+    it "keeps the flag of a pen that is not inked without a query for an entry" do
+      pen = create(:collected_pen, user:)
+      Rails.cache.write(suggestion_id, { message: "Hi", pen: pen.id, pen_currently_inked: false })
+
+      result = nil
+      assert_queries_match(/currently_inked/, count: 0) { result = read }
+      expect(result).to include(pen:, pen_currently_inked: false)
+      expect(result).not_to have_key(:currently_inked_id)
     end
 
     it "tolerates a result without a message" do
