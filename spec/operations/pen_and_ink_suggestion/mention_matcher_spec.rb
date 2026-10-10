@@ -16,11 +16,14 @@ RSpec.describe PenAndInkSuggestion::MentionMatcher do
     described_class.call(PenAndInkSuggestion::NameIndex.for(snapshot), text)
   end
 
-  def pins_for(text)
+  def resolution_for(text)
     current = snapshot
     index = PenAndInkSuggestion::NameIndex.for(current)
-    resolution =
-      PenAndInkSuggestion::NameResolver.call(current, described_class.call(index, text), index:)
+    PenAndInkSuggestion::NameResolver.call(current, described_class.call(index, text), index:)
+  end
+
+  def pins_for(text)
+    resolution = resolution_for(text)
     resolution.pen_pins + resolution.ink_pins
   end
 
@@ -116,6 +119,48 @@ RSpec.describe PenAndInkSuggestion::MentionMatcher do
       )
       expect(pins_for("ink for my Asvine V-128")).to eq([v126])
     end
+
+    it "keeps an unknown code after the start of a known model in the mention" do
+      pen("Pilot", "Custom 743")
+      pen("Pilot", "Custom 74")
+      pen("Pilot", "Custom Heritage 912")
+
+      expect(mentions_for("ink for my Pilot Custom 742")).to eq(
+        [described_class::Mention.new(text: "Pilot Custom 742", side: :pen)]
+      )
+      expect(resolution_for("ink for my Pilot Custom 742").notes).to eq(
+        [
+          "I couldn't find \"Pilot Custom 742\" in your collection, so I went with the closest: " \
+            "Pilot Custom 743 and Pilot Custom 74."
+        ]
+      )
+    end
+
+    it "notes a code that is close to no model of the brand instead of pinning its siblings" do
+      pen("Pilot", "Custom 743")
+      pen("Pilot", "Custom Heritage 912")
+
+      resolution = resolution_for("ink for my Pilot Custom 98")
+
+      expect(resolution.pen_pins).to be_empty
+      expect(resolution.notes).to eq(["I couldn't find \"Pilot Custom 98\" in your collection."])
+    end
+
+    it "matches a model number written without its leading zero" do
+      model_03 = pen("Franklin-Christoph", "Model 03 Modified")
+      pen("Franklin-Christoph", "Model 31 Omnis")
+
+      expect(pins_for("an ink for my Franklin Christoph model 3")).to eq([model_03])
+    end
+
+    it "leaves a number after a complete model out of the mention" do
+      lamy_2000 = pen("Lamy", "2000")
+
+      expect(mentions_for("my Lamy 2000 2 times in a row")).to eq(
+        [described_class::Mention.new(text: "Lamy 2000", side: :pen)]
+      )
+      expect(pins_for("my Lamy 2000 2 times in a row")).to eq([lamy_2000])
+    end
   end
 
   describe "bare names" do
@@ -189,6 +234,28 @@ RSpec.describe PenAndInkSuggestion::MentionMatcher do
       expect(pins_for("something other than the Lamy 2000")).to be_empty
       expect(pins_for("I don't want the Lamy 2000")).to be_empty
       expect(pins_for("rainy mood, no pilot kakuno")).to be_empty
+    end
+
+    it "blocks every word of a multi-word model the request rules out" do
+      pen("Pilot", "Custom 743")
+      pen("Sailor", "Pro Gear")
+
+      expect(pins_for("I don't want my Pilot Custom 743")).to be_empty
+      expect(pins_for("something other than my Pilot Custom 743")).to be_empty
+      expect(pins_for("anything other than my Sailor Pro Gear")).to be_empty
+    end
+
+    it "blocks a brand followed by an unknown code the request rules out" do
+      pen("Asvine", "V126")
+
+      expect(mentions_for("I don't want my Asvine V-128")).to be_empty
+    end
+
+    it "keeps a negation across the initial of a brand" do
+      perle_noire = ink("J. Herbin", "Perle Noire")
+
+      expect(pins_for("not J. Herbin Perle Noire")).to be_empty
+      expect(pins_for("No shimmer. J. Herbin Perle Noire")).to eq([perle_noire])
     end
 
     it "reads German and Spanish negations" do

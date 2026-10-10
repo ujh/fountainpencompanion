@@ -123,7 +123,7 @@ class PenAndInkSuggester
     return unless selection.ended?
 
     reason = selection.end_reason
-    messages = selection.pins? ? PINNED_END_MESSAGES : SELECTION_END_MESSAGES
+    messages = resolution.pins? ? PINNED_END_MESSAGES : SELECTION_END_MESSAGES
     { message: messages.fetch(reason), precheck: reason.to_s }
   end
 

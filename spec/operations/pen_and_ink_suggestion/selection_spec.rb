@@ -129,11 +129,9 @@ RSpec.describe PenAndInkSuggestion::Selection do
           pinned_inks: [inks[1]]
         )
 
-      expect(pinned).to be_pins
       expect(pinned.pinned?(pens[0])).to be(true)
       expect(pinned.pinned?(inks[1])).to be(true)
       expect(pinned.pinned?(pens[1])).to be(false)
-      expect(selection).not_to be_pins
       expect(selection).not_to be_unfiltered
     end
   end

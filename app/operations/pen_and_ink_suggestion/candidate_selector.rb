@@ -45,6 +45,8 @@ class PenAndInkSuggestion::CandidateSelector
     pen: "None of your uninked pens is of the brand you named, so I chose from all of them.",
     ink: "None of your inks is of the brand you named, so I chose from all of them."
   }.freeze
+  PINNED_CARTRIDGE_DROPPED_NOTE =
+    "I left out %<name>s: it's a cartridge ink, and none of the pens I chose from takes cartridges."
 
   attr_accessor :snapshot, :rejected_pairs, :tier, :seed, :resolution, :fallback
 
@@ -69,17 +71,19 @@ class PenAndInkSuggestion::CandidateSelector
     inks, ranked_inks = side(:ink, compatible_inks(ink_pool, pen_pool), slice[:inks])
     inks = compatible_inks(inks, pens)
     ranked_inks &= inks
+    note_dropped_ink_pins(inks)
     PenAndInkSuggestion::Selection.new(
       pens:,
       inks:,
       pen_total: pinned(:pen).any? ? pens.size : pen_pool.size,
       ink_total: pinned(:ink).any? ? inks.size : ink_pool.size,
-      full_description_inks: (pinned(:ink) + ranked_inks.first(slice[:full_descriptions])).uniq,
+      full_description_inks:
+        ((pinned(:ink) & inks) + ranked_inks.first(slice[:full_descriptions])).uniq,
       currently_inked: currently_inked,
       end_reason: end_reason(pens, inks),
       seed:,
       pinned_pens: pinned(:pen),
-      pinned_inks: pinned(:ink),
+      pinned_inks: pinned(:ink) & inks,
       unfiltered: fallback,
       notes:
     )
@@ -128,6 +132,12 @@ class PenAndInkSuggestion::CandidateSelector
 
     notes << BRAND_FILTER_DROPPED_NOTES.fetch(side)
     items
+  end
+
+  def note_dropped_ink_pins(inks)
+    (pinned(:ink) - inks).each do |ink|
+      notes << format(PINNED_CARTRIDGE_DROPPED_NOTE, name: ink.short_name)
+    end
   end
 
   def pens_for_pinned_inks(pens)

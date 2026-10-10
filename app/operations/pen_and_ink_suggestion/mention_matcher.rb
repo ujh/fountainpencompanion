@@ -52,7 +52,7 @@ class PenAndInkSuggestion::MentionMatcher
     end
 
     def mention_at(start)
-      return nil, start + 1 if vocabulary.filler?(words[start]) || negated?(start)
+      return nil, start + 1 if vocabulary.filler?(words[start])
 
       MAX_PHRASE.downto(1) do |length|
         positions = (start...(start + length)).to_a
@@ -97,9 +97,25 @@ class PenAndInkSuggestion::MentionMatcher
     def described_mention(positions, pinning)
       first = extend_left(positions.first, pinning)
       last = extend_right(positions.last, pinning)
+      last = extend_over_code(first, last, pinning)
+      return nil, last + 1 if negated?(first)
+
       sides = side_hint(last + 1)&.then { |hint| [hint] & pinning.map(&:side) }
       sides = pinning.map(&:side).uniq if sides.blank?
       [mention(first, last, sides), last + 1]
+    end
+
+    def extend_over_code(first, last, pinning)
+      return last unless pinning.all? { |match| partial_name?(match, first..last) }
+
+      codes = code_positions(last + 1)
+      return last if codes.empty? || clause(codes.last) != clause(last)
+
+      codes.last
+    end
+
+    def partial_name?(match, range)
+      range.count { |position| match.covered[position] == :name } < match.entry.fields[:name].size
     end
 
     def extend_left(first, pinning)
@@ -140,13 +156,20 @@ class PenAndInkSuggestion::MentionMatcher
       brand_matches = matches.select { |match| match.covered[start] == :brand }
       return if brand_matches.empty?
 
+      brand_start = start
+      brand_start -= 1 while brand_start.positive? && brand_word?(brand_matches, brand_start - 1)
       brand_end = start
-      brand_end += 1 while brand_matches.any? { |match| match.covered[brand_end + 1] == :brand }
+      brand_end += 1 while brand_word?(brand_matches, brand_end + 1)
       codes = code_positions(brand_end + 1)
       return if codes.empty? || clause(codes.last) != clause(start)
       return if brand_matches.any? { |match| codes.any? { |code| match.covered[code] == :name } }
+      return nil, codes.last + 1 if negated?(brand_start)
 
-      [mention(start, codes.last, brand_matches.map(&:side).uniq), codes.last + 1]
+      [mention(brand_start, codes.last, brand_matches.map(&:side).uniq), codes.last + 1]
+    end
+
+    def brand_word?(brand_matches, position)
+      brand_matches.any? { |match| match.covered[position] == :brand }
     end
 
     def code_positions(from)
@@ -202,9 +225,19 @@ class PenAndInkSuggestion::MentionMatcher
         tokens
           .each_with_index
           .each_with_object([]) do |(token, position), ids|
-            gap = position.zero? ? "" : instruction[tokens[position - 1].stop...token.start]
-            ids << (position.zero? ? 0 : ids.last + (gap.match?(CLAUSE_BREAK) ? 1 : 0))
+            ids << (position.zero? ? 0 : ids.last + (clause_break?(position) ? 1 : 0))
           end
+    end
+
+    def clause_break?(position)
+      previous = tokens[position - 1]
+      gap = instruction[previous.stop...tokens[position].start]
+      gap = gap.delete_prefix(".") if initial?(previous)
+      gap.match?(CLAUSE_BREAK)
+    end
+
+    def initial?(token)
+      instruction[token.start...token.stop].match?(/\A[[:alpha:]]\z/)
     end
   end
 end

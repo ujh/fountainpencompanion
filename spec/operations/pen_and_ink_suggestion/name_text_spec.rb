@@ -15,6 +15,10 @@ RSpec.describe PenAndInkSuggestion::NameText do
       expect(text[token.start...token.stop]).to eq("128")
     end
 
+    it "reads a number with leading zeros as the plain number" do
+      expect(described_class.words("Model 03, 007, 0 and 0.38")).to eq(%w[model 3 7 0 and 0 38])
+    end
+
     it "keeps non-Latin words" do
       expect(described_class.words("色彩雫 Ku-jaku")).to eq(%w[色彩雫 ku jaku])
     end

@@ -122,6 +122,23 @@ RSpec.describe PenAndInkSuggestion::NameResolver do
       expect(resolution.notes).to eq(["I couldn't find \"Platinum 3776\" in your collection."])
     end
 
+    it "does not count a model as named when the mention has a number it lacks" do
+      pen("Pilot", "Custom 743")
+      pen("Pilot", "Custom Heritage 912")
+
+      resolution = resolve(mention("Pilot Custom 98", :pen))
+
+      expect(resolution.pen_pins).to be_empty
+      expect(resolution.notes).to eq(["I couldn't find \"Pilot Custom 98\" in your collection."])
+    end
+
+    it "keeps a number covered by the pen's colour or nib from blocking the name" do
+      gold = pen("Pelikan", "M800", nib: "18k F")
+      pen("Pelikan", "M800", nib: "EF")
+
+      expect(resolve(mention("Pelikan M800 18k", :pen)).pen_pins).to eq([gold])
+    end
+
     it "pins nothing when the brand is unknown too" do
       pen("Platinum", "Preppy")
 
@@ -173,6 +190,8 @@ RSpec.describe PenAndInkSuggestion::NameResolver do
     resolution = resolve(mention("Lamy 2000", :pen), mention("Diamine Oxblood", :ink))
 
     expect(resolution.log_pins).to eq([{ "pen_id" => lamy.id }, { "ink_id" => oxblood.id }])
+    expect(resolution).to be_pins
+    expect(described_class::Resolution.empty).not_to be_pins
   end
 
   it "never resolves another user's items" do

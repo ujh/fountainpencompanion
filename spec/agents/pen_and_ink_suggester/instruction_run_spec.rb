@@ -258,10 +258,19 @@ RSpec.describe PenAndInkSuggester do
       safari.update!(filling_system: "piston")
       kon_peki.update!(kind: "cartridge")
 
-      response = described_class.new(user, "a pen for Pilot Kon-peki").perform
+      suggester = described_class.new(user, "a pen for Pilot Kon-peki")
+      response = suggester.perform
 
       expect(response).to eq(
         message: described_class::PINNED_END_MESSAGES.fetch(:no_compatible_pairs)
+      )
+      expect(suggester.agent_log.extra_data["notes"]).to eq(
+        [
+          format(
+            PenAndInkSuggestion::CandidateSelector::PINNED_CARTRIDGE_DROPPED_NOTE,
+            name: kon_peki.short_name
+          )
+        ]
       )
       expect(WebMock).not_to have_requested(:post, openai_url)
     end

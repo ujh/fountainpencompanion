@@ -1529,8 +1529,24 @@ cases, so this is not a held-out figure.
 | test  | 103     | 42         | 0 (0.0%)          | 42 / 56                       |
 | all   | 210     | 74         | **2 (0.95%)**     | 72 / 104 (69%)                |
 
-The two false pins are an ink the user names only as a reference for a similar colour, with the cue in another sentence, and an ink the user names as already being in a pen. Named cases without a pin are mostly brand-only mentions (the labels list every item of a
-named brand; the matcher pins no brand on its own), nicknames, pens named only by brand and colour and bare names in instructions longer than 4 words.
+The two false pins are an ink the user names only as a reference for a similar colour, with the
+cue in another sentence, and an ink the user names as already being in a pen. Named cases without
+a pin are mostly brand-only mentions (the labels list every item of a named brand; the matcher
+pins no brand on its own), nicknames, pens named only by brand and colour and bare names in
+instructions longer than 4 words.
+
+After the review fixes (negation counted from the mention start, initials such as "J.", unknown
+codes after a partial model, leading zeros) these 210 figures are unchanged: the labelled cases
+never exercised those holes, so the figure could not have shown them.
+
+**Held-out screen** (no labels). The same dev DB window has 411 further distinct instruction
+strings that were neither labelled nor used for tuning; the matcher pins items in 221 of them.
+The review fixes change one of them (a model number written without its leading zero now pins
+the one right pen instead of three). Claude read the 18 pinned strings that contain a negation
+cue: 4 (0.97% of 411, all from one user) pin inks the user says are already in use, the same
+trailing-cue false pin as above; a pinned side sends only its pins, so those runs offer the model
+only the inks the user ruled out. The other 203 pinned strings were not checked, so this is not a
+false-pin rate, and the section 8.1 metric-8 gate on held-out strings is still open.
 
 **Runs.** The 210 instruction cases on gpt-4.1-mini (`TIER=free`, all splits) and the 103 test
 cases on gpt-4.1 (`TIER=premium`), seed 1, against the p6b baselines at the same seed, tier and
@@ -1566,7 +1582,11 @@ split. Measured spend: $0.47 (mini) + $1.66 (gpt-4.1) = **$2.14**, no run above 
 Against draft labels and with the self-graded judge, P8 meets the section 9 P8 bar (named hit and
 instruction honour at or above baseline, every other row no worse) on both models, and the
 label-free rows (validity, hard failures, swab/cartridge, leakage, cost) improve on their own.
-P8 is not cleared for merge until the owner completes both checks of the section 9 `gate` row.
+P8 is not cleared for merge until the owner completes both checks of the section 9 `gate` row
+(about 50 labels spot-checked, and the `NibProfile`, `ColorProfile` and `InkProperties` hand
+checks). The same holds for every later suggester PR whose bench rows reuse these labels: the
+labels and the code under test come from the same system, and the change ships without a feature
+flag, so this bench is the main check before merge.
 
 ---
 
@@ -2255,6 +2275,9 @@ evidence.
 - p8: A negation cue (not, no, other, without, except, instead, unlike, similar, complement(s),
   "n't" and German/Spanish forms) up to 3 words before a name in the same clause blocks it. "I
   like X" still pins X.
+  The window is counted from the start of the whole mention (after it has grown over brand,
+  description and code words), so "I don't want my Pilot Custom 743" blocks the model's tail
+  too. A "." right after a single letter is an initial, not a clause break ("not J. Herbin …").
 - p8: A bare name pins only when the whole instruction has at most 4 words and at most 3 items
   match its content words; it is tried on pens and inks. Longer requests whose only content word
   is a name (for example "ink for <model>, no shimmer") therefore pin nothing.
@@ -2303,3 +2326,13 @@ evidence.
   limit and the grading effort. Rerunning `bench:suggester:report` with `INSTRUCTION=with`
   rewrites a run's checks file for those cases only; the baseline checks files were regenerated
   for all cases afterwards.
+- p8: An item counts as named only when it covers every number in the mention, and a mention
+  whose words all stop partway into the pinned models ("Pilot Custom" for a Custom 743 and a
+  Custom 74) grows over an unknown code right after it. "Pilot Custom 742" therefore takes the
+  closest/not-found path with a note instead of silently pinning every Custom. A number after a
+  complete model ("Lamy 2000 2 times") stays out of the mention.
+- p8: Numbers are compared without leading zeros ("model 3" is the Model 03).
+- p8: A pinned cartridge ink that none of the shown pens takes is dropped from the pins with the
+  note "I left out <ink>: it's a cartridge ink, and none of the pens I chose from takes
+  cartridges.", so `Selection#pinned_inks` only ever holds shown inks. Whether a run that ends uses the "you
+  named" messages now follows the resolution's pins, since every pinned ink may have been dropped.

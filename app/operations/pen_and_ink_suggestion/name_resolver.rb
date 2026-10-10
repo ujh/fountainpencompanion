@@ -25,6 +25,8 @@ class PenAndInkSuggestion::NameResolver
 
       def pinned?(item) = pen_pins.include?(item) || ink_pins.include?(item)
 
+      def pins? = pen_pins.any? || ink_pins.any?
+
       def log_pins
         pen_pins.map { |pen| { "pen_id" => pen.id } } +
           ink_pins.map { |ink| { "ink_id" => ink.id } }
@@ -104,9 +106,13 @@ class PenAndInkSuggestion::NameResolver
   end
 
   def named?(match, words)
-    words.each_index.any? do |position|
-      match.covered[position] == :name && !vocabulary.filler?(words[position])
-    end
+    positions = words.each_index.reject { |position| vocabulary.filler?(words[position]) }
+    positions.any? { |position| match.covered[position] == :name } &&
+      positions.none? { |position| code?(words[position]) && !match.covered[position] }
+  end
+
+  def code?(word)
+    word.match?(/\d/)
   end
 
   def pins_for(named, scored)

@@ -317,7 +317,6 @@ RSpec.describe PenAndInkSuggestion::CandidateSelector do
       expect(selection.pinned_inks).to be_empty
       expect(selection.inks).to match_array(inks)
       expect(selection.pen_total).to eq(1)
-      expect(selection).to be_pins
     end
 
     it "sends a pinned pen that is currently inked" do
@@ -362,6 +361,47 @@ RSpec.describe PenAndInkSuggestion::CandidateSelector do
       selection = select(resolution: resolution(pen_pins: [pinned_pen], ink_pins: [cartridge]))
 
       expect(selection.end_reason).to eq(:no_compatible_pairs)
+    end
+
+    it "drops a pinned cartridge ink no shown pen takes, with a note, and keeps the others" do
+      pinned_pen = create(:collected_pen, user:, filling_system: "piston")
+      other_pen = create(:collected_pen, user:, filling_system: "C/C")
+      bottle = create(:collected_ink, user:, kind: "bottle")
+      cartridge =
+        create(:collected_ink, user:, brand_name: "Pilot", ink_name: "Blue", kind: "cartridge")
+      ink_it(other_pen, cartridge, inked_on: today - 40, archived_on: today - 30)
+
+      selection =
+        select(resolution: resolution(pen_pins: [pinned_pen], ink_pins: [bottle, cartridge]))
+
+      expect(selection.inks).to eq([bottle])
+      expect(selection.pinned_inks).to eq([bottle])
+      expect(selection.full_description?(cartridge)).to be(false)
+      expect(selection.notes).to eq(
+        [format(described_class::PINNED_CARTRIDGE_DROPPED_NOTE, name: cartridge.short_name)]
+      )
+      expect(selection).not_to be_ended
+      prompt =
+        PenAndInkSuggestion::PickPrompt.new(
+          snapshot: PenAndInkSuggestion::CollectionSnapshot.new(user),
+          selection:,
+          rejected_pairs: [],
+          notes: [],
+          instruction: "my piston pen with the bottle or the cartridges"
+        )
+      expect(prompt.user_message).not_to include(cartridge.short_name)
+    end
+
+    it "notes a dropped pinned cartridge ink when the run ends" do
+      pinned_pen = create(:collected_pen, user:, filling_system: "piston")
+      cartridge = create(:collected_ink, user:, kind: "cartridge")
+
+      selection = select(resolution: resolution(pen_pins: [pinned_pen], ink_pins: [cartridge]))
+
+      expect(selection.pinned_inks).to be_empty
+      expect(selection.notes).to eq(
+        [format(described_class::PINNED_CARTRIDGE_DROPPED_NOTE, name: cartridge.short_name)]
+      )
     end
 
     it "ends when every pairing of the pins was rejected" do

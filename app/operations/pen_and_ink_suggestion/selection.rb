@@ -50,10 +50,6 @@ class PenAndInkSuggestion::Selection
     pinned_pens.include?(item) || pinned_inks.include?(item)
   end
 
-  def pins?
-    pinned_pens.any? || pinned_inks.any?
-  end
-
   def unfiltered?
     unfiltered
   end

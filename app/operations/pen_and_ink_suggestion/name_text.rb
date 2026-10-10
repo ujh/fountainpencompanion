@@ -23,7 +23,8 @@ module PenAndInkSuggestion::NameText
   end
 
   def normalize(word)
-    word.unicode_normalize(:nfkd).gsub(/\p{Mn}/, "").downcase.gsub(/[^[:alnum:]]/, "")
+    normalized = word.unicode_normalize(:nfkd).gsub(/\p{Mn}/, "").downcase.gsub(/[^[:alnum:]]/, "")
+    normalized.match?(/\A\d+\z/) ? normalized.sub(/\A0+(?=\d)/, "") : normalized
   end
 
   def fuzzy?(word)
