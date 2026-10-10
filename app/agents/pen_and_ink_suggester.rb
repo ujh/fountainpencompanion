@@ -26,6 +26,14 @@ class PenAndInkSuggester
       "You've turned down every combination of your uninked pens and inks. " \
         "Clean another pen or add an ink and try again."
   }.freeze
+  FILTERED_END_MESSAGES = {
+    no_compatible_pairs:
+      "The pens and inks that fit your request don't fit together: cartridge inks need a pen " \
+        "that takes cartridges. Change your request or try again without it.",
+    all_pairs_rejected:
+      "You've turned down every combination that fits your request; change your request or " \
+        "try again without it."
+  }.freeze
   PINNED_END_MESSAGES = {
     no_compatible_pairs:
       "The pens and inks you named don't fit together: cartridge inks need a pen that takes " \
@@ -114,17 +122,35 @@ class PenAndInkSuggester
   end
 
   def resolution_end
-    return if candidate_selector.candidate_pens.any? || resolution.pen_pins.any?
+    return if candidate_selector.candidate_pens.any? || candidate_selector.pins(:pen).any?
 
-    { message: NAME_INKED_PEN_MESSAGE, precheck: "no_uninked_or_named_pens" }
+    run_end(NAME_INKED_PEN_MESSAGE, "no_uninked_or_named_pens")
   end
 
   def selection_end
     return unless selection.ended?
 
-    reason = selection.end_reason
-    messages = resolution.pins? ? PINNED_END_MESSAGES : SELECTION_END_MESSAGES
-    { message: messages.fetch(reason), precheck: reason.to_s }
+    run_end(selection.end_message || end_messages.fetch(selection.end_reason), selection.end_reason)
+  end
+
+  def end_messages
+    if resolution.pins?
+      PINNED_END_MESSAGES
+    elsif selection.constrained?
+      FILTERED_END_MESSAGES
+    else
+      SELECTION_END_MESSAGES
+    end
+  end
+
+  def run_end(message, reason)
+    { :message => message, (extractor_ran? ? :ended : :precheck) => reason.to_s }
+  end
+
+  def extractor_ran? = false
+
+  def constraints
+    PenAndInkSuggestion::Constraints.empty
   end
 
   def v2_result
@@ -159,7 +185,7 @@ class PenAndInkSuggester
       constraints: nil,
       constraints_source: instruction? ? "fallback" : "none",
       rejected_pairs: rejected_suggestions,
-      pins: resolution.log_pins,
+      pins: candidate_selector.log_pins,
       notes: resolution.notes,
       relaxations: [],
       seed:
@@ -170,7 +196,8 @@ class PenAndInkSuggester
     data.merge(
       shown_pen_ids: selection.shown_pen_ids,
       shown_ink_ids: selection.shown_ink_ids,
-      notes: pick_notes
+      notes: pick_notes,
+      relaxations: selection.relaxations
     )
   end
 
@@ -237,7 +264,8 @@ class PenAndInkSuggester
         tier: slice_tier,
         seed:,
         resolution:,
-        fallback: instruction?
+        fallback: instruction?,
+        constraints:
       )
   end
 

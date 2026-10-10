@@ -8,10 +8,25 @@ RSpec.describe PenAndInkSuggestion::CandidateSelector do
     create(:currently_inked, user:, collected_pen: pen, collected_ink: ink, inked_on:, archived_on:)
   end
 
-  def select(rejected_pairs: [], tier: :free, seed: 1, resolution: nil, fallback: false)
+  def select(
+    rejected_pairs: [],
+    tier: :free,
+    seed: 1,
+    resolution: nil,
+    fallback: false,
+    constraints: {}
+  )
     snapshot = PenAndInkSuggestion::CollectionSnapshot.new(user)
     resolution ||= PenAndInkSuggestion::NameResolver::Resolution.empty
-    described_class.new(snapshot:, rejected_pairs:, tier:, seed:, resolution:, fallback:).call
+    described_class.new(
+      snapshot:,
+      rejected_pairs:,
+      tier:,
+      seed:,
+      resolution:,
+      fallback:,
+      constraints: PenAndInkSuggestion::Constraints.from_h(constraints)
+    ).call
   end
 
   def resolution(pen_pins: [], ink_pins: [], pen_brand_filter: nil, ink_brand_filter: nil)

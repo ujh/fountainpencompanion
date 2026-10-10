@@ -1704,8 +1704,8 @@ id that made it. The owner reviews them before the corresponding PR merges.
 | p7   | P7      | v2 pick call for runs without an instruction                                                 |
 | p10  | P10     | inked named pen UX (link to the currently-inked entry)                                       |
 | p8   | P8      | `MentionMatcher` + `NameResolver`; instruction runs move to v2 in fallback mode              |
-| p9a  | P9      | `PenAndInkConstraintExtractor` and `Constraints`                                             |
-| p9b  | P9      | `CandidateSelector` constraint filters, boosts and relax order                               |
+| p9a  | P9      | `Constraints`, `ConstraintCheck` and the `CandidateSelector` filters, boosts and relax order; production still passes `Constraints.empty` |
+| p9b  | P9      | `PenAndInkConstraintExtractor`, wired to the selector; prompt headers and `soft_notes`       |
 | p11  | P11     | remove the old CSV path                                                                      |
 
 **Human checks before bench claims.** The bench labels are drafted by Claude Code, and the
@@ -2336,3 +2336,75 @@ evidence.
   note "I left out <ink>: it's a cartridge ink, and none of the pens I chose from takes
   cartridges.", so `Selection#pinned_inks` only ever holds shown inks. Whether a run that ends uses the "you
   named" messages now follows the resolution's pins, since every pinned ink may have been dropped.
+
+**p9a decisions:**
+
+- p9a: The P9 split is reversed from the step table's first draft: p9a ships `Constraints`, the
+  `ConstraintCheck` it is evaluated with and every selector rule, with the suggester passing
+  `Constraints.empty` (a private `constraints` hook), so production behaviour is unchanged; p9b adds
+  the extractor behind that hook, the "that fit" list headers and `soft_notes` in the user message.
+  The step table was updated to match.
+- p9a: `Constraints.from_h` never raises: unknown keys (the bench-only `exclude_ids` too) are
+  ignored, unknown enum values dropped, terms squished, cut at 60 characters and de-duplicated
+  ignoring case, lists capped (mentions 5, exclude_mentions 10, comment_exclude 3, tags_exclude 5),
+  `soft_notes` cut at 300, `requested_count` clamped to 1–10 (else 1), `out_of_scope` only for a
+  literal `true`. Values are deep-frozen.
+- p9a: Widening a vague width is carried as `nib_width_slack` (0 or 1) on `Constraints`, outside the
+  extractor schema and logged only when set: fine becomes W1–W4 without broad-ish characters,
+  broad-ish W3+ or a broad-ish character, broad W4+. Grades widen to their neighbours in
+  EF F MF M B BB. Colours widen through a fixed table (red: orange, pink, brown; orange: red,
+  yellow, brown; yellow: orange, green; green: yellow, teal; teal: green, blue; blue: teal, purple;
+  purple: blue, pink; pink: purple, red; brown: orange, red; gray: black; black: gray).
+- p9a: Relax steps are cumulative in the plan's order and stop at the first non-empty result; the
+  colour is widened, then dropped, before the kind. A field's later step replaces its earlier
+  record. `relaxations` entries are `{field, step: dropped|widened|pinned, from, to?}` (the p6a
+  shape). The effective constraints no longer hold a relaxed field, so the re-check accepts picks
+  from a relaxed side. The re-check runs inside `Selection#violation_for`, which `RecordSuggestion`
+  already calls, using `selection.effective_constraints`.
+- p9a: The ink side is filtered after cartridge compatibility with the candidate pens, so "only
+  cartridges" with no cartridge pen relaxes the kind with a note instead of ending the run.
+- p9a: Unknowns: only nib include filters leave out pens without a width class (counted in the
+  note); `nib_grades_exclude`/`nib_characters_exclude` keep them, like the bench checker. An ink
+  without a usable colour fails `colour_include` and passes `colour_exclude`; an ink without a kind
+  fails `kinds_include` and passes `kinds_exclude`.
+- p9a: Literal grades use `NibProfile#matches_grade?`, so a gradeless character nib matches by its
+  nominal width: a Fude (W5) counts as "B" and a 1.1 stub (W6) as "BB".
+- p9a: `exclude_mentions` match a run of whole words in the pen's brand and model or the ink's
+  brand, line and name, compared joined ("konpeki" excludes Kon-peki) with one typo allowed on
+  alphabetic forms of 5+ letters; `comment_exclude` is a case-insensitive substring of the pen
+  comment and `tags_exclude` compares the user's own tags ignoring case, as the bench checker does.
+- p9a: Pins win over constraints. A side's filters narrow its pins when at least one pin passes;
+  when none does, every pin is kept, the side's filters leave the effective constraints with step
+  `pinned`, and one note per side says so.
+- p9a: `keep_from_previous` pins the pen or ink of the last (newest) rejected pair if it is still an
+  inkable pen (inked or not) or a fillable ink, and silently pins nothing otherwise. The pin is
+  logged in `pins` like a named one; `pins` now comes from the selector.
+- p9a: `pair_usage: repeat` limits unpinned sides to items with a past pairing with the other side,
+  then the ink slice to inks paired with a shown pen. `new` limits the unpinned side to items never
+  paired with a pin when exactly one side is pinned; otherwise it is checked on the shown rows only.
+  Either is relaxed with a note when no open shown pair (compatible, not rejected) qualifies.
+- p9a: `sort` replaces the novelty order and the 20% favourites with a deterministic top-K (most
+  used: inkings, then daily usage, then id; least recent: never used first, then oldest activity)
+  and turns off the never-tried boost; rows are still shuffled by the seed. `scented: include`
+  moves scented inks ahead in either order.
+- p9a: An exclusion that empties a side ends with `end_reason: :excluded_all` and a message naming
+  only the exclusions that removed something ("None of your inks is left after excluding blue inks
+  and shimmer inks. Change your request and try again."). The pen side is checked first. Constrained
+  runs without pins that end on cartridges or rejections get their own `FILTERED_END_MESSAGES`.
+- p9a: Selector ends and the post-resolution end are logged with `precheck` (not counted) unless the
+  private `extractor_ran?` hook (false until p9b) is true; then the key is `ended` and the run counts
+  toward the daily cap.
+- p9a: Note texts: "That request is outside what I can do, so here is a pen and ink from your
+  collection instead." and "I suggest one combination at a time; use "Try again!" for another
+  one." for `out_of_scope` and `requested_count > 1`; relax notes say "that fit the rest of your
+  request" only when another filter on that side is still active.
+- p9a: With empty constraints the only visible change is that an ink-pinned run's unpinned pen
+  count in the list header counts only pens that take a pinned cartridge ink.
+- p9a: No bench run and no LLM call: production still sends `Constraints.empty`. As a smoke check
+  (uncommitted script, dev DB), the selector ran on the 210 labelled instruction cases with each
+  draft label's constraints standing in for extractor output: 0 errors, 0 shown unpinned rows
+  failing the effective constraints, every case had a valid pair, no relaxation (by construction
+  the labels' includes are satisfiable at `as_of`), 209 picks and 1 post-resolution end, named pen
+  shown in 87 of 90 cases and named ink in 17 of 17, p50 22 ms and p95 106 ms per case including
+  the snapshot. These are scored against unreviewed draft labels (two-pass agreement 196/210,
+  93.3%, section 8.4) and show consistency with the labels, not that the filters are right.
