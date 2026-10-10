@@ -220,6 +220,40 @@ RSpec.describe PenAndInkSuggestion::CandidateSelector do
     end
   end
 
+  describe "a cartridge-only ink side" do
+    let!(:piston) { create(:collected_pen, user:, filling_system: "piston") }
+    let!(:converter) { create(:collected_pen, user:, filling_system: "C/C") }
+    let!(:cartridge) { create(:collected_ink, user:, kind: "cartridge") }
+    let!(:bottle) { create(:collected_ink, user:, kind: "bottle") }
+
+    before do
+      small_slices(pens: 1)
+      ink_it(converter, bottle)
+    end
+
+    it "shows only pens that take cartridges, however few there are" do
+      [{ kinds_include: ["cartridge"] }, { kinds_exclude: %w[bottle sample] }].each do |filter|
+        (1..5).each do |seed|
+          selection = select(ink: filter, seed:)
+
+          expect(selection.pens).to eq([converter])
+          expect(selection.inks).to eq([cartridge])
+          expect(selection.pen_total).to eq(1)
+          expect(selection.end_reason).to be_nil
+          expect(selection.relaxations).to be_empty
+        end
+      end
+    end
+
+    it "keeps every pen when the ink side is not cartridges only" do
+      selection = select
+
+      expect(selection.pens).to eq([piston])
+      expect(selection.inks).to eq([bottle])
+      expect(selection.pen_total).to eq(2)
+    end
+  end
+
   describe "sort" do
     it "replaces the novelty order with the most used items" do
       small_slices(pens: 1)
@@ -411,7 +445,50 @@ RSpec.describe PenAndInkSuggestion::CandidateSelector do
       selection = select(ink: { kinds_include: ["cartridge"] })
 
       expect(selection.inks).to eq([bottle])
+      expect(selection.relaxations).to eq(
+        [
+          {
+            "field" => "ink.kinds_include",
+            "step" => "dropped",
+            "from" => ["cartridge"],
+            "reason" => "no_fitting_pen"
+          }
+        ]
+      )
+      expect(selection.notes).to eq(
+        ["None of your uninked pens takes cartridges, so I picked from all your inks."]
+      )
+    end
+
+    it "says you have no cartridges only when you have none" do
+      fountain_pen.update!(filling_system: "piston")
+      bottle = create(:collected_ink, user:, kind: "bottle")
+
+      selection = select(ink: { kinds_include: ["cartridge"] })
+
+      expect(selection.inks).to eq([bottle])
+      expect(selection.relaxations).to eq(
+        [{ "field" => "ink.kinds_include", "step" => "dropped", "from" => ["cartridge"] }]
+      )
       expect(selection.notes).to eq(["You have no cartridges, so I picked from all your inks."])
+    end
+
+    it "blames the filtered pens when only pens outside the pen filters take cartridges" do
+      fountain_pen.update!(filling_system: "piston", nib: "F")
+      pen("Lamy", "Safari", "M", filling_system: "C/C")
+      create(:collected_ink, user:, kind: "cartridge")
+      bottle = create(:collected_ink, user:, kind: "bottle")
+
+      selection = select(pen: { nib_grades_include: ["F"] }, ink: { kinds_include: ["cartridge"] })
+
+      expect(selection.pens).to eq([fountain_pen])
+      expect(selection.inks).to eq([bottle])
+      expect(selection.notes).to eq(
+        [
+          "None of your uninked pens that fit your request takes cartridges, " \
+            "so I picked from all your inks."
+        ]
+      )
     end
 
     context "for pens" do

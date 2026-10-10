@@ -113,18 +113,17 @@ class PenAndInkSuggestion::CandidateSelector
   def call
     notes.concat(scope_notes)
     SIDES.each { |side| narrow_pins(side) }
-    pen_pool = filtered(:pen, pens_for_pinned_inks(pen_base))
+    pen_pool = filtered(:pen, pens_taking(pen_base, pins(:ink)))
     return excluded_selection if excluded
 
     ink_pool = filtered(:ink, compatible_inks(ink_base, pen_pool))
     return excluded_selection if excluded
 
     pen_pool, ink_pool = pair_usage_pools(pen_pool, ink_pool)
+    pen_pool = pens_taking(pen_pool, ink_pool)
     pens, = side(:pen, pen_pool, slice[:pens])
     ink_pool = repeat_inks(ink_pool, pens)
-    inks, ranked_inks = side(:ink, ink_pool, slice[:inks])
-    inks = compatible_inks(inks, pens)
-    ranked_inks &= inks
+    inks, ranked_inks = side(:ink, compatible_inks(ink_pool, pens), slice[:inks])
     relax_shown_pair_usage(pens, inks)
     notes.concat(relaxation_notes)
     notes << unknown_nib_note if unknown_nib_note
@@ -261,7 +260,7 @@ class PenAndInkSuggestion::CandidateSelector
   end
 
   def ink_base
-    pins(:ink).presence || brand_filtered(:ink, candidate_inks)
+    @ink_base ||= pins(:ink).presence || brand_filtered(:ink, candidate_inks)
   end
 
   def brand_filtered(side, items)
@@ -311,7 +310,7 @@ class PenAndInkSuggestion::CandidateSelector
     return false unless effective_constraints.inclusions(side).include?(path)
 
     if step == :drop
-      relax(path, "dropped")
+      relax(path, "dropped", drop_reason(path))
       return true
     end
 
@@ -323,13 +322,20 @@ class PenAndInkSuggestion::CandidateSelector
     true
   end
 
-  def relax(path, step)
-    relaxations_by_field[path] = relaxation(path, step)
+  def relax(path, step, reason = nil)
+    relaxations_by_field[path] = relaxation(path, step).merge({ "reason" => reason }.compact)
     self.effective_constraints = effective_constraints.reset(path)
   end
 
   def relaxation(path, step)
     { "field" => path, "step" => step, "from" => constraints.value(path) }
+  end
+
+  def drop_reason(path)
+    return unless path == "ink.kinds_include"
+
+    unpaired = ink_base.select { |ink| passes?(ink, effective_constraints.exclusions(:ink)) }
+    "no_fitting_pen" if included(:ink, unpaired).any?
   end
 
   def widened(path)
@@ -435,11 +441,11 @@ class PenAndInkSuggestion::CandidateSelector
     end
   end
 
-  def pens_for_pinned_inks(pens)
-    return pens if pins(:pen).any? || pins(:ink).empty?
+  def pens_taking(pens, inks)
+    return pens if pins(:pen).any? || inks.empty?
 
     pens.select do |pen|
-      pins(:ink).any? { |ink| PenAndInkSuggestion::CartridgeCompatibility.compatible?(pen, ink) }
+      inks.any? { |ink| PenAndInkSuggestion::CartridgeCompatibility.compatible?(pen, ink) }
     end
   end
 

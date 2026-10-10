@@ -2362,7 +2362,14 @@ evidence.
   from a relaxed side. The re-check runs inside `Selection#violation_for`, which `RecordSuggestion`
   already calls, using `selection.effective_constraints`.
 - p9a: The ink side is filtered after cartridge compatibility with the candidate pens, so "only
-  cartridges" with no cartridge pen relaxes the kind with a note instead of ending the run.
+  cartridges" with no cartridge pen relaxes the kind with a note instead of ending the run. The
+  note tells "You have no cartridges" apart from "None of your uninked pens takes cartridges"
+  (the relaxation then carries `reason: no_fitting_pen`).
+- p9a: Unpinned pens are limited to pens that take at least one ink of the filtered ink pool before
+  the pen slice is cut (the p8 pinned-ink rule, generalised), and the ink slice is cut from inks a
+  shown pen takes. A cartridge-only ink side (by filter or by collection) therefore shows only
+  cartridge pens and no longer ends `no_compatible_pairs` when those pens rank outside the slice;
+  this reverses the p7 spec that pinned that end. `pen_total` counts the limited pool.
 - p9a: Unknowns: only nib include filters leave out pens without a width class (counted in the
   note); `nib_grades_exclude`/`nib_characters_exclude` keep them, like the bench checker. An ink
   without a usable colour fails `colour_include` and passes `colour_exclude`; an ink without a kind
@@ -2398,8 +2405,10 @@ evidence.
   collection instead." and "I suggest one combination at a time; use "Try again!" for another
   one." for `out_of_scope` and `requested_count > 1`; relax notes say "that fit the rest of your
   request" only when another filter on that side is still active.
-- p9a: With empty constraints the only visible change is that an ink-pinned run's unpinned pen
-  count in the list header counts only pens that take a pinned cartridge ink.
+- p9a: With empty constraints the only visible changes are that an ink-pinned run's unpinned pen
+  count in the list header counts only pens that take a pinned cartridge ink, that a collection
+  whose fillable inks are all cartridges shows only pens that take cartridges, and that the ink
+  slice no longer spends rows on cartridges no shown pen takes.
 - p9a: No bench run and no LLM call: production still sends `Constraints.empty`. As a smoke check
   (uncommitted script, dev DB), the selector ran on the 210 labelled instruction cases with each
   draft label's constraints standing in for extractor output: 0 errors, 0 shown unpinned rows

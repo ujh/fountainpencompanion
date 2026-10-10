@@ -67,6 +67,29 @@ RSpec.describe PenAndInkSuggestion::ConstraintNotes do
       )
     end
 
+    it "tells missing cartridges apart from cartridges no pen takes" do
+      notes =
+        described_class.relaxations(
+          [
+            { "field" => "ink.kinds_include", "step" => "dropped", "from" => %w[cartridge] },
+            {
+              "field" => "ink.kinds_include",
+              "step" => "dropped",
+              "from" => %w[cartridge],
+              "reason" => "no_fitting_pen"
+            }
+          ],
+          PenAndInkSuggestion::Constraints.empty
+        )
+
+      expect(notes).to eq(
+        [
+          "You have no cartridges, so I picked from all your inks.",
+          "None of your uninked pens takes cartridges, so I picked from all your inks."
+        ]
+      )
+    end
+
     it "words pen usage both ways" do
       notes =
         described_class.relaxations(

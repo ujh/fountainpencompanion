@@ -79,9 +79,14 @@ module PenAndInkSuggestion::ConstraintNotes
         "#{subject} is #{colours}, so I chose from all colours."
       end
     when "ink.kinds_include"
-      kinds = or_list(from.map { |kind| KINDS.fetch(kind) })
-      "You have no #{kinds}#{rest_of_request(:ink, field, effective_constraints, "that fit")}, " \
-        "so I picked from all your inks."
+      if relaxation["reason"] == "no_fitting_pen"
+        pens = rest_of_request(:pen, field, effective_constraints, "that fit your request")
+        "None of your uninked pens#{pens} takes cartridges, so I picked from all your inks."
+      else
+        kinds = or_list(from.map { |kind| KINDS.fetch(kind) })
+        "You have no #{kinds}#{rest_of_request(:ink, field, effective_constraints, "that fit")}, " \
+          "so I picked from all your inks."
+      end
     end
   end
 
