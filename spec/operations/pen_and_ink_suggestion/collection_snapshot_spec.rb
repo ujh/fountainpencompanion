@@ -74,7 +74,9 @@ RSpec.describe PenAndInkSuggestion::CollectionSnapshot do
       create(:collected_ink, user:, tags_as_string: "first, second")
       snapshot = described_class.new(user)
 
-      expect(snapshot.inks.sole.taggings.map { |tagging| tagging.tag.name }).to eq(%w[first second])
+      expect(snapshot.inks.sole.taggings.sort_by(&:id).map { |tagging| tagging.tag.name }).to eq(
+        %w[first second]
+      )
       expect(snapshot.tag_names(snapshot.inks.sole)).to eq(%w[second first])
     end
   end
@@ -322,7 +324,8 @@ RSpec.describe PenAndInkSuggestion::CollectionSnapshot do
 
     it "uses the latest usage when it is newer than the inking's dates" do
       pen = create(:collected_pen, user:)
-      ink_it(pen, ink_c, inked_on: today - 180, archived_on: today - 1, used_on: [today - 1])
+      inking = ink_it(pen, ink_c, inked_on: today - 180, used_on: [today - 1])
+      inking.update!(archived_on: today - 5)
       ink_it(pen, ink_c, inked_on: today - 300, archived_on: today - 200)
 
       stats = described_class.new(user).stats_for(pen)
