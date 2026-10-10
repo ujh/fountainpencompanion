@@ -400,6 +400,35 @@ RSpec.describe PenAndInkSuggestion::CollectionSnapshot do
     end
   end
 
+  describe "#inkings_since" do
+    it "returns the user's inkings filled on or after the date, active and archived" do
+      pen = create(:collected_pen, user:)
+      ink = create(:collected_ink, user:)
+      archived = ink_it(pen, ink, inked_on: today - 90, archived_on: today - 80)
+      ink_it(pen, ink, inked_on: today - 91, archived_on: today - 85)
+      active = ink_it(pen, ink, inked_on: today - 2)
+      create(:currently_inked, inked_on: today)
+      snapshot = described_class.new(user)
+
+      inkings = snapshot.inkings_since(today - 90)
+
+      expect(inkings.map(&:id)).to contain_exactly(archived.id, active.id)
+      expect(inkings.map(&:collected_ink_id).uniq).to eq([ink.id])
+    end
+
+    it "leaves out inkings made after as_of" do
+      pen = create(:collected_pen, user:, created_at: 1.year.ago)
+      ink = create(:collected_ink, user:, created_at: 1.year.ago)
+      earlier =
+        ink_it(pen, ink, inked_on: today - 40, archived_on: today - 35, created_at: 40.days.ago)
+      ink_it(pen, ink, inked_on: today - 5)
+
+      inkings = described_class.new(user, as_of: 10.days.ago).inkings_since(today - 90)
+
+      expect(inkings.map(&:id)).to eq([earlier.id])
+    end
+  end
+
   describe "#recent_inkings" do
     let(:pen) { create(:collected_pen, user:) }
     let(:ink) { create(:collected_ink, user:) }

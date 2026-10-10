@@ -32,7 +32,8 @@ module Bench
               {
                 "extra_data" => run.extra_data,
                 "usages" => usages,
-                "cost_usd" => Pricing.total_cost(usages)
+                "cost_usd" => Pricing.total_cost(usages),
+                "list_cost_usd" => Pricing.total_cost(usages, cache_discount: false)
               }
             ]
           end
@@ -66,6 +67,7 @@ module Bench
                   label:
                 ).call,
               "cost_usd" => result["cost_usd"],
+              "list_cost_usd" => result["list_cost_usd"],
               "latency_ms" => result["latency_ms"]
             }
           end
@@ -215,11 +217,17 @@ module Bench
 
       def cost(rows)
         costs = rows.map { |row| row["cost_usd"] }.compact
+        list_costs = rows.map { |row| row["list_cost_usd"] }.compact
         {
           "runs_priced" => costs.size,
           "total_usd" => costs.sum.round(4),
-          "mean_usd" => costs.any? ? (costs.sum / costs.size).round(5) : nil
+          "mean_usd" => mean(costs),
+          "mean_list_usd" => mean(list_costs)
         }
+      end
+
+      def mean(values)
+        (values.sum / values.size).round(5) if values.any?
       end
 
       def latency(rows)

@@ -410,6 +410,81 @@ RSpec.describe RubyLlmAgent do
     end
   end
 
+  describe "usage" do
+    let(:agent) { test_class_with_tools.new(agent_log, decide_tool_class.new) }
+
+    def completion(usage)
+      {
+        "id" => "chatcmpl-usage",
+        "object" => "chat.completion",
+        "model" => "gpt-4.1-mini",
+        "choices" => [
+          {
+            "index" => 0,
+            "message" => {
+              "role" => "assistant",
+              "content" => "ok"
+            },
+            "finish_reason" => "stop"
+          }
+        ],
+        "usage" => usage
+      }
+    end
+
+    def stub_usage(*usages)
+      stub_request(:post, "https://api.openai.com/v1/chat/completions").to_return(
+        *usages.map do |usage|
+          {
+            status: 200,
+            body: completion(usage).to_json,
+            headers: {
+              "Content-Type" => "application/json"
+            }
+          }
+        end
+      )
+    end
+
+    it "records uncached prompt tokens and, separately, cached ones" do
+      stub_usage(
+        {
+          "prompt_tokens" => 1_500,
+          "completion_tokens" => 20,
+          "total_tokens" => 1_520,
+          "prompt_tokens_details" => {
+            "cached_tokens" => 1_024
+          }
+        },
+        {
+          "prompt_tokens" => 1_200,
+          "completion_tokens" => 10,
+          "total_tokens" => 1_210,
+          "prompt_tokens_details" => {
+            "cached_tokens" => 1_024
+          }
+        }
+      )
+
+      2.times { agent.ask("Hello") }
+
+      expect(agent_log.reload.usage).to include(
+        "prompt_tokens" => 476 + 176,
+        "cached_tokens" => 2_048,
+        "completion_tokens" => 30
+      )
+    end
+
+    it "adds no cached count when nothing was cached" do
+      stub_usage({ "prompt_tokens" => 100, "completion_tokens" => 5, "total_tokens" => 105 })
+
+      agent.ask("Hello")
+
+      expect(agent_log.reload.usage).not_to have_key("cached_tokens")
+      expect(agent_log.usage["prompt_tokens"]).to eq(100)
+    end
+  end
+
   describe "#ask with attachments" do
     let(:agent_with_tools) { test_class_with_tools.new(agent_log, decide_tool_class.new) }
 

@@ -58,6 +58,7 @@ RSpec.describe Bench::Suggester::Report do
           "message" => "Fine"
         },
         "cost_usd" => 0.002,
+        "list_cost_usd" => 0.003,
         "latency_ms" => 1000
       },
       "2" => {
@@ -67,6 +68,7 @@ RSpec.describe Bench::Suggester::Report do
           "message" => "Balance of novelty"
         },
         "cost_usd" => 0.004,
+        "list_cost_usd" => 0.005,
         "latency_ms" => 3000
       },
       "3" => {
@@ -110,7 +112,8 @@ RSpec.describe Bench::Suggester::Report do
       "cost" => {
         "runs_priced" => 3,
         "total_usd" => 0.009,
-        "mean_usd" => 0.003
+        "mean_usd" => 0.003,
+        "mean_list_usd" => 0.004
       },
       "latency_ms" => {
         "p50" => 2000,
@@ -300,6 +303,30 @@ RSpec.describe Bench::Suggester::Report do
       )
       expect(report.rows.sole["checks"]["validity"]).to include("not_rejected_repeat" => false)
       expect(report.rows.sole["cost_usd"]).to be_within(1e-9).of((2000 * 0.40 + 100 * 1.60) / 1e6)
+    end
+
+    it "checks a run without an instruction against the rejected pairs it logged" do
+      log =
+        suggester_log(
+          user:,
+          created_at: as_of,
+          extra_data: {
+            "pen" => pen.id,
+            "ink" => ink.id,
+            "message" => "Again",
+            "rejected_pairs" => [{ "ink_id" => ink.id, "pen_id" => pen.id }],
+            "shown_pen_ids" => [pen.id],
+            "shown_ink_ids" => [ink.id]
+          }
+        )
+
+      report = described_class.for_logs(AgentLog.where(id: log.id).includes(:agent_logs))
+
+      expect(report.cases.sole).to have_attributes(
+        source: "plain",
+        rejected_pairs: [{ "ink_id" => ink.id, "pen_id" => pen.id }]
+      )
+      expect(report.rows.sole["checks"]["validity"]).to include("not_rejected_repeat" => false)
     end
   end
 end

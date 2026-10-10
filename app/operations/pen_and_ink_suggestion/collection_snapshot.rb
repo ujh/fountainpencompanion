@@ -101,6 +101,10 @@ class PenAndInkSuggestion::CollectionSnapshot
     inkings_by_id[id]
   end
 
+  def inkings_since(date)
+    inkings.select { |inking| inking.inked_on >= date }
+  end
+
   def recent_inkings(items, limit: 3)
     pen_ids = items.grep(CollectedPen).map(&:id)
     ink_ids = items.grep(CollectedInk).map(&:id)

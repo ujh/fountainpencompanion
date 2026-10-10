@@ -206,7 +206,7 @@ RSpec.describe PenAndInkSuggester do
     pens = suggester.send(:pens)
 
     expect(pens.map(&:model)).to eq(["Custom 74", "Safari", "Signo", "Eco"])
-    expect(suggester.send(:record_suggestion_tool).pens).to eq(pens)
+    expect(suggester.send(:legacy_record_suggestion_tool).pens).to eq(pens)
   end
 
   def prompt_queries(user)

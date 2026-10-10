@@ -566,7 +566,7 @@ RSpec.describe PenAndInkSuggester do
     it "skips the cap when enforce_daily_limit is false" do
       create_logs(20)
 
-      response = described_class.new(user, enforce_daily_limit: false).perform
+      response = described_class.new(user, extra_user_input, enforce_daily_limit: false).perform
 
       expect(response[:ink]).to eq(collected_ink_1.id)
       expect(WebMock).to have_requested(:post, openai_url).once
@@ -794,7 +794,7 @@ RSpec.describe PenAndInkSuggester do
   end
 
   describe "tools" do
-    describe PenAndInkSuggester::RecordSuggestion do
+    describe PenAndInkSuggester::LegacyRecordSuggestion do
       let(:inks) { user.collected_inks.active }
       let(:pens) { user.collected_pens.active }
 

@@ -55,27 +55,23 @@ module Bench
 
       def rejected_pairs
         @rejected_pairs ||=
-          if rejected_start
-            Array(rejected_json)
-              .filter_map do |entry|
-                next unless entry.is_a?(Hash)
+          Array(logged("rejected_pairs") { rejected_json })
+            .filter_map do |entry|
+              next unless entry.is_a?(Hash)
 
-                ink_id = integer(entry["ink_id"])
-                pen_id = integer(entry["pen_id"])
-                { "ink_id" => ink_id, "pen_id" => pen_id } if ink_id && pen_id
-              end
-              .last(MAX_REJECTED_PAIRS)
-          else
-            []
-          end
+              ink_id = integer(entry["ink_id"])
+              pen_id = integer(entry["pen_id"])
+              { "ink_id" => ink_id, "pen_id" => pen_id } if ink_id && pen_id
+            end
+            .last(MAX_REJECTED_PAIRS)
       end
 
       def shown_pen_ids
-        csv_ids(section(PENS_MARKER, ["\n\n"]))
+        logged_ids("shown_pen_ids") { csv_ids(section(PENS_MARKER, ["\n\n"])) }
       end
 
       def shown_ink_ids
-        csv_ids(section(INKS_MARKER, INKS_END_MARKERS))
+        logged_ids("shown_ink_ids") { csv_ids(section(INKS_MARKER, INKS_END_MARKERS)) }
       end
 
       def original
@@ -125,7 +121,16 @@ module Bench
       end
 
       def rejected_json
-        rejected_json_at(rejected_start)
+        rejected_json_at(rejected_start) if rejected_start
+      end
+
+      def logged(key)
+        extra_data.key?(key) ? extra_data[key] : yield
+      end
+
+      def logged_ids(key, &)
+        ids = logged(key, &)
+        ids && Array(ids).grep(Integer)
       end
 
       def rejected_json_at(start)

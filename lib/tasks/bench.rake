@@ -49,8 +49,9 @@ namespace :bench do
       puts "added #{added} blank labels to #{store.path("labels.yml")}"
     end
 
-    desc "Replay the cases through today's suggester " \
-           "(RUN=baseline LIMIT= SPLIT= TIER=free|premium MAX_USD=5 SEED=1)"
+    desc "Replay the cases through the current suggester " \
+           "(RUN=baseline LIMIT= SPLIT= INSTRUCTION=with|without TIER=free|premium LEGACY= " \
+           "MAX_USD=5 SEED=1)"
     task baseline: :setup do
       abort "The bench replays only against the development database." unless Rails.env.development?
 
@@ -60,11 +61,17 @@ namespace :bench do
       max_usd = Float(ENV.fetch("MAX_USD", "5"))
       tier = ENV["TIER"].presence
       abort "TIER must be free or premium." if tier && %w[free premium].exclude?(tier)
-      cases = store.cases
-      cases = cases.select { |bench_case| bench_case.split == ENV["SPLIT"] } if ENV["SPLIT"]
+      cases =
+        Bench::Suggester.filter_cases(
+          store.cases,
+          split: ENV["SPLIT"],
+          instruction: ENV["INSTRUCTION"]
+        )
       cases = cases.first(Integer(ENV["LIMIT"])) if ENV["LIMIT"]
 
-      runner = Bench::Suggester::Runner.new(cases:, seed:, max_usd:, tier:)
+      legacy = ENV["LEGACY"].present?
+      build = legacy ? Bench::Suggester::Runner::LEGACY : Bench::Suggester::Runner::BASELINE
+      runner = Bench::Suggester::Runner.new(cases:, seed:, max_usd:, tier:, build:)
       results = runner.run { print "." }
       puts
       store.write_results(
@@ -74,6 +81,8 @@ namespace :bench do
           "seed" => seed,
           "tier" => tier,
           "split" => ENV["SPLIT"],
+          "instruction" => ENV["INSTRUCTION"],
+          "legacy" => legacy,
           "max_usd" => max_usd,
           "spent_usd" => runner.spent_usd.round(4),
           "stop_reason" => runner.stop_reason,
@@ -87,13 +96,13 @@ namespace :bench do
       puts "stopped: the MAX_USD budget is spent" if runner.stop_reason
     end
 
-    desc "Score a recorded run with the checkers (RUN=baseline)"
+    desc "Score a recorded run with the checkers (RUN=baseline INSTRUCTION=with|without)"
     task report: :setup do
       store = Bench::Suggester::Store.new
       name = ENV.fetch("RUN", "baseline")
       report =
         Bench::Suggester::Report.new(
-          cases: store.cases,
+          cases: Bench::Suggester.filter_cases(store.cases, instruction: ENV["INSTRUCTION"]),
           results: store.results(name).fetch("results"),
           labels: store.labels
         )
@@ -101,12 +110,17 @@ namespace :bench do
       puts report.to_text
     end
 
-    desc "Write a blinded side-by-side grading file for Claude Code (RUNS=baseline,v2 SPLIT=)"
+    desc "Write a blinded side-by-side grading file for Claude Code " \
+           "(RUNS=baseline,v2 SPLIT= INSTRUCTION=with|without)"
     task grading_export: :setup do
       store = Bench::Suggester::Store.new
       names = ENV.fetch("RUNS", "baseline").split(",")
-      cases = store.cases
-      cases = cases.select { |bench_case| bench_case.split == ENV["SPLIT"] } if ENV["SPLIT"]
+      cases =
+        Bench::Suggester.filter_cases(
+          store.cases,
+          split: ENV["SPLIT"],
+          instruction: ENV["INSTRUCTION"]
+        )
       runs = names.index_with { |name| store.results(name).fetch("results") }
       export =
         Bench::Suggester::GradingExport.new(

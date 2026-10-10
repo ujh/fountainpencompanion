@@ -3,64 +3,26 @@ require "csv"
 class PenAndInkSuggester
   include RubyLlmAgent
 
-  class RecordSuggestion < RubyLLM::Tool
-    description "Output for the end user. Must contain a markdown formatted suggestion for a pen and ink combination, " \
-                  "along with the IDs of the suggested pen and ink."
-
-    param :suggestion, desc: "Markdown formatted pen and ink suggestion"
-    param :ink_id, type: "integer", desc: "ID of the suggested ink"
-    param :pen_id, type: "integer", desc: "ID of the suggested pen"
-
-    attr_accessor :inks, :pens, :message, :result_ink_id, :result_pen_id
-
-    def initialize(inks, pens)
-      self.inks = inks
-      self.pens = pens
-    end
-
-    def execute(suggestion:, ink_id:, pen_id:)
-      return halt "Suggestion already recorded" if recorded?
-
-      ink = inks.find { |i| i.id == ink_id }
-      pen = pens.find { |p| p.id == pen_id }
-
-      if ink && pen && suggestion.present?
-        self.message = suggestion
-        self.result_ink_id = ink_id
-        self.result_pen_id = pen_id
-        halt "Suggestion recorded"
-      elsif ink.blank? && pen.blank?
-        "Please try again. Both the pen and ink IDs are invalid."
-      elsif ink.blank?
-        "Please try again. The ink ID is invalid."
-      elsif pen.blank?
-        "Please try again. The pen ID is invalid."
-      elsif suggestion.blank?
-        "Please try again. The suggestion message is blank."
-      end
-    end
-
-    def recorded?
-      [message, result_ink_id, result_pen_id].all?(&:present?)
-    end
-
-    def result
-      { message:, ink: result_ink_id, pen: result_pen_id } if recorded?
-    end
-  end
-
   LIMIT = 50
   LIMIT_PATRON = 100
   LIMIT_ADMIN = 200
   MAX_PER_DAY = 20
   MAX_PER_DAY_PATRON = 50
   MAX_TOOL_CALLS = 12
-  LOG_ONLY_KEYS = %i[precheck error queue_ms].freeze
+  RESULT_KEYS = %i[message ink pen status].freeze
   ERROR_MESSAGE = "Sorry, that didn't work. Please try again!"
   NO_UNINKED_PENS_MESSAGE =
     "All your pens are currently inked (or you have none). Clean one up and try again."
   NO_FILLABLE_INKS_MESSAGE =
     "You have no inks to fill a pen with (swabs don't count). Add an ink and try again."
+  SELECTION_END_MESSAGES = {
+    no_compatible_pairs:
+      "Your only inks are cartridges and none of your uninked pens takes them. " \
+        "Clean a cartridge pen or add a bottle or sample and try again.",
+    all_pairs_rejected:
+      "You've turned down every combination of your uninked pens and inks. " \
+        "Clean another pen or add an ink and try again."
+  }.freeze
 
   def self.error_result
     { message: ERROR_MESSAGE, status: "error" }
@@ -71,22 +33,23 @@ class PenAndInkSuggester
     extra_user_input = nil,
     rejected_suggestions = [],
     queue_ms: nil,
-    enforce_daily_limit: true
+    enforce_daily_limit: true,
+    seed: nil
   )
     self.user = user
     self.extra_user_input = extra_user_input
     self.rejected_suggestions = rejected_suggestions || []
     self.queue_ms = queue_ms
     self.enforce_daily_limit = enforce_daily_limit
+    self.seed = seed || SecureRandom.random_number(2**31)
   end
 
   def perform
     extra_data = run
     extra_data[:queue_ms] = queue_ms if queue_ms
-    response = extra_data.except(*LOG_ONLY_KEYS)
     agent_log.update(extra_data:)
     agent_log.waiting_for_approval!
-    response
+    extra_data.slice(*RESULT_KEYS)
   end
 
   def agent_log
@@ -95,7 +58,12 @@ class PenAndInkSuggester
 
   private
 
-  attr_accessor :user, :extra_user_input, :rejected_suggestions, :queue_ms, :enforce_daily_limit
+  attr_accessor :user,
+                :extra_user_input,
+                :rejected_suggestions,
+                :queue_ms,
+                :enforce_daily_limit,
+                :seed
 
   def run
     if enforce_daily_limit
@@ -106,24 +74,71 @@ class PenAndInkSuggester
     precheck = precheck_failure
     return { message: precheck[:message], precheck: precheck[:reason] } if precheck
 
-    suggest
+    v2? ? suggest_v2 : suggest
+  end
+
+  def v2?
+    extra_user_input.blank?
   end
 
   def suggest
-    error = request_suggestion
-    result = record_suggestion_tool.result || self.class.error_result
+    error = request_suggestion(user_prompt)
+    result = legacy_record_suggestion_tool.result || self.class.error_result
     error ? result.merge(error:) : result
   end
 
-  def request_suggestion
-    ask!(user_prompt)
+  def suggest_v2
+    if selection.ended?
+      reason = selection.end_reason
+      return { message: SELECTION_END_MESSAGES.fetch(reason), precheck: reason.to_s }
+    end
+
+    started = Process.clock_gettime(Process::CLOCK_MONOTONIC)
+    error = request_suggestion(pick_prompt.user_message)
+    latency_ms = ((Process.clock_gettime(Process::CLOCK_MONOTONIC) - started) * 1000).round
+    data = v2_result.merge(v2_log_data, latency_ms:)
+    data[:violations] = record_suggestion_tool.violations if record_suggestion_tool.violations.any?
+    error ? data.merge(error:) : data
+  end
+
+  def v2_result
+    recorded = record_suggestion_tool.result
+    return self.class.error_result unless recorded
+
+    reasoning = PenAndInkSuggestion::ReasoningSanitizer.call(recorded[:reasoning])
+    message =
+      PenAndInkSuggestion::SuggestionMessage.new(
+        pen: recorded[:pen],
+        ink: recorded[:ink],
+        nib_profile: snapshot.nib_profile(recorded[:pen]),
+        reasoning:
+      )
+    { message: message.to_s, ink: recorded[:ink].id, pen: recorded[:pen].id, reasoning: }
+  end
+
+  def v2_log_data
+    {
+      constraints: nil,
+      constraints_source: "none",
+      shown_pen_ids: selection.shown_pen_ids,
+      shown_ink_ids: selection.shown_ink_ids,
+      rejected_pairs: rejected_suggestions,
+      pins: [],
+      notes: [],
+      relaxations: [],
+      seed:
+    }
+  end
+
+  def request_suggestion(message)
+    ask!(message)
     nil
   rescue RubyLlmAgent::ToolCallLimitExceeded, RubyLlmAgent::DecisionNotReachedError => e
     e.class.name.demodulize
   end
 
   def precheck_failure
-    if pens.empty?
+    if (v2? ? candidate_selector.candidate_pens : pens).empty?
       { reason: "no_uninked_pens", message: NO_UNINKED_PENS_MESSAGE }
     elsif snapshot.fillable_inks.empty?
       { reason: "no_fillable_inks", message: NO_FILLABLE_INKS_MESSAGE }
@@ -138,14 +153,44 @@ class PenAndInkSuggester
 
   def max_tool_calls = MAX_TOOL_CALLS
 
-  def system_directive = ""
+  def system_directive
+    v2? ? PenAndInkSuggestion::PickPrompt::SYSTEM_DIRECTIVE : ""
+  end
+
+  def legacy_record_suggestion_tool
+    @legacy_record_suggestion_tool ||= LegacyRecordSuggestion.new(inks, pens)
+  end
 
   def record_suggestion_tool
-    @record_suggestion_tool ||= RecordSuggestion.new(inks, pens)
+    @record_suggestion_tool ||= RecordSuggestion.new(selection, rejected_suggestions)
   end
 
   def tools
-    [record_suggestion_tool]
+    [v2? ? record_suggestion_tool : legacy_record_suggestion_tool]
+  end
+
+  def candidate_selector
+    @candidate_selector ||=
+      PenAndInkSuggestion::CandidateSelector.new(
+        snapshot:,
+        rejected_pairs: rejected_suggestions,
+        tier: slice_tier,
+        seed:
+      )
+  end
+
+  def selection
+    @selection ||= candidate_selector.call
+  end
+
+  def pick_prompt
+    PenAndInkSuggestion::PickPrompt.new(snapshot:, selection:, rejected_pairs: rejected_suggestions)
+  end
+
+  def slice_tier
+    return :admin if user.admin?
+
+    premium? ? :premium : :free
   end
 
   def user_prompt

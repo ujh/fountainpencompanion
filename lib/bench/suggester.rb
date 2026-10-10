@@ -11,6 +11,19 @@ module Bench
 
       Time.zone.parse(value) || raise(ArgumentError, "SINCE is not a date: #{value.inspect}")
     end
+
+    INSTRUCTION_FILTERS = %w[with without].freeze
+
+    def self.filter_cases(cases, split: nil, instruction: nil)
+      if instruction.present? && INSTRUCTION_FILTERS.exclude?(instruction)
+        raise ArgumentError, "INSTRUCTION must be with or without: #{instruction.inspect}"
+      end
+
+      cases = cases.select { |bench_case| bench_case.split == split } if split.present?
+      return cases if instruction.blank?
+
+      cases.select { |bench_case| bench_case.instruction? == (instruction == "with") }
+    end
   end
 end
 
