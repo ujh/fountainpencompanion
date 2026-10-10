@@ -32,11 +32,7 @@ module PenAndInkSuggestion::ConstraintNotes
 
   def excluded(side, paths, constraints)
     labels = paths.map { |path| excluded_label(path, constraints.value(path)) }
-    format(
-      EXCLUDED_MESSAGE,
-      items: side == :pen ? "uninked pens" : "inks",
-      excluded: and_list(labels)
-    )
+    format(EXCLUDED_MESSAGE, items: SIDE_ITEMS.fetch(side), excluded: and_list(labels))
   end
 
   def relaxation_note(relaxation, effective_constraints)
