@@ -116,7 +116,7 @@ class PenAndInkSuggester
   def precheck_failure
     if pens.empty?
       { reason: "no_uninked_pens", message: NO_UNINKED_PENS_MESSAGE }
-    elsif inks.all? { |ink| ink.kind == "swab" }
+    elsif snapshot.fillable_inks.empty?
       { reason: "no_fillable_inks", message: NO_FILLABLE_INKS_MESSAGE }
     end
   end
@@ -189,10 +189,9 @@ class PenAndInkSuggester
   end
 
   def additional_premium_prompt
-    currently_inked = user.currently_inkeds.active.to_csv
     <<~MESSAGE
       Below is the list of currently inked pens in my collection:
-      #{currently_inked}
+      #{currently_inked_data}
 
       When picking a new pen and ink combination, take these into account and
       prefer combinations that do not overlap with the currently inked pens
@@ -205,11 +204,12 @@ class PenAndInkSuggester
   end
 
   def average_pen_usage
-    average_usage = (pens.sum(&:usage_count) / pens.size.to_f).round(2)
-    average_daily_usage = (pens.sum(&:daily_usage_count) / pens.size.to_f).round(2)
+    stats = pens.map { |pen| snapshot.stats_for(pen) }
+    average_usage = (stats.sum(&:usage_count) / pens.size.to_f).round(2)
+    average_daily_usage = (stats.sum(&:daily_usage_count) / pens.size.to_f).round(2)
     average_last_used_ago =
-      pens.sum do |pen|
-        last_used_on = pen.last_used_on || Date.today.advance(years: -1)
+      stats.sum do |pen_stats|
+        last_used_on = pen_stats.last_used_on || Date.today.advance(years: -1)
         (Date.today - last_used_on).to_i
       end / pens.size.to_f
     average_last_used_ago = time_ago_in_words(Date.today.advance(days: -average_last_used_ago))
@@ -220,11 +220,12 @@ class PenAndInkSuggester
   end
 
   def average_ink_usage
-    average_usage = (inks.sum(&:usage_count) / inks.size.to_f).round(2)
-    average_daily_usage = (inks.sum(&:daily_usage_count) / inks.size.to_f).round(2)
+    stats = inks.map { |ink| snapshot.stats_for(ink) }
+    average_usage = (stats.sum(&:usage_count) / inks.size.to_f).round(2)
+    average_daily_usage = (stats.sum(&:daily_usage_count) / inks.size.to_f).round(2)
     average_last_used_ago =
-      inks.sum do |ink|
-        last_used_on = ink.last_used_on || Date.today.advance(years: -1)
+      stats.sum do |ink_stats|
+        last_used_on = ink_stats.last_used_on || Date.today.advance(years: -1)
         (Date.today - last_used_on).to_i
       end / inks.size.to_f
     average_last_used_ago = time_ago_in_words(Date.today.advance(days: -average_last_used_ago))
@@ -245,8 +246,9 @@ class PenAndInkSuggester
         .shuffle
         .take(limit)
         .each do |pen|
-          last_usage = (pen.last_used_on ? time_ago_in_words(pen.last_used_on) : "never")
-          csv << [pen.id, pen.name.inspect, last_usage, pen.usage_count, pen.daily_usage_count]
+          stats = snapshot.stats_for(pen)
+          last_usage = (stats.last_used_on ? time_ago_in_words(stats.last_used_on) : "never")
+          csv << [pen.id, pen.name.inspect, last_usage, stats.usage_count, stats.daily_usage_count]
         end
     end
   end
@@ -268,40 +270,60 @@ class PenAndInkSuggester
         .shuffle
         .take(limit)
         .each do |ink|
-          last_usage = (ink.last_used_on ? time_ago_in_words(ink.last_used_on) : "never")
+          stats = snapshot.stats_for(ink)
+          last_usage = (stats.last_used_on ? time_ago_in_words(stats.last_used_on) : "never")
           csv << [
             ink.id,
             ink.name.inspect,
             ink.kind,
             last_usage,
-            ink.usage_count,
-            ink.daily_usage_count,
-            (ink.tag_names + ink.cluster_tags).uniq.join(","),
+            stats.usage_count,
+            stats.daily_usage_count,
+            (snapshot.tag_names(ink) + ink.cluster_tags).uniq.join(","),
             ink.cluster_description || ""
           ]
         end
     end
   end
 
+  def currently_inked_data
+    CSV.generate(col_sep: ";") do |csv|
+      csv << [
+        "Pen",
+        "Ink",
+        "Date Inked",
+        "Date Cleaned",
+        "Comment",
+        "Daily Usage",
+        "Last Used On",
+        "Date Added"
+      ]
+      snapshot.active_inkings.each do |currently_inked|
+        inking = snapshot.inking(currently_inked.id)
+        csv << [
+          currently_inked.pen_name,
+          currently_inked.ink_name,
+          currently_inked.inked_on,
+          currently_inked.archived_on,
+          currently_inked.comment,
+          inking.usage_count,
+          inking.last_usage_on,
+          currently_inked.created_at.to_date.to_s
+        ]
+      end
+    end
+  end
+
+  def snapshot
+    @snapshot ||= PenAndInkSuggestion::CollectionSnapshot.new(user)
+  end
+
   def pens
-    @pens ||=
-      user
-        .collected_pens
-        .active
-        .includes(:currently_inkeds, :usage_records, newest_currently_inked: :last_usage)
-        .reject { |pen| pen.inked? }
+    @pens ||= snapshot.pens.reject { |pen| snapshot.inked?(pen) }
   end
 
   def inks
-    @inks ||=
-      user.collected_inks.active.includes(
-        :currently_inkeds,
-        :usage_records,
-        micro_cluster: {
-          macro_cluster: :brand_cluster
-        },
-        newest_currently_inked: :last_usage
-      )
+    snapshot.inks
   end
 
   def limit

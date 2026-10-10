@@ -1723,3 +1723,44 @@ evidence.
   past any other word ("no sheen and gold shimmer" is shimmer) or a weak qualifier to other
   properties ("low water resistance and shimmer" is shimmer). In the dev DB this drops one sheen
   and one shading flag among 2,553 cluster descriptions.
+
+**p5 decisions:**
+
+- p5: `PenAndInkSuggestion::CollectionSnapshot` loads one row per inking, with its usage count
+  and latest `used_on` aggregated in SQL through a `LEFT JOIN` on `usage_records`. Per-item
+  counts, `last_activity_on`, the legacy `last_used_on` and pair history are derived from those
+  rows in Ruby instead of from separate grouped queries. The heaviest dev-DB user has 2,112
+  inkings against 20,058 usage records. The whole snapshot (items, tags, clusters, inkings,
+  active rows with their pen and ink) is 11 queries at any size; a spec pins this at 50 and 500
+  items.
+- p5: `pens` and `inks` stay all active items. `inkable_pens` drops pens whose `NibProfile` kind is
+  `non_inkable`, `rollerball` or `dip`; `unknown` (no nib entered) stays. `fillable_inks` drops
+  swabs. The CSV path keeps the full lists, so swabs and gel pens stay in it as p2b decided; the
+  P7 selector starts from the filtered lists.
+- p5: An item is inked when it has an active inking. The old `inked?` read only the newest
+  inking by `inked_on`, which is arbitrary for a same-day refill and wrong when an older inking is
+  still active behind a newer archived one, so the old CSV offered pens that were in fact inked.
+  Compared with `srand` fixed on 200 dev-DB users (the 40 with the most inkings plus 160 random),
+  377 of 400 free and premium prompts are byte-identical; every difference comes from this fix or
+  from the tie order below. Building those 400 prompts took 5.5 s instead of 20.6 s (worst 0.19 s
+  instead of 0.78 s).
+- p5: Ties are broken deterministically: the newest inking is the latest `inked_on`, then the
+  highest id; the previous inking of a pair is the latest `created_at`, then the highest id. The
+  old preload order was arbitrary. Among the 60 users with the most inkings, 465 items have a
+  tie, and the old code picked the highest id in about half of them.
+- p5: The old premium prompt's currently-inked "Last Used On" never fell back to the previous
+  inking of the pair: `CurrentlyInked.to_csv` ran inside the `active` relation's scope, so
+  `previous_record` inherited `archived_on IS NULL` and found nothing. The CSV keeps that output
+  (the inking's own latest usage only). The per-item legacy `last_used_on` does fall back, as
+  the old per-item code did.
+- p5: Tag names come from the preloaded tags sorted by tag id. That is the order in which the old
+  per-ink `pluck` returned them through the unique taggings index: 33 of 52,479 sampled inks
+  differ, all inks with many tags for which the planner picks another plan.
+- p5: `as_of` compares dates with `as_of`'s date in `Time.zone`. An item or inking archived on
+  that date counts as archived. Inkings and usage records must also have `created_at ≤ as_of`, so
+  an inking made from that very suggestion, or a usage entered later, doesn't count. Items and
+  inkings archived later come back with `archived_on` cleared in memory and are marked
+  readonly, so names don't say "(archived)".
+- p5: `recent_inkings(items, limit: 3)` returns `CurrentlyInked` rows (`comment`, `nib`, dates)
+  per item, newest first, from one window-function query. It resolves no names; callers map ids
+  to snapshot items.
