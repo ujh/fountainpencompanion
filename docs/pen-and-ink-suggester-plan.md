@@ -1359,8 +1359,12 @@ for runs without instructions.
 
 **All label-based numbers below are scored against unreviewed draft labels.** Two Claude Code
 passes drafted the labels independently and a third adjudicated them; no human has checked them
-yet. The owner's spot check of 50 labels (`tmp/bench/suggester/spot_check.md`, gitignored) comes
-before any p7+ PR uses these numbers. The label-free rows (validity, hard failures, swab/cartridge,
+yet. The section 9 `gate` row is a merge gate for every p7+ PR and needs both owner checks: the
+spot check of 50 labels (`tmp/bench/suggester/spot_check.md`, gitignored) and the section 8.1
+metric-7 hand checks of 50 `NibProfile`, 50 `ColorProfile` and 50 `InkProperties` outputs. p6b
+produced only the label sheet; the three normaliser check sheets are still to be produced. Until
+both checks are done, no p7+ PR may merge on, or claim a section 8.2 target from, these numbers.
+The label-free rows (validity, hard failures, swab/cartridge,
 rule leakage, cost) are the primary evidence.
 
 **Case set.** 266 cases from the dev DB (dump ending 2026-03-26), `SINCE=2025-11-01`, `SEED=1`:
@@ -1962,12 +1966,15 @@ evidence.
   logs nest tool messages in a list, which crashed the export.
 - p6b: **All bench results depend on draft labels.** Two Claude Code passes drafted
   `labelling/drafts/labels_{a,b}.yml` independently from the outcome-free sheet; a third agent
-  adjudicated them into `tmp/bench/suggester/labels.yml`. No human has checked any label. The owner
-  must spot-check the 50 cases in `tmp/bench/suggester/spot_check.md` (gitignored; it shows each
-  instruction, the final label, the A/B difference and the resolution) and set `reviewed`/
-  `corrected` in `labels.yml` **before p7 or any later suggester PR merges**. Until then every
-  label-based number is reported as scored against unreviewed draft labels, with the two-pass
-  agreement from section 8.4.
+  adjudicated them into `tmp/bench/suggester/labels.yml`. No human has checked any label. The
+  `gate` row stays a merge gate for p7 and every later suggester PR, and it needs **both** owner
+  checks: spot-checking the 50 cases in `tmp/bench/suggester/spot_check.md` (gitignored; it shows
+  each instruction, the final label, the A/B difference and the resolution, with `reviewed`/
+  `corrected` set in `labels.yml`) **and** the metric-7 hand checks of 50 `NibProfile`, 50
+  `ColorProfile` and 50 `InkProperties` outputs. Doing the label spot check alone does not clear
+  the gate. p6b did not produce the normaliser check sheets; they are still to be made. Until both
+  checks are done every label-based number is reported as scored against unreviewed draft labels,
+  with the two-pass agreement from section 8.4.
 - p6b: Labels gained `ambiguous` (default false). An ambiguous label's hard constraints are not
   scored (`"skipped" => "ambiguous"`, counted as `skipped_ambiguous`); its named items still are.
   The validator rejects it on a case without an instruction. The label README documents it.
