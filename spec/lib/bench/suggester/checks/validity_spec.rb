@@ -88,16 +88,43 @@ RSpec.describe Bench::Suggester::Checks::Validity do
     expect(check(ink_id: other_ink.id, rejected_pairs:)).to include("valid" => true)
   end
 
-  it "fails a pen inked at the time unless the result flags it" do
-    create(
-      :currently_inked,
-      user:,
-      collected_pen: pen,
-      inked_on: as_of.to_date - 3,
-      created_at: as_of - 3.days
-    )
+  context "with a pen inked at the time" do
+    before do
+      create(
+        :currently_inked,
+        user:,
+        collected_pen: pen,
+        inked_on: as_of.to_date - 3,
+        created_at: as_of - 3.days
+      )
+    end
 
-    expect(check).to include("pen_uninked_or_flagged" => false, "valid" => false)
-    expect(check("pen_currently_inked" => true)).to include("valid" => true)
+    it "fails it when the result does not flag it" do
+      expect(check("pins" => [{ "pen_id" => pen.id }])).to include(
+        "pen_uninked_or_flagged" => false,
+        "valid" => false
+      )
+    end
+
+    it "fails it when the result flags it but the run did not pin it" do
+      expect(check("pen_currently_inked" => true, "pins" => [])).to include(
+        "pen_uninked_or_flagged" => false,
+        "valid" => false
+      )
+      expect(check("pen_currently_inked" => true)).to include("valid" => false)
+      expect(
+        check("pen_currently_inked" => true, "pins" => [{ "pen_id" => pen.id + 1 }, pen.id])
+      ).to include("valid" => false)
+    end
+
+    it "passes it when the run pinned it and the result flags it" do
+      expect(check("pen_currently_inked" => true, "pins" => [{ "pen_id" => pen.id }])).to include(
+        "pen_uninked_or_flagged" => true,
+        "valid" => true
+      )
+      expect(check("pen_currently_inked" => true, "pins" => [{ pen_id: pen.id }])).to include(
+        "valid" => true
+      )
+    end
   end
 end

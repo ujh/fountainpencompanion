@@ -2174,3 +2174,8 @@ evidence.
   `CandidateSelector#call` with a constructed `Selection` holding an inked pen. The pick prompt
   still heads the pen list "uninked"; P8 owns the prompt wording for a pinned inked pen. No bench
   run was made for this step.
+- p10: The suggester sets `pen_currently_inked` from the same snapshot the bench reads, so the
+  p6a validity rule now passes an inked pen only when the result flags it **and** the run pinned
+  it: an entry `{"pen_id" => id}` in `extra_data["pins"]` (P8 must write that shape). Until P8,
+  `pins` is empty, so any inked pick is invalid on the bench. The suggester itself still flags and
+  notes an unpinned inked pen, since the note is better for the user than silence.
