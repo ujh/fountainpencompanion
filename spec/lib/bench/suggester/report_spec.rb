@@ -26,10 +26,11 @@ RSpec.describe Bench::Suggester::Report do
     )
   end
 
-  def label(reviewed: false, corrected: false, named_inks: [sample.id])
+  def label(reviewed: false, corrected: false, named_inks: [sample.id], ambiguous: false)
     Bench::Suggester::Label.from_h(
       1,
       "named_inks" => named_inks,
+      "ambiguous" => ambiguous,
       "constraints" => {
         "ink" => {
           "kinds_include" => ["sample"]
@@ -131,6 +132,7 @@ RSpec.describe Bench::Suggester::Report do
     expect(summary["named_pen_hit"]).to eq("cases" => 0, "rate" => nil)
     expect(summary["constraints"]).to eq(
       "cases" => 2,
+      "skipped_ambiguous" => 0,
       "scored_cases" => 2,
       "met_or_relaxed_rate" => 0.5,
       "cases_with_unsatisfiable" => 0,
@@ -143,6 +145,7 @@ RSpec.describe Bench::Suggester::Report do
     )
     expect(summary["labels"]).to eq(
       "labelled" => 2,
+      "ambiguous" => 0,
       "reviewed" => 0,
       "corrected" => 0,
       "draft_error_rate" => nil
@@ -172,6 +175,21 @@ RSpec.describe Bench::Suggester::Report do
     )
   end
 
+  it "leaves ambiguous labels out of the hard-constraint rate but still scores their named items" do
+    labels = { "1" => label, "2" => label(ambiguous: true) }
+
+    summary = described_class.new(cases:, results:, labels:).summary
+
+    expect(summary["constraints"]).to include(
+      "cases" => 1,
+      "skipped_ambiguous" => 1,
+      "scored_cases" => 1,
+      "met_or_relaxed_rate" => 1.0
+    )
+    expect(summary["named_ink_hit"]).to eq("cases" => 2, "rate" => 0.5)
+    expect(summary["labels"]).to include("labelled" => 2, "ambiguous" => 1)
+  end
+
   it "reports the draft error rate and the label-based metrics on reviewed labels alone" do
     labels = {
       "1" => label(reviewed: true, corrected: true),
@@ -185,6 +203,7 @@ RSpec.describe Bench::Suggester::Report do
 
     expect(summary["labels"]).to eq(
       "labelled" => 4,
+      "ambiguous" => 0,
       "reviewed" => 3,
       "corrected" => 1,
       "draft_error_rate" => 0.3333

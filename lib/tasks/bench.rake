@@ -9,6 +9,7 @@ namespace :bench do
       extra_ids = ENV.fetch("EXTRA_LOG_IDS", "").split(",").map { |id| Integer(id) }
       exporter =
         Bench::Suggester::CaseExporter.new(
+          since: Bench::Suggester.parse_since(ENV["SINCE"], default: Bench::Suggester::SINCE),
           instruction_cases: Integer(ENV.fetch("INSTRUCTION_CASES", "200")),
           plain_cases: Integer(ENV.fetch("PLAIN_CASES", "50")),
           per_user_cap: Integer(ENV.fetch("PER_USER_CAP", "20")),
@@ -22,6 +23,25 @@ namespace :bench do
       puts "dropped by reason: #{export.dropped.transform_values(&:size)}"
     end
 
+    desc "Write the outcome-free case files labellers read into the bench labelling directory"
+    task labelling_export: :setup do
+      store = Bench::Suggester::Store.new
+      sheet = Bench::Suggester::LabellingSheet.new(cases: store.cases)
+      store.write_labelling(sheet)
+      puts "wrote #{sheet.documents.size} of #{store.cases.size} cases to " \
+             "#{store.path(Bench::Suggester::LabellingSheet::DIRECTORY)}"
+    end
+
+    desc "Check a drafted label file against the schema and the exported cases (FILE=)"
+    task validate_labels: :setup do
+      store = Bench::Suggester::Store.new
+      path = ENV.fetch("FILE") { store.path("labels.yml").to_s }
+      errors = Bench::Suggester::LabelValidator.new(cases: store.cases).errors(path)
+      abort errors.join("\n") if errors.any?
+
+      puts "#{path}: ok"
+    end
+
     desc "Add blank label entries for exported cases that have no label yet"
     task label_template: :setup do
       store = Bench::Suggester::Store.new
@@ -29,7 +49,8 @@ namespace :bench do
       puts "added #{added} blank labels to #{store.path("labels.yml")}"
     end
 
-    desc "Replay the cases through today's suggester (RUN=baseline LIMIT= SPLIT= MAX_USD=5 SEED=1)"
+    desc "Replay the cases through today's suggester " \
+           "(RUN=baseline LIMIT= SPLIT= TIER=free|premium MAX_USD=5 SEED=1)"
     task baseline: :setup do
       abort "The bench replays only against the development database." unless Rails.env.development?
 
@@ -37,11 +58,13 @@ namespace :bench do
       name = ENV.fetch("RUN", "baseline")
       seed = Integer(ENV.fetch("SEED", "1"))
       max_usd = Float(ENV.fetch("MAX_USD", "5"))
+      tier = ENV["TIER"].presence
+      abort "TIER must be free or premium." if tier && %w[free premium].exclude?(tier)
       cases = store.cases
       cases = cases.select { |bench_case| bench_case.split == ENV["SPLIT"] } if ENV["SPLIT"]
       cases = cases.first(Integer(ENV["LIMIT"])) if ENV["LIMIT"]
 
-      runner = Bench::Suggester::Runner.new(cases:, seed:, max_usd:)
+      runner = Bench::Suggester::Runner.new(cases:, seed:, max_usd:, tier:)
       results = runner.run { print "." }
       puts
       store.write_results(
@@ -49,6 +72,8 @@ namespace :bench do
         {
           "name" => name,
           "seed" => seed,
+          "tier" => tier,
+          "split" => ENV["SPLIT"],
           "max_usd" => max_usd,
           "spent_usd" => runner.spent_usd.round(4),
           "stop_reason" => runner.stop_reason,
@@ -116,7 +141,7 @@ namespace :bench do
 
     desc "Run the label-free checkers on live suggester logs (SINCE=2026-10-01)"
     task check_logs: :setup do
-      since = Time.zone.parse(ENV.fetch("SINCE", 4.weeks.ago.to_date.to_s))
+      since = Bench::Suggester.parse_since(ENV["SINCE"], default: 4.weeks.ago.beginning_of_day)
       logs =
         AgentLog
           .where(name: PenAndInkSuggester.name, owner_type: User.name)

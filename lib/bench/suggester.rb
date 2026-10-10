@@ -5,6 +5,12 @@ module Bench
     def self.default_root
       ENV.fetch("BENCH_DIR") { Rails.root.join("tmp/bench/suggester").to_s }
     end
+
+    def self.parse_since(value, default:)
+      return default if value.blank?
+
+      Time.zone.parse(value) || raise(ArgumentError, "SINCE is not a date: #{value.inspect}")
+    end
   end
 end
 
@@ -28,6 +34,8 @@ require_relative "suggester/report"
 require_relative "suggester/baseline_suggester"
 require_relative "suggester/runner"
 require_relative "suggester/grading_export"
+require_relative "suggester/labelling_sheet"
+require_relative "suggester/label_validator"
 require_relative "suggester/judge_scores"
 require_relative "suggester/instruction_honoured"
 require_relative "suggester/store"

@@ -110,9 +110,8 @@ module Bench
 
       def initial_user_messages
         Array(agent_log.transcript)
-          .map(&:to_h)
           .take_while do |entry|
-            !(entry.key?("assistant") || entry["role"].in?(%w[assistant tool]))
+            entry.is_a?(Hash) && !(entry.key?("assistant") || entry["role"].in?(%w[assistant tool]))
           end
           .filter_map { |entry| entry["role"] == "user" ? entry["content"] : entry["user"] }
           .map(&:to_s)

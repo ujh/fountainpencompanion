@@ -57,7 +57,7 @@ module Bench
               "case_id" => bench_case.id,
               "split" => bench_case.split,
               "source" => bench_case.source,
-              "label" => (label.to_h.slice("reviewed", "corrected") if label),
+              "label" => (label.to_h.slice("ambiguous", "reviewed", "corrected") if label),
               "checks" =>
                 Checker.new(
                   snapshot:,
@@ -197,6 +197,8 @@ module Bench
           end
         {
           "cases" => labelled.size,
+          "skipped_ambiguous" =>
+            checks.count { |check| check.dig("constraints", "skipped") == Checker::AMBIGUOUS },
           "scored_cases" => scored.size,
           "met_or_relaxed_rate" => rate(passing, scored.size),
           "cases_with_unsatisfiable" =>
@@ -235,6 +237,7 @@ module Bench
         corrected = row_labels.count { |label| label["corrected"] }
         {
           "labelled" => row_labels.size,
+          "ambiguous" => row_labels.count { |label| label["ambiguous"] },
           "reviewed" => reviewed,
           "corrected" => corrected,
           "draft_error_rate" => rate(corrected, reviewed)

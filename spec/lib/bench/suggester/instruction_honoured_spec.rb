@@ -29,17 +29,13 @@ RSpec.describe Bench::Suggester::InstructionHonoured do
     }
   end
 
-  def checks(hard: {}, valid: true, named: nil, hard_failure: false)
+  def checks(hard: {}, valid: true, named: nil, hard_failure: false, constraints: nil)
     {
       "outcome" => hard_failure ? "error" : "suggestion",
       "hard_failure" => hard_failure,
       "validity" => (hard_failure ? nil : { "valid" => valid }),
       "named" => named,
-      "constraints" => {
-        "hard" => hard,
-        "soft" => {
-        }
-      }
+      "constraints" => constraints || { "hard" => hard, "soft" => {} }
     }
   end
 
@@ -159,6 +155,43 @@ RSpec.describe Bench::Suggester::InstructionHonoured do
         "cases" => 0,
         "honoured" => 0,
         "rate" => nil
+      }
+    )
+  end
+
+  it "scores an ambiguous label on the judge and its named items alone" do
+    skipped = { "skipped" => Bench::Suggester::Checker::AMBIGUOUS, "soft" => {} }
+    grades = {
+      "1" => {
+        "A" => grade("yes"),
+        "B" => grade("yes")
+      },
+      "2" => {
+        "B" => grade("partial")
+      }
+    }
+    checks = {
+      "v2" => [
+        row("1", constraints: skipped, named: { "pen_hit" => true, "ink_hit" => nil }),
+        row("2", constraints: skipped)
+      ],
+      "baseline" => [
+        row("1", constraints: skipped, named: { "pen_hit" => false, "ink_hit" => nil })
+      ]
+    }
+
+    result = honoured(grades, checks)
+
+    expect(result.transform_values { |values| values["all_labels"] }).to eq(
+      "baseline" => {
+        "cases" => 1,
+        "honoured" => 0,
+        "rate" => 0.0
+      },
+      "v2" => {
+        "cases" => 2,
+        "honoured" => 1,
+        "rate" => 0.5
       }
     )
   end

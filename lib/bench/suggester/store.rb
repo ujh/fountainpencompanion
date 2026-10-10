@@ -38,6 +38,10 @@ module Bench
         added.size
       end
 
+      def write_labelling(sheet)
+        write_files(LabellingSheet::DIRECTORY, sheet.files)
+      end
+
       def write_results(name, payload)
         write_json("results/#{run_name(name)}.json", payload)
       end

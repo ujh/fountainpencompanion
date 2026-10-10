@@ -28,13 +28,23 @@ module Bench
         bare_names
       ].freeze
 
-      KEYS = %w[categories named_pens named_inks constraints reviewed corrected notes].freeze
+      KEYS = %w[
+        categories
+        named_pens
+        named_inks
+        constraints
+        ambiguous
+        reviewed
+        corrected
+        notes
+      ].freeze
 
       attr_accessor :case_id,
                     :categories,
                     :named_pens,
                     :named_inks,
                     :constraints,
+                    :ambiguous,
                     :reviewed,
                     :corrected,
                     :notes
@@ -49,6 +59,9 @@ module Bench
         if hash["corrected"] == true && hash["reviewed"] != true
           raise ConstraintSchema::Invalid, "#{context}: corrected needs reviewed: true"
         end
+        unless [true, false, nil].include?(hash["ambiguous"])
+          raise ConstraintSchema::Invalid, "#{context}: ambiguous must be true or false"
+        end
 
         new(
           case_id: case_id.to_s,
@@ -57,6 +70,7 @@ module Bench
           named_inks: ids(hash["named_inks"], "#{context}.named_inks"),
           constraints:
             ConstraintSchema.normalise(hash["constraints"], context: "#{context}.constraints"),
+          ambiguous: hash["ambiguous"] == true,
           reviewed: hash["reviewed"] == true,
           corrected: hash["corrected"] == true,
           notes: hash["notes"].to_s
@@ -99,6 +113,7 @@ module Bench
         named_inks:,
         constraints:,
         reviewed:,
+        ambiguous: false,
         corrected:,
         notes:
       )
@@ -107,10 +122,13 @@ module Bench
         self.named_pens = named_pens
         self.named_inks = named_inks
         self.constraints = constraints
+        self.ambiguous = ambiguous
         self.reviewed = reviewed
         self.corrected = corrected
         self.notes = notes
       end
+
+      def ambiguous? = ambiguous
 
       def reviewed? = reviewed
 
@@ -122,6 +140,7 @@ module Bench
           "named_pens" => named_pens,
           "named_inks" => named_inks,
           "constraints" => constraints,
+          "ambiguous" => ambiguous,
           "reviewed" => reviewed,
           "corrected" => corrected,
           "notes" => notes
