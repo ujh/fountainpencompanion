@@ -219,6 +219,30 @@ RSpec.describe Bench::Suggester::Runner do
 
     expect(results.keys).to eq(["1"])
     expect(runner.spent_usd).to be > 0.001
+    expect(runner.stop_reason).to eq("budget")
+    expect(WebMock).to have_requested(:post, openai_url).once
+  end
+
+  it "runs every case within the budget without a stop reason" do
+    stub_completion
+
+    runner = described_class.new(cases: [bench_case(id: "1"), bench_case(id: "2")])
+
+    expect(runner.run.keys).to eq(%w[1 2])
+    expect(runner.stop_reason).to be_nil
+  end
+
+  it "stops after the first case whose model has no price, keeping its result" do
+    stub_completion(completion(model: "some-unpriced-model"))
+    cases = [bench_case(id: "1"), bench_case(id: "2")]
+
+    runner = described_class.new(cases:, max_usd: 100)
+    results = runner.run
+
+    expect(results.keys).to eq(["1"])
+    expect(results["1"]["cost_usd"]).to be_nil
+    expect(runner.stop_reason).to eq("unpriced")
+    expect(runner.spent_usd).to eq(0.0)
     expect(WebMock).to have_requested(:post, openai_url).once
   end
 

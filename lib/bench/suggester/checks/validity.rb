@@ -14,15 +14,14 @@ module Bench
           checks = {
             "pen_owned_active" => pen.present?,
             "ink_owned_active" => ink.present?,
-            "pen_fountain" => pen.present? && snapshot.inkable_pens.include?(pen),
-            "ink_not_swab" => ink.present? && ink.kind != "swab",
-            "cartridge_compatible" =>
-              pen.present? && ink.present? && CartridgeCompatibility.compatible?(pen, ink),
+            "pen_fountain" => (snapshot.inkable_pens.include?(pen) if pen),
+            "ink_not_swab" => (ink.kind != "swab" if ink),
+            "cartridge_compatible" => (CartridgeCompatibility.compatible?(pen, ink) if pen && ink),
             "not_rejected_repeat" => !rejected_repeat?,
             "pen_uninked_or_flagged" =>
-              pen.present? && (!snapshot.inked?(pen) || extra_data["pen_currently_inked"].present?)
+              (!snapshot.inked?(pen) || extra_data["pen_currently_inked"].present? if pen)
           }
-          checks.merge("valid" => checks.values.all?)
+          checks.merge("valid" => checks.values.all?(true))
         end
 
         private

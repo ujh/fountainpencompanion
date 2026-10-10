@@ -51,10 +51,15 @@ namespace :bench do
           "seed" => seed,
           "max_usd" => max_usd,
           "spent_usd" => runner.spent_usd.round(4),
+          "stop_reason" => runner.stop_reason,
           "results" => results
         }
       )
       puts "ran #{results.size} of #{cases.size} cases for $#{runner.spent_usd.round(4)}"
+      if runner.stop_reason == Bench::Suggester::Runner::UNPRICED
+        abort "stopped: a run used a model without a price in Bench::Suggester::Pricing"
+      end
+      puts "stopped: the MAX_USD budget is spent" if runner.stop_reason
     end
 
     desc "Score a recorded run with the checkers (RUN=baseline)"
@@ -67,7 +72,7 @@ namespace :bench do
           results: store.results(name).fetch("results"),
           labels: store.labels
         )
-      store.write_files("results", "#{name}.checks.json" => JSON.pretty_generate(report.rows))
+      store.write_checks(name, report.rows)
       puts report.to_text
     end
 
@@ -85,21 +90,28 @@ namespace :bench do
           labels: store.labels,
           seed: Integer(ENV.fetch("SEED", "1"))
         )
-      directory = "grading/#{names.join("-vs-")}"
-      store.write_files(directory, export.files)
-      puts "wrote #{export.key.size} cases to #{store.path(directory)}"
+      store.write_grading(names, export)
+      puts "wrote #{export.key.size} cases to #{store.path(store.grading_directory(names))}"
     end
 
-    desc "Summarise filled-in grades (RUNS=baseline,v2)"
+    desc "Summarise filled-in grades and the instruction-honoured rate (RUNS=baseline,v2)"
     task judge_scores: :setup do
       store = Bench::Suggester::Store.new
-      directory = "grading/#{ENV.fetch("RUNS", "baseline").split(",").join("-vs-")}"
+      names = ENV.fetch("RUNS", "baseline").split(",")
       scores =
         Bench::Suggester::JudgeScores.new(
-          grades: store.read_json("#{directory}/grades.json"),
-          key: store.read_json("#{directory}/grading_key.json")
+          grades: store.grades(names),
+          key: store.grading_key(names)
         )
-      puts JSON.pretty_generate(scores.by_system)
+      honoured =
+        Bench::Suggester::InstructionHonoured.new(
+          judge_scores: scores,
+          checks: names.index_with { |name| store.checks(name) }
+        )
+      puts JSON.pretty_generate(
+             "judge" => scores.by_system,
+             "instruction_honoured" => honoured.by_system
+           )
     end
 
     desc "Run the label-free checkers on live suggester logs (SINCE=2026-10-01)"

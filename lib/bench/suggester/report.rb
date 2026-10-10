@@ -52,16 +52,18 @@ module Bench
             snapshot = snapshot_for(bench_case)
             next unless result && snapshot
 
+            label = labels[bench_case.id]
             {
               "case_id" => bench_case.id,
               "split" => bench_case.split,
               "source" => bench_case.source,
+              "label" => (label.to_h.slice("reviewed", "corrected") if label),
               "checks" =>
                 Checker.new(
                   snapshot:,
                   extra_data: result["extra_data"],
                   rejected_pairs: bench_case.rejected_pairs,
-                  label: labels[bench_case.id]
+                  label:
                 ).call,
               "cost_usd" => result["cost_usd"],
               "latency_ms" => result["latency_ms"]
@@ -93,19 +95,16 @@ module Bench
           "validity_failures" => validity_failures(suggestions),
           "swab_or_cartridge_violations" =>
             suggestions.count do |check|
-              !check.dig("validity", "ink_not_swab") ||
-                !check.dig("validity", "cartridge_compatible")
+              check["validity"].values_at("ink_not_swab", "cartridge_compatible").include?(false)
             end,
           "rule_leakage_rate" =>
             rate(suggestions.count { |check| check.dig("leakage", "leaked") }, suggestions.size),
           "novelty" => novelty(plain),
-          "named_pen_hit" => hit_rate(checks, "pen_hit"),
-          "named_ink_hit" => hit_rate(checks, "ink_hit"),
-          "constraints" => constraints(checks),
           "cost" => cost(rows),
           "latency_ms" => latency(rows),
-          "labels" => label_counts(rows)
-        }
+          "labels" => label_counts(rows),
+          "label_errors" => label_errors(checks)
+        }.merge(label_based(checks)).merge("reviewed_labels" => label_based(reviewed_checks(rows)))
       end
 
       def to_text
@@ -130,7 +129,7 @@ module Bench
       def validity_failures(suggestions)
         suggestions
           .flat_map do |check|
-            check["validity"].reject { |key, value| key == "valid" || value }.keys
+            check["validity"].select { |key, value| key != "valid" && value == false }.keys
           end
           .tally
           .sort
@@ -153,6 +152,33 @@ module Bench
               colour_known.count { |check| check.dig("novelty", "colour_new_vs_inked") },
               colour_known.size
             )
+        }
+      end
+
+      def label_based(checks)
+        {
+          "named_pen_hit" => hit_rate(checks, "pen_hit"),
+          "named_ink_hit" => hit_rate(checks, "ink_hit"),
+          "constraints" => constraints(checks)
+        }
+      end
+
+      def reviewed_checks(rows)
+        rows.select { |row| row.dig("label", "reviewed") }.map { |row| row["checks"] }
+      end
+
+      def label_errors(checks)
+        unknown = checks.filter_map { |check| check["label_unknown_ids"].presence }
+        {
+          "cases" => unknown.size,
+          "ids" => unknown.sum { |fields| fields.values.sum(&:size) },
+          "fields" =>
+            unknown
+              .flat_map { |fields| fields.map { |field, ids| [field, ids.size] } }
+              .group_by(&:first)
+              .sort
+              .to_h
+              .transform_values { |pairs| pairs.sum(&:last) }
         }
       end
 
@@ -204,8 +230,15 @@ module Bench
       end
 
       def label_counts(rows)
-        row_labels = rows.filter_map { |row| labels[row["case_id"]] }
-        { "labelled" => row_labels.size, "reviewed" => row_labels.count(&:reviewed?) }
+        row_labels = rows.filter_map { |row| row["label"] }
+        reviewed = row_labels.count { |label| label["reviewed"] }
+        corrected = row_labels.count { |label| label["corrected"] }
+        {
+          "labelled" => row_labels.size,
+          "reviewed" => reviewed,
+          "corrected" => corrected,
+          "draft_error_rate" => rate(corrected, reviewed)
+        }
       end
 
       def format_summary(split, values)
@@ -231,10 +264,18 @@ module Bench
           "  cost: #{values["cost"]}",
           "  latency ms: #{values["latency_ms"]}",
           "label-based:",
+          "  label errors (ids not in the collection at the time; fix before scoring): " \
+            "#{values["label_errors"]}",
+          "  drafts corrected by the owner's review: #{labels["corrected"]} of " \
+            "#{labels["reviewed"]} (#{percent(labels["draft_error_rate"])})",
           "  named pen hit: #{values["named_pen_hit"]}",
           "  named ink hit: #{values["named_ink_hit"]}",
           "  hard constraints: #{values["constraints"].except("fields")}",
-          "  per field: #{values["constraints"]["fields"]}"
+          "  per field: #{values["constraints"]["fields"]}",
+          "label-based, owner-reviewed labels only:",
+          "  named pen hit: #{values["reviewed_labels"]["named_pen_hit"]}",
+          "  named ink hit: #{values["reviewed_labels"]["named_ink_hit"]}",
+          "  hard constraints: #{values["reviewed_labels"]["constraints"].except("fields")}"
         ].join("\n")
       end
 

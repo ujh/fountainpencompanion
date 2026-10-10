@@ -66,4 +66,32 @@ RSpec.describe Bench::Suggester::Store do
     expect(store.results("baseline-1")).to eq({ "results" => {} })
     expect { store.write_results("../escape", {}) }.to raise_error(described_class::InvalidRunName)
   end
+
+  it "writes and reads the checked rows of a run" do
+    store.write_checks("baseline", [{ "case_id" => "7" }])
+
+    expect(store.checks("baseline")).to eq([{ "case_id" => "7" }])
+  end
+
+  it "keeps the grading key out of the directory handed to the judge" do
+    export =
+      instance_double(
+        Bench::Suggester::GradingExport,
+        files: {
+          "grading.md" => "# Grading",
+          "grades_template.json" => "{}"
+        },
+        key_json: JSON.generate("7" => { "A" => "v2" })
+      )
+
+    store.write_grading(%w[baseline v2], export)
+    File.write(store.path("grading/baseline-vs-v2/grades.json"), "{}")
+
+    expect(Dir.children(store.path("grading/baseline-vs-v2")).sort).to eq(
+      %w[grades.json grades_template.json grading.md]
+    )
+    expect(store.grading_key(%w[baseline v2])).to eq("7" => { "A" => "v2" })
+    expect(store.grades(%w[baseline v2])).to eq({})
+    expect { store.write_grading(["../x"], export) }.to raise_error(described_class::InvalidRunName)
+  end
 end

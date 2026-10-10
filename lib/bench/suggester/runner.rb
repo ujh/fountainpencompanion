@@ -16,7 +16,10 @@ module Bench
           )
         end
 
-      attr_accessor :cases, :seed, :max_usd, :build, :spent_usd
+      BUDGET = "budget"
+      UNPRICED = "unpriced"
+
+      attr_accessor :cases, :seed, :max_usd, :build, :spent_usd, :stop_reason
 
       def initialize(cases:, seed: 1, max_usd: 5.0, build: BASELINE)
         self.cases = cases
@@ -29,14 +32,22 @@ module Bench
       def run
         results = {}
         cases.each do |bench_case|
-          break if spent_usd >= max_usd
+          if spent_usd >= max_usd
+            self.stop_reason = BUDGET
+            break
+          end
 
           result = run_case(bench_case)
           next unless result
 
-          self.spent_usd += result["cost_usd"].to_f
           results[bench_case.id] = result
           yield bench_case, result if block_given?
+          if result["cost_usd"].nil?
+            self.stop_reason = UNPRICED
+            break
+          end
+
+          self.spent_usd += result["cost_usd"]
         end
         results
       end

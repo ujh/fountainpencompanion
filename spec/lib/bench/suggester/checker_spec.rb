@@ -36,6 +36,7 @@ RSpec.describe Bench::Suggester::Checker do
     expect(result["novelty"]).to include("ink_novel" => true)
     expect(result["named"]).to eq("pen_hit" => true, "ink_hit" => nil)
     expect(result["constraints"]).to eq("hard" => { "ink.kinds_include" => "met" }, "soft" => {})
+    expect(result["label_unknown_ids"]).to eq({})
   end
 
   it "runs only the outcome and label checks without a suggestion" do
@@ -71,7 +72,7 @@ RSpec.describe Bench::Suggester::Checker do
   it "skips the label checks without a label" do
     result = described_class.new(snapshot:, extra_data: { pen: pen.id, ink: ink.id }).call
 
-    expect(result).to include("named" => nil, "constraints" => nil)
+    expect(result).to include("named" => nil, "constraints" => nil, "label_unknown_ids" => nil)
     expect(result["validity"]["valid"]).to be(true)
   end
 end

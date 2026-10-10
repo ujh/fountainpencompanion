@@ -42,6 +42,25 @@ RSpec.describe Bench::Suggester::Checks::Validity do
     expect(check(pen_id: later.id)).to include("pen_owned_active" => false)
   end
 
+  it "leaves the checks that need a missing item unanswered" do
+    expect(check(pen_id: 0)).to eq(
+      "pen_owned_active" => false,
+      "ink_owned_active" => true,
+      "pen_fountain" => nil,
+      "ink_not_swab" => true,
+      "cartridge_compatible" => nil,
+      "not_rejected_repeat" => true,
+      "pen_uninked_or_flagged" => nil,
+      "valid" => false
+    )
+    expect(check(ink_id: 0)).to include(
+      "ink_owned_active" => false,
+      "ink_not_swab" => nil,
+      "cartridge_compatible" => nil,
+      "valid" => false
+    )
+  end
+
   it "passes items archived after the run" do
     pen.update!(archived_on: as_of.to_date + 1)
 

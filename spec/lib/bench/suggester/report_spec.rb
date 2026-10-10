@@ -26,16 +26,17 @@ RSpec.describe Bench::Suggester::Report do
     )
   end
 
-  def label(reviewed: false)
+  def label(reviewed: false, corrected: false, named_inks: [sample.id])
     Bench::Suggester::Label.from_h(
       1,
-      "named_inks" => [sample.id],
+      "named_inks" => named_inks,
       "constraints" => {
         "ink" => {
           "kinds_include" => ["sample"]
         }
       },
-      "reviewed" => reviewed
+      "reviewed" => reviewed,
+      "corrected" => corrected
     )
   end
 
@@ -140,7 +141,83 @@ RSpec.describe Bench::Suggester::Report do
         }
       }
     )
-    expect(summary["labels"]).to eq("labelled" => 2, "reviewed" => 0)
+    expect(summary["labels"]).to eq(
+      "labelled" => 2,
+      "reviewed" => 0,
+      "corrected" => 0,
+      "draft_error_rate" => nil
+    )
+    expect(summary["label_errors"]).to eq("cases" => 0, "ids" => 0, "fields" => {})
+  end
+
+  it "counts labelled ids missing from the collection at the time as label errors" do
+    labels = {
+      "1" => label(named_inks: [sample.id, 0]),
+      "2" => label(named_inks: [create(:collected_ink, created_at: as_of - 1.year).id])
+    }
+
+    summary = described_class.new(cases:, results:, labels:).summary
+
+    expect(summary["label_errors"]).to eq(
+      "cases" => 2,
+      "ids" => 2,
+      "fields" => {
+        "named_inks" => 2
+      }
+    )
+    expect(summary["named_ink_hit"]).to eq("cases" => 1, "rate" => 1.0)
+    expect(described_class.new(cases:, results:, labels:).to_text).to include(
+      "label errors (ids not in the collection at the time; fix before scoring): " \
+        "{\"cases\" => 2"
+    )
+  end
+
+  it "reports the draft error rate and the label-based metrics on reviewed labels alone" do
+    labels = {
+      "1" => label(reviewed: true, corrected: true),
+      "2" => label,
+      "3" => label(reviewed: true),
+      "4" => label(reviewed: true)
+    }
+
+    report = described_class.new(cases:, results:, labels:)
+    summary = report.summary
+
+    expect(summary["labels"]).to eq(
+      "labelled" => 4,
+      "reviewed" => 3,
+      "corrected" => 1,
+      "draft_error_rate" => 0.3333
+    )
+    expect(summary["named_ink_hit"]).to eq("cases" => 4, "rate" => 0.25)
+    expect(summary["reviewed_labels"]["named_ink_hit"]).to eq("cases" => 3, "rate" => 0.3333)
+    expect(summary["reviewed_labels"]["constraints"]).to include(
+      "cases" => 3,
+      "scored_cases" => 2,
+      "met_or_relaxed_rate" => 0.5
+    )
+    expect(report.to_text).to include(
+      "drafts corrected by the owner's review: 1 of 3 (33.3%)",
+      "label-based, owner-reviewed labels only:"
+    )
+  end
+
+  it "counts only real swabs and incompatible cartridges as swab or cartridge violations" do
+    unknown = { "extra_data" => { "pen" => pen.id, "ink" => 0, "message" => "Gone" } }
+    gone_pen = { "extra_data" => { "pen" => 0, "ink" => swab.id, "message" => "Gone" } }
+
+    summary =
+      described_class.new(
+        cases: [*cases, bench_case("5"), bench_case("6")],
+        results: results.merge("5" => unknown, "6" => gone_pen)
+      ).summary
+
+    expect(summary["swab_or_cartridge_violations"]).to eq(2)
+    expect(summary["validity_failures"]).to eq(
+      "ink_not_swab" => 2,
+      "ink_owned_active" => 1,
+      "pen_owned_active" => 1
+    )
   end
 
   it "summarises each split" do

@@ -42,6 +42,7 @@ RSpec.describe Bench::Suggester::Label do
       }
     )
     expect(label).not_to be_reviewed
+    expect(label).not_to be_corrected
     expect(label.to_h).to include("named_pens" => [12], "categories" => %w[specific_pen nib])
   end
 
@@ -135,6 +136,9 @@ RSpec.describe Bench::Suggester::Label do
         }
       }
     },
+    "a correction without a review" => {
+      "corrected" => true
+    },
     "a zero count" => {
       "constraints" => {
         "requested_count" => 0
@@ -147,6 +151,16 @@ RSpec.describe Bench::Suggester::Label do
         /label 7/
       )
     end
+  end
+
+  it "records whether the owner's review changed the drafted label" do
+    confirmed = described_class.from_h(1, "reviewed" => true)
+    corrected = described_class.from_h(2, "reviewed" => true, "corrected" => true)
+
+    expect(confirmed).to be_reviewed
+    expect(confirmed).not_to be_corrected
+    expect(corrected).to be_corrected
+    expect(corrected.to_h).to include("reviewed" => true, "corrected" => true)
   end
 
   it "loads a YAML file keyed by case id" do

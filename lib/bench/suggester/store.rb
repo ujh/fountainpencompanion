@@ -46,6 +46,31 @@ module Bench
         read_json("results/#{run_name(name)}.json")
       end
 
+      def write_checks(name, rows)
+        write_json("results/#{run_name(name)}.checks.json", rows)
+      end
+
+      def checks(name)
+        read_json("results/#{run_name(name)}.checks.json")
+      end
+
+      def grading_directory(names)
+        "grading/#{comparison(names)}"
+      end
+
+      def write_grading(names, export)
+        write_files(grading_directory(names), export.files)
+        write(grading_key_file(names), export.key_json)
+      end
+
+      def grades(names)
+        read_json("#{grading_directory(names)}/grades.json")
+      end
+
+      def grading_key(names)
+        read_json(grading_key_file(names))
+      end
+
       def write_files(directory, files)
         files.each { |file_name, content| write("#{directory}/#{file_name}", content) }
       end
@@ -62,6 +87,14 @@ module Bench
 
       def labels_file?
         File.exist?(path("labels.yml"))
+      end
+
+      def comparison(names)
+        names.map { |name| run_name(name) }.join("-vs-")
+      end
+
+      def grading_key_file(names)
+        "grading_keys/#{comparison(names)}.json"
       end
 
       def run_name(name)

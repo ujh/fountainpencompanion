@@ -28,9 +28,16 @@ module Bench
         bare_names
       ].freeze
 
-      KEYS = %w[categories named_pens named_inks constraints reviewed notes].freeze
+      KEYS = %w[categories named_pens named_inks constraints reviewed corrected notes].freeze
 
-      attr_accessor :case_id, :categories, :named_pens, :named_inks, :constraints, :reviewed, :notes
+      attr_accessor :case_id,
+                    :categories,
+                    :named_pens,
+                    :named_inks,
+                    :constraints,
+                    :reviewed,
+                    :corrected,
+                    :notes
 
       def self.from_h(case_id, hash)
         hash = (hash || {}).to_h.deep_stringify_keys
@@ -38,6 +45,9 @@ module Bench
         unknown = hash.keys - KEYS
         if unknown.any?
           raise ConstraintSchema::Invalid, "#{context}: unknown keys #{unknown.join(", ")}"
+        end
+        if hash["corrected"] == true && hash["reviewed"] != true
+          raise ConstraintSchema::Invalid, "#{context}: corrected needs reviewed: true"
         end
 
         new(
@@ -48,6 +58,7 @@ module Bench
           constraints:
             ConstraintSchema.normalise(hash["constraints"], context: "#{context}.constraints"),
           reviewed: hash["reviewed"] == true,
+          corrected: hash["corrected"] == true,
           notes: hash["notes"].to_s
         )
       end
@@ -88,6 +99,7 @@ module Bench
         named_inks:,
         constraints:,
         reviewed:,
+        corrected:,
         notes:
       )
         self.case_id = case_id
@@ -96,10 +108,13 @@ module Bench
         self.named_inks = named_inks
         self.constraints = constraints
         self.reviewed = reviewed
+        self.corrected = corrected
         self.notes = notes
       end
 
       def reviewed? = reviewed
+
+      def corrected? = corrected
 
       def to_h
         {
@@ -108,6 +123,7 @@ module Bench
           "named_inks" => named_inks,
           "constraints" => constraints,
           "reviewed" => reviewed,
+          "corrected" => corrected,
           "notes" => notes
         }
       end

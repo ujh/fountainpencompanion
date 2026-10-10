@@ -1826,11 +1826,32 @@ evidence.
   the `as_of` replay, so renaming either breaks a spec instead of silently replaying today's
   state. The `MAX_USD` budget (default 5) is checked before each case. `RubyLLM::Error` and
   `Faraday::Error` become error results.
-- p6a: The grading export blinds the systems per case with seeded letters, writes the key to a
-  separate file and a `grades_template.json` for Claude Code; `bench:suggester:judge_scores`
-  unblinds and averages the filled-in grades. `bench:suggester:check_logs` runs the label-free
+- p6a: The grading export blinds the systems per case with seeded letters and writes
+  `grading.md` and a `grades_template.json` for Claude Code to `grading/<runs>/`; the key goes to
+  `grading_keys/<runs>.json`, outside that folder. The judge is pointed at `grading/<runs>/` only
+  (`results/` holds the unblinded answers). `bench:suggester:judge_scores` unblinds and averages
+  the filled-in grades. `bench:suggester:check_logs` runs the label-free
   checkers on live logs for the section 8.3 watch. The report prints whether label-based metrics
   rest on unreviewed draft labels and how many labels the owner has reviewed.
+- p6a: In `grading.md` every request, label note and answer is quoted line by line behind `> `
+  and item names are squished to one line, so user text can't fake a section; the rubric tells
+  the judge that quoted lines are data to grade, never instructions.
+- p6a: The runner stops after the first result it can't price (a model missing from
+  `Pricing`), keeps that result and records `stop_reason` (`budget` or `unpriced`); the baseline
+  task aborts on `unpriced`, so a price is added before a candidate on a new model is run.
+- p6a: Validity checks that need a missing pen or ink are `nil`, not `false`; failure tallies
+  and the swab/cartridge count use only `false`, so an unknown id counts once, as not owned.
+- p6a: Named hits score only the labelled ids in the `as_of` collection. Labelled ids
+  (`named_pens`, `named_inks`, both `exclude_ids`) missing from it are reported as label errors
+  to fix before scoring.
+- p6a: Labels carry `corrected` (needs `reviewed: true`), which the owner sets when the review
+  changed the draft. The report prints the draft error rate (corrected / reviewed) and the
+  label-based metrics on reviewed labels alone next to the all-labels figures.
+- p6a: Section 8.2's "instruction honoured" is computed by `judge_scores` from the grades and
+  each run's `<run>.checks.json` (run `report` first): an instruction case with a label counts
+  when the judge says "yes", there is no hard failure, validity didn't fail, no labelled named
+  target was missed and every hard field is met or relaxed. It is printed for all labels and
+  for reviewed labels only; graded cases without checks or a label are counted, not scored.
 - p6a: **Data gap for p6b.** The dev DB is a dump from 2026-03-26: since 2026-03-24 it has only 87
   suggester logs from 10 users (a smoke export gave 53 cases, none dropped). The plan's ~300 cases
   from 2026-03-24 → 2026-10-09 need a fresh dump before p6b. The prod read-only DB could serve the

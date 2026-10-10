@@ -15,25 +15,26 @@ module Bench
       end
 
       def by_system
-        entries
-          .group_by(&:first)
+        unblinded
+          .group_by { |_case_id, system, _grade| system }
           .sort
           .to_h
-          .transform_values { |pairs| summarise(pairs.map(&:last)) }
+          .transform_values { |entries| summarise(entries.map(&:last)) }
+      end
+
+      def unblinded
+        @unblinded ||=
+          grades.flat_map do |case_id, letters|
+            systems = key.fetch(case_id) { raise Invalid, "case #{case_id} is not in the key" }
+            letters.filter_map do |letter, grade|
+              system =
+                systems.fetch(letter) { raise Invalid, "case #{case_id} has no answer #{letter}" }
+              [case_id, system, validate(grade, "#{case_id}/#{letter}")] if graded?(grade)
+            end
+          end
       end
 
       private
-
-      def entries
-        grades.flat_map do |case_id, letters|
-          systems = key.fetch(case_id) { raise Invalid, "case #{case_id} is not in the key" }
-          letters.filter_map do |letter, grade|
-            system =
-              systems.fetch(letter) { raise Invalid, "case #{case_id} has no answer #{letter}" }
-            [system, validate(grade, "#{case_id}/#{letter}")] if graded?(grade)
-          end
-        end
-      end
 
       def graded?(grade)
         grade.values_at("honoured", *SCORES).any?(&:present?)

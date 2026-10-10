@@ -19,8 +19,9 @@ module Bench
           "validity" => (validity if suggestion),
           "leakage" => (Checks::RuleLeakage.for(extra_data).call if suggestion),
           "novelty" => (Checks::Novelty.new(snapshot:, extra_data:).call if suggestion),
-          "named" => (Checks::NamedTargets.new(label:, extra_data:).call if label),
-          "constraints" => (constraints if label)
+          "named" => (Checks::NamedTargets.new(snapshot:, label:, extra_data:).call if label),
+          "constraints" => (constraints if label),
+          "label_unknown_ids" => (Checks::LabelIds.new(snapshot:, label:).call if label)
         }
       end
 
