@@ -1465,8 +1465,8 @@ id that made it. The owner reviews them before the corresponding PR merges.
 | p4a  | P4      | `ColorProfile`                                                                               |
 | p4b  | P4      | `InkProperties`                                                                              |
 | p5   | P5      | `CollectionSnapshot`; the current CSV prompt builder reads from it                           |
-| p6a  | P6      | bench case exporter, label format, checkers                                                  |
-| p6b  | P6      | bench runner, `as_of` replay, seeded baseline run                                            |
+| p6a  | P6      | bench harness code: case exporter, label formats, checkers, runner, grading export, rake tasks |
+| p6b  | P6      | case export on fresh data, drafted labels, seeded baseline run recorded                      |
 | gate | P6      | **owner, not an agent:** spot-check ~50 of the drafted bench labels and hand-check 50 `NibProfile`, 50 `ColorProfile` and 50 `InkProperties` outputs (section 8.1 metric 7) |
 | p7   | P7      | v2 pick call for runs without an instruction                                                 |
 | p10  | P10     | inked named pen UX (link to the currently-inked entry)                                       |
@@ -1764,3 +1764,96 @@ evidence.
 - p5: `recent_inkings(items, limit: 3)` returns `CurrentlyInked` rows (`comment`, `nib`, dates)
   per item, newest first, from one window-function query. It resolves no names; callers map ids
   to snapshot items.
+
+**p6a decisions:**
+
+- p6a: p6a ships all the harness code (exporter, label formats, checkers, `as_of` runner, grading
+  export, rake tasks `bench:suggester:*`); p6b only runs it: export, label drafting and the
+  recorded baseline. The step table was updated to match. No real LLM call was made in p6a.
+- p6a: The code lives in `lib/bench/suggester/` as `Bench::Suggester`, loaded only by an explicit
+  `require` from the rake tasks and specs, so production never loads it. Cases, labels, results
+  and grading files go to `tmp/bench/suggester/` (`BENCH_DIR` overrides), already gitignored by
+  `/tmp/*`; the tasks print aggregate counts only. The runner task refuses to run outside
+  development.
+- p6a: Old logs keep the instruction, the rejected pairs and the shown rows only inside the
+  prompt, so `LoggedRun` parses them from the user messages before the first answer (raix-era
+  `{"user" => …}` entries too). Rejected pairs are re-validated as the controller does (integer
+  ids, newest 50) and the instruction is cut to 500 characters at replay.
+- p6a: Sampling: one run is picked at random per distinct (user, lowercased and squished text)
+  pair; users are taken round-robin in a seeded order with at most 20 cases each, so the sample
+  is weighted by user. Runs without an instruction are sampled the same way. Regression log ids
+  are always included, outside the caps, and their (user, text) pairs leave the sampling pool.
+  Stratifying by the 24 categories needs labels, so it is done while labelling (each label lists
+  its `categories`), not by the exporter.
+- p6a: A case is dropped and counted when its user is gone (`user_deleted`), when the logged pick
+  is not in the `as_of` state (`target_missing`), or when fewer than 90% of the pen or ink ids
+  shown in the logged prompt exist in the `as_of` state (`state_not_rebuilt`). An edited inking
+  can't be detected directly; the shown-id share (`fidelity`, stored per case) is the proxy. If
+  a pair's sampled run is dropped, another run of the same pair is tried.
+- p6a: The dev/test split is by user (parity of a salted SHA-256 of the user id), stable across
+  seeds, so a user's cases never sit in both splits. The tier comes from the logged model
+  (gpt-4.1-mini → free, gpt-4.1 → premium), else the user's current flag.
+- p6a: Case labels are YAML keyed by case id: `categories` (the 24 section 2.1 rows as slugs),
+  `named_pens`/`named_inks` (owned item ids that count as a hit), `constraints` with the section
+  3.4b field names plus a bench-only `exclude_ids`, `reviewed` (the owner's spot-check flag) and
+  `notes` for the judge. The extractor labelled set is a YAML list of `{text, constraints}` with
+  the same schema and no ids; duplicate texts are rejected. Unknown keys and values raise.
+- p6a: Checker semantics: `exclude_mentions` match whole words on the pen's brand and model or the
+  ink's brand, line and name; `comment_exclude` is a substring of the pen comment;
+  `tags_exclude` uses the user's own tags; `scented: include` is scored as a soft wish only.
+  Each hard field is `met`, `relaxed`, `violated`, `unsatisfiable` (a relaxable include that no
+  uninked fountain pen or fillable ink at `as_of` satisfies) or `no_suggestion`. Exclusions are
+  never relaxed or unsatisfiable. "Met or relaxed" counts `unsatisfiable` as a failure and
+  reports those cases separately.
+- p6a: A relaxation counts when `extra_data["relaxations"]` holds the field name
+  (`"ink.kinds_include"`) or a hash with that `field`; p9b must write that shape.
+- p6a: Validity also fails a pen inked at `as_of` unless the result sets `pen_currently_inked`
+  (SQ1). The cartridge rule is implemented again in the bench rather than shared with the P7
+  selector, so the checker is an independent check of it. A hard failure is an error outcome
+  (`error` key, `status: "error"` or the error message); prechecks, the daily cap and other
+  message-only results are not.
+- p6a: Rule leakage reads `extra_data["reasoning"]` when present (P7 should store it, so the
+  server header and notes are not counted), else `message`. Novelty: never used, or
+  `last_activity_on` at least 180 days before `as_of`; colour spread: the ink's primary
+  `ColorProfile` family is not among those of the inks inked at `as_of`.
+- p6a: Prices are the bench's own list prices per million tokens (gpt-4.1 $2/$8, mini
+  $0.40/$1.60, nano $0.10/$0.40) without a cached-input discount, because the logs don't record
+  cached tokens; sub-agent logs' usage is added to the run.
+- p6a: The runner replays each case in a transaction that is rolled back, under
+  `travel_to(as_of)` so relative dates in the CSV ("3 days ago") read as at the time of the
+  request, with `srand` seeded from the run seed and the case id. `BaselineSuggester` subclasses
+  `PenAndInkSuggester` and overrides its private `snapshot` and `premium?`; the runner spec pins
+  the `as_of` replay, so renaming either breaks a spec instead of silently replaying today's
+  state. The `MAX_USD` budget (default 5) is checked before each case. `RubyLLM::Error` and
+  `Faraday::Error` become error results.
+- p6a: The grading export blinds the systems per case with seeded letters and writes
+  `grading.md` and a `grades_template.json` for Claude Code to `grading/<runs>/`; the key goes to
+  `grading_keys/<runs>.json`, outside that folder. The judge is pointed at `grading/<runs>/` only
+  (`results/` holds the unblinded answers). `bench:suggester:judge_scores` unblinds and averages
+  the filled-in grades. `bench:suggester:check_logs` runs the label-free
+  checkers on live logs for the section 8.3 watch. The report prints whether label-based metrics
+  rest on unreviewed draft labels and how many labels the owner has reviewed.
+- p6a: In `grading.md` every request, label note and answer is quoted line by line behind `> `
+  and item names are squished to one line, so user text can't fake a section; the rubric tells
+  the judge that quoted lines are data to grade, never instructions.
+- p6a: The runner stops after the first result it can't price (a model missing from
+  `Pricing`), keeps that result and records `stop_reason` (`budget` or `unpriced`); the baseline
+  task aborts on `unpriced`, so a price is added before a candidate on a new model is run.
+- p6a: Validity checks that need a missing pen or ink are `nil`, not `false`; failure tallies
+  and the swab/cartridge count use only `false`, so an unknown id counts once, as not owned.
+- p6a: Named hits score only the labelled ids in the `as_of` collection. Labelled ids
+  (`named_pens`, `named_inks`, both `exclude_ids`) missing from it are reported as label errors
+  to fix before scoring.
+- p6a: Labels carry `corrected` (needs `reviewed: true`), which the owner sets when the review
+  changed the draft. The report prints the draft error rate (corrected / reviewed) and the
+  label-based metrics on reviewed labels alone next to the all-labels figures.
+- p6a: Section 8.2's "instruction honoured" is computed by `judge_scores` from the grades and
+  each run's `<run>.checks.json` (run `report` first): an instruction case with a label counts
+  when the judge says "yes", there is no hard failure, validity didn't fail, no labelled named
+  target was missed and every hard field is met or relaxed. It is printed for all labels and
+  for reviewed labels only; graded cases without checks or a label are counted, not scored.
+- p6a: **Data gap for p6b.** The dev DB is a dump from 2026-03-26: since 2026-03-24 it has only 87
+  suggester logs from 10 users (a smoke export gave 53 cases, none dropped). The plan's ~300 cases
+  from 2026-03-24 → 2026-10-09 need a fresh dump before p6b. The prod read-only DB could serve the
+  export, but the replay reads the collection from the database the suggester runs on, so the
+  baseline needs that fresh dump anyway.

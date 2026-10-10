@@ -562,6 +562,15 @@ RSpec.describe PenAndInkSuggester do
       )
       expect(WebMock).not_to have_requested(:post, openai_url)
     end
+
+    it "skips the cap when enforce_daily_limit is false" do
+      create_logs(20)
+
+      response = described_class.new(user, enforce_daily_limit: false).perform
+
+      expect(response[:ink]).to eq(collected_ink_1.id)
+      expect(WebMock).to have_requested(:post, openai_url).once
+    end
   end
 
   describe "agent log per request" do
