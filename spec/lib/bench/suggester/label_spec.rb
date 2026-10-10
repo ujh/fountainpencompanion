@@ -139,6 +139,9 @@ RSpec.describe Bench::Suggester::Label do
     "a correction without a review" => {
       "corrected" => true
     },
+    "a non-boolean ambiguity flag" => {
+      "ambiguous" => "yes"
+    },
     "a zero count" => {
       "constraints" => {
         "requested_count" => 0
@@ -151,6 +154,14 @@ RSpec.describe Bench::Suggester::Label do
         /label 7/
       )
     end
+  end
+
+  it "marks a label ambiguous only when asked to" do
+    expect(described_class.from_h(1, {})).not_to be_ambiguous
+    ambiguous = described_class.from_h(1, "ambiguous" => true)
+
+    expect(ambiguous).to be_ambiguous
+    expect(ambiguous.to_h).to include("ambiguous" => true)
   end
 
   it "records whether the owner's review changed the drafted label" do

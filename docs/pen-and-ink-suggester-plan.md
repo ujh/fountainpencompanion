@@ -1355,6 +1355,78 @@ each, longer if traffic is thin), and again after P11. A regression is reverted 
 **Success** means shorter instruction sessions and higher acceptance, with no drop in acceptance
 for runs without instructions.
 
+### 8.4 Evaluation baseline (recorded in p6b, 2026-10-10)
+
+**All label-based numbers below are scored against unreviewed draft labels.** Two Claude Code
+passes drafted the labels independently and a third adjudicated them; no human has checked them
+yet. The owner's spot check of 50 labels (`tmp/bench/suggester/spot_check.md`, gitignored) comes
+before any p7+ PR uses these numbers. The label-free rows (validity, hard failures, swab/cartridge,
+rule leakage, cost) are the primary evidence.
+
+**Case set.** 266 cases from the dev DB (dump ending 2026-03-26), `SINCE=2025-11-01`, `SEED=1`:
+200 instruction runs, 50 runs without one, 16 regression stand-ins (p6b decisions); 210 cases have
+an instruction. Split 134 dev / 132 test by user. The categories household, prompt_injection and
+non_english have no case in this set.
+
+**Label agreement (pass A vs pass B, 210 instruction cases).** The 56 cases without an instruction
+were identical in both passes.
+
+| Comparison                                                                   | Agreement             |
+| ---------------------------------------------------------------------------- | --------------------- |
+| Every scored field identical (named pens/inks + the 20 hard constraint fields) | **196 / 210 (93.3%)** |
+| Scored fields, counting only (case, field) pairs either pass set             | 226 / 240 (94.2%)     |
+| Scored fields, all (case, field) pairs                                       | 4,606 / 4,620 (99.7%) |
+| Every compared field identical (also categories, mentions, sort, counts, ambiguity) | 155 / 210 (73.8%) |
+| Categories identical                                                         | 180 / 210 (85.7%); mean Jaccard 0.935 |
+| Ambiguity flag                                                               | 192 / 210; A flagged 46, B 38, both 33 |
+
+Hard fields where either pass set a value: `named_pens` 88/91, `named_inks` 16/17,
+`ink.colour_include` 42/45, `pen.nib_grades_include` 6/7, `ink.kinds_exclude` 3/6,
+`ink.exclude_ids` 0/3; all other set fields agreed (`ink.kinds_include` 19/19, `ink.usage` 14/14,
+`ink.shimmer` 10/10, `pen.usage` 8/8, `ink.colour_exclude` 5/5, `ink.exclude_mentions` 4/4,
+`pen.nib_width` 3/3, `pen.exclude_mentions` 2/2, `pen.nib_characters_include` 2/2, `ink.scented`
+2/2, `pen.nib_grades_exclude` 1/1, `pair_usage` 1/1). Both passes come from the same model family,
+so agreement shows consistency, not correctness.
+
+**Final labels.** 266 labels; 103 cases carry at least one hard constraint, 90 a named pen, 17 a
+named ink. **13 cases are marked ambiguous**, 5 of them with hard constraints, which the
+hard-constraint checks skip.
+
+**Runs.** Today's code through `bench:suggester:baseline` with `SEED=1`, each tier forced for every
+case (`TIER=free` → gpt-4.1-mini with 50-row slices, `TIER=premium` → gpt-4.1 with 100-row slices
+and the currently-inked rows): `baseline-mini` on all 266 cases, gpt-4.1 as `baseline-gpt41-test`
+and `baseline-gpt41-dev`. **Measured cost:** $0.67 (mini, 266 cases), $2.69 (gpt-4.1 test, 132),
+$2.59 (gpt-4.1 dev, 134), plus a $0.09 four-case price check: **$6.03 in all**, no single run above
+$5. The judge (Claude Code, blinded per case) graded the test split only, 128 answers per system
+(4 precheck answers left ungraded).
+
+**Section 8.2 metrics, test split (132 cases).**
+
+| Metric                                                    | gpt-4.1-mini      | gpt-4.1           |
+| --------------------------------------------------------- | ----------------- | ----------------- |
+| Instruction honoured (all hard checks pass + judge "yes")  | 58.6% (58/99)     | 76.8% (76/99)     |
+| Judge "yes", cases with an instruction                    | 60.8% (62/102)    | 76.5% (78/102)    |
+| Hard constraints met or explicitly relaxed                | 85.1% (40/47)     | 93.6% (44/47)     |
+| Named pen / named ink hit                                 | 52.1% (25/48) / 66.7% (6/9) | 72.9% (35/48) / 66.7% (6/9) |
+| Hard failures                                             | 0.0%              | 0.0%              |
+| Valid suggestions                                         | 97.7%             | 100%              |
+| Swab or incompatible cartridge suggested                  | 1                 | 0                 |
+| Rule leakage                                              | 94.5%             | 74.2%             |
+| No-instruction novelty share, ink / pen (25 runs)         | 88% / 84%         | 92% / 88%         |
+| No-instruction colour new vs inked                        | 54%               | 48%               |
+| Judge, runs without an instruction (mean of the four 1–5 scores, 26 runs) | 3.98 | 3.96 |
+| $ per run (list prices, no cache discount)                | $0.0024           | $0.0204           |
+| Latency p50 / p90                                         | 1.7 s / 2.2 s     | 2.0 s / 2.5 s     |
+
+The named-ink and hard-constraint rows rest on few cases (9 and 47). Dev split for comparison:
+mini named pen 64.3% (27/42), hard constraints 86.0% (43/50), leakage 88.5%; gpt-4.1 named pen
+66.7% (28/42), hard constraints 94.0% (47/50), leakage 58.9%, one hard failure
+(`DecisionNotReachedError`, 0.8%) and one swab pick. Over all 266 cases mini had 0 hard failures,
+1 swab pick, 2 exact rejected repeats and 2 non-fountain pens. Mini's $0.0024 per run is close to
+the section 8.2 figure ($0.0026); gpt-4.1's $0.020 is below it ($0.027), since the forced-premium
+prompts here are those of this older window. Candidates compare with these runs at the same seed,
+tier and split.
+
 ---
 
 ## 9. PR plan
@@ -1888,3 +1960,36 @@ evidence.
   collection, no categories or constraints on a case without an instruction, `reviewed` false.
 - p6b: `LoggedRun` stops reading the prompt at a transcript entry that isn't a hash: two raix-era
   logs nest tool messages in a list, which crashed the export.
+- p6b: **All bench results depend on draft labels.** Two Claude Code passes drafted
+  `labelling/drafts/labels_{a,b}.yml` independently from the outcome-free sheet; a third agent
+  adjudicated them into `tmp/bench/suggester/labels.yml`. No human has checked any label. The owner
+  must spot-check the 50 cases in `tmp/bench/suggester/spot_check.md` (gitignored; it shows each
+  instruction, the final label, the A/B difference and the resolution) and set `reviewed`/
+  `corrected` in `labels.yml` **before p7 or any later suggester PR merges**. Until then every
+  label-based number is reported as scored against unreviewed draft labels, with the two-pass
+  agreement from section 8.4.
+- p6b: Labels gained `ambiguous` (default false). An ambiguous label's hard constraints are not
+  scored (`"skipped" => "ambiguous"`, counted as `skipped_ambiguous`); its named items still are.
+  The validator rejects it on a case without an instruction. The label README documents it.
+- p6b: Adjudication: pass A was the base; categories are the union of both passes (two overrides);
+  every scored-field disagreement was resolved by re-reading the case and is listed with its reason
+  in the spot-check file. A case was marked ambiguous only when the request itself has two readings
+  (13 cases), not when a note merely hedged a soft wish or a missing item. "Medium or broad or stub"
+  is marked ambiguous because the checker ANDs `nib_grades_include` and `nib_characters_include`.
+  A consistency script (uncommitted) confirmed that every named item satisfies its own case's hard
+  fields and that every include field has a candidate at `as_of`.
+- p6b: Label conventions kept from the drafts: a brand or line mention lists every owned item of it
+  in `named_*` (an easier named hit for those cases); a named item the user doesn't own gets the
+  mention and no `named_*`; conditional rules ("no samples with piston fillers") stay in
+  `soft_notes`, unscored (section 3.4c).
+- p6b: The baseline task gained `TIER=free|premium`, which replays every case on that tier, and
+  records `tier` and `split` in the results. §9's "baseline on gpt-4.1-mini and gpt-4.1" is read as
+  every case on each model, not the logged tier mix. gpt-4.1 ran per split (two runs of about $2.6)
+  so that no single run passes the $5 cap; total spend $6.03.
+- p6b: The judge graded the test split only (the section 8.2 bar), blinded per case, in the same
+  Claude Code session that adjudicated the labels, so it was blind to the system but not to the
+  labels. Precheck answers were left ungraded. A separate session should grade candidates against
+  the same rubric so the judge isn't the author of the labels.
+- p6b: Finding for p7: in 5 of 128 gpt-4.1 answers and 3 of 128 mini answers the message names a
+  different pen or ink than the recorded ids (usually the named pen, which is inked and so not in
+  the CSV). The checkers can't see this; P7's server header built from the DB names removes it.

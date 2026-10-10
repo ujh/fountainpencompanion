@@ -27,7 +27,8 @@ module Bench
 
         errors = []
         errors << "label #{case_id}: reviewed is set by the owner only" if label.reviewed?
-        if !bench_case.instruction? && (label.categories.any? || label.constraints.any?)
+        if !bench_case.instruction? &&
+             (label.categories.any? || label.constraints.any? || label.ambiguous?)
           errors << "label #{case_id}: the case has no instruction"
         end
         user = users[bench_case.user_id]

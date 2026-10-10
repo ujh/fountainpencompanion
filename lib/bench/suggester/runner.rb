@@ -19,13 +19,14 @@ module Bench
       BUDGET = "budget"
       UNPRICED = "unpriced"
 
-      attr_accessor :cases, :seed, :max_usd, :build, :spent_usd, :stop_reason
+      attr_accessor :cases, :seed, :max_usd, :build, :tier, :spent_usd, :stop_reason
 
-      def initialize(cases:, seed: 1, max_usd: 5.0, build: BASELINE)
+      def initialize(cases:, seed: 1, max_usd: 5.0, build: BASELINE, tier: nil)
         self.cases = cases
         self.seed = seed
         self.max_usd = max_usd
         self.build = build
+        self.tier = tier
         self.spent_usd = 0.0
       end
 
@@ -63,6 +64,7 @@ module Bench
         return unless user
 
         result = nil
+        bench_case = bench_case.with(tier:) if tier
         ActiveRecord::Base.transaction do
           travel_to(bench_case.as_of) { result = replay(bench_case, user) }
           raise ActiveRecord::Rollback

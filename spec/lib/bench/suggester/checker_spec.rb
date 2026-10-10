@@ -69,6 +69,48 @@ RSpec.describe Bench::Suggester::Checker do
     )
   end
 
+  it "skips the hard-constraint checks on an ambiguous label but still scores named items" do
+    ambiguous = Bench::Suggester::Label.from_h(1, label.to_h.merge("ambiguous" => true))
+
+    result =
+      described_class.new(
+        snapshot:,
+        extra_data: {
+          "pen" => pen.id,
+          "ink" => create(:collected_ink, user:, created_at: as_of - 1.day).id,
+          "message" => "Fine"
+        },
+        label: ambiguous
+      ).call
+
+    expect(result["constraints"]).to eq("skipped" => "ambiguous", "soft" => {})
+    expect(result["named"]).to eq("pen_hit" => true, "ink_hit" => nil)
+  end
+
+  it "does not mark an ambiguous label without hard constraints as skipped" do
+    ambiguous =
+      Bench::Suggester::Label.from_h(
+        1,
+        "ambiguous" => true,
+        "constraints" => {
+          "soft_notes" => "a wintery pick"
+        }
+      )
+
+    result =
+      described_class.new(
+        snapshot:,
+        extra_data: {
+          "pen" => pen.id,
+          "ink" => ink.id,
+          "message" => "Fine"
+        },
+        label: ambiguous
+      ).call
+
+    expect(result["constraints"]).to eq("hard" => {}, "soft" => {})
+  end
+
   it "skips the label checks without a label" do
     result = described_class.new(snapshot:, extra_data: { pen: pen.id, ink: ink.id }).call
 

@@ -152,6 +152,20 @@ RSpec.describe Bench::Suggester::Runner do
     expect(result["cost_usd"]).to be_within(1e-9).of((6_000 * 2.0 + 150 * 8.0) / 1e6)
   end
 
+  it "replays every case on the tier it is given instead of the recorded one" do
+    stub_completion(completion(model: "gpt-4.1-2025-04-14"))
+    cases = [bench_case(id: "1", tier: "free"), bench_case(id: "2", tier: "premium")]
+
+    described_class.new(cases:, tier: "premium").run
+
+    expect(WebMock).to have_requested(:post, openai_url).with(
+      body: hash_including("model" => "gpt-4.1")
+    ).twice
+    expect(WebMock).not_to have_requested(:post, openai_url).with(
+      body: hash_including("model" => "gpt-4.1-mini")
+    )
+  end
+
   it "bypasses the daily cap" do
     create_list(:agent_log, 20, name: PenAndInkSuggester.name, owner: user, created_at: as_of)
     stub_completion

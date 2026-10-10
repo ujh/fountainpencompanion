@@ -69,8 +69,11 @@ RSpec.describe Bench::Suggester::LabelValidator do
     )
   end
 
-  it "rejects categories or constraints on a case without an instruction" do
+  it "rejects categories, constraints or an ambiguity flag on a case without an instruction" do
     expect(errors_for("2" => label(named_pens: []))).to eq(["label 2: the case has no instruction"])
+    expect(
+      errors_for("2" => label(categories: [], named_pens: [], constraints: {}, ambiguous: true))
+    ).to eq(["label 2: the case has no instruction"])
   end
 
   it "rejects ids outside the collection at as_of" do

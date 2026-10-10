@@ -49,7 +49,8 @@ namespace :bench do
       puts "added #{added} blank labels to #{store.path("labels.yml")}"
     end
 
-    desc "Replay the cases through today's suggester (RUN=baseline LIMIT= SPLIT= MAX_USD=5 SEED=1)"
+    desc "Replay the cases through today's suggester " \
+           "(RUN=baseline LIMIT= SPLIT= TIER=free|premium MAX_USD=5 SEED=1)"
     task baseline: :setup do
       abort "The bench replays only against the development database." unless Rails.env.development?
 
@@ -57,11 +58,13 @@ namespace :bench do
       name = ENV.fetch("RUN", "baseline")
       seed = Integer(ENV.fetch("SEED", "1"))
       max_usd = Float(ENV.fetch("MAX_USD", "5"))
+      tier = ENV["TIER"].presence
+      abort "TIER must be free or premium." if tier && %w[free premium].exclude?(tier)
       cases = store.cases
       cases = cases.select { |bench_case| bench_case.split == ENV["SPLIT"] } if ENV["SPLIT"]
       cases = cases.first(Integer(ENV["LIMIT"])) if ENV["LIMIT"]
 
-      runner = Bench::Suggester::Runner.new(cases:, seed:, max_usd:)
+      runner = Bench::Suggester::Runner.new(cases:, seed:, max_usd:, tier:)
       results = runner.run { print "." }
       puts
       store.write_results(
@@ -69,6 +72,8 @@ namespace :bench do
         {
           "name" => name,
           "seed" => seed,
+          "tier" => tier,
+          "split" => ENV["SPLIT"],
           "max_usd" => max_usd,
           "spent_usd" => runner.spent_usd.round(4),
           "stop_reason" => runner.stop_reason,

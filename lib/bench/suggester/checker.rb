@@ -1,6 +1,8 @@
 module Bench
   module Suggester
     class Checker
+      AMBIGUOUS = "ambiguous"
+
       attr_accessor :snapshot, :extra_data, :rejected_pairs, :label
 
       def initialize(snapshot:, extra_data:, rejected_pairs: [], label: nil)
@@ -32,7 +34,11 @@ module Bench
       end
 
       def constraints
-        Checks::Constraints.new(snapshot:, extra_data:, constraints: label.constraints).call
+        result =
+          Checks::Constraints.new(snapshot:, extra_data:, constraints: label.constraints).call
+        return result unless label.ambiguous? && result["hard"].any?
+
+        result.except("hard").merge("skipped" => AMBIGUOUS)
       end
     end
   end

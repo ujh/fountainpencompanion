@@ -35,6 +35,8 @@ module Bench
             for an item the request names (all matching ids when several fit), else `[]`
           - `constraints`: only the fields the request sets, with these values:
           #{constraint_lines.join("\n")}
+          - `ambiguous`: `true` only when the request's hard constraints have more than one
+            reasonable reading (hard-constraint checks then skip the case), else `false`
           - `reviewed`: always `false` (the owner sets it during the spot check)
           - `corrected`: always `false`
           - `notes`: one or two sentences for the judge on what a good answer does
@@ -100,6 +102,7 @@ module Bench
                 "shimmer" => "exclude"
               }
             },
+            "ambiguous" => false,
             "reviewed" => false,
             "corrected" => false,
             "notes" => "Pick the Lamy 2000 with an ink that is neither blue nor shimmering."

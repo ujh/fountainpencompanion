@@ -200,6 +200,7 @@ RSpec.describe Bench::Suggester::LabellingSheet do
       expect { Bench::Suggester::Label.from_h("1001", example["1001"]) }.not_to raise_error
       expect(readme).to include(
         *Bench::Suggester::Label::CATEGORIES,
+        *Bench::Suggester::Label::KEYS.map { "`#{_1}`" },
         *Bench::Suggester::ConstraintSchema::INK_FIELDS.keys.map { "`#{_1}`" },
         ColorProfile::FAMILIES.join(", ")
       )
