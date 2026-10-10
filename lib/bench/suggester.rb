@@ -5,6 +5,12 @@ module Bench
     def self.default_root
       ENV.fetch("BENCH_DIR") { Rails.root.join("tmp/bench/suggester").to_s }
     end
+
+    def self.parse_since(value, default:)
+      return default if value.blank?
+
+      Time.zone.parse(value) || raise(ArgumentError, "SINCE is not a date: #{value.inspect}")
+    end
   end
 end
 

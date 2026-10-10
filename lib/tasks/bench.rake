@@ -9,7 +9,7 @@ namespace :bench do
       extra_ids = ENV.fetch("EXTRA_LOG_IDS", "").split(",").map { |id| Integer(id) }
       exporter =
         Bench::Suggester::CaseExporter.new(
-          since: Time.zone.parse(ENV.fetch("SINCE", Bench::Suggester::SINCE.iso8601)),
+          since: Bench::Suggester.parse_since(ENV["SINCE"], default: Bench::Suggester::SINCE),
           instruction_cases: Integer(ENV.fetch("INSTRUCTION_CASES", "200")),
           plain_cases: Integer(ENV.fetch("PLAIN_CASES", "50")),
           per_user_cap: Integer(ENV.fetch("PER_USER_CAP", "20")),
@@ -141,7 +141,7 @@ namespace :bench do
 
     desc "Run the label-free checkers on live suggester logs (SINCE=2026-10-01)"
     task check_logs: :setup do
-      since = Time.zone.parse(ENV.fetch("SINCE", 4.weeks.ago.to_date.to_s))
+      since = Bench::Suggester.parse_since(ENV["SINCE"], default: 4.weeks.ago.beginning_of_day)
       logs =
         AgentLog
           .where(name: PenAndInkSuggester.name, owner_type: User.name)
