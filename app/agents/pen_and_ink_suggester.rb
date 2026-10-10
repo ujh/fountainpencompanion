@@ -66,11 +66,18 @@ class PenAndInkSuggester
     { message: ERROR_MESSAGE, status: "error" }
   end
 
-  def initialize(user, extra_user_input = nil, rejected_suggestions = [], queue_ms: nil)
+  def initialize(
+    user,
+    extra_user_input = nil,
+    rejected_suggestions = [],
+    queue_ms: nil,
+    enforce_daily_limit: true
+  )
     self.user = user
     self.extra_user_input = extra_user_input
     self.rejected_suggestions = rejected_suggestions || []
     self.queue_ms = queue_ms
+    self.enforce_daily_limit = enforce_daily_limit
   end
 
   def perform
@@ -88,11 +95,13 @@ class PenAndInkSuggester
 
   private
 
-  attr_accessor :user, :extra_user_input, :rejected_suggestions, :queue_ms
+  attr_accessor :user, :extra_user_input, :rejected_suggestions, :queue_ms, :enforce_daily_limit
 
   def run
-    daily_cap = DailyCap.new(user)
-    return { message: daily_cap.message } if daily_cap.reached?
+    if enforce_daily_limit
+      daily_cap = DailyCap.new(user)
+      return { message: daily_cap.message } if daily_cap.reached?
+    end
 
     precheck = precheck_failure
     return { message: precheck[:message], precheck: precheck[:reason] } if precheck
