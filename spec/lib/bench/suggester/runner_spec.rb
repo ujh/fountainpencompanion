@@ -86,12 +86,26 @@ RSpec.describe Bench::Suggester::Runner do
       "message" => "Ink the Kakuno with Blue Velvet."
     )
     expect(result["cost_usd"]).to be_within(1e-9).of((6_000 * 0.40 + 150 * 1.60) / 1e6)
+    expect(result["list_cost_usd"]).to eq(result["cost_usd"])
     expect(result["usages"].sole).to include(
       "model" => "gpt-4.1-mini-2025-04-14",
       "prompt_tokens" => 6_000
     )
     expect(result["latency_ms"]).to be_a(Integer)
     expect(result["prompt_chars"]).to be_positive
+  end
+
+  it "prices cached prompt tokens at the discount and records the list cost without it" do
+    body = completion
+    body["usage"]["prompt_tokens_details"] = { "cached_tokens" => 2_000 }
+    stub_completion(body)
+
+    result = described_class.new(cases: [bench_case]).run.fetch("1")
+
+    expect(result["cost_usd"]).to be_within(1e-9).of(
+      (4_000 * 0.40 + 2_000 * 0.10 + 150 * 1.60) / 1e6
+    )
+    expect(result["list_cost_usd"]).to be_within(1e-9).of((6_000 * 0.40 + 150 * 1.60) / 1e6)
   end
 
   it "replays the collection, the instruction and the rejected pairs as at the time of the run" do
@@ -197,6 +211,71 @@ RSpec.describe Bench::Suggester::Runner do
 
     expect(prompts[0]).to eq(prompts[1])
     expect(prompts[2]).not_to eq(prompts[0])
+  end
+
+  it "passes the case seed to a run without an instruction" do
+    create_list(:collected_pen, 30, user:, created_at: as_of - 1.day)
+    create_list(:collected_ink, 50, user:, created_at: as_of - 1.day)
+    prompts = []
+    arguments = { pen_ref: "P1", ink_ref: "I1", reasoning: "Fine." }.to_json
+    body =
+      completion.deep_merge(
+        "choices" => [
+          {
+            "message" => {
+              "role" => "assistant",
+              "content" => "",
+              "tool_calls" => [
+                {
+                  "id" => "call_1",
+                  "type" => "function",
+                  "function" => {
+                    "name" => "record_suggestion",
+                    "arguments" => arguments
+                  }
+                }
+              ]
+            },
+            "finish_reason" => "tool_calls"
+          }
+        ]
+      )
+    stub_request(:post, openai_url).to_return do |request|
+      prompts << user_prompt(request)
+      { status: 200, body: body.to_json, headers: { "Content-Type" => "application/json" } }
+    end
+    plain = bench_case(instruction: nil)
+
+    first = described_class.new(cases: [plain], seed: 1)
+    result = first.run.fetch("1")
+    described_class.new(cases: [plain], seed: 1).run
+    described_class.new(cases: [plain], seed: 2).run
+
+    expect(result["extra_data"]["seed"]).to eq(first.case_seed(plain))
+    expect(result["extra_data"]["reasoning"]).to eq("Fine.")
+    expect(prompts[0]).to include("PENS (25 of 31 uninked)")
+    expect(prompts[0]).not_to include("Bought later")
+    expect(prompts[0]).to eq(prompts[1])
+    expect(prompts[2]).not_to eq(prompts[0])
+  end
+
+  it "replays a run without an instruction on the CSV path when asked for the legacy path" do
+    stub_completion
+
+    result =
+      described_class
+        .new(cases: [bench_case(instruction: nil)], build: described_class::LEGACY)
+        .run
+        .fetch("1")
+
+    expect(result["extra_data"]).to eq(
+      "pen" => pen.id,
+      "ink" => ink.id,
+      "message" => "Ink the Kakuno with Blue Velvet."
+    )
+    expect(WebMock).to have_requested(:post, openai_url).with { |request|
+      user_prompt(request).include?("pen id,fountain pen name")
+    }
   end
 
   it "records an API failure as an error result and goes on" do

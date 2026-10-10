@@ -168,11 +168,7 @@ describe SchedulePenAndInkSuggestion do
                     "type" => "function",
                     "function" => {
                       "name" => "record_suggestion",
-                      "arguments" => {
-                        suggestion: "Ink it",
-                        ink_id: ink.id,
-                        pen_id: pen.id
-                      }.to_json
+                      "arguments" => { pen_ref: "P1", ink_ref: "I1", reasoning: "Ink it" }.to_json
                     }
                   }
                 ]
@@ -198,7 +194,10 @@ describe SchedulePenAndInkSuggestion do
 
       log = user.agent_logs.find_by!(name: "PenAndInkSuggester")
       expect(log.extra_data["queue_ms"]).to eq(1000)
-      expect(Rails.cache.read(suggestion_id)).to eq({ message: "Ink it", ink: ink.id, pen: pen.id })
+      cached = Rails.cache.read(suggestion_id)
+      expect(cached.keys).to eq(%i[message ink pen])
+      expect(cached).to include(ink: ink.id, pen: pen.id)
+      expect(cached[:message]).to end_with("\n\nInk it")
     end
   end
 end

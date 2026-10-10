@@ -26,21 +26,23 @@ module Bench
         USD_PER_MILLION_TOKENS[key] if key
       end
 
-      def self.cost(usage)
+      CACHED_INPUT_SHARE = 0.25
+      TOKEN_KEYS = %w[prompt_tokens cached_tokens completion_tokens].freeze
+
+      def self.cost(usage, cache_discount: true)
         usage = usage.to_h.stringify_keys
-        return 0.0 if usage["prompt_tokens"].to_i.zero? && usage["completion_tokens"].to_i.zero?
+        return 0.0 if TOKEN_KEYS.all? { |key| usage[key].to_i.zero? }
 
         price = price_for(usage["model"])
         return unless price
 
-        (
-          usage["prompt_tokens"].to_i * price[:input] +
-            usage["completion_tokens"].to_i * price[:output]
-        ) / 1_000_000.0
+        cached_share = cache_discount ? CACHED_INPUT_SHARE : 1.0
+        input = usage["prompt_tokens"].to_i + usage["cached_tokens"].to_i * cached_share
+        (input * price[:input] + usage["completion_tokens"].to_i * price[:output]) / 1_000_000.0
       end
 
-      def self.total_cost(usages)
-        costs = usages.map { |usage| cost(usage) }
+      def self.total_cost(usages, cache_discount: true)
+        costs = usages.map { |usage| cost(usage, cache_discount:) }
         costs.sum if costs.any? && costs.none?(&:nil?)
       end
     end

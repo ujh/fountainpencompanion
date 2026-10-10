@@ -11,6 +11,31 @@ RSpec.describe Bench::Suggester::Pricing do
     expect(described_class.cost(usage)).to be_within(1e-9).of((5_900 * 0.40 + 159 * 1.60) / 1e6)
   end
 
+  it "prices cached prompt tokens at a quarter of the input price, or at list price without the discount" do
+    usage = {
+      "model" => "gpt-4.1",
+      "prompt_tokens" => 3_000,
+      "cached_tokens" => 2_000,
+      "completion_tokens" => 100
+    }
+
+    expect(described_class.cost(usage)).to be_within(1e-9).of(
+      (3_000 * 2.0 + 2_000 * 0.5 + 100 * 8.0) / 1e6
+    )
+    expect(described_class.cost(usage, cache_discount: false)).to be_within(1e-9).of(
+      (5_000 * 2.0 + 100 * 8.0) / 1e6
+    )
+    expect(described_class.total_cost([usage, usage], cache_discount: false)).to be_within(1e-9).of(
+      2 * (5_000 * 2.0 + 100 * 8.0) / 1e6
+    )
+  end
+
+  it "prices a fully cached prompt" do
+    usage = { "model" => "gpt-4.1-mini", "prompt_tokens" => 0, "cached_tokens" => 1_000 }
+
+    expect(described_class.cost(usage)).to be_within(1e-12).of(1_000 * 0.10 / 1e6)
+  end
+
   it "does not confuse gpt-4.1 with gpt-4.1-mini" do
     expect(described_class.price_for("gpt-4.1-2025-04-14")).to eq({ input: 2.00, output: 8.00 })
     expect(described_class.price_for("gpt-4.1-mini")).to eq({ input: 0.40, output: 1.60 })

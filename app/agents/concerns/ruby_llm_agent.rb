@@ -145,6 +145,10 @@ module RubyLlmAgent
       agent_log.usage["prompt_tokens"] += message.input_tokens.to_i
       agent_log.usage["completion_tokens"] += message.output_tokens.to_i
       agent_log.usage["total_tokens"] += message.input_tokens.to_i + message.output_tokens.to_i
+      if message.cached_tokens.to_i.positive?
+        agent_log.usage["cached_tokens"] = agent_log.usage["cached_tokens"].to_i +
+          message.cached_tokens.to_i
+      end
     end
     save_transcript
   end

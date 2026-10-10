@@ -167,7 +167,7 @@ M and a Lamy F land in the same class.
 | W4    | M     | 0.49–0.69 | MF, M          | B                  | Pilot WA, SU, CM; Journaler                               |
 | W5    | B     | 0.69–0.94 | B              | BB, C (coarse)     | Zoom, Music, fude (nominal)                               |
 | W6    | BB    | 0.94–1.24 | BB             | BBB                | 1.0–1.2 mm stubs/italics; Pilot S (Signature)             |
-| W7    | BBB+  | > 1.24    | BBB/3B         | —                  | stubs from 1.3 mm (1.5, 1.9), Pilot Parallel, calligraphy |
+| W7    | BBB+  | > 1.24    | BBB/3B         | —                  | stubs from 1.3 mm (1.5, 1.9), Pilot Parallel              |
 
 This table and the width-class lines of the suggester's system prompt
 (`docs/pen-and-ink-suggester-plan.md`, section 3.2) say exactly the same thing; P7 of that plan

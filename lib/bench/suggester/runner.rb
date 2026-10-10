@@ -5,16 +5,22 @@ module Bench
     class Runner
       include ActiveSupport::Testing::TimeHelpers
 
-      BASELINE =
-        lambda do |bench_case, user|
+      def self.replay_build(legacy: false)
+        lambda do |bench_case, user, seed|
           BaselineSuggester.new(
             user,
             bench_case.instruction&.first(WidgetsController::MAX_EXTRA_USER_INPUT_LENGTH),
             bench_case.rejected_pairs,
             as_of: bench_case.as_of,
-            tier: bench_case.tier
+            tier: bench_case.tier,
+            seed:,
+            legacy:
           )
         end
+      end
+
+      BASELINE = replay_build
+      LEGACY = replay_build(legacy: true)
 
       BUDGET = "budget"
       UNPRICED = "unpriced"
@@ -74,7 +80,7 @@ module Bench
 
       def replay(bench_case, user)
         srand(case_seed(bench_case))
-        suggester = build.call(bench_case, user)
+        suggester = build.call(bench_case, user, case_seed(bench_case))
         started = Process.clock_gettime(Process::CLOCK_MONOTONIC)
         exception = perform(suggester)
         latency_ms = ((Process.clock_gettime(Process::CLOCK_MONOTONIC) - started) * 1000).round
@@ -84,6 +90,7 @@ module Bench
           "extra_data" => exception ? error_extra_data(exception) : agent_log.extra_data || {},
           "usages" => usages,
           "cost_usd" => Pricing.total_cost(usages),
+          "list_cost_usd" => Pricing.total_cost(usages, cache_discount: false),
           "latency_ms" => latency_ms,
           "seed" => case_seed(bench_case),
           "prompt_chars" => prompt_chars(agent_log)

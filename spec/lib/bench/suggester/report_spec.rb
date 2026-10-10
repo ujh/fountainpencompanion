@@ -58,6 +58,7 @@ RSpec.describe Bench::Suggester::Report do
           "message" => "Fine"
         },
         "cost_usd" => 0.002,
+        "list_cost_usd" => 0.003,
         "latency_ms" => 1000
       },
       "2" => {
@@ -67,6 +68,7 @@ RSpec.describe Bench::Suggester::Report do
           "message" => "Balance of novelty"
         },
         "cost_usd" => 0.004,
+        "list_cost_usd" => 0.005,
         "latency_ms" => 3000
       },
       "3" => {
@@ -110,7 +112,8 @@ RSpec.describe Bench::Suggester::Report do
       "cost" => {
         "runs_priced" => 3,
         "total_usd" => 0.009,
-        "mean_usd" => 0.003
+        "mean_usd" => 0.003,
+        "mean_list_usd" => 0.004
       },
       "latency_ms" => {
         "p50" => 2000,
