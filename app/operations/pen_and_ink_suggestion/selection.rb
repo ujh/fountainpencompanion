@@ -12,7 +12,11 @@ class PenAndInkSuggestion::Selection
                 :pinned_pens,
                 :pinned_inks,
                 :unfiltered,
-                :notes
+                :notes,
+                :effective_constraints,
+                :constraint_check,
+                :relaxations,
+                :end_message
 
   def initialize(
     pens:,
@@ -26,7 +30,11 @@ class PenAndInkSuggestion::Selection
     pinned_pens: [],
     pinned_inks: [],
     unfiltered: false,
-    notes: []
+    notes: [],
+    effective_constraints: PenAndInkSuggestion::Constraints.empty,
+    constraint_check: nil,
+    relaxations: [],
+    end_message: nil
   )
     self.pens = pens
     self.inks = inks
@@ -40,6 +48,10 @@ class PenAndInkSuggestion::Selection
     self.pinned_inks = pinned_inks
     self.unfiltered = unfiltered
     self.notes = notes
+    self.effective_constraints = effective_constraints
+    self.constraint_check = constraint_check
+    self.relaxations = relaxations
+    self.end_message = end_message
   end
 
   def ended?
@@ -52,6 +64,10 @@ class PenAndInkSuggestion::Selection
 
   def unfiltered?
     unfiltered
+  end
+
+  def constrained?
+    effective_constraints.filters?
   end
 
   def pen_ref(pen)
@@ -91,9 +107,13 @@ class PenAndInkSuggestion::Selection
     return "#{ink.name} is not an ink from INKS." unless inks.include?(ink)
     return "A swab can't fill a pen; choose another ink." if ink.kind == "swab"
     unless PenAndInkSuggestion::CartridgeCompatibility.compatible?(pen, ink)
-      "#{ink.short_name} is a cartridge ink and #{pen.brand} #{pen.model} takes no cartridges; " \
-        "choose a different pen or ink."
+      return(
+        "#{ink.short_name} is a cartridge ink and #{pen.brand} #{pen.model} takes no " \
+          "cartridges; choose a different pen or ink."
+      )
     end
+
+    constraint_check&.violation_for(pen:, ink:, constraints: effective_constraints)
   end
 
   def shown_pen_ids

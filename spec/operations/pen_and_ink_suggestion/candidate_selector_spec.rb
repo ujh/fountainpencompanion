@@ -8,10 +8,25 @@ RSpec.describe PenAndInkSuggestion::CandidateSelector do
     create(:currently_inked, user:, collected_pen: pen, collected_ink: ink, inked_on:, archived_on:)
   end
 
-  def select(rejected_pairs: [], tier: :free, seed: 1, resolution: nil, fallback: false)
+  def select(
+    rejected_pairs: [],
+    tier: :free,
+    seed: 1,
+    resolution: nil,
+    fallback: false,
+    constraints: {}
+  )
     snapshot = PenAndInkSuggestion::CollectionSnapshot.new(user)
     resolution ||= PenAndInkSuggestion::NameResolver::Resolution.empty
-    described_class.new(snapshot:, rejected_pairs:, tier:, seed:, resolution:, fallback:).call
+    described_class.new(
+      snapshot:,
+      rejected_pairs:,
+      tier:,
+      seed:,
+      resolution:,
+      fallback:,
+      constraints: PenAndInkSuggestion::Constraints.from_h(constraints)
+    ).call
   end
 
   def resolution(pen_pins: [], ink_pins: [], pen_brand_filter: nil, ink_brand_filter: nil)
@@ -87,6 +102,21 @@ RSpec.describe PenAndInkSuggestion::CandidateSelector do
 
       expect(selection.pens).not_to include(cartridge_pen)
       expect(selection.inks).to eq([bottle])
+    end
+
+    it "fills the ink slice only with inks a shown pen takes" do
+      small_slices(pens: 1, inks: 1)
+      piston = create(:collected_pen, user:, filling_system: "piston")
+      cartridge_pen = create(:collected_pen, user:, filling_system: "C/C")
+      bottle = create(:collected_ink, user:, kind: "bottle")
+      create(:collected_ink, user:, kind: "cartridge")
+      ink_it(cartridge_pen, bottle, inked_on: today - 10, archived_on: today - 5)
+
+      selection = select
+
+      expect(selection.pens).to eq([piston])
+      expect(selection.inks).to eq([bottle])
+      expect(selection.end_reason).to be_nil
     end
 
     it "keeps a cartridge ink when a shown pen has a converter or no filling system" do
@@ -272,7 +302,7 @@ RSpec.describe PenAndInkSuggestion::CandidateSelector do
       expect(selection).to be_ended
     end
 
-    it "ends without compatible pairs when the only cartridge pen is not shown" do
+    it "goes on with only cartridges when the one cartridge pen ranks outside the pen slice" do
       small_slices(pens: 1)
       create(:collected_pen, user:, filling_system: "piston")
       cartridge_pen = create(:collected_pen, user:, filling_system: "C/C")
@@ -281,8 +311,10 @@ RSpec.describe PenAndInkSuggestion::CandidateSelector do
 
       selection = select
 
-      expect(selection.inks).to be_empty
-      expect(selection.end_reason).to eq(:no_compatible_pairs)
+      expect(selection.pens).to eq([cartridge_pen])
+      expect(selection.pen_total).to eq(1)
+      expect(selection.inks).to match_array(cartridges)
+      expect(selection).not_to be_ended
     end
 
     it "ends when the user rejected every shown pairing" do
