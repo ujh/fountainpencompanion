@@ -12,11 +12,10 @@ orchestration workflow to FPC's Rails, React, Sidekiq, and RubyLLM application.
 - **Step agent:** a fresh Claude Code subagent for one step. It implements, checks, commits without
   pushing, and reports. It does not edit the execution plan.
 - **Reviewer:** a fresh subagent with no implementation context. It reviews the plan, commit, or whole
-  branch, reports findings, and uses its own worktree for any checks that write files.
+  branch and reports findings without modifying the implementation.
 
-Run one agent at a time: token use matters more than speed on this side project. Parallel work is an
-option to agree with the owner and record in the plan. Separate worktrees protect other ongoing work
-even when agents run sequentially.
+Work in one checkout and run one agent at a time: token use matters more than speed on this side
+project. Finish a step and its review before starting the next dependent step.
 
 ## The run
 
@@ -33,10 +32,9 @@ implementation details yourself and explain them in the plan and PR descriptions
 
 ### 2. Write the execution plan
 
-Write `plans/NAME.md` in the worktree. `/plans/` is gitignored: the plan survives an interrupted session
+Write `plans/NAME.md` in the repository checkout. `/plans/` is gitignored: the plan survives an interrupted session
 without entering history. Keep lasting design decisions and runbooks in the existing `docs/` files;
-do not replace or delete those tracked plans. Give every subagent the absolute execution-plan path,
-since another worktree does not contain this ignored file.
+do not replace or delete those tracked plans. Give every subagent the execution-plan path.
 
 The plan holds:
 
@@ -90,8 +88,8 @@ the orchestrator.
 ### 5. Build the PRs in order
 
 Finish each PR's steps, whole-branch review, and CI before branching the next dependent PR from it.
-Use a separate worktree for the work; never stash, reset, or check out branches in someone else's
-active checkout. Setup is under [Worktrees and stacked PRs](#worktrees-and-stacked-prs).
+Create each branch from its intended base in the current checkout. For dependent PRs, follow
+[Stacked PRs](#stacked-prs).
 
 **Steps.** Give each step to a fresh agent with the [step brief](#step-brief). When it reports, check
 the result against every plan clause that names the step, including design decisions. Record commit
@@ -146,15 +144,13 @@ not use evo's `PROJECT_NOTES.md`; do not invent a parallel backlog by default.
 
 ### 7. Clean up
 
-After all PRs merge, remove the ignored execution plan and unused worktrees and branches. Preserve
-tracked design docs, worktrees still in use, and any uncommitted files that need keeping. Stop only
-the Docker project created for this worktree; remove its disposable volumes only after checking they
-hold no needed data. Cleanup is the plan's last checklist item.
+After all PRs merge, remove the ignored execution plan and unused branches. Preserve tracked design
+docs and any uncommitted files that need keeping. Cleanup is the plan's last checklist item.
 
 ## When to ask the owner
 
 Ask for unresolved product decisions, plan approval, changes to approved scope or invariants,
-parallel agent work, and merging. Ask before production operations, data exports, paid evaluations,
+and merging. Ask before production operations, data exports, paid evaluations,
 or other external actions unless the owner already authorized the specific action and its limits.
 Ask before a **[quiet]** timing that requires pausing other work. Do not stop for sign-off between
 ordinary steps or because review has taken several rounds.
@@ -169,12 +165,12 @@ Use Claude Code's task status and output tools to check agents regularly. Inspec
 commits, `git status`, and running checks when progress is unclear. Brief agents to keep checks in
 the foreground with a suitable deadline and report as soon as they finish. If an agent shows no
 progress over two checks, ask for status; if it remains unresponsive, stop it before a replacement
-writes to that worktree. Reconcile its edits and commits with the plan first. Cancel any monitoring
+continues the work. Reconcile its edits and commits with the plan first. Cancel any monitoring
 task when its agent reports so stale notifications do not interrupt later work.
 
 ## Step brief
 
-Give each agent the absolute worktree and execution-plan paths, branch and base commit, its step,
+Give each agent the repository and execution-plan paths, branch and base commit, its step,
 every plan clause applying to that step, owner decisions, acceptance criteria, and exact check
 commands. Include `CLAUDE.md` and this guide. The agent:
 
@@ -182,8 +178,8 @@ commands. Include `CLAUDE.md` and this guide. The agent:
 - Follows existing FPC conventions and keeps migrations and `db/structure.sql` consistent.
 - Runs focused checks while implementing and both full test suites before declaring the task done,
   as `CLAUDE.md` requires; checks output for new warnings and runs the named extra checks.
-- Runs commands in its isolated environment. It never runs migrations, jobs, or tests against
-  another worktree's database or Redis, and never writes scratch files into tracked directories.
+- Runs commands through the development environment described in `CLAUDE.md` and keeps scratch
+  files out of tracked directories.
 - Checks `git status` and ignored files so required fixtures are committed and generated files stay
   out. Lets the pre-commit hook format staged files and inspects the result.
 - Leaves **[quiet]** measurements and unauthorized external actions to the orchestrator. It prepares
@@ -214,10 +210,9 @@ again. The loop ends when a round has no blocker or important finding; it has no
 limit. Nits do not start another round. Fix small nits on already touched lines or report them.
 
 A reviewer receives the base, diff command, goal, owner decisions, earlier findings, relevant plan
-clauses, and required checks. It never checks out, stashes, formats, or mutates code in the author's
-worktree. For checks that write files or for targeted mutations verifying a test catches a defect,
-it uses its own worktree and isolated runtime. Docs-only reviews check accuracy, links, commands,
-and consistency with repository instructions.
+clauses, and required checks. It does not change branches, stash, format, or edit implementation
+files. The step agent makes fixes after the reviewer reports. Docs-only reviews check accuracy,
+links, commands, and consistency with repository instructions.
 
 ## Checks and measurements
 
@@ -232,9 +227,9 @@ and consistency with repository instructions.
 | Application smoke check | End of the last code PR; earlier where stubs hide integration | Exercise the application path beyond isolated tests.         |
 | GitHub CI               | Each PR and subsequent push                                   | Verify the submitted commit, including the production image. |
 
-Use the commands in `CLAUDE.md` with the worktree's Compose project and configuration. A targeted
-mutation is useful where a test might pass despite broken behavior; do a few meaningful checks in
-the reviewer's worktree, then restore it. Avoid wall-clock assertions for ordinary correctness tests.
+Use the commands in `CLAUDE.md`. When a test might pass despite broken behavior, ask the step agent
+to temporarily break that behavior, confirm the test fails, and restore the implementation before
+committing. Avoid wall-clock assertions for ordinary correctness tests.
 
 For **[quiet]** timings, first prepare the command and representative workload. The orchestrator
 coordinates a pause with the owner unless already authorized, records load and available disk,
@@ -246,31 +241,7 @@ For **[paid]** evaluations, agree the provider, model, dataset, and spending cap
 latency, and cost results; keep private collection data and secrets out of commits and reports. Live
 calls do not replace repeatable stubbed or replay tests.
 
-## Worktrees and stacked PRs
-
-Create a branch from the intended base in a sibling directory, for example from the main checkout:
-
-```sh
-git worktree add -b feature/NAME ../fountainpencompanion-NAME origin/master
-```
-
-For a dependent PR, substitute the reviewed previous branch for `origin/master`. Record the base
-commit so reviewers can reproduce the diff. Never let two agents write to one worktree at once.
-
-**Docker isolation.** FPC's Compose file binds the current checkout to `/app`, publishes fixed ports
-80, 5432, and 6379, and uses named volumes. A new directory alone is insufficient for isolation.
-Give each worktree a unique Compose project name and a local configuration that removes or remaps
-those host ports. Keep the configuration under ignored `tmp/` and pass the original Compose file
-first so relative bind mounts and env-file paths resolve from the worktree. Use the same project
-name and files for every `up`, `run`, `exec`, and `down` command. Do not reuse explicit container names
-or external database/Redis volumes. Check the resolved mounts and endpoints before running tests.
-
-Install dependencies matching that branch, initialize its own database, and use dummy provider
-credentials for tests. Ensure any `.env.local` is appropriate for this isolated project; do not copy
-production credentials into it. A running app container from the main checkout tests the main
-checkout's `/app`, even if `exec` was invoked from a different directory. Avoid starting scheduled
-Sidekiq work for a test-only environment. Build an image with a distinct local tag if the branch
-changes dependencies or the Dockerfile, so other projects keep their image.
+## Stacked PRs
 
 **Stacking.** Open and verify the base PR before beginning a dependent one. Independent PRs can target
 `master`. If a base branch is rebased, move its unpublished descendants with
@@ -280,5 +251,5 @@ coordination.
 **Merging.** Once authorized, merge the bottom PR without deleting its branch. Retarget the next PR
 to `master` with `gh pr edit PR --base master` and verify its base before deleting the old remote
 branch: deleting a branch still targeted by a PR can close that PR. Bring the next branch up to date,
-review conflict resolutions, rerun checks and CI, then merge it. Repeat up the stack. Remove unused
-worktrees before deleting their local branches, and check for uncommitted work before removal.
+review conflict resolutions, rerun checks and CI, then merge it. Repeat up the stack. Check for
+uncommitted work before switching branches or deleting unused local branches.
