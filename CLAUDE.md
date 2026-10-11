@@ -157,6 +157,7 @@ spec/
 
 ## Key Conventions
 
+- **Larger changes**: For work spanning several PRs or requiring several design decisions, follow [the orchestration workflow](docs/orchestration.md): plan, delegate, review, and report. Claude Code in the owner conversation is the orchestrator.
 - **New code should be well-structured and thoroughly tested.** Existing code quality varies; don't model new additions after poorly-tested older code.
 - **Tests document behaviour, not comments.** Don't add explanatory comments that describe why a check or branch exists; write a test that pins the behaviour instead. Comments are for the rare non-obvious implementation detail a test can't express.
 - **Ruby**: snake_case for methods/variables, CamelCase for classes/modules. Rescue specific errors only. Prefer `attr_accessor` with `self.x =` in constructors over bare `@x` instance variables.
