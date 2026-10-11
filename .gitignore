@@ -49,3 +49,6 @@ yarn-debug.log*
 .crush/
 
 .claude/
+
+# Local execution plans for larger changes (tracked design docs stay in docs/).
+/plans/
