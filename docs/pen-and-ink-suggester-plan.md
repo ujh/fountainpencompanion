@@ -3574,3 +3574,7 @@ unchecked by the owner.
   `max_tool_calls` raises, not passing it, and that an unlisted model goes into
   `RubyLlmModels::UNLISTED` (which the initializer registers at boot), not into a new block in
   the initializer.
+- p19: The reviewer nit on #3865 (dropping the cached note relies on the message's `\n\n` join)
+  is fixed: `SuggestionMessage::SEPARATOR` joins the message and its notes, and
+  `RequestPenAndInkSuggestion` strips `SEPARATOR + note`; the spec now builds the cached message
+  through `SuggestionMessage`, so a separator change cannot leave the note in place unnoticed.

@@ -119,13 +119,24 @@ describe RequestPenAndInkSuggestion do
       let(:pen) { create(:collected_pen, user:) }
       let!(:inking) { create(:currently_inked, user:, collected_pen: pen) }
 
-      let(:note) { "_Currently inked with Ink\\*Co — empty and clean it first._" }
+      let(:raw_note) { "Currently inked with Ink*Co — empty and clean it first." }
+      let(:note) { PenAndInkSuggestion::SuggestionMessage.note_markdown(raw_note) }
+
+      def message(notes: [raw_note])
+        PenAndInkSuggestion::SuggestionMessage.new(
+          pen:,
+          ink:,
+          nib_profile: NibProfile.parse(pen.nib, brand: pen.brand, model: pen.model),
+          reasoning: "A calm blue.",
+          notes:
+        ).to_s
+      end
 
       def write(currently_inked_id: inking.id, pen_id: pen.id)
         Rails.cache.write(
           suggestion_id,
           {
-            message: "- **Pen:** Pen\n- **Ink:** Ink\n\n#{note}\n\nA calm blue.",
+            message:,
             ink: ink.id,
             pen: pen_id,
             pen_currently_inked: true,
@@ -156,18 +167,14 @@ describe RequestPenAndInkSuggestion do
       it "keeps the clean-it-first note while the pen is still inked" do
         write
 
-        expect(read[:message]).to eq(
-          FpcFormatter.render("- **Pen:** Pen\n- **Ink:** Ink\n\n#{note}\n\nA calm blue.")
-        )
+        expect(read[:message]).to eq(FpcFormatter.render(message))
       end
 
       it "drops the clean-it-first note once the pen has been cleaned" do
         write
         inking.archive!
 
-        expect(read[:message]).to eq(
-          FpcFormatter.render("- **Pen:** Pen\n- **Ink:** Ink\n\nA calm blue.")
-        )
+        expect(read[:message]).to eq(FpcFormatter.render(message(notes: [])))
       end
 
       it "does not pass the note on to the widget" do

@@ -1,5 +1,6 @@
 class PenAndInkSuggestion::SuggestionMessage
   MARKDOWN_SPECIAL = /([\\`*_\[\]<>])/
+  SEPARATOR = "\n\n"
 
   attr_accessor :pen, :ink, :nib_profile, :notes, :reasoning
 
@@ -20,7 +21,7 @@ class PenAndInkSuggestion::SuggestionMessage
   end
 
   def to_s
-    [header, notes_block, reasoning].compact_blank.join("\n\n")
+    [header, notes_block, reasoning].compact_blank.join(SEPARATOR)
   end
 
   private
@@ -35,7 +36,7 @@ class PenAndInkSuggestion::SuggestionMessage
   end
 
   def notes_block
-    notes.map { |note| self.class.note_markdown(note) }.join("\n\n")
+    notes.map { |note| self.class.note_markdown(note) }.join(SEPARATOR)
   end
 
   def escape(text)

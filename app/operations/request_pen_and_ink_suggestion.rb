@@ -41,7 +41,10 @@ class RequestPenAndInkSuggestion
   def drop_currently_inked_note(suggestion, note)
     return unless note && suggestion[:message]
 
-    suggestion[:message] = suggestion[:message].sub("\n\n#{note}", "")
+    suggestion[:message] = suggestion[:message].sub(
+      "#{PenAndInkSuggestion::SuggestionMessage::SEPARATOR}#{note}",
+      ""
+    )
   end
 
   def request_suggestion
