@@ -439,7 +439,7 @@ GEM
       uber (< 0.2.0)
     request_store (1.7.0)
       rack (>= 1.4)
-    resolv (0.8.0)
+    resolv (0.8.1)
     responders (3.2.0)
       actionpack (>= 7.0)
       railties (>= 7.0)
