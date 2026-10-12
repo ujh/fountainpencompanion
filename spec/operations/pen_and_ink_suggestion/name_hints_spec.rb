@@ -87,6 +87,16 @@ RSpec.describe PenAndInkSuggestion::NameHints do
     expect(described_class.call(snapshot, mentions, index:)).to eq([])
   end
 
+  it "names the usable item when its twin can't be suggested" do
+    pen("Corvid", "Halcyon")
+    pen("Corvid", "Halcyon", nib: "Rollerball")
+    ink("Quillworth", "Harbour Fog")
+    ink("Quillworth", "Harbour Fog", kind: "swab")
+
+    expect(hints_for("Corvid Halcyon")).to eq(["pen: Corvid Halcyon"])
+    expect(hints_for("Quillworth Harbour Fog")).to eq(["ink: Quillworth Harbour Fog"])
+  end
+
   it "gives nothing when the request names nothing in the collection" do
     pen("Corvid", "Halcyon")
 

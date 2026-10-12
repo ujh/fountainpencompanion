@@ -2749,7 +2749,10 @@ evidence.
   differ (at most two names for a tie), and a brand-only hit as `pen brand: <text>`; a bare name
   that fits both sides gives one line per side. Hits that only come close (the "went with the
   closest" note), aren't found, or name an item that can't be suggested (a rollerball, a swab) give
-  no line, so `names_found` lists only items the user owns and can use.
+  no line, so `names_found` lists only items the user owns and can use. A name that fits a usable
+  item and an unusable twin (a bottle and a swab of one ink, a fountain pen and a rollerball of one
+  model) gives a line for the usable item: `NameResolver::Resolution#misses` lists the mentions
+  that were only close or not found, and only those drop the line; the "left out" notes don't.
 - p12: The extractor's user message is `<request>…</request>`, then, only when something was found,
   `<names_found>` with one line per hit. The extractor itself caps the block at 5 lines of at most
   160 characters, drops duplicates and blank lines, and replaces `<` and `>` in each line with
@@ -2765,6 +2768,11 @@ evidence.
   transcript.
 - p12: `NameResolver.display_name` is now a public class method, shared by the resolver's notes
   and the hints.
+- p12: Review fix: the hints first dropped a mention whenever the resolver added any note, which
+  also dropped a usable pin whose unusable twin got a "left out" note. `Resolution` now carries
+  `misses` (the mention texts that were only close or not found; empty by default, so the other
+  callers are unchanged) and the hints skip on that. Recomputing the hints for the 324 extractor
+  bench strings (122 with hints) changes none of them, so section 8.9 stands without a re-run.
 - p12: Bench: extractor labels carry an optional `user_id` and `as_of`. `bench:suggester:extractor_labels`
   takes them from the case for p6 strings and from the first logged suggester run with the same
   (normalised, 500-character) text for the supplements; strings without a run (the synthetic

@@ -20,7 +20,7 @@ class PenAndInkSuggestion::NameHints
 
   def hints(mention)
     resolution = resolver.call([mention])
-    return [] if resolution.notes.any?
+    return [] if resolution.misses?
 
     text = mention.text.to_s.squish
     SIDES.filter_map do |side|

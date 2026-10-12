@@ -14,10 +14,14 @@ class PenAndInkSuggestion::NameResolver
   }.freeze
 
   Resolution =
-    Data.define(:pen_pins, :ink_pins, :pen_brand_filter, :ink_brand_filter, :notes) do
+    Data.define(:pen_pins, :ink_pins, :pen_brand_filter, :ink_brand_filter, :notes, :misses) do
       def self.empty
         new(pen_pins: [], ink_pins: [], pen_brand_filter: nil, ink_brand_filter: nil, notes: [])
       end
+
+      def initialize(misses: [], **) = super
+
+      def misses? = misses.any?
 
       def pins(side) = side == :pen ? pen_pins : ink_pins
 
@@ -52,11 +56,15 @@ class PenAndInkSuggestion::NameResolver
     pins = SIDES.index_with { [] }
     filters = {}
     notes = []
+    misses = []
     mentions.each do |mention|
       outcome = resolve(mention)
       outcome[:pins].each { |side, items| pins[side] |= items }
       outcome[:filters].each { |side, items| filters[side] = (filters[side] || []) | items }
-      notes << outcome[:note] if outcome[:note]
+      next unless outcome[:note]
+
+      notes << outcome[:note]
+      misses << text(mention)
     end
     SIDES.each do |side|
       usable, unusable = pins[side].partition { |item| usable?(item) }
@@ -70,7 +78,8 @@ class PenAndInkSuggestion::NameResolver
       ink_pins: pins[:ink].first(MAX_PINS),
       pen_brand_filter: filters[:pen],
       ink_brand_filter: filters[:ink],
-      notes:
+      notes:,
+      misses:
     )
   end
 

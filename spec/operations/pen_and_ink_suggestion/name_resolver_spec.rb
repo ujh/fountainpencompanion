@@ -247,6 +247,26 @@ RSpec.describe PenAndInkSuggestion::NameResolver do
     expect(described_class::Resolution.empty).not_to be_pins
   end
 
+  it "lists the mentions it could not find as written, and only those" do
+    pen("Corvid", "V126")
+    pen("Corvid", "Halcyon")
+    pen("Corvid", "Halcyon", nib: "Rollerball")
+    ink("Quillworth", "Harbour Fog", kind: "swab")
+
+    resolution =
+      resolve(
+        mention("Corvid V128", :pen),
+        mention("Wrenfield Comet", :pen),
+        mention("Corvid Halcyon", :pen),
+        mention("Quillworth Harbour Fog", :ink)
+      )
+
+    expect(resolution.misses).to eq(["Corvid V128", "Wrenfield Comet"])
+    expect(resolution).to be_misses
+    expect(resolve(mention("Corvid Halcyon", :pen))).not_to be_misses
+    expect(described_class::Resolution.empty.misses).to eq([])
+  end
+
   it "never resolves another user's items" do
     create(:collected_pen, brand: "Lamy", model: "2000")
 
