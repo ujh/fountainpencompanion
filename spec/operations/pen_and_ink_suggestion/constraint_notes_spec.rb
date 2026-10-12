@@ -5,6 +5,56 @@ RSpec.describe PenAndInkSuggestion::ConstraintNotes do
     PenAndInkSuggestion::Constraints.from_h(hash)
   end
 
+  describe ".summary" do
+    it "lists a side's includes, then its exclusions" do
+      constraints =
+        PenAndInkSuggestion::Constraints.from_h(
+          pen: {
+            nib_grades_include: %w[M B],
+            nib_characters_include: ["stub"],
+            usage: "never_used",
+            exclude_mentions: ["Parker"],
+            nib_characters_exclude: ["fude"]
+          },
+          ink: {
+            kinds_include: %w[sample cartridge],
+            colour_include: %w[blue teal],
+            shimmer: "include",
+            usage: "used_before",
+            scented: "exclude",
+            tags_exclude: ["office"]
+          }
+        )
+
+      expect(described_class.summary(:pen, constraints)).to eq(
+        "M or B nibs; stub nibs; never used; no \"Parker\"; no fude nibs"
+      )
+      expect(described_class.summary(:ink, constraints)).to eq(
+        "ink samples or cartridges; blue or teal inks; shimmer inks; used before; " \
+          "no inks tagged \"office\"; no scented inks"
+      )
+    end
+
+    it "words a widened nib width and returns nil without filters" do
+      constraints = PenAndInkSuggestion::Constraints.from_h(pen: { nib_width: "fine" })
+
+      expect(
+        described_class.summary(:pen, constraints.with("pen.nib_width", "fine", nib_width_slack: 1))
+      ).to eq("fine nibs or one size broader")
+      expect(
+        described_class.summary(
+          :pen,
+          PenAndInkSuggestion::Constraints.from_h(pen: { nib_width: "broad" }).with(
+            "pen.nib_width",
+            "broad",
+            nib_width_slack: 1
+          )
+        )
+      ).to eq("broad nibs or one size finer")
+      expect(described_class.summary(:ink, constraints)).to be_nil
+    end
+  end
+
   describe ".excluded" do
     it "names every kind of pen exclusion" do
       pen_constraints =

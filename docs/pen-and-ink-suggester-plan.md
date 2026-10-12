@@ -1588,6 +1588,102 @@ checks). The same holds for every later suggester PR whose bench rows reuse thes
 labels and the code under test come from the same system, and the change ships without a feature
 flag, so this bench is the main check before merge.
 
+### 8.7 P9 bench: extractor and constraint filters (recorded in p9b, 2026-10-12)
+
+**These numbers are scored against unreviewed draft labels** (two-pass label agreement: every
+scored field identical in 196 / 210 instruction cases, 93.3%, section 8.4). The extractor set adds
+115 strings with single-pass labels drafted by p9b agents. The section 9 `gate` row (the owner's
+spot check of about 50 labels and the metric-7 normaliser hand checks) is still open, so nothing
+here clears P9 for merge. The label-free rows are the primary evidence.
+
+**Extractor labelled set** (`bench:suggester:extractor`, temperature 0, schema parameters). There
+are 324 strings: 209 from the p6 case labels, 55 single-pass (`holdout`) and 60 single-pass
+strings drawn at random from unlabelled dev DB instructions (`holdout2`, never used to tune the
+prompt). 301 are scored (23 ambiguous) and no extraction failed. "Off named sides" leaves out false
+positives on a side whose label names an item; such a filter only narrows the pins. Mention false
+positives always count.
+
+| Hard-field false positives (bar ≤ 3%) | gpt-4.1-mini     | gpt-4.1          |
+| ------------------------------------- | ---------------- | ---------------- |
+| all scored strings                    | 19.6% (59/301)   | 5.6% (17/301)    |
+| off named sides                       | 15.9% (48/301)   | 5.6% (17/301)    |
+| p6 strings (two-pass labels)          | 16.8% (33/196)   | 4.6% (9/196)     |
+| test split                            | 13.5% (13/96)    | 5.2% (5/96)      |
+| `holdout2` (unseen, single-pass)      | 21.2% (11/52)    | 3.8% (2/52)      |
+| $ per extraction / latency p50        | $0.00040 / 0.8 s | $0.0021 / 0.8 s  |
+
+The extractor on gpt-4.1-mini does not meet the ≤ 3% bar against draft labels, and gpt-4.1 does not
+either. Per field on mini (true positives / false positives / misses), the main false-positive
+sources are `pen.nib_characters_include` 1/11/1, `pen.nib_grades_include` 14/11/5, `ink.usage`
+26/9/1, `ink.mentions` 21/9/2, `pen.usage` 17/8/1, `pen.nib_width` 5/8/2, `pen.mentions` 126/8/16
+and `pair_usage` 2/6/0. The most frequent filters are precise: `ink.kinds_include` 29/0/1,
+`ink.colour_include` 61/3/4, `ink.colour_exclude` 10/0/0, `ink.scented` 6/0/0. Typical errors: a
+nib or colour describing a named pen read as a filter, "not currently inked" or "new inks" read as
+`never_used`, "haven't used in a while" read as `used_before`, and a pen and an ink "never used"
+also read as `pair_usage: new`. Mini is noisy even at temperature 0: prompt rounds moved the dev
+split from 54% to about 20%, after which further rounds stopped helping. On gpt-4.1, most of what
+remains is how a mention is spelled (abbreviated or misspelled model names against the label's
+full name).
+
+**Suggester runs** (seed 1, against the p6b baselines and the p8 runs at the same seed, tier and
+split): the 210 instruction cases on gpt-4.1-mini (`TIER=free`) and the 103 test cases on gpt-4.1
+(`TIER=premium`), with the extractor (gpt-4.1-mini) inside every run. The extractor succeeded in
+all 313 runs (no fallback). These runs repeated the same prompts minutes after an earlier run,
+so OpenAI's prompt cache made them cheaper than production would be. The table gives the list
+price (no cache) and the cached figure.
+
+| Metric (instruction cases, test split)          | mini baseline | mini P8       | mini P9       | gpt-4.1 baseline | gpt-4.1 P8    | gpt-4.1 P9    |
+| ----------------------------------------------- | ------------- | ------------- | ------------- | ---------------- | ------------- | ------------- |
+| Hard failures                                   | 0 / 103       | 0 / 103       | 0 / 103       | 0 / 103          | 0 / 103       | 0 / 103       |
+| Valid suggestions                               | 97.1%         | 100%          | 100%          | 100%             | 100%          | 100%          |
+| Swab or incompatible cartridge                  | 1             | 0             | 0             | 0                | 0             | 0             |
+| Rule leakage                                    | 94.1%         | 14.7%         | 8.8%          | 71.6%            | 2.9%          | 2.0%          |
+| $ per run incl. extractor, list price           | $0.00254      | $0.00230      | $0.00323      | $0.0215          | $0.0162       | $0.0141       |
+| $ per run incl. extractor, cached prefix at 25% | $0.00254      | $0.00228      | $0.00140      | $0.0215          | $0.0162       | $0.0078       |
+| Latency p50 / p90                               | 1.74 / 2.27 s | 1.54 / 1.69 s | 2.65 / 3.10 s | 2.02 / 2.54 s    | 1.66 / 1.94 s | 2.71 / 3.16 s |
+| Named pen hit (draft labels)                    | 52.1% (25/48) | 91.7% (44/48) | 93.8% (45/48) | 72.9% (35/48)    | 95.8% (46/48) | 93.8% (45/48) |
+| Named ink hit (draft labels)                    | 66.7% (6/9)   | 77.8% (7/9)   | 77.8% (7/9)   | 66.7% (6/9)      | 88.9% (8/9)   | 88.9% (8/9)   |
+| Hard constraints met or relaxed (draft labels)  | 85.1% (40/47) | 85.1% (40/47) | 100% (47/47)  | 93.6% (44/47)    | 95.7% (45/47) | 100% (47/47)  |
+
+- Over all 210 mini cases: named pen hit 93.3% (90 cases), named ink hit 82.4% (17), hard
+  constraints met or relaxed 100% (97 scored), leakage 10.1% (the ordinary word "balance(d)" as
+  in P8).
+- **Cost.** The extractor reads about 2.8k input tokens (median; the 22-field schema and rules
+  are a static prefix), not the 1.0k section 6 estimated, and writes about 30. That is $0.0011 per
+  instruction run at list price. The picker's input fell from 4.9k to 4.3k tokens (median) with
+  the filtered slices. At list price the free entry's instruction runs cost $0.00323, 27% above the
+  baseline, so they miss the "≤ baseline" cost row unless the extractor prefix is cached. With
+  the prefix cached they cost $0.0014. Runs without an instruction (about half of all runs) don't
+  call the extractor and are below the baseline (section 8.5). The premium entry is below the
+  baseline either way.
+- The extractor adds about 1 s of latency (p50 1.5 → 2.6 s on mini).
+- 1 run per model ended without a pick (every pen inked and none named). 4 mini runs and 3 gpt-4.1
+  runs relaxed a filter with step `pinned`, mostly because the extractor had read a named pen's
+  description as a filter, and so showed the "kept them anyway" note.
+- The judge was not run for P9. The "instruction honoured" row and the no-instruction rows (that
+  path has not changed since P7) are not re-measured.
+
+**Acceptance demo** ("only ink samples, I want to use them up, and fairly broad nibs", the owner's
+collection in the dev DB, admin tier, seeds 1–3, measured before the final example clean-up of
+the extractor prompt). In all three runs the extractor returned `pen.nib_width: broadish` and
+`ink.kinds_include: [sample]` with no usage filter, as in section 3.7. The picker saw `PENS (49 of
+49 that fit: broad-ish nibs)` and `INKS (39 of 39 that fit: ink samples)` with the note that 3
+pens without a recognisable nib size were left out. Nothing was relaxed, and every pick was a
+sample in a W6 pen. Cost was $0.0128 per run on gpt-4.1.
+
+**Spend in p9b:** extractor runs $2.01 (all rounds and both models), suggester runs $2.93 (two
+rounds), demo $0.04, plus about $0.43 of extractor rounds in the interrupted first attempt:
+**about $5.41 in all**, no single run above $1.40.
+
+Against draft labels, P9 meets the bar for hard failures, swab/cartridge picks, rule leakage and
+hard constraints met or relaxed, and on gpt-4.1 for cost. On gpt-4.1-mini, cost meets the bar
+only with the extractor prefix cached. The named-ink hit on the test split is 77.8% / 88.9%
+against the 85% bar; it rests on 9 cases. The extractor's hard-field false-positive rate does
+**not** meet its ≤ 3% bar on either model. The instruction-honoured row was not re-graded. The
+owner decides, together with the `gate` row, whether to ship on gpt-4.1-mini, switch the
+extractor model (in its own PR, section 7), shorten the extractor prompt, or tighten the
+extractor further.
+
 ---
 
 ## 9. PR plan
@@ -2417,3 +2513,59 @@ evidence.
   shown in 87 of 90 cases and named ink in 17 of 17, p50 22 ms and p95 106 ms per case including
   the snapshot. These are scored against unreviewed draft labels (two-pass agreement 196/210,
   93.3%, section 8.4) and show consistency with the labels, not that the filters are right.
+
+**p9b decisions:**
+
+- p9b: The extractor's user message is only `<request>…</request>` (tags in the text removed,
+  whitespace squished); the previous-suggestion flag is not sent. Ruby keeps `keep_from_previous`
+  only when a suggestion was turned down and that side has no mention, since the model read "same
+  pen" into first requests and set it next to named items.
+- p9b: `set_constraints` uses the `params` DSL with all 22 fields optional and the enums as hints.
+  RubyLLM 1.16 sends no function-level `strict`, so OpenAI doesn't enforce the schema anyway and
+  `Constraints.from_h` re-validates everything. With every field required, the model filled fields
+  it should have left at their defaults. The JSON switch is
+  `config.x.pen_and_ink_constraint_extractor_params` (`PEN_AND_INK_CONSTRAINT_EXTRACTOR_PARAMS`,
+  `schema` by default, or `json`): one `constraints_json` parameter whose description outlines the
+  fields; invalid JSON or a non-object is answered with "call again" and counts toward the
+  extractor's tool-call cap of 4.
+- p9b: The extractor runs at temperature 0 through a new overridable `temperature` hook on
+  `RubyLlmAgent` (default `nil`, so no other agent changes), with `calls: :one`.
+- p9b: Ruby checks after validation, each pinned by a spec: a colour list of more than four
+  families is dropped (the model lists every "warm colour" for a mood); a mention with no word
+  outside the `MentionVocabulary` stop and filler words is dropped ("purple pen", "the fine one");
+  a mention that also appears in either side's `exclude_mentions` is dropped ("not Ancient
+  Copper" had become an ink pin).
+- p9b: `NameResolver` resolves a sided mention on the other side when its own side finds nothing
+  (no pin, no brand, no closest model), because the extractor sometimes puts an ink on the pen
+  side. This applies to the matcher's sided mentions too.
+- p9b: Agreement rule for Ruby pins: when the extractor succeeds, only its mentions are resolved.
+  `MentionMatcher` pins are kept only on a side where the extractor's mention resolved to a brand
+  filter and the matcher's pins lie inside that brand (extractor "Lamy", matcher "Lamy 2000").
+  When the extractor fails, the matcher's pins are used as in p8.
+- p9b: The extractor's child log is found or created through `find_or_create_agent_log(parent)`,
+  ends `waiting_for_approval`, and holds `{"constraints"}` or `{"error" => class}`; the suggester
+  adds `extractor_error` to `extra_data` on fallback. `extractor_ran?` is true for every
+  instruction run past the precheck, so selector ends and the post-resolution end count toward the
+  daily cap even when the extractor failed before any HTTP call (missing key, unknown model id).
+- p9b: The picker's list headers name the effective filters ("PENS (49 of 49 that fit: broad-ish
+  nibs)", "…; no stub nibs") and `WISHES (read from the request): <soft_notes>` comes before
+  `<request>`; the system directive describes WISHES as data, not filters.
+- p9b: Extractor labelled set (gitignored): 209 strings from the p6 case labels (two-pass draft
+  labels), 48 + 7 strings drafted single-pass by the interrupted first p9b attempt (split
+  `holdout`), and 60 strings drawn at random from the dev DB's unlabelled instructions and labelled
+  single-pass in this step before the last prompt round (split `holdout2`); 23 ambiguous strings
+  are not scored. Rake tasks: `bench:suggester:extractor_labels`, `bench:suggester:extractor`
+  (`MODEL=` compares another model under the extractor's log name) and `extractor_report`.
+- p9b: The extractor prompt was tuned on the dev split, and the first attempt also looked at
+  test and holdout false positives, so only `holdout2` is unseen.
+- p9b: Besides the plan's per-string hard-field false-positive rate, the score reports the rate
+  without false positives on a side the label names (those filters only narrow the pins, or keep
+  them with the "kept them anyway" note). Mention false positives always count.
+- p9b: The extractor stays on gpt-4.1-mini (SQ8) although it misses the section 8.2 bar of ≤ 3%
+  hard-field false positives against draft labels (section 8.7). gpt-4.1 comes closer at about
+  5× the extraction cost. Switching the model is an owner decision, in its own PR per section 7.
+- p9b: The extractor prompt is about 2.8k tokens, not the 1.0k section 6 estimated. Its prompt
+  examples were rewritten with made-up pens after early rounds had borrowed phrases from bench
+  strings; every number in section 8.7 except the demo was re-measured after that change.
+- p9b: The S04 inventory in `docs/implementation-roadmap.md` now counts ten `MODEL_ID`
+  constants, the extractor's included.

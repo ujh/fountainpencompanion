@@ -68,6 +68,26 @@ RSpec.describe Bench::Suggester::Store do
     expect(File.read(File.join(dir, "labelling/cases/7.json"))).to eq("{}")
   end
 
+  it "writes the extractor labels and reads them and the supplement back" do
+    label =
+      Bench::Suggester::ExtractorLabel.from_h(
+        {
+          "text" => "Only samples",
+          "constraints" => {
+            "ink" => {
+              "kinds_include" => ["sample"]
+            }
+          }
+        }
+      )
+    File.write(File.join(dir, "extractor_supplement.yml"), [{ "text" => "Not a Parker" }].to_yaml)
+
+    store.write_extractor_labels([label])
+
+    expect(store.extractor_labels.map(&:to_h)).to eq([label.to_h])
+    expect(store.extractor_supplement.map(&:text)).to eq(["Not a Parker"])
+  end
+
   it "writes and reads results by run name" do
     store.write_results("baseline-1", { "results" => {} })
 

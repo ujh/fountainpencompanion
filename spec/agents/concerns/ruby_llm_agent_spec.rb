@@ -878,5 +878,22 @@ RSpec.describe RubyLlmAgent do
 
       expect(agent.chat.tools.keys).to contain_exactly(:decide, :search)
     end
+
+    it "sends no temperature by default" do
+      agent = test_class_with_tools.new(agent_log, decide_tool_class.new)
+
+      agent.ask!("Make a decision")
+
+      expect_requests(times: 2) { |body| !body.key?("temperature") }
+    end
+
+    it "sends the temperature an agent sets on every request" do
+      agent_class = Class.new(test_class_with_tools) { private def temperature = 0 }
+      agent = agent_class.new(agent_log, decide_tool_class.new)
+
+      agent.ask!("Make a decision")
+
+      expect_requests(times: 2) { |body| body["temperature"] == 0 }
+    end
   end
 end

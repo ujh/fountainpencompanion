@@ -35,6 +35,35 @@ module PenAndInkSuggestion::ConstraintNotes
     format(EXCLUDED_MESSAGE, items: SIDE_ITEMS.fetch(side), excluded: and_list(labels))
   end
 
+  def summary(side, constraints)
+    includes = constraints.inclusions(side).map { |path| included_label(path, constraints) }
+    excludes =
+      constraints
+        .exclusions(side)
+        .map { |path| "no #{excluded_label(path, constraints.value(path))}" }
+    (includes + excludes).join("; ").presence
+  end
+
+  def included_label(path, constraints)
+    value = constraints.value(path)
+    case path
+    when "pen.nib_grades_include", "pen.nib_characters_include"
+      "#{or_list(value)} nibs"
+    when "pen.nib_width"
+      widened = value == "fine" ? "broader" : "finer"
+      slack = constraints.nib_width_slack.positive? ? " or one size #{widened}" : ""
+      "#{NIB_WIDTHS.fetch(value)} nibs#{slack}"
+    when "pen.usage", "ink.usage"
+      value == "never_used" ? "never used" : "used before"
+    when "ink.kinds_include"
+      or_list(value.map { |kind| KINDS.fetch(kind) })
+    when "ink.colour_include"
+      "#{or_list(value)} inks"
+    when "ink.shimmer"
+      "shimmer inks"
+    end
+  end
+
   def relaxation_note(relaxation, effective_constraints)
     field = relaxation["field"]
     from = relaxation["from"]

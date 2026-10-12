@@ -83,8 +83,21 @@ class PenAndInkSuggestion::NameResolver
   end
 
   def resolve(mention)
+    return resolve_on(mention, SIDES) if mention.side == :any
+
+    outcome = resolve_on(mention, [mention.side])
+    return outcome if found?(outcome)
+
+    other = resolve_on(mention, SIDES - [mention.side])
+    found?(other) ? other : outcome
+  end
+
+  def found?(outcome)
+    outcome[:pins].any? || outcome[:filters].any?
+  end
+
+  def resolve_on(mention, sides)
     words = PenAndInkSuggestion::NameText.words(mention.text)
-    sides = mention.side == :any ? SIDES : [mention.side]
     matches = sides.flat_map { |side| index.matches(words, side:) }
     scored = matches.to_h { |match| [match, score(match, words)] }
     named = matches.select { |match| named?(match, words) }

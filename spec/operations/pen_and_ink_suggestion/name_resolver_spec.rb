@@ -183,6 +183,37 @@ RSpec.describe PenAndInkSuggestion::NameResolver do
     expect(resolution.ink_pins).to eq([yumeyoi_ink])
   end
 
+  it "resolves a mention on the other side when its own side has no match" do
+    petrichor = ink("Troublemaker", "Petrichor")
+    pen("Lamy", "Safari")
+
+    resolution = resolve(mention("Troublemaker Petrichor", :pen))
+
+    expect(resolution.pen_pins).to be_empty
+    expect(resolution.ink_pins).to eq([petrichor])
+    expect(resolution.notes).to be_empty
+  end
+
+  it "keeps the closest match on the mention's own side over a name on the other side" do
+    v126 = pen("Asvine", "V126")
+    ink("Asvine", "V-128 Blue")
+
+    resolution = resolve(mention("Asvine V-128", :pen))
+
+    expect(resolution.pen_pins).to eq([v126])
+    expect(resolution.ink_pins).to be_empty
+  end
+
+  it "keeps the not-found note when neither side has a match" do
+    pen("Lamy", "Safari")
+    ink("Diamine", "Oxblood")
+
+    resolution = resolve(mention("Platinum 3776", :pen))
+
+    expect(resolution.pins?).to be(false)
+    expect(resolution.notes).to eq(["I couldn't find \"Platinum 3776\" in your collection."])
+  end
+
   it "logs pins as pen and ink id hashes" do
     lamy = pen("Lamy", "2000")
     oxblood = ink("Diamine", "Oxblood")

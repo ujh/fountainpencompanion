@@ -147,10 +147,35 @@ class PenAndInkSuggester
     { :message => message, (extractor_ran? ? :ended : :precheck) => reason.to_s }
   end
 
-  def extractor_ran? = false
+  def extractor_ran? = instruction?
 
   def constraints
-    PenAndInkSuggestion::Constraints.empty
+    extracted_constraints || PenAndInkSuggestion::Constraints.empty
+  end
+
+  def extracted_constraints
+    return @extracted_constraints if defined?(@extracted_constraints)
+
+    @extracted_constraints = (constraint_extractor.perform if instruction?)
+  end
+
+  def constraint_extractor
+    @constraint_extractor ||=
+      PenAndInkConstraintExtractor.new(
+        extra_user_input,
+        parent_agent_log: agent_log,
+        previous_suggestion: rejected_suggestions.any?
+      )
+  end
+
+  def constraints_source
+    return "none" unless instruction?
+
+    extracted_constraints ? "extractor" : "fallback"
+  end
+
+  def fallback?
+    constraints_source == "fallback"
   end
 
   def v2_result
@@ -182,8 +207,8 @@ class PenAndInkSuggester
 
   def v2_log_data
     data = {
-      constraints: nil,
-      constraints_source: instruction? ? "fallback" : "none",
+      constraints: extracted_constraints&.to_h,
+      constraints_source:,
       rejected_pairs: rejected_suggestions,
       pins: candidate_selector.log_pins,
       notes: resolution.notes,
@@ -191,6 +216,7 @@ class PenAndInkSuggester
       seed:
     }
     data[:mentions] = mentions.map { |mention| mention.to_h.stringify_keys } if instruction?
+    data[:extractor_error] = constraint_extractor.error if fallback?
     return data if resolution_end
 
     data.merge(
@@ -223,7 +249,7 @@ class PenAndInkSuggester
   def no_pens_to_suggest?
     return pens.empty? if legacy?
 
-    candidate_selector.candidate_pens.empty? && !instruction?
+    !instruction? && candidate_selector.candidate_pens.empty?
   end
 
   def no_uninked_pens_message
@@ -264,7 +290,7 @@ class PenAndInkSuggester
         tier: slice_tier,
         seed:,
         resolution:,
-        fallback: instruction?,
+        fallback: fallback?,
         constraints:
       )
   end
@@ -275,16 +301,53 @@ class PenAndInkSuggester
 
   def mentions
     @mentions ||=
-      instruction? ? PenAndInkSuggestion::MentionMatcher.call(name_index, extra_user_input) : []
+      if !instruction?
+        []
+      elsif extracted_constraints
+        extractor_mentions
+      else
+        matcher_mentions
+      end
+  end
+
+  def extractor_mentions
+    %i[pen ink].flat_map do |side|
+      extracted_constraints
+        .mentions(side)
+        .map { |text| PenAndInkSuggestion::MentionMatcher::Mention.new(text:, side:) }
+    end
+  end
+
+  def matcher_mentions
+    PenAndInkSuggestion::MentionMatcher.call(name_index, extra_user_input)
   end
 
   def resolution
     @resolution ||=
-      if instruction?
-        PenAndInkSuggestion::NameResolver.call(snapshot, mentions, index: name_index)
-      else
+      if !instruction?
         PenAndInkSuggestion::NameResolver::Resolution.empty
+      elsif extracted_constraints
+        agreed_resolution(resolve(mentions))
+      else
+        resolve(mentions)
       end
+  end
+
+  def resolve(resolved_mentions)
+    PenAndInkSuggestion::NameResolver.call(snapshot, resolved_mentions, index: name_index)
+  end
+
+  def agreed_resolution(extracted)
+    brand_only =
+      %i[pen ink].select { |side| extracted.pins(side).empty? && extracted.brand_filter(side) }
+    return extracted if brand_only.empty?
+
+    matched = resolve(matcher_mentions)
+    agreed = brand_only.to_h { |side| [side, matched.pins(side) & extracted.brand_filter(side)] }
+    extracted.with(
+      pen_pins: agreed[:pen].presence || extracted.pen_pins,
+      ink_pins: agreed[:ink].presence || extracted.ink_pins
+    )
   end
 
   def selection

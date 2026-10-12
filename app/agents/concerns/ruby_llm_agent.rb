@@ -90,9 +90,14 @@ module RubyLlmAgent
     nil
   end
 
+  def temperature
+    nil
+  end
+
   def build_chat
     c = ruby_llm_context.chat(model: model_id)
     c.with_instructions(system_directive)
+    c.with_temperature(temperature) unless temperature.nil?
     c.with_tools(*tools, calls: tool_calls_mode)
     restore_transcript(c)
     register_callbacks(c)

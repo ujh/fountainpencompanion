@@ -29,6 +29,14 @@ module Bench
         ExtractorLabel.load_file(path("extractor_labels.yml"))
       end
 
+      def write_extractor_labels(labels)
+        write("extractor_labels.yml", labels.map(&:to_h).to_yaml)
+      end
+
+      def extractor_supplement
+        ExtractorLabel.load_file(path("extractor_supplement.yml"))
+      end
+
       def write_label_template(cases)
         existing = labels_file? ? (YAML.safe_load_file(path("labels.yml")) || {}) : {}
         existing = existing.transform_keys(&:to_s)

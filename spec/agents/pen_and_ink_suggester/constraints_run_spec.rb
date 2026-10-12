@@ -1,6 +1,8 @@
 require "rails_helper"
 
 RSpec.describe PenAndInkSuggester do
+  include ConstraintExtractorHelpers
+
   let(:openai_url) { "https://api.openai.com/v1/chat/completions" }
   let(:user) { create(:user, confirmed_at: 1.month.ago) }
   let!(:pen) { create(:collected_pen, user:, brand: "Lamy", model: "2000", nib: "B") }
@@ -15,12 +17,6 @@ RSpec.describe PenAndInkSuggester do
       ink_name: "Kon-peki",
       kind: "bottle",
       color: "#1f3fbf"
-    )
-  end
-
-  def use_constraints(hash)
-    allow_any_instance_of(described_class).to receive(:constraints).and_return(
-      PenAndInkSuggestion::Constraints.from_h(hash)
     )
   end
 
@@ -85,7 +81,7 @@ RSpec.describe PenAndInkSuggester do
   end
 
   it "records a suggestion from a relaxed side, with the note in the message and the log" do
-    use_constraints(ink: { kinds_include: ["sample"] })
+    stub_constraint_extractor(ink: { kinds_include: ["sample"] })
     stub_picks(bottle)
 
     suggester = described_class.new(user, "only samples please")
@@ -111,7 +107,7 @@ RSpec.describe PenAndInkSuggester do
       collected_ink: bottle,
       archived_on: 1.day.ago
     )
-    use_constraints(pair_usage: "new")
+    stub_constraint_extractor(pair_usage: "new")
     stub_picks(bottle, blue_bottle)
 
     suggester = described_class.new(user, "a pairing I haven't tried")
@@ -127,39 +123,30 @@ RSpec.describe PenAndInkSuggester do
   end
 
   context "when an exclusion leaves no ink" do
-    before { use_constraints(ink: { exclude_mentions: %w[Diamine], colour_exclude: ["blue"] }) }
+    before do
+      stub_constraint_extractor(ink: { exclude_mentions: %w[Diamine], colour_exclude: ["blue"] })
+    end
 
     let(:message) do
       "None of your inks is left after excluding \"Diamine\" and blue inks. " \
         "Change your request and try again."
     end
 
-    it "ends with a message naming the exclusions, without an LLM call or a counted run" do
-      suggester = described_class.new(user, "no Diamine, nothing blue")
-      response = suggester.perform
-
-      expect(response).to eq(message:)
-      expect(suggester.agent_log.extra_data).to include("precheck" => "excluded_all")
-      expect(WebMock).not_to have_requested(:post, openai_url)
-      expect(counted_runs).to eq(0)
-    end
-
-    it "counts the run toward the daily cap once the extractor has run" do
-      allow_any_instance_of(described_class).to receive(:extractor_ran?).and_return(true)
-
+    it "ends with a message naming the exclusions, without a pick call, and counts the run" do
       suggester = described_class.new(user, "no Diamine, nothing blue")
       response = suggester.perform
 
       expect(response).to eq(message:)
       expect(suggester.agent_log.extra_data).to include("ended" => "excluded_all")
       expect(suggester.agent_log.extra_data).not_to have_key("precheck")
+      expect(WebMock).not_to have_requested(:post, openai_url)
       expect(counted_runs).to eq(1)
     end
   end
 
   it "counts the post-resolution end once the extractor has run" do
     create(:currently_inked, user:, collected_pen: pen, collected_ink: bottle)
-    allow_any_instance_of(described_class).to receive(:extractor_ran?).and_return(true)
+    stub_constraint_extractor({})
 
     suggester = described_class.new(user, "something blue")
     suggester.perform
@@ -169,7 +156,7 @@ RSpec.describe PenAndInkSuggester do
   end
 
   it "uses the filtered message when every pairing that fits was rejected" do
-    use_constraints(ink: { colour_exclude: ["blue"] })
+    stub_constraint_extractor(ink: { colour_exclude: ["blue"] })
 
     response =
       described_class.new(
@@ -185,7 +172,7 @@ RSpec.describe PenAndInkSuggester do
 
   it "keeps the pen of the newest rejected pair and logs it as a pin" do
     other_pen = create(:collected_pen, user:, brand: "Pilot", model: "Custom 74")
-    use_constraints(keep_from_previous: "pen")
+    stub_constraint_extractor(keep_from_previous: "pen")
     stub_picks(blue_bottle)
 
     suggester =
@@ -198,11 +185,5 @@ RSpec.describe PenAndInkSuggester do
 
     expect(response).to include(pen: other_pen.id, ink: blue_bottle.id)
     expect(suggester.agent_log.extra_data["pins"]).to eq([{ "pen_id" => other_pen.id }])
-  end
-
-  it "uses empty constraints in production until the extractor arrives" do
-    expect(described_class.new(user, "only samples").send(:constraints)).to eq(
-      PenAndInkSuggestion::Constraints.empty
-    )
   end
 end

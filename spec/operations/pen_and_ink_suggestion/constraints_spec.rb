@@ -286,4 +286,22 @@ RSpec.describe PenAndInkSuggestion::Constraints do
       expect(widened.reset("pen.nib_width").nib_width_slack).to eq(0)
     end
   end
+
+  describe ".json_outline" do
+    it "outlines every field with its type or allowed values" do
+      outline = described_class.json_outline
+
+      expect(outline).to start_with(
+        "{\"out_of_scope\": true|false, \"requested_count\": integer, " \
+          "\"keep_from_previous\": \"none\"|\"pen\"|\"ink\", "
+      )
+      expect(outline).to include(
+        "\"soft_notes\": string",
+        "\"pen\": {\"mentions\": [string], ",
+        "\"nib_grades_include\": [\"EF\"|\"F\"|\"MF\"|\"M\"|\"B\"|\"BB\"]",
+        "\"ink\": {\"mentions\": [string], "
+      )
+      expect(outline).to end_with("\"sort\": \"default\"|\"least_recent\"|\"most_used\"}}")
+    end
+  end
 end

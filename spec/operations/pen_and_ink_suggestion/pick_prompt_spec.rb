@@ -284,6 +284,57 @@ RSpec.describe PenAndInkSuggestion::PickPrompt do
     expect(message).to include("(blue, medium)", "CURRENTLY INKED (3)", "colour families): blue 6")
   end
 
+  describe "runs with extracted constraints" do
+    def constrained_selection(constraints)
+      PenAndInkSuggestion::Selection.new(
+        pens: [snapshot_item(pen)],
+        inks: [snapshot_item(ink)],
+        pen_total: 46,
+        ink_total: 31,
+        effective_constraints: PenAndInkSuggestion::Constraints.from_h(constraints)
+      )
+    end
+
+    it "heads filtered lists with what they fit and adds the wishes before the request" do
+      prompt =
+        prompt_for(
+          constrained_selection(
+            soft_notes: "wants to | use up samples",
+            pen: {
+              nib_width: "broadish"
+            },
+            ink: {
+              kinds_include: ["sample"],
+              colour_exclude: ["blue"]
+            }
+          ),
+          instruction: "only samples, fairly broad nibs"
+        )
+
+      expect(prompt.sections[:pens]).to start_with(
+        "PENS (1 of 46 that fit: broad-ish nibs)\nP1 | Lamy 2000"
+      )
+      expect(prompt.sections[:inks]).to start_with(
+        "INKS (1 of 31 that fit: ink samples; no blue inks)\nI1 | Diamine Oxblood"
+      )
+      expect(prompt.sections[:rest].lines.last(2)).to eq(
+        [
+          "WISHES (read from the request): wants to / use up samples\n",
+          "<request>only samples, fairly broad nibs</request>"
+        ]
+      )
+    end
+
+    it "keeps the plain headers on a side without filters and leaves out empty wishes" do
+      prompt =
+        prompt_for(constrained_selection(ink: { shimmer: "exclude" }), instruction: "no shimmer")
+
+      expect(prompt.sections[:pens]).to start_with("PENS (1 of 46 uninked)\n")
+      expect(prompt.sections[:inks]).to start_with("INKS (1 of 31 that fit: no shimmer inks)\n")
+      expect(prompt.user_message).not_to include("WISHES")
+    end
+  end
+
   describe "instruction runs" do
     it "heads unpinned lists UNFILTERED and ends with the request" do
       prompt =

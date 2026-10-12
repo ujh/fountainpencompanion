@@ -1,6 +1,8 @@
 require_relative "bench_helper"
 
 RSpec.describe Bench::Suggester::Runner do
+  include ConstraintExtractorHelpers
+
   let(:openai_url) { "https://api.openai.com/v1/chat/completions" }
   let(:user) { create(:user) }
   let(:as_of) { Time.zone.parse("2026-05-01 10:00") }
@@ -71,14 +73,27 @@ RSpec.describe Bench::Suggester::Runner do
     )
   end
 
-  def stub_completion(body = completion)
-    stub_request(:post, openai_url).to_return(
-      status: 200,
-      body: body.to_json,
-      headers: {
-        "Content-Type" => "application/json"
+  def stub_completion(body = completion, &on_pick)
+    stub_request(:post, openai_url).to_return do |request|
+      response = body
+      if extractor_request?(request)
+        response = set_constraints_completion
+      elsif on_pick
+        on_pick.call(request)
+      end
+      { status: 200, body: response.to_json, headers: { "Content-Type" => "application/json" } }
+    end
+  end
+
+  def pick_requests
+    requests = []
+    expect(WebMock).to have_requested(:post, openai_url)
+      .with { |request|
+        requests << request unless extractor_request?(request)
+        true
       }
-    )
+      .at_least_once
+    requests
   end
 
   def user_prompt(request)
@@ -95,11 +110,13 @@ RSpec.describe Bench::Suggester::Runner do
       "ink" => ink.id,
       "reasoning" => "Ink the Kakuno with Blue Velvet."
     )
-    expect(result["cost_usd"]).to be_within(1e-9).of((6_000 * 0.40 + 150 * 1.60) / 1e6)
+    expect(result["cost_usd"]).to be_within(1e-9).of(
+      (6_000 * 0.40 + 150 * 1.60 + 1_000 * 0.40 + 100 * 1.60) / 1e6
+    )
     expect(result["list_cost_usd"]).to eq(result["cost_usd"])
-    expect(result["usages"].sole).to include(
-      "model" => "gpt-4.1-mini-2025-04-14",
-      "prompt_tokens" => 6_000
+    expect(result["usages"]).to contain_exactly(
+      include("model" => "gpt-4.1-mini-2025-04-14", "prompt_tokens" => 6_000),
+      include("model" => "gpt-4.1-mini-2025-04-14", "prompt_tokens" => 1_000)
     )
     expect(result["latency_ms"]).to be_a(Integer)
     expect(result["prompt_chars"]).to be_positive
@@ -110,7 +127,7 @@ RSpec.describe Bench::Suggester::Runner do
     body["usage"]["prompt_tokens_details"] = { "cached_tokens" => 2_000 }
     stub_completion(body)
 
-    result = described_class.new(cases: [bench_case]).run.fetch("1")
+    result = described_class.new(cases: [bench_case(instruction: nil)]).run.fetch("1")
 
     expect(result["cost_usd"]).to be_within(1e-9).of(
       (4_000 * 0.40 + 2_000 * 0.10 + 150 * 1.60) / 1e6
@@ -149,8 +166,9 @@ RSpec.describe Bench::Suggester::Runner do
 
     described_class.new(cases: [bench_case(instruction: "#{"a" * 500}TAIL")]).run
 
-    expect(WebMock).to have_requested(:post, openai_url).with { |request|
-      user_prompt(request).exclude?("TAIL")
+    expect(WebMock).to have_requested(:post, openai_url).twice
+    expect(WebMock).not_to have_requested(:post, openai_url).with { |request|
+      user_prompt(request).include?("TAIL")
     }
   end
 
@@ -160,19 +178,16 @@ RSpec.describe Bench::Suggester::Runner do
 
     described_class.new(cases: [bench_case(tier: "free")]).run
 
-    expect(WebMock).to have_requested(:post, openai_url).with(
-      body: hash_including("model" => "gpt-4.1-mini")
-    )
+    expect(JSON.parse(pick_requests.sole.body)).to include("model" => "gpt-4.1-mini")
   end
 
   it "uses the premium model for a premium case" do
     stub_completion(completion(model: "gpt-4.1-2025-04-14"))
 
-    result = described_class.new(cases: [bench_case(tier: "premium")]).run.fetch("1")
+    result =
+      described_class.new(cases: [bench_case(tier: "premium", instruction: nil)]).run.fetch("1")
 
-    expect(WebMock).to have_requested(:post, openai_url).with(
-      body: hash_including("model" => "gpt-4.1")
-    )
+    expect(JSON.parse(pick_requests.sole.body)).to include("model" => "gpt-4.1")
     expect(result["cost_usd"]).to be_within(1e-9).of((6_000 * 2.0 + 150 * 8.0) / 1e6)
   end
 
@@ -182,12 +197,14 @@ RSpec.describe Bench::Suggester::Runner do
 
     described_class.new(cases:, tier: "premium").run
 
-    expect(WebMock).to have_requested(:post, openai_url).with(
-      body: hash_including("model" => "gpt-4.1")
-    ).twice
-    expect(WebMock).not_to have_requested(:post, openai_url).with(
-      body: hash_including("model" => "gpt-4.1-mini")
-    )
+    expect(WebMock).to have_requested(:post, openai_url)
+      .with { |request|
+        !extractor_request?(request) && JSON.parse(request.body)["model"] == "gpt-4.1"
+      }
+      .twice
+    expect(WebMock).not_to have_requested(:post, openai_url).with { |request|
+      !extractor_request?(request) && JSON.parse(request.body)["model"] == "gpt-4.1-mini"
+    }
   end
 
   it "bypasses the daily cap" do
@@ -210,10 +227,7 @@ RSpec.describe Bench::Suggester::Runner do
   it "seeds the row order per case" do
     create_list(:collected_pen, 30, user:, created_at: as_of - 1.day)
     prompts = []
-    stub_request(:post, openai_url).to_return do |request|
-      prompts << user_prompt(request)
-      { status: 200, body: completion.to_json, headers: { "Content-Type" => "application/json" } }
-    end
+    stub_completion { |request| prompts << user_prompt(request) }
 
     described_class.new(cases: [bench_case], seed: 1).run
     described_class.new(cases: [bench_case], seed: 1).run
@@ -228,10 +242,7 @@ RSpec.describe Bench::Suggester::Runner do
     create_list(:collected_ink, 50, user:, created_at: as_of - 1.day)
     prompts = []
     body = completion(arguments: { pen_ref: "P1", ink_ref: "I1", reasoning: "Fine." })
-    stub_request(:post, openai_url).to_return do |request|
-      prompts << user_prompt(request)
-      { status: 200, body: body.to_json, headers: { "Content-Type" => "application/json" } }
-    end
+    stub_completion(body) { |request| prompts << user_prompt(request) }
     plain = bench_case(instruction: nil)
 
     first = described_class.new(cases: [plain], seed: 1)
@@ -338,7 +349,7 @@ RSpec.describe Bench::Suggester::Runner do
     expect(results.keys).to eq(["1"])
     expect(runner.spent_usd).to be > 0.001
     expect(runner.stop_reason).to eq("budget")
-    expect(WebMock).to have_requested(:post, openai_url).once
+    expect(pick_requests.size).to eq(1)
   end
 
   it "runs every case within the budget without a stop reason" do
@@ -352,7 +363,7 @@ RSpec.describe Bench::Suggester::Runner do
 
   it "stops after the first case whose model has no price, keeping its result" do
     stub_completion(completion(model: "some-unpriced-model"))
-    cases = [bench_case(id: "1"), bench_case(id: "2")]
+    cases = [bench_case(id: "1", instruction: nil), bench_case(id: "2", instruction: nil)]
 
     runner = described_class.new(cases:, max_usd: 100)
     results = runner.run

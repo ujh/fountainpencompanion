@@ -732,7 +732,7 @@ different name` (that comment IS the false claim: `config/initializers/ruby_llm.
   `developer` with no stub changes — plus `request_timeout` and `max_retries`). The four
   `CheckInkClustering::*` subclasses share ONE entry named `CheckInkClustering`. `PenAndInkSuggester`'s
   patron tier is a SECOND plain entry, `PenAndInkSuggester.premium`, and the agent picks the entry
-  name at runtime (Q1). The nine existing `MODEL_ID` constants become this file's `default`-per-class
+  name at runtime (Q1). The ten existing `MODEL_ID` constants become this file's `default`-per-class
   entries (OpenAI, today's model ids — no behaviour change on merge).
   - Mechanism: `RubyLlmAgent#llm_config_key` is a new private method that defaults to
     `self.class.name`; `CheckInkClustering::Base` overrides it to return the literal string
@@ -889,9 +889,10 @@ c.max_retries = entry[:max_retries] if entry[:max_retries] }` — the YAML key `
     `#build_chat` :85-92, `#ruby_llm_context` :94-96, `#access_token` :98-104 (DELETE the
     `Rails.env.development?` branch), `#agent_token_env_var` :106-108 (DELETE entirely). Reference for
     the ERB-in-YAML pattern already used in this repo: `config/database.yml`.
-  - Seed list for `config/llm.yml`'s per-class `default` entries — the nine existing `MODEL_ID`
+  - Seed list for `config/llm.yml`'s per-class `default` entries — the ten existing `MODEL_ID`
     constants, unchanged model ids, all provider `openai`, all pointing at `OPEN_AI_TOKEN`:
     `google_search_summarizer.rb:14` (`gpt-4.1-mini`), `ink_brand_clusterer.rb:49` (`gpt-4.1`),
+    `pen_and_ink_constraint_extractor.rb:4` (`gpt-4.1-mini`, one entry for both suggester tiers),
     `spam_classifier.rb:40` (`gpt-4.1-mini`), `youtube_summarizer.rb:4` (`gpt-4.1-mini`),
     `review_approver.rb:77` (`gpt-4.1-mini`), `web_page_summarizer.rb:4` (`gpt-4.1-mini`),
     `check_ink_clustering/base.rb:4` (`gpt-4.1`, shared by all `CheckInkClustering::*` subclasses under
@@ -5902,7 +5903,7 @@ cluster.pens_model_id` branch at app/workers/pens/update_model_micro_cluster.rb:
     (one entry for both tiers, gpt-4.1-mini to start). If S04 has not landed when the extractor
     PR (P9) merges, the extractor carries a `model_id` constant and S04's "nine existing
     `MODEL_ID` constants" become ten (seed list and spec counts move by one); P9 updates S04's text
-    in the same PR.
+    in the same PR. Done in step p9b: S04 above now lists ten constants, the extractor included.
   - **S28.** The suggester export uses v2's hand-labelled cases, `CollectionSnapshot` `as_of:`
     replay and the `enforce_daily_limit:` keyword (see S28 item 3) if P6 lands before S28 is
     built; otherwise P6 adapts S28's export to them.

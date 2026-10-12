@@ -233,4 +233,117 @@ RSpec.describe Bench::Suggester::ExtractorLabel do
       )
     end
   end
+
+  describe ".from_cases" do
+    def bench_case(id, instruction, split: "dev", rejected_pairs: [])
+      Bench::Suggester::BenchCase.new(
+        id:,
+        log_id: id.to_i,
+        user_id: 1,
+        as_of: Time.zone.parse("2026-05-01 10:00"),
+        source: "instruction",
+        split:,
+        tier: "free",
+        instruction:,
+        rejected_pairs:,
+        original: {
+        },
+        fidelity: {
+        }
+      )
+    end
+
+    def case_label(id, constraints, ambiguous: false, reviewed: false)
+      Bench::Suggester::Label.from_h(id, { "constraints" => constraints, ambiguous:, reviewed: })
+    end
+
+    it "turns the labelled instruction cases into extractor labels without bench-only ids" do
+      cases = [
+        bench_case("1", "Only samples, not Diamine", split: "test"),
+        bench_case("2", nil),
+        bench_case("3", "same pen", rejected_pairs: [{ "pen_id" => 1, "ink_id" => 2 }]),
+        bench_case("4", "unlabelled")
+      ]
+      labels = {
+        "1" =>
+          case_label(
+            "1",
+            {
+              "ink" => {
+                "kinds_include" => ["sample"],
+                "exclude_mentions" => ["Diamine"],
+                "exclude_ids" => [5]
+              }
+            },
+            reviewed: true
+          ),
+        "2" => case_label("2", {}),
+        "3" => case_label("3", { "keep_from_previous" => "pen" }, ambiguous: true)
+      }
+
+      extractor_labels = described_class.from_cases(cases, labels)
+
+      expect(extractor_labels.map(&:to_h)).to eq(
+        [
+          {
+            "text" => "Only samples, not Diamine",
+            "constraints" => {
+              "ink" => {
+                "kinds_include" => ["sample"],
+                "exclude_mentions" => ["Diamine"]
+              }
+            },
+            "reviewed" => true,
+            "notes" => "",
+            "split" => "test",
+            "source" => "p6",
+            "ambiguous" => false,
+            "previous_suggestion" => false
+          },
+          {
+            "text" => "same pen",
+            "constraints" => {
+              "keep_from_previous" => "pen"
+            },
+            "reviewed" => false,
+            "notes" => "",
+            "split" => "dev",
+            "source" => "p6",
+            "ambiguous" => true,
+            "previous_suggestion" => true
+          }
+        ]
+      )
+    end
+
+    it "cuts the text at the widget's limit and keeps the first of duplicate texts" do
+      cases = [
+        bench_case("1", "#{"a" * 500}TAIL"),
+        bench_case("2", "Not a Parker"),
+        bench_case("3", "not a  parker")
+      ]
+      labels = %w[1 2 3].index_with { |id| case_label(id, {}) }
+
+      texts = described_class.from_cases(cases, labels).map(&:text)
+
+      expect(texts).to eq(["a" * 500, "Not a Parker"])
+    end
+  end
+
+  it "round-trips through to_h" do
+    hash = {
+      "text" => "same pen",
+      "constraints" => {
+        "keep_from_previous" => "pen"
+      },
+      "reviewed" => true,
+      "notes" => "checked",
+      "split" => "holdout",
+      "source" => "supplement",
+      "ambiguous" => true,
+      "previous_suggestion" => true
+    }
+
+    expect(described_class.from_h(hash).to_h).to eq(hash)
+  end
 end

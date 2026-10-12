@@ -161,6 +161,78 @@ namespace :bench do
       puts JSON.pretty_generate(pins.summary)
     end
 
+    desc "Write the extractor labelled set from the case labels and the supplement file"
+    task extractor_labels: :setup do
+      store = Bench::Suggester::Store.new
+      labels =
+        Bench::Suggester::ExtractorLabel.from_cases(store.cases, store.labels) +
+          store.extractor_supplement
+      store.write_extractor_labels(labels)
+      store.extractor_labels
+      puts "wrote #{labels.size} extractor labels: #{labels.map(&:source).tally}"
+    end
+
+    desc "Run the constraint extractor on the labelled set and score it " \
+           "(RUN=extractor SPLIT= SOURCE= LIMIT= MODEL= MAX_USD=5)"
+    task extractor: :setup do
+      abort "The bench runs only against the development database." unless Rails.env.development?
+
+      store = Bench::Suggester::Store.new
+      name = ENV.fetch("RUN", "extractor")
+      labels = store.extractor_labels
+      labels = labels.select { |label| label.split == ENV["SPLIT"] } if ENV["SPLIT"].present?
+      labels = labels.select { |label| label.source == ENV["SOURCE"] } if ENV["SOURCE"].present?
+      labels = labels.first(Integer(ENV["LIMIT"])) if ENV["LIMIT"]
+      runner =
+        Bench::Suggester::ExtractorRunner.new(
+          labels:,
+          max_usd: Float(ENV.fetch("MAX_USD", "5")),
+          model: ENV["MODEL"].presence
+        )
+      results = runner.run { print "." }
+      puts
+      store.write_results(
+        name,
+        {
+          "name" => name,
+          "params_mode" => PenAndInkConstraintExtractor.params_mode,
+          "model" => ENV["MODEL"].presence || PenAndInkConstraintExtractor::MODEL_ID,
+          "spent_usd" => runner.spent_usd.round(4),
+          "stop_reason" => runner.stop_reason,
+          "results" => results
+        }
+      )
+      Rake::Task["bench:suggester:extractor_report"].invoke
+    end
+
+    desc "Score a recorded extractor run against the labelled set (RUN=extractor)"
+    task extractor_report: :setup do
+      store = Bench::Suggester::Store.new
+      name = ENV.fetch("RUN", "extractor")
+      score =
+        Bench::Suggester::ExtractorScore.new(
+          labels: store.extractor_labels,
+          predictions: store.results(name).fetch("results")
+        )
+      store.write_results("#{name}.score", { "summary" => score.summary, "rows" => score.rows })
+      summary = score.summary
+      puts JSON.pretty_generate(summary.except("fields", "by_split", "reviewed"))
+      puts JSON.pretty_generate(
+             summary["by_split"].transform_values { |split| split.except("fields") }
+           )
+      summary["fields"].each do |path, field|
+        puts format(
+               "%-28s tp %3d fp %3d fn %3d precision %s recall %s",
+               path,
+               field["tp"],
+               field["fp"],
+               field["fn"],
+               field["precision"].inspect,
+               field["recall"].inspect
+             )
+      end
+    end
+
     desc "Run the label-free checkers on live suggester logs (SINCE=2026-10-01)"
     task check_logs: :setup do
       since = Bench::Suggester.parse_since(ENV["SINCE"], default: 4.weeks.ago.beginning_of_day)

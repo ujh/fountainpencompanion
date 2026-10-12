@@ -121,7 +121,36 @@ class PenAndInkSuggestion::Constraints
     )
   end
 
-  private_class_method :validate, :enum_value
+  def self.json_outline
+    top = TOP_FIELDS.map { |name, field| outline(name, field) }
+    sides =
+      SIDE_FIELDS.map do |side, fields|
+        "\"#{side}\": {#{fields.map { |name, field| outline(name, field) }.join(", ")}}"
+      end
+    "{#{(top + sides).join(", ")}}"
+  end
+
+  def self.outline(name, field)
+    choices = field.values&.map { |value| "\"#{value}\"" }&.join("|")
+    type =
+      case field.type
+      when :boolean
+        "true|false"
+      when :count
+        "integer"
+      when :text
+        "string"
+      when :terms
+        "[string]"
+      when :enum
+        choices
+      when :enum_list
+        "[#{choices}]"
+      end
+    "\"#{name}\": #{type}"
+  end
+
+  private_class_method :validate, :enum_value, :outline
 
   def initialize(values = self.class.default_values, nib_width_slack: 0)
     self.values = deep_freeze(values.deep_dup)
