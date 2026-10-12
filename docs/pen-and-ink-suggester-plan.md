@@ -2014,9 +2014,21 @@ sampled items and marks stay in gitignored `tmp/bench`). The sample was 170 item
   `holdout` and `holdout2` strings were not sampled; their labels stay unreviewed drafts.
 - The normaliser checks used 25 instead of 50 items for `ColorProfile` and `InkProperties`. The
   `NibProfile` and `InkProperties` errors are fixed in a separate later step (p17, open
-  decision 14). `InkProperties` feeds the shimmer and scented filters and checks and the property
-  labels in the pick rows, so the shimmer / scented rows of sections 8.7 and 8.11 may move a little once p17
-  lands.
+  decision 14).
+- **Figures the normaliser errors can move.** The checker scores metric 3, "Hard constraints met
+  or relaxed", through the same normalisers the filters use: nib grade, width and character
+  checks through `NibProfile`, shimmer and scented checks through `InkProperties`. That is the
+  hard-constraints row of sections 8.8 and 8.11, including the 97.96% (48 / 49) that open
+  decision 13 accepts. On the test split, 13 of the 49 scored cases of the p15 runs carry such a
+  check (6 nib checks in 5 cases, 9 shimmer or scented checks in 9 cases; the same 13 of 47 in
+  the p9b runs behind section 8.8). All of them are met in both p15 and both p9b arms, so the one
+  failed case behind 97.96% is not on a normaliser path. Once p17 changes a profile, any of these
+  checks can flip in either direction, for the picker and the checker alike; how many is not
+  measured, and the rows are re-run after p17.
+- In the gate sample, the 5 wrong `InkProperties` outputs concern sheen, shading and
+  water resistance, none of them shimmer or scented, and both wrong `NibProfile` outputs are a
+  Japanese-sizing call, which shifts the width class the nib width check uses. `InkProperties`
+  also feeds the property labels in the pick rows, which no metric scores directly.
 
 ### 8.13 P16 smoke: the extractor on gpt-6-luna in production configuration (recorded in p16, 2026-10-12)
 
@@ -2246,8 +2258,10 @@ done in p16), accepted the 97.96% hard-constraint rate (item 13) and finished th
 13. **Hard constraints met or relaxed at 97.96%** (48 / 49) on the test split for mini in p15,
     against the ≥ 98% bar (section 8.11). **Decided (2026-10-12):** accepted as close enough.
 14. **Normaliser errors from the gate** (new, p16, section 8.12): 2 of 50 `NibProfile` and 5 of
-    25 `InkProperties` outputs were marked wrong. **Decided:** fixed in a separate later step
-    (p17), not in p16.
+    25 `InkProperties` outputs were marked wrong. They can move the hard-constraints rows of
+    sections 8.8 and 8.11 (13 of 49 scored test cases carry a nib, shimmer or scented check, all
+    met today). **Decided:** fixed in a separate later step (p17), not in p16; p17 re-runs those
+    rows.
 15. **Temperature on gpt-6-luna** (new, p16, section 8.13). p16 sends no temperature, as the
     task for the switch asked. gpt-6-luna accepts temperature 0 at effort `none` (the p14 runs used
     it), and without it two identical runs agree on every hard field in 88.9% of the strings
@@ -3302,6 +3316,25 @@ unchecked by the owner.
   and S05's runbook seed names gpt-4.1-mini as its manual replacement. Flipping back to mini also
   means dropping the reasoning effort (models without reasoning do not take one) and restoring
   temperature 0. CLAUDE.md notes where to register a model the bundled registry lacks.
+- p16 (review): the roadmap now says so where an operator or the S04 / S05 implementer reads it.
+  RubyLLM 1.16 sends `reasoning_effort` whenever it is set, whatever the model, and the effort is
+  hardcoded on the class, so a runbook flip that edits only the model would send an effort to
+  gpt-4.1-mini; the API rejects that and every extraction would silently fall back to the
+  `MentionMatcher` pins (the error is in `FAILURES` and lands only in the `AgentLog`). Chosen fix:
+  S04 gives `config/llm.yml` entries optional `reasoning_effort` and `temperature` keys that
+  `RubyLlmAgent` reads, the extractor's entry carries the effort and its class method goes, and
+  S05's extractor row names all three keys of the flip (model, remove the effort, temperature 0),
+  with the code change spelled out for a flip before S04 lands. Preferred over only documenting a
+  code change because it keeps the runbook's promise that a flip is one config edit. No code
+  changes in p16: the config layer does not exist yet.
+- p16 (review): section 8.12 no longer says the normaliser errors move the shimmer / scented rows
+  "a little". It names the figures they can move, the hard-constraints rows of sections 8.8 and
+  8.11 including decision 13's 97.96%, and counts the scored checks on those paths from the
+  recorded check files: 13 of 49 test cases in the p15 runs (13 of 47 in p9b) carry a nib,
+  shimmer or scented check, all met in every arm, so the one failed case is not on a normaliser
+  path. The direction and size of any change after p17 are not measured; p17 re-runs these rows.
+  The kinds of wrong outputs (sheen, shading, water resistance; Japanese sizing) are recorded as
+  aggregates; no item content from the gate page is committed.
 - p16: The bench smoke ran twice instead of once: the first run matched section 8.10 on false
   positives but found fewer filter values, and a second run was the cheapest way to tell noise
   from a real stability change ($0.02 each as charged). The agreement figure compares hard fields

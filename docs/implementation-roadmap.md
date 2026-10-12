@@ -846,7 +846,7 @@ c.max_retries = entry[:max_retries] if entry[:max_retries] }` — the YAML key `
     over `default`; `CheckInkClustering::Assign` resolves via the shared `"CheckInkClustering"` key;
     `PenAndInkSuggester` resolves to `.premium` when `premium?` and to the plain entry otherwise);
     context construction (api_base/provider/`openai_use_system_role`/timeout/retries all come from the
-    resolved entry); the injection point (`with_override` applies only inside the block, only to the
+    resolved entry, and so do `reasoning_effort` and `temperature`); the injection point (`with_override` applies only inside the block, only to the
     named class, and is gone afterward — including a "does not leak to a sub-agent spawned inside a
     tool call unless that sub-agent's own class is named" case); an anonymous class
     (`Class.new { include RubyLlmAgent }`) resolves to `default`. The concern spec's `ask!` contract
@@ -904,6 +904,16 @@ c.max_retries = entry[:max_retries] if entry[:max_retries] }` — the YAML key `
     branch at pen_and_ink_suggester.rb:78-80. Each `MODEL_ID` constant is then deleted from its class
     (the config supplies it now); this step does NOT seed `PenVariantClusterer` — that entry is added
     by S11-pen-agent-decide, which depends on this step.
+  - Per-entry `reasoning_effort` and `temperature`: the entry format gets these two optional keys,
+    and `RubyLlmAgent#reasoning_effort` and `#temperature` return them from the resolved entry
+    (default `nil`, as today). The extractor's entry carries `reasoning_effort: none` and no
+    `temperature`, and its `def reasoning_effort = "none"` is deleted with its `MODEL_ID`. Today
+    the effort lives in the class, and RubyLLM 1.16 sends `reasoning_effort` whenever it is set,
+    whatever the model; left there, a flip that edits only `model:` would send an effort to a
+    model without reasoning, the API would reject every call, and each extraction would fall back
+    to the `MentionMatcher` pins with the error recorded only in its `AgentLog`. Specs: an entry's
+    `reasoning_effort` and `temperature` reach the request body; an entry without them sends
+    neither.
   - Env plumbing checklist: `.env:5-8` (delete `OPEN_AI_PEN_AND_INK_SUGGESTION`,
     `OPEN_AI_SPAM_CLASSIFIER`; keep `OPEN_AI_TOKEN`, `OPEN_AI_EMBEDDINGS`),
     `.github/workflows/ci.yml:16-19` (delete lines 18 and 19 of the rspec job's `env:` block, keep
@@ -1018,6 +1028,11 @@ LlmConfig.for(llm_config_key).api_base })` — resolved through the SAME path `b
     OpenAI alternative (`gpt-4.1` entries → `gpt-4.1-mini`, `gpt-4.1-mini` entries → `gpt-4o-mini`,
     the extractor's `gpt-6-luna` → `gpt-4.1-mini`),
     which is a real manual replacement an operator can flip to while OpenAI is still the default.
+    The extractor's row names all three keys of the flip, not only the model: `model: gpt-4.1-mini`,
+    remove `reasoning_effort` and set `temperature: 0` (gpt-4.1-mini takes no reasoning effort, and
+    temperature 0 is what the extractor sent on it before p16). Until S04 moves those keys into the
+    entry, the flip is a code change in `pen_and_ink_constraint_extractor.rb` (`MODEL_ID`, drop
+    `def reasoning_effort`, add `def temperature = 0`), not a config edit.
     S30-chat-bench-round replaces the OpenAI rows' replacement column with the per-agent DO
     candidates before S31 (the first ink flip).
 - **Depends on.** S04-llm-config-chat (the hook lives inside the config-aware concern this step
