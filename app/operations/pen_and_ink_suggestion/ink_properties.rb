@@ -195,6 +195,7 @@ class PenAndInkSuggestion::InkProperties
       /\A\s*,?\s*(?:and|but|as\s+well\s+as|or)\s+(?:also\s+)?(?:in\s+)?(?:writing|handwriting|text|lines?|nibs?)\b/
     CLAUSE_BOUNDARY = /[.!?;:,\n\r]|\b(?:and|but)\b/
     WORD = /[a-z']+/
+    HEDGE_WORD = /[a-z'-]+/
     NEGATED_AFTER =
       /\A(?:[\s-]*free\b|\s*[-–—:=?]\s*(?:no|none)\b|\s+(?:version|edition|variant)s?\b)/
     LIST_TAIL = /,?\s*\b(?:and|or|nor)\b\s*\z|,\s*\z/
@@ -245,7 +246,7 @@ class PenAndInkSuggestion::InkProperties
     end
 
     def hedged_before?(head)
-      tokens = head.split(CLAUSE_BOUNDARY, -1).last.to_s.scan(/[a-z'-]+/)
+      tokens = head.split(CLAUSE_BOUNDARY, -1).last.to_s.scan(HEDGE_WORD)
       (tokens.size - 1).downto([tokens.size - HEDGE_REACH - 2, 0].max) do |index|
         return true if hedge_at?(tokens, index)
         return false if NOT_BETWEEN_HEDGE.include?(tokens[index])

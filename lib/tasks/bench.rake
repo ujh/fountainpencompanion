@@ -56,9 +56,10 @@ namespace :bench do
     desc "Write the outcome-free case files labellers read into the bench labelling directory"
     task labelling_export: :setup do
       store = Bench::Suggester::Store.new
-      sheet = Bench::Suggester::LabellingSheet.new(cases: store.cases)
+      cases = store.cases
+      sheet = Bench::Suggester::LabellingSheet.new(cases:)
       store.write_labelling(sheet)
-      puts "wrote #{sheet.documents.size} of #{store.cases.size} cases to " \
+      puts "wrote #{sheet.documents.size} of #{cases.size} cases to " \
              "#{store.path(Bench::Suggester::LabellingSheet::DIRECTORY)}"
     end
 

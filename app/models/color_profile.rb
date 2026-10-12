@@ -171,7 +171,8 @@ class ColorProfile
     "yellowgreen" => %w[green]
   }.freeze
 
-  attr_accessor :hex, :family, :secondary_family, :lightness, :saturation, :tags
+  attr_accessor :hex, :family, :secondary_family, :lightness, :saturation
+  attr_reader :tags, :tag_families
 
   def self.from_hex(hex, tags: [])
     hex = hex.to_s.strip
@@ -205,7 +206,12 @@ class ColorProfile
     self.secondary_family = secondary_family
     self.lightness = lightness
     self.saturation = saturation
-    self.tags = Array(tags)
+    self.tags = tags
+  end
+
+  def tags=(tags)
+    @tags = Array(tags)
+    @tag_families = @tags.flat_map { |tag| self.class.tag_families(tag) }.uniq
   end
 
   def known?
@@ -214,10 +220,6 @@ class ColorProfile
 
   def families
     [family, secondary_family].compact
-  end
-
-  def tag_families
-    tags.flat_map { |tag| self.class.tag_families(tag) }.uniq
   end
 
   def matches?(requested_family)

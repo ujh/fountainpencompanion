@@ -519,14 +519,12 @@ class PenAndInkSuggestion::CandidateSelector
   end
 
   def favourites(items)
+    stats = items.index_with { |item| snapshot.stats_for(item) }
     keys =
-      items.to_h do |item|
-        stats = snapshot.stats_for(item)
-        [item, [stats.inked? ? 1 : 0, -stats.usage_count, random.rand]]
+      stats.transform_values do |item_stats|
+        [item_stats.inked? ? 1 : 0, -item_stats.usage_count, random.rand]
       end
-    items
-      .select { |item| snapshot.stats_for(item).usage_count.positive? }
-      .sort_by { |item| keys[item] }
+    items.select { |item| stats[item].usage_count.positive? }.sort_by { |item| keys[item] }
   end
 
   def compatible_inks(inks, pens)

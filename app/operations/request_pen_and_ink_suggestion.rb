@@ -27,6 +27,7 @@ class RequestPenAndInkSuggestion
   end
 
   def resolve_currently_inked(suggestion)
+    note = suggestion.delete(:currently_inked_note)
     inking =
       user.currently_inkeds.active.find_by(
         id: suggestion[:currently_inked_id],
@@ -34,6 +35,13 @@ class RequestPenAndInkSuggestion
       )
     suggestion[:pen_currently_inked] = inking.present?
     suggestion[:currently_inked_id] = inking&.id
+    drop_currently_inked_note(suggestion, note) unless inking
+  end
+
+  def drop_currently_inked_note(suggestion, note)
+    return unless note && suggestion[:message]
+
+    suggestion[:message] = suggestion[:message].sub("\n\n#{note}", "")
   end
 
   def request_suggestion

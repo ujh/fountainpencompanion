@@ -2,11 +2,11 @@ class NibProfile
   class Parser
     JAPANESE_BRANDS =
       /(?<![a-z])(?:pilot|namiki|sailor|platinium|platinum|platnum|nakaya|taccia|nagasawa|bungu ?box|bungbox|wancher|kuretake|eboya|kakimori|sakura|ohashi|kyuseido)(?![a-z])/i
+    ESTERBROOK_BRANDS = /ester ?b?rook|esterbook/i
     WESTERN_SIZING_BRANDS =
-      /ester ?b?rook|esterbook|(?<![a-z])(?:jowo|bock|schmidt|lamy|twsbi|kaweco|pelikan\w*|montblanc|mont blanc|diplomat|franklin[ -]?christoph)(?![a-z])/i
+      /#{ESTERBROOK_BRANDS.source}|(?<![a-z])(?:jowo|bock|schmidt|lamy|twsbi|kaweco|pelikan\w*|montblanc|mont blanc|diplomat|franklin[ -]?christoph)(?![a-z])/i
     PLATINUM_BRANDS = /platin(?:i)?um|platnum/i
     PILOT_BRANDS = /(?<![a-z])(?:pilot|namiki)(?![a-z])/i
-    ESTERBROOK_BRANDS = /ester ?b?rook|esterbook/i
     LAMY_BRANDS = /(?<![a-z])lamy(?![a-z])/i
     BEGINNER_BRANDS = /(?<![a-z])(?:lamy|pelikan\w*)(?![a-z])/i
     GEL_BRANDS = /uni-?ball|(?<![a-z])(?:uni|pentel|zebra|muji|bic|paper ?mate)(?![a-z])/i
@@ -150,7 +150,8 @@ class NibProfile
 
     def parse(text, source:)
       source_text = clean(text)
-      text = clean(without_prose_words(text))
+      prose_free = without_prose_words(text)
+      text = prose_free == text ? source_text : clean(prose_free)
       kind = kind_of(text)
       attributes = { raw: nib, kind:, source:, source_text:, japanese_sizing: japanese_brand? }
       return NibProfile.new(**attributes) unless kind.in?(%i[fountain dip])

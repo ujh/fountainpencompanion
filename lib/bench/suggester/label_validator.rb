@@ -32,7 +32,10 @@ module Bench
           errors << "label #{case_id}: the case has no instruction"
         end
         user = users[bench_case.user_id]
-        return errors << "label #{case_id}: the case's user is gone" unless user
+        unless user
+          errors << "label #{case_id}: the case's user is gone"
+          return errors
+        end
 
         snapshot = PenAndInkSuggestion::CollectionSnapshot.new(user, as_of: bench_case.as_of)
         Checks::LabelIds

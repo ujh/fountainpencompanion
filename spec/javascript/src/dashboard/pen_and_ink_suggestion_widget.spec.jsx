@@ -8,6 +8,7 @@ import {
   TIMEOUT_MESSAGE
 } from "dashboard/pen_and_ink_suggestion_widget";
 import { getRequest } from "fetch";
+import { StrictMode } from "react";
 
 jest.mock("fetch", () => ({ getRequest: jest.fn() }));
 
@@ -212,6 +213,19 @@ describe("PenAndInkSuggestionWidget", () => {
       expect(screen.getByText("All your pens are inked.")).toBeInTheDocument();
       expect(screen.queryByRole("link", { name: "Ink it Up!" })).not.toBeInTheDocument();
       expect(screen.getByRole("button", { name: "Try again!" })).toBeInTheDocument();
+    });
+
+    it("shows the result after a remount, as StrictMode does in development", async () => {
+      render(
+        <StrictMode>
+          <PenAndInkSuggestionWidget renderWhenInvisible />
+        </StrictMode>
+      );
+      await advance(0);
+
+      await askAndPoll("Suggest something!", [response(pair(1, 2))]);
+
+      expect(screen.getByText("Pilot")).toBeInTheDocument();
     });
 
     it("stops polling when the widget is unmounted", async () => {

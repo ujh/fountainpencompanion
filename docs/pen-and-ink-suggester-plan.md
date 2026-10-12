@@ -2238,6 +2238,7 @@ from p12 on are follow-ups to the owner's answers of 2026-10-12, stacked on p11.
 | p16  | P9 follow-up | the extractor moves to gpt-6-luna at reasoning effort `none` without a temperature (owner decision 3, sections 8.10 and 8.13); the model is registered in `config/initializers/ruby_llm.rb` | done, pending merge (#3862) |
 | p17  | P1 / P4 / P9 follow-up | temperature 0 restored on the gpt-6-luna extractor and in the bench's `MODEL=` override (open decision 15, section 8.13); the `gate` fixes (open decision 14, section 8.12): `NibProfile` sizes Western collaborations by the Western maker and sets `japanese_sizing` by brand alone, `InkProperties` ignores hedged and swatch-only mentions and reads "permanent" in names as water-resistant | done, pending merge |
 | p18  | P2 / P8 follow-up | NUL-safe agent logs: one recursive `sanitize_for_pg` for the transcript (text, tool-call arguments, tool results) and the suggester's and extractor's `extra_data`; the bench runner's NUL guard is removed (open decision 11). A "couldn't find" note is dropped when the pick carries the mentioned name (`PickedNames`, open decision 12). Open decision 16 recorded as decided | done, pending merge |
+| p19  | all     | the reviewer nits declined or left open on #3830–#3863 (list in the p19 decision); the model registry of `config/initializers/ruby_llm.rb` moves to `lib/ruby_llm_models.rb` and the bench reuses it; the clean-it-first note is dropped from a cached answer once the pen is cleaned | done, pending merge |
 
 The PRs are stacked: each branches off the previous step's branch, so they merge in the order of
 the table, each after its own review and the `gate` row.
@@ -3547,3 +3548,27 @@ unchecked by the owner.
   grades are not re-run, so no honoured rate changes in section 8.11.
 - p18: Open decision 16 is recorded as decided (the hedge rule as stated, no exception); p17's
   code already does that, so p18 changes no `InkProperties` code.
+
+**p19 decisions:**
+
+- p19: Every reviewer nit that was declined (or not answered) on #3830–#3863 is fixed on this
+  branch, at the top of the stack, none skipped. #3830: `NibProfile::Parser#parse` cleans the
+  text once and cleans it again only when prose words were stripped. #3835: the widget's
+  `mounted` ref keeps its setup half, because a cleanup-only ref stays false after a remount;
+  instead of the change a new spec renders the widget in `StrictMode` and fails with the
+  reviewer's version. #3836: `ColorProfile#tags=` maps the tags to families once, so a
+  reassigned `tags` cannot leave stale families and `matches_any?` no longer maps them per
+  family (spec). #3840: `bench:suggester:labelling_export` reads `cases.json` once, and
+  `LabelValidator` appends the missing-user error and returns on its own line. #3841:
+  `CandidateSelector#favourites` looks each item's stats up once; the sort keys still draw one
+  random number per item in item order, so seeded picks are unchanged. #3842: the suggester
+  caches the rendered clean-it-first note as `currently_inked_note`, and
+  `RequestPenAndInkSuggestion` removes it from the message when the re-check finds the pen
+  cleaned and never passes the key on to the widget (specs). #3860 and #3862: the
+  production registration moves from the initializer into `RubyLlmModels`
+  (`lib/ruby_llm_models.rb`: `find`, `register`, `UNLISTED`, `register_unlisted`), which the
+  initializer requires and `Bench::Suggester::ModelSettings` reuses, so the bench depends on the
+  app's code and not the other way round; `ModelSettings#reasoning?` looks the model up once.
+  #3863: `WESTERN_SIZING_BRANDS` is built from `ESTERBROOK_BRANDS.source`, and `hedged_before?`
+  scans with a named `HEDGE_WORD` next to `WORD`. CLAUDE.md now says exceeding
+  `max_tool_calls` raises, not passing it.

@@ -4,7 +4,15 @@ class PenAndInkSuggester
   MAX_PER_DAY = 20
   MAX_PER_DAY_PATRON = 50
   MAX_TOOL_CALLS = 12
-  RESULT_KEYS = %i[message ink pen pen_currently_inked currently_inked_id status].freeze
+  RESULT_KEYS = %i[
+    message
+    ink
+    pen
+    pen_currently_inked
+    currently_inked_id
+    currently_inked_note
+    status
+  ].freeze
   ERROR_MESSAGE = "Sorry, that didn't work. Please try again!"
   NO_UNINKED_PENS_MESSAGE =
     "All your pens are currently inked (or you have none). Clean one up and try again."
@@ -175,7 +183,8 @@ class PenAndInkSuggester
     inking = snapshot.active_inking_for(pen)
     dropped_notes = picked_miss_notes(pen, recorded[:ink])
     notes = pick_notes - dropped_notes
-    notes += [format(CURRENTLY_INKED_NOTE, ink: inking.collected_ink.short_name)] if inking
+    inked_note = format(CURRENTLY_INKED_NOTE, ink: inking.collected_ink.short_name) if inking
+    notes += [inked_note] if inked_note
     message =
       PenAndInkSuggestion::SuggestionMessage.new(
         pen:,
@@ -190,7 +199,12 @@ class PenAndInkSuggester
       pen: pen.id,
       pen_currently_inked: inking.present?
     }
-    result[:currently_inked_id] = inking.id if inking
+    if inking
+      result[:currently_inked_id] = inking.id
+      result[:currently_inked_note] = PenAndInkSuggestion::SuggestionMessage.note_markdown(
+        inked_note
+      )
+    end
     result[:dropped_notes] = dropped_notes if dropped_notes.any?
     result.merge(reasoning:, notes:)
   end

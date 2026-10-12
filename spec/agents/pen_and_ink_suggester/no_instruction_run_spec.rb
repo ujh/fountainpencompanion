@@ -212,14 +212,16 @@ RSpec.describe PenAndInkSuggester do
         stub_pick
       end
 
-      it "flags the pen and returns the id of its currently inked entry" do
+      it "flags the pen and returns its currently inked entry and the clean-it-first note" do
         response = described_class.new(user).perform
 
         expect(response).to include(
           pen: inked_pen.id,
           ink: ink.id,
           pen_currently_inked: true,
-          currently_inked_id: inking.id
+          currently_inked_id: inking.id,
+          currently_inked_note:
+            "_Currently inked with Sailor Yama\\*dori — empty and clean it first._"
         )
       end
 

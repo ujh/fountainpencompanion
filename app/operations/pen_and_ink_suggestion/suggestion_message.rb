@@ -3,6 +3,14 @@ class PenAndInkSuggestion::SuggestionMessage
 
   attr_accessor :pen, :ink, :nib_profile, :notes, :reasoning
 
+  def self.note_markdown(note)
+    "_#{escape(note)}_"
+  end
+
+  def self.escape(text)
+    text.to_s.squish.gsub(MARKDOWN_SPECIAL) { "\\#{::Regexp.last_match(1)}" }
+  end
+
   def initialize(pen:, ink:, nib_profile:, reasoning:, notes: [])
     self.pen = pen
     self.ink = ink
@@ -27,10 +35,10 @@ class PenAndInkSuggestion::SuggestionMessage
   end
 
   def notes_block
-    notes.map { |note| "_#{escape(note)}_" }.join("\n\n")
+    notes.map { |note| self.class.note_markdown(note) }.join("\n\n")
   end
 
   def escape(text)
-    text.to_s.squish.gsub(MARKDOWN_SPECIAL) { "\\#{::Regexp.last_match(1)}" }
+    self.class.escape(text)
   end
 end

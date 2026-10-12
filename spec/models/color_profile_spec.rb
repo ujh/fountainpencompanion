@@ -217,6 +217,25 @@ describe ColorProfile do
       expect(profile.known?).to be(false)
       expect(profile.matches?("blue")).to be(true)
     end
+
+    it "matches by the new tags after they are reassigned" do
+      profile = described_class.from_hex(nil, tags: ["midnightblue"])
+
+      profile.tags = ["darkred"]
+
+      expect(profile.tag_families).to eq(%w[red])
+      expect(profile.matches?("blue")).to be(false)
+      expect(profile.matches?("red")).to be(true)
+    end
+
+    it "maps the tags to families once, not for every family checked" do
+      profile = described_class.from_hex(nil, tags: %w[midnightblue darkred])
+      allow(described_class).to receive(:tag_families).and_call_original
+
+      profile.matches_any?(%w[green purple orange])
+
+      expect(described_class).not_to have_received(:tag_families)
+    end
   end
 
   describe "#matches_any?" do
