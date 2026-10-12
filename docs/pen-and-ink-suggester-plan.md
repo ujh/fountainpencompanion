@@ -2658,8 +2658,9 @@ evidence.
   `created_at`, which only the CSV prompt and the `last_used_on` tie-break read. The snapshot spec
   now compares its counts with the models' `usage_count`/`daily_usage_count` only.
 - p11: `Bench::Suggester::LoggedRun` keeps parsing CSV-era prompts, since the case exporter and
-  `bench:suggester:check_logs` read logs written before v2. Its spec now uses a fixed transcript
-  captured from the old code before deletion instead of running the deleted path.
+  `bench:suggester:check_logs` read logs written before v2. Its spec now uses a fixed, abridged
+  CSV-era transcript (rules block and `average_last_used_ago` left out) instead of running the
+  deleted path.
 - p11: `bench:suggester:baseline` loses `LEGACY=1`, and new results files lose the `legacy` key;
   recorded results are unchanged and stay the comparison point. `BaselineSuggester` keeps its name
   (it replays every candidate, not only the baseline) and the runner keeps its `build:` argument
