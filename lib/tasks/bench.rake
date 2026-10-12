@@ -137,8 +137,8 @@ namespace :bench do
       puts report.to_text
     end
 
-    desc "Write a blinded side-by-side grading file for Claude Code " \
-           "(RUNS=baseline,v2 SPLIT= INSTRUCTION=with|without)"
+    desc "Write a blinded side-by-side grading file for Claude Code, a stratified sample " \
+           "when MAX_CASES is set (RUNS=baseline,v2 SPLIT= INSTRUCTION=with|without MAX_CASES= SEED=1)"
     task grading_export: :setup do
       store = Bench::Suggester::Store.new
       names = ENV.fetch("RUNS", "baseline").split(",")
@@ -154,10 +154,14 @@ namespace :bench do
           cases:,
           runs:,
           labels: store.labels,
-          seed: Integer(ENV.fetch("SEED", "1"))
+          seed: Integer(ENV.fetch("SEED", "1")),
+          max_cases: ENV["MAX_CASES"].presence&.then { |value| Integer(value) }
         )
       store.write_grading(names, export)
       puts "wrote #{export.key.size} cases to #{store.path(store.grading_directory(names))}"
+      export.strata.each do |name, counts|
+        puts "  #{name}: #{counts["graded"]} of #{counts["cases"]}"
+      end
     end
 
     desc "Summarise filled-in grades and the instruction-honoured rate (RUNS=baseline,v2)"

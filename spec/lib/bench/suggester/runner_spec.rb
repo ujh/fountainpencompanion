@@ -307,6 +307,40 @@ RSpec.describe Bench::Suggester::Runner do
     expect(results["2"]["extra_data"]["pen"]).to eq(pen.id)
   end
 
+  it "records a run whose transcript Postgres can't store as an error result and goes on" do
+    stub_completion
+    stub_request(:post, openai_url)
+      .with { |request| !extractor_request?(request) && user_prompt(request).include?("NUL") }
+      .to_return(
+        status: 200,
+        body:
+          completion(
+            arguments: {
+              pen_ref: "P1",
+              ink_ref: "I1",
+              reasoning: "Blue Vel\u0000vet"
+            }
+          ).to_json,
+        headers: {
+          "Content-Type" => "application/json"
+        }
+      )
+
+    results =
+      described_class.new(cases: [bench_case(id: "1", instruction: "NUL"), bench_case(id: "2")]).run
+
+    expect(results["1"]).to include(
+      "extra_data" => {
+        "message" => PenAndInkSuggester::ERROR_MESSAGE,
+        "status" => "error",
+        "error" => "PG::UntranslatableCharacter"
+      },
+      "cost_usd" => 0.0,
+      "cost_unknown" => true
+    )
+    expect(results["2"]["extra_data"]["pen"]).to eq(pen.id)
+  end
+
   it "stops once the budget is spent" do
     stub_completion
     cases = [bench_case(id: "1"), bench_case(id: "2")]

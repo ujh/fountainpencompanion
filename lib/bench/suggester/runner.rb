@@ -71,6 +71,21 @@ module Bench
           raise ActiveRecord::Rollback
         end
         result
+      rescue ActiveRecord::StatementInvalid => e
+        raise unless e.cause.is_a?(PG::UntranslatableCharacter)
+
+        unsaved_result(bench_case, e)
+      end
+
+      def unsaved_result(bench_case, exception)
+        {
+          "extra_data" => error_extra_data(exception.cause.class.name),
+          "usages" => [],
+          "cost_usd" => 0.0,
+          "list_cost_usd" => 0.0,
+          "cost_unknown" => true,
+          "seed" => case_seed(bench_case)
+        }
       end
 
       def replay(bench_case, user)

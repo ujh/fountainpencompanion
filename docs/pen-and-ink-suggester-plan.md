@@ -1886,6 +1886,65 @@ it; refresh the registry or upgrade the gem), `reasoning_effort` `"none"` on the
 `none`, and RubyLLM forces 1.0 only on gpt-5 and o-series ids. `agent_log.usage` records the cache
 writes from p14 on, so production cost stays readable from the logs.
 
+### 8.11 P15 bench: more named-ink cases (recorded in p15, 2026-10-12)
+
+**Label-based rows are scored against unreviewed draft labels.** The 266 p6b cases keep their
+two-pass labels (every scored field identical in 196 / 210 instruction cases, 93.3%, section
+8.4). The 34 new cases were labelled by two further independent passes and agree on every scored
+field in 34 / 34 (69 / 69 set (case, field) pairs; p15 decisions below). The `gate` row is still
+open, so nothing here clears a merge. The label-free rows are the primary evidence.
+
+**Case set.** The p6b set plus 34 instruction runs that name one of the user's own inks
+(`bench:suggester:export_named_inks`, same window, by-user split): 300 cases, 244 with an
+instruction (121 test, 123 dev). Of the new cases, 19 name an ink as the one wanted (16 test, 3
+dev) and 15 rule an owned ink out. Named-ink cases on the test split: 9 → 25.
+
+**Runs.** The current code (p12 hints in, extractor and free picker on gpt-4.1-mini, seed 1):
+`p15-mini` with `TIER=free` on all 244 instruction cases, `p15-gpt41-test` with `TIER=premium`
+on the 121 test ones. The baseline arm for the new cases was recorded with the p6b code (p15
+decisions); the old cases keep their p6b recordings. The extractor ran in every run (no
+fallback). Costs are what OpenAI charged (the bench repeats prompts within minutes, so the
+extractor prefix is mostly cached) and, in brackets, list price.
+
+| Instruction runs, test split (121)       | mini baseline  | mini p15          | gpt-4.1 baseline | gpt-4.1 p15       |
+| ---------------------------------------- | -------------- | ----------------- | ---------------- | ----------------- |
+| Hard failures                            | 0 / 121        | 0 / 121           | 2 / 121 (1.7%)   | 0 / 121           |
+| Valid suggestions                        | 97.5%          | 100%              | 99.2%            | 100%              |
+| Swab or incompatible cartridge           | 1              | 0                 | 1                | 0                 |
+| Rule leakage                             | 94.2%          | 9.2%              | 72.9%            | 2.5%              |
+| $ per run                                | $0.00254       | $0.00160 ($0.00313) | $0.0223        | $0.0126 ($0.0136) |
+| Latency p50 / p90                        | 1.75 / 2.29 s  | 2.48 / 2.91 s     | 2.08 / 2.72 s    | 2.66 / 3.03 s     |
+| Named pen hit (draft labels)             | 52.1% (25/48)  | 95.8% (46/48)     | 72.9% (35/48)    | 95.8% (46/48)     |
+| Named ink hit, the 9 p6b cases           | 66.7% (6/9)    | 88.9% (8/9)       | 66.7% (6/9)      | 100% (9/9)        |
+| Named ink hit, the 16 new cases          | 25.0% (4/16)   | 100% (16/16)      | 37.5% (6/16)     | 100% (16/16)      |
+| Named ink hit, all 25                    | 40.0% (10/25)  | 96.0% (24/25)     | 48.0% (12/25)    | 100% (25/25)      |
+| Hard constraints met or relaxed          | 85.7% (42/49)  | 97.96% (48/49)    | 93.9% (46/49)    | 100% (49/49)      |
+
+- Over all 244 mini cases: named pen hit 92.6% (87/94; baseline 59.6%), named ink hit 94.4%
+  (34/36: 19/19 new, 15/17 p6b; baseline 44.4%), hard constraints met or relaxed 97.3% (109/112;
+  baseline 86.6%), leakage 7.4%, 0 hard failures, 2 runs ended without a pick, 5 relaxed a filter.
+- Against draft labels, the named-ink hit on the test split meets the 85% bar on both tiers
+  (96.0% / 100% on 25 cases). On the 9 p6b cases alone mini is at 8 / 9, one more than in P9;
+  differences of one case are within run-to-run noise.
+- **The new misses are exclusions the extractor put on the wrong side.** Mini's 3 failed hard
+  constraints: in 2 of the 4 "no <pen>" requests (dev), the extractor put the pen's name in
+  `ink.exclude_mentions`, so the pen was still picked; in 1 old test case the extractor set no
+  kind filter for a labelled `ink.kinds_include`. On the test split mini is at 97.96% (48 / 49),
+  just under the ≥ 98% bar against draft labels (P9: 47 / 47).
+- **One run crashed** in the first mini attempt: a NUL character in the pick's tool-call
+  arguments made Postgres refuse the transcript (open decision 11). The bench now records such a
+  run as an error; the rerun had none.
+- **Spend in p15:** baseline arm for the new cases $0.59 (mini $0.10, gpt-4.1 $0.49), a 6-case
+  check of the p6b code $0.02, `p15-gpt41-test` $1.52, `p15-mini` $0.41, and about $0.26 for the
+  aborted first mini attempt (about 156 runs): **about $2.80 in all** as charged.
+
+**Judge.** The "instruction honoured" row needs a fresh, independent judge pass (open decision
+6). `bench:suggester:grading_export RUNS=baseline-mini,p15-mini INSTRUCTION=with MAX_CASES=150`
+wrote a blinded file of 150 of the 244 instruction cases (stratified by split and label kind: 74
+test, 76 dev; 22 of them new), each with the request, a collection summary and the two answers as
+A and B in a per-case random order; the key is a separate file outside the judge's directory. The
+grades are not in yet, so this section reports no honoured rate.
+
 ---
 
 ## 9. PR plan
@@ -2010,7 +2069,7 @@ from p12 on are follow-ups to the owner's answers of 2026-10-12, stacked on p11.
 | p12  | P9 follow-up | `MentionMatcher` hits go to the extractor as `names_found` hints; the agreement rule is removed; the extractor bench sends the same hints and reports missed named mentions | done, pending merge (#3858) |
 | p13  | P10 follow-up | the inked-pen link goes to the Currently inked list instead of the entry's edit page (owner decision 8) | done, pending merge (#3859) |
 | p14  | P9 follow-up | extractor model comparison (owner decision 3, section 8.10): the bench's `MODEL=` override handles reasoning models, `RubyLlmAgent#reasoning_effort`, cache-write tokens in usage and bench pricing; production stays on gpt-4.1-mini | done, pending merge (#3860) |
-| p15  | P9 follow-up | re-measure on more named-ink cases with a fresh judge pass (owner decisions 5 and 6): `bench:suggester:export_named_inks`, `NamedInkFilter`, the exporter's `BEFORE` | in progress |
+| p15  | P9 follow-up | re-measure on more named-ink cases with a fresh judge pass (owner decisions 5 and 6, section 8.11): `bench:suggester:export_named_inks`, `NamedInkFilter`, the exporter's `BEFORE`; the grading export's stratified `MAX_CASES` sample and collection summary; the runner records a transcript Postgres refuses as an error | in progress: runs recorded, judge grades pending |
 
 The PRs are stacked: each branches off the previous step's branch, so they merge in the order of
 the table, each after its own review and the `gate` row.
@@ -2040,9 +2099,12 @@ p12–p15 carry them out.
    `agent_log.usage` already records cached input tokens (p7), so the cached-prefix cost can be
    read from production logs (p12).
 5. **Named-ink hit on mini** (77.8%, 7 of 9 test cases) against the 85% bar (section 8.7).
-   **Decided:** label more named-ink cases and re-run (step p15).
+   **Decided:** label more named-ink cases and re-run (step p15). Done in p15 (section 8.11):
+   34 new cases, 25 named-ink cases on the test split; against draft labels mini is at 96.0%
+   (24/25) and gpt-4.1 at 100% (25/25).
 6. **"Instruction honoured"** was not re-graded for P9 (section 8.7). **Decided:** run a fresh,
-   independent judge pass (step p15).
+   independent judge pass (step p15). The blinded grading file (150 cases, baseline vs p15 on
+   mini) is written; the grades and the honoured rate are still to come.
 7. **`MentionMatcher` held-out false-pin check** (p8, section 8.6). **Decided:** accepted as is.
 8. **Inked-pen link target** (p10). **Decided:** link to the currently-inked list instead of the
    edit page. Done in p13.
@@ -2051,6 +2113,11 @@ p12–p15 carry them out.
     `MentionMatcher` hits as hints, because gpt-4.1-mini missed a pen named without its brand
     ("an ink for the <model name>") that the matcher had found. Ruby recognises names from the
     user's own collection; the LLM decides their role. Done in p12.
+11. **NUL characters in tool-call arguments** (new, p15). A pick whose arguments contain
+    `\u0000` makes `RubyLlmAgent#save_transcript` fail in Postgres, and the user gets the generic
+    error (1 of about 160 bench runs on mini). `sanitize_for_pg` already strips message text;
+    stripping tool-call arguments too (and the message stored in `extra_data`) would fix it.
+    **Open:** whether to fix it in its own PR; p15 only makes the bench record it.
 
 **Human checks before bench claims.** The bench labels are drafted by Claude Code, and the
 checkers reuse `NibProfile`, `ColorProfile` and `InkProperties`, so the `gate` row is a merge
@@ -2985,3 +3052,48 @@ evidence.
 - p15: Found, not changed: `MentionMatcher` extends a mention across a comma when the next clause
   starts with the same brand ("<brand> <ink>, then <brand> <other ink>" gives one mention, so the
   second ink gets no hint). The filter spec uses two brands; the matcher is left as p8 built it.
+- p15: Two independent Claude Code passes drafted labels for the 34 new cases; neither saw the
+  other or any result. Every scored field (named pens/inks and the 20 hard constraint fields) is
+  identical in 34 / 34 cases (69 / 69 (case, field) pairs either pass set); every compared field in
+  19 / 34; categories in 24 / 34 (mean Jaccard 0.875); the ambiguity flag in 30 / 34. Both passes
+  come from the same model family, so this shows consistency, not correctness. The adjudicated
+  file takes pass B: it adds `feedback_previous` where the ruled-out item is in the rejected pairs,
+  and it reads a request for an ink that has not been inked yet (4 cases) as `ink.usage:
+  never_used`, not ambiguous, the literal reading (pass A flagged them ambiguous, which would also have skipped
+  their exclusion checks). An ink the request rules out is an `exclude_ids` target, not a
+  named-ink hit, as in p6b. Final: 19 cases name an ink (16 test, 3 dev), 4 a pen, 15 exclude an
+  owned ink, 1 is ambiguous.
+- p15: The combined set (`tmp/bench/suggester-p15`, gitignored) is the 266 p6b cases plus the 34
+  new ones, with both label files and the baseline recordings merged; the p6b directory is left
+  as it was. The new cases keep the exporter's by-user split (18 test, 16 dev) instead of all
+  going to test: every one of their users is already in the p6b set with the same split, and the
+  dev users' requests were used to tune the prompts, so moving them to test would leak tuning data
+  into the test split. Named-ink cases on the test split go from 9 to 25.
+- p15: The baseline arm for the new cases was recorded with the p6b code itself (the
+  `suggester-p6b-bench-baseline` branch checked out in a temporary worktree, removed afterwards),
+  same seed and tiers as p6b: mini on all 34, gpt-4.1 on the 18 test cases. On 6 old cases the
+  p6b code rebuilt the recorded prompts exactly (same length and seed) but not always the same
+  picks, since OpenAI samples the old prompt's output; the old cases keep their p6b recordings.
+  So both arms exist for every case and the judge compares on all of them.
+- p15: `GradingExport` takes `max_cases` (`MAX_CASES=` on `bench:suggester:grading_export`):
+  above it, it grades a sample stratified by split and label kind (names an ink, else names a pen,
+  else has a hard constraint, else other), allocated in proportion by largest remainder (ties by
+  stratum name) and drawn per stratum with the seed, and the task prints the strata. Each case
+  now opens with a collection summary (pens and how many are inked, inks by kind and how many
+  were never inked, ink colour families, up to 10 inked pairs), and each picked pen and ink says
+  whether it is inked now, never inked or when it was last inked. Without them the judge could
+  not tell whether "not inked yet" or "something different from what is inked" was honoured.
+- p15: Found, not fixed (open decision 11): a gpt-4.1-mini pick wrote a NUL character
+  (`\u0000`) into its `record_suggestion` arguments, in place of an accented letter of an ink
+  name. `RubyLlmAgent` strips NUL from message text before saving the transcript but not from
+  tool-call arguments, so Postgres refused the transcript (`PG::UntranslatableCharacter`) and the
+  run raised; in production the worker would show the generic error. It hit 1 of about 160 runs
+  before the bench aborted the whole run. The bench `Runner` now records such a run as an error
+  result (a hard failure, cost unknown and counted as $0) and goes on, instead of losing every
+  result of the run.
+- p15: The judge pass grades the free entry (`baseline-mini` vs `p15-mini`), the only pair
+  recorded on every instruction case. 244 cases are above the 150 cap, so it grades the
+  stratified sample; the allocation is proportional, so unweighted rates over the sample estimate
+  the 244 cases, and the 74 test cases in it give the test-split rate. A second file for the
+  premium entry (`baseline-gpt41-test` vs `p15-gpt41-test`, all 121 test cases, no sampling
+  needed) is written beside it, for a later pass if the owner wants one.
