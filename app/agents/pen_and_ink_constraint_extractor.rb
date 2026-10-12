@@ -13,7 +13,8 @@ class PenAndInkConstraintExtractor
     RubyLLM::Error,
     RubyLLM::ConfigurationError,
     RubyLLM::ModelNotFoundError,
-    Faraday::Error
+    Faraday::Error,
+    JSON::ParserError
   ].freeze
 
   SYSTEM_DIRECTIVE = <<~TEXT.freeze
@@ -222,8 +223,8 @@ class PenAndInkConstraintExtractor
   end
 
   def validated(constraints)
-    checked = without_long_colour_lists(without_stray_keep(constraints))
-    SIDES.reduce(checked) { |result, side| with_name_mentions(result, side) }
+    named = SIDES.reduce(constraints) { |result, side| with_name_mentions(result, side) }
+    without_long_colour_lists(without_stray_keep(named))
   end
 
   def without_long_colour_lists(constraints)

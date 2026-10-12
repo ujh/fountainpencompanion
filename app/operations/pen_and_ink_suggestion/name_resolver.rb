@@ -88,8 +88,7 @@ class PenAndInkSuggestion::NameResolver
     outcome = resolve_on(mention, [mention.side])
     return outcome if found?(outcome)
 
-    other = resolve_on(mention, SIDES - [mention.side])
-    found?(other) ? other : outcome
+    named_on(mention, SIDES - [mention.side]) || outcome
   end
 
   def found?(outcome)
@@ -98,17 +97,32 @@ class PenAndInkSuggestion::NameResolver
 
   def resolve_on(mention, sides)
     words = PenAndInkSuggestion::NameText.words(mention.text)
-    matches = sides.flat_map { |side| index.matches(words, side:) }
-    scored = matches.to_h { |match| [match, score(match, words)] }
-    named = matches.select { |match| named?(match, words) }
+    matches = matches_on(words, sides)
 
-    if named.any?
-      { pins: pins_for(named, scored), filters: {} }
+    if (pins = named_pins(matches, words))
+      { pins:, filters: {} }
     elsif (brand_matches = brand_only(matches, words)).any?
       { pins: {}, filters: by_side(brand_matches) }
     else
       not_found(mention, matches, words)
     end
+  end
+
+  def named_on(mention, sides)
+    words = PenAndInkSuggestion::NameText.words(mention.text)
+    pins = named_pins(matches_on(words, sides), words)
+    pins && { pins:, filters: {} }
+  end
+
+  def matches_on(words, sides)
+    sides.flat_map { |side| index.matches(words, side:) }
+  end
+
+  def named_pins(matches, words)
+    named = matches.select { |match| named?(match, words) }
+    return if named.empty?
+
+    pins_for(named, named.to_h { |match| [match, score(match, words)] })
   end
 
   def score(match, words)

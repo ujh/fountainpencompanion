@@ -9,7 +9,8 @@ module ConstraintExtractorHelpers
   def set_constraints_completion(
     arguments = {},
     id: "call_constraints",
-    model: "gpt-4.1-mini-2025-04-14"
+    model: "gpt-4.1-mini-2025-04-14",
+    arguments_json: arguments.to_json
   )
     {
       "id" => "chatcmpl-constraints",
@@ -27,7 +28,7 @@ module ConstraintExtractorHelpers
                 "type" => "function",
                 "function" => {
                   "name" => "set_constraints",
-                  "arguments" => arguments.to_json
+                  "arguments" => arguments_json
                 }
               }
             ]

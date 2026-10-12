@@ -172,6 +172,34 @@ RSpec.describe PenAndInkConstraintExtractor do
         expect(constraints.mentions(:ink)).to eq(["Kon-peki"])
       end
 
+      it "keeps the pen of the turned-down suggestion when the pen mention is only filler" do
+        constraints =
+          extracted(
+            { keep_from_previous: "pen", pen: { mentions: ["this pen"] } },
+            previous_suggestion: true
+          )
+
+        expect(constraints.keep_from_previous).to eq("pen")
+        expect(constraints.mentions(:pen)).to eq([])
+      end
+
+      it "keeps the ink of the turned-down suggestion when its only mention is ruled out" do
+        constraints =
+          extracted(
+            {
+              keep_from_previous: "ink",
+              ink: {
+                mentions: ["Diamine Oxblood"],
+                exclude_mentions: ["Diamine Oxblood"]
+              }
+            },
+            previous_suggestion: true
+          )
+
+        expect(constraints.keep_from_previous).to eq("ink")
+        expect(constraints.mentions(:ink)).to eq([])
+      end
+
       it "drops a colour list of more than four families and keeps shorter ones" do
         constraints =
           extracted(
@@ -290,6 +318,22 @@ RSpec.describe PenAndInkConstraintExtractor do
       end
 
       it_behaves_like "a fallback", "Faraday::ParsingError"
+    end
+
+    context "when the model sends tool-call arguments that aren't JSON" do
+      before { stub_extraction(set_constraints_completion(arguments_json: "{")) }
+
+      it_behaves_like "a fallback", "JSON::ParserError"
+    end
+
+    context "when the model sends tool-call arguments that aren't JSON in json mode" do
+      around { |example| with_params_mode("json") { example.run } }
+
+      before do
+        stub_extraction(set_constraints_completion(arguments_json: "{\"constraints_json\":"))
+      end
+
+      it_behaves_like "a fallback", "JSON::ParserError"
     end
 
     context "when the API key is missing" do

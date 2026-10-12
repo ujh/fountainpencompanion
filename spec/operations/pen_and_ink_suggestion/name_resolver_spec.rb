@@ -204,6 +204,28 @@ RSpec.describe PenAndInkSuggestion::NameResolver do
     expect(resolution.ink_pins).to be_empty
   end
 
+  it "keeps the not-found note for a brand found only on the other side" do
+    pen("Pilot", "Custom 74")
+    ink("Platinum", "Carbon Black")
+
+    resolution = resolve(mention("Platinum", :pen))
+
+    expect(resolution.pins?).to be(false)
+    expect(resolution.pen_brand_filter).to be_nil
+    expect(resolution.ink_brand_filter).to be_nil
+    expect(resolution.notes).to eq(["I couldn't find \"Platinum\" in your collection."])
+  end
+
+  it "keeps the not-found note for a model only close to a name on the other side" do
+    pen("Lamy", "Safari")
+    ink("Asvine", "V128")
+
+    resolution = resolve(mention("Asvine V127", :pen))
+
+    expect(resolution.pins?).to be(false)
+    expect(resolution.notes).to eq(["I couldn't find \"Asvine V127\" in your collection."])
+  end
+
   it "keeps the not-found note when neither side has a match" do
     pen("Lamy", "Safari")
     ink("Diamine", "Oxblood")

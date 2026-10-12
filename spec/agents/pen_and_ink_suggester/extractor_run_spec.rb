@@ -199,6 +199,19 @@ RSpec.describe PenAndInkSuggester do
       expect(suggester.agent_log.extra_data["pins"]).to eq([{ "ink_id" => kon_peki.id }])
     end
 
+    it "keeps every ink when a pen brand the user has no pens of names an ink brand" do
+      stub_llm(pen: { mentions: ["Diamine"] })
+
+      suggester = described_class.new(user, "a Diamine pen")
+      suggester.perform
+
+      expect(pick_message).to include("Diamine Oxblood", "Pilot Iroshizuku Kon-peki")
+      expect(suggester.agent_log.extra_data["pins"]).to eq([])
+      expect(suggester.agent_log.extra_data["notes"]).to include(
+        "I couldn't find \"Diamine\" in your collection."
+      )
+    end
+
     it "pins the items the extractor names" do
       stub_llm(pen: { mentions: ["Lamy 2000"] })
 
@@ -307,6 +320,12 @@ RSpec.describe PenAndInkSuggester do
       end
 
       it_behaves_like "a fallback run", "Faraday::ParsingError"
+    end
+
+    context "when the model sends tool-call arguments that aren't JSON" do
+      before { stub_llm { json_response(set_constraints_completion(arguments_json: "{")) } }
+
+      it_behaves_like "a fallback run", "JSON::ParserError"
     end
 
     context "when the model never calls set_constraints" do

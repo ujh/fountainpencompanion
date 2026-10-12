@@ -658,7 +658,9 @@ That is 22 fields. Extractor rules the labelled set pins:
 - `RubyLLM::ConfigurationError` and `RubyLLM::ModelNotFoundError`, which inherit from
   `StandardError`, not `RubyLLM::Error` (ruby_llm-1.16.0 `lib/ruby_llm/error.rb:21-25`), and
   cover a missing key or a mistyped model id in the extractor's config entry;
-- `Faraday::Error` (covers `TimeoutError`, `ConnectionFailed`, `ParsingError`).
+- `Faraday::Error` (covers `TimeoutError`, `ConnectionFailed`, `ParsingError`);
+- `JSON::ParserError`, which ruby_llm-1.16.0 raises unwrapped when a tool call's `arguments`
+  string is not valid JSON (`providers/openai/tools.rb`, `parse_tool_call_arguments`).
 
 These are specific classes, not a bare rescue.
 
@@ -2534,10 +2536,15 @@ evidence.
   families is dropped (the model lists every "warm colour" for a mood); a mention with no word
   outside the `MentionVocabulary` stop and filler words is dropped ("purple pen", "the fine one");
   a mention that also appears in either side's `exclude_mentions` is dropped ("not Ancient
-  Copper" had become an ink pin).
+  Copper" had become an ink pin). Mentions are cleaned first, so `keep_from_previous` is reset
+  only when its side still has a mention after that ("something else in this pen" keeps the pen).
+- p9b: `JSON::ParserError` joins the extractor's fallback list: ruby_llm parses tool-call
+  arguments with a bare `JSON.parse`, so truncated arguments would otherwise fail the whole run.
 - p9b: `NameResolver` resolves a sided mention on the other side when its own side finds nothing
   (no pin, no brand, no closest model), because the extractor sometimes puts an ink on the pen
-  side. This applies to the matcher's sided mentions too.
+  side. Only a named item on the other side counts: a bare brand or a closest model there keeps
+  the own side's not-found note, so "Platinum" for a Japanese pen never becomes an ink brand
+  filter. This applies to the matcher's sided mentions too.
 - p9b: Agreement rule for Ruby pins: when the extractor succeeds, only its mentions are resolved.
   `MentionMatcher` pins are kept only on a side where the extractor's mention resolved to a brand
   filter and the matcher's pins lie inside that brand (extractor "Lamy", matcher "Lamy 2000").
