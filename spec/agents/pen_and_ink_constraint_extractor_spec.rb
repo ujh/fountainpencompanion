@@ -177,6 +177,30 @@ RSpec.describe PenAndInkConstraintExtractor do
       )
     end
 
+    it "logs the transcript and constraints when the tool-call arguments and text contain NUL" do
+      completion =
+        set_constraints_completion(
+          arguments.merge(
+            soft_notes: "wants to use up sam\u0000ples",
+            pen: {
+              mentions: ["Corvid\u0000"]
+            }
+          )
+        )
+      completion["choices"].first["message"]["content"] = "Read\u0000ing."
+      stub_extraction(completion)
+
+      agent = extractor
+      agent.perform
+
+      log = agent.agent_log.reload
+      expect(log.state).to eq(AgentLog::WAITING_FOR_APPROVAL)
+      expect(log.extra_data["constraints"]).to include("soft_notes" => "wants to use up samples")
+      expect(log.extra_data.dig("constraints", "pen", "mentions")).to eq(["Corvid"])
+      expect(log.transcript.to_json).not_to include("\\u0000")
+      expect(log.transcript.map { |entry| entry["content"] }).to include("Reading.")
+    end
+
     it "logs the cached and cache-write prompt tokens the API reports" do
       completion = set_constraints_completion(arguments)
       completion["usage"]["prompt_tokens_details"] = {

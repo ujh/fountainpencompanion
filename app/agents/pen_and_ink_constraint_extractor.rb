@@ -202,7 +202,7 @@ class PenAndInkConstraintExtractor
 
   def perform
     constraints = extract
-    agent_log.update!(extra_data: { "constraints" => constraints.to_h })
+    agent_log.update!(extra_data: sanitize_for_pg("constraints" => constraints.to_h))
     constraints
   rescue *FAILURES => e
     self.error = e.class.name

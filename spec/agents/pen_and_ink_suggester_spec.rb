@@ -311,6 +311,30 @@ RSpec.describe PenAndInkSuggester do
       )
     end
 
+    it "saves the run when the pick's tool-call arguments and text contain NUL" do
+      stub_completions(
+        completion(
+          tool_calls: [record_call(reasoning: "A calm, wet bl\u0000ue.")],
+          content: "Pick\u0000ing."
+        )
+      )
+      suggester = described_class.new(user)
+
+      response = suggester.perform
+
+      log = suggester.agent_log.reload
+      expect(response).to include(pen: pen.id, ink: ink.id)
+      expect(response[:message]).to end_with("A calm, wet blue.")
+      expect(log.state).to eq(AgentLog::WAITING_FOR_APPROVAL)
+      expect(log.extra_data).to include(
+        "pen" => pen.id,
+        "ink" => ink.id,
+        "reasoning" => "A calm, wet blue."
+      )
+      expect(log.transcript.to_json).not_to include("\\u0000")
+      expect(log.transcript.map { |entry| entry["content"] }).to include("Picking.")
+    end
+
     it "saves the usage" do
       suggester = described_class.new(user)
 

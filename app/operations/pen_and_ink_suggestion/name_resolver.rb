@@ -13,6 +13,8 @@ class PenAndInkSuggestion::NameResolver
     ink: "I left out %<name>s: a swab can't fill a pen."
   }.freeze
 
+  Miss = Data.define(:text, :note)
+
   Resolution =
     Data.define(:pen_pins, :ink_pins, :pen_brand_filter, :ink_brand_filter, :notes, :misses) do
       def self.empty
@@ -64,7 +66,7 @@ class PenAndInkSuggestion::NameResolver
       next unless outcome[:note]
 
       notes << outcome[:note]
-      misses << text(mention)
+      misses << Miss.new(text: text(mention), note: outcome[:note])
     end
     SIDES.each do |side|
       usable, unusable = pins[side].partition { |item| usable?(item) }

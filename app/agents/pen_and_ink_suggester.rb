@@ -60,7 +60,7 @@ class PenAndInkSuggester
   end
 
   def perform
-    extra_data = run
+    extra_data = sanitize_for_pg(run)
     extra_data[:queue_ms] = queue_ms if queue_ms
     agent_log.update(extra_data:)
     agent_log.waiting_for_approval!
@@ -173,7 +173,8 @@ class PenAndInkSuggester
     pen = recorded[:pen]
     reasoning = PenAndInkSuggestion::ReasoningSanitizer.call(recorded[:reasoning])
     inking = snapshot.active_inking_for(pen)
-    notes = pick_notes
+    dropped_notes = picked_miss_notes(pen, recorded[:ink])
+    notes = pick_notes - dropped_notes
     notes += [format(CURRENTLY_INKED_NOTE, ink: inking.collected_ink.short_name)] if inking
     message =
       PenAndInkSuggestion::SuggestionMessage.new(
@@ -190,7 +191,13 @@ class PenAndInkSuggester
       pen_currently_inked: inking.present?
     }
     result[:currently_inked_id] = inking.id if inking
+    result[:dropped_notes] = dropped_notes if dropped_notes.any?
     result.merge(reasoning:, notes:)
+  end
+
+  def picked_miss_notes(pen, ink)
+    picked = PenAndInkSuggestion::PickedNames.new(pen, ink)
+    resolution.misses.select { |miss| picked.matches?(miss.text) }.map(&:note)
   end
 
   def log_data

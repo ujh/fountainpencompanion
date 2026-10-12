@@ -247,7 +247,7 @@ RSpec.describe PenAndInkSuggestion::NameResolver do
     expect(described_class::Resolution.empty).not_to be_pins
   end
 
-  it "lists the mentions it could not find as written, and only those" do
+  it "lists the mentions it could not find as written with their notes, and only those" do
     pen("Corvid", "V126")
     pen("Corvid", "Halcyon")
     pen("Corvid", "Halcyon", nib: "Rollerball")
@@ -261,7 +261,20 @@ RSpec.describe PenAndInkSuggestion::NameResolver do
         mention("Quillworth Harbour Fog", :ink)
       )
 
-    expect(resolution.misses).to eq(["Corvid V128", "Wrenfield Comet"])
+    expect(resolution.misses).to eq(
+      [
+        described_class::Miss.new(
+          text: "Corvid V128",
+          note:
+            "I couldn't find \"Corvid V128\" in your collection, so I went with the closest: " \
+              "Corvid V126."
+        ),
+        described_class::Miss.new(
+          text: "Wrenfield Comet",
+          note: "I couldn't find \"Wrenfield Comet\" in your collection."
+        )
+      ]
+    )
     expect(resolution).to be_misses
     expect(resolve(mention("Corvid Halcyon", :pen))).not_to be_misses
     expect(described_class::Resolution.empty.misses).to eq([])

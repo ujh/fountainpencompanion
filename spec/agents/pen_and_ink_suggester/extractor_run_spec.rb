@@ -206,10 +206,10 @@ RSpec.describe PenAndInkSuggester do
       suggester.perform
 
       expect(pick_message).to include("Diamine Oxblood", "Pilot Iroshizuku Kon-peki")
-      expect(suggester.agent_log.extra_data["pins"]).to eq([])
-      expect(suggester.agent_log.extra_data["notes"]).to include(
-        "I couldn't find \"Diamine\" in your collection."
+      expect(pick_message).to include(
+        "SERVER NOTES (already shown): I couldn't find \"Diamine\" in your collection."
       )
+      expect(suggester.agent_log.extra_data["pins"]).to eq([])
     end
 
     it "pins the items the extractor names" do

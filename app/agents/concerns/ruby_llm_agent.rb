@@ -168,13 +168,13 @@ module RubyLlmAgent
   end
 
   def save_transcript
-    agent_log.transcript = serialize_messages(chat.messages)
+    agent_log.transcript = sanitize_for_pg(serialize_messages(chat.messages))
     agent_log.save!
   end
 
   def serialize_messages(messages)
     messages.map do |msg|
-      entry = { role: msg.role.to_s, content: sanitize_for_pg(extract_text(msg.content)) }
+      entry = { role: msg.role.to_s, content: extract_text(msg.content) }
       entry[:tool_calls] = serialize_tool_calls(msg.tool_calls) if msg.tool_call?
       entry[:tool_call_id] = msg.tool_call_id if msg.tool_result?
       entry
@@ -196,8 +196,17 @@ module RubyLlmAgent
 
   # PostgreSQL cannot store \u0000 (null bytes) in text/jsonb columns.
   # LLM responses occasionally contain these characters.
-  def sanitize_for_pg(str)
-    str.delete("\u0000")
+  def sanitize_for_pg(value)
+    case value
+    when String
+      value.delete("\u0000")
+    when Hash
+      value.to_h { |key, item| [sanitize_for_pg(key), sanitize_for_pg(item)] }
+    when Array
+      value.map { |item| sanitize_for_pg(item) }
+    else
+      value
+    end
   end
 
   # Restores non-system messages from a previously saved transcript,

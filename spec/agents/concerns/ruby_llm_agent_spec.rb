@@ -87,8 +87,8 @@ RSpec.describe RubyLlmAgent do
 
   describe "#sanitize_for_pg" do
     it "strips null bytes from strings" do
-      result = agent.send(:sanitize_for_pg, "hello\u0000world")
-      expect(result).to eq("helloworld")
+      result = agent.send(:sanitize_for_pg, "\u0000foo\u0000bar\u0000")
+      expect(result).to eq("foobar")
     end
 
     it "leaves normal strings unchanged" do
@@ -96,14 +96,20 @@ RSpec.describe RubyLlmAgent do
       expect(result).to eq("hello world")
     end
 
-    it "handles empty strings" do
-      result = agent.send(:sanitize_for_pg, "")
-      expect(result).to eq("")
+    it "strips null bytes from keys and values of nested hashes and arrays" do
+      result =
+        agent.send(
+          :sanitize_for_pg,
+          { "ke\u0000y" => ["a\u0000b", { nested: "c\u0000d" }], :count => 3, "flag" => nil }
+        )
+
+      expect(result).to eq("key" => ["ab", { nested: "cd" }], :count => 3, "flag" => nil)
     end
 
-    it "strips multiple null bytes" do
-      result = agent.send(:sanitize_for_pg, "\u0000foo\u0000bar\u0000")
-      expect(result).to eq("foobar")
+    it "leaves values that aren't strings, hashes or arrays unchanged" do
+      expect(agent.send(:sanitize_for_pg, 1.5)).to eq(1.5)
+      expect(agent.send(:sanitize_for_pg, true)).to be(true)
+      expect(agent.send(:sanitize_for_pg, :symbol)).to eq(:symbol)
     end
   end
 
@@ -407,6 +413,41 @@ RSpec.describe RubyLlmAgent do
 
       result = agent.ask!("Make a decision")
       expect(result).to be_a(RubyLLM::Tool::Halt)
+    end
+
+    it "saves a transcript whose tool-call arguments, tool results and text contain NUL" do
+      agent =
+        test_class_with_research_tools.new(agent_log, decide_tool_class.new, search_tool_class.new)
+      stub_request(:post, "https://api.openai.com/v1/chat/completions").to_return(
+        *[
+          tool_call_response(
+            call_id: "call_search",
+            name: "search",
+            arguments: {
+              "query" => "te\u0000st"
+            }
+          ),
+          text_response(content: "Still thin\u0000king."),
+          tool_call_response(arguments: { "choice" => "y\u0000es" })
+        ].map do |body|
+          { status: 200, body: body.to_json, headers: { "Content-Type" => "application/json" } }
+        end
+      )
+
+      result = agent.ask!("Make a decision")
+
+      transcript = agent_log.reload.transcript
+      expect(result.content).to eq("decided: y\u0000es")
+      expect(transcript.to_json).not_to include("\\u0000")
+      expect(transcript.flat_map { |entry| entry["tool_calls"] || [] }).to include(
+        a_hash_including("arguments" => { "query" => "test" }),
+        a_hash_including("arguments" => { "choice" => "yes" })
+      )
+      expect(transcript.map { |entry| entry["content"] }).to include(
+        "Results for: test",
+        "Still thinking.",
+        "decided: yes"
+      )
     end
   end
 

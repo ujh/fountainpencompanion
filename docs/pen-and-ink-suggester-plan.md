@@ -1940,7 +1940,8 @@ extractor prefix is mostly cached) and, in brackets, list price.
   close enough on 2026-10-12 (open decision 13).
 - **One run crashed** in the first mini attempt: a NUL character in the pick's tool-call
   arguments made Postgres refuse the transcript (open decision 11). The bench now records such a
-  run as an error; the rerun had none.
+  run as an error; the rerun had none. p18 strips NUL from everything the agents persist, so such
+  a pick now saves like any other, and the bench guard is gone.
 - **Spend in p15:** baseline arm for the new cases $0.59 (mini $0.10, gpt-4.1 $0.49), a 6-case
   check of the p6b code $0.02, `p15-gpt41-test` $1.52, `p15-mini` $0.41, and about $0.26 for the
   aborted first mini attempt (about 156 runs): **about $2.80 in all** as charged.
@@ -1993,7 +1994,9 @@ judged "yes" only when both judges say yes.
 - **New finding: a false "couldn't find" note.** In 2 dev cases the extractor gave a mention the
   `NameResolver` could not resolve (a pen's colour name read as an ink, a lower-case brand), so
   the answer said "I couldn't find …" although the pick was the pen the user meant. Both judges
-  graded these "partial" with low `notes_accurate` (open decision 12).
+  graded these "partial" with low `notes_accurate` (open decision 12). p18 drops the note when
+  the pick carries the mentioned name; re-run offline on the recorded outputs, both cases lose it
+  (p18 decisions).
 - The premium file (`baseline-gpt41-test` vs `p15-gpt41-test`, all 121 test cases) is written
   but not graded (p15 decisions).
 
@@ -2234,6 +2237,7 @@ from p12 on are follow-ups to the owner's answers of 2026-10-12, stacked on p11.
 | p15  | P9 follow-up | re-measure on more named-ink cases with a fresh judge pass (owner decisions 5 and 6, section 8.11): `bench:suggester:export_named_inks`, `NamedInkFilter`, the exporter's `BEFORE`; the grading export's stratified `MAX_CASES` sample and collection summary; the runner records a transcript Postgres refuses as an error | done, pending merge (#3861) |
 | p16  | P9 follow-up | the extractor moves to gpt-6-luna at reasoning effort `none` without a temperature (owner decision 3, sections 8.10 and 8.13); the model is registered in `config/initializers/ruby_llm.rb` | done, pending merge (#3862) |
 | p17  | P1 / P4 / P9 follow-up | temperature 0 restored on the gpt-6-luna extractor and in the bench's `MODEL=` override (open decision 15, section 8.13); the `gate` fixes (open decision 14, section 8.12): `NibProfile` sizes Western collaborations by the Western maker and sets `japanese_sizing` by brand alone, `InkProperties` ignores hedged and swatch-only mentions and reads "permanent" in names as water-resistant | done, pending merge |
+| p18  | P2 / P8 follow-up | NUL-safe agent logs: one recursive `sanitize_for_pg` for the transcript (text, tool-call arguments, tool results) and the suggester's and extractor's `extra_data`; the bench runner's NUL guard is removed (open decision 11). A "couldn't find" note is dropped when the pick carries the mentioned name (`PickedNames`, open decision 12). Open decision 16 recorded as decided | done, pending merge |
 
 The PRs are stacked: each branches off the previous step's branch, so they merge in the order of
 the table, each after its own review and the `gate` row.
@@ -2244,6 +2248,7 @@ p12–p15 carry them out. Later on 2026-10-12 the owner confirmed the gpt-6-luna
 done in p16), accepted the 97.96% hard-constraint rate (item 13) and finished the `gate` checks
 (item 1, recorded in p16). Items 14 and 15 are new from p16; the owner decided item 15 later on
 2026-10-12 (temperature 0 restored, done in p17), and p17 did item 14. Item 16 is new from p17.
+The owner decided items 11, 12 and 16 later on 2026-10-12 (recorded in p18); p18 did 11 and 12.
 
 1. **The `gate` row** (labels and normaliser hand checks). **Decided:** the owner checks the
    labels and the `NibProfile`, `ColorProfile` and `InkProperties` outputs on a throwaway local dev
@@ -2293,12 +2298,16 @@ done in p16), accepted the 97.96% hard-constraint rate (item 13) and finished th
     `\u0000` makes `RubyLlmAgent#save_transcript` fail in Postgres, and the user gets the generic
     error (1 of about 160 bench runs on mini). `sanitize_for_pg` already strips message text;
     stripping tool-call arguments too (and the message stored in `extra_data`) would fix it.
-    **Open:** whether to fix it in its own PR; p15 only makes the bench record it.
+    **Decided (2026-10-12):** fix it. **Done in p18:** one recursive sanitiser in `RubyLlmAgent`
+    covers the whole transcript and the suggester's and extractor's `extra_data`; the bench guard
+    p15 added is removed.
 12. **False "couldn't find" notes** (new, p15, section 8.11). When the extractor returns a mention
     the `NameResolver` cannot resolve (a pen's colour name given as an ink mention, a lower-case
     brand alone), the answer says "I couldn't find …" even when the pick is the item the user
-    meant (2 of 150 judged cases, both dev). **Open:** whether to drop the note when the picked
-    pen or ink matches the mention text, in its own PR; p15 only records it.
+    meant (2 of 150 judged cases, both dev). **Decided (2026-10-12):** drop the note when the
+    picked pen or ink matches the mention text. **Done in p18:** re-run offline on the recorded
+    p15 outputs, both judged cases lose the note, as do 2 more mini runs and 1 gpt-4.1 run
+    (5 of 19 runs with such a note); the other 14 notes stay.
 13. **Hard constraints met or relaxed at 97.96%** (48 / 49) on the test split for mini in p15,
     against the ≥ 98% bar (section 8.11). **Decided (2026-10-12):** accepted as close enough.
 14. **Normaliser errors from the gate** (new, p16, section 8.12): 2 of 50 `NibProfile` and 5 of
@@ -2323,8 +2332,9 @@ done in p16), accepted the 97.96% hard-constraint rate (item 13) and finished th
     owner's rule that a property counts only as a main characteristic, `InkProperties` no longer
     reads sheen from "a bit of sheen (… if visible at all)" or shading from "with some shading" in
     a description. Two gate outputs marked OK carried such a flag, while another item with "some
-    shading" was marked wrong. p17 applies the rule as stated. **Open:** confirm the rule for
-    these two, or name the exception (for example, keep "some" as a hedge only before shading).
+    shading" was marked wrong. p17 applies the rule as stated. **Decided (2026-10-12):** apply
+    the rule as stated; both items lose the hedged flag, with no exception. Nothing changes in
+    code; p17's rule stands (recorded in p18).
 
 **Human checks before bench claims.** The bench labels are drafted by Claude Code, and the
 checkers reuse `NibProfile`, `ColorProfile` and `InkProperties`, so the `gate` row is a merge
@@ -3485,3 +3495,55 @@ unchecked by the owner.
   shading in swatches." keeps sheen), and a hedge three words before the term is out of reach
   ("Some dark red-purple gloss sheen." keeps sheen). Each was checked by breaking the rule and
   seeing the new case fail. The rules themselves are unchanged.
+
+**p18 decisions:**
+
+- p18: `RubyLlmAgent#sanitize_for_pg` is now recursive: it strips `\u0000` from strings and
+  from hash keys and values and array items at any depth, and leaves other values alone.
+  `save_transcript` runs it over the whole serialised transcript, so message text, tool-call
+  arguments, tool results and ids are covered by one call instead of the text field alone. The
+  suggester runs it over its whole result before saving `extra_data` and before returning the
+  user-facing slice, so the message the widget shows is NUL-free too; the extractor runs it over
+  its `extra_data`. In-memory values (the recorded pick, the constraints) keep what the model
+  sent; a NUL inside a word still splits it for name matching, as before. Other agents' own
+  `extra_data` writes are not changed in this step; their transcripts are covered through the
+  concern.
+- p18: The bench runner's `PG::UntranslatableCharacter` guard from p15 was dead code once the
+  suggester saved such runs, so it is removed with its two specs ("records a run … as an error",
+  "raises any other database error"). A runner spec now pins that a pick whose arguments contain
+  NUL is recorded like any other pick. Baseline arms replay older code from their own checkout,
+  so the guard's removal does not affect them.
+- p18: A `NameResolver` miss now carries its note (`NameResolver::Miss`, text and note), so the
+  suggester can drop exactly that note after the pick without a second LLM call. The pick prompt
+  still lists the note under SERVER NOTES, because it is built before the pick; only the answer
+  and the logged `notes` lose it, and `extra_data["dropped_notes"]` records what was dropped.
+  The pick's reasoning could still repeat the note; that was not seen in specs and is not
+  measured.
+- p18: "Matches" is `PenAndInkSuggestion::PickedNames`: after `NameText.words` normalisation,
+  and leaving out filler words and the generic pen and ink words of `MentionVocabulary`, every
+  word of the mention is a word of one picked item: the pen's brand, model or colour, or the
+  ink's brand, line or name. A pen's material and nib are not used, words spread over the pen
+  and the ink do not count, and a mention with no content word never matches. The mention's side
+  is ignored, since the false notes come from mentions on the wrong side. A bare brand is the
+  one-word case of the rule.
+- p18: One extension beyond exact words: a one-letter initial matches an item word that starts
+  with it, but only next to at least one exact word and never for a nib grade letter (`F`, `M`,
+  `B`). One of the two judged cases wrote a brand with its first name abbreviated; with exact
+  words alone it kept the false note (1 of 2 cases fixed). Abbreviations beyond initials are not
+  matched.
+- p18: By the rule as stated, a pen-brand mention the user owns only as an ink brand loses its
+  note when the pick is an ink of that brand ("a Diamine pen" with a Diamine ink picked). The
+  existing spec for that case now checks the note in the pick prompt instead of the answer. The
+  note is lost only when the answer itself shows the named brand.
+- p18: Offline re-check on the recorded p15 outputs, no LLM calls (the picked items read from
+  the dev DB by an uncommitted script in gitignored `tmp/bench`): `p15-mini` has 14 runs with a
+  "couldn't find" note and 4 lose it, among them both judged cases of section 8.11;
+  `p15-gpt41-test` has 5 and 1 loses it. All 5 dropped notes were read by hand: in each, the
+  picked pen or ink carries the mentioned name (a pen colour, a brand with or without "pen", an
+  abbreviated brand, a word of the ink's line and the pen's colour). Of the 14 kept notes, 11
+  name something the pick does not carry; 3 (all mini) arguably name the picked pen by another
+  name that the rule does not cover: a model's other trade name, a brand written without vowels,
+  and a model number with a letter prefix. They stay, as the conservative rule intends. The judge
+  grades are not re-run, so no honoured rate changes in section 8.11.
+- p18: Open decision 16 is recorded as decided (the hedge rule as stated, no exception); p17's
+  code already does that, so p18 changes no `InkProperties` code.
