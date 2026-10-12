@@ -136,6 +136,18 @@ RSpec.describe Bench::Suggester::ExtractorRunner do
     end
   end
 
+  it "sends what the production extractor sends when asked for its model" do
+    stub_extraction(model: "gpt-6-luna-2026-09-22")
+
+    described_class.new(labels: [label("anything")], model: "gpt-6-luna").run
+
+    expect(WebMock).to have_requested(:post, openai_url).with { |request|
+      body = JSON.parse(request.body)
+      body["model"] == "gpt-6-luna" && body["temperature"] == 0 &&
+        body["reasoning_effort"] == "none"
+    }
+  end
+
   it "uses another model when asked, under the extractor's log name" do
     stub_extraction(model: "gpt-4.1-2025-04-14")
     names = []
@@ -167,14 +179,17 @@ RSpec.describe Bench::Suggester::ExtractorRunner do
       body
     end
 
-    it "sends the lowest reasoning effort and no temperature" do
+    it "sends the lowest reasoning effort, with the temperature RubyLLM allows at effort none" do
       stub_extraction(model: "gpt-5.4-nano-2026-03-17")
       runner = described_class.new(labels: [label("only samples")], model: "gpt-5.4-nano")
 
       result = runner.run["only samples"]
 
-      expect(requested_body).to include("model" => "gpt-5.4-nano", "reasoning_effort" => "none")
-      expect(requested_body).not_to have_key("temperature")
+      expect(requested_body).to include(
+        "model" => "gpt-5.4-nano",
+        "reasoning_effort" => "none",
+        "temperature" => 1.0
+      )
       expect(result["constraints"]).to eq(
         PenAndInkSuggestion::Constraints.from_h(ink: { kinds_include: ["sample"] }).to_h
       )
@@ -201,7 +216,11 @@ RSpec.describe Bench::Suggester::ExtractorRunner do
 
       results = runner.run
 
-      expect(requested_body).to include("model" => "gpt-9-test", "reasoning_effort" => "none")
+      expect(requested_body).to include(
+        "model" => "gpt-9-test",
+        "reasoning_effort" => "none",
+        "temperature" => 0
+      )
       expect(results["one"]["error"]).to be_nil
       expect(runner.stop_reason).to eq(described_class::UNPRICED)
     end

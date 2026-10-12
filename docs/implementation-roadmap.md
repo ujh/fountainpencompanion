@@ -892,7 +892,7 @@ c.max_retries = entry[:max_retries] if entry[:max_retries] }` — the YAML key `
   - Seed list for `config/llm.yml`'s per-class `default` entries — the ten existing `MODEL_ID`
     constants, unchanged model ids, all provider `openai`, all pointing at `OPEN_AI_TOKEN`:
     `google_search_summarizer.rb:14` (`gpt-4.1-mini`), `ink_brand_clusterer.rb:49` (`gpt-4.1`),
-    `pen_and_ink_constraint_extractor.rb:4` (`gpt-6-luna` at reasoning effort `none`, one entry for
+    `pen_and_ink_constraint_extractor.rb:4` (`gpt-6-luna` at reasoning effort `none` and temperature 0, one entry for
     both suggester tiers; the model is registered in `config/initializers/ruby_llm.rb` because
     RubyLLM 1.16 does not list it),
     `spam_classifier.rb:40` (`gpt-4.1-mini`), `youtube_summarizer.rb:4` (`gpt-4.1-mini`),
@@ -906,8 +906,9 @@ c.max_retries = entry[:max_retries] if entry[:max_retries] }` — the YAML key `
     by S11-pen-agent-decide, which depends on this step.
   - Per-entry `reasoning_effort` and `temperature`: the entry format gets these two optional keys,
     and `RubyLlmAgent#reasoning_effort` and `#temperature` return them from the resolved entry
-    (default `nil`, as today). The extractor's entry carries `reasoning_effort: none` and no
-    `temperature`, and its `def reasoning_effort = "none"` is deleted with its `MODEL_ID`. Today
+    (default `nil`, as today). The extractor's entry carries `reasoning_effort: none` and
+    `temperature: 0`, and its `def reasoning_effort = "none"` and `def temperature = 0` are deleted
+    with its `MODEL_ID`. Today
     the effort lives in the class, and RubyLLM 1.16 sends `reasoning_effort` whenever it is set,
     whatever the model; left there, a flip that edits only `model:` would send an effort to a
     model without reasoning, the API would reject every call, and each extraction would fall back
@@ -1028,11 +1029,11 @@ LlmConfig.for(llm_config_key).api_base })` — resolved through the SAME path `b
     OpenAI alternative (`gpt-4.1` entries → `gpt-4.1-mini`, `gpt-4.1-mini` entries → `gpt-4o-mini`,
     the extractor's `gpt-6-luna` → `gpt-4.1-mini`),
     which is a real manual replacement an operator can flip to while OpenAI is still the default.
-    The extractor's row names all three keys of the flip, not only the model: `model: gpt-4.1-mini`,
-    remove `reasoning_effort` and set `temperature: 0` (gpt-4.1-mini takes no reasoning effort, and
-    temperature 0 is what the extractor sent on it before p16). Until S04 moves those keys into the
-    entry, the flip is a code change in `pen_and_ink_constraint_extractor.rb` (`MODEL_ID`, drop
-    `def reasoning_effort`, add `def temperature = 0`), not a config edit.
+    The extractor's row names both keys of the flip, not only the model: `model: gpt-4.1-mini` and
+    remove `reasoning_effort` (gpt-4.1-mini takes no reasoning effort); `temperature: 0` stays, as
+    the extractor sends it on both models (restored in plan step p17). Until S04 moves those keys
+    into the entry, the flip is a code change in `pen_and_ink_constraint_extractor.rb` (`MODEL_ID`,
+    drop `def reasoning_effort`), not a config edit.
     S30-chat-bench-round replaces the OpenAI rows' replacement column with the per-agent DO
     candidates before S31 (the first ink flip).
 - **Depends on.** S04-llm-config-chat (the hook lives inside the config-aware concern this step

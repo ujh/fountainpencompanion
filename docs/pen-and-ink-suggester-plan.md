@@ -1888,7 +1888,7 @@ it; refresh the registry or upgrade the gem), `reasoning_effort` `"none"` on the
 `RubyLlmAgent` hook added in p14), and nothing for temperature: gpt-6 models accept 0 at effort
 `none`, and RubyLLM forces 1.0 only on gpt-5 and o-series ids. `agent_log.usage` records the cache
 writes from p14 on, so production cost stays readable from the logs. The owner confirmed the
-switch; p16 made it, without a temperature (section 8.13).
+switch; p16 made it, without a temperature, and p17 restored temperature 0 (section 8.13).
 
 ### 8.11 P15 bench: more named-ink cases (recorded in p15, 2026-10-12)
 
@@ -2030,29 +2030,31 @@ sampled items and marks stay in gitignored `tmp/bench`). The sample was 170 item
   Japanese-sizing call, which shifts the width class the nib width check uses. `InkProperties`
   also feeds the property labels in the pick rows, which no metric scores directly.
 
-### 8.13 P16 smoke: the extractor on gpt-6-luna in production configuration (recorded in p16, 2026-10-12)
+### 8.13 P16 and P17 smoke: the extractor on gpt-6-luna in production configuration (recorded in p16 and p17, 2026-10-12)
 
 **Label-based rows are scored against owner-spot-checked labels** for the p6 strings (section
 8.12) and against unreviewed single-pass drafts for `holdout` and `holdout2`, as in section
 8.10. Failures, cost, latency and run-to-run agreement are label-free and are the primary evidence.
 
 `bench:suggester:extractor` without `MODEL=`, so the extractor class runs exactly as in
-production: gpt-6-luna, reasoning effort `none`, no temperature, `names_found` hints, the same
-324 strings (301 scored). It ran twice; the p14 gpt-6-luna runs (temperature 0) are the
+production: gpt-6-luna, reasoning effort `none`, `names_found` hints, the same 324 strings (301
+scored). p16 ran it twice without a temperature; p17 restored temperature 0 (open decision 15)
+and ran it twice more. The p14 gpt-6-luna runs (`MODEL=gpt-6-luna`, temperature 0) are the
 comparison.
 
-| Extractor on gpt-6-luna, 301 scored   | p14, temperature 0, 2 runs | p16, no temperature, 2 runs |
-| ------------------------------------- | -------------------------- | --------------------------- |
-| Failures                              | 0 / 0                      | 0 / 0                       |
-| Hard-field FP, all scored (bar ≤ 3%)  | 4.7% / 4.3% (14 / 13)      | 4.0% / 5.0% (12 / 15)       |
-| Hard-field FP, test split (96)        | 2.1% / 2.1%                | 2.1% / 1.0%                 |
-| Hard-field FP, `holdout` (53)         | 13.2% / 13.2%              | 11.3% / 13.2%               |
-| Hard-field FP, `holdout2` (52)        | 1.9% / 0.0%                | 0.0% / 3.8%                 |
-| Missed named (154)                    | 6.5% / 9.1% (10 / 14)      | 8.4% / 7.1% (13 / 11)       |
-| Hard values found, outside mentions   | 192 / 193 of 217           | 184 / 187 of 217            |
-| Strings with identical hard fields across the two runs (label-free) | 306 / 324 (94.4%) | 288 / 324 (88.9%) |
-| $ / extraction, list / as charged     | $0.00039 / $0.00006        | $0.00039 / $0.00006         |
-| Latency p50 / p90                     | 1.46 / 2.22 s, 1.38 / 2.28 s | 1.31 / 1.82 s, 1.25 / 1.90 s |
+| Extractor on gpt-6-luna, 301 scored   | p14, temperature 0, 2 runs | p16, no temperature, 2 runs | p17, temperature 0, 2 runs |
+| ------------------------------------- | -------------------------- | --------------------------- | -------------------------- |
+| Failures                              | 0 / 0                      | 0 / 0                       | 0 / 0                      |
+| Hard-field FP, all scored (bar ≤ 3%)  | 4.7% / 4.3% (14 / 13)      | 4.0% / 5.0% (12 / 15)       | 5.0% / 6.0% (15 / 18)      |
+| Hard-field FP, test split (96)        | 2.1% / 2.1%                | 2.1% / 1.0%                 | 2.1% / 4.2%                |
+| Hard-field FP, `holdout` (53)         | 13.2% / 13.2%              | 11.3% / 13.2%               | 13.2% / 13.2%              |
+| Hard-field FP, `holdout2` (52)        | 1.9% / 0.0%                | 0.0% / 3.8%                 | 1.9% / 3.8%                |
+| Missed named (154)                    | 6.5% / 9.1% (10 / 14)      | 8.4% / 7.1% (13 / 11)       | 6.5% / 7.8% (10 / 12)      |
+| Hard values found, outside mentions   | 192 / 193 of 217           | 184 / 187 of 217            | 192 / 193 of 217           |
+| Strings with identical hard fields across the two runs (label-free), as recorded in p16 | 306 / 324 (94.4%) | 288 / 324 (88.9%) | — |
+| The same, recomputed in p17 (list fields compared as sets, case-insensitive) | 307 / 324 (94.8%) | 294 / 324 (90.7%) | 304 / 324 (93.8%) |
+| $ / extraction, list / as charged     | $0.00039 / $0.00006        | $0.00039 / $0.00006         | $0.00039 / $0.00006        |
+| Latency p50 / p90                     | 1.46 / 2.22 s, 1.38 / 2.28 s | 1.31 / 1.82 s, 1.25 / 1.90 s | 1.29 / 1.72 s, 1.23 / 1.59 s |
 
 - **Reproduces section 8.10 within noise on errors, cost and latency.** Every call used
   gpt-6-luna without an error; false positives, missed names and cost match the p14 runs.
@@ -2063,7 +2065,16 @@ comparison.
   filter leaves the candidates unfiltered and the wish in `soft_notes`, the safe direction, so
   this does not move the false-positive bar, but it is a measurable cost of dropping the
   temperature (open decision 15).
-- **Spend in p16:** two full runs, $0.04 as charged ($0.25 at list price).
+- **Temperature 0 restored in p17.** With the production extractor back at temperature 0, the two
+  p17 runs find as many filter values as the p14 runs (192 / 193 of 217) and agree on every hard
+  field in 304 of 324 strings, close to p14's 307 and above p16's 294 (all three recomputed with
+  the same p17 script; the p16 comparison script was not kept, so its recorded 306 / 288 are
+  not reproduced exactly). Failures, cost and latency are unchanged. The second p17 run has 18
+  false-positive strings against draft labels (test split 4 of 96), the most of the six runs;
+  gpt-6-luna is not deterministic at temperature 0 (13 of 14 p14 false-positive strings
+  recurred), so this is read as run-to-run noise, not as an effect of the temperature.
+- **Spend in p16:** two full runs, $0.04 as charged ($0.25 at list price). **In p17:** two full
+  runs, $0.04 as charged ($0.25 at list price).
 
 ---
 
@@ -2190,7 +2201,8 @@ from p12 on are follow-ups to the owner's answers of 2026-10-12, stacked on p11.
 | p13  | P10 follow-up | the inked-pen link goes to the Currently inked list instead of the entry's edit page (owner decision 8) | done, pending merge (#3859) |
 | p14  | P9 follow-up | extractor model comparison (owner decision 3, section 8.10): the bench's `MODEL=` override handles reasoning models, `RubyLlmAgent#reasoning_effort`, cache-write tokens in usage and bench pricing; production stays on gpt-4.1-mini | done, pending merge (#3860) |
 | p15  | P9 follow-up | re-measure on more named-ink cases with a fresh judge pass (owner decisions 5 and 6, section 8.11): `bench:suggester:export_named_inks`, `NamedInkFilter`, the exporter's `BEFORE`; the grading export's stratified `MAX_CASES` sample and collection summary; the runner records a transcript Postgres refuses as an error | done, pending merge (#3861) |
-| p16  | P9 follow-up | the extractor moves to gpt-6-luna at reasoning effort `none` without a temperature (owner decision 3, sections 8.10 and 8.13); the model is registered in `config/initializers/ruby_llm.rb` | done, pending merge |
+| p16  | P9 follow-up | the extractor moves to gpt-6-luna at reasoning effort `none` without a temperature (owner decision 3, sections 8.10 and 8.13); the model is registered in `config/initializers/ruby_llm.rb` | done, pending merge (#3862) |
+| p17  | P1 / P4 / P9 follow-up | temperature 0 restored on the gpt-6-luna extractor and in the bench's `MODEL=` override (open decision 15, section 8.13); the `NibProfile` and `InkProperties` fixes from the `gate` check (open decision 14, section 8.12) | done, pending merge |
 
 The PRs are stacked: each branches off the previous step's branch, so they merge in the order of
 the table, each after its own review and the `gate` row.
@@ -2199,7 +2211,8 @@ the table, each after its own review and the `gate` row.
 has the detail. The owner answered items 1–9 on 2026-10-12 (recorded in p12); the follow-up steps
 p12–p15 carry them out. Later on 2026-10-12 the owner confirmed the gpt-6-luna switch (item 3,
 done in p16), accepted the 97.96% hard-constraint rate (item 13) and finished the `gate` checks
-(item 1, recorded in p16). Items 14 and 15 are new from p16.
+(item 1, recorded in p16). Items 14 and 15 are new from p16; the owner decided item 15 later on
+2026-10-12 (temperature 0 restored, done in p17).
 
 1. **The `gate` row** (labels and normaliser hand checks). **Decided:** the owner checks the
    labels and the `NibProfile`, `ColorProfile` and `InkProperties` outputs on a throwaway local dev
@@ -2262,13 +2275,16 @@ done in p16), accepted the 97.96% hard-constraint rate (item 13) and finished th
     sections 8.8 and 8.11 (13 of 49 scored test cases carry a nib, shimmer or scented check, all
     met today). **Decided:** fixed in a separate later step (p17), not in p16; p17 re-runs those
     rows.
-15. **Temperature on gpt-6-luna** (new, p16, section 8.13). p16 sends no temperature, as the
+15. **Temperature on gpt-6-luna** (new, p16, section 8.13). p16 sent no temperature, as the
     task for the switch asked. gpt-6-luna accepts temperature 0 at effort `none` (the p14 runs used
     it), and without it two identical runs agree on every hard field in 88.9% of the strings
     instead of 94.4%, and find 5–9 fewer of 217 labelled filter values; false positives, cost and
-    latency are unchanged. **Open:** whether to send temperature 0 again (a one-line
-    `def temperature = 0` on the extractor and `ModelSettings#temperature` for reasoning models at
-    effort `none`); the recommendation is to do so.
+    latency are unchanged. **Decided (2026-10-12):** restore temperature 0. The owner approved
+    gpt-6-luna as benched in p14, which ran at temperature 0; the instruction to drop the
+    temperature in p16 was an orchestrator error. Done in p17: the extractor sends temperature 0
+    with effort `none`, and `ModelSettings#temperature` sends 0 without reasoning or at effort
+    `none` again, as in p14. Two production-configuration runs agree on 304 / 324 strings and
+    find 192 / 193 of 217 filter values, back at the p14 level (section 8.13).
 
 **Human checks before bench claims.** The bench labels are drafted by Claude Code, and the
 checkers reuse `NibProfile`, `ColorProfile` and `InkProperties`, so the `gate` row is a merge
@@ -3345,3 +3361,22 @@ unchecked by the owner.
   "unreviewed drafts" stays for the single-pass `holdout` and `holdout2` extractor strings, and
   earlier step bullets below keep the wording of their time. No item content from the gate page
   is committed.
+
+**p17 decisions:**
+
+- p17: Temperature 0 is restored on the extractor (`def temperature = 0` next to
+  `def reasoning_effort = "none"`), so production sends what p14 benched and the owner approved
+  (open decision 15; the p16 instruction to drop it was an orchestrator error). The p16 bullet
+  above keeps the wording of its time.
+- p17: `Bench::Suggester::ModelSettings#temperature` is back to the p14 rule: 0 for models
+  without reasoning and at effort `none`, none at any other effort. p14 sent exactly that: 0 to
+  gpt-4.1, gpt-4.1-mini and the gpt-6 models at `none`, and 0 to the gpt-5.4 and gpt-5.6 models at
+  `none`, which RubyLLM 1.16 rewrites to 1.0 for every `gpt-5*` and o-series id (the extractor
+  runner spec pins the 1.0). "Temperature 0 whenever the model accepts it" is read as that rule,
+  not as a per-model list: every model probed in p14 accepted 0 at `none` and refused it at
+  higher efforts, and the RubyLLM rewrite is left in place rather than worked around. A
+  `MODEL=gpt-6-luna` run now sends the same request body as production, which a spec pins.
+- p17: The production-configuration smoke ran twice ($0.04 as charged, $0.25 at list price),
+  because run-to-run agreement needs two runs. The agreement figure is recomputed for p14, p16 and
+  p17 with one script (list fields compared as sets, case-insensitive), since the p16 script was
+  not kept; the recorded p16 figures stay in section 8.13 next to the recomputed ones.

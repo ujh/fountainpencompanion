@@ -30,7 +30,7 @@ module Bench
       end
 
       def temperature
-        TEMPERATURE unless reasoning?
+        TEMPERATURE if reasoning_effort.nil? || reasoning_effort == "none"
       end
 
       def register!

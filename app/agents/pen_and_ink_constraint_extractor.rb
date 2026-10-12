@@ -298,5 +298,7 @@ class PenAndInkConstraintExtractor
 
   def max_tool_calls = MAX_TOOL_CALLS
 
+  def temperature = 0
+
   def reasoning_effort = "none"
 end

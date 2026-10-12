@@ -139,7 +139,7 @@ RSpec.describe PenAndInkConstraintExtractor do
       expect(request_body["messages"].last["content"]).to eq("<request>something blue</request>")
     end
 
-    it "uses gpt-6-luna at reasoning effort none with one set_constraints tool and parallel calls off" do
+    it "uses gpt-6-luna at reasoning effort none and temperature 0 with one set_constraints tool and parallel calls off" do
       stub_extraction(set_constraints_completion(arguments))
 
       extractor.perform
@@ -147,10 +147,10 @@ RSpec.describe PenAndInkConstraintExtractor do
       expect(request_body).to include(
         "model" => "gpt-6-luna",
         "reasoning_effort" => "none",
+        "temperature" => 0,
         "tool_choice" => "required",
         "parallel_tool_calls" => false
       )
-      expect(request_body).not_to have_key("temperature")
       expect(request_body["tools"].map { |tool| tool.dig("function", "name") }).to eq(
         ["set_constraints"]
       )
