@@ -2,8 +2,13 @@ module Bench
   module Suggester
     class Store
       RUN_NAME = /\A[a-z0-9][a-z0-9_.-]*\z/
+      GRADES = "grades.json"
+      GRADES_FILE = /\A[a-z0-9][a-z0-9_-]*\.json\z/
 
       class InvalidRunName < StandardError
+      end
+
+      class InvalidFileName < StandardError
       end
 
       attr_accessor :root
@@ -75,8 +80,12 @@ module Bench
         write(grading_key_file(names), export.key_json)
       end
 
-      def grades(names)
-        read_json("#{grading_directory(names)}/grades.json")
+      def grades(names, file_name = GRADES)
+        unless file_name.match?(GRADES_FILE)
+          raise InvalidFileName, "invalid grades file #{file_name.inspect}"
+        end
+
+        read_json("#{grading_directory(names)}/#{file_name}")
       end
 
       def grading_key(names)

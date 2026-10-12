@@ -341,6 +341,14 @@ RSpec.describe Bench::Suggester::Runner do
     expect(results["2"]["extra_data"]["pen"]).to eq(pen.id)
   end
 
+  it "raises any other database error" do
+    failing = ->(*) { ActiveRecord::Base.connection.execute("SELECT * FROM missing_bench_table") }
+
+    expect { described_class.new(cases: [bench_case], build: failing).run }.to raise_error(
+      ActiveRecord::StatementInvalid
+    ) { |error| expect(error.cause).to be_a(PG::UndefinedTable) }
+  end
+
   it "stops once the budget is spent" do
     stub_completion
     cases = [bench_case(id: "1"), bench_case(id: "2")]

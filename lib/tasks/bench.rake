@@ -164,15 +164,17 @@ namespace :bench do
       end
     end
 
-    desc "Summarise filled-in grades and the instruction-honoured rate (RUNS=baseline,v2)"
+    desc "Summarise filled-in grades and the instruction-honoured rate " \
+           "(RUNS=baseline,v2 GRADES=grades.json; several judges' files combine, comma-separated)"
     task judge_scores: :setup do
       store = Bench::Suggester::Store.new
       names = ENV.fetch("RUNS", "baseline").split(",")
-      scores =
-        Bench::Suggester::JudgeScores.new(
-          grades: store.grades(names),
-          key: store.grading_key(names)
-        )
+      judges =
+        ENV
+          .fetch("GRADES", Bench::Suggester::Store::GRADES)
+          .split(",")
+          .map { |file_name| store.grades(names, file_name) }
+      scores = Bench::Suggester::JudgeScores.new(judges:, key: store.grading_key(names))
       honoured =
         Bench::Suggester::InstructionHonoured.new(
           judge_scores: scores,

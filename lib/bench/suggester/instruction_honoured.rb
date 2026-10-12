@@ -38,7 +38,13 @@ module Bench
           "graded_without_checks" => entries.size - checked.size,
           "graded_without_label" => checked.size - scored.size,
           "all_labels" => rate(scored),
-          "reviewed_labels" => rate(reviewed)
+          "reviewed_labels" => rate(reviewed),
+          "all_labels_by_split" =>
+            scored
+              .group_by { |_system, row, _grade| row["split"] }
+              .sort
+              .to_h
+              .transform_values { |split_entries| rate(split_entries) }
         }
       end
 

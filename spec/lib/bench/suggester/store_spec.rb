@@ -122,4 +122,16 @@ RSpec.describe Bench::Suggester::Store do
     expect(store.grades(%w[baseline v2])).to eq({})
     expect { store.write_grading(["../x"], export) }.to raise_error(described_class::InvalidRunName)
   end
+
+  it "reads another judge's grades file from the grading directory" do
+    FileUtils.mkdir_p(store.path("grading/baseline-vs-v2"))
+    File.write(store.path("grading/baseline-vs-v2/judge_2.json"), JSON.generate("7" => {}))
+
+    expect(store.grades(%w[baseline v2], "judge_2.json")).to eq("7" => {})
+    %w[../grades.json grades.yml judge/1.json].each do |file_name|
+      expect { store.grades(%w[baseline v2], file_name) }.to raise_error(
+        described_class::InvalidFileName
+      )
+    end
+  end
 end

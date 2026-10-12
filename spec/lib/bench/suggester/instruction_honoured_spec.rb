@@ -39,10 +39,17 @@ RSpec.describe Bench::Suggester::InstructionHonoured do
     }
   end
 
-  def row(case_id, source: "instruction", reviewed: false, label: true, **check_options)
+  def row(
+    case_id,
+    source: "instruction",
+    split: "test",
+    reviewed: false,
+    label: true,
+    **check_options
+  )
     {
       "case_id" => case_id,
-      "split" => "test",
+      "split" => split,
       "source" => source,
       "label" => (label ? { "reviewed" => reviewed, "corrected" => false } : nil),
       "checks" => checks(**check_options)
@@ -50,11 +57,11 @@ RSpec.describe Bench::Suggester::InstructionHonoured do
   end
 
   def honoured(grades, checks)
-    judge_scores = Bench::Suggester::JudgeScores.new(grades:, key:)
+    judge_scores = Bench::Suggester::JudgeScores.new(judges: [grades], key:)
     described_class.new(judge_scores:, checks:).by_system
   end
 
-  it "counts a case only when every hard check passes and the judge says yes" do
+  it "counts a case only when every hard check passes and the judge says yes, also per split" do
     grades = {
       "1" => {
         "A" => grade("yes"),
@@ -73,12 +80,12 @@ RSpec.describe Bench::Suggester::InstructionHonoured do
       "v2" => [
         row("1", reviewed: true, hard: { "ink.kinds_include" => "met", "pen.usage" => "relaxed" }),
         row("2", hard: { "ink.kinds_include" => "met" }),
-        row("3", hard: { "ink.kinds_include" => "unsatisfiable" })
+        row("3", split: "dev", hard: { "ink.kinds_include" => "unsatisfiable" })
       ],
       "baseline" => [
         row("1", reviewed: true, hard: { "ink.kinds_include" => "violated" }),
         row("2", named: { "pen_hit" => false, "ink_hit" => nil }),
-        row("3", valid: false)
+        row("3", split: "dev", valid: false)
       ]
     }
 
@@ -95,6 +102,18 @@ RSpec.describe Bench::Suggester::InstructionHonoured do
           "cases" => 1,
           "honoured" => 0,
           "rate" => 0.0
+        },
+        "all_labels_by_split" => {
+          "dev" => {
+            "cases" => 1,
+            "honoured" => 0,
+            "rate" => 0.0
+          },
+          "test" => {
+            "cases" => 2,
+            "honoured" => 0,
+            "rate" => 0.0
+          }
         }
       },
       "v2" => {
@@ -109,6 +128,18 @@ RSpec.describe Bench::Suggester::InstructionHonoured do
           "cases" => 1,
           "honoured" => 1,
           "rate" => 1.0
+        },
+        "all_labels_by_split" => {
+          "dev" => {
+            "cases" => 1,
+            "honoured" => 0,
+            "rate" => 0.0
+          },
+          "test" => {
+            "cases" => 2,
+            "honoured" => 1,
+            "rate" => 0.5
+          }
         }
       }
     )
@@ -155,6 +186,8 @@ RSpec.describe Bench::Suggester::InstructionHonoured do
         "cases" => 0,
         "honoured" => 0,
         "rate" => nil
+      },
+      "all_labels_by_split" => {
       }
     )
   end

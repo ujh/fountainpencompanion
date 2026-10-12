@@ -1975,8 +1975,8 @@ judged "yes" only when both judges say yes.
   Cohen's κ 0.88; p15 146 / 150, κ 0.81); on "yes" versus not in 294 / 300. On the test split the
   judges differ only on 2 baseline answers, both "partial" against "no". Both judges are Claude,
   so agreement shows consistency, not correctness.
-- Per case, both judges rate p15 above the baseline on `honoured` in 57 cases; judge 1 rates it
-  lower in 5, judge 2 in 4 (all on the dev split).
+- Per case, each judge rates p15 above the baseline on `honoured` in 57 cases (both judges in
+  55); judge 1 rates it lower in 5, judge 2 in 4 (all on the dev split).
 - **What p15 still misses** (12 cases where a judge did not say "yes"; the 3 on the test split
   are all "partial"): two buying-advice requests on test, answered with an owned ink and no
   out-of-scope note; one test user who owns no pens (neither arm picks); on dev, three requests
@@ -3162,12 +3162,18 @@ evidence.
   stricter reading), and the honoured rate adds the hard checks as in p6a. On this sample the
   per-judge rates and the combined one differ by at most 2 cases, so the choice does not change
   any conclusion. "Partial" is reported apart: neither judge says "no" and not both say "yes".
-- p15: `bench:suggester:judge_scores` reads one `grades.json`, so it ran once per judge with that
-  judge's file copied in as `grades.json` (removed afterwards); the combined figure, the
-  agreement, the split and new-case breakdowns and the Wilson intervals came from a one-off
-  script outside the repo over the same key, grades and checks. The task was not extended for
-  more than one grades file: a two-judge pass is the exception, and the per-judge numbers it
-  prints already match the script's.
+- p15: `bench:suggester:judge_scores` takes `GRADES=` (default `grades.json`), a comma-separated
+  list of grades files in the grading directory. With more than one it combines the judges by
+  the rule above ("yes" only when all say yes, "no" when any says no, else "partial"; the 1–5
+  scores averaged), reports per system how many `honoured` grades are identical and Cohen's κ
+  per pair of judges, and refuses an answer that only some judges graded. The instruction-honoured
+  rate is also given per split (`all_labels_by_split`). So `RUNS=baseline-mini,p15-mini
+  GRADES=judge_1.json,judge_2.json` rebuilds from the repo the honoured rows of the table above
+  (test split, all 150, per judge), the judge counts over all 150, the mean scores, the
+  agreement and both κ; all match the numbers first computed by a one-off script. Still only
+  from that script: the Wilson intervals, the judge counts per split, the new-case and old-case
+  breakdowns and the per-case comparison of the two arms. The bar rests on the test-split rate,
+  which the task now reproduces, so the rest was not moved into the repo.
 - p15: The premium pair was not graded. The bar is measured on the free entry, the premium arm
   scores at least as well as mini on every quality row in the table above (it costs more),
   and a second 242-answer pass would add little at this point; it stays exported for the owner.
