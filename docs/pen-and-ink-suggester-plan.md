@@ -3479,3 +3479,9 @@ unchecked by the owner.
 - p17: The gate items were re-run with the old and the new code side by side, by an uncommitted
   script in gitignored `tmp/bench`; only the counts are in section 8.12. The recorded p9b, p15
   and baseline runs were re-scored the same way without LLM calls; no check changed.
+- p17 (code review): three of the new rules had no spec that failed when they broke. Positive
+  description cases now pin them: shading in swatches still counts ("Strong shading in
+  swatches."), a swatch phrase does not swallow a second property joined by "and" ("Sheen and
+  shading in swatches." keeps sheen), and a hedge three words before the term is out of reach
+  ("Some dark red-purple gloss sheen." keeps sheen). Each was checked by breaking the rule and
+  seeing the new case fail. The rules themselves are unchanged.
