@@ -303,7 +303,8 @@ class PenAndInkSuggester
   end
 
   def names_found
-    PenAndInkSuggestion::NameHints.call(snapshot, matcher_mentions, index: name_index)
+    @names_found ||=
+      PenAndInkSuggestion::NameHints.call(snapshot, matcher_mentions, index: name_index)
   end
 
   def resolution

@@ -68,7 +68,7 @@ module Bench
         fields = FIELDS.index_with { |path| compare(path, expected, actual) }
         scored = !label.ambiguous? && !prediction["error"]
         hard_false_positives = scored ? HARD_FIELDS.select { |path| fields[path][:fp].any? } : []
-        named_sides = %w[pen ink].select { |side| expected.mentions(side.to_sym).any? }
+        named_sides = SIDES.select { |side| expected.mentions(side).any? }.map(&:to_s)
         named = SIDES.flat_map { |side| expected.mentions(side) }
         mentioned = SIDES.flat_map { |side| actual.mentions(side) }
         {
