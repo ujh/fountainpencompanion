@@ -2008,8 +2008,8 @@ from p12 on are follow-ups to the owner's answers of 2026-10-12, stacked on p11.
 | p9b  | P9      | `PenAndInkConstraintExtractor`, wired to the selector; prompt headers and `soft_notes`       | done, pending merge (#3846) |
 | p11  | P11     | remove the old CSV path                                                                      | done, pending merge (#3847) |
 | p12  | P9 follow-up | `MentionMatcher` hits go to the extractor as `names_found` hints; the agreement rule is removed; the extractor bench sends the same hints and reports missed named mentions | done, pending merge (#3858) |
-| p13  | P10 follow-up | the inked-pen link goes to the Currently inked list instead of the entry's edit page (owner decision 8) | done, not yet pushed |
-| p14  | P9 follow-up | extractor model comparison (owner decision 3, section 8.10): the bench's `MODEL=` override handles reasoning models, `RubyLlmAgent#reasoning_effort`, cache-write tokens in usage and bench pricing; production stays on gpt-4.1-mini | done, not yet pushed |
+| p13  | P10 follow-up | the inked-pen link goes to the Currently inked list instead of the entry's edit page (owner decision 8) | done, pending merge (#3859) |
+| p14  | P9 follow-up | extractor model comparison (owner decision 3, section 8.10): the bench's `MODEL=` override handles reasoning models, `RubyLlmAgent#reasoning_effort`, cache-write tokens in usage and bench pricing; production stays on gpt-4.1-mini | done, pending merge (#3860) |
 
 The PRs are stacked: each branches off the previous step's branch, so they merge in the order of
 the table, each after its own review and the `gate` row.
