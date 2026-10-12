@@ -101,12 +101,12 @@ RSpec.describe Bench::Suggester::Runner do
       "reasoning" => "Ink the Kakuno with Blue Velvet."
     )
     expect(result["cost_usd"]).to be_within(1e-9).of(
-      (6_000 * 0.40 + 150 * 1.60 + 1_000 * 0.40 + 100 * 1.60) / 1e6
+      (6_000 * 0.40 + 150 * 1.60 + 1_000 * 0.10 + 100 * 0.50) / 1e6
     )
     expect(result["list_cost_usd"]).to eq(result["cost_usd"])
     expect(result["usages"]).to contain_exactly(
       include("model" => "gpt-4.1-mini-2025-04-14", "prompt_tokens" => 6_000),
-      include("model" => "gpt-4.1-mini-2025-04-14", "prompt_tokens" => 1_000)
+      include("model" => "gpt-6-luna-2026-09-22", "prompt_tokens" => 1_000)
     )
     expect(result["latency_ms"]).to be_a(Integer)
     expect(result["prompt_chars"]).to be_positive

@@ -39,15 +39,15 @@ RSpec.describe Bench::Suggester::ModelSettings do
     expect(model.reasoning_effort).to be_nil
   end
 
-  it "keeps the agent's temperature only without reasoning or at effort none" do
+  it "sends temperature 0 only to models without reasoning, like the production extractor" do
     expect(
       [
         settings("gpt-4.1-mini"),
         settings("gpt-6-luna"),
         settings("gpt-6-luna", reasoning_effort: "low"),
         settings("gpt-5-mini")
-      ].map(&:temperature?)
-    ).to eq([true, true, false, false])
+      ].map(&:temperature)
+    ).to eq([0, nil, nil, nil])
   end
 
   it "takes the registry's word over the model name" do

@@ -5,6 +5,22 @@ RubyLLM.configure do |config|
   config.use_new_acts_as = true
 end
 
+# Models the registry bundled with the gem does not list yet. Drop an entry once the gem knows it.
+{ "gpt-6-luna" => %w[function_calling reasoning] }.each do |model_id, capabilities|
+  next if RubyLLM.models.all.any? { |model| model.id == model_id && model.provider == "openai" }
+
+  RubyLLM.models.all << RubyLLM::Model::Info.new(
+    id: model_id,
+    name: model_id,
+    provider: "openai",
+    capabilities:,
+    modalities: {
+      input: %w[text],
+      output: %w[text]
+    }
+  )
+end
+
 RubyLLM::Tool.prepend(
   Module.new do
     def name

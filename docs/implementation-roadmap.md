@@ -892,7 +892,9 @@ c.max_retries = entry[:max_retries] if entry[:max_retries] }` — the YAML key `
   - Seed list for `config/llm.yml`'s per-class `default` entries — the ten existing `MODEL_ID`
     constants, unchanged model ids, all provider `openai`, all pointing at `OPEN_AI_TOKEN`:
     `google_search_summarizer.rb:14` (`gpt-4.1-mini`), `ink_brand_clusterer.rb:49` (`gpt-4.1`),
-    `pen_and_ink_constraint_extractor.rb:4` (`gpt-4.1-mini`, one entry for both suggester tiers),
+    `pen_and_ink_constraint_extractor.rb:4` (`gpt-6-luna` at reasoning effort `none`, one entry for
+    both suggester tiers; the model is registered in `config/initializers/ruby_llm.rb` because
+    RubyLLM 1.16 does not list it),
     `spam_classifier.rb:40` (`gpt-4.1-mini`), `youtube_summarizer.rb:4` (`gpt-4.1-mini`),
     `review_approver.rb:77` (`gpt-4.1-mini`), `web_page_summarizer.rb:4` (`gpt-4.1-mini`),
     `check_ink_clustering/base.rb:4` (`gpt-4.1`, shared by all `CheckInkClustering::*` subclasses under
@@ -1013,7 +1015,8 @@ LlmConfig.for(llm_config_key).api_base })` — resolved through the SAME path `b
     `git revert` + merge). Q33 wants a line PER AGENT, so seed one row for every `config/llm.yml`
     entry now, not a collapsed placeholder: `PenVariantClusterer` gets S01's picked starting model →
     the runner-up candidate from the same spike; each OpenAI entry gets its current model → today's
-    OpenAI alternative (`gpt-4.1` entries → `gpt-4.1-mini`, `gpt-4.1-mini` entries → `gpt-4o-mini`),
+    OpenAI alternative (`gpt-4.1` entries → `gpt-4.1-mini`, `gpt-4.1-mini` entries → `gpt-4o-mini`,
+    the extractor's `gpt-6-luna` → `gpt-4.1-mini`),
     which is a real manual replacement an operator can flip to while OpenAI is still the default.
     S30-chat-bench-round replaces the OpenAI rows' replacement column with the per-agent DO
     candidates before S31 (the first ink flip).
@@ -5900,7 +5903,7 @@ cluster.pens_model_id` branch at app/workers/pens/update_model_micro_cluster.rb:
   step that depends on S30, directly or transitively; the owner accepted that on 2026-10-09.
 - **Effect on other steps.**
   - **S04.** The extractor is a third suggester-related config entry, `PenAndInkConstraintExtractor`
-    (one entry for both tiers, gpt-4.1-mini to start). If S04 has not landed when the extractor
+    (one entry for both tiers, gpt-4.1-mini to start; gpt-6-luna from plan step p16). If S04 has not landed when the extractor
     PR (P9) merges, the extractor carries a `model_id` constant and S04's "nine existing
     `MODEL_ID` constants" become ten (seed list and spec counts move by one); P9 updates S04's text
     in the same PR. Done in step p9b: S04 above now lists ten constants, the extractor included.

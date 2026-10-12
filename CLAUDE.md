@@ -172,7 +172,7 @@ AI agents live in `app/agents/` and use the `RubyLlmAgent` concern (`app/agents/
 An agent includes `RubyLlmAgent` and must implement four methods:
 
 - `agent_log` (public) — returns or creates an `AgentLog` instance
-- `model_id` (private) — e.g., `"gpt-4.1"` or `"gpt-4.1-mini"`
+- `model_id` (private) — e.g., `"gpt-4.1"` or `"gpt-4.1-mini"`; a model missing from RubyLLM's bundled registry (e.g. `"gpt-6-luna"`) must be registered in `config/initializers/ruby_llm.rb`
 - `system_directive` (private) — the system prompt string
 - `tools` (private) — array of `RubyLLM::Tool` instances (can be empty)
 

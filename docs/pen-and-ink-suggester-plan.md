@@ -2,8 +2,8 @@
 
 Status: plan agreed 2026-10-09 (all owner decisions folded in, see section 10). Implementation
 done as stacked PRs #3830–#3844 and #3846 plus p11, all **pending merge** (2026-10-12): every step of the
-table in "Implementation decisions" is built, and the owner's `gate` checks and the open decisions
-listed there come before any merge. Bench results are summarised in section 8.8. `docs/implementation-roadmap.md` orders this work as step **S29b-suggester-v2**, which
+table in "Implementation decisions" is built, and the open decisions listed there come before any
+merge. The owner's `gate` checks are done (section 8.12). Bench results are summarised in section 8.8. `docs/implementation-roadmap.md` orders this work as step **S29b-suggester-v2**, which
 gates the chat bench round S30. The nib domain reference lives in `docs/nib-reference.md`.
 
 Data basis: master `97fca8e0`, the read-only prod DB and the exported agent logs as of 2026-10-09.
@@ -1375,15 +1375,13 @@ for runs without instructions.
 
 ### 8.4 Evaluation baseline (recorded in p6b, 2026-10-10)
 
-**All label-based numbers below are scored against unreviewed draft labels.** Two Claude Code
-passes drafted the labels independently and a third adjudicated them; no human has checked them
-yet. The section 9 `gate` row is a merge gate for every p7+ PR and needs both owner checks: the
-spot check of 50 labels (`tmp/bench/suggester/spot_check.md`, gitignored) and the section 8.1
-metric-7 hand checks of 50 `NibProfile`, 50 `ColorProfile` and 50 `InkProperties` outputs. p6b
-produced only the label sheet; the three normaliser check sheets are still to be produced. Until
-both checks are done, no p7+ PR may merge on, or claim a section 8.2 target from, these numbers.
-The label-free rows (validity, hard failures, swab/cartridge,
-rule leakage, cost) are the primary evidence.
+**All label-based numbers below are scored against owner-spot-checked labels.** Two Claude Code
+passes drafted the labels independently and a third adjudicated them. The section 9 `gate` row
+was a merge gate for every p7+ PR and needed both owner checks: the spot check of 50 labels and
+the section 8.1 metric-7 hand checks of the `NibProfile`, `ColorProfile` and `InkProperties`
+outputs. The owner did both on 2026-10-12 and marked 50 / 50 sampled p6b labels OK (section 8.12).
+The label-free rows (validity, hard failures, swab/cartridge, rule leakage, cost) stay the primary
+evidence.
 
 **Case set.** 266 cases from the dev DB (dump ending 2026-03-26), `SINCE=2025-11-01`, `SEED=1`:
 200 instruction runs, 50 runs without one, 16 regression stand-ins (p6b decisions); 210 cases have
@@ -1451,12 +1449,11 @@ tier and split.
 
 ### 8.5 P7 bench: runs without an instruction (recorded in p7, 2026-10-10)
 
-**These numbers are scored against unreviewed draft labels** (two-pass label agreement: every
-scored field identical in 196 / 210 instruction cases, 93.3%, section 8.4). For runs without an
-instruction the labels carry no constraints or named targets, so every row below is label-free;
-the labels only mark which cases have no instruction. The section 9 `gate` row (the owner's label
-spot check and the metric-7 normaliser hand checks) is still open, so this is not a merge
-clearance.
+**These numbers are scored against owner-spot-checked labels** (two-pass label agreement: every
+scored field identical in 196 / 210 instruction cases, 93.3%, section 8.4; gate spot check 70 / 70
+OK, section 8.12). For runs without an instruction the labels carry no constraints or named
+targets, so every row below is label-free; the labels only mark which cases have no instruction.
+The judge was self-graded and the owner has not checked its grades.
 
 **Cases and runs.** The 56 cases without an instruction (50 plain, 6 regression stand-ins; 29 test,
 27 dev), each run on both tiers' models (`TIER=free` → gpt-4.1-mini, `TIER=premium` → gpt-4.1).
@@ -1514,15 +1511,16 @@ bar for hard failures, swab/cartridge violations, rule leakage, judge score and 
 models; the novelty row meets it except mini ink novelty (+8.0 pp, more novel). p7 is not cleared
 for merge until the owner (1) accepts the +8.0 pp mini ink novelty or asks for a retune, and (2)
 completes both checks of the section 9 `gate` row: the ~50-label spot check and the 50 `NibProfile`,
-50 `ColorProfile` and 50 `InkProperties` hand checks.
+50 `ColorProfile` and 50 `InkProperties` hand checks. Both are settled: the owner accepted the
+novelty figure (open decision 2) and did the gate checks on 2026-10-12 (section 8.12).
 
 
 ### 8.6 P8 bench: instruction runs in fallback mode (recorded in p8, 2026-10-10)
 
-**These numbers are scored against unreviewed draft labels** (two-pass label agreement: every
-scored field identical in 196 / 210 instruction cases, 93.3%, section 8.4). The section 9 `gate`
-row (the owner's spot check of about 50 labels and the metric-7 normaliser hand checks) is still
-open, so nothing here clears P8 for merge. The label-free rows are the primary evidence.
+**These numbers are scored against owner-spot-checked labels** (two-pass label agreement: every
+scored field identical in 196 / 210 instruction cases, 93.3%, section 8.4; gate spot check 70 / 70
+OK, section 8.12). The judge was self-graded and the owner has not checked its grades. The
+label-free rows are the primary evidence.
 
 **`MentionMatcher` false pins** (section 8.1 metric 8, `bench:suggester:mention_pins`). The plan's
 592 strings are not all labelled; the measure uses the 210 labelled instruction cases (distinct
@@ -1592,15 +1590,16 @@ P8 is not cleared for merge until the owner completes both checks of the section
 (about 50 labels spot-checked, and the `NibProfile`, `ColorProfile` and `InkProperties` hand
 checks). The same holds for every later suggester PR whose bench rows reuse these labels: the
 labels and the code under test come from the same system, and the change ships without a feature
-flag, so this bench is the main check before merge.
+flag, so this bench is the main check before merge. The owner did both checks on 2026-10-12
+(section 8.12).
 
 ### 8.7 P9 bench: extractor and constraint filters (recorded in p9b, 2026-10-12)
 
-**These numbers are scored against unreviewed draft labels** (two-pass label agreement: every
-scored field identical in 196 / 210 instruction cases, 93.3%, section 8.4). The extractor set adds
-115 strings with single-pass labels drafted by p9b agents. The section 9 `gate` row (the owner's
-spot check of about 50 labels and the metric-7 normaliser hand checks) is still open, so nothing
-here clears P9 for merge. The label-free rows are the primary evidence.
+**These numbers are scored against owner-spot-checked labels** (two-pass label agreement: every
+scored field identical in 196 / 210 instruction cases, 93.3%, section 8.4; gate spot check 70 / 70
+OK, section 8.12), **except the extractor set's 115 single-pass strings** (`holdout`,
+`holdout2`), drafted by p9b agents and not sampled in the spot check, so still unreviewed drafts.
+The label-free rows are the primary evidence.
 
 **Extractor labelled set** (`bench:suggester:extractor`, temperature 0, schema parameters). There
 are 324 strings: 209 from the p6 case labels, 55 single-pass (`holdout`) and 60 single-pass
@@ -1698,11 +1697,13 @@ baseline runs stay the comparison point. The table collects the latest numbers p
 sections 8.5 (runs without an instruction, P7) and 8.7 (instruction runs, P9, test split). Those
 numbers were measured on the p7–p9b branches, so they cover every later fix only up to that step.
 
-**Label-based rows are scored against unreviewed draft labels** (two-pass label agreement: every
-scored field identical in 196 / 210 instruction cases, 93.3%, section 8.4). The judge rows were
-graded by the sessions that wrote the code under test and are weak evidence. The section 9 `gate`
-row (the owner's spot check of about 50 labels and the 50 + 50 + 50 normaliser hand checks) is
-still open, so none of these numbers clears a merge. The label-free rows are the primary evidence.
+**Label-based rows are scored against owner-spot-checked labels** (two-pass label agreement:
+every scored field identical in 196 / 210 instruction cases, 93.3%, section 8.4; gate spot check
+70 / 70 OK, section 8.12); the extractor false-positive row also counts the single-pass
+`holdout` strings, which remain unreviewed drafts. The judge rows were graded by the sessions that
+wrote the code under test and are weak evidence. The label-free rows are the primary evidence.
+Later numbers: the named-ink hit and instruction honoured in section 8.11, the extractor on
+gpt-6-luna in sections 8.10 and 8.13.
 
 | Metric (section 8.2)                  | Bar               | No instruction (P7), mini / gpt-4.1 | Instruction runs (P9, test), mini / gpt-4.1 | Against the bar                                   |
 | ------------------------------------- | ----------------- | ----------------------------------- | ------------------------------------------- | ------------------------------------------------- |
@@ -1713,22 +1714,23 @@ still open, so none of these numbers clears a merge. The label-free rows are the
 | $ per run, list price (baseline)      | ≤ baseline        | $0.00192 ($0.00219), $0.0128 ($0.0174) | $0.00323 ($0.00254), $0.0141 ($0.0215)   | misses on mini instruction runs unless the extractor prefix is cached ($0.00140) |
 | Latency p50                           | —                 | 1.57 s, 1.75 s                      | 2.65 s, 2.71 s                              | the extractor adds about 1 s                      |
 | Novelty share, ink / pen              | baseline ± 5 pp   | mini ink +8.0 pp, others within     | not measured                                | mini ink is outside the two-sided band (more novel) |
-| Hard constraints met or relaxed       | ≥ 98%             | —                                   | 100% (47/47), 100% (47/47)                  | meets against draft labels                        |
-| Named pen hit                         | ≥ 90%             | —                                   | 93.8% (45/48), 93.8% (45/48)                | meets against draft labels                        |
+| Hard constraints met or relaxed       | ≥ 98%             | —                                   | 100% (47/47), 100% (47/47)                  | meets against spot-checked labels                 |
+| Named pen hit                         | ≥ 90%             | —                                   | 93.8% (45/48), 93.8% (45/48)                | meets against spot-checked labels                 |
 | Named ink hit                         | ≥ 85%             | —                                   | 77.8% (7/9), 88.9% (8/9)                    | mini misses (9 cases)                             |
 | Instruction honoured                  | ≥ 85%             | —                                   | not re-graded after P8 (mini P8: 81%)       | not measured for P9                               |
 | Judge, runs without an instruction    | ≥ baseline        | 4.29 vs 3.03, 4.32 vs 3.24          | —                                           | above baseline (self-graded)                      |
 | Extractor hard-field false positives  | ≤ 3% of strings   | —                                   | 19.6% (mini, all scored), 5.6% (gpt-4.1)    | misses on both models                             |
-| `MentionMatcher` false pins           | ≤ 2% of strings   | —                                   | 0.95% (210 labelled strings, tuned on them) | meets against draft labels; held-out check open   |
+| `MentionMatcher` false pins           | ≤ 2% of strings   | —                                   | 0.95% (210 labelled strings, tuned on them) | meets against spot-checked labels; held-out check accepted as is |
 
 What the owner decides before merging is listed under "Open owner decisions" at the start of
 "Implementation decisions" below.
 
 ### 8.9 P12 bench: names found as extractor hints (recorded in p12, 2026-10-12)
 
-**These numbers are scored against unreviewed draft labels** (two-pass label agreement: every
-scored field identical in 196 / 210 instruction cases, 93.3%, section 8.4; the 115 strings added
-in p9b have single-pass labels). The `gate` row is still open, so nothing here clears a merge.
+**These numbers are scored against owner-spot-checked labels** (two-pass label agreement: every
+scored field identical in 196 / 210 instruction cases, 93.3%, section 8.4; gate spot check 70 / 70
+OK, section 8.12), **except the 115 strings added in p9b** (`holdout`, `holdout2`), whose
+single-pass labels were not sampled and remain unreviewed drafts.
 
 The extractor set is the one from section 8.7 (324 strings, 301 scored). Each string now gets the
 `names_found` lines production would compute, from the collection of the user who wrote it as of
@@ -1782,9 +1784,10 @@ strings are noise.
 
 ### 8.10 P14 bench: newer models for the constraint extractor (recorded in p14, 2026-10-12)
 
-**These numbers are scored against unreviewed draft labels** (two-pass label agreement: every
-scored field identical in 196 / 210 instruction cases, 93.3%, section 8.4; the 115 strings added
-in p9b have single-pass labels). The `gate` row is still open, so nothing here clears a merge.
+**These numbers are scored against owner-spot-checked labels** (two-pass label agreement: every
+scored field identical in 196 / 210 instruction cases, 93.3%, section 8.4; gate spot check 70 / 70
+OK, section 8.12), **except the 115 strings added in p9b** (`holdout`, `holdout2`), whose
+single-pass labels were not sampled and remain unreviewed drafts.
 Failures, cost and latency are label-free; the false-positive and missed-mention rates are not.
 
 The set, prompt and hints are those of section 8.9 (324 strings, 301 scored, the p12 prompt with
@@ -1834,8 +1837,8 @@ and only `holdout2` was never looked at while the prompt was tuned (section 8.7)
   its 13–14 false-positive strings overall. Four of the seven are `pen.nib_width`, which is 4 of
   its 5 nib-width false positives. mini is at 26.4% there, gpt-4.1 at 11.3% and gpt-6-sol at
   3.8% / 1.9%. Those labels are single-pass drafts from the interrupted first p9b attempt, so
-  some of the seven may be label errors; the owner's label spot check (gate) has not covered
-  them.
+  some of the seven may be label errors; the owner's label spot check (gate, section 8.12) did
+  not sample them.
 - **Mentions are gpt-6-luna's weak side.** It misses 10–14 of the 154 strings with a labelled name
   against mini's 7. All but one per run are names that got no hint because the matcher did not
   find them (a brand on its own, a model nickname, a typo); the one with a hint is worded as a
@@ -1884,15 +1887,17 @@ Switching is its own PR (section 7). It needs: the model in RubyLLM's registry (
 it; refresh the registry or upgrade the gem), `reasoning_effort` `"none"` on the extractor (the
 `RubyLlmAgent` hook added in p14), and nothing for temperature: gpt-6 models accept 0 at effort
 `none`, and RubyLLM forces 1.0 only on gpt-5 and o-series ids. `agent_log.usage` records the cache
-writes from p14 on, so production cost stays readable from the logs.
+writes from p14 on, so production cost stays readable from the logs. The owner confirmed the
+switch; p16 made it, without a temperature (section 8.13).
 
 ### 8.11 P15 bench: more named-ink cases (recorded in p15, 2026-10-12)
 
-**Label-based rows are scored against unreviewed draft labels.** The 266 p6b cases keep their
+**Label-based rows are scored against owner-spot-checked labels.** The 266 p6b cases keep their
 two-pass labels (every scored field identical in 196 / 210 instruction cases, 93.3%, section
 8.4). The 34 new cases were labelled by two further independent passes and agree on every scored
-field in 34 / 34 (69 / 69 set (case, field) pairs; p15 decisions below). The `gate` row is still
-open, so nothing here clears a merge. The label-free rows are the primary evidence.
+field in 34 / 34 (69 / 69 set (case, field) pairs; p15 decisions below). The owner's gate spot
+check marked 50 / 50 sampled p6b labels and 20 / 20 sampled p15 labels OK (section 8.12). The
+label-free rows are the primary evidence.
 
 **Case set.** The p6b set plus 34 instruction runs that name one of the user's own inks
 (`bench:suggester:export_named_inks`, same window, by-user split): 300 cases, 244 with an
@@ -1930,7 +1935,8 @@ extractor prefix is mostly cached) and, in brackets, list price.
   constraints: in 2 of the 4 "no <pen>" requests (dev), the extractor put the pen's name in
   `ink.exclude_mentions`, so the pen was still picked; in 1 old test case the extractor set no
   kind filter for a labelled `ink.kinds_include`. On the test split mini is at 97.96% (48 / 49),
-  just under the ≥ 98% bar against draft labels (P9: 47 / 47).
+  just under the ≥ 98% bar against spot-checked labels (P9: 47 / 47). The owner accepted this as
+  close enough on 2026-10-12 (open decision 13).
 - **One run crashed** in the first mini attempt: a NUL character in the pick's tool-call
   arguments made Postgres refuse the transcript (open decision 11). The bench now records such a
   run as an error; the rerun had none.
@@ -1947,7 +1953,7 @@ A and B in a per-case random order; the key is a separate file outside the judge
 the section 8.1 rubric; neither saw the key, the results, the code or the other judge's grades.
 **The judges are Claude-based, from the same model family as the label passes and the sessions
 that wrote v2, and the owner has not checked their grades.** The honoured rate also rests on the
-hard checks, so it is scored against the unreviewed draft labels (agreement above: 93.3% of the
+hard checks, so it is scored against the owner-spot-checked labels (agreement above: 93.3% of the
 p6b instruction cases and 34 / 34 new ones with every scored field identical). A case counts as
 judged "yes" only when both judges say yes.
 
@@ -1989,6 +1995,63 @@ judged "yes" only when both judges say yes.
   graded these "partial" with low `notes_accurate` (open decision 12).
 - The premium file (`baseline-gpt41-test` vs `p15-gpt41-test`, all 121 test cases) is written
   but not graded (p15 decisions).
+
+### 8.12 Gate result (owner, 2026-10-12; recorded in p16)
+
+The owner did the section 9 `gate` checks on a throwaway local dev page (never pushed; the
+sampled items and marks stay in gitignored `tmp/bench`). The sample was 170 items:
+
+| Check                                        | Sampled | OK  | Wrong | Unmarked |
+| -------------------------------------------- | ------- | --- | ----- | -------- |
+| Bench labels, p6b cases                      | 50      | 50  | 0     | 0        |
+| Bench labels, p15 named-ink cases            | 20      | 20  | 0     | 0        |
+| `NibProfile` outputs                         | 50      | 48  | 2     | 0        |
+| `ColorProfile` outputs                       | 25      | 25  | 0     | 0        |
+| `InkProperties` outputs                      | 25      | 19  | 5     | 1        |
+
+- No label errors were found, so the label-based numbers of sections 8.4–8.11 are scored against
+  owner-spot-checked labels (70 / 70 sampled labels OK). The extractor set's single-pass
+  `holdout` and `holdout2` strings were not sampled; their labels stay unreviewed drafts.
+- The normaliser checks used 25 instead of 50 items for `ColorProfile` and `InkProperties`. The
+  `NibProfile` and `InkProperties` errors are fixed in a separate later step (p17, open
+  decision 14). `InkProperties` feeds the shimmer and scented filters and checks and the property
+  labels in the pick rows, so the shimmer / scented rows of sections 8.7 and 8.11 may move a little once p17
+  lands.
+
+### 8.13 P16 smoke: the extractor on gpt-6-luna in production configuration (recorded in p16, 2026-10-12)
+
+**Label-based rows are scored against owner-spot-checked labels** for the p6 strings (section
+8.12) and against unreviewed single-pass drafts for `holdout` and `holdout2`, as in section
+8.10. Failures, cost, latency and run-to-run agreement are label-free and are the primary evidence.
+
+`bench:suggester:extractor` without `MODEL=`, so the extractor class runs exactly as in
+production: gpt-6-luna, reasoning effort `none`, no temperature, `names_found` hints, the same
+324 strings (301 scored). It ran twice; the p14 gpt-6-luna runs (temperature 0) are the
+comparison.
+
+| Extractor on gpt-6-luna, 301 scored   | p14, temperature 0, 2 runs | p16, no temperature, 2 runs |
+| ------------------------------------- | -------------------------- | --------------------------- |
+| Failures                              | 0 / 0                      | 0 / 0                       |
+| Hard-field FP, all scored (bar ≤ 3%)  | 4.7% / 4.3% (14 / 13)      | 4.0% / 5.0% (12 / 15)       |
+| Hard-field FP, test split (96)        | 2.1% / 2.1%                | 2.1% / 1.0%                 |
+| Hard-field FP, `holdout` (53)         | 13.2% / 13.2%              | 11.3% / 13.2%               |
+| Hard-field FP, `holdout2` (52)        | 1.9% / 0.0%                | 0.0% / 3.8%                 |
+| Missed named (154)                    | 6.5% / 9.1% (10 / 14)      | 8.4% / 7.1% (13 / 11)       |
+| Hard values found, outside mentions   | 192 / 193 of 217           | 184 / 187 of 217            |
+| Strings with identical hard fields across the two runs (label-free) | 306 / 324 (94.4%) | 288 / 324 (88.9%) |
+| $ / extraction, list / as charged     | $0.00039 / $0.00006        | $0.00039 / $0.00006         |
+| Latency p50 / p90                     | 1.46 / 2.22 s, 1.38 / 2.28 s | 1.31 / 1.82 s, 1.25 / 1.90 s |
+
+- **Reproduces section 8.10 within noise on errors, cost and latency.** Every call used
+  gpt-6-luna without an error; false positives, missed names and cost match the p14 runs.
+- **Without temperature 0 the extractor is less stable and finds a few fewer filters.** The two
+  production-configuration runs agree on every hard field in 88.9% of the strings, against 94.4%
+  for the two p14 runs at temperature 0, and they find 5–9 fewer of the 217 labelled filter
+  values outside mentions (mostly `pen.nib_grades_include` and `ink.colour_include`). A missed
+  filter leaves the candidates unfiltered and the wish in `soft_notes`, the safe direction, so
+  this does not move the false-positive bar, but it is a measurable cost of dropping the
+  temperature (open decision 15).
+- **Spend in p16:** two full runs, $0.04 as charged ($0.25 at list price).
 
 ---
 
@@ -2104,7 +2167,7 @@ from p12 on are follow-ups to the owner's answers of 2026-10-12, stacked on p11.
 | p5   | P5      | `CollectionSnapshot`; the current CSV prompt builder reads from it                           | done, pending merge (#3838) |
 | p6a  | P6      | bench harness code: case exporter, label formats, checkers, runner, grading export, rake tasks | done, pending merge (#3839) |
 | p6b  | P6      | case export on fresh data, drafted labels, seeded baseline run recorded                      | done, pending merge (#3840) |
-| gate | P6      | **owner, not an agent:** spot-check ~50 of the drafted bench labels and hand-check 50 `NibProfile`, 50 `ColorProfile` and 50 `InkProperties` outputs (section 8.1 metric 7) | **open** (owner); the three normaliser check sheets are not produced yet |
+| gate | P6      | **owner, not an agent:** spot-check ~50 of the drafted bench labels and hand-check 50 `NibProfile`, 50 `ColorProfile` and 50 `InkProperties` outputs (section 8.1 metric 7) | **done** (owner, 2026-10-12, section 8.12): labels 70/70 OK (50/50 p6b, 20/20 p15); `NibProfile` 48/50, `ColorProfile` 25/25, `InkProperties` 19/25 OK (5 wrong, 1 unmarked); the normaliser fixes are p17 |
 | p7   | P7      | v2 pick call for runs without an instruction                                                 | done, pending merge (#3841) |
 | p10  | P10     | inked named pen UX (link to the currently-inked entry)                                       | done, pending merge (#3842) |
 | p8   | P8      | `MentionMatcher` + `NameResolver`; instruction runs move to v2 in fallback mode              | done, pending merge (#3843) |
@@ -2115,25 +2178,31 @@ from p12 on are follow-ups to the owner's answers of 2026-10-12, stacked on p11.
 | p13  | P10 follow-up | the inked-pen link goes to the Currently inked list instead of the entry's edit page (owner decision 8) | done, pending merge (#3859) |
 | p14  | P9 follow-up | extractor model comparison (owner decision 3, section 8.10): the bench's `MODEL=` override handles reasoning models, `RubyLlmAgent#reasoning_effort`, cache-write tokens in usage and bench pricing; production stays on gpt-4.1-mini | done, pending merge (#3860) |
 | p15  | P9 follow-up | re-measure on more named-ink cases with a fresh judge pass (owner decisions 5 and 6, section 8.11): `bench:suggester:export_named_inks`, `NamedInkFilter`, the exporter's `BEFORE`; the grading export's stratified `MAX_CASES` sample and collection summary; the runner records a transcript Postgres refuses as an error | done, pending merge (#3861) |
+| p16  | P9 follow-up | the extractor moves to gpt-6-luna at reasoning effort `none` without a temperature (owner decision 3, sections 8.10 and 8.13); the model is registered in `config/initializers/ruby_llm.rb` | done, pending merge |
 
 The PRs are stacked: each branches off the previous step's branch, so they merge in the order of
 the table, each after its own review and the `gate` row.
 
 **Open owner decisions.** Collected from the step bullets below and section 8; each bullet there
 has the detail. The owner answered items 1–9 on 2026-10-12 (recorded in p12); the follow-up steps
-p12–p15 carry them out.
+p12–p15 carry them out. Later on 2026-10-12 the owner confirmed the gpt-6-luna switch (item 3,
+done in p16), accepted the 97.96% hard-constraint rate (item 13) and finished the `gate` checks
+(item 1, recorded in p16). Items 14 and 15 are new from p16.
 
 1. **The `gate` row** (labels and normaliser hand checks). **Decided:** the owner checks the
    labels and the `NibProfile`, `ColorProfile` and `InkProperties` outputs on a throwaway local dev
-   page, built at the end of the follow-up run and never pushed. **Still open** until the owner
-   has done it: until then no label-based number in section 8 may be claimed as meeting the bar,
-   and no p7+ PR merges on these numbers.
+   page, built at the end of the follow-up run and never pushed. **Done** (2026-10-12, section
+   8.12): 70 of 70 sampled bench labels OK (50 p6b, 20 p15), so the label-based numbers in
+   section 8 are scored against owner-spot-checked labels; `NibProfile` 48/50, `ColorProfile`
+   25/25 and `InkProperties` 19/25 OK (5 wrong, 1 unmarked). The `NibProfile` and
+   `InkProperties` fixes are a separate later step (p17).
 2. **Mini ink novelty +8.0 pp** above baseline on runs without an instruction (p7, section 8.5).
    **Decided:** accepted as is.
 3. **Extractor model and false positives** (p9b, section 8.7; p12, section 8.9). **Decided:**
    explore more models (step p14). With the p12 hints, mini is at 14.6% and gpt-4.1 at 5.0%
-   against the ≤ 3% bar (draft labels). **Recommendation from p14 (section 8.10), open for the
-   owner to confirm:** switch the extractor to gpt-6-luna on both tiers, in its own PR: 4.3–4.7%
+   against the ≤ 3% bar (draft labels). **Decided (2026-10-12):** switch the extractor to
+   gpt-6-luna on both tiers, as recommended in section 8.10. Done in p16 (section 8.13).
+   The p14 recommendation was: switch the extractor to gpt-6-luna on both tiers, in its own PR: 4.3–4.7%
    hard-field false positives against draft labels (2.1% on the test split, but 13.2% on the
    single-pass `holdout` split, which holds half its false-positive strings), a third of mini's
    list price per extraction, so free instruction runs fall below the baseline cost; the costs
@@ -2145,14 +2214,14 @@ p12–p15 carry them out.
    read from production logs (p12).
 5. **Named-ink hit on mini** (77.8%, 7 of 9 test cases) against the 85% bar (section 8.7).
    **Decided:** label more named-ink cases and re-run (step p15). Done in p15 (section 8.11):
-   34 new cases, 25 named-ink cases on the test split; against draft labels mini is at 96.0%
-   (24/25) and gpt-4.1 at 100% (25/25), which meets the 85% bar against draft labels on both
+   34 new cases, 25 named-ink cases on the test split; against spot-checked labels mini is at 96.0%
+   (24/25) and gpt-4.1 at 100% (25/25), which meets the 85% bar against spot-checked labels on both
    tiers (baseline 40% / 48%).
 6. **"Instruction honoured"** was not re-graded for P9 (section 8.7). **Decided:** run a fresh,
    independent judge pass (step p15). Done in p15 (section 8.11): two independent Claude Code
    judges graded a blinded, stratified sample of 150 instruction cases on mini. Instruction
    honoured (both judges "yes" and every hard check passing) on the test split: 95.8% (68/71)
-   for p15 against 49.3% (35/71) for the baseline, which meets the ≥ 85% bar against draft labels
+   for p15 against 49.3% (35/71) for the baseline, which meets the ≥ 85% bar against spot-checked labels
    and Claude-based judges whose grades the owner has not checked; the judges agree on 286 / 300
    answers. The premium pair is exported but not graded; a pass on it is open for the owner to
    ask for.
@@ -2174,13 +2243,29 @@ p12–p15 carry them out.
     brand alone), the answer says "I couldn't find …" even when the pick is the item the user
     meant (2 of 150 judged cases, both dev). **Open:** whether to drop the note when the picked
     pen or ink matches the mention text, in its own PR; p15 only records it.
+13. **Hard constraints met or relaxed at 97.96%** (48 / 49) on the test split for mini in p15,
+    against the ≥ 98% bar (section 8.11). **Decided (2026-10-12):** accepted as close enough.
+14. **Normaliser errors from the gate** (new, p16, section 8.12): 2 of 50 `NibProfile` and 5 of
+    25 `InkProperties` outputs were marked wrong. **Decided:** fixed in a separate later step
+    (p17), not in p16.
+15. **Temperature on gpt-6-luna** (new, p16, section 8.13). p16 sends no temperature, as the
+    task for the switch asked. gpt-6-luna accepts temperature 0 at effort `none` (the p14 runs used
+    it), and without it two identical runs agree on every hard field in 88.9% of the strings
+    instead of 94.4%, and find 5–9 fewer of 217 labelled filter values; false positives, cost and
+    latency are unchanged. **Open:** whether to send temperature 0 again (a one-line
+    `def temperature = 0` on the extractor and `ModelSettings#temperature` for reasoning models at
+    effort `none`); the recommendation is to do so.
 
 **Human checks before bench claims.** The bench labels are drafted by Claude Code, and the
 checkers reuse `NibProfile`, `ColorProfile` and `InkProperties`, so the `gate` row is a merge
 gate: until the owner has done both checks (labels and the three normalisers), no p7+ PR may claim a section 8.2 target from bench results. Bench numbers
 reported before then are stated as scored against unreviewed draft labels, with the label-free
 metrics (validity, hard failures, swab/cartridge violations, rule leakage, cost) as the primary
-evidence.
+evidence. **The owner did both checks on 2026-10-12** (section 8.12): label-based numbers on the
+p6b and p15 case labels are now scored against owner-spot-checked labels (70 / 70 sampled labels
+OK). The extractor set's single-pass `holdout` and `holdout2` strings were not sampled, so their
+labels remain unreviewed drafts, and the judge grades of sections 8.5, 8.6 and 8.11 remain
+unchecked by the owner.
 
 **p1 decisions:**
 
@@ -3179,3 +3264,51 @@ evidence.
   and a second 242-answer pass would add little at this point; it stays exported for the owner.
 - p15: The 2 false "couldn't find" notes found by the judges (open decision 12) are recorded, not
   fixed: the change belongs in the pick's note logic, outside this re-measure step.
+
+**p16 decisions:**
+
+- p16: The owner confirmed the section 8.10 recommendation on 2026-10-12: the extractor runs on
+  gpt-6-luna at reasoning effort `none` on both tiers (`MODEL_ID = "gpt-6-luna"`,
+  `def reasoning_effort = "none"`). `calls: :one`, `MAX_TOOL_CALLS` and the `FAILURES` fallback
+  list are unchanged; a 404 for the model is a `RubyLLM::Error`, already in the list, so an
+  unavailable model falls back to the `MentionMatcher` pins like any other extractor failure.
+- p16: The model is registered in `config/initializers/ruby_llm.rb`, in a one-entry list of
+  models RubyLLM 1.16's bundled registry does not know (OpenAI provider, function calling and
+  reasoning), added only when the registry lacks it. Chosen over `assume_model_exists:` with a
+  provider hook in `RubyLlmAgent`: agents keep naming a model by id alone, a mistyped id still
+  raises `RubyLLM::ModelNotFoundError` before any request, the registry knows the model reasons,
+  and the entry is one line to delete once a gem upgrade lists the model. Refreshing or upgrading
+  the registry was not an option: the gem's registry does not list it yet.
+- p16: The extractor sends no temperature (it sent 0 on gpt-4.1-mini). The task asked for this;
+  gpt-6-luna does accept 0 at effort `none` (section 8.10, and the p14 runs used 0), so this is a
+  choice, not a requirement. The smoke runs in section 8.13 measure the production configuration
+  without it: errors, false positives, cost and latency match p14, but run-to-run agreement drops
+  from 94.4% to 88.9% of strings. Restoring temperature 0 is left to the owner (open decision 15)
+  rather than overriding the task. No new `RubyLlmAgent` hook was needed: `temperature` and
+  `reasoning_effort` (p14) already cover it, and the concern has no model special cases.
+- p16: The bench's `MODEL=` override now takes the temperature from `ModelSettings#temperature`:
+  0 for models without reasoning (as the extractor sent on gpt-4.1-mini) and none for reasoning
+  models, which get their lowest effort. Before p16 it kept the extractor's own temperature at
+  effort `none`; with the extractor's temperature gone, that would have dropped temperature 0
+  for gpt-4.1 and mini too. So a `MODEL=gpt-6-luna` run now matches production, and a
+  `MODEL=gpt-4.1-mini` run matches the extractor before p16.
+- p16: Usage accounting needed no change. `agent_log.usage` records the model id the API returns,
+  cached and cache-write tokens (p14), and `Bench::Suggester::Pricing` has gpt-6-luna with its
+  cache-write price; a spec pins the cached and cache-write tokens of a gpt-6-luna response. The
+  daily cap counts suggester runs, not cost, and nothing else in the app prices tokens. The
+  extractor completion stub in the specs now answers as gpt-6-luna, so the bench runner spec
+  prices the extractor part of a run at gpt-6-luna's list price.
+- p16: `docs/implementation-roadmap.md` S04 lists the extractor as `gpt-6-luna` at effort `none`,
+  and S05's runbook seed names gpt-4.1-mini as its manual replacement. Flipping back to mini also
+  means dropping the reasoning effort (models without reasoning do not take one) and restoring
+  temperature 0. CLAUDE.md notes where to register a model the bundled registry lacks.
+- p16: The bench smoke ran twice instead of once: the first run matched section 8.10 on false
+  positives but found fewer filter values, and a second run was the cheapest way to tell noise
+  from a real stability change ($0.02 each as charged). The agreement figure compares hard fields
+  string by string between two runs and needs no labels.
+- p16: The gate result (section 8.12) is recorded here because p16 is the first step after the
+  owner's check. The lead paragraphs of sections 8.4–8.11, the open decisions and the
+  "Human checks" paragraph now say the p6b and p15 labels are owner-spot-checked; the wording
+  "unreviewed drafts" stays for the single-pass `holdout` and `holdout2` extractor strings, and
+  earlier step bullets below keep the wording of their time. No item content from the gate page
+  is committed.

@@ -39,3 +39,13 @@ RSpec.describe "RubyLLM tool names" do
     expect { tool.name }.to raise_error(NoMethodError)
   end
 end
+
+RSpec.describe "RubyLLM model registry" do
+  it "knows gpt-6-luna as an OpenAI reasoning model with function calling, once" do
+    model = RubyLLM.models.find("gpt-6-luna", "openai")
+
+    expect(model).to be_reasoning
+    expect(model).to be_function_calling
+    expect(RubyLLM.models.all.count { |info| info.id == "gpt-6-luna" }).to eq(1)
+  end
+end

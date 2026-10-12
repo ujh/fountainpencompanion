@@ -1,7 +1,7 @@
 class PenAndInkConstraintExtractor
   include RubyLlmAgent
 
-  MODEL_ID = "gpt-4.1-mini"
+  MODEL_ID = "gpt-6-luna"
   MAX_TOOL_CALLS = 4
   MAX_COLOURS = 4
   MAX_NAMES_FOUND = 5
@@ -298,5 +298,5 @@ class PenAndInkConstraintExtractor
 
   def max_tool_calls = MAX_TOOL_CALLS
 
-  def temperature = 0
+  def reasoning_effort = "none"
 end

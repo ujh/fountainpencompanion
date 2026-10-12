@@ -10,6 +10,7 @@ module Bench
         "gpt-5-nano" => "minimal"
       }.freeze
       DATE_SUFFIX = /-\d{4}-\d{2}-\d{2}\z/
+      TEMPERATURE = 0
 
       attr_accessor :model_id, :requested_effort
 
@@ -28,8 +29,8 @@ module Bench
         requested_effort || lowest_effort
       end
 
-      def temperature?
-        reasoning_effort.nil? || reasoning_effort == "none"
+      def temperature
+        TEMPERATURE unless reasoning?
       end
 
       def register!

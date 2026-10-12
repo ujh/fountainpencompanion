@@ -56,7 +56,7 @@ module Bench
             Class.new(PenAndInkConstraintExtractor) do
               define_singleton_method(:name) { PenAndInkConstraintExtractor.name }
               define_method(:model_id) { settings.model_id }
-              define_method(:temperature) { super() if settings.temperature? }
+              define_method(:temperature) { settings.temperature }
               define_method(:reasoning_effort) { settings.reasoning_effort }
               private :model_id, :temperature, :reasoning_effort
             end

@@ -9,7 +9,7 @@ module ConstraintExtractorHelpers
   def set_constraints_completion(
     arguments = {},
     id: "call_constraints",
-    model: "gpt-4.1-mini-2025-04-14",
+    model: "gpt-6-luna-2026-09-22",
     arguments_json: arguments.to_json
   )
     {

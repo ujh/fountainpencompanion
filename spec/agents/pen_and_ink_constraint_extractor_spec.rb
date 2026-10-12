@@ -139,17 +139,18 @@ RSpec.describe PenAndInkConstraintExtractor do
       expect(request_body["messages"].last["content"]).to eq("<request>something blue</request>")
     end
 
-    it "uses gpt-4.1-mini at temperature 0 with one set_constraints tool and parallel calls off" do
+    it "uses gpt-6-luna at reasoning effort none with one set_constraints tool and parallel calls off" do
       stub_extraction(set_constraints_completion(arguments))
 
       extractor.perform
 
       expect(request_body).to include(
-        "model" => "gpt-4.1-mini",
-        "temperature" => 0,
+        "model" => "gpt-6-luna",
+        "reasoning_effort" => "none",
         "tool_choice" => "required",
         "parallel_tool_calls" => false
       )
+      expect(request_body).not_to have_key("temperature")
       expect(request_body["tools"].map { |tool| tool.dig("function", "name") }).to eq(
         ["set_constraints"]
       )
@@ -170,9 +171,28 @@ RSpec.describe PenAndInkConstraintExtractor do
       expect(log.extra_data).to eq("constraints" => constraints.to_h)
       expect(log.transcript.map { |entry| entry["role"] }).to eq(%w[system user assistant tool])
       expect(log.usage).to include(
-        "model" => "gpt-4.1-mini-2025-04-14",
+        "model" => "gpt-6-luna-2026-09-22",
         "prompt_tokens" => 1_000,
         "completion_tokens" => 100
+      )
+    end
+
+    it "logs the cached and cache-write prompt tokens the API reports" do
+      completion = set_constraints_completion(arguments)
+      completion["usage"]["prompt_tokens_details"] = {
+        "cached_tokens" => 600,
+        "cache_write_tokens" => 300
+      }
+      stub_extraction(completion)
+
+      agent = extractor
+      agent.perform
+
+      expect(agent.agent_log.reload.usage).to include(
+        "model" => "gpt-6-luna-2026-09-22",
+        "prompt_tokens" => 100,
+        "cached_tokens" => 600,
+        "cache_write_tokens" => 300
       )
     end
 
@@ -336,6 +356,7 @@ RSpec.describe PenAndInkConstraintExtractor do
     end
 
     {
+      404 => "RubyLLM::Error",
       429 => "RubyLLM::RateLimitError",
       400 => "RubyLLM::BadRequestError",
       500 => "RubyLLM::ServerError"
