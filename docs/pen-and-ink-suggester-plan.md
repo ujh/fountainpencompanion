@@ -3571,4 +3571,6 @@ unchecked by the owner.
   app's code and not the other way round; `ModelSettings#reasoning?` looks the model up once.
   #3863: `WESTERN_SIZING_BRANDS` is built from `ESTERBROOK_BRANDS.source`, and `hedged_before?`
   scans with a named `HEDGE_WORD` next to `WORD`. CLAUDE.md now says exceeding
-  `max_tool_calls` raises, not passing it.
+  `max_tool_calls` raises, not passing it, and that an unlisted model goes into
+  `RubyLlmModels::UNLISTED` (which the initializer registers at boot), not into a new block in
+  the initializer.
