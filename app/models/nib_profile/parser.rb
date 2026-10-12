@@ -2,6 +2,8 @@ class NibProfile
   class Parser
     JAPANESE_BRANDS =
       /(?<![a-z])(?:pilot|namiki|sailor|platinium|platinum|platnum|nakaya|taccia|nagasawa|bungu ?box|bungbox|wancher|kuretake|eboya|kakimori|sakura|ohashi|kyuseido)(?![a-z])/i
+    WESTERN_SIZING_BRANDS =
+      /ester ?b?rook|esterbook|(?<![a-z])(?:jowo|bock|schmidt|lamy|twsbi|kaweco|pelikan\w*|montblanc|mont blanc|diplomat|franklin[ -]?christoph)(?![a-z])/i
     PLATINUM_BRANDS = /platin(?:i)?um|platnum/i
     PILOT_BRANDS = /(?<![a-z])(?:pilot|namiki)(?![a-z])/i
     ESTERBROOK_BRANDS = /ester ?b?rook|esterbook/i
@@ -137,7 +139,9 @@ class NibProfile
       return parse(nib, source: :nib) if nib.strip.present?
 
       hint = model_hint
-      return NibProfile.new(raw: nib, kind: :unknown) if hint.blank?
+      if hint.blank?
+        return NibProfile.new(raw: nib, kind: :unknown, japanese_sizing: japanese_brand?)
+      end
 
       parse(hint, source: :model)
     end
@@ -148,7 +152,7 @@ class NibProfile
       source_text = clean(text)
       text = clean(without_prose_words(text))
       kind = kind_of(text)
-      attributes = { raw: nib, kind:, source:, source_text: }
+      attributes = { raw: nib, kind:, source:, source_text:, japanese_sizing: japanese_brand? }
       return NibProfile.new(**attributes) unless kind.in?(%i[fountain dip])
 
       text, prefix_characters = strip_prefixes(text)
@@ -176,7 +180,6 @@ class NibProfile
         width:,
         width_min:,
         width_max:,
-        japanese_sizing: grade.present? && mm.nil? && code_mm.nil? && japanese_brand?,
         confidence: grade || mm || code_mm ? :high : :medium
       )
     end
@@ -350,7 +353,7 @@ class NibProfile
     end
 
     def japanese_brand?
-      JAPANESE_BRANDS.match?(brand)
+      JAPANESE_BRANDS.match?(brand) && !WESTERN_SIZING_BRANDS.match?(brand)
     end
 
     def pilot_brand?

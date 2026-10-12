@@ -55,6 +55,7 @@ class PenAndInkSuggestion::InkProperties
 
   LABEL_PATTERNS = {
     shimmer: [/\bshimmering\b/, /\bglitter\w*/, /\bsparkl\w*/],
+    water_resistant: [/\bpermanent\b(?![\s-]+(?:line|range|collection)\b)/],
     shading: [/\Ashade(?:\.\w+)?\z/],
     scented: [/\Asmell(?:s|y)?\z/],
     pigmented: [/\Apigments?\z/]
@@ -102,7 +103,7 @@ class PenAndInkSuggestion::InkProperties
   end
 
   class Matcher
-    NEGATIONS = %w[no not non without never zero nor neither none lacks lacking free].freeze
+    NEGATIONS = %w[no not non un without never zero nor neither none lacks lacking free].freeze
     COMPARISONS = %w[like unlike than add].freeze
     WEAK_QUALIFIERS = %w[
       low
@@ -123,6 +124,75 @@ class PenAndInkSuggestion::InkProperties
       degree
     ].freeze
     WINDOW = 4
+    HEDGED_PROPERTIES = %i[shading sheen].freeze
+    HEDGES = %w[
+      low
+      little
+      slight
+      slightly
+      some
+      subtle
+      subtly
+      minimal
+      minor
+      faint
+      faintly
+      mild
+      mildly
+      limited
+    ].freeze
+    HEDGE_NOUNS = %w[smidge smidgen hint touch bit tad trace].freeze
+    HEDGE_REACH = 2
+    QUITE_A = %w[quite a].freeze
+    NOT_BETWEEN_HEDGE = %w[
+      nice
+      good
+      great
+      lovely
+      beautiful
+      gorgeous
+      amazing
+      excellent
+      wonderful
+      stunning
+      pretty
+      heavy
+      heavily
+      strong
+      intense
+      extreme
+      high
+      rich
+      lots
+      plenty
+      decent
+      pronounced
+      noticeable
+      significant
+      considerable
+      dramatic
+      the
+      this
+      that
+      these
+      those
+      its
+      their
+      is
+      are
+      was
+      has
+      have
+      shows
+      papers
+      paper
+    ].freeze
+    HEDGED_AFTER =
+      /\A\s+(?:is|are|was|remains)\s+(?:(?:very|quite|rather|fairly|only|relatively)\s+)?(?:subtle|minimal|slight|faint|minor|limited|low|light|mild|weak)\b/
+    SWATCH_ONLY =
+      /\A(?:[\s-]+(?!(?:not|and|but|or)\b)[a-z'-]+){0,3}?\s+(?:in|on)\s+(?:(?:large|big|heavy|thick|wide|broad)\s+)?(?:swatch|swab)\w*/
+    ALSO_IN_WRITING =
+      /\A\s*,?\s*(?:and|but|as\s+well\s+as|or)\s+(?:also\s+)?(?:in\s+)?(?:writing|handwriting|text|lines?|nibs?)\b/
     CLAUSE_BOUNDARY = /[.!?;:,\n\r]|\b(?:and|but)\b/
     WORD = /[a-z']+/
     NEGATED_AFTER =
@@ -141,17 +211,19 @@ class PenAndInkSuggestion::InkProperties
     end
 
     def match?(text, label: false)
-      (label ? label_patterns : patterns).any? { |pattern| affirmed_match?(text, pattern) }
+      (label ? label_patterns : patterns).any? do |pattern|
+        affirmed_match?(text, pattern, prose: !label)
+      end
     end
 
     private
 
     attr_accessor :property, :patterns, :label_patterns
 
-    def affirmed_match?(text, pattern)
+    def affirmed_match?(text, pattern, prose:)
       position = 0
       while (match = pattern.match(text, position))
-        return true if affirmed?(text, match)
+        return true if affirmed?(text, match) && (!prose || main_characteristic?(text, match))
 
         position = match.end(0)
       end
@@ -162,6 +234,36 @@ class PenAndInkSuggestion::InkProperties
       return false if match[0].end_with?("less") || match.post_match.match?(NEGATED_AFTER)
 
       !negated_before?(text, match.begin(0))
+    end
+
+    def main_characteristic?(text, match)
+      return true unless HEDGED_PROPERTIES.include?(property)
+      return false if hedged_before?(text[0...match.begin(0)])
+      return false if match.post_match.match?(HEDGED_AFTER)
+
+      !(property == :sheen && swatch_only?(match.post_match))
+    end
+
+    def hedged_before?(head)
+      tokens = head.split(CLAUSE_BOUNDARY, -1).last.to_s.scan(/[a-z'-]+/)
+      (tokens.size - 1).downto([tokens.size - HEDGE_REACH - 2, 0].max) do |index|
+        return true if hedge_at?(tokens, index)
+        return false if NOT_BETWEEN_HEDGE.include?(tokens[index])
+      end
+      false
+    end
+
+    def hedge_at?(tokens, index)
+      between = tokens.drop(index + 1)
+      return between.size <= HEDGE_REACH if HEDGES.include?(tokens[index])
+      return false unless HEDGE_NOUNS.include?(tokens[index]) && between.first == "of"
+
+      between.size <= HEDGE_REACH + 1 && tokens[[index - 2, 0].max...index] != QUITE_A
+    end
+
+    def swatch_only?(tail)
+      swatch = SWATCH_ONLY.match(tail)
+      swatch.present? && !swatch.post_match.match?(ALSO_IN_WRITING)
     end
 
     def negated_before?(text, position)

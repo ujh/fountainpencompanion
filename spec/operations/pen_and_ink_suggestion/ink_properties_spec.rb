@@ -44,6 +44,7 @@ describe PenAndInkSuggestion::InkProperties do
         ["high-water-resistance", %w[water-resistant]],
         ["permanent", %w[water-resistant]],
         ["permanent ink", %w[water-resistant]],
+        ["permanent black", %w[water-resistant]],
         ["bulletproof", %w[water-resistant]],
         ["archival", %w[water-resistant]],
         ["pigment", %w[pigmented]],
@@ -79,7 +80,7 @@ describe PenAndInkSuggestion::InkProperties do
         "waterman",
         "archive",
         "red pigment",
-        "permanent black",
+        "un-permanent",
         "blue"
       ].each do |tag|
         it "reads #{tag.inspect} as no property" do
@@ -100,7 +101,6 @@ describe PenAndInkSuggestion::InkProperties do
         ["A deep blue, adorned with violet glitter.", %w[shimmer]],
         ["A blue-black ink with hints of bronze and red sheen. No shimmer.", %w[sheen]],
         ["No shimmer in the cap. Gold shimmer throughout.", %w[shimmer]],
-        ["Brighter blue. low shading, no sheen, and no shimmer.", %w[shading]],
         ["The inks are water soluble and shading, without shimmer or sheen.", %w[shading]],
         ["No sheen and gold shimmer.", %w[shimmer]],
         ["No sheen. Shimmer and shading.", %w[shimmer shading]],
@@ -117,9 +117,20 @@ describe PenAndInkSuggestion::InkProperties do
         ],
         ["A light brown ink, it has a caramel scent.", %w[scented]],
         ["It is lightly vanilla-scented.", %w[scented]],
-        ["Sailor Sei-boku is a blue-black nano pigment ink with some sheen.", %w[sheen pigmented]],
+        ["Sailor Sei-boku is a blue-black nano pigment ink with some sheen.", %w[pigmented]],
         ["A pigment-based slightly pale red.", %w[pigmented]],
         ["Lovely blue black colour. This is an iron gall ink.", ["iron gall"]],
+        ["A dark olive that shades nicely, with some black sheening in swatches.", %w[shading]],
+        ["Heavy shading and lots of sheen.", %w[sheen shading]],
+        ["With some nice shading.", %w[shading]],
+        ["Warm grey with good flow and quite a bit of shading.", %w[shading]],
+        ["Medium shading and a strong red sheen.", %w[sheen shading]],
+        ["On some papers the sheen is strong.", %w[sheen]],
+        ["A pink-red sheen not just in swatches but also in writing.", %w[sheen]],
+        ["Red sheen in swatches and in writing.", %w[sheen]],
+        ["It sheens crimson, and has some shading in evidence.", %w[sheen]],
+        ["Some subtle gold shimmer.", %w[shimmer]],
+        ["A slight shimmer and a hint of shading.", %w[shimmer]],
         ["Because it is an iron-gall ink, some care should be taken.", ["iron gall"]]
       ].each do |description, labels|
         it "reads #{description.inspect} as #{labels.join(", ")}" do
@@ -159,7 +170,26 @@ describe PenAndInkSuggestion::InkProperties do
         "A yellow-orange reminiscent of mango flesh.",
         "Smells",
         "The pigment was usually used as a glaze.",
-        "A classic Waterman blue."
+        "A classic Waterman blue.",
+        "Brighter blue. low shading, no sheen, and no shimmer.",
+        "Dry ink with a smidge of shading.",
+        "The base colour is warm, and there is some shading evident too.",
+        "Slight shading.",
+        "A little shading in broad nibs.",
+        "A bit of shading.",
+        "Just a hint of shading.",
+        "Minimal shading.",
+        "Subtle shading.",
+        "Shows faint shading.",
+        "A tiny bit of dark red sheen.",
+        "A complex brown with low black gloss sheen.",
+        "Some red sheen.",
+        "The shading is subtle.",
+        "The sheen is very minimal.",
+        "Heavy red sheen in swatches.",
+        "A pop of pink sheen in large swabs.",
+        "Sheen visible only on swabs.",
+        "Permanent Navy is a calm dark blue."
       ].each do |description|
         it "reads #{description.inspect} as no property" do
           expect(described_class.from_texts(descriptions: [description])).to be_none
@@ -176,6 +206,9 @@ describe PenAndInkSuggestion::InkProperties do
         [["Monteverde", "", "Sheen Machine"], %w[sheen]],
         [["J. Herbin", "Scented", "Rose"], %w[scented]],
         [["Rohrer & Klingner", "", "Blau Permanent"], %w[water-resistant]],
+        [["ColorVerse", "Office Series", "Permanent Navy"], %w[water-resistant]],
+        [["Parker", "Quink", "Permanent Blue"], %w[water-resistant]],
+        [%w[Example Permanent Blue], %w[water-resistant]],
         [["Kakimori", "Pigmented", "06 Toppuri"], %w[pigmented]],
         [["KWZ", "Iron Gall", "Turquoise"], ["iron gall"]]
       ].each do |names, labels|
@@ -191,7 +224,8 @@ describe PenAndInkSuggestion::InkProperties do
         ["Jungle", "", "Chameleon"],
         ["Diamine", "Inkvent 2021", "Night Shade"],
         ["Example", "", "Chromashading Blue"],
-        ["Colorverse", "Office", "Permanent Black"]
+        ["Example", "Permanent Line", "Dark Lilac"],
+        ["Example", "Permanent Collection", "Blue"]
       ].each do |names|
         it "reads #{names.compact_blank.join(" ")} as no property" do
           expect(described_class.from_texts(names:)).to be_none
@@ -260,7 +294,7 @@ describe PenAndInkSuggestion::InkProperties do
       create(
         :macro_cluster,
         tags: ["sheen"],
-        description: "A dark blue with red sheen. It has some shading but no shimmer."
+        description: "A dark blue with red sheen. It shades nicely but has no shimmer."
       )
     end
     let(:micro_cluster) { create(:micro_cluster, macro_cluster:) }

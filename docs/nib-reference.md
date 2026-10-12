@@ -17,7 +17,8 @@ be perfect, and a misclassification is fixed by adding a row to the spec table.
 
 ## 1. Western grades
 
-Jowo/Bock steel, Lamy, TWSBI, Kaweco, Pelikan, Montblanc, Diplomat and most Chinese makers.
+Jowo/Bock/Schmidt steel, Esterbrook, Franklin-Christoph, Lamy, TWSBI, Kaweco, Pelikan, Montblanc,
+Diplomat and most Chinese makers.
 
 | Grade             | Approx. line (mm) | Notes                                                      |
 | ----------------- | ----------------- | ---------------------------------------------------------- |
@@ -40,7 +41,9 @@ Jowo/Bock steel, Lamy, TWSBI, Kaweco, Pelikan, Montblanc, Diplomat and most Chin
 ## 2. Japanese grades
 
 Pilot/Namiki, Sailor, Platinum and Nakaya, plus Taccia, Nagasawa, Bungubox and Wancher, which use
-Sailor or Platinum nibs.
+Sailor or Platinum nibs. A collaboration with a Western maker uses that maker's nib and Western
+sizing: "Esterbrook x Bungubox", "TWSBI x Bungubox" and "Kaweco x Bungubox" (about 100 pens in the
+2026-10 data) are Western, so their `M` is W4, not W3.
 
 **The one-step-finer rule.** Japanese grades run about one grade finer than Western ones: Japanese
 F ≈ Western EF, Japanese M ≈ Western F, Japanese B ≈ Western M. `NibProfile` applies this through
@@ -263,6 +266,13 @@ The order matters; each step works on what earlier steps left.
 Taccia, Nagasawa, Bungubox (also "Bungbox"), Wancher, Kuretake, Eboya, Kakimori, Sakura, Ohashi,
 Kyuseido, and the misspelling "Platnum". Extend the list from the data.
 
+**Western makers win.** A brand string that also names a Western-sizing maker is Western, even
+when it names a Japanese-sizing brand too: Esterbrook, Jowo, Bock (also "Peter Bock"), Schmidt,
+Lamy, TWSBI, Kaweco, Pelikan, Montblanc, Diplomat and Franklin-Christoph. Such strings are
+collaborations with a Japanese retailer ("Esterbrook x Bungubox") or name the nib's maker
+("Bungubox (Jowo nib)"), and the nib follows the Western maker. The Japanese-only rules (bare `C`,
+bare `Z`) do not apply to them either.
+
 **Representation** returned by `NibProfile.parse(nib, brand:, model:)`:
 
 | Field                    | Values                                                                             |
@@ -274,9 +284,9 @@ Kyuseido, and the misspelling "Platnum". Extend the list from the data.
 | `width_min`, `width_max` | 1–7, for nibs whose line varies                                                    |
 | `characters`             | list from section 4                                                                |
 | `material`               | `gold`, `steel`, `titanium`, or nil                                                |
-| `japanese_sizing`        | true when the width came from the grade through the brand's Japanese table         |
+| `japanese_sizing`        | true when the brand uses Japanese sizing (section 7), whatever the nib text says and whether or not a width was found |
 | `confidence`             | `high`, `medium`, `material_only`, `character_only`, `none`                        |
-| `label`                  | display text, e.g. `MF → W3 (Japanese)` or `1.1 Stub → W6 stub (cross-strokes W3)` |
+| `label`                  | display text, e.g. `MF → W3 (Japanese)` or `1.1 Stub → W6 stub (cross-strokes W3)`; `(Japanese)` marks any sized nib on a Japanese-sizing brand (`FA → W2 (Japanese) flex`) |
 | `source`, `source_text`  | `nib`, or `model` for the empty-nib fallback, and the cleaned text that was parsed |
 
 The profile is computed on the fly, with no DB column. Persisting it (`nib_width_class`,

@@ -787,7 +787,8 @@ is added to the user message. That gives depth on specialist nibs without a tool
   `colour_exclude` uses the same match, so an exclusion errs on the side of the user's wording.
 - **`InkProperties.for`** derives shimmer, sheen, shading, chameleon, scented, water_resistant,
   pigmented and iron_gall from user tags, cluster tags, the ink's names (p4b) and keywords in the
-  description. These are
+  description. A description counts sheen or shading only as a main characteristic, not when
+  hedged ("some shading", "a bit of sheen") or, for sheen, seen only in swatches (p17). These are
   lower bounds. They are shown on rows; only shimmer and scented are filterable. On ink rows, the
   CSS colour-name tags are replaced by the colour family.
 - **Default exclusions and compatibility** (SQ15; in the selector, re-checked in
@@ -2007,7 +2008,7 @@ sampled items and marks stay in gitignored `tmp/bench`). The sample was 170 item
 | Bench labels, p15 named-ink cases            | 20      | 20  | 0     | 0        |
 | `NibProfile` outputs                         | 50      | 48  | 2     | 0        |
 | `ColorProfile` outputs                       | 25      | 25  | 0     | 0        |
-| `InkProperties` outputs                      | 25      | 19  | 5     | 1        |
+| `InkProperties` outputs                      | 25      | 20  | 4     | 1        |
 
 - No label errors were found, so the label-based numbers of sections 8.4–8.11 are scored against
   owner-spot-checked labels (70 / 70 sampled labels OK). The extractor set's single-pass
@@ -2015,6 +2016,11 @@ sampled items and marks stay in gitignored `tmp/bench`). The sample was 170 item
 - The normaliser checks used 25 instead of 50 items for `ColorProfile` and `InkProperties`. The
   `NibProfile` and `InkProperties` errors are fixed in a separate later step (p17, open
   decision 14).
+- **Re-classified by the owner (2026-10-12, recorded in p17).** One `InkProperties` output first
+  marked wrong (shading on an ink whose only shading source is the cluster's community tag
+  `shading`) is correct: community and cluster tags stay a valid source for every property. The
+  row now reads 20 OK and 4 wrong, and the one unmarked output (sheen from the user's own `sheen`
+  tag) counts as OK, so 21 of 25 are OK.
 - **Figures the normaliser errors can move.** The checker scores metric 3, "Hard constraints met
   or relaxed", through the same normalisers the filters use: nib grade, width and character
   checks through `NibProfile`, shimmer and scented checks through `InkProperties`. That is the
@@ -2025,10 +2031,35 @@ sampled items and marks stay in gitignored `tmp/bench`). The sample was 170 item
   failed case behind 97.96% is not on a normaliser path. Once p17 changes a profile, any of these
   checks can flip in either direction, for the picker and the checker alike; how many is not
   measured, and the rows are re-run after p17.
-- In the gate sample, the 5 wrong `InkProperties` outputs concern sheen, shading and
+- In the gate sample, the 4 wrong `InkProperties` outputs concern sheen, shading and
   water resistance, none of them shimmer or scented, and both wrong `NibProfile` outputs are a
   Japanese-sizing call, which shifts the width class the nib width check uses. `InkProperties`
   also feeds the property labels in the pick rows, which no metric scores directly.
+- **After the p17 fixes** (the gate items re-run through the new code; the inputs stay in
+  gitignored `tmp/bench`, only counts here):
+
+  | Check            | Marked wrong, now matching the owner | Marked OK, output changed            |
+  | ---------------- | ------------------------------------ | ------------------------------------ |
+  | `NibProfile`     | 2 / 2                                | 1 / 48: flag only, see below          |
+  | `InkProperties`  | 4 / 4                                | 2 / 21: one flag each, see below      |
+
+  The one `NibProfile` change among OK items is the Japanese-sizing flag on a Pilot FA nib, which
+  the new rule (the brand decides) sets; its width, range, grade and characters are unchanged, and
+  its label gains "(Japanese)". The two `InkProperties` changes among OK items each lose one
+  flag, a sheen and a shading, and both come from hedged mentions of exactly the kind the owner's
+  rule names ("a bit of sheen … if visible at all", "with some shading"); a gate item with "some
+  shading" was marked wrong, so the marks on these two cannot both hold. p17 follows the stated
+  rule and leaves the two items to the owner (open decision 16). The re-classified item and the
+  unmarked item keep their outputs.
+- **Re-scored figures** (p17, no LLM calls): the checks of the recorded p9b, p15 and baseline
+  runs (`p9b-mini`, `p9b-gpt41-test`, `p15-mini`, `p15-gpt41-test`, `baseline-mini`,
+  `baseline-gpt41-test`) were recomputed with the p17 normalisers. No check changes in any run,
+  so the hard-constraints rows of sections 8.8 and 8.11, including decision 13's 97.96%
+  (48 / 49), stand. The fixes touch only sheen, shading and water resistance, which no checker
+  scores, and the width of Western-collaboration pens, none of which carries a nib check in those
+  runs. What the re-score cannot show is the pick prompt: the property and nib labels in the
+  rows change for some inks and pens (the p17 bullets), and measuring that needs
+  new suggester runs.
 
 ### 8.13 P16 and P17 smoke: the extractor on gpt-6-luna in production configuration (recorded in p16 and p17, 2026-10-12)
 
@@ -2190,7 +2221,7 @@ from p12 on are follow-ups to the owner's answers of 2026-10-12, stacked on p11.
 | p5   | P5      | `CollectionSnapshot`; the current CSV prompt builder reads from it                           | done, pending merge (#3838) |
 | p6a  | P6      | bench harness code: case exporter, label formats, checkers, runner, grading export, rake tasks | done, pending merge (#3839) |
 | p6b  | P6      | case export on fresh data, drafted labels, seeded baseline run recorded                      | done, pending merge (#3840) |
-| gate | P6      | **owner, not an agent:** spot-check ~50 of the drafted bench labels and hand-check 50 `NibProfile`, 50 `ColorProfile` and 50 `InkProperties` outputs (section 8.1 metric 7) | **done** (owner, 2026-10-12, section 8.12): labels 70/70 OK (50/50 p6b, 20/20 p15); `NibProfile` 48/50, `ColorProfile` 25/25, `InkProperties` 19/25 OK (5 wrong, 1 unmarked); the normaliser fixes are p17 |
+| gate | P6      | **owner, not an agent:** spot-check ~50 of the drafted bench labels and hand-check 50 `NibProfile`, 50 `ColorProfile` and 50 `InkProperties` outputs (section 8.1 metric 7) | **done** (owner, 2026-10-12, section 8.12): labels 70/70 OK (50/50 p6b, 20/20 p15); `NibProfile` 48/50, `ColorProfile` 25/25, `InkProperties` 20/25 OK (4 wrong, 1 unmarked that counts as OK; one item re-classified by the owner); the normaliser fixes are done in p17 |
 | p7   | P7      | v2 pick call for runs without an instruction                                                 | done, pending merge (#3841) |
 | p10  | P10     | inked named pen UX (link to the currently-inked entry)                                       | done, pending merge (#3842) |
 | p8   | P8      | `MentionMatcher` + `NameResolver`; instruction runs move to v2 in fallback mode              | done, pending merge (#3843) |
@@ -2202,7 +2233,7 @@ from p12 on are follow-ups to the owner's answers of 2026-10-12, stacked on p11.
 | p14  | P9 follow-up | extractor model comparison (owner decision 3, section 8.10): the bench's `MODEL=` override handles reasoning models, `RubyLlmAgent#reasoning_effort`, cache-write tokens in usage and bench pricing; production stays on gpt-4.1-mini | done, pending merge (#3860) |
 | p15  | P9 follow-up | re-measure on more named-ink cases with a fresh judge pass (owner decisions 5 and 6, section 8.11): `bench:suggester:export_named_inks`, `NamedInkFilter`, the exporter's `BEFORE`; the grading export's stratified `MAX_CASES` sample and collection summary; the runner records a transcript Postgres refuses as an error | done, pending merge (#3861) |
 | p16  | P9 follow-up | the extractor moves to gpt-6-luna at reasoning effort `none` without a temperature (owner decision 3, sections 8.10 and 8.13); the model is registered in `config/initializers/ruby_llm.rb` | done, pending merge (#3862) |
-| p17  | P1 / P4 / P9 follow-up | temperature 0 restored on the gpt-6-luna extractor and in the bench's `MODEL=` override (open decision 15, section 8.13); the `NibProfile` and `InkProperties` fixes from the `gate` check (open decision 14, section 8.12) | done, pending merge |
+| p17  | P1 / P4 / P9 follow-up | temperature 0 restored on the gpt-6-luna extractor and in the bench's `MODEL=` override (open decision 15, section 8.13); the `gate` fixes (open decision 14, section 8.12): `NibProfile` sizes Western collaborations by the Western maker and sets `japanese_sizing` by brand alone, `InkProperties` ignores hedged and swatch-only mentions and reads "permanent" in names as water-resistant | done, pending merge |
 
 The PRs are stacked: each branches off the previous step's branch, so they merge in the order of
 the table, each after its own review and the `gate` row.
@@ -2212,15 +2243,15 @@ has the detail. The owner answered items 1–9 on 2026-10-12 (recorded in p12); 
 p12–p15 carry them out. Later on 2026-10-12 the owner confirmed the gpt-6-luna switch (item 3,
 done in p16), accepted the 97.96% hard-constraint rate (item 13) and finished the `gate` checks
 (item 1, recorded in p16). Items 14 and 15 are new from p16; the owner decided item 15 later on
-2026-10-12 (temperature 0 restored, done in p17).
+2026-10-12 (temperature 0 restored, done in p17), and p17 did item 14. Item 16 is new from p17.
 
 1. **The `gate` row** (labels and normaliser hand checks). **Decided:** the owner checks the
    labels and the `NibProfile`, `ColorProfile` and `InkProperties` outputs on a throwaway local dev
    page, built at the end of the follow-up run and never pushed. **Done** (2026-10-12, section
    8.12): 70 of 70 sampled bench labels OK (50 p6b, 20 p15), so the label-based numbers in
    section 8 are scored against owner-spot-checked labels; `NibProfile` 48/50, `ColorProfile`
-   25/25 and `InkProperties` 19/25 OK (5 wrong, 1 unmarked). The `NibProfile` and
-   `InkProperties` fixes are a separate later step (p17).
+   25/25 and `InkProperties` 20/25 OK (4 wrong, 1 unmarked that counts as OK, after the owner
+   re-classified one item). The `NibProfile` and `InkProperties` fixes are done in p17.
 2. **Mini ink novelty +8.0 pp** above baseline on runs without an instruction (p7, section 8.5).
    **Decided:** accepted as is.
 3. **Extractor model and false positives** (p9b, section 8.7; p12, section 8.9). **Decided:**
@@ -2271,10 +2302,12 @@ done in p16), accepted the 97.96% hard-constraint rate (item 13) and finished th
 13. **Hard constraints met or relaxed at 97.96%** (48 / 49) on the test split for mini in p15,
     against the ≥ 98% bar (section 8.11). **Decided (2026-10-12):** accepted as close enough.
 14. **Normaliser errors from the gate** (new, p16, section 8.12): 2 of 50 `NibProfile` and 5 of
-    25 `InkProperties` outputs were marked wrong. They can move the hard-constraints rows of
-    sections 8.8 and 8.11 (13 of 49 scored test cases carry a nib, shimmer or scented check, all
-    met today). **Decided:** fixed in a separate later step (p17), not in p16; p17 re-runs those
-    rows.
+    25 `InkProperties` outputs were marked wrong (4 after the owner re-classified one). They can
+    move the hard-constraints rows of sections 8.8 and 8.11 (13 of 49 scored test cases carry a
+    nib, shimmer or scented check, all met today). **Decided:** fixed in a separate later step
+    (p17), not in p16; p17 re-runs those rows. **Done in p17** (section 8.12): all 6 wrong
+    outputs now match the owner's verdict, and the re-scored runs change no check, so the rows
+    stand.
 15. **Temperature on gpt-6-luna** (new, p16, section 8.13). p16 sent no temperature, as the
     task for the switch asked. gpt-6-luna accepts temperature 0 at effort `none` (the p14 runs used
     it), and without it two identical runs agree on every hard field in 88.9% of the strings
@@ -2285,6 +2318,13 @@ done in p16), accepted the 97.96% hard-constraint rate (item 13) and finished th
     with effort `none`, and `ModelSettings#temperature` sends 0 without reasoning or at effort
     `none` again, as in p14. Two production-configuration runs agree on 304 / 324 strings and
     find 192 / 193 of 217 filter values, back at the p14 level (section 8.13).
+
+16. **Two gate items marked OK that the hedge rule changes** (new, p17, section 8.12). Under the
+    owner's rule that a property counts only as a main characteristic, `InkProperties` no longer
+    reads sheen from "a bit of sheen (… if visible at all)" or shading from "with some shading" in
+    a description. Two gate outputs marked OK carried such a flag, while another item with "some
+    shading" was marked wrong. p17 applies the rule as stated. **Open:** confirm the rule for
+    these two, or name the exception (for example, keep "some" as a hedge only before shading).
 
 **Human checks before bench claims.** The bench labels are drafted by Claude Code, and the
 checkers reuse `NibProfile`, `ColorProfile` and `InkProperties`, so the `gate` row is a merge
@@ -2301,6 +2341,9 @@ unchecked by the owner.
 
 - p1: `japanese_sizing` is true only when the width came from the grade through the Japanese
   table; a Pilot FA, CM or 3.8 Parallel is sized by its code or number, not by brand.
+  **Reversed in p17** (owner, gate check): the flag means the pen's brand uses Japanese sizing,
+  whatever the nib text and whether or not a width is known; the widths themselves are
+  unchanged (a Pilot FA, CM or 3.8 Parallel is still sized by its code or number).
 - p1: The reference listed Pilot SEF under W2 while its grade table gives Japanese EF 0.25 mm → W1.
   The code follows the grade table (SEF → W1, soft range up to W2); `docs/nib-reference.md` §5 was
   corrected.
@@ -2513,10 +2556,12 @@ unchecked by the owner.
   (low, some, slight, partially, semi, a degree of…); when it is followed by "-free", "- No" or
   ": none" (structured descriptions) or "version/edition/variant" ("there is also a shimmer
   version"); or when the word ends in "less". "Low sheen", "low shading" and "low shimmer" still
-  count.
+  count. **Changed in p17** for descriptions: hedged sheen and shading mentions ("low", "some",
+  "a bit of" …) and sheen seen only in swatches no longer count; tags are unchanged.
 - p4b: Ambiguous words are narrowed: "shade" only as a whole tag ("shade", "shade.m"), never in
   prose ("a lighter shade of blue"); "permanent" only before ink/and/or/punctuation or at the end
-  ("a permanent reminder" doesn't count); "pigment" only before ink/based/particles or as a whole
+  ("a permanent reminder" doesn't count; **changed in p17** for tags and names, where any
+  "permanent" counts except "permanent line/range/collection"); "pigment" only before ink/based/particles or as a whole
   tag; "scent"/"fragrance" not before "of" ("Dizzy Scent of Maehwa"); "smell(s)" only as a whole
   tag; "archival" counts as water-resistant, the tag "archive" doesn't.
 - p4b: Measured on the dev DB with an uncommitted script (coverage only, precision is not
@@ -3380,3 +3425,57 @@ unchecked by the owner.
   because run-to-run agreement needs two runs. The agreement figure is recomputed for p14, p16 and
   p17 with one script (list fields compared as sets, case-insensitive), since the p16 script was
   not kept; the recorded p16 figures stay in section 8.13 next to the recomputed ones.
+- p17: `NibProfile` sizes a brand string that names a Japanese-sizing brand together with a
+  Western-sizing maker by the Western maker (owner, gate: "Esterbrook x Bungubox" `m` is Western
+  M, W4). The Western list is the reference's own (section 1 and the brand table): Esterbrook,
+  Jowo, Bock (which covers "Peter Bock"), Schmidt (added to the reference's section 1), Lamy,
+  TWSBI, Kaweco, Pelikan, Montblanc, Diplomat and Franklin-Christoph. The dev DB has 105 pens
+  whose brand names both kinds, all of them Bungubox collaborations with Esterbrook, TWSBI,
+  Kaweco or Franklin-Christoph except one three-brand string with Diplomat; 96 of them change
+  width class (W3 → W4 for an `M`). Two other mixed strings ("Majohn / Pilot", "Sheaffer
+  Sailor", 8 pens) name no maker from the list and stay Japanese, since which nib they carry is
+  not clear. The Japanese-only rules (bare `C`, bare `Z`) follow the same call.
+- p17: `japanese_sizing` now means "this pen's brand uses Japanese sizing", whatever the nib
+  text and whether or not a width was found (owner, gate: a Pilot pen with an adjustable soft nib
+  and no width is Japanese sizing). This reverses the p1 bullet above. Every consumer was
+  checked: the width still comes from the code or number before the grade table (Pilot FA W2, CM
+  and SU W4, Parallel 3.8 W7, pinned by specs), `matches_grade?` reads the grade or the Western
+  class and never the flag, and no checker, filter or bench script reads it. The only consumer is
+  `#label`, which adds "(Japanese)" to every sized nib on such a brand ("FA → W2 (Japanese) flex"),
+  in line with the pick prompt's legend "class (Japanese sizing)"; unsized labels carry no width
+  and stay bare. On the dev DB, 5,788 of 188,119 pens gain the flag (4,360 with a width, so their
+  label gains "(Japanese)"), 96 lose it (the collaborations above), and 4,456 labels change.
+- p17: `InkProperties` no longer counts a hedged sheen or shading mention in a description
+  (owner, gate: a property counts only when it is a main characteristic). A hedge is one of low,
+  little, slight(ly), some, subtle/subtly, minimal, minor, faint(ly), mild(ly) or limited, up to
+  two words before the term in its clause ("some black sheening", "low shading"), or a
+  smidge/smidgen/hint/touch/bit/tad/trace "of" ("a tiny bit of dark red sheen"; "quite a bit of"
+  is not a hedge), or "is/are subtle, minimal, slight, faint, light …" after the term. Words that
+  make the mention strong or end the phrase stop the look-back ("some nice shading", "lots of
+  sheen", "on some papers the sheen"), and medium or moderate shading still counts. Shimmer is
+  not hedged: any shimmer means particles in the pen, which a "no shimmer" request is about.
+  Tags and names are not hedged either; the owner's rule was about descriptions, and a tag is
+  the user's or the community's deliberate call (the re-classified gate item rests on one).
+- p17: Sheen that a description places only in swatches or swabs ("black sheening in swatches",
+  "a pop of pink sheen in large swabs") no longer counts, unless the sentence adds writing ("not
+  just in swatches but also in writing"). Shading in swatches still counts; the owner's note was
+  about sheen.
+- p17: "Permanent" anywhere in an ink's brand, line or ink name, or in a tag, now means
+  water-resistant (owner, gate: "… Permanent Navy"), except "permanent line", "range" or
+  "collection", which name a regular product line. p4b had pinned "Colorverse Office Permanent
+  Black" and the tag "permanent black" as no property; both now read as water-resistant. The
+  stricter description rule stays ("a permanent reminder" doesn't count, and neither does a
+  colour name such as "Permanent Navy is a calm dark blue"): of the 190 distinct names with
+  "permanent" in the dev DB, all but one product-line name are permanence inks (document,
+  Quink/Skrip "permanent", pigment and carbon inks), while description prose uses the word for
+  other things. "un-" now negates like "non-", so the tag "un-permanent" (2 inks) is not
+  water-resistant.
+- p17: Effect on the dev DB's 608,905 active non-swab inks: shading 268,145 → 247,078 (−7.9%),
+  sheen 170,528 → 154,248 (−9.5%), water-resistant 23,917 → 24,338 (+423 from names and tags,
+  −2 from "un-permanent"); 256 of 2,553 cluster descriptions lose shading and 176 lose sheen. A
+  sample of 45 changed descriptions was read by hand: all but one were hedged as the owner's rule
+  describes; the exception, "quite a bit of shading", is now excluded from the hedges and pinned
+  by a spec. Precision is still not measured beyond the gate items.
+- p17: The gate items were re-run with the old and the new code side by side, by an uncommitted
+  script in gitignored `tmp/bench`; only the counts are in section 8.12. The recorded p9b, p15
+  and baseline runs were re-scored the same way without LLM calls; no check changed.

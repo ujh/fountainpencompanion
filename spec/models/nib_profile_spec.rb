@@ -76,11 +76,74 @@ describe NibProfile do
         ["H-EF", "Sailor", { grade: "EF", width: 1, characters: [] }],
         ["HM", "Sailor", { grade: "M", width: 3, characters: [] }],
         ["H-B", "Sailor", { grade: "B", width: 4, characters: [] }],
-        ["FA", "Pilot", { grade: nil, width: 2, japanese_sizing: false }]
+        ["FA", "Pilot", { grade: nil, width: 2, japanese_sizing: true }],
+        ["CM", "Pilot", { grade: nil, width: 4, japanese_sizing: true }],
+        ["SU", "Pilot", { grade: nil, width: 4, japanese_sizing: true }],
+        ["3.8", "Pilot", { grade: nil, width: 7, japanese_sizing: true }],
+        ["0.5 mm", "Sailor", { grade: nil, width: 4, japanese_sizing: true }],
+        ["Zoom", "Sailor", { grade: nil, width: 5, japanese_sizing: true }]
       ].each do |nib, brand, expected|
         it "reads #{nib.inspect} on a #{brand} pen" do
           expect(described_class.parse(nib, brand:)).to have_attributes(expected)
         end
+      end
+
+      it "flags the brand's sizing whatever the nib text says, even without a width" do
+        expect(
+          [
+            described_class.parse("adjustable, hard to soft", brand: "Pilot"),
+            described_class.parse("", brand: "Sailor", model: "Pro Gear"),
+            described_class.parse("14k", brand: "Platinum"),
+            described_class.parse("?", brand: "Nakaya")
+          ]
+        ).to all(have_attributes(width: nil, japanese_sizing: true))
+        expect(
+          [
+            described_class.parse("adjustable, hard to soft", brand: "Pelikan"),
+            described_class.parse("", brand: "Lamy", model: "Safari")
+          ]
+        ).to all(have_attributes(width: nil, japanese_sizing: false))
+      end
+
+      [
+        ["m", "Esterbrook x Bungubox"],
+        ["M", "Bungubox x Esterbrook"],
+        ["M", "Esterbrook & Bungubox"],
+        ["M", "TWSBI x Bungubox"],
+        ["M", "Kaweco x Bungubox"],
+        ["M", "Franklin-Christoph - Bungubox"],
+        ["M", "Bungubox (Jowo nib)"],
+        ["M", "Bungubox with a Bock nib"],
+        ["M", "Bungubox, Schmidt nib"]
+      ].each do |nib, brand|
+        it "sizes #{nib.inspect} on a #{brand} pen by the Western maker, not the Japanese partner" do
+          expect(described_class.parse(nib, brand:)).to have_attributes(
+            grade: "M",
+            width: 4,
+            japanese_sizing: false
+          )
+        end
+      end
+
+      it "keeps Japanese sizing for a Japanese maker's collaboration with a Japanese retailer" do
+        expect(described_class.parse("M", brand: "Sailor x Bungubox")).to have_attributes(
+          width: 3,
+          japanese_sizing: true
+        )
+        expect(described_class.parse("M", brand: "Bungubox")).to have_attributes(
+          width: 3,
+          japanese_sizing: true
+        )
+      end
+
+      it "reads the Japanese-only rules as Western on a Western collaboration" do
+        expect(described_class.parse("C", brand: "Esterbrook x Bungubox")).to have_attributes(
+          grade: nil,
+          width: nil
+        )
+        expect(described_class.parse("Z", brand: "TWSBI x Bungubox").characters).not_to include(
+          :zoom
+        )
       end
 
       it "sizes a Pilot Custom 74 M one class finer than a Pelikan M" do
@@ -283,7 +346,7 @@ describe NibProfile do
       it "prefers a code width over the grade" do
         profile = described_class.parse("Calligraphy Medium", brand: "Pilot")
 
-        expect(profile).to have_attributes(grade: "M", width: 4, japanese_sizing: false)
+        expect(profile).to have_attributes(grade: "M", width: 4, japanese_sizing: true)
       end
 
       it "prefers the grade over a character default" do
@@ -568,6 +631,9 @@ describe NibProfile do
       ["1.1 Stub", "TWSBI", nil, "1.1 Stub → W6 stub (cross-strokes W3)"],
       ["Fude", "Jinhao", nil, "Fude → W5 fude (W3–W7)"],
       ["NMF", "Sailor", nil, "NMF → W3 (Japanese) naginata (W2–W5)"],
+      ["FA", "Pilot", nil, "FA → W2 (Japanese) flex (W2–W5)"],
+      ["m", "Esterbrook x Bungubox", "Estie", "m → W4"],
+      ["adjustable, hard to soft", "Pilot", nil, "adjustable, hard to soft"],
       ["F", "Lamy", nil, "F → W3"],
       ["Steel", "Lamy", nil, "Steel"],
       ["", "Pilot", "Custom 74", nil],
