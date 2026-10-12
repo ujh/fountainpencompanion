@@ -1840,7 +1840,7 @@ id that made it. The owner reviews them before the corresponding PR merges.
 | p8   | P8      | `MentionMatcher` + `NameResolver`; instruction runs move to v2 in fallback mode              | done, pending merge (#3843) |
 | p9a  | P9      | `Constraints`, `ConstraintCheck` and the `CandidateSelector` filters, boosts and relax order; production still passes `Constraints.empty` | done, pending merge (#3844) |
 | p9b  | P9      | `PenAndInkConstraintExtractor`, wired to the selector; prompt headers and `soft_notes`       | done, pending merge (#3846) |
-| p11  | P11     | remove the old CSV path                                                                      | done, pending merge (branch `suggester-p11-cleanup`, no PR yet) |
+| p11  | P11     | remove the old CSV path                                                                      | done, pending merge (#3847) |
 
 The PRs are stacked: each branches off the previous step's branch, so they merge in the order of
 the table, each after its own review and the `gate` row.
