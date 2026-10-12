@@ -1803,18 +1803,22 @@ the prefix. RubyLLM 1.16's model registry does not know the gpt-5.6 and gpt-6 mo
 registers them for the run. DigitalOcean models were not run: there is no `DO_INFERENCE_TOKEN` in
 the dev environment yet (roadmap S00), so the DO short list stays with S30.
 
-| Extractor, 301 scored strings | effort  | Hard-field FP (bar ≤ 3%) | p6 (196) | test (96) | `holdout2` (52) | Missed named (154) | $ / extraction, list | $ cached | Latency p50 / p90 | Failures |
-| ----------------------------- | ------- | ------------------------ | -------- | --------- | --------------- | ------------------ | -------------------- | -------- | ----------------- | -------- |
-| gpt-4.1-mini (today)          | —       | 14.6% (44)               | 13.3%    | 11.5%     | 7.7%            | 4.5% (7)           | $0.00123             | $0.00061 | 0.97 / 1.24 s     | 0        |
-| gpt-4.1 (p12 run)             | —       | 5.0% (15)                | 4.1%     | 4.2%      | 1.9%            | 5.8% (9)           | $0.0062              | $0.0032  | 0.81 / 1.00 s     | 0        |
-| gpt-4.1-nano                  | —       | 24.6% (74)               | 21.4%    | 18.8%     | 19.2%           | 11.0% (17)         | $0.00031             | $0.00010 | 0.81 / 0.98 s     | 0        |
-| gpt-5-nano                    | minimal | 30.6% (92)               | 30.1%    | 30.2%     | 15.4%           | 13.0% (20)         | $0.00019             | $0.00006 | 1.21 / 1.78 s     | 0        |
-| gpt-5-mini                    | minimal | 25.2% (76)               | 23.5%    | 19.8%     | 21.2%           | 5.8% (9)           | $0.00090             | $0.00030 | 1.17 / 1.57 s     | 0        |
-| gpt-5.4-nano                  | none    | 17.9% (54)               | 15.8%    | 16.7%     | 7.7%            | 13.0% (20)         | $0.00070             | $0.00023 | 1.19 / 1.45 s     | 0        |
-| gpt-5.4-mini                  | none    | 17.6% (53)               | 14.3%    | 11.5%     | 17.3%           | 7.1% (11)          | $0.0025              | $0.00066 | 0.85 / 1.00 s     | 0        |
-| gpt-5.6-luna, 2 runs          | none    | 5.6% / 6.3% (17 / 19)    | 4.6% / 5.6% | 5.2% / 3.1% | 1.9% / 1.9% | 7.1% / 8.4% (11 / 13) | $0.00080          | $0.00013 | 1.32 / 1.68 s     | 0        |
-| **gpt-6-luna, 2 runs**        | none    | **4.7% / 4.3% (14 / 13)** | 3.1% / 3.1% | 2.1% / 2.1% | 1.9% / 0.0% | 6.5% / 9.1% (10 / 14) | **$0.00039**      | $0.00006 | 1.46 / 2.22 s     | 0        |
-| gpt-6-sol, 2 runs             | none    | 2.0% / 1.7% (6 / 5)      | 2.0% / 2.0% | 1.0% / 2.1% | 0.0% / 0.0% | 5.8% / 5.8% (9 / 9) | $0.0078             | $0.0012  | 1.35 / 1.72 s     | 0        |
+The p6 (two-pass labels), `holdout` and `holdout2` columns split the 301 scored strings by label
+source; test is the p6 strings of the test split. `holdout` and `holdout2` have single-pass labels,
+and only `holdout2` was never looked at while the prompt was tuned (section 8.7).
+
+| Extractor, 301 scored strings | effort  | Hard-field FP (bar ≤ 3%) | p6 (196) | test (96) | `holdout` (53) | `holdout2` (52) | Missed named (154) | $ / extraction, list | $ cached | Latency p50 / p90 | Failures |
+| ----------------------------- | ------- | ------------------------ | -------- | --------- | -------------- | --------------- | ------------------ | -------------------- | -------- | ----------------- | -------- |
+| gpt-4.1-mini (today)          | —       | 14.6% (44)               | 13.3%    | 11.5%     | 26.4%          | 7.7%            | 4.5% (7)           | $0.00123             | $0.00061 | 0.97 / 1.24 s     | 0        |
+| gpt-4.1 (p12 run)             | —       | 5.0% (15)                | 4.1%     | 4.2%      | 11.3%          | 1.9%            | 5.8% (9)           | $0.0062              | $0.0032  | 0.81 / 1.00 s     | 0        |
+| gpt-4.1-nano                  | —       | 24.6% (74)               | 21.4%    | 18.8%     | 41.5%          | 19.2%           | 11.0% (17)         | $0.00031             | $0.00010 | 0.81 / 0.98 s     | 0        |
+| gpt-5-nano                    | minimal | 30.6% (92)               | 30.1%    | 30.2%     | 47.2%          | 15.4%           | 13.0% (20)         | $0.00019             | $0.00006 | 1.21 / 1.78 s     | 0        |
+| gpt-5-mini                    | minimal | 25.2% (76)               | 23.5%    | 19.8%     | 35.8%          | 21.2%           | 5.8% (9)           | $0.00090             | $0.00030 | 1.17 / 1.57 s     | 0        |
+| gpt-5.4-nano                  | none    | 17.9% (54)               | 15.8%    | 16.7%     | 35.8%          | 7.7%            | 13.0% (20)         | $0.00070             | $0.00023 | 1.19 / 1.45 s     | 0        |
+| gpt-5.4-mini                  | none    | 17.6% (53)               | 14.3%    | 11.5%     | 30.2%          | 17.3%           | 7.1% (11)          | $0.0025              | $0.00066 | 0.85 / 1.00 s     | 0        |
+| gpt-5.6-luna, 2 runs          | none    | 5.6% / 6.3% (17 / 19)    | 4.6% / 5.6% | 5.2% / 3.1% | 13.2% / 13.2%  | 1.9% / 1.9% | 7.1% / 8.4% (11 / 13) | $0.00080          | $0.00013 | 1.32 / 1.68 s     | 0        |
+| **gpt-6-luna, 2 runs**        | none    | **4.7% / 4.3% (14 / 13)** | 3.1% / 3.1% | 2.1% / 2.1% | 13.2% / 13.2%  | 1.9% / 0.0% | 6.5% / 9.1% (10 / 14) | **$0.00039**      | $0.00006 | 1.46 / 2.22 s     | 0        |
+| gpt-6-sol, 2 runs             | none    | 2.0% / 1.7% (6 / 5)      | 2.0% / 2.0% | 1.0% / 2.1% | 3.8% / 1.9%    | 0.0% / 0.0% | 5.8% / 5.8% (9 / 9) | $0.0078             | $0.0012  | 1.35 / 1.72 s     | 0        |
 
 - "$ cached" is what OpenAI charged in the bench, which repeats the same prefix within minutes;
   "list" is the same calls with nothing cached. Production is somewhere between the two.
@@ -1825,6 +1829,13 @@ the dev environment yet (roadmap S00), so the DO short list stays with S30.
   are mostly nib fields (`pen.nib_width` 5, `pen.nib_characters_include` 2–3) and the
   spelling of mentions; the `pair_usage`, `pen.usage` and `ink.usage` errors that dominate mini
   are nearly gone (1, 1 and 0 in each run vs 9, 12 and 7).
+- **`holdout` is gpt-6-luna's worst split.** It has 7 of its 53 strings with a hard-field false
+  positive in both runs (13.2%, more than 4× the bar), the same 7 strings each time and half of
+  its 13–14 false-positive strings overall. Four of the seven are `pen.nib_width`, which is 4 of
+  its 5 nib-width false positives. mini is at 26.4% there, gpt-4.1 at 11.3% and gpt-6-sol at
+  3.8% / 1.9%. Those labels are single-pass drafts from the interrupted first p9b attempt, so
+  some of the seven may be label errors; the owner's label spot check (gate) has not covered
+  them.
 - **Mentions are gpt-6-luna's weak side.** It misses 10–14 of the 154 strings with a labelled name
   against mini's 7. All but one per run are names that got no hint because the matcher did not
   find them (a brand on its own, a model nickname, a typo); the one with a hint is worded as a
@@ -1859,14 +1870,15 @@ extractor cost replaced by the measured cost of the other model; an estimate, no
 **Recommendation: gpt-6-luna for the extractor, on both tiers**, pending the owner's confirmation.
 Against draft labels it cuts the hard-field false-positive rate from 14.6% to 4.3–4.7%, about
 gpt-4.1's level, and meets the ≤ 3% bar on the test split and on `holdout2` (2.1%, 0–1.9%) though
-not on all scored strings. At list price it costs a third of mini's extractor ($0.00039 vs
-$0.00123), which brings free instruction runs from 27% above the baseline to about 6% below it
-without relying on the prompt cache (open decision 4). The costs are 0.45 s more at p50 and 1.0 s
-at p90, and 3–7 more missed names among 154 named strings. gpt-6-sol is the only model that meets
-the ≤ 3% bar on all scored strings against draft labels (2.0% / 1.7%), but its extractor alone
-costs 3× a whole baseline free run, so it fits only the premium entry, which would need a
-second extractor config entry. gpt-5.6-luna is close to gpt-6-luna on errors but twice its price
-and less stable.
+not on all scored strings: on `holdout` it is at 13.2% in both runs (mini 26.4%, gpt-6-sol 3.8% /
+1.9%), and that split holds half its false-positive strings, most of them `pen.nib_width`. At list
+price it costs a third of mini's extractor ($0.00039 vs $0.00123), which brings free instruction
+runs from 27% above the baseline to about 6% below it without relying on the prompt cache (open
+decision 4). The costs are 0.45 s more at p50 and 1.0 s at p90, and 3–7 more missed names among 154
+named strings. gpt-6-sol is the only model that meets the ≤ 3% bar on all scored strings against
+draft labels (2.0% / 1.7%), but its extractor alone costs 3× a whole baseline free run, so it fits
+only the premium entry, which would need a second extractor config entry. gpt-5.6-luna is close to
+gpt-6-luna on errors but twice its price and less stable.
 
 Switching is its own PR (section 7). It needs: the model in RubyLLM's registry (1.16 does not list
 it; refresh the registry or upgrade the gem), `reasoning_effort` `"none"` on the extractor (the
@@ -2017,7 +2029,8 @@ p12–p15 carry them out.
    explore more models (step p14). With the p12 hints, mini is at 14.6% and gpt-4.1 at 5.0%
    against the ≤ 3% bar (draft labels). **Recommendation from p14 (section 8.10), open for the
    owner to confirm:** switch the extractor to gpt-6-luna on both tiers, in its own PR: 4.3–4.7%
-   hard-field false positives against draft labels (2.1% on the test split), a third of mini's
+   hard-field false positives against draft labels (2.1% on the test split, but 13.2% on the
+   single-pass `holdout` split, which holds half its false-positive strings), a third of mini's
    list price per extraction, so free instruction runs fall below the baseline cost; the costs
    are +0.45 s p50 / +1.0 s p90 extractor latency and 3–7 more missed names out of 154. The
    alternative that meets the ≤ 3% bar on all scored strings against draft labels is gpt-6-sol
@@ -2940,3 +2953,7 @@ evidence.
   run, so a model comparison needs no ad-hoc script.
 - p14: The production `MODEL_ID` stays gpt-4.1-mini; the recommendation (gpt-6-luna) is under open
   decision 3 for the owner. Spend was about $1.57 (cached rates as charged).
+- p14: Section 8.10's table reports every label source (p6, `holdout`, `holdout2`) besides the
+  test split, and the recommendation names the worst split, because a per-split bar claim that
+  leaves out `holdout` hides that gpt-6-luna is at 13.2% there (half its false-positive strings).
+  Rates come from the score files' `by_split` counts; no model was re-run.
