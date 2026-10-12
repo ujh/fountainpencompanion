@@ -893,8 +893,9 @@ is added to the user message. That gives depth on specialist nibs without a tool
 
 - **Inked named pen in the widget** (SQ1). When the suggested pen is currently inked, the result
   carries `pen_currently_inked: true` and the id of that currently-inked entry. The widget replaces
-  "Ink it Up!" with a link to the existing currently-inked entry, because
-  `CurrentlyInked#pen_not_already_in_use` would reject a new one.
+  "Ink it Up!" with a link to the Currently inked list (p13; p10 linked to the entry's edit page),
+  where the pen can be archived, because `CurrentlyInked#pen_not_already_in_use` would reject a
+  new entry.
 
 ### 3.7 How free text becomes a Ruby search
 
@@ -993,8 +994,8 @@ qualify.
    closest" note.
 4. **Pen side.** Pinned, so only P1 is sent, with its last 3 inkings and their notes as RECENT
    INKINGS. If it is currently inked it is still the pick (SQ1): the header gets _"Currently inked
-   with X — empty and clean it first."_ and the widget links to that currently-inked entry instead
-   of "Ink it Up!".
+   with X — empty and clean it first."_ and the widget links to the Currently inked list instead
+   of "Ink it Up!" (p13).
 5. **Ink side.** Active inks minus swabs, then the hard excludes, which are never relaxed:
    - `colour_exclude: [blue]` drops every ink whose primary family, secondary family or cluster
      colour tag is blue (a blue-black and a teal with a blue secondary family go too);
@@ -1839,8 +1840,8 @@ the roadmap's Q-numbers; "roadmap Q16" and the like refer to `docs/implementatio
 - **SD1** No model-facing query tools; revisit only if the bench shows resolver or extractor
   misses.
 - **SQ1** A named, currently inked pen is suggested with "Currently inked with X — empty and clean
-  it first", and "Ink it Up!" becomes a link to the existing currently-inked entry; never silently
-  pick another pen.
+  it first", and "Ink it Up!" becomes a link to the Currently inked list (p13), where the pen can be
+  archived; never silently pick another pen.
 - **SQ2** The LLM sees only currently-inked notes of the last 3 inkings of named items; pen
   comments stay server-side; ink `private_comment` is never sent.
 - **SQ3** Free users get currently-inked rows capped at 15; premium 40.
@@ -1901,6 +1902,7 @@ from p12 on are follow-ups to the owner's answers of 2026-10-12, stacked on p11.
 | p9b  | P9      | `PenAndInkConstraintExtractor`, wired to the selector; prompt headers and `soft_notes`       | done, pending merge (#3846) |
 | p11  | P11     | remove the old CSV path                                                                      | done, pending merge (#3847) |
 | p12  | P9 follow-up | `MentionMatcher` hits go to the extractor as `names_found` hints; the agreement rule is removed; the extractor bench sends the same hints and reports missed named mentions | done, pending merge (#3858) |
+| p13  | P10 follow-up | the inked-pen link goes to the Currently inked list instead of the entry's edit page (owner decision 8) | done, not yet pushed |
 
 The PRs are stacked: each branches off the previous step's branch, so they merge in the order of
 the table, each after its own review and the `gate` row.
@@ -1928,7 +1930,7 @@ p12–p15 carry them out.
    independent judge pass (step p15).
 7. **`MentionMatcher` held-out false-pin check** (p8, section 8.6). **Decided:** accepted as is.
 8. **Inked-pen link target** (p10). **Decided:** link to the currently-inked list instead of the
-   edit page (step p13).
+   edit page. Done in p13.
 9. **Data window** (p6b). **Decided:** accepted as is.
 10. **Ruby names, LLM roles** (new, 2026-10-12). **Decided:** the extractor gets the
     `MentionMatcher` hits as hints, because gpt-4.1-mini missed a pen named without its brand
@@ -2472,7 +2474,8 @@ evidence.
 - p10: The link goes to `/currently_inked/:id/edit` with the label "Open currently inked entry":
   there is no show action, and the edit page is the only page for a single entry. That page has no
   archive button (archiving is on the Currently inked list), so the owner may prefer linking to
-  the list or adding an archive button to the edit page.
+  the list or adding an archive button to the edit page. **Superseded by p13:** the owner chose
+  the list.
 - p10: A suggestion with an inked pen still goes into `rejected_suggestions` on "Try again!", like
   any other pair.
 - p10: Nothing shows an inked pen before P8, so the suggester specs stub
@@ -2785,3 +2788,19 @@ evidence.
 - p12: Bench results are in section 8.9, scored against unreviewed draft labels. The extractor
   stays on gpt-4.1-mini; the model is step p14's question. Spend was about $1.39 (cached rates as
   charged).
+
+**p13 decisions:**
+
+- p13: The inked-pen link goes to `/currently_inked` with the label "Open Currently inked" (the
+  list's page title), because the list is where a pen is archived and the edit page has no archive
+  button. It carries no anchor or filter: the list is a React app that loads its entries over the
+  API after the page has rendered, so a `#fragment` would not scroll to an entry, and its search box
+  does not read the URL. Highlighting the entry would be a new list feature, which this step does
+  not build.
+- p13: The widget still shows the link only when the result carries both `pen_currently_inked` and
+  `currently_inked_id`, although the URL no longer uses the id. The id is what
+  `RequestPenAndInkSuggestion` re-checks (the user's, still active, for the suggested pen), so a
+  flag without an id means the pen was cleaned in the meantime and "Ink it Up!" is right. A Jest
+  spec pins a flagged result without an id. The server result, the note text and the Ruby specs
+  are unchanged.
+- p13: No bench run; the change is in the widget only.

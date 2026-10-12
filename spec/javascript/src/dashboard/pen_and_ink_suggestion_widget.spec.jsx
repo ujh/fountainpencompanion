@@ -167,7 +167,7 @@ describe("PenAndInkSuggestionWidget", () => {
       expect(screen.getByText(/Results provided by an AI/)).toBeInTheDocument();
     });
 
-    it("links a suggested pen that is currently inked to its currently inked entry", async () => {
+    it("links a suggested pen that is currently inked to the currently inked list", async () => {
       await renderWidget();
 
       await askAndPoll("Suggest something!", [
@@ -176,7 +176,7 @@ describe("PenAndInkSuggestionWidget", () => {
 
       expect(screen.getByRole("link", { name: CURRENTLY_INKED_LINK })).toHaveAttribute(
         "href",
-        "/currently_inked/7/edit"
+        "/currently_inked"
       );
       expect(screen.queryByRole("link", { name: "Ink it Up!" })).not.toBeInTheDocument();
       expect(screen.getByRole("button", { name: "Try again!" })).toBeInTheDocument();
@@ -187,6 +187,17 @@ describe("PenAndInkSuggestionWidget", () => {
 
       await askAndPoll("Suggest something!", [
         response({ ...pair(1, 2), pen_currently_inked: false, currently_inked_id: null })
+      ]);
+
+      expect(screen.getByRole("link", { name: "Ink it Up!" })).toBeInTheDocument();
+      expect(screen.queryByRole("link", { name: CURRENTLY_INKED_LINK })).not.toBeInTheDocument();
+    });
+
+    it("keeps Ink it Up! when an inked pen's result has no entry id", async () => {
+      await renderWidget();
+
+      await askAndPoll("Suggest something!", [
+        response({ ...pair(1, 2), pen_currently_inked: true })
       ]);
 
       expect(screen.getByRole("link", { name: "Ink it Up!" })).toBeInTheDocument();
