@@ -157,6 +157,54 @@ RSpec.describe Bench::Suggester::CaseExporter do
       expect(cases.map { |c| [c.log_id, c.source] }).to eq([[regression.id, "regression"]])
     end
 
+    it "leaves out runs at or after the end of the window" do
+      kept = log_for(instruction: "Blue", created_at: as_of - 1.hour)
+      log_for(instruction: "Red", created_at: as_of)
+
+      expect(exporter(before: as_of).export.cases.map(&:log_id)).to eq([kept.id])
+    end
+
+    it "leaves out the requests of an earlier export, by user and normalised text" do
+      earlier = log_for(instruction: "Not a Parker")
+      log_for(instruction: "not a  parker")
+      kept = log_for(instruction: "Blue")
+      previous = exporter.export.cases.select { |c| c.log_id == earlier.id }
+
+      cases = exporter(exclude_requests: described_class.request_keys(previous)).export.cases
+
+      expect(cases.map(&:log_id)).to eq([kept.id])
+    end
+
+    it "builds the request keys from instruction cases only" do
+      log_for(instruction: "Not a  Parker")
+      log_for
+
+      expect(described_class.request_keys(exporter.export.cases)).to eq([[user.id, "not a parker"]])
+    end
+
+    it "keeps only the instruction runs the filter accepts, and every plain run" do
+      log_for(instruction: "Blue")
+      wanted = log_for(instruction: "Inkwell Harbour Fog")
+      plain = log_for
+      filter = ->(run) { run.instruction.include?("Inkwell") }
+
+      cases = exporter(instruction_filter: filter).export.cases
+
+      expect(cases.map(&:log_id)).to contain_exactly(wanted.id, plain.id)
+    end
+
+    it "takes a run of a request that the filter accepts when others of it are rejected" do
+      rejected = log_for(instruction: "Use Inkwell", created_at: as_of - 1.hour)
+      accepted = log_for(instruction: "use inkwell")
+      filter = ->(run) { run.log_id != rejected.id }
+
+      (1..4).each do |seed|
+        cases = exporter(instruction_filter: filter, seed:).export.cases
+
+        expect(cases.map(&:log_id)).to eq([accepted.id])
+      end
+    end
+
     it "lists the plan's named regression set" do
       expect(described_class::REGRESSION_LOG_IDS).to include(59_469, 48_500, 48_526, 73_378, 52_095)
       expect(described_class::REGRESSION_LOG_IDS.size).to eq(29 + 27 + 7 + 3)

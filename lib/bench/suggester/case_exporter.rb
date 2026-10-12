@@ -45,39 +45,58 @@ module Bench
       Export = Data.define(:cases, :dropped)
 
       attr_accessor :since,
+                    :before,
                     :instruction_cases,
                     :plain_cases,
                     :per_user_cap,
                     :seed,
                     :regression_log_ids,
-                    :min_fidelity
+                    :min_fidelity,
+                    :exclude_requests,
+                    :instruction_filter
+
+      def self.request_keys(cases)
+        cases
+          .select(&:instruction?)
+          .map do |bench_case|
+            [bench_case.user_id, ExtractorLabel.normalise_text(bench_case.instruction)]
+          end
+      end
 
       def initialize(
         since: SINCE,
+        before: nil,
         instruction_cases: 200,
         plain_cases: 50,
         per_user_cap: 20,
         seed: 1,
         regression_log_ids: REGRESSION_LOG_IDS,
-        min_fidelity: MIN_FIDELITY
+        min_fidelity: MIN_FIDELITY,
+        exclude_requests: [],
+        instruction_filter: nil
       )
         self.since = since
+        self.before = before
         self.instruction_cases = instruction_cases
         self.plain_cases = plain_cases
         self.per_user_cap = per_user_cap
         self.seed = seed
         self.regression_log_ids = regression_log_ids
         self.min_fidelity = min_fidelity
+        self.exclude_requests = exclude_requests
+        self.instruction_filter = instruction_filter
       end
 
       def export
         regression = regression_runs.filter_map { |run| reconstruct(run, "regression") }
         used_groups = regression_runs.to_set { |run| group_key(run) }
         instruction_groups =
-          runs
-            .select { |run| run.instruction.present? }
-            .group_by { |run| group_key(run) }
-            .except(*used_groups)
+          filtered(
+            runs
+              .select { |run| run.instruction.present? }
+              .group_by { |run| group_key(run) }
+              .except(*used_groups, *exclude_requests)
+          )
         plain_groups =
           runs.reject { |run| run.instruction.present? }.to_h { |run| [[run.log_id], [run]] }
 
@@ -93,7 +112,7 @@ module Bench
         @runs ||=
           AgentLog
             .where(name: PenAndInkSuggester.name, owner_type: User.name)
-            .where(created_at: since..)
+            .where(created_at: since...before)
             .where.not(id: regression_log_ids)
             .order(:id)
             .map { |agent_log| LoggedRun.new(agent_log) }
@@ -107,6 +126,16 @@ module Bench
             .order(:id)
             .map { |agent_log| LoggedRun.new(agent_log) }
             .select(&:llm_run?)
+      end
+
+      def filtered(groups)
+        return groups unless instruction_filter
+
+        groups
+          .transform_values do |group_runs|
+            group_runs.select { |run| instruction_filter.call(run) }
+          end
+          .reject { |_key, group_runs| group_runs.empty? }
       end
 
       def group_key(run)

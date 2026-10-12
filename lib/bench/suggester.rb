@@ -6,10 +6,10 @@ module Bench
       ENV.fetch("BENCH_DIR") { Rails.root.join("tmp/bench/suggester").to_s }
     end
 
-    def self.parse_since(value, default:)
+    def self.parse_since(value, default:, name: "SINCE")
       return default if value.blank?
 
-      Time.zone.parse(value) || raise(ArgumentError, "SINCE is not a date: #{value.inspect}")
+      Time.zone.parse(value) || raise(ArgumentError, "#{name} is not a date: #{value.inspect}")
     end
 
     INSTRUCTION_FILTERS = %w[with without].freeze
@@ -35,6 +35,7 @@ require_relative "suggester/extractor_label"
 require_relative "suggester/extractor_label_context"
 require_relative "suggester/bench_case"
 require_relative "suggester/logged_run"
+require_relative "suggester/named_ink_filter"
 require_relative "suggester/case_exporter"
 require_relative "suggester/cartridge_compatibility"
 require_relative "suggester/checks/outcome"

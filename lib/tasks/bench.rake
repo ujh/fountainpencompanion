@@ -10,6 +10,7 @@ namespace :bench do
       exporter =
         Bench::Suggester::CaseExporter.new(
           since: Bench::Suggester.parse_since(ENV["SINCE"], default: Bench::Suggester::SINCE),
+          before: Bench::Suggester.parse_since(ENV["BEFORE"], default: nil, name: "BEFORE"),
           instruction_cases: Integer(ENV.fetch("INSTRUCTION_CASES", "200")),
           plain_cases: Integer(ENV.fetch("PLAIN_CASES", "50")),
           per_user_cap: Integer(ENV.fetch("PER_USER_CAP", "20")),
@@ -19,6 +20,35 @@ namespace :bench do
       export = exporter.export
       Bench::Suggester::Store.new.write_export(export)
       puts "cases by source and split: #{export.cases.map { |c| [c.source, c.split] }.tally}"
+      puts "users: #{export.cases.map(&:user_id).uniq.size}"
+      puts "dropped by reason: #{export.dropped.transform_values(&:size)}"
+    end
+
+    desc "Export instruction cases that name one of the user's own inks, in any role, leaving " \
+           "out the requests already exported to EXCLUDE_DIR (BENCH_DIR= EXCLUDE_DIR= SINCE= " \
+           "BEFORE= INSTRUCTION_CASES=40 PER_USER_CAP=20 SEED=1)"
+    task export_named_inks: :setup do
+      store = Bench::Suggester::Store.new
+      excluded = Bench::Suggester::Store.new(ENV.fetch("EXCLUDE_DIR"))
+      if store.path("cases.json").expand_path == excluded.path("cases.json").expand_path
+        abort "BENCH_DIR must not be EXCLUDE_DIR."
+      end
+
+      exporter =
+        Bench::Suggester::CaseExporter.new(
+          since: Bench::Suggester.parse_since(ENV["SINCE"], default: Bench::Suggester::SINCE),
+          before: Bench::Suggester.parse_since(ENV["BEFORE"], default: nil, name: "BEFORE"),
+          instruction_cases: Integer(ENV.fetch("INSTRUCTION_CASES", "40")),
+          plain_cases: 0,
+          per_user_cap: Integer(ENV.fetch("PER_USER_CAP", "20")),
+          seed: Integer(ENV.fetch("SEED", "1")),
+          regression_log_ids: [],
+          exclude_requests: Bench::Suggester::CaseExporter.request_keys(excluded.cases),
+          instruction_filter: Bench::Suggester::NamedInkFilter.new
+        )
+      export = exporter.export
+      store.write_export(export)
+      puts "cases by split: #{export.cases.map(&:split).tally}"
       puts "users: #{export.cases.map(&:user_id).uniq.size}"
       puts "dropped by reason: #{export.dropped.transform_values(&:size)}"
     end

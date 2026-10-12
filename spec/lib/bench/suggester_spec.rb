@@ -21,7 +21,14 @@ RSpec.describe Bench::Suggester do
     it "raises on a value that is not a date" do
       expect { described_class.parse_since("notadate", default:) }.to raise_error(
         ArgumentError,
-        /notadate/
+        /\ASINCE is not a date: "notadate"/
+      )
+    end
+
+    it "names the variable it parsed in the error" do
+      expect { described_class.parse_since("notadate", default:, name: "BEFORE") }.to raise_error(
+        ArgumentError,
+        /\ABEFORE is not a date/
       )
     end
   end

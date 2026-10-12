@@ -2010,6 +2010,7 @@ from p12 on are follow-ups to the owner's answers of 2026-10-12, stacked on p11.
 | p12  | P9 follow-up | `MentionMatcher` hits go to the extractor as `names_found` hints; the agreement rule is removed; the extractor bench sends the same hints and reports missed named mentions | done, pending merge (#3858) |
 | p13  | P10 follow-up | the inked-pen link goes to the Currently inked list instead of the entry's edit page (owner decision 8) | done, pending merge (#3859) |
 | p14  | P9 follow-up | extractor model comparison (owner decision 3, section 8.10): the bench's `MODEL=` override handles reasoning models, `RubyLlmAgent#reasoning_effort`, cache-write tokens in usage and bench pricing; production stays on gpt-4.1-mini | done, pending merge (#3860) |
+| p15  | P9 follow-up | re-measure on more named-ink cases with a fresh judge pass (owner decisions 5 and 6): `bench:suggester:export_named_inks`, `NamedInkFilter`, the exporter's `BEFORE` | in progress |
 
 The PRs are stacked: each branches off the previous step's branch, so they merge in the order of
 the table, each after its own review and the `gate` row.
@@ -2957,3 +2958,30 @@ evidence.
   test split, and the recommendation names the worst split, because a per-split bar claim that
   leaves out `holdout` hides that gpt-6-luna is at 13.2% there (half its false-positive strings).
   Rates come from the score files' `by_split` counts; no model was re-run.
+
+**p15 decisions:**
+
+- p15: The new named-ink cases come from `bench:suggester:export_named_inks`, which writes to its
+  own bench directory (`BENCH_DIR`, gitignored) and leaves out every request (user and normalised
+  text) already in the p6b set (`EXCLUDE_DIR`), so the p6b numbers stay comparable and the two
+  sets can be scored apart or together. The cases have the p6b format; `labelling_export` with the
+  same `BENCH_DIR` writes the outcome-free sheet for them.
+- p15: A run qualifies when `Bench::Suggester::NamedInkFilter` finds one of the user's own inks
+  (as of the run) named in the instruction, in any role: `MentionMatcher` and `NameResolver` on
+  the instruction with its negation words blanked, so inks ruled out or compared against count,
+  plus an ink's full name right after a negation word when that name has a word that is not a
+  colour (the matcher does not pin a lone unbranded name in a longer request). The filter only
+  selects; whether and how an ink is named is left to the labellers.
+- p15: The exporter takes `BEFORE` (exclusive end; also on `bench:suggester:export`). The dev DB
+  now holds suggester logs from local runs after the dump, which an export without an end would
+  take as user requests. The window is `SINCE=2025-11-01` (as p6b) and `BEFORE=2026-03-27` (the
+  dump ends 2026-03-26).
+- p15: The window holds only 34 qualifying requests outside the p6b set (11 users; 18 test, 16
+  dev; none dropped), short of the ~40 aimed for, so all 34 are exported (per-user cap 20, which
+  no user reaches). They cluster: two users hold 17, mostly variants of one request, and about a
+  dozen rule the named ink out. No request in the pool names an owned ink only as a comparison.
+  Requests naming an ink the user doesn't own, or only a brand, are not taken, since the named-ink
+  hit counts owned ids only.
+- p15: Found, not changed: `MentionMatcher` extends a mention across a comma when the next clause
+  starts with the same brand ("<brand> <ink>, then <brand> <other ink>" gives one mention, so the
+  second ink gets no hint). The filter spec uses two brands; the matcher is left as p8 built it.
