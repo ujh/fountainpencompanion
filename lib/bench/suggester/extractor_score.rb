@@ -86,7 +86,10 @@ module Bench
           "soft_notes" => actual.soft_notes.present?,
           "named_mentions" => named,
           "missed_named_mentions" =>
-            named.reject { |want| mentioned.any? { |term| same_term?(term, want) } }
+            named.reject { |want| mentioned.any? { |term| same_term?(term, want) } },
+          "cost_usd" => prediction["cost_usd"],
+          "list_cost_usd" => prediction["list_cost_usd"],
+          "latency_ms" => prediction["latency_ms"]
         }
       end
 
@@ -160,6 +163,9 @@ module Bench
           "with_missed_named_mention" => missed,
           "missed_named_mention_rate" => rate(missed, named.size),
           "soft_notes_share" => rate(selected.count { |row| row["soft_notes"] }, selected.size),
+          "mean_cost_usd" => mean(selected.filter_map { |row| row["cost_usd"] }),
+          "mean_list_cost_usd" => mean(selected.filter_map { |row| row["list_cost_usd"] }),
+          "latency_ms" => latency(selected),
           "fields" => FIELDS.index_with { |path| field_totals(scored, path) }
         }
       end
@@ -173,6 +179,19 @@ module Bench
           "precision" => rate(tp, tp + fp),
           "recall" => rate(tp, tp + fn)
         }
+      end
+
+      def mean(values)
+        (values.sum / values.size).round(7) if values.any?
+      end
+
+      def latency(selected)
+        values = selected.filter_map { |row| row["latency_ms"] }.sort
+        { "p50" => percentile(values, 0.5), "p90" => percentile(values, 0.9) }
+      end
+
+      def percentile(sorted, fraction)
+        sorted[((sorted.size - 1) * fraction).round] if sorted.any?
       end
 
       def rate(count, total)

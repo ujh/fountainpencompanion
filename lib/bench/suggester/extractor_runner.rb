@@ -4,14 +4,25 @@ module Bench
       BUDGET = "budget"
       UNPRICED = "unpriced"
 
-      attr_accessor :labels, :max_usd, :model, :names_found, :spent_usd, :stop_reason
+      attr_accessor :labels,
+                    :max_usd,
+                    :model,
+                    :reasoning_effort,
+                    :names_found,
+                    :spent_usd,
+                    :stop_reason
 
-      def initialize(labels:, max_usd: 5.0, model: nil, names_found: true)
+      def initialize(labels:, max_usd: 5.0, model: nil, reasoning_effort: nil, names_found: true)
         self.labels = labels
         self.max_usd = max_usd
         self.model = model
+        self.reasoning_effort = reasoning_effort
         self.names_found = names_found
         self.spent_usd = 0.0
+      end
+
+      def model_settings
+        ModelSettings.new(model, reasoning_effort:) if model
       end
 
       def run
@@ -40,11 +51,14 @@ module Bench
       def extractor_class
         @extractor_class ||=
           if model
-            override = model
+            settings = model_settings
+            settings.register!
             Class.new(PenAndInkConstraintExtractor) do
               define_singleton_method(:name) { PenAndInkConstraintExtractor.name }
-              define_method(:model_id) { override }
-              private :model_id
+              define_method(:model_id) { settings.model_id }
+              define_method(:temperature) { super() if settings.temperature? }
+              define_method(:reasoning_effort) { settings.reasoning_effort }
+              private :model_id, :temperature, :reasoning_effort
             end
           else
             PenAndInkConstraintExtractor

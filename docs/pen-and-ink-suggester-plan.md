@@ -1780,6 +1780,100 @@ strings are noise.
   and $0.018 for the phrasing checks, **about $1.39 in all** at the cached rates OpenAI charged
   ($2.80 at list price).
 
+### 8.10 P14 bench: newer models for the constraint extractor (recorded in p14, 2026-10-12)
+
+**These numbers are scored against unreviewed draft labels** (two-pass label agreement: every
+scored field identical in 196 / 210 instruction cases, 93.3%, section 8.4; the 115 strings added
+in p9b have single-pass labels). The `gate` row is still open, so nothing here clears a merge.
+Failures, cost and latency are label-free; the false-positive and missed-mention rates are not.
+
+The set, prompt and hints are those of section 8.9 (324 strings, 301 scored, the p12 prompt with
+`names_found`). Every model ran through `bench:suggester:extractor MODEL=…`; reasoning models got
+their lowest reasoning effort (`none`, or `minimal` on the gpt-5 generation, which has no
+`none`). The gpt-4.1 row is the p12 run, re-scored; every other row was run in p14. The three
+best models were run twice; their rows give both runs (cost and latency from the first run, the
+second was within 8%).
+
+**Candidates.** The dev key can reach the gpt-4.1, gpt-5, gpt-5.4, gpt-5.5, gpt-5.6 and gpt-6
+families. Prices are OpenAI's list prices of 2026-10-12 (input / cached input / output per M
+tokens; gpt-6-luna $0.10 / $0.01 / $0.50, gpt-6-sol $2.00 / $0.20 / $10.00, gpt-5.6-luna $0.20 /
+$0.02 / $1.20). The gpt-5.6 and gpt-6 models also bill the first, uncached use of a prompt prefix
+as a cache write ($0.125, $2.50 and $0.25 per M), so their list price is the cache-write price for
+the prefix. RubyLLM 1.16's model registry does not know the gpt-5.6 and gpt-6 models; the bench
+registers them for the run. DigitalOcean models were not run: there is no `DO_INFERENCE_TOKEN` in
+the dev environment yet (roadmap S00), so the DO short list stays with S30.
+
+| Extractor, 301 scored strings | effort  | Hard-field FP (bar ≤ 3%) | p6 (196) | test (96) | `holdout2` (52) | Missed named (154) | $ / extraction, list | $ cached | Latency p50 / p90 | Failures |
+| ----------------------------- | ------- | ------------------------ | -------- | --------- | --------------- | ------------------ | -------------------- | -------- | ----------------- | -------- |
+| gpt-4.1-mini (today)          | —       | 14.6% (44)               | 13.3%    | 11.5%     | 7.7%            | 4.5% (7)           | $0.00123             | $0.00061 | 0.97 / 1.24 s     | 0        |
+| gpt-4.1 (p12 run)             | —       | 5.0% (15)                | 4.1%     | 4.2%      | 1.9%            | 5.8% (9)           | $0.0062              | $0.0032  | 0.81 / 1.00 s     | 0        |
+| gpt-4.1-nano                  | —       | 24.6% (74)               | 21.4%    | 18.8%     | 19.2%           | 11.0% (17)         | $0.00031             | $0.00010 | 0.81 / 0.98 s     | 0        |
+| gpt-5-nano                    | minimal | 30.6% (92)               | 30.1%    | 30.2%     | 15.4%           | 13.0% (20)         | $0.00019             | $0.00006 | 1.21 / 1.78 s     | 0        |
+| gpt-5-mini                    | minimal | 25.2% (76)               | 23.5%    | 19.8%     | 21.2%           | 5.8% (9)           | $0.00090             | $0.00030 | 1.17 / 1.57 s     | 0        |
+| gpt-5.4-nano                  | none    | 17.9% (54)               | 15.8%    | 16.7%     | 7.7%            | 13.0% (20)         | $0.00070             | $0.00023 | 1.19 / 1.45 s     | 0        |
+| gpt-5.4-mini                  | none    | 17.6% (53)               | 14.3%    | 11.5%     | 17.3%           | 7.1% (11)          | $0.0025              | $0.00066 | 0.85 / 1.00 s     | 0        |
+| gpt-5.6-luna, 2 runs          | none    | 5.6% / 6.3% (17 / 19)    | 4.6% / 5.6% | 5.2% / 3.1% | 1.9% / 1.9% | 7.1% / 8.4% (11 / 13) | $0.00080          | $0.00013 | 1.32 / 1.68 s     | 0        |
+| **gpt-6-luna, 2 runs**        | none    | **4.7% / 4.3% (14 / 13)** | 3.1% / 3.1% | 2.1% / 2.1% | 1.9% / 0.0% | 6.5% / 9.1% (10 / 14) | **$0.00039**      | $0.00006 | 1.46 / 2.22 s     | 0        |
+| gpt-6-sol, 2 runs             | none    | 2.0% / 1.7% (6 / 5)      | 2.0% / 2.0% | 1.0% / 2.1% | 0.0% / 0.0% | 5.8% / 5.8% (9 / 9) | $0.0078             | $0.0012  | 1.35 / 1.72 s     | 0        |
+
+- "$ cached" is what OpenAI charged in the bench, which repeats the same prefix within minutes;
+  "list" is the same calls with nothing cached. Production is somewhere between the two.
+- **Over all hard fields** (true positives / false positives / misses), gpt-4.1-mini has 369 / 59 /
+  39, gpt-6-luna 373 / 17 / 36 and 370 / 16 / 40, gpt-6-sol 386 / 7 / 22 and 386 / 5 / 22,
+  gpt-4.1 377 / 18 / 30. So gpt-6-luna removes about 70% of mini's false positives with the same
+  recall outside mentions (192–193 of 217 filter values on both). Its remaining false positives
+  are mostly nib fields (`pen.nib_width` 5, `pen.nib_characters_include` 2–3) and the
+  spelling of mentions; the `pair_usage`, `pen.usage` and `ink.usage` errors that dominate mini
+  are nearly gone (1, 1 and 0 in each run vs 9, 12 and 7).
+- **Mentions are gpt-6-luna's weak side.** It misses 10–14 of the 154 strings with a labelled name
+  against mini's 7. All but one per run are names that got no hint because the matcher did not
+  find them (a brand on its own, a model nickname, a typo); the one with a hint is worded as a
+  comparison. A prompt round for
+  unhinted brand-only names is the obvious next lever; p14 does not change the prompt.
+- **Stability.** At temperature 0, 13 of gpt-6-luna's 14 false-positive strings recur in the second
+  run (mini: 40 of 44 against its p12 run), and gpt-6-sol repeats 4 of its 6. gpt-5.6-luna, whose
+  temperature RubyLLM forces to 1, repeats 12 of 17.
+- **Latency.** gpt-6-luna adds about 0.45 s at p50 and 1.0 s at p90 over mini. The extractor runs
+  before the picker, so an instruction run moves from about 2.65 s to about 3.1 s at p50 (section
+  8.7).
+- **Skipped.** gpt-6.1-sol: the chat completions endpoint refuses function tools unless the
+  reasoning effort is `none`, and the model does not accept `none`; the 20-string smoke run failed
+  on every call ($0). Not run, because they cost as much as gpt-4.1 or more and gpt-6-sol stands
+  for that tier: gpt-6-astra, gpt-5.6-sol, gpt-5.6-terra, gpt-5.5, gpt-5.4, gpt-5.2, gpt-5.1, gpt-5
+  and the o-series. Not run as older than gpt-4.1-mini: gpt-4o and gpt-4o-mini. gpt-4.1-nano and
+  gpt-5-nano looked worse in their 20-string smoke runs but were cheap enough to run in full.
+- **Spend in p14:** 20-string smoke runs $0.03, full runs $1.10, the three repeat runs $0.43 and
+  some single-call probes of the parameters: **about $1.57 in all** at the cached rates OpenAI
+  charged ($7.74 at list price for the full and repeat runs).
+
+**Cost impact on instruction runs** (the P9 test-split figures of section 8.7 with mini's
+extractor cost replaced by the measured cost of the other model; an estimate, not a suggester run):
+
+| Instruction run, $ per run | P9 (extractor on mini) | extractor on gpt-6-luna | extractor on gpt-6-sol | baseline |
+| -------------------------- | ---------------------- | ----------------------- | ---------------------- | -------- |
+| free, list price           | $0.00323               | ≈ $0.00239              | ≈ $0.00985             | $0.00254 |
+| free, cached               | $0.00140               | ≈ $0.00085              | ≈ $0.00202             | —        |
+| premium, list price        | $0.0141                | ≈ $0.0133               | ≈ $0.0207              | $0.0215  |
+| premium, cached            | $0.0078                | ≈ $0.0073               | ≈ $0.0084              | —        |
+
+**Recommendation: gpt-6-luna for the extractor, on both tiers**, pending the owner's confirmation.
+Against draft labels it cuts the hard-field false-positive rate from 14.6% to 4.3–4.7%, about
+gpt-4.1's level, and meets the ≤ 3% bar on the test split and on `holdout2` (2.1%, 0–1.9%) though
+not on all scored strings. At list price it costs a third of mini's extractor ($0.00039 vs
+$0.00123), which brings free instruction runs from 27% above the baseline to about 6% below it
+without relying on the prompt cache (open decision 4). The costs are 0.45 s more at p50 and 1.0 s
+at p90, and 3–7 more missed names among 154 named strings. gpt-6-sol is the only model that meets
+the ≤ 3% bar on all scored strings against draft labels (2.0% / 1.7%), but its extractor alone
+costs 3× a whole baseline free run, so it fits only the premium entry, which would need a
+second extractor config entry. gpt-5.6-luna is close to gpt-6-luna on errors but twice its price
+and less stable.
+
+Switching is its own PR (section 7). It needs: the model in RubyLLM's registry (1.16 does not list
+it; refresh the registry or upgrade the gem), `reasoning_effort` `"none"` on the extractor (the
+`RubyLlmAgent` hook added in p14), and nothing for temperature: gpt-6 models accept 0 at effort
+`none`, and RubyLLM forces 1.0 only on gpt-5 and o-series ids. `agent_log.usage` records the cache
+writes from p14 on, so production cost stays readable from the logs.
+
 ---
 
 ## 9. PR plan
@@ -1903,6 +1997,7 @@ from p12 on are follow-ups to the owner's answers of 2026-10-12, stacked on p11.
 | p11  | P11     | remove the old CSV path                                                                      | done, pending merge (#3847) |
 | p12  | P9 follow-up | `MentionMatcher` hits go to the extractor as `names_found` hints; the agreement rule is removed; the extractor bench sends the same hints and reports missed named mentions | done, pending merge (#3858) |
 | p13  | P10 follow-up | the inked-pen link goes to the Currently inked list instead of the entry's edit page (owner decision 8) | done, not yet pushed |
+| p14  | P9 follow-up | extractor model comparison (owner decision 3, section 8.10): the bench's `MODEL=` override handles reasoning models, `RubyLlmAgent#reasoning_effort`, cache-write tokens in usage and bench pricing; production stays on gpt-4.1-mini | done, not yet pushed |
 
 The PRs are stacked: each branches off the previous step's branch, so they merge in the order of
 the table, each after its own review and the `gate` row.
@@ -1920,7 +2015,13 @@ p12–p15 carry them out.
    **Decided:** accepted as is.
 3. **Extractor model and false positives** (p9b, section 8.7; p12, section 8.9). **Decided:**
    explore more models (step p14). With the p12 hints, mini is at 14.6% and gpt-4.1 at 5.0%
-   against the ≤ 3% bar (draft labels).
+   against the ≤ 3% bar (draft labels). **Recommendation from p14 (section 8.10), open for the
+   owner to confirm:** switch the extractor to gpt-6-luna on both tiers, in its own PR: 4.3–4.7%
+   hard-field false positives against draft labels (2.1% on the test split), a third of mini's
+   list price per extraction, so free instruction runs fall below the baseline cost; the costs
+   are +0.45 s p50 / +1.0 s p90 extractor latency and 3–7 more missed names out of 154. The
+   alternative that meets the ≤ 3% bar on all scored strings against draft labels is gpt-6-sol
+   (1.7–2.0%), at 6× mini's list price per extraction, which fits only a separate premium entry.
 4. **Cost and latency of instruction runs** (p9b, section 8.7). **Decided:** accepted for now.
    `agent_log.usage` already records cached input tokens (p7), so the cached-prefix cost can be
    read from production logs (p12).
@@ -2804,3 +2905,38 @@ evidence.
   spec pins a flagged result without an id. The server result, the note text and the Ruby specs
   are unchanged.
 - p13: No bench run; the change is in the widget only.
+
+**p14 decisions:**
+
+- p14: Candidates were every small or cheap OpenAI chat model the dev key can reach (gpt-4.1-nano,
+  gpt-5-nano, gpt-5-mini, gpt-5.4-nano, gpt-5.4-mini, gpt-5.6-luna, gpt-6-luna), gpt-6-sol as
+  the newest model in gpt-4.1's price tier, and gpt-4.1-mini and gpt-4.1 as references. The
+  gpt-4.1 row reuses the p12 run (same prompt, hints and set; p13 and p14 change neither the prompt
+  nor the hints), and gpt-4.1-mini was re-run as a noise check. What was skipped and why is in
+  section 8.10. No DigitalOcean model was run because no DO key is configured yet (roadmap S00);
+  the OpenRouter dev key in `.env.local` was not used, since S30 benches DO, not OpenRouter.
+- p14: `RubyLlmAgent` gains a private `reasoning_effort` hook (default `nil`, sent through
+  RubyLLM's `with_thinking` when set), next to `temperature`; CLAUDE.md lists both. No production
+  agent sets it yet.
+- p14: The bench's `MODEL=` override goes through `Bench::Suggester::ModelSettings`. A model is a
+  reasoning model when RubyLLM's registry says so, or, when the registry does not know it, when its
+  id starts with `o<digit>` or `gpt-5` or later. It gets the lowest effort it accepts, as probed
+  against the API on 2026-10-12: `minimal` for gpt-5, gpt-5-mini and gpt-5-nano, `low` for the
+  o-series, `none` for everything newer; `REASONING_EFFORT=` overrides it. The extractor's
+  temperature (0) is kept for models without reasoning and at effort `none`, which every newer
+  model accepted, and dropped at any other effort, which only accepts the default. RubyLLM still
+  replaces 0 with 1.0 for `gpt-5*` ids, so the gpt-5.4 and gpt-5.6 runs ran at 1.0 and the gpt-6
+  runs at 0, as production would send them. A model missing from RubyLLM 1.16's registry is
+  registered in memory for the bench run only. The run file records the effort.
+- p14: The gpt-5.6 and gpt-6 models report `cache_write_tokens`, which RubyLLM takes out of the
+  input count and OpenAI bills above the input price. `RubyLlmAgent` now adds them to
+  `agent_log.usage["cache_write_tokens"]` the way it adds `cached_tokens`, so no input token goes
+  unrecorded; for older models nothing changes.
+- p14: Bench pricing now carries each model's own cached-input price (gpt-5 and later charge 10% of
+  input, not 25%) and, where billed, a cache-write price. The "list" cost prices cached tokens at
+  the cache-write price where there is one (that is what they would have cost uncached) and at the
+  input price otherwise. Section 6's "cached input costs 25%" still holds for the gpt-4.1 family.
+- p14: The extractor score adds the mean cost (cached and list) and the latency p50 / p90 per
+  run, so a model comparison needs no ad-hoc script.
+- p14: The production `MODEL_ID` stays gpt-4.1-mini; the recommendation (gpt-6-luna) is under open
+  decision 3 for the owner. Spend was about $1.57 (cached rates as charged).

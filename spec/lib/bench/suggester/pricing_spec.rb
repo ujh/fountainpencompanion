@@ -11,7 +11,7 @@ RSpec.describe Bench::Suggester::Pricing do
     expect(described_class.cost(usage)).to be_within(1e-9).of((5_900 * 0.40 + 159 * 1.60) / 1e6)
   end
 
-  it "prices cached prompt tokens at a quarter of the input price, or at list price without the discount" do
+  it "prices cached prompt tokens at the cached input price, or at list price without the discount" do
     usage = {
       "model" => "gpt-4.1",
       "prompt_tokens" => 3_000,
@@ -30,6 +30,40 @@ RSpec.describe Bench::Suggester::Pricing do
     )
   end
 
+  it "prices cached prompt tokens at each model's own cached input price" do
+    usage = {
+      "model" => "gpt-6-luna",
+      "prompt_tokens" => 1_000,
+      "cached_tokens" => 2_000,
+      "completion_tokens" => 100
+    }
+
+    expect(described_class.cost(usage)).to be_within(1e-12).of(
+      (1_000 * 0.10 + 2_000 * 0.01 + 100 * 0.50) / 1e6
+    )
+  end
+
+  it "prices prompt tokens written to the cache at the cache write price" do
+    usage = {
+      "model" => "gpt-6-luna-2026-09-22",
+      "prompt_tokens" => 3,
+      "cache_write_tokens" => 2_000,
+      "completion_tokens" => 10
+    }
+
+    expect(described_class.cost(usage)).to be_within(1e-12).of(
+      (3 * 0.10 + 2_000 * 0.125 + 10 * 0.50) / 1e6
+    )
+  end
+
+  it "prices cached tokens as cache writes without the discount on a model that charges for writes" do
+    usage = { "model" => "gpt-6-luna", "prompt_tokens" => 3, "cached_tokens" => 2_000 }
+
+    expect(described_class.cost(usage, cache_discount: false)).to be_within(1e-12).of(
+      (3 * 0.10 + 2_000 * 0.125) / 1e6
+    )
+  end
+
   it "prices a fully cached prompt" do
     usage = { "model" => "gpt-4.1-mini", "prompt_tokens" => 0, "cached_tokens" => 1_000 }
 
@@ -37,9 +71,15 @@ RSpec.describe Bench::Suggester::Pricing do
   end
 
   it "does not confuse gpt-4.1 with gpt-4.1-mini" do
-    expect(described_class.price_for("gpt-4.1-2025-04-14")).to eq({ input: 2.00, output: 8.00 })
-    expect(described_class.price_for("gpt-4.1-mini")).to eq({ input: 0.40, output: 1.60 })
+    expect(described_class.price_for("gpt-4.1-2025-04-14")).to include(input: 2.00, output: 8.00)
+    expect(described_class.price_for("gpt-4.1-mini")).to include(input: 0.40, output: 1.60)
     expect(described_class.price_for("gpt-4.10")).to be_nil
+  end
+
+  it "does not confuse gpt-5-mini with gpt-5.4-mini" do
+    expect(described_class.price_for("gpt-5-mini-2025-08-07")).to include(input: 0.25)
+    expect(described_class.price_for("gpt-5.4-mini-2026-03-17")).to include(input: 0.75)
+    expect(described_class.price_for("gpt-5")).to be_nil
   end
 
   it "costs nothing without tokens and nil for an unknown model" do

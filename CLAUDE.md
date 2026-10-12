@@ -182,6 +182,8 @@ Optional private overrides:
 
 - `max_tool_calls` — individual tool calls allowed per chat (default 50); passing it raises `RubyLlmAgent::ToolCallLimitExceeded`
 - `tool_calls_mode` — passed to RubyLLM as `calls:` (`:one` sends `parallel_tool_calls: false`); default `nil` leaves the provider default
+- `temperature` — sent on every request when not `nil` (default `nil`); RubyLLM replaces any value other than 1 with 1.0 for `gpt-5*` and `o<digit>*` model ids
+- `reasoning_effort` — sent as `reasoning_effort` when not `nil` (e.g. `"none"` or `"minimal"` for reasoning models); default `nil` leaves the provider default
 
 ### Tool structure
 

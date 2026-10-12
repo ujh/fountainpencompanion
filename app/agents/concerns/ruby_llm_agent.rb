@@ -94,10 +94,15 @@ module RubyLlmAgent
     nil
   end
 
+  def reasoning_effort
+    nil
+  end
+
   def build_chat
     c = ruby_llm_context.chat(model: model_id)
     c.with_instructions(system_directive)
     c.with_temperature(temperature) unless temperature.nil?
+    c.with_thinking(effort: reasoning_effort) unless reasoning_effort.nil?
     c.with_tools(*tools, calls: tool_calls_mode)
     restore_transcript(c)
     register_callbacks(c)
@@ -150,12 +155,16 @@ module RubyLlmAgent
       agent_log.usage["prompt_tokens"] += message.input_tokens.to_i
       agent_log.usage["completion_tokens"] += message.output_tokens.to_i
       agent_log.usage["total_tokens"] += message.input_tokens.to_i + message.output_tokens.to_i
-      if message.cached_tokens.to_i.positive?
-        agent_log.usage["cached_tokens"] = agent_log.usage["cached_tokens"].to_i +
-          message.cached_tokens.to_i
-      end
+      add_usage("cached_tokens", message.cached_tokens)
+      add_usage("cache_write_tokens", message.cache_creation_tokens)
     end
     save_transcript
+  end
+
+  def add_usage(key, tokens)
+    return unless tokens.to_i.positive?
+
+    agent_log.usage[key] = agent_log.usage[key].to_i + tokens.to_i
   end
 
   def save_transcript

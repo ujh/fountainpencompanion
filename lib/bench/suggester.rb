@@ -28,6 +28,7 @@ module Bench
 end
 
 require_relative "suggester/pricing"
+require_relative "suggester/model_settings"
 require_relative "suggester/constraint_schema"
 require_relative "suggester/label"
 require_relative "suggester/extractor_label"

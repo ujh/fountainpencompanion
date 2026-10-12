@@ -164,6 +164,44 @@ RSpec.describe Bench::Suggester::ExtractorScore do
     )
   end
 
+  it "averages the cost and takes latency percentiles over every extraction, failed ones too" do
+    labels = %w[one two three].map { |text| label(text) }
+    predictions = {
+      "one" => prediction.merge("cost_usd" => 0.001, "list_cost_usd" => 0.002, "latency_ms" => 900),
+      "two" => prediction.merge("cost_usd" => 0.003, "list_cost_usd" => 0.004, "latency_ms" => 700),
+      "three" =>
+        prediction(error: "RubyLLM::ServerError").merge(
+          "cost_usd" => 0.0,
+          "list_cost_usd" => 0.0,
+          "latency_ms" => 3_000
+        )
+    }
+
+    summary = score(labels, predictions).summary
+
+    expect(summary).to include(
+      "mean_cost_usd" => 0.0013333,
+      "mean_list_cost_usd" => 0.002,
+      "latency_ms" => {
+        "p50" => 900,
+        "p90" => 3_000
+      }
+    )
+  end
+
+  it "leaves cost and latency empty for predictions recorded without them" do
+    summary = score([label("only samples")], { "only samples" => prediction }).summary
+
+    expect(summary).to include(
+      "mean_cost_usd" => nil,
+      "mean_list_cost_usd" => nil,
+      "latency_ms" => {
+        "p50" => nil,
+        "p90" => nil
+      }
+    )
+  end
+
   it "skips labels without a prediction" do
     expect(score([label("only samples")], {}).rows).to be_empty
   end

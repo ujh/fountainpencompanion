@@ -180,7 +180,7 @@ namespace :bench do
     end
 
     desc "Run the constraint extractor on the labelled set and score it " \
-           "(RUN=extractor SPLIT= SOURCE= LIMIT= MODEL= MAX_USD=5 NAMES_FOUND=off)"
+           "(RUN=extractor SPLIT= SOURCE= LIMIT= MODEL= REASONING_EFFORT= MAX_USD=5 NAMES_FOUND=off)"
     task extractor: :setup do
       abort "The bench runs only against the development database." unless Rails.env.development?
 
@@ -195,6 +195,7 @@ namespace :bench do
           labels:,
           max_usd: Float(ENV.fetch("MAX_USD", "5")),
           model: ENV["MODEL"].presence,
+          reasoning_effort: ENV["REASONING_EFFORT"].presence,
           names_found: ENV["NAMES_FOUND"] != "off"
         )
       results = runner.run { print "." }
@@ -205,6 +206,7 @@ namespace :bench do
           "name" => name,
           "params_mode" => PenAndInkConstraintExtractor.params_mode,
           "model" => ENV["MODEL"].presence || PenAndInkConstraintExtractor::MODEL_ID,
+          "reasoning_effort" => runner.model_settings&.reasoning_effort,
           "names_found" => runner.names_found,
           "spent_usd" => runner.spent_usd.round(4),
           "stop_reason" => runner.stop_reason,

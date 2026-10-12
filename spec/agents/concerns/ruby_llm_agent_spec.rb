@@ -475,12 +475,43 @@ RSpec.describe RubyLlmAgent do
       )
     end
 
-    it "adds no cached count when nothing was cached" do
+    it "records prompt tokens written to the cache separately" do
+      stub_usage(
+        {
+          "prompt_tokens" => 2_014,
+          "completion_tokens" => 5,
+          "total_tokens" => 2_019,
+          "prompt_tokens_details" => {
+            "cached_tokens" => 0,
+            "cache_write_tokens" => 2_011
+          }
+        },
+        {
+          "prompt_tokens" => 2_014,
+          "completion_tokens" => 5,
+          "total_tokens" => 2_019,
+          "prompt_tokens_details" => {
+            "cached_tokens" => 2_011,
+            "cache_write_tokens" => 0
+          }
+        }
+      )
+
+      2.times { agent.ask("Hello") }
+
+      expect(agent_log.reload.usage).to include(
+        "prompt_tokens" => 3 + 3,
+        "cached_tokens" => 2_011,
+        "cache_write_tokens" => 2_011
+      )
+    end
+
+    it "adds no cached or cache write count when nothing was cached" do
       stub_usage({ "prompt_tokens" => 100, "completion_tokens" => 5, "total_tokens" => 105 })
 
       agent.ask("Hello")
 
-      expect(agent_log.reload.usage).not_to have_key("cached_tokens")
+      expect(agent_log.reload.usage).not_to include("cached_tokens", "cache_write_tokens")
       expect(agent_log.usage["prompt_tokens"]).to eq(100)
     end
   end
@@ -894,6 +925,23 @@ RSpec.describe RubyLlmAgent do
       agent.ask!("Make a decision")
 
       expect_requests(times: 2) { |body| body["temperature"] == 0 }
+    end
+
+    it "sends no reasoning effort by default" do
+      agent = test_class_with_tools.new(agent_log, decide_tool_class.new)
+
+      agent.ask!("Make a decision")
+
+      expect_requests(times: 2) { |body| !body.key?("reasoning_effort") }
+    end
+
+    it "sends the reasoning effort an agent sets on every request" do
+      agent_class = Class.new(test_class_with_tools) { private def reasoning_effort = "none" }
+      agent = agent_class.new(agent_log, decide_tool_class.new)
+
+      agent.ask!("Make a decision")
+
+      expect_requests(times: 2) { |body| body["reasoning_effort"] == "none" }
     end
   end
 end

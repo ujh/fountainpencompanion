@@ -145,11 +145,73 @@ RSpec.describe Bench::Suggester::ExtractorRunner do
 
     result = described_class.new(labels: [label("anything")], model: "gpt-4.1").run["anything"]
 
-    expect(WebMock).to have_requested(:post, openai_url).with(
-      body: hash_including("model" => "gpt-4.1")
-    )
+    expect(WebMock).to have_requested(:post, openai_url).with { |request|
+      body = JSON.parse(request.body)
+      body["model"] == "gpt-4.1" && body["temperature"] == 0 && !body.key?("reasoning_effort")
+    }
     expect(result["cost_usd"]).to be_within(1e-9).of((1_000 * 2.0 + 100 * 8.0) / 1e6)
     expect(names).to include(PenAndInkConstraintExtractor.name)
+  end
+
+  describe "reasoning models" do
+    after { RubyLLM.models.all.reject! { |model| model.id.start_with?("gpt-9-") } }
+
+    def requested_body
+      body = nil
+      expect(WebMock).to have_requested(:post, openai_url)
+        .with { |request|
+          body = JSON.parse(request.body)
+          true
+        }
+        .once
+      body
+    end
+
+    it "sends the lowest reasoning effort, with the temperature RubyLLM allows at effort none" do
+      stub_extraction(model: "gpt-5.4-nano-2026-03-17")
+      runner = described_class.new(labels: [label("only samples")], model: "gpt-5.4-nano")
+
+      result = runner.run["only samples"]
+
+      expect(requested_body).to include(
+        "model" => "gpt-5.4-nano",
+        "reasoning_effort" => "none",
+        "temperature" => 1.0
+      )
+      expect(result["constraints"]).to eq(
+        PenAndInkSuggestion::Constraints.from_h(ink: { kinds_include: ["sample"] }).to_h
+      )
+      expect(result["cost_usd"]).to be_within(1e-12).of((1_000 * 0.20 + 100 * 1.25) / 1e6)
+      expect(runner.model_settings.reasoning_effort).to eq("none")
+    end
+
+    it "sends the reasoning effort asked for" do
+      stub_extraction(model: "gpt-5-mini-2025-08-07")
+
+      described_class.new(
+        labels: [label("anything")],
+        model: "gpt-5-mini",
+        reasoning_effort: "low"
+      ).run
+
+      expect(requested_body).to include("reasoning_effort" => "low")
+      expect(requested_body).not_to have_key("temperature")
+    end
+
+    it "runs a model the RubyLLM registry does not know yet" do
+      stub_extraction(model: "gpt-9-test")
+      runner = described_class.new(labels: [label("one"), label("two")], model: "gpt-9-test")
+
+      results = runner.run
+
+      expect(requested_body).to include(
+        "model" => "gpt-9-test",
+        "reasoning_effort" => "none",
+        "temperature" => 0
+      )
+      expect(results["one"]["error"]).to be_nil
+      expect(runner.stop_reason).to eq(described_class::UNPRICED)
+    end
   end
 
   it "stops once the budget is spent" do
