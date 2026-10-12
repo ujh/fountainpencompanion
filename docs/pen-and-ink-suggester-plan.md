@@ -1938,12 +1938,57 @@ extractor prefix is mostly cached) and, in brackets, list price.
   check of the p6b code $0.02, `p15-gpt41-test` $1.52, `p15-mini` $0.41, and about $0.26 for the
   aborted first mini attempt (about 156 runs): **about $2.80 in all** as charged.
 
-**Judge.** The "instruction honoured" row needs a fresh, independent judge pass (open decision
-6). `bench:suggester:grading_export RUNS=baseline-mini,p15-mini INSTRUCTION=with MAX_CASES=150`
+**Judge.** A fresh judge pass for the "instruction honoured" row (open decision 6).
+`bench:suggester:grading_export RUNS=baseline-mini,p15-mini INSTRUCTION=with MAX_CASES=150`
 wrote a blinded file of 150 of the 244 instruction cases (stratified by split and label kind: 74
 test, 76 dev; 22 of them new), each with the request, a collection summary and the two answers as
-A and B in a per-case random order; the key is a separate file outside the judge's directory. The
-grades are not in yet, so this section reports no honoured rate.
+A and B in a per-case random order; the key is a separate file outside the judge's directory.
+**Two independent Claude Code judges** graded every answer (300 each) from that file alone, with
+the section 8.1 rubric; neither saw the key, the results, the code or the other judge's grades.
+**The judges are Claude-based, from the same model family as the label passes and the sessions
+that wrote v2, and the owner has not checked their grades.** The honoured rate also rests on the
+hard checks, so it is scored against the unreviewed draft labels (agreement above: 93.3% of the
+p6b instruction cases and 34 / 34 new ones with every scored field identical). A case counts as
+judged "yes" only when both judges say yes.
+
+| Free tier (gpt-4.1-mini), judged sample                         | baseline-mini         | p15-mini              |
+| --------------------------------------------------------------- | --------------------- | --------------------- |
+| Instruction honoured, test split (both "yes" + hard checks)     | **49.3% (35/71)**     | **95.8% (68/71)**     |
+| Instruction honoured, all 150 (both "yes" + hard checks)        | 53.8% (77/143)        | 91.6% (131/143)       |
+| Same, per judge (1 / 2), all 150                                | 79 / 78 of 143        | 132 / 132 of 143      |
+| Judge "yes" by both, test / all                                  | 40/74 / 87/150        | 71/74 / 138/150       |
+| Judge "partial" (neither says "no", not both "yes"), all        | 23                    | 8                     |
+| Judge "no" by at least one judge, all                           | 40                    | 4                     |
+| The 22 new cases: honoured (both "yes" + hard checks)           | 13/22                 | 19/22                 |
+| Mean rationale / soft wishes / concise / notes accurate (1–5)   | 2.87 / 4.62 / 2.46 / 3.14 | 3.85 / 4.84 / 4.78 / 3.70 |
+
+- 7 of the 150 sampled cases are regression stand-ins; they are graded but, as since p6a, left
+  out of the honoured rate, hence 143 (71 on test). The sample is allocated in proportion, so
+  the unweighted rates estimate the 244 cases. The 95% Wilson interval of p15's test-split rate
+  is 88.3–98.6%; the baseline's is 38.0–60.7%.
+- **Against draft labels and the Claude-based judges, p15-mini meets the ≥ 85% instruction-
+  honoured bar on the test split** (95.8%), with the interval's lower end above the bar. The
+  baseline here is below its p6b figure (58.6%): this sample adds 16 new test cases that name an
+  ink, where the baseline mostly missed (4 / 16); on the old test cases alone it is 51.7%
+  (31 / 60), graded by other judges than in p6b, so compare arms only within one judge pass.
+- **Inter-judge agreement on `honoured`:** identical in 286 / 300 answers (baseline 140 / 150,
+  Cohen's κ 0.88; p15 146 / 150, κ 0.81); on "yes" versus not in 294 / 300. On the test split the
+  judges differ only on 2 baseline answers, both "partial" against "no". Both judges are Claude,
+  so agreement shows consistency, not correctness.
+- Per case, both judges rate p15 above the baseline on `honoured` in 57 cases; judge 1 rates it
+  lower in 5, judge 2 in 4 (all on the dev split).
+- **What p15 still misses** (12 cases where a judge did not say "yes"; the 3 on the test split
+  are all "partial"): two buying-advice requests on test, answered with an owned ink and no
+  out-of-scope note; one test user who owns no pens (neither arm picks); on dev, three requests
+  naming a pen that pick another pen (named-pen misses), a pen ruled out by name that is still
+  picked (the wrong-side exclusion above), an ink the user had just rejected, picked again with
+  another pen, two false "couldn't find" notes (below) and two taste disagreements.
+- **New finding: a false "couldn't find" note.** In 2 dev cases the extractor gave a mention the
+  `NameResolver` could not resolve (a pen's colour name read as an ink, a lower-case brand), so
+  the answer said "I couldn't find …" although the pick was the pen the user meant. Both judges
+  graded these "partial" with low `notes_accurate` (open decision 12).
+- The premium file (`baseline-gpt41-test` vs `p15-gpt41-test`, all 121 test cases) is written
+  but not graded (p15 decisions).
 
 ---
 
@@ -2069,7 +2114,7 @@ from p12 on are follow-ups to the owner's answers of 2026-10-12, stacked on p11.
 | p12  | P9 follow-up | `MentionMatcher` hits go to the extractor as `names_found` hints; the agreement rule is removed; the extractor bench sends the same hints and reports missed named mentions | done, pending merge (#3858) |
 | p13  | P10 follow-up | the inked-pen link goes to the Currently inked list instead of the entry's edit page (owner decision 8) | done, pending merge (#3859) |
 | p14  | P9 follow-up | extractor model comparison (owner decision 3, section 8.10): the bench's `MODEL=` override handles reasoning models, `RubyLlmAgent#reasoning_effort`, cache-write tokens in usage and bench pricing; production stays on gpt-4.1-mini | done, pending merge (#3860) |
-| p15  | P9 follow-up | re-measure on more named-ink cases with a fresh judge pass (owner decisions 5 and 6, section 8.11): `bench:suggester:export_named_inks`, `NamedInkFilter`, the exporter's `BEFORE`; the grading export's stratified `MAX_CASES` sample and collection summary; the runner records a transcript Postgres refuses as an error | in progress: runs recorded, judge grades pending |
+| p15  | P9 follow-up | re-measure on more named-ink cases with a fresh judge pass (owner decisions 5 and 6, section 8.11): `bench:suggester:export_named_inks`, `NamedInkFilter`, the exporter's `BEFORE`; the grading export's stratified `MAX_CASES` sample and collection summary; the runner records a transcript Postgres refuses as an error | done, not pushed yet |
 
 The PRs are stacked: each branches off the previous step's branch, so they merge in the order of
 the table, each after its own review and the `gate` row.
@@ -2101,10 +2146,16 @@ p12–p15 carry them out.
 5. **Named-ink hit on mini** (77.8%, 7 of 9 test cases) against the 85% bar (section 8.7).
    **Decided:** label more named-ink cases and re-run (step p15). Done in p15 (section 8.11):
    34 new cases, 25 named-ink cases on the test split; against draft labels mini is at 96.0%
-   (24/25) and gpt-4.1 at 100% (25/25).
+   (24/25) and gpt-4.1 at 100% (25/25), which meets the 85% bar against draft labels on both
+   tiers (baseline 40% / 48%).
 6. **"Instruction honoured"** was not re-graded for P9 (section 8.7). **Decided:** run a fresh,
-   independent judge pass (step p15). The blinded grading file (150 cases, baseline vs p15 on
-   mini) is written; the grades and the honoured rate are still to come.
+   independent judge pass (step p15). Done in p15 (section 8.11): two independent Claude Code
+   judges graded a blinded, stratified sample of 150 instruction cases on mini. Instruction
+   honoured (both judges "yes" and every hard check passing) on the test split: 95.8% (68/71)
+   for p15 against 49.3% (35/71) for the baseline, which meets the ≥ 85% bar against draft labels
+   and Claude-based judges whose grades the owner has not checked; the judges agree on 286 / 300
+   answers. The premium pair is exported but not graded; a pass on it is open for the owner to
+   ask for.
 7. **`MentionMatcher` held-out false-pin check** (p8, section 8.6). **Decided:** accepted as is.
 8. **Inked-pen link target** (p10). **Decided:** link to the currently-inked list instead of the
    edit page. Done in p13.
@@ -2118,6 +2169,11 @@ p12–p15 carry them out.
     error (1 of about 160 bench runs on mini). `sanitize_for_pg` already strips message text;
     stripping tool-call arguments too (and the message stored in `extra_data`) would fix it.
     **Open:** whether to fix it in its own PR; p15 only makes the bench record it.
+12. **False "couldn't find" notes** (new, p15, section 8.11). When the extractor returns a mention
+    the `NameResolver` cannot resolve (a pen's colour name given as an ink mention, a lower-case
+    brand alone), the answer says "I couldn't find …" even when the pick is the item the user
+    meant (2 of 150 judged cases, both dev). **Open:** whether to drop the note when the picked
+    pen or ink matches the mention text, in its own PR; p15 only records it.
 
 **Human checks before bench claims.** The bench labels are drafted by Claude Code, and the
 checkers reuse `NibProfile`, `ColorProfile` and `InkProperties`, so the `gate` row is a merge
@@ -3097,3 +3153,23 @@ evidence.
   the 244 cases, and the 74 test cases in it give the test-split rate. A second file for the
   premium entry (`baseline-gpt41-test` vs `p15-gpt41-test`, all 121 test cases, no sampling
   needed) is written beside it, for a later pass if the owner wants one.
+- p15: Two judges instead of one, so the "independent" pass can be checked for consistency: two
+  Claude Code sessions graded the same 150-case file, each told to read only `grading.md` and the
+  template and to write its own grades file; neither saw the other's grades, the key, the results
+  or the code. They differ on 14 / 300 `honoured` grades (κ 0.88 baseline, 0.81 p15). Both are
+  Claude, so this is a consistency check, not an outside one.
+- p15: The combined figure counts a case as judged "yes" only when both judges say yes (the
+  stricter reading), and the honoured rate adds the hard checks as in p6a. On this sample the
+  per-judge rates and the combined one differ by at most 2 cases, so the choice does not change
+  any conclusion. "Partial" is reported apart: neither judge says "no" and not both say "yes".
+- p15: `bench:suggester:judge_scores` reads one `grades.json`, so it ran once per judge with that
+  judge's file copied in as `grades.json` (removed afterwards); the combined figure, the
+  agreement, the split and new-case breakdowns and the Wilson intervals came from a one-off
+  script outside the repo over the same key, grades and checks. The task was not extended for
+  more than one grades file: a two-judge pass is the exception, and the per-judge numbers it
+  prints already match the script's.
+- p15: The premium pair was not graded. The bar is measured on the free entry, the premium arm
+  scores at least as well as mini on every quality row in the table above (it costs more),
+  and a second 242-answer pass would add little at this point; it stays exported for the owner.
+- p15: The 2 false "couldn't find" notes found by the judges (open decision 12) are recorded, not
+  fixed: the change belongs in the pick's note logic, outside this re-measure step.
