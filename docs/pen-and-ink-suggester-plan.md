@@ -1900,7 +1900,7 @@ from p12 on are follow-ups to the owner's answers of 2026-10-12, stacked on p11.
 | p9a  | P9      | `Constraints`, `ConstraintCheck` and the `CandidateSelector` filters, boosts and relax order; production still passes `Constraints.empty` | done, pending merge (#3844) |
 | p9b  | P9      | `PenAndInkConstraintExtractor`, wired to the selector; prompt headers and `soft_notes`       | done, pending merge (#3846) |
 | p11  | P11     | remove the old CSV path                                                                      | done, pending merge (#3847) |
-| p12  | P9 follow-up | `MentionMatcher` hits go to the extractor as `names_found` hints; the agreement rule is removed; the extractor bench sends the same hints and reports missed named mentions | done, committed (no PR yet) |
+| p12  | P9 follow-up | `MentionMatcher` hits go to the extractor as `names_found` hints; the agreement rule is removed; the extractor bench sends the same hints and reports missed named mentions | done, pending merge (#3858) |
 
 The PRs are stacked: each branches off the previous step's branch, so they merge in the order of
 the table, each after its own review and the `gate` row.
