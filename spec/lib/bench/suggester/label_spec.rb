@@ -298,7 +298,9 @@ RSpec.describe Bench::Suggester::ExtractorLabel do
             "split" => "test",
             "source" => "p6",
             "ambiguous" => false,
-            "previous_suggestion" => false
+            "previous_suggestion" => false,
+            "user_id" => 1,
+            "as_of" => Time.zone.parse("2026-05-01 10:00").utc.iso8601(6)
           },
           {
             "text" => "same pen",
@@ -310,7 +312,9 @@ RSpec.describe Bench::Suggester::ExtractorLabel do
             "split" => "dev",
             "source" => "p6",
             "ambiguous" => true,
-            "previous_suggestion" => true
+            "previous_suggestion" => true,
+            "user_id" => 1,
+            "as_of" => Time.zone.parse("2026-05-01 10:00").utc.iso8601(6)
           }
         ]
       )
@@ -341,9 +345,26 @@ RSpec.describe Bench::Suggester::ExtractorLabel do
       "split" => "holdout",
       "source" => "supplement",
       "ambiguous" => true,
-      "previous_suggestion" => true
+      "previous_suggestion" => true,
+      "user_id" => 7,
+      "as_of" => "2026-05-01T10:00:00.000000Z"
     }
 
     expect(described_class.from_h(hash).to_h).to eq(hash)
+    expect(described_class.from_h(hash.except("user_id", "as_of")).to_h).to eq(
+      hash.except("user_id", "as_of")
+    )
+  end
+
+  it "takes the user and time of the collection the string was written against" do
+    label = described_class.from_h({ "text" => "my pen", "constraints" => { "pen" => {} } })
+
+    with_context = label.with_context(user_id: 7, as_of: Time.zone.parse("2026-05-01 10:00"))
+
+    expect(label.context?).to be(false)
+    expect(with_context.context?).to be(true)
+    expect(with_context.to_h).to eq(
+      label.to_h.merge("user_id" => 7, "as_of" => "2026-05-01T10:00:00.000000Z")
+    )
   end
 end

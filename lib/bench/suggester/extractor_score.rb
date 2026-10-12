@@ -28,6 +28,7 @@ module Bench
       FIELDS = (HARD_FIELDS + SOFT_FIELDS).freeze
       TERM_FIELDS = %w[mentions exclude_mentions comment_exclude tags_exclude].freeze
       GATE = 0.03
+      SIDES = %i[pen ink].freeze
 
       attr_accessor :labels, :predictions
 
@@ -68,6 +69,8 @@ module Bench
         scored = !label.ambiguous? && !prediction["error"]
         hard_false_positives = scored ? HARD_FIELDS.select { |path| fields[path][:fp].any? } : []
         named_sides = %w[pen ink].select { |side| expected.mentions(side.to_sym).any? }
+        named = SIDES.flat_map { |side| expected.mentions(side) }
+        mentioned = SIDES.flat_map { |side| actual.mentions(side) }
         {
           "text" => label.text,
           "split" => label.split,
@@ -80,7 +83,10 @@ module Bench
           "hard_false_positives" => hard_false_positives,
           "hard_false_positives_off_named_sides" =>
             hard_false_positives.reject { |path| on_named_side?(path, named_sides) },
-          "soft_notes" => actual.soft_notes.present?
+          "soft_notes" => actual.soft_notes.present?,
+          "named_mentions" => named,
+          "missed_named_mentions" =>
+            named.reject { |want| mentioned.any? { |term| same_term?(term, want) } }
         }
       end
 
@@ -138,6 +144,8 @@ module Bench
         without_mentions =
           scored.count { |row| (row["hard_false_positives"] - %w[pen.mentions ink.mentions]).any? }
         off_named_sides = scored.count { |row| row["hard_false_positives_off_named_sides"].any? }
+        named = scored.select { |row| row["named_mentions"].any? }
+        missed = named.count { |row| row["missed_named_mentions"].any? }
         {
           "strings" => selected.size,
           "errors" => selected.count { |row| row["error"] },
@@ -148,6 +156,9 @@ module Bench
           "hard_false_positive_rate_outside_mentions" => rate(without_mentions, scored.size),
           "with_hard_false_positive_off_named_sides" => off_named_sides,
           "hard_false_positive_rate_off_named_sides" => rate(off_named_sides, scored.size),
+          "with_named_mention" => named.size,
+          "with_missed_named_mention" => missed,
+          "missed_named_mention_rate" => rate(missed, named.size),
           "soft_notes_share" => rate(selected.count { |row| row["soft_notes"] }, selected.size),
           "fields" => FIELDS.index_with { |path| field_totals(scored, path) }
         }

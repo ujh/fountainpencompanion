@@ -151,7 +151,8 @@ class PenAndInkSuggester
       PenAndInkConstraintExtractor.new(
         extra_user_input,
         parent_agent_log: agent_log,
-        previous_suggestion: rejected_suggestions.any?
+        previous_suggestion: rejected_suggestions.any?,
+        names_found:
       )
   end
 
@@ -298,35 +299,20 @@ class PenAndInkSuggester
   end
 
   def matcher_mentions
-    PenAndInkSuggestion::MentionMatcher.call(name_index, extra_user_input)
+    @matcher_mentions ||= PenAndInkSuggestion::MentionMatcher.call(name_index, extra_user_input)
+  end
+
+  def names_found
+    PenAndInkSuggestion::NameHints.call(snapshot, matcher_mentions, index: name_index)
   end
 
   def resolution
     @resolution ||=
-      if !instruction?
-        PenAndInkSuggestion::NameResolver::Resolution.empty
-      elsif extracted_constraints
-        agreed_resolution(resolve(mentions))
+      if instruction?
+        PenAndInkSuggestion::NameResolver.call(snapshot, mentions, index: name_index)
       else
-        resolve(mentions)
+        PenAndInkSuggestion::NameResolver::Resolution.empty
       end
-  end
-
-  def resolve(resolved_mentions)
-    PenAndInkSuggestion::NameResolver.call(snapshot, resolved_mentions, index: name_index)
-  end
-
-  def agreed_resolution(extracted)
-    brand_only =
-      %i[pen ink].select { |side| extracted.pins(side).empty? && extracted.brand_filter(side) }
-    return extracted if brand_only.empty?
-
-    matched = resolve(matcher_mentions)
-    agreed = brand_only.to_h { |side| [side, matched.pins(side) & extracted.brand_filter(side)] }
-    extracted.with(
-      pen_pins: agreed[:pen].presence || extracted.pen_pins,
-      ink_pins: agreed[:ink].presence || extracted.ink_pins
-    )
   end
 
   def selection

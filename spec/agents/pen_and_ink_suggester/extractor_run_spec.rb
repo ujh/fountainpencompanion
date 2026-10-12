@@ -236,14 +236,79 @@ RSpec.describe PenAndInkSuggester do
       expect(suggester.agent_log.extra_data["pins"]).to eq([])
     end
 
-    it "keeps a Ruby matcher pin that lies within the brand the extractor names" do
+    it "follows the extractor when it names only the brand of a pen the matcher found" do
       stub_llm(pen: { mentions: ["Lamy"] })
 
-      suggester = described_class.new(user, "my Lamy 2000 please")
+      suggester = described_class.new(user, "a Lamy that writes like my Lamy 2000")
       suggester.perform
 
-      expect(pick_message).to include("PENS (★ requested)\nP1 ★ | Lamy 2000")
-      expect(suggester.agent_log.extra_data["pins"]).to eq([{ "pen_id" => lamy.id }])
+      expect(last_user_message(requests(extractor: true).sole)).to include("pen: Lamy 2000")
+      expect(pick_message).to include("PENS (2 of 2 uninked)")
+      expect(pick_message).not_to include("Custom 74")
+      expect(suggester.agent_log.extra_data["pins"]).to eq([])
+    end
+
+    it "sends the names the matcher found in the collection to the extractor" do
+      stub_llm(pen: { mentions: ["Lamy 2000"] })
+
+      described_class.new(user, "my lamy 2000 with kon-peki").perform
+
+      expect(last_user_message(requests(extractor: true).sole)).to eq(
+        "<request>my lamy 2000 with kon-peki</request>\n<names_found>\n" \
+          "pen: lamy 2000\nink: kon-peki (Pilot Iroshizuku Kon-peki)\n</names_found>"
+      )
+    end
+
+    it "sends only the request when the matcher finds no name" do
+      stub_llm(ink: { colour_include: ["blue"] })
+
+      described_class.new(user, "something blue").perform
+
+      expect(last_user_message(requests(extractor: true).sole)).to eq(
+        "<request>something blue</request>"
+      )
+    end
+
+    describe "a pen named without its brand" do
+      let!(:halcyon) do
+        create(:collected_pen, user:, brand: "Corvid", model: "Halcyon Slim Asymmetry", nib: "F")
+      end
+
+      it "pins it when the extractor takes the found name, even when it is inked" do
+        [lamy, safari, custom, halcyon].each do |pen|
+          create(:currently_inked, user:, collected_pen: pen, collected_ink: kon_peki)
+        end
+        inking = halcyon.currently_inkeds.sole
+        stub_llm(pen: { mentions: ["Corvid Halcyon Slim Asymmetry"] })
+
+        suggester = described_class.new(user, "Pick me an ink for the Halcyon Slim Asymmetry")
+        response = suggester.perform
+
+        expect(last_user_message(requests(extractor: true).sole)).to include(
+          "<names_found>\npen: Halcyon Slim Asymmetry (Corvid Halcyon Slim Asymmetry)\n"
+        )
+        expect(response).to include(
+          pen: halcyon.id,
+          pen_currently_inked: true,
+          currently_inked_id: inking.id
+        )
+        expect(suggester.agent_log.extra_data["pins"]).to eq([{ "pen_id" => halcyon.id }])
+      end
+
+      it "pins nothing when the extractor reads the found name as ruled out" do
+        stub_llm(pen: { exclude_mentions: ["Halcyon Slim Asymmetry"] })
+
+        suggester =
+          described_class.new(user, "an ink for the Halcyon Slim Asymmetry, no wait, not that one")
+        suggester.perform
+
+        expect(last_user_message(requests(extractor: true).sole)).to include(
+          "pen: Halcyon Slim Asymmetry (Corvid Halcyon Slim Asymmetry)"
+        )
+        expect(suggester.agent_log.extra_data["pins"]).to eq([])
+        expect(pick_message).to include("PENS (3 of 3 that fit")
+        expect(pick_message).not_to include("| Corvid Halcyon")
+      end
     end
 
     it "uses the brand the extractor names as a filter when the matcher pins nothing" do

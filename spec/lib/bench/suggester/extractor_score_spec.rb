@@ -137,6 +137,33 @@ RSpec.describe Bench::Suggester::ExtractorScore do
     expect(summary["reviewed"]).to include("strings" => 0, "hard_false_positive_rate" => nil)
   end
 
+  it "counts the strings whose labelled names the extractor did not mention" do
+    labels = [
+      label(
+        "Lamy 2000 with Kon-peki",
+        { "pen" => { "mentions" => ["Lamy 2000"] }, "ink" => { "mentions" => ["Kon-peki"] } }
+      ),
+      label("ink for the Halcyon Slim", { "pen" => { "mentions" => ["Corvid Halcyon Slim"] } }),
+      label("use Kestrel Blue", { "ink" => { "mentions" => ["Kestrel Blue"] } }),
+      label("something red", { "ink" => { "colour_include" => ["red"] } })
+    ]
+    predictions = {
+      "Lamy 2000 with Kon-peki" => prediction({ "pen" => { "mentions" => ["Lamy 2000"] } }),
+      "ink for the Halcyon Slim" => prediction({ "pen" => { "mentions" => ["Halcyon Slim"] } }),
+      "use Kestrel Blue" => prediction({ "pen" => { "mentions" => ["Kestrel Blue"] } }),
+      "something red" => prediction({ "ink" => { "colour_include" => ["red"] } })
+    }
+
+    scored = score(labels, predictions)
+
+    expect(scored.rows.map { |row| row["missed_named_mentions"] }).to eq([["Kon-peki"], [], [], []])
+    expect(scored.summary).to include(
+      "with_named_mention" => 3,
+      "with_missed_named_mention" => 1,
+      "missed_named_mention_rate" => 0.3333
+    )
+  end
+
   it "skips labels without a prediction" do
     expect(score([label("only samples")], {}).rows).to be_empty
   end

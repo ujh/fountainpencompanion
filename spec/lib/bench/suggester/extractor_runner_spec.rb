@@ -5,8 +5,21 @@ RSpec.describe Bench::Suggester::ExtractorRunner do
 
   let(:openai_url) { "https://api.openai.com/v1/chat/completions" }
 
-  def label(text, previous_suggestion: false)
-    Bench::Suggester::ExtractorLabel.from_h({ "text" => text, previous_suggestion: })
+  def label(text, previous_suggestion: false, **context)
+    Bench::Suggester::ExtractorLabel.from_h(
+      { "text" => text, previous_suggestion:, **context.stringify_keys }
+    )
+  end
+
+  def extractor_message
+    content = nil
+    expect(WebMock).to have_requested(:post, openai_url)
+      .with { |request|
+        content = JSON.parse(request.body)["messages"].last["content"]
+        true
+      }
+      .once
+    content
   end
 
   def stub_extraction(model: "gpt-4.1-mini-2025-04-14")
@@ -68,8 +81,59 @@ RSpec.describe Bench::Suggester::ExtractorRunner do
     expect(PenAndInkConstraintExtractor).to have_received(:new).with(
       "same pen",
       parent_agent_log: kind_of(AgentLog),
-      previous_suggestion: true
+      previous_suggestion: true,
+      names_found: []
     )
+  end
+
+  describe "names found in the collection" do
+    let(:user) { create(:user) }
+    let(:as_of) { Time.zone.parse("2026-05-01 10:00") }
+    let(:text) { "an ink for the Halcyon Slim" }
+
+    before do
+      create(
+        :collected_pen,
+        user:,
+        brand: "Corvid",
+        model: "Halcyon Slim",
+        created_at: as_of - 1.day
+      )
+      create(:collected_pen, user:, brand: "Corvid", model: "Kestrel", created_at: as_of + 1.day)
+      stub_extraction
+    end
+
+    it "sends the names production would find in the collection as it was then" do
+      result =
+        described_class
+          .new(labels: [label("#{text} or the Kestrel", user_id: user.id, as_of: as_of.iso8601)])
+          .run
+          .values
+          .sole
+
+      expect(extractor_message).to end_with(
+        "<names_found>\npen: Halcyon Slim (Corvid Halcyon Slim)\n</names_found>"
+      )
+      expect(result["names_found"]).to eq(["pen: Halcyon Slim (Corvid Halcyon Slim)"])
+    end
+
+    it "sends no names without a collection, for a deleted user or when switched off" do
+      labels = [label(text), label("#{text} please", user_id: 0, as_of: as_of.iso8601)]
+      described_class.new(labels:).run
+      described_class.new(
+        labels: [label(text, user_id: user.id, as_of: as_of.iso8601)],
+        names_found: false
+      ).run
+
+      messages = []
+      expect(WebMock).to have_requested(:post, openai_url)
+        .with { |request|
+          messages << JSON.parse(request.body)["messages"].last["content"]
+          true
+        }
+        .times(3)
+      expect(messages).to all(match(%r{\A<request>[^<]*</request>\z}))
+    end
   end
 
   it "uses another model when asked, under the extractor's log name" do

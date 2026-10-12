@@ -158,19 +158,29 @@ namespace :bench do
       puts JSON.pretty_generate(pins.summary)
     end
 
-    desc "Write the extractor labelled set from the case labels and the supplement file"
+    desc "Write the extractor labelled set from the case labels and the supplement file, " \
+           "with the user and time of the first logged run of each supplement string"
     task extractor_labels: :setup do
       store = Bench::Suggester::Store.new
+      runs =
+        AgentLog
+          .where(name: PenAndInkSuggester.name, owner_type: User.name)
+          .find_each
+          .lazy
+          .map { |agent_log| Bench::Suggester::LoggedRun.new(agent_log) }
       labels =
-        Bench::Suggester::ExtractorLabel.from_cases(store.cases, store.labels) +
-          store.extractor_supplement
+        Bench::Suggester::ExtractorLabelContext.new(runs:).call(
+          Bench::Suggester::ExtractorLabel.from_cases(store.cases, store.labels) +
+            store.extractor_supplement
+        )
       store.write_extractor_labels(labels)
       store.extractor_labels
-      puts "wrote #{labels.size} extractor labels: #{labels.map(&:source).tally}"
+      puts "wrote #{labels.size} extractor labels: #{labels.map(&:source).tally}, " \
+             "#{labels.count(&:context?)} with a collection"
     end
 
     desc "Run the constraint extractor on the labelled set and score it " \
-           "(RUN=extractor SPLIT= SOURCE= LIMIT= MODEL= MAX_USD=5)"
+           "(RUN=extractor SPLIT= SOURCE= LIMIT= MODEL= MAX_USD=5 NAMES_FOUND=off)"
     task extractor: :setup do
       abort "The bench runs only against the development database." unless Rails.env.development?
 
@@ -184,7 +194,8 @@ namespace :bench do
         Bench::Suggester::ExtractorRunner.new(
           labels:,
           max_usd: Float(ENV.fetch("MAX_USD", "5")),
-          model: ENV["MODEL"].presence
+          model: ENV["MODEL"].presence,
+          names_found: ENV["NAMES_FOUND"] != "off"
         )
       results = runner.run { print "." }
       puts
@@ -194,6 +205,7 @@ namespace :bench do
           "name" => name,
           "params_mode" => PenAndInkConstraintExtractor.params_mode,
           "model" => ENV["MODEL"].presence || PenAndInkConstraintExtractor::MODEL_ID,
+          "names_found" => runner.names_found,
           "spent_usd" => runner.spent_usd.round(4),
           "stop_reason" => runner.stop_reason,
           "results" => results

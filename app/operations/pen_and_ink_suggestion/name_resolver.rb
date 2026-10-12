@@ -35,6 +35,10 @@ class PenAndInkSuggestion::NameResolver
 
   attr_accessor :snapshot, :index
 
+  def self.display_name(item)
+    item.is_a?(CollectedPen) ? "#{item.brand} #{item.model}".squish : item.short_name
+  end
+
   def self.call(snapshot, mentions, index: PenAndInkSuggestion::NameIndex.for(snapshot))
     new(snapshot:, index:).call(mentions)
   end
@@ -206,9 +210,7 @@ class PenAndInkSuggestion::NameResolver
     [stats.last_activity_on ? 1 : 0, stats.last_activity_on || Date.new(0), item.id]
   end
 
-  def display_name(item)
-    item.is_a?(CollectedPen) ? "#{item.brand} #{item.model}".squish : item.short_name
-  end
+  def display_name(item) = self.class.display_name(item)
 
   def text(mention)
     mention.text.to_s.squish

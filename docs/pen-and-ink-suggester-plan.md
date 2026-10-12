@@ -261,9 +261,10 @@ Widget ─GET─> WidgetsController           (instruction ≤500 chars, rejecte
                1. snapshot = CollectionSnapshot.new(user)            # ~9–12 queries, query-count spec
                2. pre-extraction precheck: no fillable inks, or no uninked pens AND no instruction
                   → fixed message, no LLM call, log marked precheck, NOT counted toward the cap
-               3. constraints = PenAndInkConstraintExtractor (sub-agent) || Constraints.empty
+               3. hints       = MentionMatcher hits resolved by NameResolver (names_found, p12)
+                  constraints = PenAndInkConstraintExtractor(request, hints) || Constraints.empty
                   mentions    = constraints.mentions, or MentionMatcher pins when the extractor
-                                failed (or only those Ruby pins the extractor's mentions agree with)
+                                failed
                4. resolved  = NameResolver.call(snapshot, mentions)
                   post-resolution check: no uninked pens and no inked pen pinned → fixed message
                5. selection = CandidateSelector.call(snapshot, constraints, resolved,
@@ -811,8 +812,8 @@ is added to the user message. That gives depth on specialist nibs without a tool
     name and it matches ≤ 3 items (the bare "Dandy" case; 16% of all runs are ≤ 2 words);
   - tokens of 5+ characters also match at Levenshtein distance ≤ 1 ("Murakuro" → "Murakumo");
   - its pins are used **only when the extractor failed** (or before P9, when there is no
-    extractor), or, when the extractor succeeded, only where they agree with the extractor's
-    resolved mentions;
+    extractor); when the extractor runs, its hits go to the extractor as `names_found` hints and
+    the extractor decides each name's role (p12);
   - gate before P8 merges: on all 592 distinct (user, text) strings, the matcher's **false-pin rate
     ≤ 2%** (a pin the hand label doesn't name), measured against hand labels.
 - **`NameResolver`**:
@@ -984,7 +985,8 @@ qualify.
 2. **Validation** keeps all three values (`blue` is a known family, `exclude` a known shimmer
    value; the mention is under the length cap).
 3. **Mentions.** `MentionMatcher` strips "ink", "for", "my", "nothing", "blue", "no", "shimmer" and
-   finds "lamy 2000", a brand + model match, which agrees with the extractor's mention.
+   finds "lamy 2000", a brand + model match, which went to the extractor as the hint
+   `pen: lamy 2000` (p12); the extractor's mention is resolved.
    `NameResolver` scores every pen, **inked ones included**: one "Lamy 2000, Black, B" scores
    highest and is pinned as P1 ★. Two Lamy 2000s (say EF and B) would both be within 90% of the
    best score and both pinned. No match at all would give the "couldn't find … went with the
@@ -1721,6 +1723,62 @@ still open, so none of these numbers clears a merge. The label-free rows are the
 What the owner decides before merging is listed under "Open owner decisions" at the start of
 "Implementation decisions" below.
 
+### 8.9 P12 bench: names found as extractor hints (recorded in p12, 2026-10-12)
+
+**These numbers are scored against unreviewed draft labels** (two-pass label agreement: every
+scored field identical in 196 / 210 instruction cases, 93.3%, section 8.4; the 115 strings added
+in p9b have single-pass labels). The `gate` row is still open, so nothing here clears a merge.
+
+The extractor set is the one from section 8.7 (324 strings, 301 scored). Each string now gets the
+`names_found` lines production would compute, from the collection of the user who wrote it as of
+the time they wrote it: the case's user and time for the p6 strings, and the first logged run with
+the same text for the p9b supplements (317 strings; the 7 synthetic strings have no collection).
+122 strings get at least one line (119 one, 1 two, 2 three; the longest is 122 characters). The
+"no hints" column runs the p12 prompt without the hints, to separate the new prompt lines from the
+hints. Mini varies between runs even at temperature 0 (section 8.7), so differences of a few
+strings are noise.
+
+| Extractor, 301 scored strings           | mini p9b       | mini p12, no hints | mini p12       | gpt-4.1 p9b    | gpt-4.1 p12    |
+| --------------------------------------- | -------------- | ------------------ | -------------- | -------------- | -------------- |
+| Hard-field false positives (bar ≤ 3%)   | 19.6% (59)     | 18.3% (55)         | 14.6% (44)     | 5.6% (17)      | 5.0% (15)      |
+| off named sides                         | 15.9% (48)     | 15.6% (47)         | 13.0% (39)     | 5.6% (17)      | 5.0% (15)      |
+| outside mentions                        | 15.0% (45)     | 14.0% (42)         | 12.3% (37)     | 4.0% (12)      | 3.7% (11)      |
+| strings with a false mention            | 17             | 14                 | 7              | 5              | 4              |
+| p6 strings (two-pass labels, 196)       | 16.8% (33)     | 17.9% (35)         | 13.3% (26)     | 4.6% (9)       | 4.1% (8)       |
+| test split (96)                         | 13.5% (13)     | 14.6% (14)         | 10.4% (10)     | 5.2% (5)       | 4.2% (4)       |
+| `holdout2` (unseen, single-pass, 52)    | 21.2% (11)     | 11.5% (6)          | 7.7% (4)       | 3.8% (2)       | 1.9% (1)       |
+| Missed named mention (154 named)        | 9.1% (14)      | 7.8% (12)          | 4.5% (7)       | 5.8% (9)       | 5.8% (9)       |
+| $ per extraction, list price            | $0.00119       | $0.00123           | $0.00123       | $0.0059        | $0.0062        |
+| Latency p50                             | 0.8 s          | 1.0 s              | 1.0 s          | 0.8 s          | 0.8 s          |
+
+- "Missed named mention" is new in p12: a scored string whose label names an item or brand that
+  the extractor put in neither side's mentions (the mentions are matched by words, as in the
+  field scores, on either side, since the resolver also looks on the other side).
+- On mini, the hints halve the false and the missed mentions (`pen.mentions` false positives /
+  misses 8 / 16 → 4 / 8, `ink.mentions` 9 / 2 → 3 / 0). The other false positives move within
+  the run-to-run noise (`pair_usage` 6 → 10, `pen.nib_grades_include` 11 → 6,
+  `pen.nib_characters_include` 11 → 5). Neither model meets the ≤ 3% bar against draft labels;
+  the model question is step p14.
+- On gpt-4.1 the hints change little: it already found the names. Its 9 misses are mostly
+  abbreviated or misspelled model names that the scorer cannot match to the label's full name.
+- **Cost.** The new prompt lines add about 115 input tokens (median 2,836 → 2,951) and the hints
+  about 20 more on the strings that get them (median 2,971); list price per extraction on mini
+  rises from $0.00119 to $0.00123. The system prompt is still a fixed prefix, so OpenAI's prompt
+  cache keeps working (the bench repeats it within minutes).
+- **The agreement rule** (Ruby pins kept where the extractor named only their brand, p9b) would
+  have changed the pins in 0 of the 301 scored strings in each of the five runs of the table;
+  p12 removes it.
+- **The phrasing that prompted p12** ("an ink for the <model name>", a pen named without its
+  brand). In the set, 12 scored strings have the form "ink(s) for the / my / this <name>" with a
+  labelled name; every run misses the same 2, both abbreviations the matcher does not recognise
+  either. On the owner's own dev DB runs with that phrasing (2 distinct strings, 5 extractions
+  each), the p11 prompt gave the pen mention in 7 of 10 extractions, the p12 prompt in 10 of 10
+  without hints and 10 of 10 with them. The spec `extractor_run_spec.rb` pins the flow with
+  invented names.
+- **Spend in p12:** extractor runs $0.195 (mini), $0.154 (mini without hints), $1.027 (gpt-4.1)
+  and $0.018 for the phrasing checks, **about $1.39 in all** at the cached rates OpenAI charged
+  ($2.80 at list price).
+
 ---
 
 ## 9. PR plan
@@ -1819,7 +1877,8 @@ Decisions taken during implementation that this plan did not settle. Each bullet
 id that made it. The owner reviews them before the corresponding PR merges.
 
 **Steps.** The plan's PRs are split into smaller stacked PRs, merged in this order. Status as of
-2026-10-12: every agent step is built and **done, pending merge**; nothing has merged yet.
+2026-10-12: every agent step is built and **done, pending merge**; nothing has merged yet. Steps
+from p12 on are follow-ups to the owner's answers of 2026-10-12, stacked on p11.
 
 | Step | Plan PR | Scope                                                                                        | Status                    |
 | ---- | ------- | -------------------------------------------------------------------------------------------- | ------------------------- |
@@ -1841,35 +1900,40 @@ id that made it. The owner reviews them before the corresponding PR merges.
 | p9a  | P9      | `Constraints`, `ConstraintCheck` and the `CandidateSelector` filters, boosts and relax order; production still passes `Constraints.empty` | done, pending merge (#3844) |
 | p9b  | P9      | `PenAndInkConstraintExtractor`, wired to the selector; prompt headers and `soft_notes`       | done, pending merge (#3846) |
 | p11  | P11     | remove the old CSV path                                                                      | done, pending merge (#3847) |
+| p12  | P9 follow-up | `MentionMatcher` hits go to the extractor as `names_found` hints; the agreement rule is removed; the extractor bench sends the same hints and reports missed named mentions | done, committed (no PR yet) |
 
 The PRs are stacked: each branches off the previous step's branch, so they merge in the order of
 the table, each after its own review and the `gate` row.
 
 **Open owner decisions.** Collected from the step bullets below and section 8; each bullet there
-has the detail.
+has the detail. The owner answered items 1–9 on 2026-10-12 (recorded in p12); the follow-up steps
+p12–p15 carry them out.
 
-1. **The `gate` row** (labels and normaliser hand checks). Until it is done, no label-based number
-   in section 8 may be claimed as meeting the bar, and no p7+ PR merges on these numbers. The
-   `NibProfile`, `ColorProfile` and `InkProperties` check sheets still have to be produced.
-2. **Mini ink novelty +8.0 pp** above baseline on runs without an instruction (p7, section 8.5):
-   accept, or retune the novelty share.
-3. **Extractor model and false positives** (p9b, section 8.7): the extractor misses the ≤ 3%
-   hard-field false-positive bar against draft labels on gpt-4.1-mini (19.6%) and gpt-4.1 (5.6%).
-   Ship on mini, switch the model in its own PR, shorten the prompt or tighten it further.
-4. **Cost and latency of instruction runs.** Free instruction runs cost $0.00323 at list price
-   against the $0.00254 baseline, and $0.00140 when OpenAI caches the extractor's static prompt
-   prefix (p9b, section 8.7); the extractor adds about 1 s. The P11 row's optional extractor
-   result cache (section 3.4b) was not built (p11); it is the lever if the latency matters.
+1. **The `gate` row** (labels and normaliser hand checks). **Decided:** the owner checks the
+   labels and the `NibProfile`, `ColorProfile` and `InkProperties` outputs on a throwaway local dev
+   page, built at the end of the follow-up run and never pushed. **Still open** until the owner
+   has done it: until then no label-based number in section 8 may be claimed as meeting the bar,
+   and no p7+ PR merges on these numbers.
+2. **Mini ink novelty +8.0 pp** above baseline on runs without an instruction (p7, section 8.5).
+   **Decided:** accepted as is.
+3. **Extractor model and false positives** (p9b, section 8.7; p12, section 8.9). **Decided:**
+   explore more models (step p14). With the p12 hints, mini is at 14.6% and gpt-4.1 at 5.0%
+   against the ≤ 3% bar (draft labels).
+4. **Cost and latency of instruction runs** (p9b, section 8.7). **Decided:** accepted for now.
+   `agent_log.usage` already records cached input tokens (p7), so the cached-prefix cost can be
+   read from production logs (p12).
 5. **Named-ink hit on mini** (77.8%, 7 of 9 test cases) against the 85% bar (section 8.7).
-6. **"Instruction honoured"** was not re-graded for P9 (section 8.7); decide whether a fresh,
-   independent judge pass is needed before P9 merges.
-7. **`MentionMatcher` held-out false-pin check** (p8, section 8.6): 4 of 411 held-out strings pin
-   inks the user says are in use; the other 203 pinned strings are unchecked.
-8. **Inked-pen link target** (p10): the edit page of the currently-inked entry, which has no
-   archive button; the list or an archive button on the edit page are the alternatives.
-9. **Data window** (p6b): the bench used the dev DB's 2025-11 → 2026-03 window, not the plan's
-   2026-03 → 2026-10 window; a fresh dump would let the section 2 figures and the regression ids be
-   replayed.
+   **Decided:** label more named-ink cases and re-run (step p15).
+6. **"Instruction honoured"** was not re-graded for P9 (section 8.7). **Decided:** run a fresh,
+   independent judge pass (step p15).
+7. **`MentionMatcher` held-out false-pin check** (p8, section 8.6). **Decided:** accepted as is.
+8. **Inked-pen link target** (p10). **Decided:** link to the currently-inked list instead of the
+   edit page (step p13).
+9. **Data window** (p6b). **Decided:** accepted as is.
+10. **Ruby names, LLM roles** (new, 2026-10-12). **Decided:** the extractor gets the
+    `MentionMatcher` hits as hints, because gpt-4.1-mini missed a pen named without its brand
+    ("an ink for the <model name>") that the matcher had found. Ruby recognises names from the
+    user's own collection; the LLM decides their role. Done in p12.
 
 **Human checks before bench claims.** The bench labels are drafted by Claude Code, and the
 checkers reuse `NibProfile`, `ColorProfile` and `InkProperties`, so the `gate` row is a merge
@@ -2673,3 +2737,43 @@ evidence.
 - p11: `spec/agents/README.md` now describes the suggester's spec files instead of the CSV-era
   agent, and its stale general notes (raix, `docker-compose exec` without `-T`) were corrected.
   Its sections on the other agents were not re-audited.
+
+**p12 decisions:**
+
+- p12: The owner's answers of 2026-10-12 to the nine open decisions are recorded under "Open owner
+  decisions" above (item 10 is the new hints decision). The `gate` row stays open until the owner
+  has checked the labels and normaliser outputs on the throwaway local page.
+- p12: The suggester runs `MentionMatcher` before the extractor on every instruction run and sends
+  each hit that `NameResolver` resolves on its own (`PenAndInkSuggestion::NameHints`): a named pin
+  as `pen: <text as written>`, with the collection item's display name in brackets when its words
+  differ (at most two names for a tie), and a brand-only hit as `pen brand: <text>`; a bare name
+  that fits both sides gives one line per side. Hits that only come close (the "went with the
+  closest" note), aren't found, or name an item that can't be suggested (a rollerball, a swab) give
+  no line, so `names_found` lists only items the user owns and can use.
+- p12: The extractor's user message is `<request>…</request>`, then, only when something was found,
+  `<names_found>` with one line per hit. The extractor itself caps the block at 5 lines of at most
+  160 characters, drops duplicates and blank lines, and replaces `<` and `>` in each line with
+  spaces, so a pen name cannot close or open a tag; `<request>` and `<names_found>` tags in the
+  request are removed too. The system prompt gains two short passages (what the block is, and how
+  to use it) and stays a fixed prefix for prompt caching.
+- p12: The agreement rule from p9b is removed: with the hints, the extractor sees the full names
+  Ruby found and decides their role, and the rule could override that decision (extractor "Lamy"
+  for "a Lamy that writes like my Lamy 2000" became a Lamy 2000 pin). It changed the pins in none
+  of the 301 scored strings of the five p12 bench runs (section 8.9). On extractor failure the
+  matcher's pins are used as before.
+- p12: The suggester does not log the hints in `extra_data`; they are in the extractor's child log
+  transcript.
+- p12: `NameResolver.display_name` is now a public class method, shared by the resolver's notes
+  and the hints.
+- p12: Bench: extractor labels carry an optional `user_id` and `as_of`. `bench:suggester:extractor_labels`
+  takes them from the case for p6 strings and from the first logged suggester run with the same
+  (normalised, 500-character) text for the supplements; strings without a run (the synthetic
+  ones) get no hints. `bench:suggester:extractor` sends the hints production would compute from
+  the snapshot at `as_of` (`NAMES_FOUND=off` to switch them off) and records them per string. The
+  score adds the missed-named-mention rate next to the hard-field false-positive rate.
+- p12: Cost item 4 option a needs no change: `RubyLlmAgent` already adds each call's
+  `cached_tokens` to `agent_log.usage` (since p7, with a spec in `ruby_llm_agent_spec.rb`), and the
+  extractor writes its own child log, so cached input tokens are recorded per extractor call.
+- p12: Bench results are in section 8.9, scored against unreviewed draft labels. The extractor
+  stays on gpt-4.1-mini; the model is step p14's question. Spend was about $1.39 (cached rates as
+  charged).

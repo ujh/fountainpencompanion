@@ -1,7 +1,18 @@
 module Bench
   module Suggester
     class ExtractorLabel
-      KEYS = %w[text constraints reviewed notes split source ambiguous previous_suggestion].freeze
+      KEYS = %w[
+        text
+        constraints
+        reviewed
+        notes
+        split
+        source
+        ambiguous
+        previous_suggestion
+        user_id
+        as_of
+      ].freeze
 
       attr_accessor :text,
                     :constraints,
@@ -10,7 +21,9 @@ module Bench
                     :split,
                     :source,
                     :ambiguous,
-                    :previous_suggestion
+                    :previous_suggestion,
+                    :user_id,
+                    :as_of
 
       def self.normalise_text(text)
         text.to_s.downcase.squish
@@ -40,7 +53,9 @@ module Bench
           split: hash["split"].to_s,
           source: hash["source"].to_s,
           ambiguous: hash["ambiguous"] == true,
-          previous_suggestion: hash["previous_suggestion"] == true
+          previous_suggestion: hash["previous_suggestion"] == true,
+          user_id: hash["user_id"],
+          as_of: hash["as_of"].presence && Time.zone.parse(hash["as_of"].to_s)
         )
       end
 
@@ -82,7 +97,9 @@ module Bench
               split: bench_case.split,
               source: "p6",
               ambiguous: label.ambiguous?,
-              previous_suggestion: bench_case.rejected_pairs.any?
+              previous_suggestion: bench_case.rejected_pairs.any?,
+              user_id: bench_case.user_id,
+              as_of: bench_case.as_of
             )
           end
           .uniq { |label| normalise_text(label.text) }
@@ -96,7 +113,9 @@ module Bench
         split: "",
         source: "",
         ambiguous: false,
-        previous_suggestion: false
+        previous_suggestion: false,
+        user_id: nil,
+        as_of: nil
       )
         self.text = text
         self.constraints = constraints
@@ -106,7 +125,15 @@ module Bench
         self.source = source
         self.ambiguous = ambiguous
         self.previous_suggestion = previous_suggestion
+        self.user_id = user_id
+        self.as_of = as_of
       end
+
+      def with_context(user_id:, as_of:)
+        self.class.new(**to_h.symbolize_keys.merge(user_id:, as_of:))
+      end
+
+      def context? = user_id.present?
 
       def reviewed? = reviewed
 
@@ -121,8 +148,10 @@ module Bench
           "split" => split,
           "source" => source,
           "ambiguous" => ambiguous,
-          "previous_suggestion" => previous_suggestion
-        }
+          "previous_suggestion" => previous_suggestion,
+          "user_id" => user_id,
+          "as_of" => as_of&.utc&.iso8601(6)
+        }.compact
       end
     end
   end
