@@ -5,7 +5,7 @@ module Bench
     class Runner
       include ActiveSupport::Testing::TimeHelpers
 
-      def self.replay_build(legacy: false)
+      BASELINE =
         lambda do |bench_case, user, seed|
           BaselineSuggester.new(
             user,
@@ -13,14 +13,9 @@ module Bench
             bench_case.rejected_pairs,
             as_of: bench_case.as_of,
             tier: bench_case.tier,
-            seed:,
-            legacy:
+            seed:
           )
         end
-      end
-
-      BASELINE = replay_build
-      LEGACY = replay_build(legacy: true)
 
       BUDGET = "budget"
       UNPRICED = "unpriced"

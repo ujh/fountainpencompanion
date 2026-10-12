@@ -50,7 +50,7 @@ namespace :bench do
     end
 
     desc "Replay the cases through the current suggester " \
-           "(RUN=baseline LIMIT= SPLIT= INSTRUCTION=with|without TIER=free|premium LEGACY= " \
+           "(RUN=baseline LIMIT= SPLIT= INSTRUCTION=with|without TIER=free|premium " \
            "MAX_USD=5 SEED=1)"
     task baseline: :setup do
       abort "The bench replays only against the development database." unless Rails.env.development?
@@ -69,9 +69,7 @@ namespace :bench do
         )
       cases = cases.first(Integer(ENV["LIMIT"])) if ENV["LIMIT"]
 
-      legacy = ENV["LEGACY"].present?
-      build = legacy ? Bench::Suggester::Runner::LEGACY : Bench::Suggester::Runner::BASELINE
-      runner = Bench::Suggester::Runner.new(cases:, seed:, max_usd:, tier:, build:)
+      runner = Bench::Suggester::Runner.new(cases:, seed:, max_usd:, tier:)
       results = runner.run { print "." }
       puts
       store.write_results(
@@ -82,7 +80,6 @@ namespace :bench do
           "tier" => tier,
           "split" => ENV["SPLIT"],
           "instruction" => ENV["INSTRUCTION"],
-          "legacy" => legacy,
           "max_usd" => max_usd,
           "spent_usd" => runner.spent_usd.round(4),
           "stop_reason" => runner.stop_reason,

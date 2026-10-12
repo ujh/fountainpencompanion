@@ -283,19 +283,17 @@ RSpec.describe PenAndInkSuggestion::CollectionSnapshot do
       [pen_a, pen_b, pen_c, pen_d, pen_e, unused_pen, ink_a, ink_b, ink_c, ink_d, ink_e, unused_ink]
     end
 
-    def legacy_values(item)
+    def model_counts(item)
       item = item.class.find(item.id)
-      [item.usage_count, item.daily_usage_count, item.last_used_on]
+      [item.usage_count, item.daily_usage_count]
     end
 
-    it "equals the old usage_count, daily_usage_count and last_used_on of every item" do
+    it "equals the usage_count and daily_usage_count of every item's model" do
       snapshot = described_class.new(user)
 
       items.each do |item|
         stats = snapshot.stats_for(item)
-        expect([stats.usage_count, stats.daily_usage_count, stats.last_used_on]).to eq(
-          legacy_values(item)
-        )
+        expect([stats.usage_count, stats.daily_usage_count]).to eq(model_counts(item))
       end
     end
 
@@ -306,7 +304,6 @@ RSpec.describe PenAndInkSuggestion::CollectionSnapshot do
         usage_count: 0,
         daily_usage_count: 0,
         last_activity_on: nil,
-        last_used_on: nil,
         inked?: false
       )
     end
@@ -349,14 +346,6 @@ RSpec.describe PenAndInkSuggestion::CollectionSnapshot do
 
       expect(CurrentlyInked.where(collected_pen: pen).pluck(:inked_on)).to eq([today, today])
       expect(described_class.new(user).inked?(pen)).to be(true)
-    end
-
-    it "takes the most recently created inking as the newest when inked on the same day" do
-      pen = create(:collected_pen, user:)
-      ink_it(pen, ink_c, inked_on: today - 30, archived_on: today - 24, used_on: [today - 25])
-      ink_it(pen, ink_d, inked_on: today - 30, archived_on: today - 20)
-
-      expect(described_class.new(user).stats_for(pen).last_used_on).to eq(today - 30)
     end
   end
 
@@ -554,7 +543,6 @@ RSpec.describe PenAndInkSuggestion::CollectionSnapshot do
         usage_count: 2,
         daily_usage_count: 2,
         last_activity_on: as_of_date,
-        last_used_on: as_of_date - 1,
         inked?: true
       )
       expect(snapshot.stats_for(ink).usage_count).to eq(2)

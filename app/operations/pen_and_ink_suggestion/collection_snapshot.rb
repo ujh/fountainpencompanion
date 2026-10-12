@@ -2,9 +2,7 @@ class PenAndInkSuggestion::CollectionSnapshot
   NON_INKABLE_KINDS = %i[non_inkable rollerball dip].freeze
 
   ItemStats =
-    Data.define(:usage_count, :daily_usage_count, :last_activity_on, :last_used_on, :inked) do
-      def inked? = inked
-    end
+    Data.define(:usage_count, :daily_usage_count, :last_activity_on, :inked) { def inked? = inked }
 
   Pair = Data.define(:count, :last_inked_on)
 
@@ -15,19 +13,12 @@ class PenAndInkSuggestion::CollectionSnapshot
       :collected_ink_id,
       :inked_on,
       :archived_on,
-      :created_at,
       :usage_count,
       :last_usage_on
     ) { def active? = archived_on.nil? }
 
   EMPTY_STATS =
-    ItemStats.new(
-      usage_count: 0,
-      daily_usage_count: 0,
-      last_activity_on: nil,
-      last_used_on: nil,
-      inked: false
-    )
+    ItemStats.new(usage_count: 0, daily_usage_count: 0, last_activity_on: nil, inked: false)
 
   attr_reader :today
 
@@ -103,10 +94,6 @@ class PenAndInkSuggestion::CollectionSnapshot
       .max_by { |inking| [inking.inked_on, inking.id] }
   end
 
-  def inking(id)
-    inkings_by_id[id]
-  end
-
   def inkings_since(date)
     inkings.select { |inking| inking.inked_on >= date }
   end
@@ -159,21 +146,19 @@ class PenAndInkSuggestion::CollectionSnapshot
           :collected_ink_id,
           :inked_on,
           :archived_on,
-          :created_at,
           Arel.sql("COUNT(usage_records.id)"),
           Arel.sql("MAX(usage_records.used_on)")
         )
         .map { |values| build_inking(*values) }
   end
 
-  def build_inking(id, pen_id, ink_id, inked_on, archived_on, created_at, usage_count, last_usage)
+  def build_inking(id, pen_id, ink_id, inked_on, archived_on, usage_count, last_usage)
     Inking.new(
       id:,
       collected_pen_id: pen_id,
       collected_ink_id: ink_id,
       inked_on:,
       archived_on: archived_on && archived_on > today ? nil : archived_on,
-      created_at:,
       usage_count:,
       last_usage_on: last_usage
     )
@@ -225,10 +210,6 @@ class PenAndInkSuggestion::CollectionSnapshot
     @nib_profiles ||= {}
   end
 
-  def inkings_by_id
-    @inkings_by_id ||= inkings.index_by(&:id)
-  end
-
   def stats_by_item(klass)
     @stats_by_item ||= {
       CollectedPen => item_stats(:collected_pen_id),
@@ -246,7 +227,6 @@ class PenAndInkSuggestion::CollectionSnapshot
           usage_count: item_inkings.size,
           daily_usage_count: item_inkings.sum(&:usage_count),
           last_activity_on: inked ? today : last_activity_on(item_inkings),
-          last_used_on: legacy_item_last_used_on(item_inkings),
           inked:
         )
       end
@@ -257,21 +237,6 @@ class PenAndInkSuggestion::CollectionSnapshot
       .flat_map { |inking| [inking.inked_on, inking.archived_on, inking.last_usage_on] }
       .compact
       .max
-  end
-
-  def legacy_item_last_used_on(item_inkings)
-    newest = item_inkings.max_by { |inking| [inking.inked_on, inking.id] }
-    legacy_last_used_on(newest) || newest.inked_on
-  end
-
-  def legacy_last_used_on(inking)
-    inking.last_usage_on || previous_inking(inking)&.last_usage_on
-  end
-
-  def previous_inking(inking)
-    inkings_by_pair[[inking.collected_pen_id, inking.collected_ink_id]]
-      .reject { |other| other.id == inking.id }
-      .max_by { |other| [other.created_at, other.id] }
   end
 
   def inkings_by_pair

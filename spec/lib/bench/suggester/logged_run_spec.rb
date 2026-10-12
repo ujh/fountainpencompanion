@@ -158,67 +158,51 @@ RSpec.describe Bench::Suggester::LoggedRun do
     expect(run_for(model: "other").tier).to be_nil
   end
 
-  it "parses the CSV prompt the legacy path writes" do
-    pen = create(:collected_pen, user:, brand: "Pilot", model: "Custom 74")
-    ink = create(:collected_ink, user:, brand_name: "Sailor", ink_name: "Jentle")
-    ink.update!(
-      micro_cluster:
-        create(
-          :micro_cluster,
-          macro_cluster: create(:macro_cluster, description: "Wet.\n\nShading, \"lovely\".")
-        )
-    )
-    arguments = { suggestion: "Try it", ink_id: ink.id, pen_id: pen.id }.to_json
-    stub_request(:post, "https://api.openai.com/v1/chat/completions").to_return(
-      status: 200,
-      headers: {
-        "Content-Type" => "application/json"
-      },
-      body: {
-        "choices" => [
-          {
-            "message" => {
-              "role" => "assistant",
-              "content" => "",
-              "tool_calls" => [
-                {
-                  "id" => "call_1",
-                  "type" => "function",
-                  "function" => {
-                    "name" => "record_suggestion",
-                    "arguments" => arguments
-                  }
-                }
-              ]
-            },
-            "finish_reason" => "tool_calls"
-          }
+  it "parses the CSV prompt the old suggester wrote" do
+    pens_csv =
+      "pen id,fountain pen name,last usage,usage count,daily usage count\n" \
+        "7,\"\"\"Pilot Custom 74, black, plastic, gold, M\"\"\",never,0,0\n"
+    inks_csv =
+      "ink id,ink name,type,last usage,usage count,daily usage count,tags,description\n" \
+        "9,\"\"\"Sailor Jentle - bottle\"\"\",bottle,never,0,0,\"\",\"Wet.\n\n" \
+        "Shading, \"\"lovely\"\".\"\n"
+    averages = "{\"average_usage\":0.0,\"average_daily_usage\":0.0}"
+    prompt =
+      "Given the following fountain pens:\n#{pens_csv}\n\n" \
+        "Pens have the following average statistics:\n#{averages}\n\n" \
+        "Given the following inks:\n#{inks_csv}\n\n" \
+        "Inks have the following average statistics:\n#{averages}\n\n" \
+        "Which combination of ink and fountain pen should I use and why?\n\n\n" \
+        "IMPORTANT: Take extra care to follow these additional instructions:\nSomething wet\n\n" \
+        "The following suggestions were rejected. Do not recommend them again:\n" \
+        "[{\"ink_id\":8,\"pen_id\":9}]"
+    log =
+      create(
+        :agent_log,
+        name: "PenAndInkSuggester",
+        owner: user,
+        transcript: [
+          { "role" => "system", "content" => "" },
+          { "role" => "user", "content" => prompt },
+          { "role" => "assistant", "content" => "", "tool_calls" => [] }
         ],
-        "usage" => {
-          "prompt_tokens" => 10,
-          "completion_tokens" => 5,
-          "total_tokens" => 15
+        extra_data: {
+          "pen" => 7,
+          "ink" => 9,
+          "message" => "Try it"
         },
-        "model" => "gpt-4.1-mini-2025-04-14"
-      }.to_json
-    )
-    suggester =
-      Bench::Suggester::BaselineSuggester.new(
-        user,
-        "Something wet",
-        [{ "ink_id" => 8, "pen_id" => 9 }],
-        as_of: Time.current,
-        legacy: true
+        usage: {
+          "model" => "gpt-4.1-mini-2025-04-14"
+        }
       )
-    suggester.perform
 
-    run = described_class.new(suggester.agent_log.reload)
+    run = described_class.new(log)
 
     expect(run.instruction).to eq("Something wet")
     expect(run.rejected_pairs).to eq([{ "ink_id" => 8, "pen_id" => 9 }])
-    expect(run.shown_pen_ids).to eq([pen.id])
-    expect(run.shown_ink_ids).to eq([ink.id])
-    expect(run.original).to include("pen_id" => pen.id, "ink_id" => ink.id, "message" => "Try it")
+    expect(run.shown_pen_ids).to eq([7])
+    expect(run.shown_ink_ids).to eq([9])
+    expect(run.original).to include("pen_id" => 7, "ink_id" => 9, "message" => "Try it")
     expect(run.tier).to eq("free")
   end
 

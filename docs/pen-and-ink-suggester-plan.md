@@ -1,7 +1,9 @@
 # PenAndInkSuggester v2 Plan
 
-Status: plan agreed 2026-10-09 (all owner decisions folded in, see section 10), implementation not
-started. `docs/implementation-roadmap.md` orders this work as step **S29b-suggester-v2**, which
+Status: plan agreed 2026-10-09 (all owner decisions folded in, see section 10). Implementation
+done as stacked PRs #3830–#3844 and #3846 plus p11, all **pending merge** (2026-10-12): every step of the
+table in "Implementation decisions" is built, and the owner's `gate` checks and the open decisions
+listed there come before any merge. Bench results are summarised in section 8.8. `docs/implementation-roadmap.md` orders this work as step **S29b-suggester-v2**, which
 gates the chat bench round S30. The nib domain reference lives in `docs/nib-reference.md`.
 
 Data basis: master `97fca8e0`, the read-only prod DB and the exported agent logs as of 2026-10-09.
@@ -329,9 +331,8 @@ unaffected. It gets its own `config/llm.yml` entry (section 7).
 
 ### 3.2 System prompt (draft `system_directive`, static for all users and tiers)
 
-This `system_directive` applies only on the v2 path. Until P11 removes the CSV path, instruction
-runs that still take it (P7 until P8) keep today's empty system message and today's user prompt
-unchanged.
+This `system_directive` is sent on every run. From P7 until P8, instruction runs still took the old
+CSV path with its empty system message; P11 removed that path.
 
 P7 shipped this text in `PenAndInkSuggestion::PickPrompt::SYSTEM_DIRECTIVE`; the block below is
 the shipped version. Measured with the o200k tokenizer it is 1,591 tokens, and the
@@ -494,7 +495,8 @@ How the message is built:
 - **Currently inked** rows go to every tier: capped at 15 for free users and 40 for premium (SQ3).
 - **When the extractor falls back** to `Constraints.empty`, the slice sizes go back to today's
   tier limits in compact rows: 50 pens and 50 inks for free users, 100/100 for patrons, 200/200
-  for admins (`LIMIT`, `LIMIT_PATRON`, `LIMIT_ADMIN`, `pen_and_ink_suggester.rb:42-44, 277-281`).
+  for admins (`CandidateSelector::FALLBACK_SLICES`; until P11 the old agent's `LIMIT`,
+  `LIMIT_PATRON` and `LIMIT_ADMIN` constants).
   Pins from the conservative Ruby matcher still narrow their side, and the unpinned lists are
   headed "UNFILTERED" so the picker applies the request itself, as it does today. That keeps the
   "never worse than today" fallback honest. From P8 until P9 every instruction run takes this
@@ -564,10 +566,11 @@ The suggester builds it as `RecordSuggestion.new(selection, rejected_pairs,
 selection.effective_constraints)`. Passing the original extracted constraints would reject every
 pick in a run where the selector relaxed a requirement (no samples left, no broad-ish pen uninked).
 
-**Coexistence with the old tool.** Today's id-based tool is also a `RecordSuggestion` inner class.
-From P7 until P11 both paths exist, so P7 renames the old one to `LegacyRecordSuggestion` (keeping
-`def name = "record_suggestion"`, so the model-facing name and the CSV path's prompt don't change)
-and the CSV path keeps using it. P11 deletes `LegacyRecordSuggestion` with the CSV path.
+**Coexistence with the old tool.** The old id-based tool was also a `RecordSuggestion` inner class.
+From P7 until P11 both paths existed, so P7 renamed the old one to `LegacyRecordSuggestion`
+(keeping `def name = "record_suggestion"`, so the model-facing name and the CSV path's prompt
+didn't change) and the CSV path kept using it. P11 deleted `LegacyRecordSuggestion` with the CSV
+path.
 
 How it runs:
 
@@ -762,12 +765,10 @@ is added to the user message. That gives depth on specialist nibs without a tool
   - per-pen and per-ink **`last_activity_on`** =
     `GREATEST(MAX(usage_records.used_on), MAX(currently_inked.archived_on), MAX(currently_inked.inked_on))`,
     with an item in an active inking counting as in use today;
-  - the legacy `last_used_on` as `CollectedInk#last_used_on`/`CollectedPen#last_used_on` compute
-    it today (`collected_ink.rb:227-229`): the newest inking's `CurrentlyInked#last_used_on`,
-    which is its latest usage record or, failing that, the latest usage record of the previous
-    inking of the same pen and ink (`currently_inked.rb:89-91`, `previous_record` at `:129-140`),
-    and only then that newest inking's `inked_on`. It is used only by the old CSV path until P11
-    removes it;
+  - from P5 until P11 only, the legacy `last_used_on` as `CollectedInk#last_used_on`/
+    `CollectedPen#last_used_on` compute it (the newest inking's latest usage record, else that of
+    the previous inking of the same pair, else its `inked_on`), for the old CSV path. P11 removed
+    it with that path;
   - **pair history**: one query over `currently_inkeds` grouped by
     `(collected_pen_id, collected_ink_id)` with count and last `inked_on`;
   - active currently-inked rows;
@@ -1686,6 +1687,40 @@ owner decides, together with the `gate` row, whether to ship on gpt-4.1-mini, sw
 extractor model (in its own PR, section 7), shorten the extractor prompt, or tighten the
 extractor further.
 
+### 8.8 Summary after P11 (recorded in p11, 2026-10-12)
+
+P11 deletes only code that production no longer reached: since p8 the CSV prompt ran only through
+the bench's `LEGACY=1` switch, which P11 removes too. No bench run was made for P11; the recorded
+baseline runs stay the comparison point. The table collects the latest numbers per path from
+sections 8.5 (runs without an instruction, P7) and 8.7 (instruction runs, P9, test split). Those
+numbers were measured on the p7–p9b branches, so they cover every later fix only up to that step.
+
+**Label-based rows are scored against unreviewed draft labels** (two-pass label agreement: every
+scored field identical in 196 / 210 instruction cases, 93.3%, section 8.4). The judge rows were
+graded by the sessions that wrote the code under test and are weak evidence. The section 9 `gate`
+row (the owner's spot check of about 50 labels and the 50 + 50 + 50 normaliser hand checks) is
+still open, so none of these numbers clears a merge. The label-free rows are the primary evidence.
+
+| Metric (section 8.2)                  | Bar               | No instruction (P7), mini / gpt-4.1 | Instruction runs (P9, test), mini / gpt-4.1 | Against the bar                                   |
+| ------------------------------------- | ----------------- | ----------------------------------- | ------------------------------------------- | ------------------------------------------------- |
+| Hard failures                         | < 0.5%            | 0 / 336, 0 / 112                    | 0 / 103, 0 / 103                            | meets                                             |
+| Valid suggestions                     | —                 | 100%, 100%                          | 100%, 100%                                  | baseline 97–100%                                  |
+| Swab or incompatible cartridge        | 0                 | 0, 0                                | 0, 0                                        | meets                                             |
+| Rule leakage                          | < 10%             | 6.9%, 2.0%                          | 8.8%, 2.0%                                  | meets (baseline 72–94%)                           |
+| $ per run, list price (baseline)      | ≤ baseline        | $0.00192 ($0.00219), $0.0128 ($0.0174) | $0.00323 ($0.00254), $0.0141 ($0.0215)   | misses on mini instruction runs unless the extractor prefix is cached ($0.00140) |
+| Latency p50                           | —                 | 1.57 s, 1.75 s                      | 2.65 s, 2.71 s                              | the extractor adds about 1 s                      |
+| Novelty share, ink / pen              | baseline ± 5 pp   | mini ink +8.0 pp, others within     | not measured                                | mini ink is outside the two-sided band (more novel) |
+| Hard constraints met or relaxed       | ≥ 98%             | —                                   | 100% (47/47), 100% (47/47)                  | meets against draft labels                        |
+| Named pen hit                         | ≥ 90%             | —                                   | 93.8% (45/48), 93.8% (45/48)                | meets against draft labels                        |
+| Named ink hit                         | ≥ 85%             | —                                   | 77.8% (7/9), 88.9% (8/9)                    | mini misses (9 cases)                             |
+| Instruction honoured                  | ≥ 85%             | —                                   | not re-graded after P8 (mini P8: 81%)       | not measured for P9                               |
+| Judge, runs without an instruction    | ≥ baseline        | 4.29 vs 3.03, 4.32 vs 3.24          | —                                           | above baseline (self-graded)                      |
+| Extractor hard-field false positives  | ≤ 3% of strings   | —                                   | 19.6% (mini, all scored), 5.6% (gpt-4.1)    | misses on both models                             |
+| `MentionMatcher` false pins           | ≤ 2% of strings   | —                                   | 0.95% (210 labelled strings, tuned on them) | meets against draft labels; held-out check open   |
+
+What the owner decides before merging is listed under "Open owner decisions" at the start of
+"Implementation decisions" below.
+
 ---
 
 ## 9. PR plan
@@ -1783,28 +1818,58 @@ the roadmap's Q-numbers; "roadmap Q16" and the like refer to `docs/implementatio
 Decisions taken during implementation that this plan did not settle. Each bullet carries the step
 id that made it. The owner reviews them before the corresponding PR merges.
 
-**Steps.** The plan's PRs are split into smaller stacked PRs, merged in this order:
+**Steps.** The plan's PRs are split into smaller stacked PRs, merged in this order. Status as of
+2026-10-12: every agent step is built and **done, pending merge**; nothing has merged yet.
 
-| Step | Plan PR | Scope                                                                                        |
-| ---- | ------- | -------------------------------------------------------------------------------------------- |
-| p1   | P1      | `NibProfile` and `NibProfile::Parser` with the table spec                                    |
-| p2a  | P2      | `RubyLlmAgent`: `ToolCallLimitExceeded`, `max_tool_calls`, `tool_calls_mode`; CLAUDE.md tool names |
-| p2b  | P2      | suggester: precheck, `ask!`, first-valid-wins `RecordSuggestion`, one `AgentLog` per request, worker `retry: 0` |
-| p2c  | P2      | `interactive` queue, result written in `ensure`, `queue_ms`, rejected-suggestion validation, 500-char cap, enqueue cap check |
-| p2d  | P2      | Rack::Attack throttle                                                                        |
-| p3   | P3      | widget reliability: poll timeout, error state, gate note, `maxLength`, message-only results  |
-| p4a  | P4      | `ColorProfile`                                                                               |
-| p4b  | P4      | `InkProperties`                                                                              |
-| p5   | P5      | `CollectionSnapshot`; the current CSV prompt builder reads from it                           |
-| p6a  | P6      | bench harness code: case exporter, label formats, checkers, runner, grading export, rake tasks |
-| p6b  | P6      | case export on fresh data, drafted labels, seeded baseline run recorded                      |
-| gate | P6      | **owner, not an agent:** spot-check ~50 of the drafted bench labels and hand-check 50 `NibProfile`, 50 `ColorProfile` and 50 `InkProperties` outputs (section 8.1 metric 7) |
-| p7   | P7      | v2 pick call for runs without an instruction                                                 |
-| p10  | P10     | inked named pen UX (link to the currently-inked entry)                                       |
-| p8   | P8      | `MentionMatcher` + `NameResolver`; instruction runs move to v2 in fallback mode              |
-| p9a  | P9      | `Constraints`, `ConstraintCheck` and the `CandidateSelector` filters, boosts and relax order; production still passes `Constraints.empty` |
-| p9b  | P9      | `PenAndInkConstraintExtractor`, wired to the selector; prompt headers and `soft_notes`       |
-| p11  | P11     | remove the old CSV path                                                                      |
+| Step | Plan PR | Scope                                                                                        | Status                    |
+| ---- | ------- | -------------------------------------------------------------------------------------------- | ------------------------- |
+| p1   | P1      | `NibProfile` and `NibProfile::Parser` with the table spec                                    | done, pending merge (#3830) |
+| p2a  | P2      | `RubyLlmAgent`: `ToolCallLimitExceeded`, `max_tool_calls`, `tool_calls_mode`; CLAUDE.md tool names | done, pending merge (#3831) |
+| p2b  | P2      | suggester: precheck, `ask!`, first-valid-wins `RecordSuggestion`, one `AgentLog` per request, worker `retry: 0` | done, pending merge (#3832) |
+| p2c  | P2      | `interactive` queue, result written in `ensure`, `queue_ms`, rejected-suggestion validation, 500-char cap, enqueue cap check | done, pending merge (#3833) |
+| p2d  | P2      | Rack::Attack throttle                                                                        | done, pending merge (#3834) |
+| p3   | P3      | widget reliability: poll timeout, error state, gate note, `maxLength`, message-only results  | done, pending merge (#3835) |
+| p4a  | P4      | `ColorProfile`                                                                               | done, pending merge (#3836) |
+| p4b  | P4      | `InkProperties`                                                                              | done, pending merge (#3837) |
+| p5   | P5      | `CollectionSnapshot`; the current CSV prompt builder reads from it                           | done, pending merge (#3838) |
+| p6a  | P6      | bench harness code: case exporter, label formats, checkers, runner, grading export, rake tasks | done, pending merge (#3839) |
+| p6b  | P6      | case export on fresh data, drafted labels, seeded baseline run recorded                      | done, pending merge (#3840) |
+| gate | P6      | **owner, not an agent:** spot-check ~50 of the drafted bench labels and hand-check 50 `NibProfile`, 50 `ColorProfile` and 50 `InkProperties` outputs (section 8.1 metric 7) | **open** (owner); the three normaliser check sheets are not produced yet |
+| p7   | P7      | v2 pick call for runs without an instruction                                                 | done, pending merge (#3841) |
+| p10  | P10     | inked named pen UX (link to the currently-inked entry)                                       | done, pending merge (#3842) |
+| p8   | P8      | `MentionMatcher` + `NameResolver`; instruction runs move to v2 in fallback mode              | done, pending merge (#3843) |
+| p9a  | P9      | `Constraints`, `ConstraintCheck` and the `CandidateSelector` filters, boosts and relax order; production still passes `Constraints.empty` | done, pending merge (#3844) |
+| p9b  | P9      | `PenAndInkConstraintExtractor`, wired to the selector; prompt headers and `soft_notes`       | done, pending merge (#3846) |
+| p11  | P11     | remove the old CSV path                                                                      | done, pending merge (branch `suggester-p11-cleanup`, no PR yet) |
+
+The PRs are stacked: each branches off the previous step's branch, so they merge in the order of
+the table, each after its own review and the `gate` row.
+
+**Open owner decisions.** Collected from the step bullets below and section 8; each bullet there
+has the detail.
+
+1. **The `gate` row** (labels and normaliser hand checks). Until it is done, no label-based number
+   in section 8 may be claimed as meeting the bar, and no p7+ PR merges on these numbers. The
+   `NibProfile`, `ColorProfile` and `InkProperties` check sheets still have to be produced.
+2. **Mini ink novelty +8.0 pp** above baseline on runs without an instruction (p7, section 8.5):
+   accept, or retune the novelty share.
+3. **Extractor model and false positives** (p9b, section 8.7): the extractor misses the ≤ 3%
+   hard-field false-positive bar against draft labels on gpt-4.1-mini (19.6%) and gpt-4.1 (5.6%).
+   Ship on mini, switch the model in its own PR, shorten the prompt or tighten it further.
+4. **Cost and latency of instruction runs.** Free instruction runs cost $0.00323 at list price
+   against the $0.00254 baseline, and $0.00140 when OpenAI caches the extractor's static prompt
+   prefix (p9b, section 8.7); the extractor adds about 1 s. The P11 row's optional extractor
+   result cache (section 3.4b) was not built (p11); it is the lever if the latency matters.
+5. **Named-ink hit on mini** (77.8%, 7 of 9 test cases) against the 85% bar (section 8.7).
+6. **"Instruction honoured"** was not re-graded for P9 (section 8.7); decide whether a fresh,
+   independent judge pass is needed before P9 merges.
+7. **`MentionMatcher` held-out false-pin check** (p8, section 8.6): 4 of 411 held-out strings pin
+   inks the user says are in use; the other 203 pinned strings are unchecked.
+8. **Inked-pen link target** (p10): the edit page of the currently-inked entry, which has no
+   archive button; the list or an archive button on the edit page are the alternatives.
+9. **Data window** (p6b): the bench used the dev DB's 2025-11 → 2026-03 window, not the plan's
+   2026-03 → 2026-10 window; a fresh dump would let the section 2 figures and the regression ids be
+   replayed.
 
 **Human checks before bench claims.** The bench labels are drafted by Claude Code, and the
 checkers reuse `NibProfile`, `ColorProfile` and `InkProperties`, so the `gate` row is a merge
@@ -2576,3 +2641,34 @@ evidence.
   strings; every number in section 8.7 except the demo was re-measured after that change.
 - p9b: The S04 inventory in `docs/implementation-roadmap.md` now counts ten `MODEL_ID`
   constants, the extractor's included.
+
+**p11 decisions:**
+
+- p11: The old agent spec's general examples (models per tier, prechecks, daily cap, one log per
+  request, the 12-call tool limit, API errors, transcript and usage) were ported to runs without an
+  instruction on the v2 path instead of being deleted with the CSV path. CSV-only examples (CSV
+  format, the rejected-pairs JSON, `LegacyRecordSuggestion`) and `collection_prompt_spec.rb` (CSV
+  output equal to the old per-item model methods) were deleted.
+- p11: The P5 query-count guard on the CSV prompt is replaced by one on a whole v2 run: the same
+  number of queries for 3 and 63 items (schema and transaction queries not counted). The
+  snapshot's own 11-query guard stays.
+- p11: The fallback slice values already lived in `CandidateSelector::FALLBACK_SLICES` since p8,
+  with a spec, so P11 only deletes `LIMIT`, `LIMIT_PATRON` and `LIMIT_ADMIN` from the agent.
+- p11: Besides the legacy `last_used_on`, the snapshot drops `inking(id)` and each inking's
+  `created_at`, which only the CSV prompt and the `last_used_on` tie-break read. The snapshot spec
+  now compares its counts with the models' `usage_count`/`daily_usage_count` only.
+- p11: `Bench::Suggester::LoggedRun` keeps parsing CSV-era prompts, since the case exporter and
+  `bench:suggester:check_logs` read logs written before v2. Its spec now uses a fixed transcript
+  captured from the old code before deletion instead of running the deleted path.
+- p11: `bench:suggester:baseline` loses `LEGACY=1`, and new results files lose the `legacy` key;
+  recorded results are unchanged and stay the comparison point. `BaselineSuggester` keeps its name
+  (it replays every candidate, not only the baseline) and the runner keeps its `build:` argument
+  for S30's candidates.
+- p11: Renamed now that one path is left: the private `suggest_v2` → `suggest`, `v2_result` →
+  `recorded_result`, `v2_log_data` → `log_data`, and the spec `v2_pick_spec.rb` →
+  `no_instruction_run_spec.rb`, next to `instruction_run_spec.rb`.
+- p11: No bench run and no LLM call: nothing production reached changed. The extractor result cache
+  (the P11 row's optional follow-up) was not built; no measurement asked for it yet.
+- p11: `spec/agents/README.md` now describes the suggester's spec files instead of the CSV-era
+  agent, and its stale general notes (raix, `docker-compose exec` without `-T`) were corrected.
+  Its sections on the other agents were not re-audited.

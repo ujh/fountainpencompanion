@@ -1,18 +1,15 @@
 module Bench
   module Suggester
     class BaselineSuggester < PenAndInkSuggester
-      def initialize(user, instruction, rejected_pairs, as_of:, tier: nil, seed: nil, legacy: false)
+      def initialize(user, instruction, rejected_pairs, as_of:, tier: nil, seed: nil)
         super(user, instruction, rejected_pairs, enforce_daily_limit: false, seed:)
         self.as_of = as_of
         self.tier = tier
-        self.legacy = legacy
       end
 
       private
 
-      attr_accessor :as_of, :tier, :legacy
-
-      def legacy? = legacy
+      attr_accessor :as_of, :tier
 
       def snapshot
         @snapshot ||= PenAndInkSuggestion::CollectionSnapshot.new(user, as_of:)

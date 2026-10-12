@@ -63,16 +63,6 @@ RSpec.describe Bench::Suggester::Runner do
     }
   end
 
-  def legacy_completion
-    completion(
-      arguments: {
-        suggestion: "Ink the Kakuno with Blue Velvet.",
-        ink_id: ink.id,
-        pen_id: pen.id
-      }
-    )
-  end
-
   def stub_completion(body = completion, &on_pick)
     stub_request(:post, openai_url).to_return do |request|
       response = body
@@ -290,28 +280,6 @@ RSpec.describe Bench::Suggester::Runner do
       "pen_uninked_or_flagged" => false,
       "valid" => false
     )
-  end
-
-  [nil, "Something blue"].each do |instruction|
-    it "replays #{instruction ? "an instruction run" : "a run without an instruction"} on the " \
-         "CSV path when asked for the legacy path" do
-      stub_completion(legacy_completion)
-
-      result =
-        described_class
-          .new(cases: [bench_case(instruction:)], build: described_class::LEGACY)
-          .run
-          .fetch("1")
-
-      expect(result["extra_data"]).to eq(
-        "pen" => pen.id,
-        "ink" => ink.id,
-        "message" => "Ink the Kakuno with Blue Velvet."
-      )
-      expect(WebMock).to have_requested(:post, openai_url).with { |request|
-        user_prompt(request).include?("pen id,fountain pen name")
-      }
-    end
   end
 
   it "records an API failure as an error result and goes on" do
