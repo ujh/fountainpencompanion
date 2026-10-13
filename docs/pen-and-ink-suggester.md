@@ -508,6 +508,33 @@ To find a run's data: `AgentLog.where(name: "PenAndInkSuggester", owner: user).o
 then `.agent_logs` for the extractor. `bench:suggester:check_logs SINCE=` runs the label-free
 checks (validity, leakage, novelty, cost, latency) over live logs.
 
+### Online watch after a deploy
+
+The bench replays old requests; only live logs show whether users are better served. After v2
+first goes live, and after any later change to a prompt, a model, the candidate selection or the
+extractor, watch the live logs for a week (longer if traffic is thin) and compare with the 4 weeks
+of logs before that deploy. Run `check_logs` over both windows too.
+
+These existed before v2; the values are from the logs before v2:
+
+| Metric                                                              | Before v2                            |
+| ------------------------------------------------------------------- | ------------------------------------ |
+| Acceptance proxy: the suggested pair inked within 2 days of the run | 12% overall, 19% with an instruction |
+| Session length in runs (a fresh run plus its "Try again" runs)      | 3.9 overall, 5.7 with an instruction |
+| Share of sessions with 10+ runs                                     | 11.6%                                |
+
+v2 starts logging these, so the first watch sets their baseline for later ones:
+
+- extractor fallback rate (`constraints_source: "fallback"`) and relaxation rate (runs with
+  `relaxations`);
+- `DecisionNotReachedError` and `ToolCallLimitExceeded` rates (`error`);
+- `queue_ms` p50 / p90, and the widget timeout rate: runs whose `queue_ms` plus run time exceed
+  the widget's `POLL_TIMEOUT_MS` (60 s).
+
+Success means shorter sessions with an instruction and a higher acceptance proxy, with no drop in
+acceptance for runs without one. A regression is reverted with `git revert` of the change that
+caused it.
+
 ---
 
 ## 12. Request categories

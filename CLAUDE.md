@@ -167,7 +167,7 @@ spec/
 
 AI agents live in `app/agents/` and use the `RubyLlmAgent` concern (`app/agents/concerns/ruby_llm_agent.rb`).
 
-**PenAndInkSuggester**: read `docs/pen-and-ink-suggester.md` before changing the suggester, its constraint extractor, their prompts or models; nib rules live in `docs/nib-reference.md`. Run the suggester bench (`lib/bench/suggester`, section 13 of that doc) before changing a prompt, a model, the candidate selection or a normaliser, and compare with its reference numbers.
+**PenAndInkSuggester**: read `docs/pen-and-ink-suggester.md` before changing the suggester, its constraint extractor, their prompts or models; nib rules live in `docs/nib-reference.md`. Run the suggester bench (`lib/bench/suggester`, section 13 of that doc) before changing a prompt, a model, the candidate selection or a normaliser, and compare with its reference numbers; after deploying such a change, run the online watch in section 11.
 
 ### Agent structure
 

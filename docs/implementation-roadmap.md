@@ -5934,13 +5934,14 @@ cluster.pens_model_id` branch at app/workers/pens/update_model_micro_cluster.rb:
   than one suggestion per run (all out of scope in `docs/pen-and-ink-suggester.md`, section 1).
 - **Definition of done.** P1-P11 and their follow-ups merged; the bars in the design doc's
   reference numbers (`docs/pen-and-ink-suggester.md`, section 13) met or accepted on the replay
-  bench's test split; the online watch after merging shows no regression against the logs from
-  before the rebuild.
+  bench's test split; the online watch after merging (design doc, section 11, "Online watch after
+  a deploy": metrics, baseline window, watch length and the revert rule) shows no regression
+  against the logs from before the rebuild.
 - **Implementation notes.** `docs/pen-and-ink-suggester.md` describes the result; start from
   these anchors: request flow and daily cap (sections 2 and 9), the constraint fields (3), name
   matching (4), `CandidateSelector` (5), the pick prompt and `record_suggestion` (6), models and
-  how to change one (8), the replay bench and its reference numbers (13). Nib rules are in
-  `docs/nib-reference.md`.
+  how to change one (8), the logs and the online watch (11), the replay bench and its reference
+  numbers (13). Nib rules are in `docs/nib-reference.md`.
 - **Rollback.** Each PR is independently revertable with `git revert`; P7-P9 are cut so that
   reverting the newest one returns to a state that already passed the bench.
 - **Decisions applied.** Owner decisions of 2026-10-09 and later, folded into
