@@ -1,7 +1,7 @@
 {
   "license": "UNLICENSED",
   "dependencies": {
-    "@honeybadger-io/js": "^6.16.5",
+    "@honeybadger-io/js": "^6.16.6",
     "@honeybadger-io/react": "^6.1.37",
     "@popperjs/core": "^2.11.8",
     "@rails/ujs": "^7.1.3-4",
