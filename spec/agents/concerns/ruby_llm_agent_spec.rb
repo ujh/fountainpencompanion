@@ -87,8 +87,8 @@ RSpec.describe RubyLlmAgent do
 
   describe "#sanitize_for_pg" do
     it "strips null bytes from strings" do
-      result = agent.send(:sanitize_for_pg, "hello\u0000world")
-      expect(result).to eq("helloworld")
+      result = agent.send(:sanitize_for_pg, "\u0000foo\u0000bar\u0000")
+      expect(result).to eq("foobar")
     end
 
     it "leaves normal strings unchanged" do
@@ -96,14 +96,20 @@ RSpec.describe RubyLlmAgent do
       expect(result).to eq("hello world")
     end
 
-    it "handles empty strings" do
-      result = agent.send(:sanitize_for_pg, "")
-      expect(result).to eq("")
+    it "strips null bytes from keys and values of nested hashes and arrays" do
+      result =
+        agent.send(
+          :sanitize_for_pg,
+          { "ke\u0000y" => ["a\u0000b", { nested: "c\u0000d" }], :count => 3, "flag" => nil }
+        )
+
+      expect(result).to eq("key" => ["ab", { nested: "cd" }], :count => 3, "flag" => nil)
     end
 
-    it "strips multiple null bytes" do
-      result = agent.send(:sanitize_for_pg, "\u0000foo\u0000bar\u0000")
-      expect(result).to eq("foobar")
+    it "leaves values that aren't strings, hashes or arrays unchanged" do
+      expect(agent.send(:sanitize_for_pg, 1.5)).to eq(1.5)
+      expect(agent.send(:sanitize_for_pg, true)).to be(true)
+      expect(agent.send(:sanitize_for_pg, :symbol)).to eq(:symbol)
     end
   end
 
@@ -408,6 +414,147 @@ RSpec.describe RubyLlmAgent do
       result = agent.ask!("Make a decision")
       expect(result).to be_a(RubyLLM::Tool::Halt)
     end
+
+    it "saves a transcript whose tool-call arguments, tool results and text contain NUL" do
+      agent =
+        test_class_with_research_tools.new(agent_log, decide_tool_class.new, search_tool_class.new)
+      stub_request(:post, "https://api.openai.com/v1/chat/completions").to_return(
+        *[
+          tool_call_response(
+            call_id: "call_search",
+            name: "search",
+            arguments: {
+              "query" => "te\u0000st"
+            }
+          ),
+          text_response(content: "Still thin\u0000king."),
+          tool_call_response(arguments: { "choice" => "y\u0000es" })
+        ].map do |body|
+          { status: 200, body: body.to_json, headers: { "Content-Type" => "application/json" } }
+        end
+      )
+
+      result = agent.ask!("Make a decision")
+
+      transcript = agent_log.reload.transcript
+      expect(result.content).to eq("decided: y\u0000es")
+      expect(transcript.to_json).not_to include("\\u0000")
+      expect(transcript.flat_map { |entry| entry["tool_calls"] || [] }).to include(
+        a_hash_including("arguments" => { "query" => "test" }),
+        a_hash_including("arguments" => { "choice" => "yes" })
+      )
+      expect(transcript.map { |entry| entry["content"] }).to include(
+        "Results for: test",
+        "Still thinking.",
+        "decided: yes"
+      )
+    end
+  end
+
+  describe "usage" do
+    let(:agent) { test_class_with_tools.new(agent_log, decide_tool_class.new) }
+
+    def completion(usage)
+      {
+        "id" => "chatcmpl-usage",
+        "object" => "chat.completion",
+        "model" => "gpt-4.1-mini",
+        "choices" => [
+          {
+            "index" => 0,
+            "message" => {
+              "role" => "assistant",
+              "content" => "ok"
+            },
+            "finish_reason" => "stop"
+          }
+        ],
+        "usage" => usage
+      }
+    end
+
+    def stub_usage(*usages)
+      stub_request(:post, "https://api.openai.com/v1/chat/completions").to_return(
+        *usages.map do |usage|
+          {
+            status: 200,
+            body: completion(usage).to_json,
+            headers: {
+              "Content-Type" => "application/json"
+            }
+          }
+        end
+      )
+    end
+
+    it "records uncached prompt tokens and, separately, cached ones" do
+      stub_usage(
+        {
+          "prompt_tokens" => 1_500,
+          "completion_tokens" => 20,
+          "total_tokens" => 1_520,
+          "prompt_tokens_details" => {
+            "cached_tokens" => 1_024
+          }
+        },
+        {
+          "prompt_tokens" => 1_200,
+          "completion_tokens" => 10,
+          "total_tokens" => 1_210,
+          "prompt_tokens_details" => {
+            "cached_tokens" => 1_024
+          }
+        }
+      )
+
+      2.times { agent.ask("Hello") }
+
+      expect(agent_log.reload.usage).to include(
+        "prompt_tokens" => 476 + 176,
+        "cached_tokens" => 2_048,
+        "completion_tokens" => 30
+      )
+    end
+
+    it "records prompt tokens written to the cache separately" do
+      stub_usage(
+        {
+          "prompt_tokens" => 2_014,
+          "completion_tokens" => 5,
+          "total_tokens" => 2_019,
+          "prompt_tokens_details" => {
+            "cached_tokens" => 0,
+            "cache_write_tokens" => 2_011
+          }
+        },
+        {
+          "prompt_tokens" => 2_014,
+          "completion_tokens" => 5,
+          "total_tokens" => 2_019,
+          "prompt_tokens_details" => {
+            "cached_tokens" => 2_011,
+            "cache_write_tokens" => 0
+          }
+        }
+      )
+
+      2.times { agent.ask("Hello") }
+
+      expect(agent_log.reload.usage).to include(
+        "prompt_tokens" => 3 + 3,
+        "cached_tokens" => 2_011,
+        "cache_write_tokens" => 2_011
+      )
+    end
+
+    it "adds no cached or cache write count when nothing was cached" do
+      stub_usage({ "prompt_tokens" => 100, "completion_tokens" => 5, "total_tokens" => 105 })
+
+      agent.ask("Hello")
+
+      expect(agent_log.reload.usage).not_to include("cached_tokens", "cache_write_tokens")
+      expect(agent_log.usage["prompt_tokens"]).to eq(100)
+    end
   end
 
   describe "#ask with attachments" do
@@ -540,6 +687,302 @@ RSpec.describe RubyLlmAgent do
 
       user_entry = agent_log.reload.transcript.find { |m| m["role"] == "user" }
       expect(user_entry["content"]).to eq("Describe this")
+    end
+  end
+
+  describe "tool call limit" do
+    def parallel_search_response(count)
+      {
+        "id" => "chatcmpl-parallel",
+        "object" => "chat.completion",
+        "created" => 1_677_652_288,
+        "model" => "gpt-4.1-mini",
+        "choices" => [
+          {
+            "index" => 0,
+            "message" => {
+              "role" => "assistant",
+              "content" => "",
+              "tool_calls" =>
+                Array.new(count) do |i|
+                  {
+                    "id" => "call_#{i}",
+                    "type" => "function",
+                    "function" => {
+                      "name" => "search",
+                      "arguments" => { "query" => "q#{i}" }.to_json
+                    }
+                  }
+                end
+            },
+            "finish_reason" => "tool_calls"
+          }
+        ],
+        "usage" => {
+          "prompt_tokens" => 100,
+          "completion_tokens" => 20,
+          "total_tokens" => 120
+        }
+      }
+    end
+
+    def final_text_response
+      {
+        "id" => "chatcmpl-final",
+        "object" => "chat.completion",
+        "created" => 1_677_652_288,
+        "model" => "gpt-4.1-mini",
+        "choices" => [
+          {
+            "index" => 0,
+            "message" => {
+              "role" => "assistant",
+              "content" => "done"
+            },
+            "finish_reason" => "stop"
+          }
+        ],
+        "usage" => {
+          "prompt_tokens" => 100,
+          "completion_tokens" => 5,
+          "total_tokens" => 105
+        }
+      }
+    end
+
+    def stub_responses(*responses)
+      stub_request(:post, "https://api.openai.com/v1/chat/completions").to_return(
+        *responses.map do |response|
+          { status: 200, body: response.to_json, headers: { "Content-Type" => "application/json" } }
+        end
+      )
+    end
+
+    let(:search_agent_class) do
+      Class.new do
+        include RubyLlmAgent
+
+        attr_accessor :agent_log, :search_tool
+
+        def initialize(agent_log, search_tool)
+          self.agent_log = agent_log
+          self.search_tool = search_tool
+        end
+
+        private
+
+        def model_id = "gpt-4.1-mini"
+        def system_directive = "You are a test agent."
+        def tools = [search_tool]
+        def agent_token_env_var = "OPEN_AI_TOKEN"
+      end
+    end
+
+    let(:capped_agent_class) { Class.new(search_agent_class) { private def max_tool_calls = 2 } }
+
+    it "defaults to 50 tool calls" do
+      agent = search_agent_class.new(agent_log, search_tool_class.new)
+
+      expect(agent.send(:max_tool_calls)).to eq(50)
+    end
+
+    it "allows exactly the default number of tool calls" do
+      stub_responses(parallel_search_response(50), final_text_response)
+      agent = search_agent_class.new(agent_log, search_tool_class.new)
+
+      expect(agent.ask("Search").content).to eq("done")
+    end
+
+    it "raises ToolCallLimitExceeded when the default limit is passed" do
+      stub_responses(parallel_search_response(51), final_text_response)
+      agent = search_agent_class.new(agent_log, search_tool_class.new)
+
+      expect { agent.ask("Search") }.to raise_error(
+        RubyLlmAgent::ToolCallLimitExceeded,
+        /limit of 50 tool calls/
+      )
+    end
+
+    it "counts individual tool calls across rounds" do
+      stub_responses(
+        parallel_search_response(1),
+        parallel_search_response(1),
+        parallel_search_response(1),
+        final_text_response
+      )
+      agent = capped_agent_class.new(agent_log, search_tool_class.new)
+
+      expect { agent.ask("Search") }.to raise_error(RubyLlmAgent::ToolCallLimitExceeded)
+    end
+
+    it "uses an overridden max_tool_calls" do
+      stub_responses(parallel_search_response(3), final_text_response)
+      agent = capped_agent_class.new(agent_log, search_tool_class.new)
+
+      expect { agent.ask("Search") }.to raise_error(
+        RubyLlmAgent::ToolCallLimitExceeded,
+        /limit of 2 tool calls/
+      )
+    end
+
+    it "allows tool calls up to an overridden max_tool_calls" do
+      stub_responses(parallel_search_response(2), final_text_response)
+      agent = capped_agent_class.new(agent_log, search_tool_class.new)
+
+      expect(agent.ask("Search").content).to eq("done")
+    end
+  end
+
+  describe "tool_calls_mode" do
+    def decide_response
+      {
+        "id" => "chatcmpl-decide",
+        "object" => "chat.completion",
+        "created" => 1_677_652_288,
+        "model" => "gpt-4.1-mini",
+        "choices" => [
+          {
+            "index" => 0,
+            "message" => {
+              "role" => "assistant",
+              "content" => "",
+              "tool_calls" => [
+                {
+                  "id" => "call_1",
+                  "type" => "function",
+                  "function" => {
+                    "name" => "decide",
+                    "arguments" => { "choice" => "yes" }.to_json
+                  }
+                }
+              ]
+            },
+            "finish_reason" => "tool_calls"
+          }
+        ],
+        "usage" => {
+          "prompt_tokens" => 100,
+          "completion_tokens" => 20,
+          "total_tokens" => 120
+        }
+      }
+    end
+
+    def text_only_response
+      {
+        "id" => "chatcmpl-text",
+        "object" => "chat.completion",
+        "created" => 1_677_652_288,
+        "model" => "gpt-4.1-mini",
+        "choices" => [
+          {
+            "index" => 0,
+            "message" => {
+              "role" => "assistant",
+              "content" => "Thinking about it."
+            },
+            "finish_reason" => "stop"
+          }
+        ],
+        "usage" => {
+          "prompt_tokens" => 100,
+          "completion_tokens" => 5,
+          "total_tokens" => 105
+        }
+      }
+    end
+
+    def expect_requests(times:, &body_matcher)
+      expect(WebMock).to have_requested(:post, "https://api.openai.com/v1/chat/completions")
+        .with { |req| body_matcher.call(JSON.parse(req.body)) }
+        .times(times)
+    end
+
+    before do
+      stub_request(:post, "https://api.openai.com/v1/chat/completions").to_return(
+        {
+          status: 200,
+          body: text_only_response.to_json,
+          headers: {
+            "Content-Type" => "application/json"
+          }
+        },
+        {
+          status: 200,
+          body: decide_response.to_json,
+          headers: {
+            "Content-Type" => "application/json"
+          }
+        }
+      )
+    end
+
+    it "defaults to nil and sends no parallel_tool_calls option" do
+      agent = test_class_with_tools.new(agent_log, decide_tool_class.new)
+
+      agent.ask!("Make a decision")
+
+      expect(agent.send(:tool_calls_mode)).to be_nil
+      expect_requests(times: 2) { |body| body.key?("tools") && !body.key?("parallel_tool_calls") }
+    end
+
+    it "sends parallel_tool_calls false on every request when the mode is :one" do
+      agent_class = Class.new(test_class_with_tools) { private def tool_calls_mode = :one }
+      agent = agent_class.new(agent_log, decide_tool_class.new)
+
+      agent.ask!("Make a decision")
+
+      expect_requests(times: 2) { |body| body["parallel_tool_calls"] == false }
+    end
+
+    it "sends parallel_tool_calls true when the mode is :many" do
+      agent_class = Class.new(test_class_with_tools) { private def tool_calls_mode = :many }
+      agent = agent_class.new(agent_log, decide_tool_class.new)
+
+      agent.ask!("Make a decision")
+
+      expect_requests(times: 2) { |body| body["parallel_tool_calls"] == true }
+    end
+
+    it "registers every tool" do
+      agent =
+        test_class_with_research_tools.new(agent_log, decide_tool_class.new, search_tool_class.new)
+
+      expect(agent.chat.tools.keys).to contain_exactly(:decide, :search)
+    end
+
+    it "sends no temperature by default" do
+      agent = test_class_with_tools.new(agent_log, decide_tool_class.new)
+
+      agent.ask!("Make a decision")
+
+      expect_requests(times: 2) { |body| !body.key?("temperature") }
+    end
+
+    it "sends the temperature an agent sets on every request" do
+      agent_class = Class.new(test_class_with_tools) { private def temperature = 0 }
+      agent = agent_class.new(agent_log, decide_tool_class.new)
+
+      agent.ask!("Make a decision")
+
+      expect_requests(times: 2) { |body| body["temperature"] == 0 }
+    end
+
+    it "sends no reasoning effort by default" do
+      agent = test_class_with_tools.new(agent_log, decide_tool_class.new)
+
+      agent.ask!("Make a decision")
+
+      expect_requests(times: 2) { |body| !body.key?("reasoning_effort") }
+    end
+
+    it "sends the reasoning effort an agent sets on every request" do
+      agent_class = Class.new(test_class_with_tools) { private def reasoning_effort = "none" }
+      agent = agent_class.new(agent_log, decide_tool_class.new)
+
+      agent.ask!("Make a decision")
+
+      expect_requests(times: 2) { |body| body["reasoning_effort"] == "none" }
     end
   end
 end

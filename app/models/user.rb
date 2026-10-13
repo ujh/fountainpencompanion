@@ -143,6 +143,10 @@ class User < ApplicationRecord
     name.blank?
   end
 
+  def premium?
+    patron? || admin?
+  end
+
   def collected_inks_for_select
     collected_inks.order("brand_name, line_name, ink_name")
   end

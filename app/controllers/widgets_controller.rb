@@ -17,6 +17,8 @@ class WidgetsController < ApplicationController
       render json: pens_grouped_by_brand_data
     when "pen_and_ink_suggestion"
       render json: pen_and_ink_suggestion_data
+    when "pen_and_ink_suggestion_settings"
+      render json: pen_and_ink_suggestion_settings_data
     when "usage_visualization"
       render json: usage_visualization_data
     else
@@ -117,14 +119,30 @@ class WidgetsController < ApplicationController
   end
 
   MAX_REJECTED_SUGGESTIONS = 50
+  MAX_REJECTED_SUGGESTION_ENTRIES = MAX_REJECTED_SUGGESTIONS * 4
+  MAX_EXTRA_USER_INPUT_LENGTH = 500
 
   def pen_and_ink_suggestion_data
     RequestPenAndInkSuggestion.new(
       user: current_user,
       suggestion_id: params[:suggestion_id].presence,
-      extra_user_input: params[:extra_user_input].presence,
+      extra_user_input: extra_user_input_param,
       rejected_suggestions: parse_rejected_suggestions(params[:rejected_suggestions])
     ).perform
+  end
+
+  def pen_and_ink_suggestion_settings_data
+    as_json_api("pen_and_ink_suggestion_settings") do
+      {
+        instructions_allowed: PenAndInkSuggester::InstructionGate.new(current_user).allowed?,
+        instructions_max_length: MAX_EXTRA_USER_INPUT_LENGTH
+      }
+    end
+  end
+
+  def extra_user_input_param
+    input = params[:extra_user_input]
+    input.first(MAX_EXTRA_USER_INPUT_LENGTH).presence if input.is_a?(String)
   end
 
   # The "rejected suggestions" list is built client-side from prior agent
@@ -132,13 +150,13 @@ class WidgetsController < ApplicationController
   # pairs and discard anything else, so attacker-supplied free-form text
   # can never reach the LLM prompt under this param.
   def parse_rejected_suggestions(raw)
-    return [] if raw.blank?
+    return [] unless raw.is_a?(String)
 
     parsed = JSON.parse(raw)
     return [] unless parsed.is_a?(Array)
 
     parsed
-      .first(MAX_REJECTED_SUGGESTIONS)
+      .last(MAX_REJECTED_SUGGESTION_ENTRIES)
       .filter_map do |entry|
         next unless entry.is_a?(Hash)
         ink_id = safe_integer(entry["ink_id"])
@@ -146,6 +164,7 @@ class WidgetsController < ApplicationController
         next unless ink_id && pen_id
         { "ink_id" => ink_id, "pen_id" => pen_id }
       end
+      .last(MAX_REJECTED_SUGGESTIONS)
   rescue JSON::ParserError
     []
   end

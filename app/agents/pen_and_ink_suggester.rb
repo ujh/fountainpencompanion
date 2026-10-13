@@ -1,286 +1,367 @@
-require "csv"
-
 class PenAndInkSuggester
   include RubyLlmAgent
 
-  class RecordSuggestion < RubyLLM::Tool
-    description "Output for the end user. Must contain a markdown formatted suggestion for a pen and ink combination, " \
-                  "along with the IDs of the suggested pen and ink."
-
-    param :suggestion, desc: "Markdown formatted pen and ink suggestion"
-    param :ink_id, type: "integer", desc: "ID of the suggested ink"
-    param :pen_id, type: "integer", desc: "ID of the suggested pen"
-
-    attr_accessor :inks, :pens, :message, :result_ink_id, :result_pen_id
-
-    def initialize(inks, pens)
-      self.inks = inks
-      self.pens = pens
-    end
-
-    def execute(suggestion:, ink_id:, pen_id:)
-      ink = inks.find { |i| i.id == ink_id }
-      pen = pens.find { |p| p.id == pen_id }
-
-      if ink && pen && suggestion.present?
-        self.message = suggestion
-        self.result_ink_id = ink_id
-        self.result_pen_id = pen_id
-        halt "Suggestion recorded"
-      elsif ink.blank? && pen.blank?
-        "Please try again. Both the pen and ink IDs are invalid."
-      elsif ink.blank?
-        "Please try again. The ink ID is invalid."
-      elsif pen.blank?
-        "Please try again. The pen ID is invalid."
-      elsif suggestion.blank?
-        "Please try again. The suggestion message is blank."
-      end
-    end
-  end
-
-  LIMIT = 50
-  LIMIT_PATRON = 100
-  LIMIT_ADMIN = 200
   MAX_PER_DAY = 20
   MAX_PER_DAY_PATRON = 50
+  MAX_TOOL_CALLS = 12
+  RESULT_KEYS = %i[
+    message
+    ink
+    pen
+    pen_currently_inked
+    currently_inked_id
+    currently_inked_note
+    status
+  ].freeze
+  ERROR_MESSAGE = "Sorry, that didn't work. Please try again!"
+  NO_UNINKED_PENS_MESSAGE =
+    "All your pens are currently inked (or you have none). Clean one up and try again."
+  NAME_INKED_PEN_MESSAGE =
+    "All your pens are currently inked (or you have none). Name one you'd like to re-ink next, " \
+      "or clean one up and try again."
+  NO_FILLABLE_INKS_MESSAGE =
+    "You have no inks to fill a pen with (swabs don't count). Add an ink and try again."
+  SELECTION_END_MESSAGES = {
+    no_compatible_pairs:
+      "Your only inks are cartridges and none of your uninked pens takes them. " \
+        "Clean a cartridge pen or add a bottle or sample and try again.",
+    all_pairs_rejected:
+      "You've turned down every combination of your uninked pens and inks. " \
+        "Clean another pen or add an ink and try again."
+  }.freeze
+  FILTERED_END_MESSAGES = {
+    no_compatible_pairs:
+      "The pens and inks that fit your request don't fit together: cartridge inks need a pen " \
+        "that takes cartridges. Change your request or try again without it.",
+    all_pairs_rejected:
+      "You've turned down every combination that fits your request; change your request or " \
+        "try again without it."
+  }.freeze
+  PINNED_END_MESSAGES = {
+    no_compatible_pairs:
+      "The pens and inks you named don't fit together: cartridge inks need a pen that takes " \
+        "cartridges. Name another pen or ink, or try again without naming one.",
+    all_pairs_rejected:
+      "You've turned down every combination of these; name another pen or ink, or try again " \
+        "without the instruction."
+  }.freeze
+  CURRENTLY_INKED_NOTE = "Currently inked with %<ink>s — empty and clean it first."
 
-  def initialize(user, extra_user_input = nil, rejected_suggestions = [])
+  def self.error_result
+    { message: ERROR_MESSAGE, status: "error" }
+  end
+
+  def initialize(
+    user,
+    extra_user_input = nil,
+    rejected_suggestions = [],
+    queue_ms: nil,
+    enforce_daily_limit: true,
+    seed: nil
+  )
     self.user = user
     self.extra_user_input = extra_user_input
     self.rejected_suggestions = rejected_suggestions || []
+    self.queue_ms = queue_ms
+    self.enforce_daily_limit = enforce_daily_limit
+    self.seed = seed || SecureRandom.random_number(2**31)
   end
 
   def perform
-    response =
-      if can_perform?
-        ask(user_prompt)
-        tool = record_suggestion_tool
-        if [tool.message, tool.result_ink_id, tool.result_pen_id].all?(&:present?)
-          { message: tool.message, ink: tool.result_ink_id, pen: tool.result_pen_id }
-        else
-          { message: "Sorry, that didn't work. Please try again!" }
-        end
-      else
-        { message: out_of_requests_message }
-      end
-    agent_log.update(extra_data: response)
+    extra_data = sanitize_for_pg(run)
+    extra_data[:queue_ms] = queue_ms if queue_ms
+    agent_log.update(extra_data:)
     agent_log.waiting_for_approval!
-    response
+    extra_data.slice(*RESULT_KEYS)
   end
 
-  def agent_log = find_or_create_agent_log(user)
+  def agent_log
+    @agent_log ||= user.agent_logs.create!(name: self.class.name, transcript: [])
+  end
 
   private
 
-  attr_accessor :user, :extra_user_input, :rejected_suggestions
+  attr_accessor :user,
+                :extra_user_input,
+                :rejected_suggestions,
+                :queue_ms,
+                :enforce_daily_limit,
+                :seed
+
+  def run
+    if enforce_daily_limit
+      daily_cap = DailyCap.new(user)
+      return { message: daily_cap.message } if daily_cap.reached?
+    end
+
+    precheck = precheck_failure
+    return { message: precheck[:message], precheck: precheck[:reason] } if precheck
+
+    suggest
+  end
+
+  def instruction?
+    extra_user_input.present?
+  end
+
+  def suggest
+    ended = resolution_end || selection_end
+    return log_data.merge(ended) if ended
+
+    started = Process.clock_gettime(Process::CLOCK_MONOTONIC)
+    error = request_suggestion(pick_prompt.user_message)
+    latency_ms = ((Process.clock_gettime(Process::CLOCK_MONOTONIC) - started) * 1000).round
+    data = log_data.merge(recorded_result, latency_ms:)
+    data[:violations] = record_suggestion_tool.violations if record_suggestion_tool.violations.any?
+    error ? data.merge(error:) : data
+  end
+
+  def resolution_end
+    return if candidate_selector.candidate_pens.any? || candidate_selector.pins(:pen).any?
+
+    run_end(NAME_INKED_PEN_MESSAGE, "no_uninked_or_named_pens")
+  end
+
+  def selection_end
+    return unless selection.ended?
+
+    run_end(selection.end_message || end_messages.fetch(selection.end_reason), selection.end_reason)
+  end
+
+  def end_messages
+    if resolution.pins?
+      PINNED_END_MESSAGES
+    elsif selection.constrained?
+      FILTERED_END_MESSAGES
+    else
+      SELECTION_END_MESSAGES
+    end
+  end
+
+  def run_end(message, reason)
+    { :message => message, (extractor_ran? ? :ended : :precheck) => reason.to_s }
+  end
+
+  def extractor_ran? = instruction?
+
+  def constraints
+    extracted_constraints || PenAndInkSuggestion::Constraints.empty
+  end
+
+  def extracted_constraints
+    return @extracted_constraints if defined?(@extracted_constraints)
+
+    @extracted_constraints = (constraint_extractor.perform if instruction?)
+  end
+
+  def constraint_extractor
+    @constraint_extractor ||=
+      PenAndInkConstraintExtractor.new(
+        extra_user_input,
+        parent_agent_log: agent_log,
+        previous_suggestion: rejected_suggestions.any?,
+        names_found:
+      )
+  end
+
+  def constraints_source
+    return "none" unless instruction?
+
+    extracted_constraints ? "extractor" : "fallback"
+  end
+
+  def fallback?
+    constraints_source == "fallback"
+  end
+
+  def recorded_result
+    recorded = record_suggestion_tool.result
+    return self.class.error_result unless recorded
+
+    pen = recorded[:pen]
+    reasoning = PenAndInkSuggestion::ReasoningSanitizer.call(recorded[:reasoning])
+    inking = snapshot.active_inking_for(pen)
+    dropped_notes = picked_miss_notes(pen, recorded[:ink])
+    notes = pick_notes - dropped_notes
+    inked_note = format(CURRENTLY_INKED_NOTE, ink: inking.collected_ink.short_name) if inking
+    notes += [inked_note] if inked_note
+    message =
+      PenAndInkSuggestion::SuggestionMessage.new(
+        pen:,
+        ink: recorded[:ink],
+        nib_profile: snapshot.nib_profile(pen),
+        notes:,
+        reasoning:
+      )
+    result = {
+      message: message.to_s,
+      ink: recorded[:ink].id,
+      pen: pen.id,
+      pen_currently_inked: inking.present?
+    }
+    if inking
+      result[:currently_inked_id] = inking.id
+      result[:currently_inked_note] = PenAndInkSuggestion::SuggestionMessage.note_markdown(
+        inked_note
+      )
+    end
+    result[:dropped_notes] = dropped_notes if dropped_notes.any?
+    result.merge(reasoning:, notes:)
+  end
+
+  def picked_miss_notes(pen, ink)
+    picked = PenAndInkSuggestion::PickedNames.new(pen, ink)
+    resolution.misses.select { |miss| picked.matches?(miss.text) }.map(&:note)
+  end
+
+  def log_data
+    data = {
+      constraints: extracted_constraints&.to_h,
+      constraints_source:,
+      rejected_pairs: rejected_suggestions,
+      pins: candidate_selector.log_pins,
+      notes: resolution.notes,
+      relaxations: [],
+      seed:
+    }
+    data[:mentions] = mentions.map { |mention| mention.to_h.stringify_keys } if instruction?
+    data[:extractor_error] = constraint_extractor.error if fallback?
+    return data if resolution_end
+
+    data.merge(
+      shown_pen_ids: selection.shown_pen_ids,
+      shown_ink_ids: selection.shown_ink_ids,
+      notes: pick_notes,
+      relaxations: selection.relaxations
+    )
+  end
+
+  def pick_notes
+    resolution.notes + selection.notes
+  end
+
+  def request_suggestion(message)
+    ask!(message)
+    nil
+  rescue RubyLlmAgent::ToolCallLimitExceeded, RubyLlmAgent::DecisionNotReachedError => e
+    e.class.name.demodulize
+  end
+
+  def precheck_failure
+    if no_pens_to_suggest?
+      { reason: "no_uninked_pens", message: no_uninked_pens_message }
+    elsif snapshot.fillable_inks.empty?
+      { reason: "no_fillable_inks", message: NO_FILLABLE_INKS_MESSAGE }
+    end
+  end
+
+  def no_pens_to_suggest?
+    !instruction? && candidate_selector.candidate_pens.empty?
+  end
+
+  def no_uninked_pens_message
+    return NO_UNINKED_PENS_MESSAGE unless InstructionGate.new(user).allowed?
+
+    NAME_INKED_PEN_MESSAGE
+  end
 
   def model_id
     premium? ? "gpt-4.1" : "gpt-4.1-mini"
   end
 
-  def system_directive = ""
+  def tool_calls_mode = :one
+
+  def max_tool_calls = MAX_TOOL_CALLS
+
+  def system_directive = PenAndInkSuggestion::PickPrompt::SYSTEM_DIRECTIVE
 
   def record_suggestion_tool
-    @record_suggestion_tool ||= RecordSuggestion.new(inks, pens)
+    @record_suggestion_tool ||= RecordSuggestion.new(selection, rejected_suggestions)
   end
 
   def tools
     [record_suggestion_tool]
   end
 
-  def user_prompt
-    parts = [prompt]
-    parts << additional_premium_prompt if premium?
-    parts << extra_user_prompt if extra_user_input.present?
-    parts << rejected_suggestions_prompt if rejected_suggestions.present?
-    parts.join("\n\n")
-  end
-
-  # Build the "rejected suggestions" instruction server-side from the
-  # validated {ink_id, pen_id} pairs. Attacker-controlled free-form text
-  # cannot reach the LLM through this path.
-  def rejected_suggestions_prompt
-    "The following suggestions were rejected. Do not recommend them again:\n" \
-      "#{JSON.generate(rejected_suggestions)}"
-  end
-
-  def prompt
-    <<~MESSAGE
-      Given the following fountain pens:
-      #{pen_data}
-
-      #{average_pen_usage}
-
-      Given the following inks:
-      #{ink_data}
-
-      #{average_ink_usage}
-
-      Which combination of ink and fountain pen should I use and why? The rules to pick are as follows:
-
-      * Suggest only one fountain pen and one ink.
-      * Strike a balance between novelty and favorites.
-        * Novelty: Prefer items that have not been used recently or frequently.
-        * Favorites: Consider items that I have used more often in the past.
-        * Lean heavier towards novelty if you have to choose.
-
-      Use the `record_suggestion` function to return the suggestion. Provide a detailed reasoning for your
-      choice in the suggestion message as well as the IDs of the suggested pen and ink. Follow these rules
-      for the suggestion message:
-
-      * Use markdown formatting.
-      * Bullet list for the pen and ink chosen at the top (markdown formatted)
-      * Keep the reasoning short and to the point, but do not mention the rules directly.
-      * Do not mention usage and daily usage count if they are zero.
-      * Use the ink tags and description as part of the reasoning, but do not mention them directly.
-      * Do not mention the pen and ink IDs in the suggestion message.
-    MESSAGE
-  end
-
-  def additional_premium_prompt
-    currently_inked = user.currently_inkeds.active.to_csv
-    <<~MESSAGE
-      Below is the list of currently inked pens in my collection:
-      #{currently_inked}
-
-      When picking a new pen and ink combination, take these into account and
-      prefer combinations that do not overlap with the currently inked pens
-      and inks. Prefer a variety of ink colors and nib sizes.
-    MESSAGE
-  end
-
-  def extra_user_prompt
-    "IMPORTANT: Take extra care to follow these additional instructions:\n#{extra_user_input}"
-  end
-
-  def average_pen_usage
-    average_usage = (pens.sum(&:usage_count) / pens.size.to_f).round(2)
-    average_daily_usage = (pens.sum(&:daily_usage_count) / pens.size.to_f).round(2)
-    average_last_used_ago =
-      pens.sum do |pen|
-        last_used_on = pen.last_used_on || Date.today.advance(years: -1)
-        (Date.today - last_used_on).to_i
-      end / pens.size.to_f
-    average_last_used_ago = time_ago_in_words(Date.today.advance(days: -average_last_used_ago))
-    stats = { average_usage:, average_daily_usage:, average_last_used_ago: }
-    "Pens have the following average statistics:\n#{stats.to_json}"
-  rescue StandardError
-    ""
-  end
-
-  def average_ink_usage
-    average_usage = (inks.sum(&:usage_count) / inks.size.to_f).round(2)
-    average_daily_usage = (inks.sum(&:daily_usage_count) / inks.size.to_f).round(2)
-    average_last_used_ago =
-      inks.sum do |ink|
-        last_used_on = ink.last_used_on || Date.today.advance(years: -1)
-        (Date.today - last_used_on).to_i
-      end / inks.size.to_f
-    average_last_used_ago = time_ago_in_words(Date.today.advance(days: -average_last_used_ago))
-    stats = { average_usage:, average_daily_usage:, average_last_used_ago: }
-    "Inks have the following average statistics:\n#{stats.to_json}"
-  rescue StandardError
-    ""
-  end
-
-  def time_ago_in_words(date)
-    ActionController::Base.helpers.time_ago_in_words(date)
-  end
-
-  def pen_data
-    CSV.generate do |csv|
-      csv << ["pen id", "fountain pen name", "last usage", "usage count", "daily usage count"]
-      pens
-        .shuffle
-        .take(limit)
-        .each do |pen|
-          last_usage = (pen.last_used_on ? time_ago_in_words(pen.last_used_on) : "never")
-          csv << [pen.id, pen.name.inspect, last_usage, pen.usage_count, pen.daily_usage_count]
-        end
-    end
-  end
-
-  def ink_data
-    CSV.generate do |csv|
-      csv << [
-        "ink id",
-        "ink name",
-        "type",
-        "last usage",
-        "usage count",
-        "daily usage count",
-        "tags",
-        "description"
-      ]
-
-      inks
-        .shuffle
-        .take(limit)
-        .each do |ink|
-          last_usage = (ink.last_used_on ? time_ago_in_words(ink.last_used_on) : "never")
-          csv << [
-            ink.id,
-            ink.name.inspect,
-            ink.kind,
-            last_usage,
-            ink.usage_count,
-            ink.daily_usage_count,
-            (ink.tag_names + ink.cluster_tags).uniq.join(","),
-            ink.cluster_description || ""
-          ]
-        end
-    end
-  end
-
-  def pens
-    @pens ||=
-      user
-        .collected_pens
-        .active
-        .includes(:currently_inkeds, :usage_records, newest_currently_inked: :last_usage)
-        .reject { |pen| pen.inked? }
-  end
-
-  def inks
-    @inks ||=
-      user.collected_inks.active.includes(
-        :currently_inkeds,
-        :usage_records,
-        micro_cluster: {
-          macro_cluster: :brand_cluster
-        },
-        newest_currently_inked: :last_usage
+  def candidate_selector
+    @candidate_selector ||=
+      PenAndInkSuggestion::CandidateSelector.new(
+        snapshot:,
+        rejected_pairs: rejected_suggestions,
+        tier: slice_tier,
+        seed:,
+        resolution:,
+        fallback: fallback?,
+        constraints:
       )
   end
 
-  def today_usage_count
-    AgentLog
-      .where(name: self.class.name, owner: user)
-      .where("created_at >= ?", Time.current.beginning_of_day)
-      .count
+  def name_index
+    @name_index ||= PenAndInkSuggestion::NameIndex.for(snapshot)
   end
 
-  def can_perform?
-    limit = premium? ? MAX_PER_DAY_PATRON : MAX_PER_DAY
-    today_usage_count < limit
+  def mentions
+    @mentions ||=
+      if !instruction?
+        []
+      elsif extracted_constraints
+        extractor_mentions
+      else
+        matcher_mentions
+      end
   end
 
-  def out_of_requests_message
-    if premium?
-      "You have reached your daily limit of #{MAX_PER_DAY_PATRON} suggestions. Please try again tomorrow."
-    else
-      "You have reached your daily limit of #{MAX_PER_DAY} suggestions. Consider becoming a [Patron](https://www.patreon.com/bePatron?u=6900241) for a higher limit!"
+  def extractor_mentions
+    %i[pen ink].flat_map do |side|
+      extracted_constraints
+        .mentions(side)
+        .map { |text| PenAndInkSuggestion::MentionMatcher::Mention.new(text:, side:) }
     end
   end
 
-  def limit
-    return LIMIT_ADMIN if user.admin?
+  def matcher_mentions
+    @matcher_mentions ||= PenAndInkSuggestion::MentionMatcher.call(name_index, extra_user_input)
+  end
 
-    premium? ? LIMIT_PATRON : LIMIT
+  def names_found
+    @names_found ||=
+      PenAndInkSuggestion::NameHints.call(snapshot, matcher_mentions, index: name_index)
+  end
+
+  def resolution
+    @resolution ||=
+      if instruction?
+        PenAndInkSuggestion::NameResolver.call(snapshot, mentions, index: name_index)
+      else
+        PenAndInkSuggestion::NameResolver::Resolution.empty
+      end
+  end
+
+  def selection
+    @selection ||= candidate_selector.call
+  end
+
+  def pick_prompt
+    PenAndInkSuggestion::PickPrompt.new(
+      snapshot:,
+      selection:,
+      rejected_pairs: rejected_suggestions,
+      notes: pick_notes,
+      instruction: extra_user_input
+    )
+  end
+
+  def slice_tier
+    return :admin if user.admin?
+
+    premium? ? :premium : :free
+  end
+
+  def snapshot
+    @snapshot ||= PenAndInkSuggestion::CollectionSnapshot.new(user)
   end
 
   def premium?
-    user.patron? || user.admin?
+    user.premium?
   end
 end

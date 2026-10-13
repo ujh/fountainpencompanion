@@ -28,6 +28,9 @@ module Fountainpencompanion
     config.active_job.queue_adapter = :sidekiq
 
     config.active_record.schema_format = :sql
+
+    config.x.pen_and_ink_constraint_extractor_params =
+      ENV.fetch("PEN_AND_INK_CONSTRAINT_EXTRACTOR_PARAMS", "schema")
     # Configuration for the application, engines, and railties goes here.
     #
     # These settings can be overridden in specific environments using the files

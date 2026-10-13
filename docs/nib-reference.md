@@ -1,9 +1,10 @@
 # Nib Reference
 
-Status: reference agreed 2026-10-09. This file is the **source of truth** for the future
-`NibProfile` class (`app/models/nib_profile.rb`, P1 of `docs/pen-and-ink-suggester-plan.md`) and
-for the "Nib knowledge" section of the PenAndInkSuggester system prompt. When a rule here and the
-code disagree, fix one of them in the same PR; when the prompt-sized extract changes, update both.
+This file is the **source of truth** for the `NibProfile` class (`app/models/nib_profile.rb`) and
+for the "Nib knowledge" section of the PenAndInkSuggester system prompt
+(`PenAndInkSuggestion::PickPrompt::SYSTEM_DIRECTIVE`, see `docs/pen-and-ink-suggester.md`). When a
+rule here and the code disagree, fix one of them in the same PR; when the prompt-sized extract
+changes, update both.
 
 What it covers: how users write nib sizes in the free-text `collected_pens.nib` field (and the
 `currently_inked.nib` snapshot), what those sizes mean across brands, how they map onto one
@@ -17,7 +18,8 @@ be perfect, and a misclassification is fixed by adding a row to the spec table.
 
 ## 1. Western grades
 
-Jowo/Bock steel, Lamy, TWSBI, Kaweco, Pelikan, Montblanc, Diplomat and most Chinese makers.
+Jowo/Bock/Schmidt steel, Esterbrook, Franklin-Christoph, Lamy, TWSBI, Kaweco, Pelikan, Montblanc,
+Diplomat and most Chinese makers.
 
 | Grade             | Approx. line (mm) | Notes                                                      |
 | ----------------- | ----------------- | ---------------------------------------------------------- |
@@ -40,7 +42,9 @@ Jowo/Bock steel, Lamy, TWSBI, Kaweco, Pelikan, Montblanc, Diplomat and most Chin
 ## 2. Japanese grades
 
 Pilot/Namiki, Sailor, Platinum and Nakaya, plus Taccia, Nagasawa, Bungubox and Wancher, which use
-Sailor or Platinum nibs.
+Sailor or Platinum nibs. A collaboration with a Western maker uses that maker's nib and Western
+sizing: "Esterbrook x Bungubox", "TWSBI x Bungubox" and "Kaweco x Bungubox" (about 100 pens) are
+Western, so their `M` is W4, not W3.
 
 **The one-step-finer rule.** Japanese grades run about one grade finer than Western ones: Japanese
 F ≈ Western EF, Japanese M ≈ Western F, Japanese B ≈ Western M. `NibProfile` applies this through
@@ -135,7 +139,7 @@ Characters are independent of width; a nib can carry several (a "1.1 Stub Steel"
 | left-handed     | LH, left-hand                                                                                                                                                        | Lamy left-handed nib, about M                                                               | default 0.6 mm                                         | no                     |
 | fude            | fude, bent, brush                                                                                                                                                    | tip bent up; about F upright to 1.5–2 mm+ lowered ("brush" is often a brush pen, not a nib) | default 0.9 mm (W5); range W3–W7                       | yes                    |
 | naginata family | naginata, nag, togi, Sailor N-prefixed grades, Kodachi, Long Knife / Long Blade, blade, Techo, Keiryu, Cross Concord / Cross Point, Emperor, King Cobra / King Eagle | fine upright, broader lowered; usually wet                                                  | default 0.55 mm; range −1 / +2 classes                 | yes                    |
-| zoom            | zoom                                                                                                                                                                 | Sailor: rounded tall tip, wider the lower the angle                                         | default 0.8 mm; range −2 / +1                          | yes                    |
+| zoom            | zoom; bare `Z` on a Japanese-sizing brand                                                                                                                            | Sailor: rounded tall tip, wider the lower the angle                                         | default 0.8 mm; range −2 / +1                          | yes                    |
 | music           | music, MS                                                                                                                                                            | two slits / three tines; very wet, broad verticals, narrower horizontals                    | default 0.9 mm; range −2 / +1                          | yes                    |
 | flex            | flex (not semi-flex), FA, Falcon, wet noodle, Zebra G, Omniflex, Ultra Flex, Ahab / Konrad "Flex", Esterbrook 128                                                    | fine at rest, 1–2 mm under pressure; needs wet, free-flowing ink or it railroads            | default 0.45 mm (Pilot FA 0.35); range up by 3 classes | no                     |
 | soft            | soft, elastic, semi-flex, SEF / SF / SFM / SM / SB, Sailor soft grades                                                                                               | bouncy, mild variation; not flex                                                            | base grade; range up by 1 class                        | no                     |
@@ -143,13 +147,13 @@ Characters are independent of width; a nib can carry several (a "1.1 Stub Steel"
 | posting         | posting, Pilot PO                                                                                                                                                    | hard, down-turned, very fine                                                                | default 0.22 mm                                        | no                     |
 | waverly         | waverly, waverley, Pilot WA                                                                                                                                          | up-turned tip, smooth                                                                       | default 0.5 mm                                         | no                     |
 | signature       | signature, bare `S` on Pilot/Namiki                                                                                                                                  | very broad                                                                                  | default 1.0 mm                                         | no (W6 already counts) |
-| beginner        | Lamy `A`, beginner, Anfänger                                                                                                                                         | beginner nib, about M                                                                       | default 0.6 mm                                         | no                     |
+| beginner        | Lamy or Pelikan `A`, beginner, Anfänger                                                                                                                              | beginner nib, about M                                                                       | default 0.6 mm                                         | no                     |
 
 **Material** (independent of width and character): gold for a karat number (9–22 k/kt/ct) or
-585/750/875/916; steel for steel, SS, stainless, Edelstahl, inox, "iridium point" and gold-plated,
-gold-tone or gold-coated; titanium for titan, Ti and Monoc; then a bare "gold" or palladium. Gold
-nibs tend to be softer and springier than steel, but most modern gold nibs are still firm; titanium
-is springy.
+585/750/875/916; steel for steel (and the typo "steal"), SS, stainless, Edelstahl, inox, acier,
+"iridium point" and gold-plated, gold-tone or gold-coated; titanium for titan, Ti and Monoc; then a
+bare "gold" or palladium. Gold nibs tend to be softer and springier than steel, but most modern gold
+nibs are still firm; titanium is springy.
 
 "Broad-ish" in the right-hand column is the set used for vague width requests (section 9): a nib
 counts as broad-ish when its class is W4 or more, or it carries one of these characters.
@@ -161,17 +165,17 @@ M and a Lamy F land in the same class.
 
 | Class | Label | Line (mm) | Western grades | Japanese grades    | Specialist and brand nibs (nominal)                       |
 | ----- | ----- | --------- | -------------- | ------------------ | --------------------------------------------------------- |
-| W1    | XXF   | ≤ 0.27    | UEF, EEF       | UEF, EEF, EF       | needlepoint, Pilot PO (posting)                           |
-| W2    | EF    | 0.27–0.37 | EF             | F, SF, SEF         | Pilot FA (flex)                                           |
+| W1    | XXF   | ≤ 0.27    | UEF, EEF       | UEF, EEF, EF, SEF  | needlepoint, Pilot PO (posting)                           |
+| W2    | EF    | 0.27–0.37 | EF             | F, SF              | Pilot FA (flex)                                           |
 | W3    | F     | 0.37–0.49 | F              | MF, FM, SFM, M, SM | —                                                         |
 | W4    | M     | 0.49–0.69 | MF, M          | B                  | Pilot WA, SU, CM; Journaler                               |
 | W5    | B     | 0.69–0.94 | B              | BB, C (coarse)     | Zoom, Music, fude (nominal)                               |
 | W6    | BB    | 0.94–1.24 | BB             | BBB                | 1.0–1.2 mm stubs/italics; Pilot S (Signature)             |
-| W7    | BBB+  | > 1.24    | BBB/3B         | —                  | stubs from 1.3 mm (1.5, 1.9), Pilot Parallel, calligraphy |
+| W7    | BBB+  | > 1.24    | BBB/3B         | —                  | stubs from 1.3 mm (1.5, 1.9), Pilot Parallel              |
 
-This table and the width-class lines of the suggester's system prompt
-(`docs/pen-and-ink-suggester-plan.md`, section 3.2) say exactly the same thing; P7 of that plan
-adds a spec that pins the prompt lines to the `NibProfile` constants. Every other code's class is
+This table and the width-class lines of the suggester's system prompt say exactly the same thing;
+`spec/operations/pen_and_ink_suggestion/system_directive_spec.rb` pins the prompt lines to the
+`NibProfile` constants. Every other code's class is
 in section 3 (for example Platinum `02`/`03`/`05` → W1/W2/W3, Esterbrook Scribe → W3, Lamy A/LH →
 W4, mini stub → W5). Western MF (0.50 mm) sits just above the W3/W4 boundary.
 
@@ -247,21 +251,28 @@ The order matters; each step works on what earlier steps left.
 
 | Step | Rule                                                                                                                                                                                                                                                                                                                                                                    |
 | ---- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1    | **Clean-up.** Lowercase; `1,1` → `1.1`; `.6` → `0.6`; `s.i.g.` → `sig`; `<>()[]{},;:+\|_` → space; collapse whitespace.                                                                                                                                                                                                                                                 |
+| 1    | **Clean-up.** Drop the prose words `of` and `im` (any case but all caps) unless they are the whole nib text; lowercase; `1,1` → `1.1`; letter `o.6` → `0.6`; `.6` → `0.6` unless the dot follows a letter, digit or dot (`No.6`, `Nr.8` stay unit sizes); `s.i.g.` → `sig`; `<>()[]{},;:+\|_` → space; collapse whitespace.                                                                                                                                                                                                                                                 |
 | 2    | **Kind.** Junk values (section 8) → `unknown`. Ballpoint, BP, ballpen, pencil, highlighter, marker, felt, fineliner, gel, stylus, or a gel/rollerball brand with a mm number → `non_inkable`. Rollerball, roller, RB → `rollerball`. Glass, dip, Zebra G, Nikko, crow quill → `dip`. Everything else → `fountain`.                                                      |
 | 3    | **Material.** First match wins: karat number or 585/750/875/916 → gold; steel words and gold-plated/tone/coated → steel; titan/Ti/Monoc → titanium; bare gold or palladium → gold.                                                                                                                                                                                      |
-| 4    | **Prefixes.** `[efmb]ci` → cursive italic + base grade; Sailor `n(ef\|f\|mf\|m\|b)` → naginata + base grade; Sailor `h-` → base grade; Pelikan `k`/`i`/`o` and soft `s` prefixes → character + base grade.                                                                                                                                                              |
+| 4    | **Prefixes.** `[efmb]ci` → cursive italic + base grade; Sailor `n(ef\|f\|mf\|m\|b)` → naginata + base grade; Sailor `h-` → base grade; the German `k`/`i`/`o` prefixes (Pelikan, but also Lamy, Montblanc, Kaweco, Parker, Waterman and others, so on every brand) and soft `s` prefixes → character + base grade.                                                                                                                                                              |
 | 5    | **Characters.** Every pattern in section 4 that matches is added. "Semi-flex" is soft only, never flex. A bare `s` is Signature only on Pilot/Namiki.                                                                                                                                                                                                                   |
 | 6    | **Grade.** First match wins, in this order: UEF, EEF, EF, MF, BBB, BB, C (Japanese brands only), F, M, B, using the synonyms in section 6.                                                                                                                                                                                                                              |
-| 7    | **Numbers.** A mm value or a decimal is a line width. ≥ 0.9 mm means stub, except Pilot 1.5 / 2.4 / 3.8 / 6.0, which are Parallel. `02`/`03`/`05` (and `.03`, `0.03`) are read as the grades EF / F / M and sized by brand (Platinum: W1 / W2 / W3). Bare integers (`2`, `#6`, `5`) are unit sizes and ignored. Esterbrook four-digit codes go through the style table. |
+| 7    | **Numbers.** A mm value or a decimal is a line width. ≥ 0.9 mm means stub, except Pilot 1.5 / 2.4 / 3.8 / 6.0, which are Parallel. `02`/`03`/`05` (and `.03`, `0.03`) are read as the grades EF / F / M and sized by brand (Platinum: W1 / W2 / W3); on Platinum the decimals `0.2` / `0.3` / `0.5` are read the same way. Bare integers (`2`, `#6`, `No.6`, `5`) are unit sizes and ignored. Esterbrook four-digit codes go through the style table (on an Esterbrook brand, or when the whole nib text is the code). |
 | 8    | **Width.** An explicit mm wins; then a code with its own width (Pilot SU 0.63, Pilot CM 0.6, Pilot FA 0.35, Journaler 0.57, mini stub 0.7, Scribe 0.45, Lamy Kanji/Cursive 0.6); then the grade through the Western or Japanese table (by brand); then the character's default width (section 4). The mm value is then bucketed into W1–W7 (section 5).                 |
 | 9    | **Range.** Applied from the characters (section 5).                                                                                                                                                                                                                                                                                                                     |
 | 10   | **Empty nib.** Fall back to strong tokens in the model name only: flex, fude, parallel, music, zoom, stub, an explicit `\d.\dmm`, or a trailing grade in parentheses ("Noodler's Ahab Flex", "Pilot Parallel 2.4 mm", "Nemosine .6mm Stub"). Loose matching is wrong: "Year **of** the Rabbit" would read as oblique fine.                                              |
-| 11   | **Confidence.** `high` with a grade or mm; `medium` from a character default; `material_only`, `character_only` or `none` otherwise.                                                                                                                                                                                                                                    |
+| 11   | **Confidence.** `high` with a grade, mm or code width; `medium` from a character default; `material_only`, `character_only` or `none` otherwise.                                                                                                                                                                                                                        |
 
 **Japanese-sizing brands:** Pilot, Namiki, Sailor, Platinum (also misspelt "Platinium"), Nakaya,
-Taccia, Nagasawa, Bungubox, Wancher, Kuretake, Eboya, Kakimori, Sakura, Ohashi. Extend the list from
-the data.
+Taccia, Nagasawa, Bungubox (also "Bungbox"), Wancher, Kuretake, Eboya, Kakimori, Sakura, Ohashi,
+Kyuseido, and the misspelling "Platnum". Extend the list from the data.
+
+**Western makers win.** A brand string that also names a Western-sizing maker is Western, even
+when it names a Japanese-sizing brand too: Esterbrook, Jowo, Bock (also "Peter Bock"), Schmidt,
+Lamy, TWSBI, Kaweco, Pelikan, Montblanc, Diplomat and Franklin-Christoph. Such strings are
+collaborations with a Japanese retailer ("Esterbrook x Bungubox") or name the nib's maker
+("Bungubox (Jowo nib)"), and the nib follows the Western maker. The Japanese-only rules (bare `C`,
+bare `Z`) do not apply to them either.
 
 **Representation** returned by `NibProfile.parse(nib, brand:, model:)`:
 
@@ -274,9 +285,10 @@ the data.
 | `width_min`, `width_max` | 1–7, for nibs whose line varies                                                    |
 | `characters`             | list from section 4                                                                |
 | `material`               | `gold`, `steel`, `titanium`, or nil                                                |
-| `japanese_sizing`        | true when the brand's Japanese table was used                                      |
+| `japanese_sizing`        | true when the brand uses Japanese sizing (section 7), whatever the nib text says and whether or not a width was found |
 | `confidence`             | `high`, `medium`, `material_only`, `character_only`, `none`                        |
-| `label`                  | display text, e.g. `MF → W3 (Japanese)` or `1.1 Stub → W6 stub (cross-strokes W3)` |
+| `label`                  | display text, e.g. `MF → W3 (Japanese)` or `1.1 Stub → W6 stub (cross-strokes W3)`; `(Japanese)` marks any sized nib on a Japanese-sizing brand (`FA → W2 (Japanese) flex`) |
+| `source`, `source_text`  | `nib`, or `model` for the empty-nib fallback, and the cleaned text that was parsed |
 
 The profile is computed on the fly, with no DB column. Persisting it (`nib_width_class`,
 `nib_characters`, `nib_kind` and a version for re-backfills) is only worth it if SQL-side filtering
@@ -336,26 +348,25 @@ Soft guidance for reasoning, not hard rules.
   sheen on Tomoe River-type paper.
 - **Flex and stubs** show off shading inks. Flex needs a wet, lubricated ink to avoid railroading.
 
-## 11. Coverage (all 186,669 active pens, prod, 2026-10-09)
+## 11. Coverage
 
-A Python prototype of these rules was used to measure coverage; the Ruby port is P1 of the
-suggester plan.
+Measured on a production export of 186,669 active pens; the figures move little between exports.
 
-- **92.8%** of active pens get a width class (96.8% of pens with a nib entered). 4.1% have an empty
-  nib, about 2.5% are material or unit only or junk, and 0.6% are non-fountain (512 rollerballs,
-  573 ballpoints and the like). 14.9% carry at least one character.
+- `NibProfile` gives **92.6%** of active pens a width class (96.5% of pens with a nib entered).
+  4.1% have an empty nib, about 2.5% are material or unit only or junk, and 0.6% are non-fountain
+  (512 rollerballs, 573 ballpoints and the like). 14.9% carry at least one character.
 - The most common raw values are F, M, EF, Fine, Medium, B, Broad, Extra Fine, MF, "1.1 Stub",
   Stub, "1.1", Flex, BB and Fude.
-- **Width distribution:** W1 3.8k, W2 31.0k, W3 61.2k, W4 48.9k, W5 17.0k, W6 8.7k, W7 2.5k. So
-  W4+ ("fairly broad") is about 41% of all 186,669 active pens (44% of the pens that get a class)
-  and W5+ about 15% (16%).
+- **Width distribution** (± 0.2k pens per class): W1 3.8k, W2 31.0k, W3 61.2k, W4 48.9k, W5 17.0k,
+  W6 8.7k, W7 2.5k. So W4+ ("fairly broad") is about 41% of all active pens (44% of the pens that
+  get a class) and W5+ about 15% (16%).
 - **Characters:** stub 9.8k, flex 5.5k, italic 4.6k, soft 2.3k, fude 1.6k, architect 1.4k,
   naginata family 1.1k, oblique 0.9k, music 0.7k, parallel 0.5k, zoom 0.5k, needlepoint 0.2k,
   waverly 0.2k.
 - **Material:** gold 12.5k, steel 10.3k, titanium 0.5k (12.4% of pens say anything about material).
 - **Japanese-sizing brands:** 40.3k pens (21.6%).
-- **Historical suggestions:** 5 of 12,476 were rollerballs or ballpoints and 14 dip/glass pens;
-  816 were pens with an unknown or empty nib, which should stay eligible.
+- **Suggestions:** rollerballs, ballpoints and dip/glass pens are never suggested; pens with an
+  unknown or empty nib stay eligible and are left out only by nib filters.
 
 ## Sources
 

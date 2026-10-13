@@ -1,0 +1,60 @@
+module Bench
+  module Suggester
+    SINCE = Time.utc(2026, 3, 24)
+
+    def self.default_root
+      ENV.fetch("BENCH_DIR") { Rails.root.join("tmp/bench/suggester").to_s }
+    end
+
+    def self.parse_since(value, default:, name: "SINCE")
+      return default if value.blank?
+
+      Time.zone.parse(value) || raise(ArgumentError, "#{name} is not a date: #{value.inspect}")
+    end
+
+    INSTRUCTION_FILTERS = %w[with without].freeze
+
+    def self.filter_cases(cases, split: nil, instruction: nil)
+      if instruction.present? && INSTRUCTION_FILTERS.exclude?(instruction)
+        raise ArgumentError, "INSTRUCTION must be with or without: #{instruction.inspect}"
+      end
+
+      cases = cases.select { |bench_case| bench_case.split == split } if split.present?
+      return cases if instruction.blank?
+
+      cases.select { |bench_case| bench_case.instruction? == (instruction == "with") }
+    end
+  end
+end
+
+require_relative "suggester/pricing"
+require_relative "suggester/model_settings"
+require_relative "suggester/constraint_schema"
+require_relative "suggester/label"
+require_relative "suggester/extractor_label"
+require_relative "suggester/extractor_label_context"
+require_relative "suggester/bench_case"
+require_relative "suggester/logged_run"
+require_relative "suggester/named_ink_filter"
+require_relative "suggester/case_exporter"
+require_relative "suggester/cartridge_compatibility"
+require_relative "suggester/checks/outcome"
+require_relative "suggester/checks/validity"
+require_relative "suggester/checks/named_targets"
+require_relative "suggester/checks/label_ids"
+require_relative "suggester/checks/constraints"
+require_relative "suggester/checks/rule_leakage"
+require_relative "suggester/checks/novelty"
+require_relative "suggester/checker"
+require_relative "suggester/report"
+require_relative "suggester/baseline_suggester"
+require_relative "suggester/runner"
+require_relative "suggester/grading_export"
+require_relative "suggester/labelling_sheet"
+require_relative "suggester/label_validator"
+require_relative "suggester/judge_scores"
+require_relative "suggester/instruction_honoured"
+require_relative "suggester/mention_pins"
+require_relative "suggester/extractor_score"
+require_relative "suggester/extractor_runner"
+require_relative "suggester/store"

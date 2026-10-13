@@ -82,10 +82,28 @@ module RubyLlmAgent
     []
   end
 
+  def max_tool_calls
+    MAX_TOOL_CALLS
+  end
+
+  def tool_calls_mode
+    nil
+  end
+
+  def temperature
+    nil
+  end
+
+  def reasoning_effort
+    nil
+  end
+
   def build_chat
     c = ruby_llm_context.chat(model: model_id)
     c.with_instructions(system_directive)
-    tools.each { |tool| c.with_tool(tool) }
+    c.with_temperature(temperature) unless temperature.nil?
+    c.with_thinking(effort: reasoning_effort) unless reasoning_effort.nil?
+    c.with_tools(*tools, calls: tool_calls_mode)
     restore_transcript(c)
     register_callbacks(c)
     c
@@ -113,6 +131,9 @@ module RubyLlmAgent
   class DecisionNotReachedError < StandardError
   end
 
+  class ToolCallLimitExceeded < StandardError
+  end
+
   # Multiple saves per round-trip are intentional: we save after each
   # interaction so the agent log reflects progress incrementally.
   def register_callbacks(c)
@@ -120,7 +141,10 @@ module RubyLlmAgent
     c.after_message { |message| save_transcript_and_usage(message) }
     c.before_tool_call do
       @tool_call_count += 1
-      raise "Max tool calls (#{MAX_TOOL_CALLS}) exceeded" if @tool_call_count > MAX_TOOL_CALLS
+      if @tool_call_count > max_tool_calls
+        raise ToolCallLimitExceeded,
+              "#{self.class.name} exceeded the limit of #{max_tool_calls} tool calls"
+      end
       save_transcript
     end
   end
@@ -131,18 +155,26 @@ module RubyLlmAgent
       agent_log.usage["prompt_tokens"] += message.input_tokens.to_i
       agent_log.usage["completion_tokens"] += message.output_tokens.to_i
       agent_log.usage["total_tokens"] += message.input_tokens.to_i + message.output_tokens.to_i
+      add_usage("cached_tokens", message.cached_tokens)
+      add_usage("cache_write_tokens", message.cache_creation_tokens)
     end
     save_transcript
   end
 
+  def add_usage(key, tokens)
+    return unless tokens.to_i.positive?
+
+    agent_log.usage[key] = agent_log.usage[key].to_i + tokens.to_i
+  end
+
   def save_transcript
-    agent_log.transcript = serialize_messages(chat.messages)
+    agent_log.transcript = sanitize_for_pg(serialize_messages(chat.messages))
     agent_log.save!
   end
 
   def serialize_messages(messages)
     messages.map do |msg|
-      entry = { role: msg.role.to_s, content: sanitize_for_pg(extract_text(msg.content)) }
+      entry = { role: msg.role.to_s, content: extract_text(msg.content) }
       entry[:tool_calls] = serialize_tool_calls(msg.tool_calls) if msg.tool_call?
       entry[:tool_call_id] = msg.tool_call_id if msg.tool_result?
       entry
@@ -164,8 +196,17 @@ module RubyLlmAgent
 
   # PostgreSQL cannot store \u0000 (null bytes) in text/jsonb columns.
   # LLM responses occasionally contain these characters.
-  def sanitize_for_pg(str)
-    str.delete("\u0000")
+  def sanitize_for_pg(value)
+    case value
+    when String
+      value.delete("\u0000")
+    when Hash
+      value.to_h { |key, item| [sanitize_for_pg(key), sanitize_for_pg(item)] }
+    when Array
+      value.map { |item| sanitize_for_pg(item) }
+    else
+      value
+    end
   end
 
   # Restores non-system messages from a previously saved transcript,

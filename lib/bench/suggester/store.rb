@@ -1,0 +1,137 @@
+module Bench
+  module Suggester
+    class Store
+      RUN_NAME = /\A[a-z0-9][a-z0-9_.-]*\z/
+      GRADES = "grades.json"
+      GRADES_FILE = /\A[a-z0-9][a-z0-9_-]*\.json\z/
+
+      class InvalidRunName < StandardError
+      end
+
+      class InvalidFileName < StandardError
+      end
+
+      attr_accessor :root
+
+      def initialize(root = Bench::Suggester.default_root)
+        self.root = Pathname.new(root)
+      end
+
+      def write_export(export)
+        write_json("cases.json", export.cases.map(&:to_h))
+        write_json("dropped.json", export.dropped)
+      end
+
+      def cases
+        read_json("cases.json").map { |hash| BenchCase.from_h(hash) }
+      end
+
+      def labels
+        Label.load_file(path("labels.yml"))
+      end
+
+      def extractor_labels
+        ExtractorLabel.load_file(path("extractor_labels.yml"))
+      end
+
+      def write_extractor_labels(labels)
+        write("extractor_labels.yml", labels.map(&:to_h).to_yaml)
+      end
+
+      def extractor_supplement
+        ExtractorLabel.load_file(path("extractor_supplement.yml"))
+      end
+
+      def write_label_template(cases)
+        existing = labels_file? ? (YAML.safe_load_file(path("labels.yml")) || {}) : {}
+        existing = existing.transform_keys(&:to_s)
+        added = cases.map(&:id) - existing.keys
+        template = existing.merge(added.to_h { |id| [id, Label.from_h(id, {}).to_h] })
+        write("labels.yml", template.to_yaml)
+        added.size
+      end
+
+      def write_labelling(sheet)
+        write_files(LabellingSheet::DIRECTORY, sheet.files)
+      end
+
+      def write_results(name, payload)
+        write_json("results/#{run_name(name)}.json", payload)
+      end
+
+      def results(name)
+        read_json("results/#{run_name(name)}.json")
+      end
+
+      def write_checks(name, rows)
+        write_json("results/#{run_name(name)}.checks.json", rows)
+      end
+
+      def checks(name)
+        read_json("results/#{run_name(name)}.checks.json")
+      end
+
+      def grading_directory(names)
+        "grading/#{comparison(names)}"
+      end
+
+      def write_grading(names, export)
+        write_files(grading_directory(names), export.files)
+        write(grading_key_file(names), export.key_json)
+      end
+
+      def grades(names, file_name = GRADES)
+        unless file_name.match?(GRADES_FILE)
+          raise InvalidFileName, "invalid grades file #{file_name.inspect}"
+        end
+
+        read_json("#{grading_directory(names)}/#{file_name}")
+      end
+
+      def grading_key(names)
+        read_json(grading_key_file(names))
+      end
+
+      def write_files(directory, files)
+        files.each { |file_name, content| write("#{directory}/#{file_name}", content) }
+      end
+
+      def read_json(relative)
+        JSON.parse(File.read(path(relative)))
+      end
+
+      def path(relative)
+        root.join(relative)
+      end
+
+      private
+
+      def labels_file?
+        File.exist?(path("labels.yml"))
+      end
+
+      def comparison(names)
+        names.map { |name| run_name(name) }.join("-vs-")
+      end
+
+      def grading_key_file(names)
+        "grading_keys/#{comparison(names)}.json"
+      end
+
+      def run_name(name)
+        raise InvalidRunName, "invalid run name #{name.inspect}" unless name.to_s.match?(RUN_NAME)
+
+        name
+      end
+
+      def write_json(relative, payload)
+        write(relative, JSON.pretty_generate(payload))
+      end
+
+      def write(relative, content)
+        FileUtils.mkdir_p(path(relative).dirname)
+        File.write(path(relative), content)
+      end
+    end
+  end
+end

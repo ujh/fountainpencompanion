@@ -1,81 +1,40 @@
 require "rails_helper"
 
 RSpec.describe PenAndInkSuggester do
-  before(:each) { WebMock.reset! }
+  let(:openai_url) { "https://api.openai.com/v1/chat/completions" }
   let(:user) { create(:user) }
-
-  let(:extra_user_input) { "Please suggest something blue" }
-
-  # Create test data
-  let!(:collected_pen_1) do
-    create(:collected_pen, user: user, brand: "Pilot", model: "Custom 74", nib: "M")
+  let!(:pen) { create(:collected_pen, user:, brand: "Pilot", model: "Custom 74", nib: "M") }
+  let!(:ink) do
+    create(:collected_ink, user:, brand_name: "Pilot", ink_name: "Kon-peki", kind: "bottle")
   end
 
-  let!(:collected_pen_2) do
-    create(:collected_pen, user: user, brand: "LAMY", model: "Safari", nib: "F")
-  end
-
-  let!(:collected_ink_1) do
-    ink =
-      create(
-        :collected_ink,
-        user: user,
-        brand_name: "Pilot",
-        ink_name: "Iroshizuku Kon-peki",
-        kind: "bottle"
-      )
-    # Ensure ink has proper cluster data to avoid nil errors
-    macro_cluster = create(:macro_cluster, tags: %w[blue water-based])
-    micro_cluster = create(:micro_cluster, macro_cluster: macro_cluster)
-    ink.update!(micro_cluster: micro_cluster)
-    ink
-  end
-
-  let!(:collected_ink_2) do
-    ink =
-      create(
-        :collected_ink,
-        user: user,
-        brand_name: "Diamine",
-        ink_name: "Blue Velvet",
-        kind: "cartridge"
-      )
-    # Ensure ink has proper cluster data to avoid nil errors
-    macro_cluster = create(:macro_cluster, tags: %w[blue cartridge])
-    micro_cluster = create(:micro_cluster, macro_cluster: macro_cluster)
-    ink.update!(micro_cluster: micro_cluster)
-    ink
-  end
-
-  let(:successful_openai_response) do
+  def record_call(id = "call_1", pen_ref: "P1", ink_ref: "I1", reasoning: "A calm, wet blue.")
     {
-      "id" => "chatcmpl-123",
+      "id" => id,
+      "type" => "function",
+      "function" => {
+        "name" => "record_suggestion",
+        "arguments" => { pen_ref:, ink_ref:, reasoning: }.to_json
+      }
+    }
+  end
+
+  def invalid_calls(count, first: 0)
+    count.times.map { |i| record_call("call_#{first + i}", pen_ref: "P9") }
+  end
+
+  def completion(tool_calls: nil, content: "")
+    message = { "role" => "assistant", "content" => content }
+    message["tool_calls"] = tool_calls if tool_calls
+    {
+      "id" => "chatcmpl-1",
       "object" => "chat.completion",
-      "created" => 1_677_652_288,
-      "model" => "gpt-4.1",
+      "model" => "gpt-4.1-mini",
       "choices" => [
         {
           "index" => 0,
-          "message" => {
-            "role" => "assistant",
-            "content" => "",
-            "tool_calls" => [
-              {
-                "id" => "call_123",
-                "type" => "function",
-                "function" => {
-                  "name" => "record_suggestion",
-                  "arguments" => {
-                    "suggestion" =>
-                      "**Pilot Custom 74** with **Pilot Iroshizuku Kon-peki** is an excellent combination. The smooth medium nib pairs perfectly with this beautiful blue ink.",
-                    "ink_id" => collected_ink_1.id,
-                    "pen_id" => collected_pen_1.id
-                  }.to_json
-                }
-              }
-            ]
-          },
-          "finish_reason" => "tool_calls"
+          "message" => message,
+          "finish_reason" => tool_calls ? "tool_calls" : "stop"
         }
       ],
       "usage" => {
@@ -86,373 +45,346 @@ RSpec.describe PenAndInkSuggester do
     }
   end
 
-  subject { described_class.new(user, extra_user_input) }
+  def stub_completions(*bodies)
+    stub_request(:post, openai_url).to_return(
+      *bodies.map do |body|
+        { status: 200, body: body.to_json, headers: { "Content-Type" => "application/json" } }
+      end
+    )
+  end
 
-  describe "#initialize" do
-    it "creates agent with user and preferences" do
-      suggester = described_class.new(user, extra_user_input)
-      expect(suggester.agent_log.owner).to eq(user)
-      expect(suggester.agent_log.name).to eq("PenAndInkSuggester")
-      expect(suggester.agent_log).to be_persisted
+  def stub_pick(**arguments)
+    stub_completions(completion(tool_calls: [record_call(**arguments)]))
+  end
+
+  describe "the model" do
+    before { stub_pick }
+
+    it "is the mini model for free users" do
+      described_class.new(user).perform
+
+      expect(WebMock).to have_requested(:post, openai_url).with(
+        body: hash_including("model" => "gpt-4.1-mini")
+      )
     end
 
-    it "works without extra user input" do
-      suggester = described_class.new(user, nil)
-      expect(suggester.agent_log.owner).to eq(user)
+    it "is the full model for patrons" do
+      user.update!(patron: true)
+
+      described_class.new(user).perform
+
+      expect(WebMock).to have_requested(:post, openai_url).with(
+        body: hash_including("model" => "gpt-4.1")
+      )
+    end
+
+    it "is the full model for admins" do
+      user.update!(admin: true)
+
+      described_class.new(user).perform
+
+      expect(WebMock).to have_requested(:post, openai_url).with(
+        body: hash_including("model" => "gpt-4.1")
+      )
     end
   end
 
-  describe "rejected suggestions in the user prompt" do
-    it "embeds the validated {ink_id, pen_id} pairs as JSON" do
-      pairs = [{ ink_id: 1, pen_id: 2 }, { ink_id: 3, pen_id: 4 }]
-      suggester = described_class.new(user, nil, pairs)
-      prompt = suggester.send(:user_prompt)
+  describe "precheck" do
+    it "answers without an LLM call when there are no active pens" do
+      pen.archive!
 
-      expect(prompt).to include('"ink_id":1')
-      expect(prompt).to include('"pen_id":4')
-      expect(prompt).to include("rejected. Do not recommend them again")
+      response = described_class.new(user).perform
+
+      expect(response).to eq(message: described_class::NO_UNINKED_PENS_MESSAGE)
+      expect(WebMock).not_to have_requested(:post, openai_url)
     end
 
-    it "does not include the section when no pairs are passed" do
-      suggester = described_class.new(user, nil, [])
-      prompt = suggester.send(:user_prompt)
-      expect(prompt).not_to include("rejected")
+    it "answers without an LLM call when the only inks are swabs" do
+      ink.update!(kind: "swab")
+
+      response = described_class.new(user).perform
+
+      expect(response).to eq(message: described_class::NO_FILLABLE_INKS_MESSAGE)
+      expect(WebMock).not_to have_requested(:post, openai_url)
+    end
+
+    it "answers without an LLM call when there are no active inks" do
+      ink.archive!
+
+      response = described_class.new(user).perform
+
+      expect(response).to eq(message: described_class::NO_FILLABLE_INKS_MESSAGE)
+      expect(WebMock).not_to have_requested(:post, openai_url)
+    end
+
+    it "treats an ink without a kind as fillable" do
+      ink.update!(kind: "swab")
+      unknown_kind = create(:collected_ink, user:, kind: nil)
+      stub_pick
+
+      response = described_class.new(user).perform
+
+      expect(response[:ink]).to eq(unknown_kind.id)
+    end
+
+    it "marks the agent log with the precheck reason" do
+      ink.update!(kind: "swab")
+      suggester = described_class.new(user)
+
+      suggester.perform
+
+      expect(suggester.agent_log.extra_data).to eq(
+        "message" => described_class::NO_FILLABLE_INKS_MESSAGE,
+        "precheck" => "no_fillable_inks"
+      )
+      expect(suggester.agent_log.state).to eq("waiting-for-approval")
+    end
+
+    it "does not count precheck runs toward the daily cap" do
+      ink.update!(kind: "swab")
+      described_class::MAX_PER_DAY.times { described_class.new(user).perform }
+      ink.update!(kind: "bottle")
+      stub_pick
+
+      response = described_class.new(user).perform
+
+      expect(response[:ink]).to eq(ink.id)
+      expect(WebMock).to have_requested(:post, openai_url).once
     end
   end
 
-  describe "#agent_log" do
-    it "creates and memoizes agent log" do
-      log1 = subject.agent_log
-      log2 = subject.agent_log
+  describe "daily cap" do
+    before { stub_pick }
 
-      expect(log1).to be_persisted
-      expect(log1.name).to eq("PenAndInkSuggester")
-      expect(log1.owner).to eq(user)
-      expect(log1).to eq(log2)
+    def create_logs(count)
+      create_list(:agent_log, count, name: described_class.name, owner: user)
+    end
+
+    it "allows the 20th run of the day for free users" do
+      create_logs(19)
+
+      described_class.new(user).perform
+
+      expect(WebMock).to have_requested(:post, openai_url).once
+    end
+
+    it "stops free users after 20 runs a day" do
+      create_logs(20)
+
+      response = described_class.new(user).perform
+
+      expect(response[:message]).to include("daily limit of 20 suggestions", "Patron")
+      expect(WebMock).not_to have_requested(:post, openai_url)
+    end
+
+    it "stops patrons after 50 runs a day" do
+      user.update!(patron: true)
+      create_logs(49)
+      described_class.new(user).perform
+
+      response = described_class.new(user).perform
+
+      expect(response[:message]).to eq(
+        "You have reached your daily limit of 50 suggestions. Please try again tomorrow."
+      )
+      expect(WebMock).to have_requested(:post, openai_url).once
+    end
+
+    it "skips the cap when enforce_daily_limit is false" do
+      create_logs(20)
+
+      response = described_class.new(user, enforce_daily_limit: false).perform
+
+      expect(response[:ink]).to eq(ink.id)
+      expect(WebMock).to have_requested(:post, openai_url).once
     end
   end
 
-  describe "#perform" do
-    before(:each) do
-      stub_request(:post, "https://api.openai.com/v1/chat/completions").to_return(
-        status: 200,
-        body: successful_openai_response.to_json,
+  describe "agent log per request" do
+    before { stub_pick }
+
+    it "does not reuse a stale processing log" do
+      stale =
+        create(
+          :agent_log,
+          name: described_class.name,
+          owner: user,
+          state: AgentLog::PROCESSING,
+          transcript: [{ "role" => "user", "content" => "Stale prompt from an earlier run" }]
+        )
+      suggester = described_class.new(user)
+
+      suggester.perform
+
+      expect(suggester.agent_log).not_to eq(stale)
+      expect(stale.reload.state).to eq(AgentLog::PROCESSING)
+      expect(WebMock).not_to have_requested(:post, openai_url).with(
+        body: /Stale prompt from an earlier run/
+      )
+    end
+
+    it "creates a new log for every run" do
+      expect {
+        described_class.new(user).perform
+        described_class.new(user).perform
+      }.to change { user.agent_logs.where(name: described_class.name).count }.by(2)
+    end
+  end
+
+  describe "tool-call limit" do
+    it "returns the error result when the limit is exceeded without a valid call" do
+      stub_completions(completion(tool_calls: invalid_calls(13)))
+      suggester = described_class.new(user)
+
+      response = suggester.perform
+
+      expect(response).to eq(described_class.error_result)
+      expect(suggester.agent_log.extra_data["error"]).to eq("ToolCallLimitExceeded")
+      expect(WebMock).to have_requested(:post, openai_url).once
+    end
+
+    it "allows 12 tool calls" do
+      stub_completions(
+        completion(tool_calls: invalid_calls(11) + [record_call("call_11", reasoning: "Twelfth")])
+      )
+      suggester = described_class.new(user)
+
+      response = suggester.perform
+
+      expect(response).to include(ink: ink.id, pen: pen.id)
+      expect(response[:message]).to end_with("Twelfth")
+      expect(suggester.agent_log.extra_data).not_to have_key("error")
+    end
+
+    it "returns the recorded suggestion when the limit is exceeded after a valid call" do
+      stub_completions(
+        completion(
+          tool_calls: [record_call("call_0", reasoning: "Recorded")] + invalid_calls(12, first: 1)
+        )
+      )
+      suggester = described_class.new(user)
+
+      response = suggester.perform
+
+      expect(response).to include(ink: ink.id, pen: pen.id)
+      expect(response[:message]).to end_with("Recorded")
+      expect(suggester.agent_log.extra_data["error"]).to eq("ToolCallLimitExceeded")
+    end
+  end
+
+  describe "API errors" do
+    it "raises a server error on a 500" do
+      stub_request(:post, openai_url).to_return(
+        status: 500,
+        body: { error: { message: "Internal server error" } }.to_json,
         headers: {
           "Content-Type" => "application/json"
         }
       )
+
+      expect { described_class.new(user).perform }.to raise_error(RubyLLM::ServerError)
     end
 
-    it "returns successful response with suggestion" do
-      response = subject.perform
-
-      expect(response[:message]).to include("Pilot Custom 74")
-      expect(response[:message]).to include("Pilot Iroshizuku Kon-peki")
-      expect(response[:ink]).to eq(collected_ink_1.id)
-      expect(response[:pen]).to eq(collected_pen_1.id)
-    end
-
-    it "updates agent log appropriately" do
-      response = subject.perform
-
-      expect(subject.agent_log.extra_data).to eq(response.stringify_keys)
-      expect(subject.agent_log.state).to eq("waiting-for-approval")
-    end
-
-    it "makes HTTP request to OpenAI API" do
-      subject.perform
-
-      expect(WebMock).to have_requested(
-        :post,
-        "https://api.openai.com/v1/chat/completions"
-      ).at_least_once
-    end
-
-    it "sends pen and ink data to OpenAI" do
-      subject.perform
-
-      expect(WebMock).to have_requested(:post, "https://api.openai.com/v1/chat/completions")
-        .with { |req|
-          body = JSON.parse(req.body)
-          content = body["messages"].find { |m| m["role"] == "user" }&.[]("content")
-
-          expect(content).to include("Given the following fountain pens:")
-          expect(content).to include("Given the following inks:")
-          expect(content).to include(collected_pen_1.brand)
-          expect(content).to include(collected_ink_1.ink_name)
-
-          true
-        }
-        .at_least_once
-    end
-
-    it "includes function definition for record_suggestion" do
-      subject.perform
-
-      expect(WebMock).to have_requested(:post, "https://api.openai.com/v1/chat/completions")
-        .with { |req|
-          body = JSON.parse(req.body)
-          body["tools"]&.present? && body["tools"].first["function"]["name"] == "record_suggestion"
-        }
-        .at_least_once
-    end
-
-    context "with extra user input" do
-      it "includes extra user instructions in user message" do
-        subject.perform
-
-        expect(WebMock).to have_requested(:post, "https://api.openai.com/v1/chat/completions")
-          .with { |req|
-            body = JSON.parse(req.body)
-            content = body["messages"].find { |m| m["role"] == "user" }&.[]("content")
-            expect(content).to include("Please suggest something blue")
-            true
-          }
-          .at_least_once
-      end
-    end
-
-    context "includes all ink types" do
-      it "includes both bottle and cartridge inks" do
-        subject.perform
-
-        expect(WebMock).to have_requested(:post, "https://api.openai.com/v1/chat/completions")
-          .with { |req|
-            body = JSON.parse(req.body)
-            content = body["messages"].find { |m| m["role"] == "user" }&.[]("content")
-            expect(content).to include(collected_ink_1.ink_name) # bottle
-            expect(content).to include(collected_ink_2.ink_name) # cartridge
-            true
-          }
-          .at_least_once
-      end
-    end
-  end
-
-  describe "data formatting" do
-    before(:each) do
-      stub_request(:post, "https://api.openai.com/v1/chat/completions").to_return(
+    it "raises a parsing error on malformed JSON" do
+      stub_request(:post, openai_url).to_return(
         status: 200,
-        body: successful_openai_response.to_json,
+        body: "invalid json",
         headers: {
           "Content-Type" => "application/json"
         }
       )
-    end
 
-    it "sends CSV formatted data to OpenAI" do
-      subject.perform
-
-      expect(WebMock).to have_requested(:post, "https://api.openai.com/v1/chat/completions")
-        .with { |req|
-          body = JSON.parse(req.body)
-          content = body["messages"].find { |m| m["role"] == "user" }&.[]("content")
-
-          # Should contain CSV headers
-          expect(content).to include("pen id,fountain pen name")
-          expect(content).to include("ink id,ink name")
-
-          # Should contain usage tracking columns
-          expect(content).to include("usage count,daily usage count")
-          expect(content).to include("last usage")
-
-          # Should contain actual data
-          expect(content).to include(collected_pen_1.id.to_s)
-          expect(content).to include(collected_ink_1.id.to_s)
-
-          true
-        }
-        .at_least_once
-    end
-
-    it "includes pen and ink details for AI context" do
-      subject.perform
-
-      expect(WebMock).to have_requested(:post, "https://api.openai.com/v1/chat/completions")
-        .with { |req|
-          body = JSON.parse(req.body)
-          content = body["messages"].find { |m| m["role"] == "user" }&.[]("content")
-
-          expect(content).to include("Pilot")
-          expect(content).to include("Custom 74")
-          expect(content).to include("Iroshizuku Kon-peki")
-
-          true
-        }
-        .at_least_once
-    end
-
-    it "handles special characters in names" do
-      create(:collected_pen, user: user, brand: 'Test "Brand"', model: 'Model "Special"')
-
-      subject.perform
-
-      expect(WebMock).to have_requested(:post, "https://api.openai.com/v1/chat/completions")
-        .with { |req|
-          body = JSON.parse(req.body)
-          content = body["messages"].find { |m| m["role"] == "user" }&.[]("content")
-          expect(content).to include("Brand")
-          expect(content).to include("Special")
-          true
-        }
-        .at_least_once
+      expect { described_class.new(user).perform }.to raise_error(Faraday::ParsingError)
     end
   end
 
-  describe "error handling" do
-    context "when OpenAI API returns 500 error" do
-      before(:each) do
-        stub_request(:post, "https://api.openai.com/v1/chat/completions").to_return(
-          status: 500,
-          body: { error: { message: "Internal server error" } }.to_json,
-          headers: {
-            "Content-Type" => "application/json"
-          }
-        )
-      end
+  describe "transcript and usage" do
+    before { stub_pick }
 
-      it "raises an error" do
-        expect { subject.perform }.to raise_error(RubyLLM::ServerError)
-      end
+    it "saves the transcript" do
+      suggester = described_class.new(user)
+
+      suggester.perform
+
+      expect(suggester.agent_log.transcript.map { |entry| entry["role"] }).to eq(
+        %w[system user assistant tool]
+      )
     end
 
-    context "when OpenAI returns malformed JSON" do
-      before(:each) do
-        stub_request(:post, "https://api.openai.com/v1/chat/completions").to_return(
-          status: 200,
-          body: "invalid json",
-          headers: {
-            "Content-Type" => "application/json"
-          }
+    it "saves the run when the pick's tool-call arguments and text contain NUL" do
+      stub_completions(
+        completion(
+          tool_calls: [record_call(reasoning: "A calm, wet bl\u0000ue.")],
+          content: "Pick\u0000ing."
         )
-      end
+      )
+      suggester = described_class.new(user)
 
-      it "raises a parsing error" do
-        expect { subject.perform }.to raise_error(Faraday::ParsingError)
-      end
+      response = suggester.perform
+
+      log = suggester.agent_log.reload
+      expect(response).to include(pen: pen.id, ink: ink.id)
+      expect(response[:message]).to end_with("A calm, wet blue.")
+      expect(log.state).to eq(AgentLog::WAITING_FOR_APPROVAL)
+      expect(log.extra_data).to include(
+        "pen" => pen.id,
+        "ink" => ink.id,
+        "reasoning" => "A calm, wet blue."
+      )
+      expect(log.transcript.to_json).not_to include("\\u0000")
+      expect(log.transcript.map { |entry| entry["content"] }).to include("Picking.")
+    end
+
+    it "saves the usage" do
+      suggester = described_class.new(user)
+
+      suggester.perform
+
+      expect(suggester.agent_log.usage).to include(
+        "prompt_tokens" => 150,
+        "completion_tokens" => 50,
+        "total_tokens" => 200,
+        "model" => "gpt-4.1-mini"
+      )
     end
   end
 
-  describe "tools" do
-    describe PenAndInkSuggester::RecordSuggestion do
-      let(:inks) { user.collected_inks.active }
-      let(:pens) { user.collected_pens.active }
-
-      it "has the correct name" do
-        tool = described_class.new(inks, pens)
-        expect(tool.name).to eq("record_suggestion")
-      end
-
-      it "records suggestion and halts on valid input" do
-        tool = described_class.new(inks, pens)
-        result =
-          tool.call(
-            suggestion: "Great combination!",
-            ink_id: collected_ink_1.id,
-            pen_id: collected_pen_1.id
+  describe "query count" do
+    def grow_collection(size)
+      pens = create_list(:collected_pen, size, user:)
+      inks = create_list(:collected_ink, size, user:, kind: "bottle")
+      pens
+        .zip(inks)
+        .each_with_index do |(collected_pen, collected_ink), i|
+          create(
+            :currently_inked,
+            user:,
+            collected_pen:,
+            collected_ink:,
+            inked_on: 20.days.ago,
+            archived_on: i.even? ? 10.days.ago : nil
           )
+        end
+    end
 
-        expect(result).to be_a(RubyLLM::Tool::Halt)
-        expect(tool.message).to eq("Great combination!")
-        expect(tool.result_ink_id).to eq(collected_ink_1.id)
-        expect(tool.result_pen_id).to eq(collected_pen_1.id)
+    def run_queries
+      count = 0
+      counter = ->(*, payload) { count += 1 unless %w[SCHEMA TRANSACTION].include?(payload[:name]) }
+      ActiveSupport::Notifications.subscribed(counter, "sql.active_record") do
+        described_class.new(user, seed: 1).perform
       end
-
-      it "returns error for invalid ink ID" do
-        tool = described_class.new(inks, pens)
-        result = tool.call(suggestion: "Test", ink_id: 99_999, pen_id: collected_pen_1.id)
-
-        expect(result).to eq("Please try again. The ink ID is invalid.")
-      end
-
-      it "returns error for invalid pen ID" do
-        tool = described_class.new(inks, pens)
-        result = tool.call(suggestion: "Test", ink_id: collected_ink_1.id, pen_id: 99_999)
-
-        expect(result).to eq("Please try again. The pen ID is invalid.")
-      end
-
-      it "returns error for both invalid IDs" do
-        tool = described_class.new(inks, pens)
-        result = tool.call(suggestion: "Test", ink_id: 99_999, pen_id: 99_999)
-
-        expect(result).to eq("Please try again. Both the pen and ink IDs are invalid.")
-      end
-
-      it "returns error for blank suggestion" do
-        tool = described_class.new(inks, pens)
-        result = tool.call(suggestion: "", ink_id: collected_ink_1.id, pen_id: collected_pen_1.id)
-
-        expect(result).to eq("Please try again. The suggestion message is blank.")
-      end
-    end
-  end
-
-  describe "integration test" do
-    before(:each) do
-      stub_request(:post, "https://api.openai.com/v1/chat/completions").to_return(
-        status: 200,
-        body: successful_openai_response.to_json,
-        headers: {
-          "Content-Type" => "application/json"
-        }
-      )
+      count
     end
 
-    it "completes full suggestion workflow" do
-      response = subject.perform
+    it "is the same for a small collection and one larger than the slices" do
+      stub_pick
+      grow_collection(3)
+      small = run_queries
 
-      expect(response[:message]).to include("Pilot Custom 74")
-      expect(response[:message]).to include("Pilot Iroshizuku Kon-peki")
-      expect(response[:ink]).to eq(collected_ink_1.id)
-      expect(response[:pen]).to eq(collected_pen_1.id)
-      expect(subject.agent_log.state).to eq("waiting-for-approval")
-    end
+      grow_collection(60)
+      large = run_queries
 
-    it "includes clustering data for AI context" do
-      subject.perform
-
-      expect(WebMock).to have_requested(:post, "https://api.openai.com/v1/chat/completions")
-        .with { |req|
-          body = JSON.parse(req.body)
-          content = body["messages"].find { |m| m["role"] == "user" }&.[]("content")
-          # Should include columns for clustering information
-          expect(content).to include("tags,description")
-          true
-        }
-        .at_least_once
-    end
-  end
-
-  describe "transcript and usage tracking" do
-    before(:each) do
-      stub_request(:post, "https://api.openai.com/v1/chat/completions").to_return(
-        status: 200,
-        body: successful_openai_response.to_json,
-        headers: {
-          "Content-Type" => "application/json"
-        }
-      )
-    end
-
-    it "updates agent log transcript" do
-      subject.perform
-
-      transcript = subject.agent_log.transcript
-      expect(transcript).to be_an(Array)
-      expect(transcript.length).to be >= 3
-      expect(transcript.any? { |e| e["role"] == "user" }).to be true
-      expect(transcript.any? { |e| e["role"] == "assistant" }).to be true
-    end
-
-    it "updates agent log usage" do
-      subject.perform
-
-      usage = subject.agent_log.usage
-      expect(usage["prompt_tokens"]).to eq(150)
-      expect(usage["completion_tokens"]).to eq(50)
-      expect(usage["total_tokens"]).to eq(200)
-      expect(usage["model"]).to eq("gpt-4.1")
+      expect(large).to eq(small)
     end
   end
 end

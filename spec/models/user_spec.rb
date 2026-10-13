@@ -73,6 +73,20 @@ describe User do
     end
   end
 
+  describe "#premium?" do
+    it "is false for a regular user" do
+      expect(build(:user)).not_to be_premium
+    end
+
+    it "is true for a patron" do
+      expect(build(:user, patron: true)).to be_premium
+    end
+
+    it "is true for an admin" do
+      expect(build(:user, admin: true)).to be_premium
+    end
+  end
+
   describe ".match_patreon_members" do
     def member(user_id: nil, email: nil)
       PatreonClient::Member.new(

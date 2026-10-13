@@ -4,7 +4,33 @@ This directory contains tests for AI agents used in the Fountain Pen Companion a
 
 ## PenAndInkSuggester Tests
 
-The `PenAndInkSuggester` agent uses OpenAI's GPT to suggest fountain pen and ink combinations based on user preferences and usage history.
+The `PenAndInkSuggester` agent suggests one fountain pen and one ink from the user's collection.
+Ruby does most of the work: `PenAndInkSuggestion::CollectionSnapshot` loads the collection,
+`PenAndInkSuggestion::CandidateSelector` filters and ranks it, and the model makes one pick call
+(`record_suggestion`, refs instead of database ids) over the rows it is shown. For a run with an
+instruction, the `PenAndInkConstraintExtractor` sub-agent first turns the free text into
+`PenAndInkSuggestion::Constraints`; when it fails, the Ruby `MentionMatcher` still pins the items
+the user named. The design, its limits and the bench are described in
+`docs/pen-and-ink-suggester.md`.
+
+The specs are split by concern:
+
+| Spec                                                                  | Covers                                                                                                                                                                                |
+| --------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `pen_and_ink_suggester_spec.rb`                                       | Behaviour shared by every run: model per tier, prechecks, daily cap, one agent log per request, the tool-call limit (`MAX_TOOL_CALLS`), API errors, transcript and usage, query count |
+| `pen_and_ink_suggester/no_instruction_run_spec.rb`                    | Runs without an instruction: system and user messages, the tool schema, the server-built message, logged `extra_data`, seeds, tier slices, currently inked pens                       |
+| `pen_and_ink_suggester/instruction_run_spec.rb`                       | Instruction runs when the extractor falls back: unfiltered fallback slices, Ruby pins, named and inked pens                                                                           |
+| `pen_and_ink_suggester/extractor_run_spec.rb`                         | Instruction runs with the extractor: filtered lists, child log, pins, each fallback error                                                                                             |
+| `pen_and_ink_suggester/constraints_run_spec.rb`                       | Relaxed constraints, re-checked picks, runs that end without a pick                                                                                                                   |
+| `pen_and_ink_suggester/record_suggestion_spec.rb`                     | The `record_suggestion` tool                                                                                                                                                          |
+| `pen_and_ink_suggester/daily_cap_spec.rb`, `instruction_gate_spec.rb` | The daily cap and who may write instructions                                                                                                                                          |
+| `pen_and_ink_constraint_extractor_spec.rb`                            | The extractor sub-agent and its `set_constraints` tool                                                                                                                                |
+| `spec/operations/pen_and_ink_suggestion/`                             | The plain Ruby parts: snapshot, selector, constraints, name matching, prompt, message                                                                                                 |
+| `spec/lib/bench/suggester/`                                           | The offline replay bench (`lib/bench/suggester`)                                                                                                                                      |
+
+Agent specs stub `https://api.openai.com/v1/chat/completions` with WebMock. The model's answer is
+a `record_suggestion` tool call with refs such as `P1` and `I1`; with one pen and one ink in the
+collection those are always the refs shown.
 
 ## SpamClassifier Tests
 
@@ -116,53 +142,6 @@ These tests follow best practices by:
 - **Using WebMock** to stub OpenAI API calls for predictable, fast tests
 - **Using Sidekiq job expectations** instead of mocking job scheduling methods
 
-### Test Coverage
-
-The test suite (`pen_and_ink_suggester_spec.rb`) covers:
-
-#### Initialization & Setup
-
-- Agent creation with user preferences and ink filters
-- Agent log creation and persistence
-- Handling of optional parameters (extra user input, ink kind)
-
-#### OpenAI Integration
-
-- **HTTP Request Validation**: Ensures correct data is sent to OpenAI API
-- **Response Handling**: Tests various OpenAI response scenarios
-- **Error Handling**: API failures, malformed responses, invalid suggestions
-- **Data Filtering**: Verifies only relevant pens and inks are included
-
-#### Data Generation & Filtering
-
-- **CSV Format**: Validates pen and ink data is properly formatted for AI
-- **Active Items Only**: Ensures archived pens/inks are excluded
-- **Currently Inked Exclusion**: Prevents suggesting already-inked pens
-- **Ink Kind Filtering**: Respects user's ink type preferences (bottle, cartridge, etc.)
-- **Usage Statistics**: Includes usage history for AI decision-making
-- **Special Characters**: Handles quotes and special characters in names
-
-#### Business Logic Validation
-
-- **Valid Suggestions**: Accepts correct pen and ink combinations
-- **Invalid ID Handling**: Rejects suggestions with non-existent pen/ink IDs
-- **Empty Suggestions**: Handles blank or missing suggestion text
-- **Data Limits**: Respects LIMIT constant to avoid overwhelming the AI
-
-#### Agent State Management
-
-- **Agent Log Updates**: Tracks suggestions and approval state
-- **Response Format**: Returns consistent response structure
-- **Error Responses**: Provides user-friendly error messages
-
-### Key Test Scenarios
-
-1. **Happy Path**: OpenAI returns valid suggestion with existing pen and ink IDs
-2. **Data Validation**: Ensures only active, available items are sent to OpenAI
-3. **Error Handling**: Invalid IDs, empty suggestions, API failures
-4. **Filtering Logic**: Ink kind preferences, currently inked exclusions
-5. **CSV Generation**: Proper formatting for AI consumption with usage statistics
-
 ### HTTP Mocking Strategy
 
 Tests use WebMock to stub OpenAI API requests:
@@ -234,23 +213,10 @@ This approach:
 Tests verify that the correct data is sent to OpenAI:
 
 ```ruby
-expect(WebMock).to have_requested(:post, openai_url).with do |req|
-  body = JSON.parse(req.body)
-  expect(body["model"]).to eq("gpt-4.1")
-  expect(body["messages"].first["content"]).to include(pen_data)
-  expect(body["messages"].first["content"]).to include(ink_data)
-  true
-end
+expect(WebMock).to have_requested(:post, openai_url).with(
+  body: hash_including("model" => "gpt-4.1")
+)
 ```
-
-### Response Scenarios Tested
-
-1. **Valid Function Call**: OpenAI calls `record_suggestion` with valid IDs
-2. **Invalid Pen ID**: OpenAI suggests non-existent pen
-3. **Invalid Ink ID**: OpenAI suggests non-existent ink
-4. **Empty Suggestion**: OpenAI returns blank suggestion text
-5. **API Errors**: HTTP 500, network failures, malformed JSON
-6. **Multiple Tool Calls**: Handling complex OpenAI responses
 
 ### Running the Tests
 
@@ -258,40 +224,40 @@ The application uses Docker for development, so tests must be run within the Doc
 
 ```bash
 # Run all tests
-docker-compose exec app bundle exec rspec
+docker-compose exec -T app bundle exec rspec
 
 # Run all agent tests
-docker-compose exec app bundle exec rspec spec/agents/
+docker-compose exec -T app bundle exec rspec spec/agents/
 
-# Run only PenAndInkSuggester tests
-docker-compose exec app bundle exec rspec spec/agents/pen_and_ink_suggester_spec.rb
+# Run all PenAndInkSuggester tests
+docker-compose exec -T app bundle exec rspec spec/agents/pen_and_ink_suggester_spec.rb spec/agents/pen_and_ink_suggester/ spec/agents/pen_and_ink_constraint_extractor_spec.rb spec/operations/pen_and_ink_suggestion/
 
 # Run only InkClusterer tests
-docker-compose exec app bundle exec rspec spec/agents/ink_clusterer_spec.rb
+docker-compose exec -T app bundle exec rspec spec/agents/ink_clusterer_spec.rb
 
 # Run only SpamClassifier tests
-docker-compose exec app bundle exec rspec spec/agents/spam_classifier_spec.rb
+docker-compose exec -T app bundle exec rspec spec/agents/spam_classifier_spec.rb
 
 # Run only CheckInkClustering tests
-docker-compose exec app bundle exec rspec spec/agents/check_ink_clustering/
+docker-compose exec -T app bundle exec rspec spec/agents/check_ink_clustering/
 
 # Run specific CheckInkClustering agent tests
-docker-compose exec app bundle exec rspec spec/agents/check_ink_clustering/assign_spec.rb
-docker-compose exec app bundle exec rspec spec/agents/check_ink_clustering/create_spec.rb
-docker-compose exec app bundle exec rspec spec/agents/check_ink_clustering/human_spec.rb
-docker-compose exec app bundle exec rspec spec/agents/check_ink_clustering/ignore_spec.rb
+docker-compose exec -T app bundle exec rspec spec/agents/check_ink_clustering/assign_spec.rb
+docker-compose exec -T app bundle exec rspec spec/agents/check_ink_clustering/create_spec.rb
+docker-compose exec -T app bundle exec rspec spec/agents/check_ink_clustering/human_spec.rb
+docker-compose exec -T app bundle exec rspec spec/agents/check_ink_clustering/ignore_spec.rb
 
 # Run with detailed output
-docker-compose exec app bundle exec rspec spec/agents/pen_and_ink_suggester_spec.rb --format documentation
+docker-compose exec -T app bundle exec rspec spec/agents/pen_and_ink_suggester_spec.rb --format documentation
 
 # Run specific test scenarios
-docker-compose exec app bundle exec rspec spec/agents/pen_and_ink_suggester_spec.rb -e "excludes currently inked pens"
-docker-compose exec app bundle exec rspec spec/agents/ink_clusterer_spec.rb -e "assigns micro cluster to macro cluster"
-docker-compose exec app bundle exec rspec spec/agents/spam_classifier_spec.rb -e "classifies as spam"
-docker-compose exec app bundle exec rspec spec/agents/check_ink_clustering/assign_spec.rb -e "approves assignment"
-docker-compose exec app bundle exec rspec spec/agents/check_ink_clustering/create_spec.rb -e "rejects cluster creation for ink mixes"
-docker-compose exec app bundle exec rspec spec/agents/check_ink_clustering/human_spec.rb -e "sends email to human reviewer"
-docker-compose exec app bundle exec rspec spec/agents/check_ink_clustering/ignore_spec.rb -e "correctly handles ink mixes"
+docker-compose exec -T app bundle exec rspec spec/agents/pen_and_ink_suggester_spec.rb -e "daily cap"
+docker-compose exec -T app bundle exec rspec spec/agents/ink_clusterer_spec.rb -e "assigns micro cluster to macro cluster"
+docker-compose exec -T app bundle exec rspec spec/agents/spam_classifier_spec.rb -e "classifies as spam"
+docker-compose exec -T app bundle exec rspec spec/agents/check_ink_clustering/assign_spec.rb -e "approves assignment"
+docker-compose exec -T app bundle exec rspec spec/agents/check_ink_clustering/create_spec.rb -e "rejects cluster creation for ink mixes"
+docker-compose exec -T app bundle exec rspec spec/agents/check_ink_clustering/human_spec.rb -e "sends email to human reviewer"
+docker-compose exec -T app bundle exec rspec spec/agents/check_ink_clustering/ignore_spec.rb -e "correctly handles ink mixes"
 ```
 
 #### InkClusterer Structure
@@ -333,36 +299,6 @@ end
 ```
 
 ### Test Structure
-
-#### PenAndInkSuggester Structure
-
-```
-describe PenAndInkSuggester do
-  describe "#initialize" do
-    # Tests agent setup and configuration
-  end
-
-  describe "#perform" do
-    context "when OpenAI returns valid suggestion" do
-      # Happy path scenarios
-    end
-
-    context "when OpenAI returns invalid ink ID" do
-      # Error handling scenarios
-    end
-
-    # ... more contexts for different scenarios
-  end
-
-  describe "data generation" do
-    # CSV formatting and data filtering tests
-  end
-
-  describe "integration scenarios" do
-    # End-to-end behavior with clustering data
-  end
-end
-```
 
 #### SpamClassifier Structure
 
@@ -589,13 +525,13 @@ The test suites (`check_ink_clustering/*_spec.rb`) cover:
 
 ### Notes
 
-- Tests must be run via Docker using `docker-compose exec app bundle exec rspec`
+- Tests must be run via Docker using `docker-compose exec -T app bundle exec rspec`
 - Database connection is required for ActiveRecord dependencies
 - PostgreSQL database setup is handled by Docker
 - WebMock prevents actual HTTP requests during testing
 - Sidekiq testing framework provides job expectations for scheduling verification
 - All test data is created using FactoryBot factories
-- The agents use the Raix gem for AI function calling integration
+- The agents use RubyLLM through the `RubyLlmAgent` concern (`app/agents/concerns/ruby_llm_agent.rb`)
 - InkClusterer uses gpt-4.1 model for complex clustering decisions
 - SpamClassifier uses gpt-4.1-mini model for cost-effective spam detection
 - CheckInkClustering agents use gpt-4.1 model for detailed review analysis

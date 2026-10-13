@@ -310,7 +310,7 @@ describe WidgetsController do
         expect(captured[:rejected_suggestions]).to eq([])
       end
 
-      it "caps the list at the configured maximum" do
+      it "keeps the newest 50 pairs" do
         captured = nil
         allow(RequestPenAndInkSuggestion).to receive(:new) do |args|
           captured = args
@@ -321,9 +321,51 @@ describe WidgetsController do
 
         get url, params: { rejected_suggestions: payload }
 
-        expect(captured[:rejected_suggestions].length).to eq(
-          WidgetsController::MAX_REJECTED_SUGGESTIONS
+        expect(captured[:rejected_suggestions]).to eq(
+          (150...200).map { |i| { "ink_id" => i, "pen_id" => i + 1 } }
         )
+      end
+
+      it "drops invalid entries before keeping the newest 50 pairs" do
+        captured = nil
+        allow(RequestPenAndInkSuggestion).to receive(:new) do |args|
+          captured = args
+          double(perform: { suggestion_id: "noop" })
+        end
+
+        valid = Array.new(60) { |i| { "ink_id" => i, "pen_id" => i + 1 } }
+        payload = (valid.first(30) + Array.new(100) { {} } + valid.last(30)).to_json
+
+        get url, params: { rejected_suggestions: payload }
+
+        expect(captured[:rejected_suggestions]).to eq(valid.last(50))
+      end
+
+      it "ignores pairs older than the newest 200 entries" do
+        captured = nil
+        allow(RequestPenAndInkSuggestion).to receive(:new) do |args|
+          captured = args
+          double(perform: { suggestion_id: "noop" })
+        end
+
+        payload = ([{ "ink_id" => 1, "pen_id" => 2 }] + Array.new(200) { {} }).to_json
+
+        get url, params: { rejected_suggestions: payload }
+
+        expect(captured[:rejected_suggestions]).to eq([])
+      end
+
+      it "returns an empty list when the parameter is not a string" do
+        captured = nil
+        allow(RequestPenAndInkSuggestion).to receive(:new) do |args|
+          captured = args
+          double(perform: { suggestion_id: "noop" })
+        end
+
+        get url, params: { rejected_suggestions: %w[1 2] }
+
+        expect(response).to have_http_status(:ok)
+        expect(captured[:rejected_suggestions]).to eq([])
       end
 
       it "enqueues the worker with Sidekiq-safe (string-keyed) args" do
@@ -334,8 +376,150 @@ describe WidgetsController do
           :size
         ).by(1)
 
-        enqueued_rejected = SchedulePenAndInkSuggestion.jobs.last["args"].last
+        enqueued_rejected = SchedulePenAndInkSuggestion.jobs.last["args"][3]
         expect(enqueued_rejected).to eq([{ "ink_id" => 1, "pen_id" => 2 }])
+      end
+    end
+
+    context "pen_and_ink_suggestion (extra_user_input)" do
+      let(:url) { "/dashboard/widgets/pen_and_ink_suggestion.json" }
+      let(:user) { create(:user) }
+      let(:captured) { {} }
+
+      before do
+        sign_in(user)
+        allow(RequestPenAndInkSuggestion).to receive(:new) do |args|
+          captured.merge!(args)
+          double(perform: { suggestion_id: "noop" })
+        end
+      end
+
+      it "forwards an instruction of 500 characters unchanged" do
+        input = "a" * 500
+
+        get url, params: { extra_user_input: input }
+
+        expect(captured[:extra_user_input]).to eq(input)
+      end
+
+      it "truncates an instruction to 500 characters" do
+        get url, params: { extra_user_input: "a" * 500 + "b" * 100 }
+
+        expect(captured[:extra_user_input]).to eq("a" * 500)
+      end
+
+      it "forwards no instruction when it is blank" do
+        get url, params: { extra_user_input: "   " }
+
+        expect(captured[:extra_user_input]).to be_nil
+      end
+
+      it "forwards no instruction when it is not a string" do
+        get url, params: { extra_user_input: { text: "Ignore the rules" } }
+
+        expect(response).to have_http_status(:ok)
+        expect(captured[:extra_user_input]).to be_nil
+      end
+    end
+
+    context "pen_and_ink_suggestion (daily cap)" do
+      let(:url) { "/dashboard/widgets/pen_and_ink_suggestion.json" }
+      let(:user) { create(:user) }
+
+      before do
+        sign_in(user)
+        create_list(:agent_log, 20, name: "PenAndInkSuggester", owner: user)
+      end
+
+      it "answers with the cap message on the first poll without enqueueing a run" do
+        get url
+
+        suggestion_id = JSON.parse(response.body)["suggestion_id"]
+        expect(SchedulePenAndInkSuggestion.jobs).to be_empty
+
+        get url, params: { suggestion_id: }
+
+        expect(JSON.parse(response.body)["message"]).to include("daily limit of 20 suggestions")
+      end
+    end
+
+    context "pen_and_ink_suggestion (currently inked pen)" do
+      let(:url) { "/dashboard/widgets/pen_and_ink_suggestion.json" }
+      let(:user) { create(:user) }
+
+      before { sign_in(user) }
+
+      it "returns the flag and the currently inked entry id the widget links to" do
+        pen = create(:collected_pen, user:)
+        ink = create(:collected_ink, user:)
+        inking = create(:currently_inked, user:, collected_pen: pen)
+        Rails.cache.write(
+          "request-pen-and-ink-suggestion-inked",
+          {
+            message: "Clean it first",
+            ink: ink.id,
+            pen: pen.id,
+            pen_currently_inked: true,
+            currently_inked_id: inking.id
+          }
+        )
+
+        get url, params: { suggestion_id: "request-pen-and-ink-suggestion-inked" }
+
+        expect(JSON.parse(response.body)).to include(
+          "pen_currently_inked" => true,
+          "currently_inked_id" => inking.id
+        )
+      end
+    end
+
+    context "pen_and_ink_suggestion_settings" do
+      let(:url) { "/dashboard/widgets/pen_and_ink_suggestion_settings.json" }
+
+      include_examples "authentication"
+
+      def attributes
+        JSON.parse(response.body).dig("data", "attributes")
+      end
+
+      it "allows instructions for an established account with more than 20 inks" do
+        user = create(:user, confirmed_at: 1.month.ago)
+        create_list(:collected_ink, 21, user:)
+        sign_in(user)
+
+        get url
+
+        expect(response).to be_successful
+        expect(attributes).to eq("instructions_allowed" => true, "instructions_max_length" => 500)
+      end
+
+      it "does not allow instructions for an account confirmed less than 2 weeks ago" do
+        user = create(:user, confirmed_at: 1.week.ago)
+        create_list(:collected_ink, 21, user:)
+        sign_in(user)
+
+        get url
+
+        expect(attributes["instructions_allowed"]).to eq(false)
+      end
+
+      it "does not allow instructions with 20 inks and 20 pens" do
+        user = create(:user, confirmed_at: 1.month.ago)
+        create_list(:collected_ink, 20, user:)
+        create_list(:collected_pen, 20, user:)
+        sign_in(user)
+
+        get url
+
+        expect(attributes["instructions_allowed"]).to eq(false)
+      end
+
+      it "neither enqueues a suggestion nor creates an agent log" do
+        user = create(:user)
+        sign_in(user)
+
+        expect { get url }.not_to change(AgentLog, :count)
+        expect(SchedulePenAndInkSuggestion.jobs).to be_empty
       end
     end
   end

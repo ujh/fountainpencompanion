@@ -166,18 +166,27 @@ spec/
 
 ## AI Agents (RubyLLM)
 
-AI agents live in `app/agents/` and use the `RubyLlmAgent` concern (`app/agents/concerns/ruby_llm_agent.rb`). Some older agents still use raix and are being migrated — do not use raix for new agents.
+AI agents live in `app/agents/` and use the `RubyLlmAgent` concern (`app/agents/concerns/ruby_llm_agent.rb`).
+
+**PenAndInkSuggester**: read `docs/pen-and-ink-suggester.md` before changing the suggester, its constraint extractor, their prompts or models; nib rules live in `docs/nib-reference.md`. Run the suggester bench (`lib/bench/suggester`, section 13 of that doc) before changing a prompt, a model, the candidate selection or a normaliser, and compare with its reference numbers; after deploying such a change, run the online watch in section 11.
 
 ### Agent structure
 
 An agent includes `RubyLlmAgent` and must implement four methods:
 
 - `agent_log` (public) — returns or creates an `AgentLog` instance
-- `model_id` (private) — e.g., `"gpt-4.1"` or `"gpt-4.1-mini"`
+- `model_id` (private) — e.g., `"gpt-4.1"` or `"gpt-4.1-mini"`; a model missing from RubyLLM's bundled registry (e.g. `"gpt-6-luna"`) is added to `RubyLlmModels::UNLISTED` in `lib/ruby_llm_models.rb`, which `config/initializers/ruby_llm.rb` registers at boot
 - `system_directive` (private) — the system prompt string
 - `tools` (private) — array of `RubyLLM::Tool` instances (can be empty)
 
 Use `ask(prompt)` in `perform` to send a user message and get a completion. The concern handles transcript saving, usage tracking, and transcript restoration automatically.
+
+Optional private overrides:
+
+- `max_tool_calls` — individual tool calls allowed per chat (default 50); exceeding it raises `RubyLlmAgent::ToolCallLimitExceeded`
+- `tool_calls_mode` — passed to RubyLLM as `calls:` (`:one` sends `parallel_tool_calls: false`); default `nil` leaves the provider default
+- `temperature` — sent on every request when not `nil` (default `nil`); RubyLLM replaces any value other than 1 with 1.0 for `gpt-5*` and `o<digit>*` model ids
+- `reasoning_effort` — sent as `reasoning_effort` when not `nil` (e.g. `"none"` or `"minimal"` for reasoning models); default `nil` leaves the provider default
 
 ### Tool structure
 
@@ -187,7 +196,7 @@ Tools are defined as inner classes inheriting from `RubyLLM::Tool`:
 class MyTool < RubyLLM::Tool
   description "What this tool does"
 
-  def name = "my_tool" # Required — auto-generated name includes module prefix for inner classes
+  def name = "my_tool" # The name the model sees; keep it stable
 
   param :some_param, desc: "Description" # string (default)
   param :other_param, type: "integer", desc: "Description" # integer
@@ -209,7 +218,7 @@ end
 
 Key points:
 
-- Always override `def name` — the auto-generated name includes module prefixes for inner classes
+- Override `def name`. Without it, `config/initializers/ruby_llm.rb` derives the name from the demodulized class name (`InkClusterer::AssignToCluster` → `assign_to_cluster`, no module prefix; a trailing `Tool` is dropped), but the name is what the system prompt and saved transcripts refer to, so an explicit name keeps it stable when the class is renamed or moved. Anonymous tool classes (`Class.new(RubyLLM::Tool)` in specs) have no class name and must define it
 - `halt "message"` stops the tool call loop; returning a plain string sends it back to the LLM
 - Tools with no parameters: omit `param` declarations and define `execute` with no arguments
 - Pass dependencies (owner objects, agent_log) via the constructor

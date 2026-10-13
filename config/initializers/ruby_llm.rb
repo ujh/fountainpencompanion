@@ -5,6 +5,10 @@ RubyLLM.configure do |config|
   config.use_new_acts_as = true
 end
 
+require Rails.root.join("lib/ruby_llm_models").to_s
+
+RubyLlmModels.register_unlisted
+
 RubyLLM::Tool.prepend(
   Module.new do
     def name
