@@ -1757,10 +1757,10 @@
     node-fetch "^2.6.9"
     tslib "^2.5.0"
 
-"@honeybadger-io/react@^6.1.36":
-  version "6.1.36"
-  resolved "https://registry.yarnpkg.com/@honeybadger-io/react/-/react-6.1.36.tgz#dc6703c0531edf4a9103d54e07dfb9b44c590aa3"
-  integrity sha512-SvTXxdE+EU0ufVH0l0qSYWObFxb10TkNz5HM1cBQJKKoMEwta68vSXwercZd+XUy3IU3wKwiDgYYaKMCZXYr4w==
+"@honeybadger-io/react@^6.1.37":
+  version "6.1.37"
+  resolved "https://registry.yarnpkg.com/@honeybadger-io/react/-/react-6.1.37.tgz#411891bf615720973155f33ac8570df627592077"
+  integrity sha512-2N4eZ3tU7JfUAlsZ460ZNXvjjNv4luiVachBMeyX4JejvdB1NdKQ/UgzW0r0+PvuitaRP+KJ4bwdiHSj/9WJpQ==
 
 "@honeybadger-io/webpack@^6.3.4":
   version "6.3.4"
