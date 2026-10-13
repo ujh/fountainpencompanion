@@ -10,7 +10,8 @@ Ruby does most of the work: `PenAndInkSuggestion::CollectionSnapshot` loads the 
 (`record_suggestion`, refs instead of database ids) over the rows it is shown. For a run with an
 instruction, the `PenAndInkConstraintExtractor` sub-agent first turns the free text into
 `PenAndInkSuggestion::Constraints`; when it fails, the Ruby `MentionMatcher` still pins the items
-the user named. The design is in `docs/pen-and-ink-suggester-plan.md`.
+the user named. The design, its limits and the bench are described in
+`docs/pen-and-ink-suggester.md`.
 
 The specs are split by concern:
 

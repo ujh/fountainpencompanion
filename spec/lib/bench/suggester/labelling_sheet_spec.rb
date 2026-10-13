@@ -205,5 +205,17 @@ RSpec.describe Bench::Suggester::LabellingSheet do
         ColorProfile::FAMILIES.join(", ")
       )
     end
+
+    it "points labellers at existing documents whose category section lists the label slugs" do
+      readme = files.fetch("README.md")
+      documents = readme.scan(%r{`(docs/[\w.-]+\.md)`}).flatten.uniq
+      number = readme[/section (\d+) for the categories/, 1]
+      design = Rails.root.join("docs/pen-and-ink-suggester.md").read
+      section = design[/^## #{number}\. .*?(?=^## |\z)/m]
+
+      expect(documents).to contain_exactly("docs/pen-and-ink-suggester.md", "docs/nib-reference.md")
+      expect(documents.map { Rails.root.join(_1) }).to all(exist)
+      expect(section.scan(/^\| `([a-z_]+)`/).flatten).to eq(Bench::Suggester::Label::CATEGORIES)
+    end
   end
 end

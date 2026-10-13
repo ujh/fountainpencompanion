@@ -1,9 +1,10 @@
 # Nib Reference
 
-Status: reference agreed 2026-10-09. This file is the **source of truth** for the future
-`NibProfile` class (`app/models/nib_profile.rb`, P1 of `docs/pen-and-ink-suggester-plan.md`) and
-for the "Nib knowledge" section of the PenAndInkSuggester system prompt. When a rule here and the
-code disagree, fix one of them in the same PR; when the prompt-sized extract changes, update both.
+This file is the **source of truth** for the `NibProfile` class (`app/models/nib_profile.rb`) and
+for the "Nib knowledge" section of the PenAndInkSuggester system prompt
+(`PenAndInkSuggestion::PickPrompt::SYSTEM_DIRECTIVE`, see `docs/pen-and-ink-suggester.md`). When a
+rule here and the code disagree, fix one of them in the same PR; when the prompt-sized extract
+changes, update both.
 
 What it covers: how users write nib sizes in the free-text `collected_pens.nib` field (and the
 `currently_inked.nib` snapshot), what those sizes mean across brands, how they map onto one
@@ -42,8 +43,8 @@ Diplomat and most Chinese makers.
 
 Pilot/Namiki, Sailor, Platinum and Nakaya, plus Taccia, Nagasawa, Bungubox and Wancher, which use
 Sailor or Platinum nibs. A collaboration with a Western maker uses that maker's nib and Western
-sizing: "Esterbrook x Bungubox", "TWSBI x Bungubox" and "Kaweco x Bungubox" (about 100 pens in the
-2026-10 data) are Western, so their `M` is W4, not W3.
+sizing: "Esterbrook x Bungubox", "TWSBI x Bungubox" and "Kaweco x Bungubox" (about 100 pens) are
+Western, so their `M` is W4, not W3.
 
 **The one-step-finer rule.** Japanese grades run about one grade finer than Western ones: Japanese
 F ≈ Western EF, Japanese M ≈ Western F, Japanese B ≈ Western M. `NibProfile` applies this through
@@ -172,9 +173,9 @@ M and a Lamy F land in the same class.
 | W6    | BB    | 0.94–1.24 | BB             | BBB                | 1.0–1.2 mm stubs/italics; Pilot S (Signature)             |
 | W7    | BBB+  | > 1.24    | BBB/3B         | —                  | stubs from 1.3 mm (1.5, 1.9), Pilot Parallel              |
 
-This table and the width-class lines of the suggester's system prompt
-(`docs/pen-and-ink-suggester-plan.md`, section 3.2) say exactly the same thing; P7 of that plan
-adds a spec that pins the prompt lines to the `NibProfile` constants. Every other code's class is
+This table and the width-class lines of the suggester's system prompt say exactly the same thing;
+`spec/operations/pen_and_ink_suggestion/system_directive_spec.rb` pins the prompt lines to the
+`NibProfile` constants. Every other code's class is
 in section 3 (for example Platinum `02`/`03`/`05` → W1/W2/W3, Esterbrook Scribe → W3, Lamy A/LH →
 W4, mini stub → W5). Western MF (0.50 mm) sits just above the W3/W4 boundary.
 
@@ -347,27 +348,25 @@ Soft guidance for reasoning, not hard rules.
   sheen on Tomoe River-type paper.
 - **Flex and stubs** show off shading inks. Flex needs a wet, lubricated ink to avoid railroading.
 
-## 11. Coverage (all 186,669 active pens, prod, 2026-10-09)
+## 11. Coverage
 
-A Python prototype of these rules was used to measure coverage; the Ruby port is P1 of the
-suggester plan. On the same export the Ruby port gives a width class to 92.6% of active pens (96.5%
-of pens with a nib entered), with every class within 0.2k pens of the distribution below.
+Measured on a production export of 186,669 active pens; the figures move little between exports.
 
-- **92.8%** of active pens get a width class (96.8% of pens with a nib entered). 4.1% have an empty
-  nib, about 2.5% are material or unit only or junk, and 0.6% are non-fountain (512 rollerballs,
-  573 ballpoints and the like). 14.9% carry at least one character.
+- `NibProfile` gives **92.6%** of active pens a width class (96.5% of pens with a nib entered).
+  4.1% have an empty nib, about 2.5% are material or unit only or junk, and 0.6% are non-fountain
+  (512 rollerballs, 573 ballpoints and the like). 14.9% carry at least one character.
 - The most common raw values are F, M, EF, Fine, Medium, B, Broad, Extra Fine, MF, "1.1 Stub",
   Stub, "1.1", Flex, BB and Fude.
-- **Width distribution:** W1 3.8k, W2 31.0k, W3 61.2k, W4 48.9k, W5 17.0k, W6 8.7k, W7 2.5k. So
-  W4+ ("fairly broad") is about 41% of all 186,669 active pens (44% of the pens that get a class)
-  and W5+ about 15% (16%).
+- **Width distribution** (± 0.2k pens per class): W1 3.8k, W2 31.0k, W3 61.2k, W4 48.9k, W5 17.0k,
+  W6 8.7k, W7 2.5k. So W4+ ("fairly broad") is about 41% of all active pens (44% of the pens that
+  get a class) and W5+ about 15% (16%).
 - **Characters:** stub 9.8k, flex 5.5k, italic 4.6k, soft 2.3k, fude 1.6k, architect 1.4k,
   naginata family 1.1k, oblique 0.9k, music 0.7k, parallel 0.5k, zoom 0.5k, needlepoint 0.2k,
   waverly 0.2k.
 - **Material:** gold 12.5k, steel 10.3k, titanium 0.5k (12.4% of pens say anything about material).
 - **Japanese-sizing brands:** 40.3k pens (21.6%).
-- **Historical suggestions:** 5 of 12,476 were rollerballs or ballpoints and 14 dip/glass pens;
-  816 were pens with an unknown or empty nib, which should stay eligible.
+- **Suggestions:** rollerballs, ballpoints and dip/glass pens are never suggested; pens with an
+  unknown or empty nib stay eligible and are left out only by nib filters.
 
 ## Sources
 
