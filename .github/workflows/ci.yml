@@ -142,10 +142,10 @@ jobs:
           deeplink: ${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}
           user: ${{ github.actor }}
       - name: Notify Honeybadger (backend)
-        uses: honeybadger-io/github-notify-deploy-action@50838a23920642c5f587909e759f1e9e6db15a8a # v1.0.0
+        uses: honeybadger-io/github-notify-deploy-action@aff9ff68c0b86ed19920a8fd8fe859f427ac051f # v2.0.0
         with:
           api_key: ${{ secrets.HONEYBADGER_API_KEY }}
       - name: Notify Honeybadger (frontend)
-        uses: honeybadger-io/github-notify-deploy-action@50838a23920642c5f587909e759f1e9e6db15a8a # v1.0.0
+        uses: honeybadger-io/github-notify-deploy-action@aff9ff68c0b86ed19920a8fd8fe859f427ac051f # v2.0.0
         with:
           api_key: ${{ secrets.FRONTEND_HONEYBADGER_API_KEY }}
