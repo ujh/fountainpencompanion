@@ -30,7 +30,7 @@ gem "jsbundling-rails"
 # json 3.0 removed the positional options argument of JSON.parse (which
 # ActiveSupport::JSON.decode still uses) and JSON.fast_generate (which
 # @prettier/plugin-ruby still uses). Unpin once both are fixed upstream.
-gem "json", "< 3"
+gem "json", "< 4"
 gem "jsonapi-rails"
 gem "jsonapi-serializer"
 gem "json-schema"
