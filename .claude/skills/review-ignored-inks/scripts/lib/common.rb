@@ -150,7 +150,8 @@ module IgnoredInksReview
   end
 
   def batch_files(dir, stage)
-    Dir.glob(File.join(dir, stage, "in-*.jsonl")).sort
+    stage_dir = File.join(dir, stage)
+    Dir.glob("in-*.jsonl", base: stage_dir).sort.map { |name| File.join(stage_dir, name) }
   end
 
   def output_for(input_path)

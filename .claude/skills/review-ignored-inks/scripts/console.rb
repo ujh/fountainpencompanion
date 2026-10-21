@@ -50,6 +50,7 @@ def console_entry(decision)
 end
 
 decisions = data["decisions"]
+by_id = decisions.to_h { |d| [d["id"], d] }
 change = ->(d) do
   IgnoredInksReview::CHANGE_VERDICTS.include?(d["verdict"]) ||
     (d["verdict"] == "keep_ignored" && d["assigned_macro"])
@@ -66,10 +67,7 @@ merge_units =
 change_units =
   merge_units +
     data["groups"].map do |key, group|
-      {
-        "group" => key,
-        "members" => group["ids"].map { |id| console_entry(decisions.find { |d| d["id"] == id }) }
-      }
+      { "group" => key, "members" => group["ids"].map { |id| console_entry(by_id.fetch(id)) } }
     end
 change_units +=
   decisions.select { |d| change.(d) && d["verdict"] != "create" }.map { |d| console_entry(d) }
@@ -77,11 +75,14 @@ keep_units = decisions.reject { |d| change.(d) }.map { |d| console_entry(d) }
 
 def render(template, run_id, part, summary, units)
   json = "[\n" + units.map { |u| "    #{JSON.generate(u)}" }.join(",\n") + "\n    ]"
+  comment = ->(text) { text.to_s.gsub(/[[:cntrl:]]/, " ") }
   # Block form, so backslashes in the JSON are not read as substitution escapes.
+  # The run id goes into the code as an inspected (escaped) string literal.
   template
-    .gsub("__RUN_ID__") { run_id }
-    .sub("__PART__") { part }
-    .sub("__SUMMARY__") { summary }
+    .sub("__RUN_LABEL__") { comment.(run_id) }
+    .sub("__RUN_ID__") { run_id.to_s.inspect }
+    .sub("__PART__") { comment.(part) }
+    .sub("__SUMMARY__") { comment.(summary) }
     .sub("__DECISIONS__") { json }
 end
 
