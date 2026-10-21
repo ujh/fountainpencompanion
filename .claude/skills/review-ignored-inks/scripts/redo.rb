@@ -15,7 +15,10 @@ usage =
   "Usage: redo.rb RUN_DIR #{IgnoredInksReview::STAGES.join("|")} ID... (micro cluster ids or m<low>-<high>)"
 ids =
   ARGV[2..].to_a.map do |arg|
-    next arg if arg.match?(/\Am\d+-\d+\z/)
+    if (pair = arg.match(/\Am(\d+)-(\d+)\z/))
+      low, high = [pair[1], pair[2]].map(&:to_i).sort
+      next "m#{low}-#{high}"
+    end
 
     Integer(arg, 10)
   rescue ArgumentError

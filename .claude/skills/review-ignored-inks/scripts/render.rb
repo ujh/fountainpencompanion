@@ -12,9 +12,17 @@ data = IgnoredInksReview.read_json(File.join(dir, "decisions.json"))
 decisions = data["decisions"]
 by_id = decisions.to_h { |d| [d["id"], d] }
 merges = data["merges"] || []
-macro_ids = decisions.flat_map { |d| [d["cluster_id"], d.dig("verifier", "suggested_cluster_id")] }
-macro_ids += merges.flat_map { |m| [m["from"], m["into"]] }
-macro_ids = macro_ids.compact.uniq
+macro_ids =
+  decisions.flat_map do |d|
+    [
+      d["cluster_id"],
+      d["merged_cluster_id"],
+      d.dig("verifier", "suggested_cluster_id"),
+      d.dig("assigned_macro", "id")
+    ]
+  end
+macro_ids += merges.flat_map { |m| [m["from"], m["into"], m["final_into"]] }
+macro_ids = macro_ids.grep(Integer).uniq
 macros = IgnoredInksReview.macro_details(macro_ids).to_h { |m| [m["id"], m] }
 
 class Doc
@@ -124,7 +132,7 @@ if merges.any?
       proposals << "### #{m["id"]} · merge #{macro_line(macros[m["from"]])}"
       proposals << "  - into #{macro_line(macros[m["into"]])}#{cycle}"
       if m["final_into"] && m["final_into"] != m["into"]
-        proposals << "  - final target: ##{m["final_into"]}"
+        proposals << "  - final target: #{macro_line(macros[m["final_into"]])}"
       end
       proposals << "  - verifier: #{m["notes"]}"
       proposals << "  - human note: #{m["human_note"]}" if m["human_note"]
@@ -167,7 +175,12 @@ if assigned.any?
           "NO CHANGE (#{d["verdict"]}#{", disputed" if d["disputed"]})"
         end
       proposals << "### MC #{d["id"]} · #{d["name"]} → #{action}"
-      proposals << "  - currently in: ##{current["id"]} #{current["name"]} (#{current["other_micro_clusters"]} other micro clusters)"
+      if (original = current["merged_from"])
+        proposals << "  - currently in: ##{original["id"]} #{original["name"]} (#{original["other_micro_clusters"]} other micro clusters) " \
+          "→ merged into ##{current["id"]} #{macros.dig(current["id"], "name")}"
+      else
+        proposals << "  - currently in: ##{current["id"]} #{current["name"]} (#{current["other_micro_clusters"]} other micro clusters)"
+      end
       detail_lines(proposals, d, macros)
     end
     proposals << ""

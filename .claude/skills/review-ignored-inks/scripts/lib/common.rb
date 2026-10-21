@@ -184,7 +184,10 @@ module IgnoredInksReview
     short_name(candidate["names"].first)
   end
 
+  # Details of the given macro clusters, in the order given. Ids that are not
+  # integers or do not exist are left out.
   def macro_details(ids)
+    ids = ids.grep(Integer)
     return [] if ids.empty?
 
     query(<<~SQL, ["{#{ids.join(",")}}"])
@@ -198,7 +201,7 @@ module IgnoredInksReview
       from macro_clusters m where m.id = any($1::bigint[])
     SQL
       .map { |row| format_macro(row) }
-      .sort_by { |m| ids.index(m["id"]) }
+      .sort_by { |m| ids.index(m["id"]) || ids.size }
   end
 
   def format_macro(row)

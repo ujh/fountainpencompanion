@@ -240,7 +240,7 @@ decisions.each do |d|
   end
   assigned = d["assigned_macro"]
   if assigned && target_of.key?(assigned["id"]) && (final = final_target.(assigned["id"]))
-    d["assigned_macro"] = assigned.merge("id" => final, "merged_from" => assigned["id"])
+    d["assigned_macro"] = { "id" => final, "merged_from" => assigned }
   end
 end
 
