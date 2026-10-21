@@ -40,6 +40,10 @@ module IgnoredInksReview
 
   BATCH_SIZES = { "triage" => 150, "research" => 10, "verify" => 8, "merge" => 6 }.freeze
   STAGES = %w[triage research verify merge].freeze
+  # Tables the review reads. The scripts refuse to run with a role that can
+  # change any of them.
+  WRITE_CHECK_TABLES = %w[micro_clusters macro_clusters collected_inks agent_logs].freeze
+  WRITE_PRIVILEGES = %w[INSERT UPDATE DELETE TRUNCATE].freeze
 
   module_function
 
@@ -57,10 +61,29 @@ module IgnoredInksReview
     @connection ||=
       begin
         conn = PG.connect(database_url)
+        refuse_writable_role(conn)
         conn.exec("SET SESSION CHARACTERISTICS AS TRANSACTION READ ONLY")
         conn.exec("SET statement_timeout = '120s'")
         conn
       end
+  end
+
+  def refuse_writable_role(conn)
+    writable =
+      conn.exec_params(
+        <<~SQL,
+        select t as table_name, p as privilege
+        from unnest($1::text[]) t, unnest($2::text[]) p
+        where has_table_privilege(t, p)
+      SQL
+        ["{#{WRITE_CHECK_TABLES.join(",")}}", "{#{WRITE_PRIVILEGES.join(",")}}"]
+      ).to_a
+    return if writable.empty?
+
+    conn.close
+    tables = writable.map { |w| w["table_name"] }.uniq.join(", ")
+    abort "The database role can write to #{tables}. These scripts only run with a read-only role; " \
+            "use a read-only connection URL."
   end
 
   def query(sql, params = [])

@@ -6,7 +6,13 @@
 # Precedence: override > research (changes only when the verifier confirmed)
 # > triage. A change the verifier rejected becomes "unsure" and is marked
 # disputed so the reviewer sees both sides.
+#
+# Decisions or overrides that console.rb cannot apply are listed in "invalid",
+# and a merge source confirmed into more than one cluster in "merge_conflicts";
+# console.rb refuses to run while either is non-empty.
 require_relative "lib/common"
+
+DECISION_VERDICTS = (IgnoredInksReview::CHANGE_VERDICTS + %w[keep_ignored unsure]).freeze
 
 dir = IgnoredInksReview.run_dir(ARGV[0])
 pending = IgnoredInksReview.pending(dir)
@@ -90,6 +96,7 @@ decisions =
       decision["source"] = "human"
       decision["disputed"] = false
     end
+    decision.delete("category") unless decision["verdict"] == "keep_ignored"
     if decision["verdict"] == "assign" &&
          decision["cluster_id"] == decision.dig("assigned_macro", "id")
       decision["verdict"] = "unignore"
@@ -132,8 +139,24 @@ decisions
       decisions.last.merge!(override.slice("verdict", "cluster_id", "proposed_name", "category"))
       decisions.last["group_with"] = Array(override["group_with"]) if override.key?("group_with")
       decisions.last.merge!("human_note" => override["note"], "source" => "human")
+      decisions.last.delete("category") unless decisions.last["verdict"] == "keep_ignored"
     end
   end
+
+invalid = []
+decisions.each do |d|
+  problem =
+    if !DECISION_VERDICTS.include?(d["verdict"])
+      "unknown verdict #{d["verdict"].inspect}"
+    elsif d["verdict"] == "keep_ignored" && !IgnoredInksReview::CATEGORIES.include?(d["category"])
+      "keep_ignored needs a category (#{IgnoredInksReview::CATEGORIES.join(", ")}), got #{d["category"].inspect}"
+    elsif d["verdict"] == "assign" && !d["cluster_id"].is_a?(Integer)
+      "assign needs an integer cluster_id, got #{d["cluster_id"].inspect}"
+    elsif d["verdict"] == "unignore" && !d["assigned_macro"]
+      "unignore needs a cluster that still sits in a macro cluster; use assign or create"
+    end
+  invalid << { "id" => d["id"], "problem" => problem } if problem
+end
 
 # Micro clusters that are the same new ink share one new macro cluster.
 creates = decisions.select { |d| d["verdict"] == "create" }.to_h { |d| [d["id"], d] }
@@ -171,7 +194,32 @@ merges =
       end
       merge
     end
+merges.each do |m|
+  problem =
+    if !IgnoredInksReview::MERGE_VERDICTS.include?(m["verdict"])
+      "unknown merge verdict #{m["verdict"].inspect}"
+    elsif !m["from"].is_a?(Integer) || !m["into"].is_a?(Integer) || m["from"] == m["into"]
+      "a merge needs two different integer cluster ids, got #{m["from"].inspect} -> #{m["into"].inspect}"
+    end
+  invalid << { "id" => m["id"], "problem" => problem } if problem
+end
+known_ids = decisions.map { |d| d["id"] } + merges.map { |m| m["id"] }
+overrides.each_key do |id|
+  next if known_ids.include?(id)
+
+  invalid << {
+    "id" => id,
+    "problem" =>
+      "override for an id that is not in this run (new merge pairs go into merge-seeds.json)"
+  }
+end
+
 confirmed = merges.select { |m| m["verdict"] == "confirm" }
+merge_conflicts =
+  confirmed
+    .group_by { |m| m["from"] }
+    .select { |_, pairs| pairs.size > 1 }
+    .map { |from, pairs| { "from" => from, "pairs" => pairs.map { |m| m["id"] } } }
 target_of = confirmed.to_h { |m| [m["from"], m["into"]] }
 final_target =
   lambda do |id, seen = []|
@@ -204,6 +252,8 @@ IgnoredInksReview.write_json(
     "generated_at" => Time.now.utc.iso8601,
     "incomplete" => incomplete.uniq,
     "dangling_group_refs" => dangling,
+    "invalid" => invalid,
+    "merge_conflicts" => merge_conflicts,
     "groups" => groups,
     "merges" => merges,
     "decisions" => decisions
@@ -227,5 +277,7 @@ puts JSON.pretty_generate(
        "merge_cycles" => confirmed.select { |m| m["cycle"] }.map { |m| m["id"] },
        "incomplete" => incomplete.uniq.size,
        "dangling_group_refs" => dangling,
+       "invalid" => invalid,
+       "merge_conflicts" => merge_conflicts,
        "verdicts_by_latest_ignore_vs_prompt_change" => by_prompt_change
      )

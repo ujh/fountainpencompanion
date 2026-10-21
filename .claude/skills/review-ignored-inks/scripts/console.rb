@@ -1,11 +1,13 @@
 # Generates the production scripts from RUN_DIR/decisions.json:
 #
-#   console/01-changes.rb       merges, then assign / create / unignore / unassign, plus their review logs
+#   console/01-changes.rb       merges, then new clusters, then assign / unignore / unassign, plus their review logs
 #   console/02-keep-NNN.rb      review logs only (keep_ignored, unsure), in chunks
 #
 #   ruby console.rb RUN_DIR [--chunk N]
 #
-# Refuses to run while decisions.json still has incomplete reviews.
+# Refuses to run while decisions.json still has incomplete reviews, invalid
+# decisions or conflicting merges. Merges go straight to the final target, so
+# with A -> B and B -> C confirmed both A and B are merged into C.
 require_relative "lib/common"
 
 dir = IgnoredInksReview.run_dir(ARGV[0])
@@ -16,6 +18,18 @@ if data["incomplete"].any?
 end
 if data["dangling_group_refs"].any?
   abort "decisions.json has dangling group refs: #{data["dangling_group_refs"].inspect}"
+end
+
+if data["invalid"].nil? || data["merge_conflicts"].nil?
+  abort "decisions.json predates the validation; re-run finalize.rb"
+end
+if data["invalid"].any?
+  abort "decisions.json has invalid decisions or overrides; fix them first:\n" +
+          data["invalid"].map { |i| "  #{i["id"]}: #{i["problem"]}" }.join("\n")
+end
+if data["merge_conflicts"].any?
+  abort "decisions.json merges one cluster into several others; confirm only one of: " +
+          data["merge_conflicts"].map { |c| "#{c["from"]} (#{c["pairs"].join(", ")})" }.join("; ")
 end
 
 template = File.read(File.join(__dir__, "console_template.rb"))
@@ -44,7 +58,11 @@ end
 merge_units =
   (data["merges"] || [])
     .select { |m| m["verdict"] == "confirm" && !m["cycle"] }
-    .map { |m| { "merge" => m.slice("id", "from", "into", "notes", "source") } }
+    .map do |m|
+      entry = m.slice("id", "from", "notes", "source").merge("into" => m["final_into"])
+      entry["suggested_into"] = m["into"] if m["into"] != m["final_into"]
+      { "merge" => entry }
+    end
 change_units =
   merge_units +
     data["groups"].map do |key, group|

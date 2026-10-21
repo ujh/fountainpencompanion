@@ -4,14 +4,24 @@
 # again.
 #
 #   ruby redo.rb RUN_DIR STAGE ID...
+#
+# IDs are micro cluster ids, or merge pair ids ("m<low>-<high>") for the merge
+# stage.
 require_relative "lib/common"
 
 dir = IgnoredInksReview.run_dir(ARGV[0])
 stage = ARGV[1]
-ids = ARGV[2..].map(&:to_i)
-unless IgnoredInksReview::STAGES.include?(stage) && ids.any?
-  abort "Usage: redo.rb RUN_DIR #{IgnoredInksReview::STAGES.join("|")} ID..."
-end
+usage =
+  "Usage: redo.rb RUN_DIR #{IgnoredInksReview::STAGES.join("|")} ID... (micro cluster ids or m<low>-<high>)"
+ids =
+  ARGV[2..].to_a.map do |arg|
+    next arg if arg.match?(/\Am\d+-\d+\z/)
+
+    Integer(arg, 10)
+  rescue ArgumentError
+    abort usage
+  end
+abort usage unless IgnoredInksReview::STAGES.include?(stage) && ids.any?
 
 redone = Hash.new { |h, k| h[k] = [] }
 IgnoredInksReview::STAGES

@@ -84,14 +84,18 @@ lambda do
     end
 
   # A macro cluster left without micro clusters is deleted unless it carries
-  # reviews or a description; otherwise it is recalculated.
+  # reviews, a description or review logs (from merges); otherwise it is
+  # recalculated, or reported when it is left empty.
   release_macro_cluster =
     lambda do |macro_cluster_id, jobs|
       macro_cluster = MacroCluster.find_by(id: macro_cluster_id)
       next "macro cluster #{macro_cluster_id} already gone" unless macro_cluster
 
-      if macro_cluster.micro_clusters.none? && macro_cluster.ink_reviews.none? &&
-           macro_cluster.ink_review_submissions.none? && macro_cluster.description.blank?
+      if macro_cluster.micro_clusters.none? &&
+           macro_cluster.agent_logs.where(name: "IgnoredInkReview").exists?
+        "macro cluster #{macro_cluster_id} (#{macro_cluster.name}) is left empty but keeps IgnoredInkReview logs; not deleted, check it"
+      elsif macro_cluster.micro_clusters.none? && macro_cluster.ink_reviews.none? &&
+            macro_cluster.ink_review_submissions.none? && macro_cluster.description.blank?
         macro_cluster.destroy!
         "deleted empty macro cluster #{macro_cluster_id} (#{macro_cluster.name})"
       else
@@ -137,9 +141,10 @@ lambda do
           "run_id" => run_id,
           "merged_from" => entry["from"],
           "merged_from_name" => source_name,
+          "suggested_into" => entry["suggested_into"],
           "dropped_from_source" => dropped,
           "explanation_of_decision" => entry["notes"]
-        }
+        }.compact
       )
       stats["merge"] += 1
       lost = dropped.any? ? "; source loses #{dropped.keys.join(", ")}" : ""
@@ -235,7 +240,7 @@ lambda do
         jobs = []
         ActiveRecord::Base.transaction(requires_new: true) { process.call(unit, jobs) }
         jobs.uniq.each { |worker, id| worker.perform_async(id) } if apply
-      rescue ActiveRecord::ActiveRecordError => e
+      rescue ActiveRecord::ActiveRecordError, ArgumentError => e
         stats["error"] += 1
         label =
           unit["merge"] ? "merge #{unit.dig("merge", "id")}" : unit["group"] || "MC #{unit["id"]}"

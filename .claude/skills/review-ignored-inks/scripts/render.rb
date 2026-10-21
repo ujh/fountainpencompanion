@@ -96,6 +96,18 @@ if data["incomplete"].any?
 end
 proposals << ""
 
+problems =
+  data["invalid"].to_a.map { |i| "- #{i["id"]}: #{i["problem"]}" } +
+    data["merge_conflicts"].to_a.map do |c|
+      "- ##{c["from"]} is confirmed into more than one cluster (#{c["pairs"].join(", ")}); confirm only one"
+    end
+if problems.any?
+  proposals << "## Cannot be applied — fix these first (#{problems.size})"
+  proposals << ""
+  problems.each { |line| proposals << line }
+  proposals << ""
+end
+
 if merges.any?
   confirmed, rejected = merges.partition { |m| m["verdict"] == "confirm" }
   merged_away = confirmed.map { |m| m["from"] }

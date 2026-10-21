@@ -21,10 +21,14 @@ REJECTED_CREATE_MIN_USERS = 3
 REJECTED_CREATE_MIN_CATALOGUE_INKS = 3
 # Date of the last clusterer prompt change. export.json and finalize.rb split
 # clusters by whether their latest approved ignore came before or after it.
-CLUSTERER_PROMPT_CHANGED_AT = "2026-10-21T11:39:00Z"
+CLUSTERER_PROMPT_CHANGED_AT = "2026-10-21T11:51:47Z"
 
 dir = IgnoredInksReview.run_dir(ARGV[0])
-limit = ARGV.index("--limit") ? ARGV[ARGV.index("--limit") + 1].to_i : 100
+limit = 100
+if (flag = ARGV.index("--limit"))
+  limit = ARGV[flag + 1].to_s.match?(/\A[1-9]\d*\z/) ? ARGV[flag + 1].to_i : nil
+  abort "Usage: export.rb RUN_DIR [--limit N] (N a positive number)" unless limit
+end
 macro_name = IgnoredInksReview::MACRO_NAME_SQL
 
 blacklist = IgnoredInksReview.blacklisted_brands
@@ -189,8 +193,9 @@ def due?(candidate)
   latest.nil? || revisit_due?(candidate, latest)
 end
 
-def priority(candidate)
+def priority(candidate, placeholders)
   [
+    placeholders.include?(candidate["simplified"][0]) ? 1 : 0,
     candidate["assigned_macro"] ? 0 : 1,
     candidate["ignored_after_rejected_create"] ? 0 : 1,
     candidate["reviews"].any? ? 0 : 1,
@@ -209,7 +214,7 @@ candidates.each do |candidate|
   candidate["ignored_vs_prompt_change"] = prompt_change_side(candidate)
 end
 due = candidates.select { |candidate| due?(candidate) }
-pending = due.sort_by { |candidate| priority(candidate) }.first(limit)
+pending = due.sort_by { |candidate| priority(candidate, placeholders) }.first(limit)
 
 IgnoredInksReview.write_jsonl(File.join(dir, "candidates.jsonl"), candidates)
 IgnoredInksReview.write_jsonl(File.join(dir, "pending.jsonl"), pending)
