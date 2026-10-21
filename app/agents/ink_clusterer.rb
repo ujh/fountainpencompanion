@@ -132,9 +132,9 @@ class InkClusterer
 
     Evidence rule: when ink_users is at least 3, or brand_catalogue_inks is at least 3, few or no web
     results are not evidence that the ink does not exist, because small makers often have little or no
-    web presence. The evidence rule only cancels missing web results. It is never evidence that the ink
-    exists and never a reason to create a new cluster or to approve one; do not cite it as support. All
-    reasons to ignore an ink below still apply. The evidence rule does not apply when
+    web presence. The evidence rule only cancels missing web results. On its own it is never evidence
+    that the ink exists and never a reason to create a new cluster or to approve one (see the rules for
+    creating a new cluster below). All reasons to ignore an ink below still apply. The evidence rule does not apply when
     brand_catalogue_inks is 0 and brand_users is 2 or less.
 
     User and catalogue counts alone are never a reason to ignore an ink: new makers, collaborations and
@@ -145,14 +145,18 @@ class InkClusterer
     * No catalogue cluster matches the ink.
     * At least one web search for the ink was run.
     * A source names this exact ink: a web result, or the maker, a shop or a review found by the
-      search. Only when the web has nothing and the evidence rule applies may the name itself be the
-      source, and only when it is a specific product name, not a line name, a recipe or mix name, a
-      generic name or a colour-only name.
+      search. Only when no web result names this ink and the evidence rule applies may the name itself
+      be the source, and only when it is a specific product name, not a line name, a recipe or mix
+      name, a generic name or a colour-only name. A decision that relies on this exception must say so
+      in its explanation.
 
     Reasons to ignore an ink:
-    * It is a mix of inks. Names of manufacturer mixing recipes (e.g. the recipe names of Platinum
-      Mixable inks) and known mixes are mixes, even when many users entered them under a catalogued
-      brand.
+    * It is a mix of inks, including known mixes and personal mixes, even when many users entered them
+      under a catalogued brand. In lines made for mixing, everything the maker sells as its own product
+      (a bottle or a pen bundle) is an ink, while named recipes that users mix themselves from the
+      maker's published formulas are mixes. For Platinum Mixable, the base colours, the Dilution Liquid
+      and specials sold as their own product are inks; the named recipes from Platinum's mixing
+      formulas are mixes.
     * It is an unidentified ink: the user does not know which ink it is
     * It is an incomplete name, e.g. only the brand and line name, with the line name typed into the ink
       name field. A name that is the line of existing catalogue inks (the similarity search shows
@@ -162,14 +166,18 @@ class InkClusterer
     * It is an ink someone made themselves (DIY), including inks with "custom" as the line name
     * It is a placeholder, a test entry or gibberish
     * It is a generic name without an identifiable maker
-    * It is only a colour name and the maker sells no ink of exactly that name. Ignore it; do not assign
-      it to the brand's nearest named ink (Montblanc Green is not Montblanc Irish Green). Brand plus
-      colour is a real ink when the maker sells an ink by that name (e.g. Lamy Blue).
+    * It is a colour-only name (brand plus colour, with or without a line) that matches no ink. It
+      matches an ink when the maker or the line sells an ink of exactly that name (e.g. Lamy Blue; a
+      line's own colour name, even in another language, is not a colour-only name), or when a line is
+      given and the catalogue has exactly one ink of that colour in that line: then the name is
+      shorthand for that ink, so assign it there. Otherwise ignore it; do not assign it to the brand's
+      nearest named ink (Montblanc Green is not Montblanc Irish Green).
     * It is a one-person label: a name a user gives their own mixes or DIY inks that no maker or shop
       sells. Few users or no catalogue inks alone never make a brand a one-person label.
 
-    Ink additives (shimmer, glitter and similar products that are mixed into ink) are inks. They are
-    catalogued like inks and are not ignored as "not an ink".
+    Ink additives (shimmer, glitter and similar products that are mixed into ink) and dilution liquids
+    sold as an ink product are inks. They are catalogued like inks and are not ignored as "not an ink";
+    a dilution liquid is not a cleaning solution.
   TEXT
 
   MODEL_ID = "gpt-4.1"

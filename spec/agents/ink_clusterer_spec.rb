@@ -1072,10 +1072,11 @@ RSpec.describe InkClusterer do
       expect(rules).to include("Generic and placeholder brands")
     end
 
-    it "says that the evidence rule never supports the existence of an ink" do
+    it "says that the evidence rule alone never supports the existence of an ink" do
       expect(rules).to include(
-        "The evidence rule only cancels missing web results. It is never evidence that the ink exists and never a reason to create a new cluster or to approve one; do not cite it as support."
+        "The evidence rule only cancels missing web results. On its own it is never evidence that the ink exists and never a reason to create a new cluster or to approve one (see the rules for creating a new cluster below)."
       )
+      expect(rules).not_to include("do not cite it as support")
     end
 
     it "says that the counts alone are never a reason to ignore an ink" do
@@ -1094,29 +1095,30 @@ RSpec.describe InkClusterer do
           "* No catalogue cluster matches the ink. " \
           "* At least one web search for the ink was run. " \
           "* A source names this exact ink: a web result, or the maker, a shop or a review found by the search. " \
-          "Only when the web has nothing and the evidence rule applies may the name itself be the source, " \
-          "and only when it is a specific product name, not a line name, a recipe or mix name, a generic name or a colour-only name."
+          "Only when no web result names this ink and the evidence rule applies may the name itself be the source, " \
+          "and only when it is a specific product name, not a line name, a recipe or mix name, a generic name or a colour-only name. " \
+          "A decision that relies on this exception must say so in its explanation."
       )
     end
 
     it "lists the reasons to ignore an ink" do
       [
-        "It is a mix of inks.",
+        "It is a mix of inks, including known mixes and personal mixes, even when many users entered them under a catalogued brand.",
         "It is an unidentified ink",
         "It is an incomplete name",
         "It is not an ink",
         "including inks with \"custom\" as the line name",
         "It is a placeholder",
         "It is a generic name",
-        "It is only a colour name and the maker sells no ink of exactly that name",
-        "(e.g. Lamy Blue)",
+        "It is a colour-only name (brand plus colour, with or without a line) that matches no ink.",
         "It is a one-person label: a name a user gives their own mixes or DIY inks that no maker or shop sells."
       ].each { |reason| expect(rules).to include(reason) }
     end
 
-    it "treats manufacturer mixing recipes and known mixes as mixes" do
+    it "treats products sold for mixing as inks and user-mixed recipes as mixes" do
       expect(rules).to include(
-        "Names of manufacturer mixing recipes (e.g. the recipe names of Platinum Mixable inks) and known mixes are mixes, even when many users entered them under a catalogued brand."
+        "In lines made for mixing, everything the maker sells as its own product (a bottle or a pen bundle) is an ink, while named recipes that users mix themselves from the maker's published formulas are mixes. " \
+          "For Platinum Mixable, the base colours, the Dilution Liquid and specials sold as their own product are inks; the named recipes from Platinum's mixing formulas are mixes."
       )
     end
 
@@ -1126,15 +1128,23 @@ RSpec.describe InkClusterer do
       )
     end
 
-    it "ignores colour-only names instead of assigning them to the nearest named ink" do
+    it "says when a colour name matches an ink" do
       expect(rules).to include(
-        "Ignore it; do not assign it to the brand's nearest named ink (Montblanc Green is not Montblanc Irish Green)."
+        "It matches an ink when the maker or the line sells an ink of exactly that name (e.g. Lamy Blue; a line's own colour name, even in another language, is not a colour-only name), " \
+          "or when a line is given and the catalogue has exactly one ink of that colour in that line: then the name is shorthand for that ink, so assign it there."
       )
     end
 
-    it "treats ink additives as inks" do
+    it "ignores colour-only names instead of assigning them to the nearest named ink" do
       expect(rules).to include(
-        "Ink additives (shimmer, glitter and similar products that are mixed into ink) are inks."
+        "Otherwise ignore it; do not assign it to the brand's nearest named ink (Montblanc Green is not Montblanc Irish Green)."
+      )
+    end
+
+    it "treats ink additives and dilution liquids as inks" do
+      expect(rules).to include(
+        "Ink additives (shimmer, glitter and similar products that are mixed into ink) and dilution liquids sold as an ink product are inks. " \
+          "They are catalogued like inks and are not ignored as \"not an ink\"; a dilution liquid is not a cleaning solution."
       )
     end
   end

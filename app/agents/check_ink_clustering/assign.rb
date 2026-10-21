@@ -57,9 +57,10 @@ class CheckInkClustering::Assign < CheckInkClustering::Base
       * The ink is a translation of the cluster
       * Some parts of the name were added or removed, but it is still definitely the same ink
 
-      Inks should not be assigned when the ink is only a brand plus a colour name and the maker sells
-      no ink of exactly that name. Such an ink should be ignored, not assigned to the brand's nearest
-      named ink (Montblanc Green is not Montblanc Irish Green).
+      An ink that is only a brand plus a colour name, with or without a line, follows the colour-only
+      rule given with the ink data: assign it only to an ink of exactly that name or, when a line is
+      given, to that line's only catalogue ink of that colour. Otherwise it should be ignored, not
+      assigned to the brand's nearest named ink (Montblanc Green is not Montblanc Irish Green).
 
       When both the ink and the cluster have an RGB color, a similar color is a good
       indicator that the assignment is correct. However, it is not a requirement
