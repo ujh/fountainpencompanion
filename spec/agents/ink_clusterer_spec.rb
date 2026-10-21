@@ -1020,54 +1020,67 @@ RSpec.describe InkClusterer do
   end
 
   describe "system directive" do
+    subject(:directive) { InkClusterer::SYSTEM_DIRECTIVE.squish }
+
     it "limits the known brand mix heuristic to inks with little evidence" do
-      expect(InkClusterer::SYSTEM_DIRECTIVE).to include(
-        "The missing known brand name is only a sign of a mix when brand_catalogue_inks is below 3 and\n" \
-          "ink_users is below 3."
+      expect(directive).to include(
+        "The missing known brand name is only a sign of a mix when brand_catalogue_inks is below 3 and ink_users is below 3."
       )
     end
 
     it "treats ink additives as inks in the not-an-ink rule" do
-      expect(InkClusterer::SYSTEM_DIRECTIVE).to include(
-        "3.2 Products that are not actually inks, like rollerball refills, should also be ignored. Ink\n" \
-          "    additives (shimmer, glitter and similar) are inks and are not ignored."
+      expect(directive).to include(
+        "3.2 Products that are not actually inks, like rollerball refills, should also be ignored. Ink additives (shimmer, glitter and similar) are inks and are not ignored."
       )
     end
 
     it "keeps ignoring inks with custom as the line name" do
-      expect(InkClusterer::SYSTEM_DIRECTIVE).to include(
+      expect(directive).to include(
         "3.3 Inks with \"custom\" as the line name should be ignored as well"
       )
     end
 
     it "points the web search hints at the evidence rule" do
-      expect(InkClusterer::SYSTEM_DIRECTIVE).to include(
-        "Follow the evidence rule given with the ink data: for some inks few or no results are not evidence\n" \
-          "   that the ink does not exist."
+      expect(directive).to include(
+        "Follow the evidence rule given with the ink data: for some inks few or no results are not evidence that the ink does not exist."
+      )
+    end
+
+    it "requires a web search and the creation rules before creating a new cluster" do
+      expect(directive).to include(
+        "and at least one web search for the ink. Follow the rules for creating a new cluster given with the ink data."
+      )
+    end
+
+    it "requires a web search instead of ignoring on counts alone" do
+      expect(directive).to include(
+        "User and catalogue counts alone are never a reason to ignore an ink. When you have no evidence either way, e.g. an unknown brand with few users, search the web before ignoring the ink."
       )
     end
   end
 
   describe "SHARED_RULES" do
-    subject(:rules) { InkClusterer::SHARED_RULES }
+    subject(:rules) { InkClusterer::SHARED_RULES.squish }
 
     it "states the narrow evidence rule" do
       expect(rules).to include(
-        "when ink_users is at least 3, or brand_catalogue_inks is at least 3"
+        "when ink_users is at least 3, or brand_catalogue_inks is at least 3, few or no web results are not evidence that the ink does not exist"
       )
       expect(rules).to include(
-        "few or no web\nresults are not evidence that the ink does not exist"
-      )
-      expect(rules).to include("This does not make the ink real")
-      expect(rules).to include(
-        "evidence rule does not apply when brand_catalogue_inks is 0 and brand_users is 2 or less"
+        "The evidence rule does not apply when brand_catalogue_inks is 0 and brand_users is 2 or less."
       )
       expect(rules).to include("Generic and placeholder brands")
     end
 
+    it "says that the evidence rule never supports the existence of an ink" do
+      expect(rules).to include(
+        "The evidence rule only cancels missing web results. It is never evidence that the ink exists and never a reason to create a new cluster or to approve one; do not cite it as support."
+      )
+    end
+
     it "says that the counts alone are never a reason to ignore an ink" do
       expect(rules).to include(
-        "These\ncounts alone are never a reason to ignore an ink: new makers, collaborations and misspelled brand\nnames start that way."
+        "User and catalogue counts alone are never a reason to ignore an ink: new makers, collaborations and misspelled brand names start with few users and no catalogue inks. With no evidence either way, search the web before ignoring an ink."
       )
       expect(rules).to include(
         "Few users or no catalogue inks alone never make a brand a one-person label."
@@ -1075,9 +1088,20 @@ RSpec.describe InkClusterer do
       expect(rules).not_to include("one-person label as defined above")
     end
 
+    it "requires a web search and a source naming the exact ink for a new cluster" do
+      expect(rules).to include(
+        "Creating a new cluster requires all of these: " \
+          "* No catalogue cluster matches the ink. " \
+          "* At least one web search for the ink was run. " \
+          "* A source names this exact ink: a web result, or the maker, a shop or a review found by the search. " \
+          "Only when the web has nothing and the evidence rule applies may the name itself be the source, " \
+          "and only when it is a specific product name, not a line name, a recipe or mix name, a generic name or a colour-only name."
+      )
+    end
+
     it "lists the reasons to ignore an ink" do
       [
-        "It is a mix of inks",
+        "It is a mix of inks.",
         "It is an unidentified ink",
         "It is an incomplete name",
         "It is not an ink",
@@ -1086,8 +1110,26 @@ RSpec.describe InkClusterer do
         "It is a generic name",
         "It is only a colour name and the maker sells no ink of exactly that name",
         "(e.g. Lamy Blue)",
-        "It is a one-person label: a name a user gives their own mixes or DIY inks that no maker or shop\n  sells."
+        "It is a one-person label: a name a user gives their own mixes or DIY inks that no maker or shop sells."
       ].each { |reason| expect(rules).to include(reason) }
+    end
+
+    it "treats manufacturer mixing recipes and known mixes as mixes" do
+      expect(rules).to include(
+        "Names of manufacturer mixing recipes (e.g. the recipe names of Platinum Mixable inks) and known mixes are mixes, even when many users entered them under a catalogued brand."
+      )
+    end
+
+    it "treats a name that is the line of catalogue inks as incomplete" do
+      expect(rules).to include(
+        "A name that is the line of existing catalogue inks (the similarity search shows several \"<brand> <line> <ink>\" clusters whose line is this name, e.g. Stipula Calamo or Sailor Shikiori) is incomplete."
+      )
+    end
+
+    it "ignores colour-only names instead of assigning them to the nearest named ink" do
+      expect(rules).to include(
+        "Ignore it; do not assign it to the brand's nearest named ink (Montblanc Green is not Montblanc Irish Green)."
+      )
     end
 
     it "treats ink additives as inks" do

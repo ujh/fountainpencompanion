@@ -132,22 +132,39 @@ class InkClusterer
 
     Evidence rule: when ink_users is at least 3, or brand_catalogue_inks is at least 3, few or no web
     results are not evidence that the ink does not exist, because small makers often have little or no
-    web presence. This does not make the ink real: all reasons to ignore an ink below still apply. The
-    evidence rule does not apply when brand_catalogue_inks is 0 and brand_users is 2 or less. These
-    counts alone are never a reason to ignore an ink: new makers, collaborations and misspelled brand
-    names start that way.
+    web presence. The evidence rule only cancels missing web results. It is never evidence that the ink
+    exists and never a reason to create a new cluster or to approve one; do not cite it as support. All
+    reasons to ignore an ink below still apply. The evidence rule does not apply when
+    brand_catalogue_inks is 0 and brand_users is 2 or less.
+
+    User and catalogue counts alone are never a reason to ignore an ink: new makers, collaborations and
+    misspelled brand names start with few users and no catalogue inks. With no evidence either way,
+    search the web before ignoring an ink.
+
+    Creating a new cluster requires all of these:
+    * No catalogue cluster matches the ink.
+    * At least one web search for the ink was run.
+    * A source names this exact ink: a web result, or the maker, a shop or a review found by the
+      search. Only when the web has nothing and the evidence rule applies may the name itself be the
+      source, and only when it is a specific product name, not a line name, a recipe or mix name, a
+      generic name or a colour-only name.
 
     Reasons to ignore an ink:
-    * It is a mix of inks
+    * It is a mix of inks. Names of manufacturer mixing recipes (e.g. the recipe names of Platinum
+      Mixable inks) and known mixes are mixes, even when many users entered them under a catalogued
+      brand.
     * It is an unidentified ink: the user does not know which ink it is
     * It is an incomplete name, e.g. only the brand and line name, with the line name typed into the ink
-      name field
+      name field. A name that is the line of existing catalogue inks (the similarity search shows
+      several "<brand> <line> <ink>" clusters whose line is this name, e.g. Stipula Calamo or Sailor
+      Shikiori) is incomplete.
     * It is not an ink, e.g. a rollerball, ballpoint or gel refill, a pen or a cleaning solution
     * It is an ink someone made themselves (DIY), including inks with "custom" as the line name
     * It is a placeholder, a test entry or gibberish
     * It is a generic name without an identifiable maker
-    * It is only a colour name and the maker sells no ink of exactly that name. Brand plus colour is a
-      real ink when the maker sells an ink by that name (e.g. Lamy Blue).
+    * It is only a colour name and the maker sells no ink of exactly that name. Ignore it; do not assign
+      it to the brand's nearest named ink (Montblanc Green is not Montblanc Irish Green). Brand plus
+      colour is a real ink when the maker sells an ink by that name (e.g. Lamy Blue).
     * It is a one-person label: a name a user gives their own mixes or DIY inks that no maker or shop
       sells. Few users or no catalogue inks alone never make a brand a one-person label.
 
@@ -177,7 +194,11 @@ class InkClusterer
     If you are not confident, but sure that it is a real ink, rather create a new cluster for it.
 
     Before creating a new cluster make sure that you did a search for only the ink name to check
-    if it was possibly created under a differnt brand or line.
+    if it was possibly created under a differnt brand or line, and at least one web search for the ink.
+    Follow the rules for creating a new cluster given with the ink data.
+
+    User and catalogue counts alone are never a reason to ignore an ink. When you have no evidence either
+    way, e.g. an unknown brand with few users, search the web before ignoring the ink.
 
     If the ink has a color and the cluster you want to assign it to has a color as well,
     make sure that the colors are similar. However, this is not a requirement as the ink color

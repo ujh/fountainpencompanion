@@ -325,6 +325,9 @@ RSpec.describe CheckInkClustering::Create do
       expect(directive).to include("reviewing the result of a clustering algorithm")
       expect(directive).to include("new cluster should be created")
       expect(directive).to include("No ink can be found that is similar enough")
+      expect(directive.squish).to include(
+        "The rules for creating a new cluster given with the ink data are met. Run at least one web search for the ink before you approve. The evidence rule is never a reason to approve."
+      )
       expect(directive).to include("different spelling of the cluster")
       expect(directive).to include("translation of an existing cluster")
       expect(directive).not_to include("ink does not exist at all")

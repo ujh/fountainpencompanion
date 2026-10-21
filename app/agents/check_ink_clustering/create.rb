@@ -52,6 +52,8 @@ class CheckInkClustering::Create < CheckInkClustering::Base
 
       New clusters should be created when:
       * No ink can be found that is similar enough to the ink
+      * The rules for creating a new cluster given with the ink data are met. Run at least one web
+        search for the ink before you approve. The evidence rule is never a reason to approve.
 
       No new cluster should be created when:
       * The ink is a different spelling of the cluster

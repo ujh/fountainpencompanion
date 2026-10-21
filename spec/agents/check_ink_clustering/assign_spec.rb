@@ -340,6 +340,9 @@ RSpec.describe CheckInkClustering::Assign do
       expect(directive).to include("different spelling of the cluster")
       expect(directive).to include("translation of the cluster")
       expect(directive).to include("RGB color")
+      expect(directive.squish).to include(
+        "Inks should not be assigned when the ink is only a brand plus a colour name and the maker sells no ink of exactly that name. Such an ink should be ignored, not assigned to the brand's nearest named ink (Montblanc Green is not Montblanc Irish Green)."
+      )
       expect(directive).to include("search the web")
       expect(directive).to include("similarity search function")
     end
