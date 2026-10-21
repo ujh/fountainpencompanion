@@ -76,6 +76,43 @@ describe MergeMacroClusters do
     expect(source_submission.reload.ink_review).to eq(approved)
   end
 
+  it "keeps an approved source review with a broken link over an unapproved one" do
+    create(:ink_review, macro_cluster: target, url: "https://example.com/review")
+    approved =
+      create(
+        :ink_review,
+        macro_cluster: source,
+        url: "https://example.com/review",
+        approved_at: Time.current,
+        check_count: 1
+      )
+
+    merge
+
+    expect(target.ink_reviews.reload).to eq([approved])
+  end
+
+  it "keeps the source's review when both are approved and only it is live" do
+    create(
+      :ink_review,
+      macro_cluster: target,
+      url: "https://example.com/review",
+      approved_at: Time.current,
+      check_count: 1
+    )
+    live =
+      create(
+        :ink_review,
+        macro_cluster: source,
+        url: "https://example.com/review",
+        approved_at: Time.current
+      )
+
+    merge
+
+    expect(target.ink_reviews.reload).to eq([live])
+  end
+
   it "keeps the target's review when both are approved" do
     existing =
       create(
@@ -139,6 +176,21 @@ describe MergeMacroClusters do
     expect(submission.reload.macro_cluster).to eq(target)
   end
 
+  it "keeps a submission another user made for the same url" do
+    create(:ink_review_submission, macro_cluster: target, user: user, url: "https://example.com/a")
+    other =
+      create(
+        :ink_review_submission,
+        macro_cluster: source,
+        user: create(:user),
+        url: "https://example.com/a"
+      )
+
+    merge
+
+    expect(other.reload.macro_cluster).to eq(target)
+  end
+
   it "drops a submission the same user already made for the target" do
     create(:ink_review_submission, macro_cluster: target, user: user, url: "https://example.com/a")
     duplicate =
@@ -195,6 +247,82 @@ describe MergeMacroClusters do
     expect { merge }.not_to(change { logs.map { |log| log.reload.extra_data } })
   end
 
+  it "takes the source's agent-approved create decisions out of the review queue" do
+    micro_cluster = create(:micro_cluster, macro_cluster: source)
+    log =
+      create(
+        :agent_log,
+        :ink_clusterer,
+        :approved,
+        :agent_approved,
+        owner: micro_cluster,
+        extra_data: {
+          "action" => "create_new_cluster"
+        }
+      )
+
+    merge
+
+    expect(AgentLog.agent_processed).not_to include(log)
+    expect(log.reload.extra_data).to eq(
+      "action" => "create_new_cluster",
+      "merged_into" => target.id
+    )
+  end
+
+  it "leaves other approved decisions alone" do
+    source_micro_cluster = create(:micro_cluster, macro_cluster: source)
+    target_micro_cluster = create(:micro_cluster, macro_cluster: target)
+    create_decision = { "action" => "create_new_cluster" }
+    logs = [
+      create(
+        :agent_log,
+        :ink_clusterer,
+        :approved,
+        :agent_approved,
+        owner: target_micro_cluster,
+        extra_data: create_decision
+      ),
+      create(
+        :agent_log,
+        :ink_clusterer,
+        :approved,
+        owner: source_micro_cluster,
+        extra_data: create_decision
+      ),
+      create(
+        :agent_log,
+        :ink_clusterer,
+        :waiting_for_approval,
+        :agent_approved,
+        owner: source_micro_cluster,
+        extra_data: create_decision
+      ),
+      create(
+        :agent_log,
+        :ink_clusterer,
+        :approved,
+        :agent_approved,
+        owner: source_micro_cluster,
+        extra_data: {
+          "action" => "assign_to_cluster",
+          "cluster_id" => source.id
+        }
+      ),
+      create(
+        :agent_log,
+        :approved,
+        :agent_approved,
+        owner: source_micro_cluster,
+        extra_data: create_decision
+      )
+    ]
+
+    expect { merge }.not_to(
+      change { logs.map { |log| log.reload.slice(:agent_approved, :extra_data) } }
+    )
+  end
+
   it "locks both clusters, the lower id first" do
     newer = create(:macro_cluster)
     locked_ids = []
@@ -219,6 +347,24 @@ describe MergeMacroClusters do
     merge
 
     expect(target.reload.description).to eq("From the source")
+  end
+
+  it "copies the brand cluster when the target has none" do
+    source.update!(brand_cluster: create(:brand_cluster))
+
+    merge
+
+    expect(target.reload.brand_cluster).to eq(source.brand_cluster)
+  end
+
+  it "keeps the target's brand cluster" do
+    source.update!(brand_cluster: create(:brand_cluster))
+    brand_cluster = create(:brand_cluster)
+    target.update!(brand_cluster: brand_cluster)
+
+    merge
+
+    expect(target.reload.brand_cluster).to eq(brand_cluster)
   end
 
   it "keeps the target's description" do

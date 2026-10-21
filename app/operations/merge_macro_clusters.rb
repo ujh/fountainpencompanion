@@ -20,11 +20,12 @@ class MergeMacroClusters
   def perform
     MacroCluster.transaction do
       [source, target].sort_by(&:id).each(&:lock!)
+      retire_create_approvals
       source.micro_clusters.update_all(macro_cluster_id: target.id)
       move_ink_reviews
       move_ink_review_submissions
       repoint_pending_assignments
-      target.update!(description: source.description) if target.description.blank?
+      copy_details
       source.reload.destroy!
       after_commit { UpdateMacroCluster.perform_async(target.id) }
     end
@@ -40,13 +41,23 @@ class MergeMacroClusters
       existing = target.ink_reviews.find_by(url: review.url)
       if existing.nil?
         review.update!(macro_cluster: target)
-      elsif review.approved? && !existing.approved?
+      elsif preferred?(review, existing)
         replace_review(existing, review)
         review.update!(macro_cluster: target)
       else
         replace_review(review, existing)
       end
     end
+  end
+
+  def preferred?(review, existing)
+    standing(review) > standing(existing)
+  end
+
+  def standing(review)
+    return 0 unless review.approved?
+
+    review.check_count.zero? ? 2 : 1
   end
 
   def replace_review(dropped, kept)
@@ -76,5 +87,29 @@ class MergeMacroClusters
       .update_all(
         ["extra_data = jsonb_set(extra_data, '{cluster_id}', to_jsonb(?::bigint))", target.id]
       )
+  end
+
+  def retire_create_approvals
+    AgentLog
+      .ink_clusterer
+      .approved
+      .where(
+        agent_approved: true,
+        owner_type: "MicroCluster",
+        owner_id: source.micro_clusters.select(:id)
+      )
+      .where("extra_data->>'action' = 'create_new_cluster'")
+      .update_all(
+        [
+          "agent_approved = false, extra_data = extra_data || jsonb_build_object('merged_into', ?::bigint)",
+          target.id
+        ]
+      )
+  end
+
+  def copy_details
+    target.description = source.description if target.description.blank?
+    target.brand_cluster_id ||= source.brand_cluster_id
+    target.save!
   end
 end
