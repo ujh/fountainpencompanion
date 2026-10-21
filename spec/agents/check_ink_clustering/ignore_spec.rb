@@ -128,6 +128,42 @@ RSpec.describe CheckInkClustering::Ignore do
         expect(WebMock).to have_requested(:post, openai_url).at_least_once
       end
 
+      it "sends the clustering evidence and the shared rules with the ink data" do
+        create_list(:user, 2).each do |other_user|
+          create(:collected_ink, user: other_user, micro_cluster: micro_cluster)
+        end
+        [create(:macro_cluster), create(:macro_cluster)].each do |catalogue_cluster|
+          create(
+            :micro_cluster,
+            simplified_brand_name: micro_cluster.simplified_brand_name,
+            macro_cluster: catalogue_cluster
+          )
+        end
+        create(
+          :micro_cluster,
+          simplified_brand_name: micro_cluster.simplified_brand_name,
+          macro_cluster: create(:macro_cluster),
+          ignored: true
+        )
+
+        subject.perform
+
+        expect(WebMock).to have_requested(:post, openai_url).with { |req|
+          user_content =
+            JSON.parse(req.body)["messages"].find { |m| m["role"] == "user" }["content"]
+          ink_json =
+            user_content.split("This is the data for the ink to cluster: ").last.split("\n\n").first
+
+          expect(user_content).to include(InkClusterer::SHARED_RULES)
+          expect(JSON.parse(ink_json)["evidence"]).to eq(
+            "ink_users" => 3,
+            "brand_users" => 3,
+            "brand_catalogue_inks" => 2
+          )
+          true
+        }
+      end
+
       it "updates agent log with approval" do
         subject.perform
 
@@ -281,12 +317,21 @@ RSpec.describe CheckInkClustering::Ignore do
       expect(directive).to include("unidentified ink")
       expect(directive).to include("someone created themselves")
       expect(directive).to include("incomplete entry")
-      expect(directive).to include("not an ink")
+      expect(directive).to include(
+        "It references a product that is not an ink, e.g. a rollberball or ballpoint pen. Ink additives\n" \
+          "  (shimmer, glitter and similar) are inks and are not ignored."
+      )
       expect(directive).to include("separated by a non-word character")
-      expect(directive).to include("known brand names")
+      expect(directive).to include(
+        "The ink name does not contain one of the known brand names, but only when brand_catalogue_inks\n" \
+          "  is below 3 and ink_users is below 3"
+      )
       expect(directive).to include("search the web")
       expect(directive).to include("similarity search function")
-      expect(directive).to include("Fewer results make it more likely")
+      expect(directive).to include(
+        "Fewer results make it more likely that the ink does not exist, except when the evidence rule\n" \
+          "  given with the ink data says that few or no results are not evidence that the ink does not exist."
+      )
       expect(directive).to include("More results make it more likely")
     end
   end

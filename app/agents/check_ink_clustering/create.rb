@@ -50,18 +50,23 @@ class CheckInkClustering::Create < CheckInkClustering::Base
       ink does not belong to any of the existing clusters and a new cluster should
       be created for it.
 
-      New clusters should be created when:
+      New clusters should be created only when both apply:
       * No ink can be found that is similar enough to the ink
+      * The rules for creating a new cluster given with the ink data are met. Run at least one web
+        search for the ink before you approve. The evidence rule alone is never a reason to approve:
+        when no web result names this ink, approve only under the specific product name exception of
+        those rules and say so in your explanation.
 
       No new cluster should be created when:
       * The ink is a different spelling of the cluster
       * The ink is a translation of an existing cluster
-      * The ink does not exist at all
-      * The ink is a mix of inks
+      * There is evidence that the ink does not exist (see the evidence rule given with the ink data)
+      * One of the reasons to ignore an ink given with the ink data applies, e.g. the ink is a mix of inks
 
       Ink mixes can be determined for example by:
       * The ink name contains two ink names that are separated by a non-word character
-      * The ink name does not contain one of the known brand names
+      * The ink name does not contain one of the known brand names, but only when brand_catalogue_inks
+        is below 3 and ink_users is below 3
       * However, ink names can contain contain translations of the names separated by
         a non-word character, so be careful with that.
 

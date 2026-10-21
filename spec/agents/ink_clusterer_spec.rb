@@ -982,6 +982,203 @@ RSpec.describe InkClusterer do
 
       expect(parsed_data).not_to have_key("colors")
     end
+
+    it "sends the clustering evidence and the shared rules with the ink data" do
+      other_users = create_list(:user, 2)
+      other_users.each do |other_user|
+        create(:collected_ink, user: other_user, micro_cluster: micro_cluster)
+      end
+      same_brand_cluster =
+        create(:micro_cluster, simplified_brand_name: micro_cluster.simplified_brand_name)
+      create(:collected_ink, micro_cluster: same_brand_cluster)
+      create(
+        :micro_cluster,
+        simplified_brand_name: micro_cluster.simplified_brand_name,
+        macro_cluster: create(:macro_cluster)
+      )
+      CollectedInk.update_all(updated_at: 1.hour.ago)
+
+      subject.perform
+
+      expect(WebMock).to have_requested(:post, "https://api.openai.com/v1/chat/completions")
+        .with { |req|
+          user_content =
+            JSON.parse(req.body)["messages"].find { |m| m["role"] == "user" }["content"]
+          parsed_data =
+            JSON.parse(user_content.split("This is the data for the ink to cluster: ").last)
+
+          expect(user_content).to start_with(InkClusterer::SHARED_RULES)
+          expect(parsed_data["evidence"]).to eq(
+            "ink_users" => 3,
+            "brand_users" => 4,
+            "brand_catalogue_inks" => 2
+          )
+          true
+        }
+        .at_least_once
+    end
+  end
+
+  describe "system directive" do
+    subject(:directive) { InkClusterer::SYSTEM_DIRECTIVE.squish }
+
+    it "limits the known brand mix heuristic to inks with little evidence" do
+      expect(directive).to include(
+        "The missing known brand name is only a sign of a mix when brand_catalogue_inks is below 3 and ink_users is below 3."
+      )
+    end
+
+    it "treats ink additives as inks in the not-an-ink rule" do
+      expect(directive).to include(
+        "3.2 Products that are not actually inks, like rollerball refills, should also be ignored. Ink additives (shimmer, glitter and similar) are inks and are not ignored."
+      )
+    end
+
+    it "keeps ignoring inks with custom as the line name" do
+      expect(directive).to include(
+        "3.3 Inks with \"custom\" as the line name should be ignored as well"
+      )
+    end
+
+    it "points the web search hints at the evidence rule" do
+      expect(directive).to include(
+        "Follow the evidence rule given with the ink data: for some inks few or no results are not evidence that the ink does not exist."
+      )
+    end
+
+    it "requires a web search and the creation rules before creating a new cluster" do
+      expect(directive).to include(
+        "and at least one web search for the ink. Follow the rules for creating a new cluster given with the ink data."
+      )
+    end
+
+    it "requires a web search instead of ignoring on counts alone" do
+      expect(directive).to include(
+        "User and catalogue counts alone are never a reason to ignore an ink. When you have no evidence either way, e.g. an unknown brand with few users, search the web before ignoring the ink."
+      )
+    end
+  end
+
+  describe "SHARED_RULES" do
+    subject(:rules) { InkClusterer::SHARED_RULES.squish }
+
+    it "states the narrow evidence rule" do
+      expect(rules).to include(
+        "when ink_users is at least 3, or brand_catalogue_inks is at least 3, few or no web results are not evidence that the ink does not exist"
+      )
+      expect(rules).to include(
+        "The evidence rule does not apply when brand_catalogue_inks is 0 and brand_users is 2 or less."
+      )
+      expect(rules).to include("Generic and placeholder brands")
+    end
+
+    it "says that the evidence rule alone never supports the existence of an ink" do
+      expect(rules).to include(
+        "The evidence rule only cancels missing web results. On its own it is never evidence that the ink exists and never a reason to create a new cluster or to approve one (see the rules for creating a new cluster below)."
+      )
+      expect(rules).not_to include("do not cite it as support")
+    end
+
+    it "says that the counts alone are never a reason to ignore an ink" do
+      expect(rules).to include(
+        "User and catalogue counts alone are never a reason to ignore an ink: new makers, collaborations and misspelled brand names start with few users and no catalogue inks. With no evidence either way, search the web before ignoring an ink."
+      )
+      expect(rules).to include(
+        "Few users or no catalogue inks alone never make a brand a one-person label."
+      )
+      expect(rules).not_to include("one-person label as defined above")
+    end
+
+    it "requires a web search and a source naming the exact ink for a new cluster" do
+      expect(rules).to include(
+        "Creating a new cluster requires all of these: " \
+          "* No catalogue cluster matches the ink. " \
+          "* At least one web search for the ink was run. " \
+          "* A source names this exact ink: a web result, or the maker, a shop or a review found by the search. " \
+          "Only when no web result names this ink and the evidence rule applies may the name itself be the source, " \
+          "and only when it is a specific product name, not a line name, a recipe or mix name, a generic name or a colour-only name. " \
+          "A decision that relies on this exception must say so in its explanation."
+      )
+    end
+
+    it "lists the reasons to ignore an ink" do
+      [
+        "It is a mix of inks, including known mixes and personal mixes, even when many users entered them under a catalogued brand.",
+        "It is an unidentified ink",
+        "It is an incomplete name",
+        "It is not an ink",
+        "including inks with \"custom\" as the line name",
+        "It is a placeholder",
+        "It is a generic name",
+        "It is a colour-only name that matches no ink.",
+        "It is a one-person label: a name a user gives their own mixes or DIY inks that no maker or shop sells."
+      ].each { |reason| expect(rules).to include(reason) }
+    end
+
+    it "treats products sold for mixing as inks and user-mixed recipes as mixes" do
+      expect(rules).to include(
+        "In lines made for mixing, everything the maker sells as its own product (a bottle or a pen bundle) is an ink, while named recipes that users mix themselves from the maker's published formulas are mixes. " \
+          "For Platinum Mixable, the base colours, the Dilution Liquid and specials sold as their own product are inks; the named recipes from Platinum's mixing formulas are mixes."
+      )
+    end
+
+    it "treats a name that is the line of catalogue inks as incomplete" do
+      expect(rules).to include(
+        "A name that is the line of existing catalogue inks (the similarity search shows several \"<brand> <line> <ink>\" clusters whose line is this name, e.g. Stipula Calamo or Sailor Shikiori) is incomplete."
+      )
+    end
+
+    it "limits colour-only names to plain colour words" do
+      expect(rules).to include(
+        "A colour-only name is a brand (and optionally a line) plus only a plain colour word or colour phrase (e.g. Green, Dark Purple, Blue Black). " \
+          "Descriptive product names, such as names of woods, places, moods or objects, are not colour-only names even when they suggest a colour."
+      )
+    end
+
+    it "treats web results about an unrelated product like no result" do
+      expect(rules).to include(
+        "Web results about a different product that only shares a word with the ink are neither evidence for nor against the ink. " \
+          "Treat them like no result, so the evidence rule and the specific product name exception below still apply."
+      )
+    end
+
+    it "assigns only the same ink, judged by its main name, not a similar-looking word" do
+      expect(rules).to include(
+        "Assigning to an existing cluster: judge the name most users entered (the ink's main name), not a stray entry. " \
+          "Assign only when that name is the same ink, i.e. an exact match, a clear spelling variant, a translation, or the same name with or without the line name; " \
+          "an odd extra word in one entry (e.g. a suffix on the brand) does not prevent this. A similar-looking word is not enough. " \
+          "An unknown ink name that could combine or blend names of the maker's inks is a possible mix, not a typo. " \
+          "When in doubt between a typo and a different name, do not assign. " \
+          "A cluster whose names are the same name with different line or format words (bottle, cartridge, standard line, product codes) is one ink, and an exact match to that name is assigned to it."
+      )
+    end
+
+    it "treats line and format variants of one name as one ink for colour names" do
+      expect(rules).to include(
+        "then the name is shorthand for that ink, so assign it there. " \
+          "Names that differ only in line or format words (bottle, cartridge, standard line, product codes) are one ink, not several."
+      )
+    end
+
+    it "says when a colour name matches an ink" do
+      expect(rules).to include(
+        "A colour-only name matches an ink when the maker or the line sells an ink of exactly that name (e.g. Lamy Blue; a line's own colour name, even in another language, is not a colour-only name), " \
+          "or when a line is given and the catalogue has exactly one ink of that colour in that line: then the name is shorthand for that ink, so assign it there."
+      )
+    end
+
+    it "ignores colour-only names instead of assigning them to the nearest named ink" do
+      expect(rules).to include(
+        "Otherwise ignore it; do not assign it to the brand's nearest named ink (Montblanc Green is not Montblanc Irish Green)."
+      )
+    end
+
+    it "treats ink additives and dilution liquids as inks" do
+      expect(rules).to include(
+        "Ink additives (shimmer, glitter and similar products that are mixed into ink) and dilution liquids sold as an ink product are inks. " \
+          "They are catalogued like inks and are not ignored as \"not an ink\"; a dilution liquid is not a cleaning solution."
+      )
+    end
   end
 
   describe "error handling" do

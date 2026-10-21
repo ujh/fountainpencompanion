@@ -127,6 +127,24 @@ RSpec.describe CheckInkClustering::Human do
         expect(WebMock).to have_requested(:post, openai_url).at_least_once
       end
 
+      it "sends only the ink data, without the clustering rules or evidence" do
+        subject.perform
+
+        expect(WebMock).to have_requested(:post, openai_url).with { |req|
+          user_content =
+            JSON.parse(req.body)["messages"].find { |m| m["role"] == "user" }["content"]
+          ink_json = user_content.split("This is the data for the ink to cluster: ").last
+
+          expect(user_content).not_to include("Evidence and ignore rules")
+          expect(JSON.parse(ink_json).keys).to contain_exactly(
+            "names",
+            "names_as_elements",
+            "colors"
+          )
+          true
+        }
+      end
+
       it "sends email via AdminMailer" do
         expect(AdminMailer).to receive(:agent_mail).with(
           "Ink Clustering Review Required",

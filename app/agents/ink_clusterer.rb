@@ -120,6 +120,84 @@ class InkClusterer
     end
   end
 
+  SHARED_RULES = <<~TEXT.freeze
+    Evidence and ignore rules. When anything else in your instructions differs, these rules win.
+
+    The "evidence" object in the ink data contains:
+    * ink_users: how many distinct users entered this ink
+    * brand_users: how many distinct users entered any ink of this brand
+    * brand_catalogue_inks: how many inks of this brand are in the catalogue (existing clusters).
+      Generic and placeholder brands ("Generic", "Unknown", "No name", "Unbranded" and similar) never
+      count as catalogued brands, so for them it is always 0.
+
+    Evidence rule: when ink_users is at least 3, or brand_catalogue_inks is at least 3, few or no web
+    results are not evidence that the ink does not exist, because small makers often have little or no
+    web presence. The evidence rule only cancels missing web results. On its own it is never evidence
+    that the ink exists and never a reason to create a new cluster or to approve one (see the rules for
+    creating a new cluster below). All reasons to ignore an ink below still apply. The evidence rule
+    does not apply when brand_catalogue_inks is 0 and brand_users is 2 or less.
+
+    Web results about a different product that only shares a word with the ink are neither evidence
+    for nor against the ink. Treat them like no result, so the evidence rule and the specific product
+    name exception below still apply.
+
+    User and catalogue counts alone are never a reason to ignore an ink: new makers, collaborations and
+    misspelled brand names start with few users and no catalogue inks. With no evidence either way,
+    search the web before ignoring an ink.
+
+    Creating a new cluster requires all of these:
+    * No catalogue cluster matches the ink.
+    * At least one web search for the ink was run.
+    * A source names this exact ink: a web result, or the maker, a shop or a review found by the
+      search. Only when no web result names this ink and the evidence rule applies may the name itself
+      be the source, and only when it is a specific product name, not a line name, a recipe or mix
+      name, a generic name or a colour-only name. A decision that relies on this exception must say so
+      in its explanation.
+
+    Assigning to an existing cluster: judge the name most users entered (the ink's main name), not a
+    stray entry. Assign only when that name is the same ink, i.e. an exact match, a clear spelling
+    variant, a translation, or the same name with or without the line name; an odd extra word in one
+    entry (e.g. a suffix on the brand) does not prevent this. A similar-looking word is not enough. An
+    unknown ink name that could combine or blend names of the maker's inks is a possible mix, not a
+    typo. When in doubt between a typo and a different name, do not assign. A cluster whose names are
+    the same name with different line or format words (bottle, cartridge, standard line, product codes)
+    is one ink, and an exact match to that name is assigned to it.
+
+    Reasons to ignore an ink:
+    * It is a mix of inks, including known mixes and personal mixes, even when many users entered them
+      under a catalogued brand. In lines made for mixing, everything the maker sells as its own product
+      (a bottle or a pen bundle) is an ink, while named recipes that users mix themselves from the
+      maker's published formulas are mixes. For Platinum Mixable, the base colours, the Dilution Liquid
+      and specials sold as their own product are inks; the named recipes from Platinum's mixing
+      formulas are mixes.
+    * It is an unidentified ink: the user does not know which ink it is
+    * It is an incomplete name, e.g. only the brand and line name, with the line name typed into the ink
+      name field. A name that is the line of existing catalogue inks (the similarity search shows
+      several "<brand> <line> <ink>" clusters whose line is this name, e.g. Stipula Calamo or Sailor
+      Shikiori) is incomplete.
+    * It is not an ink, e.g. a rollerball, ballpoint or gel refill, a pen or a cleaning solution
+    * It is an ink someone made themselves (DIY), including inks with "custom" as the line name
+    * It is a placeholder, a test entry or gibberish
+    * It is a generic name without an identifiable maker
+    * It is a colour-only name that matches no ink. A colour-only name is a brand (and optionally a
+      line) plus only a plain colour word or colour phrase (e.g. Green, Dark Purple, Blue Black).
+      Descriptive product names, such as names of woods, places, moods or objects, are not colour-only
+      names even when they suggest a colour. A colour-only name matches an ink when the maker or the
+      line sells an ink of exactly that name (e.g. Lamy Blue; a line's own colour name, even in another
+      language, is not a colour-only name), or when a line is given and the catalogue has exactly one
+      ink of that colour in that line: then the name is shorthand for that ink, so assign it there.
+      Names that differ only in line or format words (bottle, cartridge, standard line, product codes)
+      are one ink, not several.
+      Otherwise ignore it; do not assign it to the brand's nearest named ink (Montblanc Green is not
+      Montblanc Irish Green).
+    * It is a one-person label: a name a user gives their own mixes or DIY inks that no maker or shop
+      sells. Few users or no catalogue inks alone never make a brand a one-person label.
+
+    Ink additives (shimmer, glitter and similar products that are mixed into ink) and dilution liquids
+    sold as an ink product are inks. They are catalogued like inks and are not ignored as "not an ink";
+    a dilution liquid is not a cleaning solution.
+  TEXT
+
   MODEL_ID = "gpt-4.1"
 
   DEBOUNCE_WINDOW = 30.seconds
@@ -133,7 +211,8 @@ class InkClusterer
     3. Ignore the ink if it is a mix of inks or an unidentified ink.
     3.1 You can also ignore an ink if the user made a mistake and only provided the brand and line
         data of the ink. Usually, the line data is actually ink the ink name field by mistake.
-    3.2 Products that are not actually inks, like rollerball refills, should also be ignored.
+    3.2 Products that are not actually inks, like rollerball refills, should also be ignored. Ink
+        additives (shimmer, glitter and similar) are inks and are not ignored.
     3.3 Inks with "custom" as the line name should be ignored as well
     4. Hand over the ink to a human to do the assignment if you are not sure.
 
@@ -141,7 +220,11 @@ class InkClusterer
     If you are not confident, but sure that it is a real ink, rather create a new cluster for it.
 
     Before creating a new cluster make sure that you did a search for only the ink name to check
-    if it was possibly created under a differnt brand or line.
+    if it was possibly created under a differnt brand or line, and at least one web search for the ink.
+    Follow the rules for creating a new cluster given with the ink data.
+
+    User and catalogue counts alone are never a reason to ignore an ink. When you have no evidence either
+    way, e.g. an unknown brand with few users, search the web before ignoring the ink.
 
     If the ink has a color and the cluster you want to assign it to has a color as well,
     make sure that the colors are similar. However, this is not a requirement as the ink color
@@ -153,6 +236,8 @@ class InkClusterer
     Note, that sometimes people create their own mixes of inks. These should be ignored. Often times these
     contain two ink names that are separated by a non-word character. Additionally, custom ink mixes
     most of the time do not use one of the know brand names (use the supplied function name to double check).
+    The missing known brand name is only a sign of a mix when brand_catalogue_inks is below 3 and
+    ink_users is below 3.
 
     Note, that sometimes people do not know the full name of an ink. These unidentified inks should also
     be ignored.
@@ -163,6 +248,8 @@ class InkClusterer
     1. The more results you get, the more likely it is that the ink is known.
     2. Even if there are many results, double check that the ink name is actually present. The results might
        not even contain the ink name.
+    3. Follow the evidence rule given with the ink data: for some inks few or no results are not evidence
+       that the ink does not exist.
   TEXT
 
   def initialize(micro_cluster_id, agent_log_id: nil)
@@ -389,7 +476,8 @@ class InkClusterer
       names_as_elements: micro_cluster.all_names_as_elements
     }
     data[:colors] = micro_cluster.colors if micro_cluster.colors.present?
+    data[:evidence] = micro_cluster.clustering_evidence
 
-    "This is the data for the ink to cluster: #{data.to_json}"
+    "#{SHARED_RULES}\nThis is the data for the ink to cluster: #{data.to_json}"
   end
 end
