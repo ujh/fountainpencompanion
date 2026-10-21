@@ -341,6 +341,11 @@ RSpec.describe CheckInkClustering::Assign do
       expect(directive).to include("translation of the cluster")
       expect(directive).to include("RGB color")
       expect(directive.squish).to include(
+        "Names that merely look similar are not enough: a similar-looking word is not a spelling variant. " \
+          "An unknown word that could combine or blend names of the maker's inks is a possible mix, not a typo. " \
+          "When in doubt between a typo and a different name, reject the assignment."
+      )
+      expect(directive.squish).to include(
         "An ink that is only a brand plus a colour name, with or without a line, follows the colour-only rule given with the ink data: " \
           "assign it only to an ink of exactly that name or, when a line is given, to that line's only catalogue ink of that colour. " \
           "Otherwise it should be ignored, not assigned to the brand's nearest named ink (Montblanc Green is not Montblanc Irish Green)."

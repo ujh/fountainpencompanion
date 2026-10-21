@@ -137,6 +137,10 @@ class InkClusterer
     creating a new cluster below). All reasons to ignore an ink below still apply. The evidence rule
     does not apply when brand_catalogue_inks is 0 and brand_users is 2 or less.
 
+    Web results about a different product that only shares a word with the ink are neither evidence
+    for nor against the ink. Treat them like no result, so the evidence rule and the specific product
+    name exception below still apply.
+
     User and catalogue counts alone are never a reason to ignore an ink: new makers, collaborations and
     misspelled brand names start with few users and no catalogue inks. With no evidence either way,
     search the web before ignoring an ink.
@@ -149,6 +153,11 @@ class InkClusterer
       be the source, and only when it is a specific product name, not a line name, a recipe or mix
       name, a generic name or a colour-only name. A decision that relies on this exception must say so
       in its explanation.
+
+    Assigning to an existing cluster: assign only when the name is the same ink, i.e. a clear spelling
+    variant, a translation, or the same name with or without the line name. A similar-looking word is
+    not enough. An unknown word that could combine or blend names of the maker's inks is a possible
+    mix, not a typo. When in doubt between a typo and a different name, do not assign.
 
     Reasons to ignore an ink:
     * It is a mix of inks, including known mixes and personal mixes, even when many users entered them
@@ -166,12 +175,15 @@ class InkClusterer
     * It is an ink someone made themselves (DIY), including inks with "custom" as the line name
     * It is a placeholder, a test entry or gibberish
     * It is a generic name without an identifiable maker
-    * It is a colour-only name (brand plus colour, with or without a line) that matches no ink. It
-      matches an ink when the maker or the line sells an ink of exactly that name (e.g. Lamy Blue; a
-      line's own colour name, even in another language, is not a colour-only name), or when a line is
-      given and the catalogue has exactly one ink of that colour in that line: then the name is
-      shorthand for that ink, so assign it there. Otherwise ignore it; do not assign it to the brand's
-      nearest named ink (Montblanc Green is not Montblanc Irish Green).
+    * It is a colour-only name that matches no ink. A colour-only name is a brand (and optionally a
+      line) plus only a plain colour word or colour phrase (e.g. Green, Dark Purple, Blue Black).
+      Descriptive product names, such as names of woods, places, moods or objects, are not colour-only
+      names even when they suggest a colour. A colour-only name matches an ink when the maker or the
+      line sells an ink of exactly that name (e.g. Lamy Blue; a line's own colour name, even in another
+      language, is not a colour-only name), or when a line is given and the catalogue has exactly one
+      ink of that colour in that line: then the name is shorthand for that ink, so assign it there.
+      Otherwise ignore it; do not assign it to the brand's nearest named ink (Montblanc Green is not
+      Montblanc Irish Green).
     * It is a one-person label: a name a user gives their own mixes or DIY inks that no maker or shop
       sells. Few users or no catalogue inks alone never make a brand a one-person label.
 

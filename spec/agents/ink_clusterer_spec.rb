@@ -1110,7 +1110,7 @@ RSpec.describe InkClusterer do
         "including inks with \"custom\" as the line name",
         "It is a placeholder",
         "It is a generic name",
-        "It is a colour-only name (brand plus colour, with or without a line) that matches no ink.",
+        "It is a colour-only name that matches no ink.",
         "It is a one-person label: a name a user gives their own mixes or DIY inks that no maker or shop sells."
       ].each { |reason| expect(rules).to include(reason) }
     end
@@ -1128,9 +1128,31 @@ RSpec.describe InkClusterer do
       )
     end
 
+    it "limits colour-only names to plain colour words" do
+      expect(rules).to include(
+        "A colour-only name is a brand (and optionally a line) plus only a plain colour word or colour phrase (e.g. Green, Dark Purple, Blue Black). " \
+          "Descriptive product names, such as names of woods, places, moods or objects, are not colour-only names even when they suggest a colour."
+      )
+    end
+
+    it "treats web results about an unrelated product like no result" do
+      expect(rules).to include(
+        "Web results about a different product that only shares a word with the ink are neither evidence for nor against the ink. " \
+          "Treat them like no result, so the evidence rule and the specific product name exception below still apply."
+      )
+    end
+
+    it "assigns only the same ink, not a similar-looking word" do
+      expect(rules).to include(
+        "Assigning to an existing cluster: assign only when the name is the same ink, i.e. a clear spelling variant, a translation, or the same name with or without the line name. " \
+          "A similar-looking word is not enough. An unknown word that could combine or blend names of the maker's inks is a possible mix, not a typo. " \
+          "When in doubt between a typo and a different name, do not assign."
+      )
+    end
+
     it "says when a colour name matches an ink" do
       expect(rules).to include(
-        "It matches an ink when the maker or the line sells an ink of exactly that name (e.g. Lamy Blue; a line's own colour name, even in another language, is not a colour-only name), " \
+        "A colour-only name matches an ink when the maker or the line sells an ink of exactly that name (e.g. Lamy Blue; a line's own colour name, even in another language, is not a colour-only name), " \
           "or when a line is given and the catalogue has exactly one ink of that colour in that line: then the name is shorthand for that ink, so assign it there."
       )
     end
