@@ -134,8 +134,8 @@ class InkClusterer
     results are not evidence that the ink does not exist, because small makers often have little or no
     web presence. The evidence rule only cancels missing web results. On its own it is never evidence
     that the ink exists and never a reason to create a new cluster or to approve one (see the rules for
-    creating a new cluster below). All reasons to ignore an ink below still apply. The evidence rule does not apply when
-    brand_catalogue_inks is 0 and brand_users is 2 or less.
+    creating a new cluster below). All reasons to ignore an ink below still apply. The evidence rule
+    does not apply when brand_catalogue_inks is 0 and brand_users is 2 or less.
 
     User and catalogue counts alone are never a reason to ignore an ink: new makers, collaborations and
     misspelled brand names start with few users and no catalogue inks. With no evidence either way,
