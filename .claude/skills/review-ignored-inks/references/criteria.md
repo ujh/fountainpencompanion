@@ -125,5 +125,14 @@ Patterns learned in runs (pattern, verdict, why). Keep it short.
   `unignore`.
 - "Pen Ink" / 钢水 (Chinese for fountain pen ink) as brand, a pen brand's bundled cartridges (Riimoo
   Black), a cartridge size as brand (Standard International): `generic`.
+- A series name that is also sold as an ink (Wearingeul The Wonderful Wizard of Oz, a standalone ink in
+  the World Literature series): not `incomplete`; check whether the maker sells an ink under that name.
+- A bare colour in a line with several inks of that colour (De Atramentis "Pearlescent Green" vs the
+  Heliogen Greens): `unidentified`. Entries older than the product's launch cannot be that product.
+- A one-user typo guess when the brand has several similar inks (Private Reserve "Invisible Black":
+  Invincible, Infinity, Velvet Black...): `unidentified`, not `assign`.
+- Lamy "Crystal" as the line means the T53 Crystal bottle inks (Infinite Orange): the ink name decides.
+- Cafe Cally monthly inks are made by Tono & Lims ("Tono and Lims x Cafecally"); a `2025.05` prefix is the
+  release month, not part of the name.
 - Korean makers (3 Oysters, ST.SHELTER): search Naver and Korean shops; catalogue names often carry the
   English name in parentheses.

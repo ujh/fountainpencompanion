@@ -25,6 +25,23 @@ macro_ids += merges.flat_map { |m| [m["from"], m["into"], m["final_into"]] }
 macro_ids = macro_ids.grep(Integer).uniq
 macros = IgnoredInksReview.macro_details(macro_ids).to_h { |m| [m["id"], m] }
 
+def referenced_macros(d)
+  [d["cluster_id"], d.dig("verifier", "suggested_cluster_id"), d.dig("assigned_macro", "id")].grep(
+    Integer
+  ).uniq
+end
+
+# Every entry that touches a macro cluster, by entry id (micro cluster id or
+# merge id), so an entry can point to the others.
+MENTIONS = Hash.new { |h, k| h[k] = {} }
+decisions.each do |d|
+  label = "MC #{d["id"]} (#{d["verdict"]}#{", disputed" if d["disputed"]})"
+  referenced_macros(d).each { |id| MENTIONS[id][d["id"]] = label }
+end
+merges
+  .select { |m| m["verdict"] == "confirm" }
+  .each { |m| [m["from"], m["into"]].each { |id| MENTIONS[id][m["id"]] = "merge #{m["id"]}" } }
+
 class Doc
   attr_reader :lines, :map
 
@@ -62,6 +79,13 @@ def evidence_lines(doc, d)
   d["evidence"].to_a.each { |e| doc << "  - evidence: #{e["url"]} — #{e["note"]}" }
 end
 
+def shared_lines(doc, macro_ids, entry_id)
+  macro_ids.each do |id|
+    others = MENTIONS[id].except(entry_id).values
+    doc << "  - ##{id} is also in: #{others.join(", ")}" if others.any?
+  end
+end
+
 def detail_lines(doc, d, macros)
   doc << "  - names: #{d["names"].join(" | ")}"
   doc << "  - #{users(d)}, #{d["inks"]} inks#{colours(d)}"
@@ -77,6 +101,7 @@ def detail_lines(doc, d, macros)
     ].compact
     doc << "  - verifier: #{verifier["verdict"]}#{" → suggests #{suggestion.join(" ")}" if suggestion.any?} — #{verifier["notes"]}"
   end
+  shared_lines(doc, referenced_macros(d), d["id"])
   doc << "  - human note: #{d["human_note"]}" if d["human_note"]
   doc << "  - clusterer history: #{d["history"].join("; ")}" if d["history"].any?
 end
@@ -97,6 +122,10 @@ proposals << ""
 proposals << "Annotate any line of an entry to change it, e.g. `reject` / `keep ignored`, `assign 1234`,"
 proposals << "`create`, `group with 567`, `unsure`, or a question. Entries without annotations are applied"
 proposals << "as shown. Disputed and unsure entries stay ignored unless annotated."
+proposals << ""
+proposals << "`MC 123` is one ignored micro cluster (a name users typed); each appears in exactly one entry."
+proposals << "`#456` is a macro cluster (a catalogue ink). One macro cluster can be the target of several"
+proposals << "entries and of a merge; such entries say where else it appears (`#456 is also in: ...`)."
 proposals << ""
 proposals << "Totals: #{counts.map { |k, v| "#{k} #{v}" }.join(", ")} · disputed #{decisions.count { |d| d["disputed"] }}"
 if data["incomplete"].any?
@@ -135,6 +164,7 @@ if merges.any?
         proposals << "  - final target: #{macro_line(macros[m["final_into"]])}"
       end
       proposals << "  - verifier: #{m["notes"]}"
+      shared_lines(proposals, [m["from"], m["into"]], m["id"])
       proposals << "  - human note: #{m["human_note"]}" if m["human_note"]
     end
     proposals << ""
