@@ -197,6 +197,14 @@ RSpec.describe InkClusterer do
           .at_least_once
       end
 
+      it "sends temperature 0" do
+        subject.perform
+
+        expect(WebMock).to have_requested(:post, "https://api.openai.com/v1/chat/completions")
+          .with { |req| JSON.parse(req.body)["temperature"] == 0 }
+          .at_least_once
+      end
+
       it "includes all required function definitions" do
         subject.perform
 
@@ -1142,10 +1150,12 @@ RSpec.describe InkClusterer do
       )
     end
 
-    it "assigns only the same ink, not a similar-looking word" do
+    it "assigns only the same ink, judged by its main name, not a similar-looking word" do
       expect(rules).to include(
-        "Assigning to an existing cluster: assign only when the name is the same ink, i.e. a clear spelling variant, a translation, or the same name with or without the line name. " \
-          "A similar-looking word is not enough. An unknown word that could combine or blend names of the maker's inks is a possible mix, not a typo. " \
+        "Assigning to an existing cluster: judge the name most users entered (the ink's main name), not a stray entry. " \
+          "Assign only when that name is the same ink, i.e. an exact match, a clear spelling variant, a translation, or the same name with or without the line name; " \
+          "an odd extra word in one entry (e.g. a suffix on the brand) does not prevent this. A similar-looking word is not enough. " \
+          "An unknown ink name that could combine or blend names of the maker's inks is a possible mix, not a typo. " \
           "When in doubt between a typo and a different name, do not assign."
       )
     end

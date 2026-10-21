@@ -44,6 +44,8 @@ class CheckInkClustering::Base
 
   attr_accessor :micro_cluster_agent_log
 
+  def temperature = 0
+
   EMPTY_MICRO_CLUSTER_EXPLANATION =
     "The micro cluster has no inks in it. It is not possible to cluster an empty micro cluster."
 

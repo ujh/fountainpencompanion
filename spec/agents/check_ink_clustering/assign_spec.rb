@@ -341,8 +341,10 @@ RSpec.describe CheckInkClustering::Assign do
       expect(directive).to include("translation of the cluster")
       expect(directive).to include("RGB color")
       expect(directive.squish).to include(
-        "Names that merely look similar are not enough: a similar-looking word is not a spelling variant. " \
-          "An unknown word that could combine or blend names of the maker's inks is a possible mix, not a typo. " \
+        "Judge the name most users entered (the ink's main name), not a stray entry: " \
+          "an exact match or a clear spelling variant of the cluster's name is a correct assignment even when one entry carries an odd extra word, e.g. a suffix on the brand. " \
+          "Names that merely look similar are not enough: a similar-looking word is not a spelling variant. " \
+          "An unknown ink name that could combine or blend names of the maker's inks is a possible mix, not a typo. " \
           "When in doubt between a typo and a different name, reject the assignment."
       )
       expect(directive.squish).to include(

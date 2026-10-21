@@ -154,10 +154,12 @@ class InkClusterer
       name, a generic name or a colour-only name. A decision that relies on this exception must say so
       in its explanation.
 
-    Assigning to an existing cluster: assign only when the name is the same ink, i.e. a clear spelling
-    variant, a translation, or the same name with or without the line name. A similar-looking word is
-    not enough. An unknown word that could combine or blend names of the maker's inks is a possible
-    mix, not a typo. When in doubt between a typo and a different name, do not assign.
+    Assigning to an existing cluster: judge the name most users entered (the ink's main name), not a
+    stray entry. Assign only when that name is the same ink, i.e. an exact match, a clear spelling
+    variant, a translation, or the same name with or without the line name; an odd extra word in one
+    entry (e.g. a suffix on the brand) does not prevent this. A similar-looking word is not enough. An
+    unknown ink name that could combine or blend names of the maker's inks is a possible mix, not a
+    typo. When in doubt between a typo and a different name, do not assign.
 
     Reasons to ignore an ink:
     * It is a mix of inks, including known mixes and personal mixes, even when many users entered them
@@ -360,6 +362,8 @@ class InkClusterer
   private
 
   attr_accessor :micro_cluster, :agent_log_id
+
+  def temperature = 0
 
   def recent_activity?
     last_update = micro_cluster.collected_inks.maximum(:updated_at)

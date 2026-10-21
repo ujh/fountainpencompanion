@@ -123,6 +123,14 @@ RSpec.describe CheckInkClustering::Create do
         expect(WebMock).to have_requested(:post, openai_url).at_least_once
       end
 
+      it "sends temperature 0" do
+        subject.perform
+
+        expect(WebMock).to have_requested(:post, openai_url)
+          .with { |req| JSON.parse(req.body)["temperature"] == 0 }
+          .at_least_once
+      end
+
       it "includes clustering explanation and micro cluster data in request" do
         subject.perform
 
