@@ -695,6 +695,17 @@ RSpec.describe InkClusterer do
         expect(UpdateMicroCluster.jobs.last["args"]).to eq([micro_cluster.id])
       end
 
+      it "unignores a micro cluster that an earlier approval ignored" do
+        micro_cluster.update!(ignored: true)
+
+        subject.approve!
+
+        expect(micro_cluster.reload).to have_attributes(
+          ignored: false,
+          macro_cluster_id: existing_macro_cluster.id
+        )
+      end
+
       it "can be approved by agent" do
         subject.approve!(agent: true)
         expect(subject.agent_log.reload.state).to eq("approved")
@@ -724,6 +735,15 @@ RSpec.describe InkClusterer do
         expect(subject.agent_log.state).to eq("approved")
         expect(UpdateMicroCluster.jobs.size).to eq(1)
         expect(UpdateMicroCluster.jobs.last["args"]).to eq([micro_cluster.id])
+      end
+
+      it "unignores a micro cluster that an earlier approval ignored" do
+        micro_cluster.update!(ignored: true)
+
+        subject.approve!
+
+        expect(micro_cluster.reload.ignored).to be false
+        expect(micro_cluster.macro_cluster).to be_present
       end
 
       it "uses a unique ink_name to avoid uniqueness violations" do
@@ -770,10 +790,37 @@ RSpec.describe InkClusterer do
       before { subject.agent_log.update!(extra_data: { "action" => "ignore_ink" }) }
 
       it "marks micro cluster as ignored" do
-        subject.approve!
+        expect { subject.approve! }.not_to change { UpdateMacroCluster.jobs.size }
 
         expect(micro_cluster.reload.ignored).to be true
         expect(subject.agent_log.state).to eq("approved")
+      end
+
+      context "when an earlier approval assigned the micro cluster" do
+        before do
+          micro_cluster.update!(macro_cluster: existing_macro_cluster)
+          UpdateMacroCluster.jobs.clear
+        end
+
+        it "unassigns it and updates the macro cluster it left" do
+          subject.approve!
+
+          expect(micro_cluster.reload).to have_attributes(ignored: true, macro_cluster_id: nil)
+          expect(UpdateMacroCluster.jobs.map { |job| job["args"] }).to eq(
+            [[existing_macro_cluster.id]]
+          )
+        end
+
+        it "defers UpdateMacroCluster enqueue until the outer transaction commits" do
+          size_inside = nil
+          ActiveRecord::Base.transaction do
+            subject.approve!
+            size_inside = UpdateMacroCluster.jobs.size
+          end
+
+          expect(size_inside).to eq(0)
+          expect(UpdateMacroCluster.jobs.size).to eq(1)
+        end
       end
     end
 
