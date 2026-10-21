@@ -94,7 +94,10 @@ to the row you were working on, whatever its verdict. `into` is the cluster to k
 more users or the official name). A separate step verifies every suggestion.
 
 `confidence` is `high`, `medium` or `low` for every verdict. `assign`, `create` and `unignore` need at
-least one evidence entry; `db:` entries are fine for catalogue facts. Use `flags` (array of short strings)
+least one evidence entry; `db:` entries are fine for catalogue facts. The ink you research is never
+evidence for itself: `lookup.rb macro` lists names of ignored micro clusters (this one included) under
+`ignored_synonyms`, and only `synonyms`, `inks` and `users` (not ignored) count. When the macro cluster
+holds nothing else, an `unignore` needs a page naming the ink, or `low` confidence and a flag. Use `flags` (array of short strings)
 for anything a human should look at, e.g. `"target cluster looks wrong"`.
 
 Then run `ruby .claude/skills/review-ignored-inks/scripts/check.rb OUTPUT_PATH` and fix the file until it
