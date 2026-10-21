@@ -59,13 +59,15 @@ class CheckInkClustering::Ignore < CheckInkClustering::Base
 
       Ink mixes can be determined for example by:
       * The ink name contains two ink names that are separated by a non-word character
-      * The ink name does not contain one of the known brand names
+      * The ink name does not contain one of the known brand names, but only when brand_catalogue_inks
+        is below 3 and ink_users is below 3
       * However, ink names can contain contain translations of the names separated by
         a non-word character, so be careful with that.
 
       You can search the web for the ink. When you do that keep the following in mind:
       * The results might not even contain the ink name. You need to double check that the ink name is actually present.
-      * Fewer results make it more likely that the ink does not exist.
+      * Fewer results make it more likely that the ink does not exist, except when the evidence rule
+        given with the ink data says that few or no results are not evidence that the ink does not exist.
       * More results make it more likely that the ink does exist.
 
       You can search the internal database using the similarity search function.

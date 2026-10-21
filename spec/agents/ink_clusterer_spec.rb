@@ -982,6 +982,96 @@ RSpec.describe InkClusterer do
 
       expect(parsed_data).not_to have_key("colors")
     end
+
+    it "sends the clustering evidence and the shared rules with the ink data" do
+      other_users = create_list(:user, 2)
+      other_users.each do |other_user|
+        create(:collected_ink, user: other_user, micro_cluster: micro_cluster)
+      end
+      same_brand_cluster =
+        create(:micro_cluster, simplified_brand_name: micro_cluster.simplified_brand_name)
+      create(:collected_ink, micro_cluster: same_brand_cluster)
+      create(
+        :micro_cluster,
+        simplified_brand_name: micro_cluster.simplified_brand_name,
+        macro_cluster: create(:macro_cluster)
+      )
+      CollectedInk.update_all(updated_at: 1.hour.ago)
+
+      subject.perform
+
+      expect(WebMock).to have_requested(:post, "https://api.openai.com/v1/chat/completions")
+        .with { |req|
+          user_content =
+            JSON.parse(req.body)["messages"].find { |m| m["role"] == "user" }["content"]
+          parsed_data =
+            JSON.parse(user_content.split("This is the data for the ink to cluster: ").last)
+
+          expect(user_content).to start_with(InkClusterer::SHARED_RULES)
+          expect(parsed_data["evidence"]).to eq(
+            "ink_users" => 3,
+            "brand_users" => 4,
+            "brand_catalogue_inks" => 2
+          )
+          true
+        }
+        .at_least_once
+    end
+  end
+
+  describe "system directive" do
+    it "limits the known brand mix heuristic to inks with little evidence" do
+      expect(InkClusterer::SYSTEM_DIRECTIVE).to include(
+        "The missing known brand name is only a sign of a mix when brand_catalogue_inks is below 3 and\n" \
+          "ink_users is below 3."
+      )
+    end
+
+    it "points the web search hints at the evidence rule" do
+      expect(InkClusterer::SYSTEM_DIRECTIVE).to include(
+        "Follow the evidence rule given with the ink data: for some inks few or no results are not evidence\n" \
+          "   that the ink does not exist."
+      )
+    end
+  end
+
+  describe "SHARED_RULES" do
+    subject(:rules) { InkClusterer::SHARED_RULES }
+
+    it "states the narrow evidence rule" do
+      expect(rules).to include(
+        "when ink_users is at least 3, or brand_catalogue_inks is at least 3"
+      )
+      expect(rules).to include(
+        "few or no web\nresults are not evidence that the ink does not exist"
+      )
+      expect(rules).to include("This does not make the ink real")
+      expect(rules).to include(
+        "never applies to a one-person label, i.e. a brand with no catalogue inks that at most\n2 users entered overall"
+      )
+      expect(rules).to include("Generic and placeholder brands")
+    end
+
+    it "lists the reasons to ignore an ink" do
+      [
+        "It is a mix of inks",
+        "It is an unidentified ink",
+        "It is an incomplete name",
+        "It is not an ink",
+        "including inks with \"custom\" as the line name",
+        "It is a placeholder",
+        "It is a generic name",
+        "It is only a colour name and the maker sells no ink of exactly that name",
+        "(e.g. Lamy Blue)",
+        "It is a one-person label"
+      ].each { |reason| expect(rules).to include(reason) }
+    end
+
+    it "treats ink additives as inks" do
+      expect(rules).to include(
+        "Ink additives (shimmer, glitter and similar products that are mixed into ink) are inks."
+      )
+    end
   end
 
   describe "error handling" do

@@ -123,8 +123,9 @@ class CheckInkClustering::Base
       names_as_elements: micro_cluster.all_names_as_elements
     }
     data[:colors] = micro_cluster.colors if micro_cluster.colors.present?
+    data[:evidence] = micro_cluster.clustering_evidence
 
-    "This is the data for the ink to cluster: #{data.to_json}"
+    "#{InkClusterer::SHARED_RULES}\nThis is the data for the ink to cluster: #{data.to_json}"
   end
 
   def micro_cluster

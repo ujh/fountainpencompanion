@@ -164,6 +164,25 @@ RSpec.describe CheckInkClustering::Assign do
         }
       end
 
+      it "sends the clustering evidence and the shared rules with the ink data" do
+        subject.perform
+
+        expect(WebMock).to have_requested(:post, openai_url).with { |req|
+          user_content =
+            JSON.parse(req.body)["messages"].find { |m| m["role"] == "user" }["content"]
+          ink_json =
+            user_content.split("This is the data for the ink to cluster: ").last.split("\n\n").first
+
+          expect(user_content).to include(InkClusterer::SHARED_RULES)
+          expect(JSON.parse(ink_json)["evidence"]).to eq(
+            "ink_users" => 1,
+            "brand_users" => 1,
+            "brand_catalogue_inks" => 1
+          )
+          true
+        }
+      end
+
       it "updates agent log with approval" do
         subject.perform
 

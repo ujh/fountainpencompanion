@@ -56,12 +56,13 @@ class CheckInkClustering::Create < CheckInkClustering::Base
       No new cluster should be created when:
       * The ink is a different spelling of the cluster
       * The ink is a translation of an existing cluster
-      * The ink does not exist at all
-      * The ink is a mix of inks
+      * There is evidence that the ink does not exist (see the evidence rule given with the ink data)
+      * One of the reasons to ignore an ink given with the ink data applies, e.g. the ink is a mix of inks
 
       Ink mixes can be determined for example by:
       * The ink name contains two ink names that are separated by a non-word character
-      * The ink name does not contain one of the known brand names
+      * The ink name does not contain one of the known brand names, but only when brand_catalogue_inks
+        is below 3 and ink_users is below 3
       * However, ink names can contain contain translations of the names separated by
         a non-word character, so be careful with that.
 

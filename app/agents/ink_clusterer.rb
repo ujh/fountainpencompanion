@@ -120,6 +120,39 @@ class InkClusterer
     end
   end
 
+  SHARED_RULES = <<~TEXT.freeze
+    Evidence and ignore rules. When anything else in your instructions differs, these rules win.
+
+    The "evidence" object in the ink data contains:
+    * ink_users: how many distinct users entered this ink
+    * brand_users: how many distinct users entered any ink of this brand
+    * brand_catalogue_inks: how many inks of this brand are in the catalogue (existing clusters).
+      Generic and placeholder brands ("Generic", "Unknown", "No name", "Unbranded" and similar) never
+      count as catalogued brands, so for them it is always 0.
+
+    Evidence rule: when ink_users is at least 3, or brand_catalogue_inks is at least 3, few or no web
+    results are not evidence that the ink does not exist, because small makers often have little or no
+    web presence. This does not make the ink real: all reasons to ignore an ink below still apply. The
+    evidence rule never applies to a one-person label, i.e. a brand with no catalogue inks that at most
+    2 users entered overall (brand_catalogue_inks is 0 and brand_users is 2 or less).
+
+    Reasons to ignore an ink:
+    * It is a mix of inks
+    * It is an unidentified ink: the user does not know which ink it is
+    * It is an incomplete name, e.g. only the brand and line name, with the line name typed into the ink
+      name field
+    * It is not an ink, e.g. a rollerball, ballpoint or gel refill, a pen or a cleaning solution
+    * It is an ink someone made themselves (DIY), including inks with "custom" as the line name
+    * It is a placeholder, a test entry or gibberish
+    * It is a generic name without an identifiable maker
+    * It is only a colour name and the maker sells no ink of exactly that name. Brand plus colour is a
+      real ink when the maker sells an ink by that name (e.g. Lamy Blue).
+    * It is a one-person label as defined above
+
+    Ink additives (shimmer, glitter and similar products that are mixed into ink) are inks. They are
+    catalogued like inks and are not ignored as "not an ink".
+  TEXT
+
   MODEL_ID = "gpt-4.1"
 
   DEBOUNCE_WINDOW = 30.seconds
@@ -153,6 +186,8 @@ class InkClusterer
     Note, that sometimes people create their own mixes of inks. These should be ignored. Often times these
     contain two ink names that are separated by a non-word character. Additionally, custom ink mixes
     most of the time do not use one of the know brand names (use the supplied function name to double check).
+    The missing known brand name is only a sign of a mix when brand_catalogue_inks is below 3 and
+    ink_users is below 3.
 
     Note, that sometimes people do not know the full name of an ink. These unidentified inks should also
     be ignored.
@@ -163,6 +198,8 @@ class InkClusterer
     1. The more results you get, the more likely it is that the ink is known.
     2. Even if there are many results, double check that the ink name is actually present. The results might
        not even contain the ink name.
+    3. Follow the evidence rule given with the ink data: for some inks few or no results are not evidence
+       that the ink does not exist.
   TEXT
 
   def initialize(micro_cluster_id, agent_log_id: nil)
@@ -389,7 +426,8 @@ class InkClusterer
       names_as_elements: micro_cluster.all_names_as_elements
     }
     data[:colors] = micro_cluster.colors if micro_cluster.colors.present?
+    data[:evidence] = micro_cluster.clustering_evidence
 
-    "This is the data for the ink to cluster: #{data.to_json}"
+    "#{SHARED_RULES}\nThis is the data for the ink to cluster: #{data.to_json}"
   end
 end
