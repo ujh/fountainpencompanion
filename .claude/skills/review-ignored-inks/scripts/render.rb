@@ -31,15 +31,16 @@ def referenced_macros(d)
   ).uniq
 end
 
-# Every entry that touches a macro cluster, so an entry can point to the others.
-MENTIONS = Hash.new { |h, k| h[k] = [] }
+# Every entry that touches a macro cluster, by entry id (micro cluster id or
+# merge id), so an entry can point to the others.
+MENTIONS = Hash.new { |h, k| h[k] = {} }
 decisions.each do |d|
   label = "MC #{d["id"]} (#{d["verdict"]}#{", disputed" if d["disputed"]})"
-  referenced_macros(d).each { |id| MENTIONS[id] << label }
+  referenced_macros(d).each { |id| MENTIONS[id][d["id"]] = label }
 end
 merges
   .select { |m| m["verdict"] == "confirm" }
-  .each { |m| [m["from"], m["into"]].each { |id| MENTIONS[id] << "merge #{m["id"]}" } }
+  .each { |m| [m["from"], m["into"]].each { |id| MENTIONS[id][m["id"]] = "merge #{m["id"]}" } }
 
 class Doc
   attr_reader :lines, :map
@@ -78,9 +79,9 @@ def evidence_lines(doc, d)
   d["evidence"].to_a.each { |e| doc << "  - evidence: #{e["url"]} — #{e["note"]}" }
 end
 
-def shared_lines(doc, macro_ids, own_label)
+def shared_lines(doc, macro_ids, entry_id)
   macro_ids.each do |id|
-    others = MENTIONS[id].reject { |label| label.start_with?(own_label) }
+    others = MENTIONS[id].except(entry_id).values
     doc << "  - ##{id} is also in: #{others.join(", ")}" if others.any?
   end
 end
@@ -100,7 +101,7 @@ def detail_lines(doc, d, macros)
     ].compact
     doc << "  - verifier: #{verifier["verdict"]}#{" → suggests #{suggestion.join(" ")}" if suggestion.any?} — #{verifier["notes"]}"
   end
-  shared_lines(doc, referenced_macros(d), "MC #{d["id"]} ")
+  shared_lines(doc, referenced_macros(d), d["id"])
   doc << "  - human note: #{d["human_note"]}" if d["human_note"]
   doc << "  - clusterer history: #{d["history"].join("; ")}" if d["history"].any?
 end
@@ -163,7 +164,7 @@ if merges.any?
         proposals << "  - final target: #{macro_line(macros[m["final_into"]])}"
       end
       proposals << "  - verifier: #{m["notes"]}"
-      shared_lines(proposals, [m["from"], m["into"]], "merge #{m["id"]}")
+      shared_lines(proposals, [m["from"], m["into"]], m["id"])
       proposals << "  - human note: #{m["human_note"]}" if m["human_note"]
     end
     proposals << ""
