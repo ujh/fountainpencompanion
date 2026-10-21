@@ -186,19 +186,25 @@ module IgnoredInksReview
   end
 
   # Details of the given macro clusters, in the order given. Ids that are not
-  # integers or do not exist are left out.
+  # integers or do not exist are left out. Inks, users and synonyms count only
+  # micro clusters that are not ignored; names of ignored micro clusters that
+  # still sit in the macro cluster are listed apart as ignored_synonyms.
   def macro_details(ids)
     ids = ids.grep(Integer)
     return [] if ids.empty?
 
     query(<<~SQL, ["{#{ids.join(",")}}"])
       select m.id, #{MACRO_NAME_SQL} as name, m.color, m.created_at::date as created, left(m.description, 200) as description,
-        (select count(*) from collected_inks ci join micro_clusters o on o.id = ci.micro_cluster_id where o.macro_cluster_id = m.id) as inks,
-        (select count(distinct ci.user_id) from collected_inks ci join micro_clusters o on o.id = ci.micro_cluster_id where o.macro_cluster_id = m.id) as users,
+        (select count(*) from collected_inks ci join micro_clusters o on o.id = ci.micro_cluster_id where o.macro_cluster_id = m.id and not o.ignored) as inks,
+        (select count(distinct ci.user_id) from collected_inks ci join micro_clusters o on o.id = ci.micro_cluster_id where o.macro_cluster_id = m.id and not o.ignored) as users,
         (select json_agg(s.name) from (
            select concat_ws(' / ', ci.brand_name, nullif(ci.line_name, ''), ci.ink_name) as name
            from collected_inks ci join micro_clusters o on o.id = ci.micro_cluster_id
-           where o.macro_cluster_id = m.id group by 1 order by count(*) desc limit 8) s) as synonyms
+           where o.macro_cluster_id = m.id and not o.ignored group by 1 order by count(*) desc limit 8) s) as synonyms,
+        (select json_agg(s.name) from (
+           select concat_ws(' / ', ci.brand_name, nullif(ci.line_name, ''), ci.ink_name) as name
+           from collected_inks ci join micro_clusters o on o.id = ci.micro_cluster_id
+           where o.macro_cluster_id = m.id and o.ignored group by 1 order by count(*) desc limit 8) s) as ignored_synonyms
       from macro_clusters m where m.id = any($1::bigint[])
     SQL
       .map { |row| format_macro(row) }
@@ -214,6 +220,7 @@ module IgnoredInksReview
       "inks" => row["inks"].to_i,
       "users" => row["users"].to_i,
       "synonyms" => IgnoredInksReview.json_column(row["synonyms"]) || [],
+      "ignored_synonyms" => IgnoredInksReview.json_column(row["ignored_synonyms"]) || [],
       "description" => row["description"]
     }
   end

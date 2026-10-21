@@ -25,7 +25,8 @@ The same read-only tools as the researcher (run from the repository root):
 ## Checks
 
 - Evidence: open each URL. Does it name this exact ink (brand and name)? Do `db:` claims match
-  `lookup.rb macro`?
+  `lookup.rb macro`? A name listed under `ignored_synonyms` (the ink under review or another ignored
+  one) proves nothing.
 - `assign`: is the target the same ink, not a sibling colour of the same line, not a different edition
   (shimmer, glitter, sheen, re-release under another name)? Is the target cluster itself sane (its
   synonyms are one ink)?

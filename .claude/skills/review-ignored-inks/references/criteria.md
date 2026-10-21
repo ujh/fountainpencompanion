@@ -114,10 +114,13 @@ Patterns learned in runs (pattern, verdict, why). Keep it short.
   several users plus a brand catalogue is the evidence, and the verifier checks it.
 - Users leave out the line ("Pilot Apricot Orange", "Robert Oster Polish", "Cafe Cally Spring Rain"):
   `assign` when the maker sells that ink name in one line only.
-- Line typed as ink ("Sailor Tea Time", "Stipula Calamo", "Monteverde Piet Mondrian", "De Atramentis
-  Deepwater Obsession"): `incomplete`.
+- Line or collection typed as ink ("Sailor Tea Time", "Stipula Calamo", "Monteverde Piet Mondrian", "De
+  Atramentis Deepwater Obsession", "Ferris Wheel Press Down the Rabbit Hole"): `incomplete`.
 - Renamed, translated or romanised inks with their own clusters (Noodler's Azure = Ottoman Azure, Kingdom
-  Note Japanese vs romanised vs English names, Pennonia Hungarian vs English): `merge_suggestions`.
+  Note Japanese vs romanised vs English names, Pennonia Hungarian vs English, Phoenix Feathers English vs
+  凤凰翎 names): `merge_suggestions`.
+- Birmingham Twinkle Sprinkle (Original Recipe, "Elixir" line) and Honeycomb Twinkle Sprinkle (gold) are
+  different additives.
 - Ignored but still assigned to the right macro cluster (Writech Black, Phoenix Feathers numbered inks):
   `unignore`.
 - "Pen Ink" / 钢水 (Chinese for fountain pen ink) as brand, a pen brand's bundled cartridges (Riimoo

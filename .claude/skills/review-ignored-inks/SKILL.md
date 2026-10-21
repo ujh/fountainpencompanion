@@ -74,12 +74,13 @@ repository root. Below, `S=.claude/skills/review-ignored-inks/scripts` and `RUN=
   - a change that was applied, but the cluster is ignored again: always
 - Priority among due clusters:
   1. ignored but still assigned to a macro cluster
-  2. ignored right after a rejected create: the clusterer's newest approved `ignore_ink` log directly
+  2. an exact brand-and-ink catalogue match (a spelling of an ink a previous run fixed lands here)
+  3. ignored right after a rejected create: the clusterer's newest approved `ignore_ink` log directly
      follows a rejected `create_new_cluster`, and at least 3 users entered the ink or the brand has at
      least 3 catalogue inks (placeholder brands from `MicroCluster::PLACEHOLDER_BRAND_NAMES` excluded;
      `export.rb` warns when it cannot read that list and then treats no brand as a placeholder)
-  3. revisits
-  4. most users, then an exact brand-and-ink catalogue match, then most recently updated
+  4. revisits
+  5. most users, then most recently updated
 
   Clusters of placeholder brands rank after all others.
 
@@ -89,8 +90,9 @@ repository root. Below, `S=.claude/skills/review-ignored-inks/scripts` and `RUN=
   admin ignored it), and `finalize.rb` splits its verdicts the same way, so the owner can judge how
   well the current prompts ignore.
 - Tell the owner the counts (`due`, `pending`, `never_reviewed`, `ignored_but_assigned`,
-  `ignored_after_rejected_create`, `latest_ignore_vs_prompt_change`) and roughly how long the run
-  takes (the 100-cluster trial run needed 1 triage, 10 research, 8 verify and 2 merge batches).
+  `same_brand_and_ink`, `ignored_after_rejected_create`, `latest_ignore_vs_prompt_change`) and roughly
+  how long the run takes (the 100-cluster trial run needed 1 triage, 10 research, 8 verify and 2 merge
+  batches).
 
 ## 2. Triage, research, verify loop
 
@@ -161,16 +163,20 @@ proposed change, then merge: every pair of duplicate macro clusters that researc
    (`merge_conflicts`); merge cycles are skipped.
 2. Read `01-changes.rb` yourself once: the summary line and decision count must match `decisions.json`.
 3. Give the owner the paths and the procedure:
-   - Copy the files to a production machine and run each first as a dry run
-     (`bin/rails runner FILE`), then with `APPLY=1`. In a console: set `ENV["APPLY"]`, then
-     `load "FILE"`. Dry-run and apply `01-changes.rb` before dry-running the `02-keep` files: until
-     its merges are applied, clusters that sit in a merged-away macro cluster show up as `SKIP` there.
+   - The owner runs them from another computer in a production console:
+     `fly console -a fountainpencompanion` (an ephemeral machine running `bin/rails console`), then
+     paste the whole file. Without `ENV["APPLY"]` it is a dry run; to apply, run
+     `ENV["APPLY"] = "1"` and paste the same file again. Dry-run and apply `01-changes.rb` before the
+     `02-keep` files, and run `ENV.delete("APPLY")` before pasting the next file for its dry run:
+     until the merges in `01-changes.rb` are applied, clusters that sit in a merged-away macro
+     cluster show up as `SKIP` in the `02-keep` files.
    - The dry run runs all units in one transaction (a savepoint per unit) and rolls it back, so it
      reports what the apply will do even where units depend on each other (two micro clusters leaving
      the same macro cluster, assigns to a merge target). The rows it changes stay locked until it ends.
      That is fine because it is short (the trial run's 108 decisions and 12 merges took under 2 seconds
-     on a copy of production), but it must run as one command: `bin/rails runner` or a single `load`,
-     never a transaction left open in a console. Applying runs each unit in its own transaction.
+     on a copy of production), but it must run as one command: the transaction opens and closes
+     within a single paste of the whole file; never leave a transaction open in the console. Applying runs each
+     unit in its own transaction.
    - Merges call the app's `MergeMacroClusters` operation; on a deploy without it they are skipped
      and reported, and the file can be run again later. The merge's review log (on the kept cluster)
      records what the merged-away cluster loses in `dropped_from_source`: its manual brand, line and ink

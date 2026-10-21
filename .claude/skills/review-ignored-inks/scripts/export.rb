@@ -197,10 +197,10 @@ def priority(candidate, placeholders)
   [
     placeholders.include?(candidate["simplified"][0]) ? 1 : 0,
     candidate["assigned_macro"] ? 0 : 1,
+    candidate["same_brand_and_ink"].any? ? 0 : 1,
     candidate["ignored_after_rejected_create"] ? 0 : 1,
     candidate["reviews"].any? ? 0 : 1,
     -candidate["users"],
-    candidate["same_brand_and_ink"].any? ? 0 : 1,
     -Date.parse(candidate["updated_at"]).jd,
     candidate["id"]
   ]
@@ -231,6 +231,8 @@ IgnoredInksReview.write_json(
     "ignored_but_assigned" => pending.count { |c| c["assigned_macro"] },
     "ignored_after_rejected_create" => pending.count { |c| c["ignored_after_rejected_create"] },
     "ignored_after_rejected_create_due" => due.count { |c| c["ignored_after_rejected_create"] },
+    "same_brand_and_ink" => pending.count { |c| c["same_brand_and_ink"].any? },
+    "same_brand_and_ink_due" => due.count { |c| c["same_brand_and_ink"].any? },
     "multi_user" => pending.count { |c| c["users"] > 1 },
     "clusterer_prompt_changed_at" => CLUSTERER_PROMPT_CHANGED_AT,
     "latest_ignore_vs_prompt_change" => {
