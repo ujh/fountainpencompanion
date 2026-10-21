@@ -20,8 +20,8 @@ class MergeMacroClusters
   def perform
     MacroCluster.transaction do
       [source, target].sort_by(&:id).each(&:lock!)
-      retire_create_approvals
       source.micro_clusters.update_all(macro_cluster_id: target.id)
+      retire_create_approvals
       move_ink_reviews
       move_ink_review_submissions
       repoint_pending_assignments
@@ -96,7 +96,7 @@ class MergeMacroClusters
       .where(
         agent_approved: true,
         owner_type: "MicroCluster",
-        owner_id: source.micro_clusters.select(:id)
+        owner_id: target.micro_clusters.select(:id)
       )
       .where("extra_data->>'action' = 'create_new_cluster'")
       .update_all(

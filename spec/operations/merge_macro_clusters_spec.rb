@@ -270,9 +270,32 @@ describe MergeMacroClusters do
     )
   end
 
+  it "takes the target's agent-approved create decisions out of the review queue" do
+    micro_cluster = create(:micro_cluster, macro_cluster: target)
+    log =
+      create(
+        :agent_log,
+        :ink_clusterer,
+        :approved,
+        :agent_approved,
+        owner: micro_cluster,
+        extra_data: {
+          "action" => "create_new_cluster"
+        }
+      )
+
+    merge
+
+    expect(AgentLog.agent_processed).not_to include(log)
+    expect(log.reload.extra_data).to eq(
+      "action" => "create_new_cluster",
+      "merged_into" => target.id
+    )
+  end
+
   it "leaves other approved decisions alone" do
     source_micro_cluster = create(:micro_cluster, macro_cluster: source)
-    target_micro_cluster = create(:micro_cluster, macro_cluster: target)
+    other_micro_cluster = create(:micro_cluster, macro_cluster: create(:macro_cluster))
     create_decision = { "action" => "create_new_cluster" }
     logs = [
       create(
@@ -280,7 +303,7 @@ describe MergeMacroClusters do
         :ink_clusterer,
         :approved,
         :agent_approved,
-        owner: target_micro_cluster,
+        owner: other_micro_cluster,
         extra_data: create_decision
       ),
       create(
