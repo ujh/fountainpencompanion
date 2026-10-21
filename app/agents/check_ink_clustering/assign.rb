@@ -62,7 +62,9 @@ class CheckInkClustering::Assign < CheckInkClustering::Base
       an odd extra word, e.g. a suffix on the brand. Names that merely look similar are not enough: a
       similar-looking word is not a spelling variant. An unknown ink name that could combine or blend
       names of the maker's inks is a possible mix, not a typo. When in doubt between a typo and a
-      different name, reject the assignment.
+      different name, reject the assignment. A cluster whose names are the same name with different
+      line or format words (bottle, cartridge, standard line, product codes) is one ink, and an exact
+      match to that name is a correct assignment.
 
       An ink that is only a brand plus a colour name, with or without a line, follows the colour-only
       rule given with the ink data: assign it only to an ink of exactly that name or, when a line is

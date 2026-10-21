@@ -197,14 +197,6 @@ RSpec.describe InkClusterer do
           .at_least_once
       end
 
-      it "sends temperature 0" do
-        subject.perform
-
-        expect(WebMock).to have_requested(:post, "https://api.openai.com/v1/chat/completions")
-          .with { |req| JSON.parse(req.body)["temperature"] == 0 }
-          .at_least_once
-      end
-
       it "includes all required function definitions" do
         subject.perform
 
@@ -1156,7 +1148,15 @@ RSpec.describe InkClusterer do
           "Assign only when that name is the same ink, i.e. an exact match, a clear spelling variant, a translation, or the same name with or without the line name; " \
           "an odd extra word in one entry (e.g. a suffix on the brand) does not prevent this. A similar-looking word is not enough. " \
           "An unknown ink name that could combine or blend names of the maker's inks is a possible mix, not a typo. " \
-          "When in doubt between a typo and a different name, do not assign."
+          "When in doubt between a typo and a different name, do not assign. " \
+          "A cluster whose names are the same name with different line or format words (bottle, cartridge, standard line, product codes) is one ink, and an exact match to that name is assigned to it."
+      )
+    end
+
+    it "treats line and format variants of one name as one ink for colour names" do
+      expect(rules).to include(
+        "then the name is shorthand for that ink, so assign it there. " \
+          "Names that differ only in line or format words (bottle, cartridge, standard line, product codes) are one ink, not several."
       )
     end
 

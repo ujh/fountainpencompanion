@@ -159,7 +159,9 @@ class InkClusterer
     variant, a translation, or the same name with or without the line name; an odd extra word in one
     entry (e.g. a suffix on the brand) does not prevent this. A similar-looking word is not enough. An
     unknown ink name that could combine or blend names of the maker's inks is a possible mix, not a
-    typo. When in doubt between a typo and a different name, do not assign.
+    typo. When in doubt between a typo and a different name, do not assign. A cluster whose names are
+    the same name with different line or format words (bottle, cartridge, standard line, product codes)
+    is one ink, and an exact match to that name is assigned to it.
 
     Reasons to ignore an ink:
     * It is a mix of inks, including known mixes and personal mixes, even when many users entered them
@@ -184,6 +186,8 @@ class InkClusterer
       line sells an ink of exactly that name (e.g. Lamy Blue; a line's own colour name, even in another
       language, is not a colour-only name), or when a line is given and the catalogue has exactly one
       ink of that colour in that line: then the name is shorthand for that ink, so assign it there.
+      Names that differ only in line or format words (bottle, cartridge, standard line, product codes)
+      are one ink, not several.
       Otherwise ignore it; do not assign it to the brand's nearest named ink (Montblanc Green is not
       Montblanc Irish Green).
     * It is a one-person label: a name a user gives their own mixes or DIY inks that no maker or shop
@@ -362,8 +366,6 @@ class InkClusterer
   private
 
   attr_accessor :micro_cluster, :agent_log_id
-
-  def temperature = 0
 
   def recent_activity?
     last_update = micro_cluster.collected_inks.maximum(:updated_at)
