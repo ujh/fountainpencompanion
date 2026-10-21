@@ -59,7 +59,7 @@ repository root. Below, `S=.claude/skills/review-ignored-inks/scripts` and `RUN=
 
 - If a run directory from an unfinished run exists, resume it: skip to the loop, `next.rb` picks up where
   it stopped (an input batch without an output is handed out again).
-- Otherwise create `RUN` for today and run `ruby $S/export.rb $RUN [--limit N]` (default 100; ask
+- Otherwise create `RUN` for today and run `ruby $S/export.rb $RUN [--limit N]` (default 25, small enough to review in one sitting; ask
   the owner if they want a different size). A run reviews at most N clusters; every reviewed cluster gets
   an `IgnoredInkReview` log when the scripts are applied, and the next run continues with the rest.
   Brands in `UpdateMicroCluster::IGNORED_BRANDS` are left out. The export takes under a minute.

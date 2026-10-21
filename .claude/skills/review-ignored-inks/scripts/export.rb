@@ -1,6 +1,6 @@
 # Exports every ignored micro cluster that still has inks into
 # RUN_DIR/candidates.jsonl and picks the ones to review in this run into
-# RUN_DIR/pending.jsonl (at most LIMIT, default 100, highest priority first).
+# RUN_DIR/pending.jsonl (at most LIMIT, default 25, highest priority first).
 #
 #   ruby export.rb RUN_DIR [--limit N]
 #
@@ -24,7 +24,7 @@ REJECTED_CREATE_MIN_CATALOGUE_INKS = 3
 CLUSTERER_PROMPT_CHANGED_AT = "2026-10-21T11:51:47Z"
 
 dir = IgnoredInksReview.run_dir(ARGV[0])
-limit = 100
+limit = 25
 if (flag = ARGV.index("--limit"))
   limit = ARGV[flag + 1].to_s.match?(/\A[1-9]\d*\z/) ? ARGV[flag + 1].to_i : nil
   abort "Usage: export.rb RUN_DIR [--limit N] (N a positive number)" unless limit
