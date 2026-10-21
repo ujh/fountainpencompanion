@@ -57,4 +57,8 @@ class CheckInkClustering::Human < CheckInkClustering::Base
   def tools
     [SendEmail.new, PreviousAgentLogs.new(micro_cluster_agent_log, agent_log)]
   end
+
+  def micro_cluster_data
+    "This is the data for the ink to cluster: #{ink_data.to_json}"
+  end
 end

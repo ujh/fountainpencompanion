@@ -317,7 +317,10 @@ RSpec.describe CheckInkClustering::Ignore do
       expect(directive).to include("unidentified ink")
       expect(directive).to include("someone created themselves")
       expect(directive).to include("incomplete entry")
-      expect(directive).to include("not an ink")
+      expect(directive).to include(
+        "It references a product that is not an ink, e.g. a rollberball or ballpoint pen. Ink additives\n" \
+          "  (shimmer, glitter and similar) are inks and are not ignored."
+      )
       expect(directive).to include("separated by a non-word character")
       expect(directive).to include(
         "The ink name does not contain one of the known brand names, but only when brand_catalogue_inks\n" \

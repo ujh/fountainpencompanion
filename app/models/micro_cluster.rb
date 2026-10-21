@@ -14,6 +14,7 @@ class MicroCluster < ApplicationRecord
     diy
     generic
     genericcartridge
+    homebrew
     homemade
     idk
     misc

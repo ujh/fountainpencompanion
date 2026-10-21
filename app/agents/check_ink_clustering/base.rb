@@ -118,14 +118,18 @@ class CheckInkClustering::Base
   end
 
   def micro_cluster_data
+    data = ink_data.merge(evidence: micro_cluster.clustering_evidence)
+
+    "#{InkClusterer::SHARED_RULES}\nThis is the data for the ink to cluster: #{data.to_json}"
+  end
+
+  def ink_data
     data = {
       names: micro_cluster.all_names,
       names_as_elements: micro_cluster.all_names_as_elements
     }
     data[:colors] = micro_cluster.colors if micro_cluster.colors.present?
-    data[:evidence] = micro_cluster.clustering_evidence
-
-    "#{InkClusterer::SHARED_RULES}\nThis is the data for the ink to cluster: #{data.to_json}"
+    data
   end
 
   def micro_cluster

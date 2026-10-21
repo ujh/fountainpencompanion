@@ -133,8 +133,9 @@ class InkClusterer
     Evidence rule: when ink_users is at least 3, or brand_catalogue_inks is at least 3, few or no web
     results are not evidence that the ink does not exist, because small makers often have little or no
     web presence. This does not make the ink real: all reasons to ignore an ink below still apply. The
-    evidence rule never applies to a one-person label, i.e. a brand with no catalogue inks that at most
-    2 users entered overall (brand_catalogue_inks is 0 and brand_users is 2 or less).
+    evidence rule does not apply when brand_catalogue_inks is 0 and brand_users is 2 or less. These
+    counts alone are never a reason to ignore an ink: new makers, collaborations and misspelled brand
+    names start that way.
 
     Reasons to ignore an ink:
     * It is a mix of inks
@@ -147,7 +148,8 @@ class InkClusterer
     * It is a generic name without an identifiable maker
     * It is only a colour name and the maker sells no ink of exactly that name. Brand plus colour is a
       real ink when the maker sells an ink by that name (e.g. Lamy Blue).
-    * It is a one-person label as defined above
+    * It is a one-person label: a name a user gives their own mixes or DIY inks that no maker or shop
+      sells. Few users or no catalogue inks alone never make a brand a one-person label.
 
     Ink additives (shimmer, glitter and similar products that are mixed into ink) are inks. They are
     catalogued like inks and are not ignored as "not an ink".
@@ -166,7 +168,8 @@ class InkClusterer
     3. Ignore the ink if it is a mix of inks or an unidentified ink.
     3.1 You can also ignore an ink if the user made a mistake and only provided the brand and line
         data of the ink. Usually, the line data is actually ink the ink name field by mistake.
-    3.2 Products that are not actually inks, like rollerball refills, should also be ignored.
+    3.2 Products that are not actually inks, like rollerball refills, should also be ignored. Ink
+        additives (shimmer, glitter and similar) are inks and are not ignored.
     3.3 Inks with "custom" as the line name should be ignored as well
     4. Hand over the ink to a human to do the assignment if you are not sure.
 

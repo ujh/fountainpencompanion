@@ -79,6 +79,7 @@ RSpec.describe MicroCluster do
     it "lists the placeholder brands in their simplified form" do
       expect(MicroCluster::PLACEHOLDER_BRAND_NAMES).to include(
         "generic",
+        "homebrew",
         "unknown",
         "noname",
         "unbranded"

@@ -1027,6 +1027,19 @@ RSpec.describe InkClusterer do
       )
     end
 
+    it "treats ink additives as inks in the not-an-ink rule" do
+      expect(InkClusterer::SYSTEM_DIRECTIVE).to include(
+        "3.2 Products that are not actually inks, like rollerball refills, should also be ignored. Ink\n" \
+          "    additives (shimmer, glitter and similar) are inks and are not ignored."
+      )
+    end
+
+    it "keeps ignoring inks with custom as the line name" do
+      expect(InkClusterer::SYSTEM_DIRECTIVE).to include(
+        "3.3 Inks with \"custom\" as the line name should be ignored as well"
+      )
+    end
+
     it "points the web search hints at the evidence rule" do
       expect(InkClusterer::SYSTEM_DIRECTIVE).to include(
         "Follow the evidence rule given with the ink data: for some inks few or no results are not evidence\n" \
@@ -1047,9 +1060,19 @@ RSpec.describe InkClusterer do
       )
       expect(rules).to include("This does not make the ink real")
       expect(rules).to include(
-        "never applies to a one-person label, i.e. a brand with no catalogue inks that at most\n2 users entered overall"
+        "evidence rule does not apply when brand_catalogue_inks is 0 and brand_users is 2 or less"
       )
       expect(rules).to include("Generic and placeholder brands")
+    end
+
+    it "says that the counts alone are never a reason to ignore an ink" do
+      expect(rules).to include(
+        "These\ncounts alone are never a reason to ignore an ink: new makers, collaborations and misspelled brand\nnames start that way."
+      )
+      expect(rules).to include(
+        "Few users or no catalogue inks alone never make a brand a one-person label."
+      )
+      expect(rules).not_to include("one-person label as defined above")
     end
 
     it "lists the reasons to ignore an ink" do
@@ -1063,7 +1086,7 @@ RSpec.describe InkClusterer do
         "It is a generic name",
         "It is only a colour name and the maker sells no ink of exactly that name",
         "(e.g. Lamy Blue)",
-        "It is a one-person label"
+        "It is a one-person label: a name a user gives their own mixes or DIY inks that no maker or shop\n  sells."
       ].each { |reason| expect(rules).to include(reason) }
     end
 
