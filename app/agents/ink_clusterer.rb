@@ -337,6 +337,8 @@ class InkClusterer
       agent_log.lock!
       return if agent_log.approved?
 
+      micro_cluster.lock!
+
       # The inks can move to another micro cluster between the run and the
       # approval (e.g. a typo gets fixed). A new macro cluster created for an
       # empty micro cluster would never get a name and stays orphaned.
@@ -348,14 +350,18 @@ class InkClusterer
 
       case agent_log.extra_data["action"]
       when "assign_to_cluster"
-        micro_cluster.update!(macro_cluster_id: agent_log.extra_data["cluster_id"])
+        micro_cluster.update!(macro_cluster_id: agent_log.extra_data["cluster_id"], ignored: false)
         after_commit { UpdateMicroCluster.perform_async(micro_cluster.id) }
       when "create_new_cluster"
         cluster = MacroCluster.create!(ink_name: SecureRandom.uuid)
-        micro_cluster.update!(macro_cluster_id: cluster.id)
+        micro_cluster.update!(macro_cluster_id: cluster.id, ignored: false)
         after_commit { UpdateMicroCluster.perform_async(micro_cluster.id) }
       when "ignore_ink"
-        micro_cluster.update!(ignored: true)
+        previous_macro_cluster_id = micro_cluster.macro_cluster_id
+        micro_cluster.update!(ignored: true, macro_cluster_id: nil)
+        if previous_macro_cluster_id
+          after_commit { UpdateMacroCluster.perform_async(previous_macro_cluster_id) }
+        end
       when "hand_over_to_human"
         micro_cluster.touch # Move it to the end of the queue for now
       end
