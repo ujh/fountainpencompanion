@@ -48,7 +48,8 @@ yarn-debug.log*
 # Crush local state
 .crush/
 
-.claude/
+/.claude/*
+!/.claude/skills/
 
 # Local execution plans for larger changes (tracked design docs stay in docs/).
 /plans/
