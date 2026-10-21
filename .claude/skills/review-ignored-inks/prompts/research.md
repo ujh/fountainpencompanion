@@ -41,7 +41,9 @@ All scripts are read-only. Run them from the repository root.
    stop early when the case is clear (an obvious mix needs none).
 4. Decide:
    - `keep_ignored` with a category when the criteria apply
-   - `assign` with `cluster_id` when it is the same ink as that macro cluster
+   - `assign` with `cluster_id` when it is the same ink as that macro cluster. When two macro clusters
+     are the same ink, assign to the one to keep (the `into` of your `merge_suggestions`), not the
+     duplicate
    - `create` with `proposed_name` when it is a real ink without a cluster; list other ignored micro
      cluster ids that are the same ink in `group_with` (found via `neighbours`/`search`)
    - `unignore` only when `assigned_macro` is set and that cluster is right
