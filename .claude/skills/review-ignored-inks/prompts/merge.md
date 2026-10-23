@@ -27,6 +27,9 @@ Read-only, run from the repository root:
   of a base ink, re-formulations sold under a new name, and different bottle sizes of one ink with
   different names are judged on whether the maker sells them as different inks.
 - Colours and synonyms of both clusters agree.
+- One user owning both clusters: separate samples entered the same day point to different inks. Entering
+  a whole line at once (both labels of the same inks), or a sample and then a bottle much later, is no
+  evidence against a merge.
 - Direction: keep the cluster with the official or more complete name; when equal, the one with more
   users. Swap `from` and `into` if needed.
 
