@@ -93,7 +93,10 @@ Write a JSON array to the output path you were given, every input id exactly onc
 When you notice two macro clusters that are the same ink (a renamed ink, a translated name, a spelling
 variant that got its own cluster), add `"merge_suggestions": [{ "from": 10844, "into": 8975, "reason": "..." }]`
 to the row you were working on, whatever its verdict. `into` is the cluster to keep (usually the one with
-more users or the official name). A separate step verifies every suggestion.
+more users or the official name). This holds for every duplicate you come across, also ones unrelated to
+the ink you research; three clusters of one ink are two pairs into the same `into`. A separate step
+verifies every suggestion, so a likely duplicate is enough. Duplicates mentioned only in your reply are
+lost.
 
 `confidence` is `high`, `medium` or `low` for every verdict. `assign`, `create` and `unignore` need at
 least one evidence entry; `db:` entries are fine for catalogue facts. The ink you research is never

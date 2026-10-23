@@ -9,6 +9,9 @@ module IgnoredInksReview
   ROOT = File.expand_path("../../../../..", __dir__)
   STATE_DIR = File.join(ROOT, "tmp", "ignored-inks-review")
   DATABASE_URL_FILE = File.join(STATE_DIR, "database_url")
+  # Duplicate macro cluster pairs ([{from, into, reason}]) left for the next
+  # run; export.rb moves them into the new run's merge-seeds.json.
+  MERGE_BACKLOG = File.join(STATE_DIR, "merge-backlog.json")
 
   REVIEW_LOG_NAME = "IgnoredInkReview".freeze
 

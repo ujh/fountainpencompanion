@@ -6,6 +6,8 @@
 #
 # A cluster is due for review when it has no IgnoredInkReview log yet, or when
 # its latest one says it should be looked at again (see revisit_due?).
+# Duplicate pairs left in the merge backlog by earlier runs move into
+# RUN_DIR/merge-seeds.json.
 require_relative "lib/common"
 
 UNSURE_RECHECK_DAYS = 180
@@ -218,6 +220,15 @@ pending = due.sort_by { |candidate| priority(candidate, placeholders) }.first(li
 
 IgnoredInksReview.write_jsonl(File.join(dir, "candidates.jsonl"), candidates)
 IgnoredInksReview.write_jsonl(File.join(dir, "pending.jsonl"), pending)
+
+backlog = []
+if File.exist?(IgnoredInksReview::MERGE_BACKLOG)
+  backlog = IgnoredInksReview.read_json(IgnoredInksReview::MERGE_BACKLOG)
+  seeds_path = File.join(dir, "merge-seeds.json")
+  seeds = File.exist?(seeds_path) ? IgnoredInksReview.read_json(seeds_path) : []
+  IgnoredInksReview.write_json(seeds_path, seeds + backlog)
+  File.delete(IgnoredInksReview::MERGE_BACKLOG)
+end
 IgnoredInksReview.write_json(
   File.join(dir, "export.json"),
   {
@@ -234,6 +245,7 @@ IgnoredInksReview.write_json(
     "same_brand_and_ink" => pending.count { |c| c["same_brand_and_ink"].any? },
     "same_brand_and_ink_due" => due.count { |c| c["same_brand_and_ink"].any? },
     "multi_user" => pending.count { |c| c["users"] > 1 },
+    "merge_seeds_from_backlog" => backlog.size,
     "clusterer_prompt_changed_at" => CLUSTERER_PROMPT_CHANGED_AT,
     "latest_ignore_vs_prompt_change" => {
       "due" => due.map { |c| c["ignored_vs_prompt_change"] }.tally,
