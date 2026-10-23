@@ -120,7 +120,13 @@ Patterns learned in runs (pattern, verdict, why). Keep it short.
   Note Japanese vs romanised vs English names, Pennonia Hungarian vs English, Phoenix Feathers English vs
   凤凰翎 names): `merge_suggestions`.
 - Kingdom Note Genji inks: keep the official romanised name (Fuyu no Onkata, 11591); English renderings
-  (Winter Way, Winter Lady) and the Japanese name are the same ink.
+  (Winter Way, Winter Lady) and the Japanese name are the same ink. Colours of Time (刻の色) names in kana
+  or English are the romanised inks (よるのなごり = Remaining Night = Zanya 残夜, 9440).
+- Kingdom Note Biology series clusters use scientific names; Japanese common names (Kiji, Hoteiuo,
+  Moegitake, Nihonzarigani) and English names (Lidth's Jay, Rhinoceros Beetle, Mandarin Duck) are the same
+  inks. Keep the scientific name.
+- Taccia Jeans (TFPI-WD401-1 to -7) are seven inks, each with a Japanese/UK and a US name (Clear Navy =
+  Indigo, Powder Blue = Light Washed, Aqua Blue = Grey). Keep the US names.
 - Pennonia "Shimmer" or "Shimmer Additive" is the Csillám line. The Cult Pens exclusives are Jade =
   Csillám Jáde (14391) and Lemon Yellow = Csillám Citromsárga (19055).
 - Bungubox Mocha is Piano Mahogany (891), sold as "Piano Mahogany (Mocha)".
