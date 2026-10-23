@@ -119,6 +119,19 @@ Patterns learned in runs (pattern, verdict, why). Keep it short.
 - Renamed, translated or romanised inks with their own clusters (Noodler's Azure = Ottoman Azure, Kingdom
   Note Japanese vs romanised vs English names, Pennonia Hungarian vs English, Phoenix Feathers English vs
   凤凰翎 names): `merge_suggestions`.
+- Kingdom Note Genji inks: keep the official romanised name (Fuyu no Onkata, 11591); English renderings
+  (Winter Way, Winter Lady) and the Japanese name are the same ink.
+- Pennonia "Shimmer" or "Shimmer Additive" is the Csillám line. The Cult Pens exclusives are Jade =
+  Csillám Jáde (14391) and Lemon Yellow = Csillám Citromsárga (19055).
+- Bungubox Mocha is Piano Mahogany (891), sold as "Piano Mahogany (Mocha)".
+- Shop exclusives entered under the maker's brand (Journal This P'inked, Laugh & dare as Diamine): `assign`
+  to the exclusive's cluster when it already lists that brand and name.
+- Product or cartridge codes in the line (Writech W-1784): the ink name decides. Erasable inks are not the
+  plain colour (Writech Erasable Blue is not Writech Blue).
+- A bare colour that exactly matches a catalogue ink (Montblanc Green, Montblanc Rouge, Pilot Navy) is not
+  evidence: `unidentified` unless the maker sells exactly one ink by that name.
+- The colour of a one-user cluster is no reason to reject on its own: it is one user's swatch, and
+  chromatographic inks (Malevich Wild Mustang) show several hues.
 - Birmingham Twinkle Sprinkle (Original Recipe, "Elixir" line) and Honeycomb Twinkle Sprinkle (gold) are
   different additives.
 - Ignored but still assigned to the right macro cluster (Writech Black, Phoenix Feathers numbered inks):

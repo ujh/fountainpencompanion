@@ -54,8 +54,10 @@ Write a JSON array to the output path you were given, every input `id` exactly o
 ```
 
 When the right pair is a different one (for example a third cluster is the one to keep), reject the
-pair you were given and add `"merge_suggestions": [{ "from", "into", "reason" }]` to its row; new pairs are
-checked in a follow-up batch.
+pair you were given and add `"merge_suggestions": [{ "from", "into", "reason" }]` to its row. Add
+`merge_suggestions` to any row, whatever its verdict, for every other duplicate you come across: a third
+cluster of the same ink, or duplicates of other inks of the brand. New pairs are checked in a follow-up
+batch. Duplicates mentioned only in your reply are lost.
 
 Then run `ruby .claude/skills/review-ignored-inks/scripts/check.rb OUTPUT_PATH` and fix the file until it
 prints `OK`. Reply with the check output and one line per pair: `id verdict from -> into short reason`.

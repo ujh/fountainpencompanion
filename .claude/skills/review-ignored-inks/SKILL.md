@@ -39,11 +39,12 @@ reviewable production scripts. It never writes to the database itself.
   prompts/{triage,research,verify,merge}.md   subagent instructions (subagents read these themselves)
   references/criteria.md                what counts as correctly ignored; "Known cases" grows per run
   scripts/                              read-only helpers, see the header of each file
+tmp/ignored-inks-review/merge-backlog.json    duplicate pairs left for the next run (gitignored)
 tmp/ignored-inks-review/runs/<YYYY-MM-DD>/   run data (gitignored), kept after the run
   candidates.jsonl, pending.jsonl       export of all ignored clusters / those to review this run
   export.json                           export counts (due, pending, priority buckets)
   {triage,research,verify,merge}/in-NNN.jsonl, out-NNN.json   batches
-  merge-seeds.json                      duplicate macro cluster pairs added by you
+  merge-seeds.json                      duplicate macro cluster pairs added by you or the backlog
   redone/                               results replaced via redo.rb
   overrides.json                        owner's corrections from the review
   decisions.json                        merged result
@@ -62,7 +63,9 @@ repository root. Below, `S=.claude/skills/review-ignored-inks/scripts` and `RUN=
 - Otherwise create `RUN` for today and run `ruby $S/export.rb $RUN [--limit N]` (default 25, small enough to review in one sitting; ask
   the owner if they want a different size). A run reviews at most N clusters; every reviewed cluster gets
   an `IgnoredInkReview` log when the scripts are applied, and the next run continues with the rest.
-  Brands in `UpdateMicroCluster::IGNORED_BRANDS` are left out. The export takes under a minute.
+  Brands in `UpdateMicroCluster::IGNORED_BRANDS` are left out. The export takes under a minute. It also
+  moves the pairs in `merge-backlog.json` into the run's `merge-seeds.json`, so they go through this
+  run's merge stage.
 - Do not start a new run before the owner has applied the previous run's console scripts. The review
   logs they write are what marks clusters as reviewed; without them the new run reviews the same
   clusters again.
@@ -90,9 +93,9 @@ repository root. Below, `S=.claude/skills/review-ignored-inks/scripts` and `RUN=
   admin ignored it), and `finalize.rb` splits its verdicts the same way, so the owner can judge how
   well the current prompts ignore.
 - Tell the owner the counts (`due`, `pending`, `never_reviewed`, `ignored_but_assigned`,
-  `same_brand_and_ink`, `ignored_after_rejected_create`, `latest_ignore_vs_prompt_change`) and roughly
-  how long the run takes (the 100-cluster trial run needed 1 triage, 10 research, 8 verify and 2 merge
-  batches).
+  `same_brand_and_ink`, `ignored_after_rejected_create`, `merge_seeds_from_backlog`,
+  `latest_ignore_vs_prompt_change`) and roughly how long the run takes (the 100-cluster trial run needed
+  1 triage, 10 research, 8 verify and 2 merge batches).
 
 ## 2. Triage, research, verify loop
 
@@ -119,11 +122,15 @@ Repeat until `next.rb` says the stage is `review`:
 
 Stages run in order: all triage first (clusters already in a macro cluster or with an exact
 brand-and-ink match skip triage), then research of everything triage flagged, then verification of every
-proposed change, then merge: every pair of duplicate macro clusters that research or verify suggested
-(`merge_suggestions`) is checked by a merge verifier, who also picks which cluster to keep.
+proposed change, then merge: every pair of duplicate macro clusters that research, verify or an earlier
+merge batch suggested (`merge_suggestions`) is checked by a merge verifier, who also picks which cluster
+to keep. Duplicates count whether or not an ignored ink led to them: merging any confirmed pair is in
+scope, and the merge stage runs until no new pairs come up.
 
 - Subagents sometimes report duplicates or follow-ups in prose instead of `merge_suggestions`. Add such
-  pairs to `$RUN/merge-seeds.json` (`[{ "from", "into", "reason" }]`) before the merge stage starts.
+  pairs to `$RUN/merge-seeds.json` (`[{ "from", "into", "reason" }]`) before the merge stage ends;
+  `next.rb` then hands them out. Pairs that come up after the owner's review, or that the owner wants to
+  leave for later, go into `merge-backlog.json` (same format) for the next run.
 - When the owner changes a rule mid-run, or an item needs another look, update
   `references/criteria.md` and send the affected ids back with `ruby $S/redo.rb $RUN <stage> ID...`
   (results move to `$RUN/redone/`, `next.rb` hands the ids out again). Mention the rule change in the

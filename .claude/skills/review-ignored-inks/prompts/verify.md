@@ -56,7 +56,9 @@ Write a JSON array to the output path you were given, every input id exactly onc
 ```
 
 If you find duplicate macro clusters along the way, add `merge_suggestions` as described in
-`prompts/research.md` (`[{ "from", "into", "reason" }]`); they are verified separately.
+`prompts/research.md` (`[{ "from", "into", "reason" }]`) to the row you were working on, also for
+duplicates unrelated to that ink; they are verified separately. Duplicates mentioned only in your reply
+are lost.
 
 `verdict` is `confirm` or `reject`. When you confirm a `create` and find other ignored micro clusters that
 are the same ink, list their ids in `suggested_group_with`. On `reject`, say what is wrong and, if you found the right answer,
