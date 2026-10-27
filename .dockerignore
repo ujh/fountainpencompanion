@@ -34,7 +34,6 @@
 
 # Editor, tooling and local agent state
 /.claude/
-/.crush/
 /.ruby-lsp/
 /.zed/
 /.vscode/

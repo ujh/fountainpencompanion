@@ -42,9 +42,6 @@ js-coverage/
 .vscode
 .DS_Store
 
-# Crush local state
-.crush/
-
 /.claude/*
 !/.claude/skills/
 
