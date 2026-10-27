@@ -28,5 +28,5 @@ updates:
       interval: daily
       time: "04:00"
     ignore:
-      - dependency-name: "node"
+      - dependency-name: "library/node"
         update-types: ["version-update:semver-major"]
