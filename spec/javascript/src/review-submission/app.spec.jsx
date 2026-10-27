@@ -1,6 +1,6 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { rest } from "msw";
+import { HttpResponse, http } from "msw";
 import { setupServer } from "msw/node";
 import { App } from "review-submission/app";
 import { accountHandlers } from "../../support/accountHandlers";
@@ -22,8 +22,8 @@ describe("ReviewSubmission App", () => {
 
   it("shows success message on successful submission", async () => {
     server.use(
-      rest.post(submitUrl, (req, res, ctx) => {
-        return res(ctx.status(200));
+      http.post(submitUrl, () => {
+        return new HttpResponse(null);
       })
     );
 
@@ -43,14 +43,14 @@ describe("ReviewSubmission App", () => {
 
   it("shows error message when submission fails with validation errors", async () => {
     server.use(
-      rest.post(submitUrl, (req, res, ctx) => {
-        return res(
-          ctx.status(422),
-          ctx.json({
+      http.post(submitUrl, () => {
+        return HttpResponse.json(
+          {
             errors: [
               "Url Instagram URLs are not supported as image previews do not work for Instagram posts"
             ]
-          })
+          },
+          { status: 422 }
         );
       })
     );
@@ -74,9 +74,9 @@ describe("ReviewSubmission App", () => {
   it("disables the button while submitting", async () => {
     let resolveRequest;
     server.use(
-      rest.post(submitUrl, (req, res, ctx) => {
+      http.post(submitUrl, () => {
         return new Promise((resolve) => {
-          resolveRequest = () => resolve(res(ctx.status(200)));
+          resolveRequest = () => resolve(new HttpResponse(null));
         });
       })
     );

@@ -1,18 +1,18 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { App } from "add-ink-button/app";
-import { rest } from "msw";
+import { HttpResponse, http } from "msw";
 import { setupServer } from "msw/node";
 
 describe("App", () => {
   const server = setupServer(
-    rest.get("/collected_inks.json", (req, res, ctx) => {
-      const macro_cluster_id = req.url.searchParams.get("filter[macro_cluster_id]");
+    http.get("/collected_inks.json", ({ request }) => {
+      const macro_cluster_id = new URL(request.url).searchParams.get("filter[macro_cluster_id]");
       switch (macro_cluster_id) {
         case "in_collection":
-          return res(ctx.json({ data: ["item"] }));
+          return HttpResponse.json({ data: ["item"] });
         default:
-          return res(ctx.json({ data: [] }));
+          return HttpResponse.json({ data: [] });
       }
     })
   );

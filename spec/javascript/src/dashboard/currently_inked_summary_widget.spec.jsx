@@ -1,16 +1,14 @@
 import { render, screen } from "@testing-library/react";
 import { CurrentlyInkedSummaryWidget } from "dashboard/currently_inked_summary_widget";
-import { rest } from "msw";
+import { HttpResponse, http } from "msw";
 import { setupServer } from "msw/node";
 
 describe("CurrentlyInkedSummaryWidget", () => {
   const server = setupServer(
-    rest.get("/dashboard/widgets/currently_inked_summary.json", (req, res, ctx) => {
-      return res(
-        ctx.json({
-          data: { attributes: { active: 1, total: 1, usage_records: 1 } }
-        })
-      );
+    http.get("/dashboard/widgets/currently_inked_summary.json", () => {
+      return HttpResponse.json({
+        data: { attributes: { active: 1, total: 1, usage_records: 1 } }
+      });
     })
   );
 

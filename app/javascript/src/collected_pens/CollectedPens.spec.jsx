@@ -1,6 +1,6 @@
 import { render } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { rest } from "msw";
+import { HttpResponse, http } from "msw";
 import { setupServer } from "msw/node";
 import { accountHandlers } from "../../../../spec/javascript/support/accountHandlers";
 import { CollectedPens, storageKeyLayout } from "./CollectedPens";
@@ -14,8 +14,8 @@ const setup = (jsx, options) => {
 
 describe("<CollectedPens />", () => {
   const server = setupServer(
-    rest.get("/api/v1/collected_pens.json", (req, res, ctx) => {
-      const page = req.url.searchParams.get("page[number]");
+    http.get("/api/v1/collected_pens.json", ({ request }) => {
+      const page = new URL(request.url).searchParams.get("page[number]");
       const meta = {
         pagination: { current_page: page, next_page: page == 1 ? 2 : null }
       };
@@ -31,7 +31,7 @@ describe("<CollectedPens />", () => {
           }
         }
       ];
-      return res(ctx.json({ data, meta }));
+      return HttpResponse.json({ data, meta });
     }),
     ...accountHandlers
   );

@@ -1,72 +1,70 @@
 import { getMicroClusters } from "admin/micro-clusters/microClusters";
-import { rest } from "msw";
+import { HttpResponse, http } from "msw";
 import { setupServer } from "msw/node";
 
 describe("getMicroClusters", () => {
   const server = setupServer(
-    rest.get("/admins/micro_clusters.json", (req, res, ctx) =>
-      res(
-        ctx.json({
-          data: [
-            {
-              id: "1636",
-              type: "micro_cluster",
-              attributes: {
-                simplified_brand_name: "MyText",
-                simplified_line_name: "MyText",
-                simplified_ink_name: "MyText1"
-              },
-              relationships: {
-                macro_cluster: { data: null },
-                collected_inks: {
-                  data: [
-                    { id: "10495", type: "collected_ink" },
-                    { id: "10496", type: "collected_ink" }
-                  ]
-                }
-              }
-            }
-          ],
-          included: [
-            {
-              id: "10495",
-              type: "collected_ink",
-              attributes: {
-                brand_name: "Diamine",
-                line_name: "",
-                ink_name: "Marine",
-                maker: "",
-                color: "#40E0D0"
-              },
-              relationships: {
-                micro_cluster: { data: { id: "1636", type: "micro_cluster" } }
-              }
+    http.get("/admins/micro_clusters.json", () =>
+      HttpResponse.json({
+        data: [
+          {
+            id: "1636",
+            type: "micro_cluster",
+            attributes: {
+              simplified_brand_name: "MyText",
+              simplified_line_name: "MyText",
+              simplified_ink_name: "MyText1"
             },
-            {
-              id: "10496",
-              type: "collected_ink",
-              attributes: {
-                brand_name: "Diamine",
-                line_name: "",
-                ink_name: "Marine",
-                maker: "",
-                color: "#40E0D0"
-              },
-              relationships: {
-                micro_cluster: { data: { id: "1636", type: "micro_cluster" } }
+            relationships: {
+              macro_cluster: { data: null },
+              collected_inks: {
+                data: [
+                  { id: "10495", type: "collected_ink" },
+                  { id: "10496", type: "collected_ink" }
+                ]
               }
-            }
-          ],
-          meta: {
-            pagination: {
-              total_pages: 1,
-              current_page: 1,
-              next_page: null,
-              prev_page: null
             }
           }
-        })
-      )
+        ],
+        included: [
+          {
+            id: "10495",
+            type: "collected_ink",
+            attributes: {
+              brand_name: "Diamine",
+              line_name: "",
+              ink_name: "Marine",
+              maker: "",
+              color: "#40E0D0"
+            },
+            relationships: {
+              micro_cluster: { data: { id: "1636", type: "micro_cluster" } }
+            }
+          },
+          {
+            id: "10496",
+            type: "collected_ink",
+            attributes: {
+              brand_name: "Diamine",
+              line_name: "",
+              ink_name: "Marine",
+              maker: "",
+              color: "#40E0D0"
+            },
+            relationships: {
+              micro_cluster: { data: { id: "1636", type: "micro_cluster" } }
+            }
+          }
+        ],
+        meta: {
+          pagination: {
+            total_pages: 1,
+            current_page: 1,
+            next_page: null,
+            prev_page: null
+          }
+        }
+      })
     )
   );
 

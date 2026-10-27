@@ -1,7 +1,8 @@
+import { waitFor } from "@testing-library/react";
 import { ADD_MACRO_CLUSTER, UPDATING } from "admin/components/clustering/actions";
 import { assignCluster } from "admin/micro-clusters/assignCluster";
 import { createMacroClusterAndAssign } from "admin/micro-clusters/createMacroClusterAndAssign";
-import { rest } from "msw";
+import { HttpResponse, http } from "msw";
 import { setupServer } from "msw/node";
 
 // Mock the assignCluster function
@@ -9,8 +10,8 @@ jest.mock("admin/micro-clusters/assignCluster");
 
 describe("createMacroClusterAndAssign", () => {
   const server = setupServer(
-    rest.post("/admins/macro_clusters.json", (req, res, ctx) => {
-      const body = req.body;
+    http.post("/admins/macro_clusters.json", async ({ request }) => {
+      const body = await request.json();
 
       // Verify the request structure
       expect(body.data.type).toBe("macro_cluster");
@@ -21,25 +22,24 @@ describe("createMacroClusterAndAssign", () => {
         color: "#FF0000"
       });
 
-      return res(
-        ctx.json({
-          data: {
-            id: "new-macro-123",
-            type: "macro_cluster",
-            attributes: {
-              brand_name: "Test Brand",
-              line_name: "Test Line",
-              ink_name: "Test Ink",
-              color: "#FF0000"
-            }
+      return HttpResponse.json({
+        data: {
+          id: "new-macro-123",
+          type: "macro_cluster",
+          attributes: {
+            brand_name: "Test Brand",
+            line_name: "Test Line",
+            ink_name: "Test Ink",
+            color: "#FF0000"
           }
-        })
-      );
+        }
+      });
     })
   );
 
-  beforeAll(() => {
-    server.listen();
+  beforeAll(() => server.listen());
+
+  beforeEach(() => {
     // Mock timers to control setTimeout behavior
     jest.useFakeTimers();
   });
@@ -48,12 +48,10 @@ describe("createMacroClusterAndAssign", () => {
     server.resetHandlers();
     jest.clearAllMocks();
     jest.clearAllTimers();
-  });
-
-  afterAll(() => {
-    server.close();
     jest.useRealTimers();
   });
+
+  afterAll(() => server.close());
 
   it("creates a macro cluster, assigns the micro cluster, and dispatches actions", async () => {
     const mockDispatch = jest.fn();
@@ -102,8 +100,9 @@ describe("createMacroClusterAndAssign", () => {
     // Fast-forward timers to trigger the setTimeout
     jest.advanceTimersByTime(10);
 
-    // Run all pending timers and promises
-    await jest.runAllTimersAsync();
+    // The request goes over the (real) network stack, so wait for it with real timers
+    jest.useRealTimers();
+    await waitFor(() => expect(mockAfterCreate).toHaveBeenCalled());
 
     // Verify assignCluster was called with correct parameters
     expect(assignCluster).toHaveBeenCalledWith("micro-456", "new-macro-123");

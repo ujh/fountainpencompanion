@@ -1,23 +1,21 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { App } from "add-ink-button/app";
-import { rest } from "msw";
+import { HttpResponse, delay, http } from "msw";
 import { setupServer } from "msw/node";
 
 describe("AddInkButton Loader and Add Flow", () => {
   let postCalled = false;
   const server = setupServer(
-    rest.get("/collected_inks.json", (req, res, ctx) => {
+    http.get("/collected_inks.json", async () => {
       // Simulate a slow response for loading state
-      return new Promise((resolve) => {
-        setTimeout(() => {
-          resolve(res(ctx.json({ data: [] })));
-        }, 50);
-      });
+      await delay(50);
+      return HttpResponse.json({ data: [] });
     }),
-    rest.post("/collected_inks/add.json", (req, res, ctx) => {
+    http.post("/collected_inks/add.json", async () => {
       postCalled = true;
-      return res(ctx.status(200), ctx.json({ success: true }));
+      await delay(50);
+      return HttpResponse.json({ success: true });
     })
   );
 

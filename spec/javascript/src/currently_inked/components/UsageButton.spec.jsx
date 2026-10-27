@@ -1,7 +1,7 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { UsageButton } from "currently_inked/components/UsageButton";
-import { rest } from "msw";
+import { HttpResponse, http } from "msw";
 import { setupServer } from "msw/node";
 
 const jsonApiResponse = {
@@ -35,8 +35,8 @@ const jsonApiResponse = {
 };
 
 const server = setupServer(
-  rest.post("/currently_inked/42/usage_record.json", (req, res, ctx) => {
-    return res(ctx.status(201), ctx.json(jsonApiResponse));
+  http.post("/currently_inked/42/usage_record.json", () => {
+    return HttpResponse.json(jsonApiResponse, { status: 201 });
   })
 );
 

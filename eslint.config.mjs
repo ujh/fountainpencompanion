@@ -111,7 +111,7 @@ export default [
     }
   },
   {
-    files: ["**/*.config.js"],
+    files: ["**/*.config.js", "spec/javascript/support/jsdom-environment.js"],
 
     languageOptions: {
       globals: {
