@@ -1,6 +1,6 @@
 import { act, renderHook, waitFor } from "@testing-library/react";
 import * as storage from "localStorage";
-import { rest } from "msw";
+import { HttpResponse, http } from "msw";
 import { setupServer } from "msw/node";
 import { useHiddenFields } from "useHiddenFields";
 
@@ -18,37 +18,33 @@ const defaultHiddenFields = ["maker", "kind"];
 
 function mockAccountResponse(preferences) {
   server.use(
-    rest.get("/account", (req, res, ctx) => {
-      return res(
-        ctx.json({
-          data: {
-            id: "1",
-            type: "user",
-            attributes: {
-              name: "Test",
-              preferences: preferences
-            }
+    http.get("/account", () => {
+      return HttpResponse.json({
+        data: {
+          id: "1",
+          type: "user",
+          attributes: {
+            name: "Test",
+            preferences: preferences
           }
-        })
-      );
+        }
+      });
     })
   );
 }
 
 function mockAccountUpdate(callback) {
   server.use(
-    rest.put("/account", async (req, res, ctx) => {
-      const body = await req.json();
+    http.put("/account", async ({ request }) => {
+      const body = await request.json();
       if (callback) callback(body);
-      return res(
-        ctx.json({
-          data: {
-            id: "1",
-            type: "user",
-            attributes: { name: "Test", preferences: {} }
-          }
-        })
-      );
+      return HttpResponse.json({
+        data: {
+          id: "1",
+          type: "user",
+          attributes: { name: "Test", preferences: {} }
+        }
+      });
     })
   );
 }
@@ -105,8 +101,8 @@ describe("useHiddenFields", () => {
   it("keeps localStorage value on network error", async () => {
     storage.setItem(storageKey, JSON.stringify(["tags"]));
     server.use(
-      rest.get("/account", (req, res) => {
-        return res.networkError("Connection refused");
+      http.get("/account", () => {
+        return HttpResponse.error();
       })
     );
 

@@ -1,31 +1,29 @@
 import { ignoreCluster } from "admin/micro-clusters/ignoreCluster";
-import { rest } from "msw";
+import { HttpResponse, http } from "msw";
 import { setupServer } from "msw/node";
 
 describe("ignoreCluster", () => {
   const server = setupServer(
-    rest.put("/admins/micro_clusters/:id.json", (req, res, ctx) => {
-      const microClusterId = req.params.id;
-      const body = req.body;
+    http.put("/admins/micro_clusters/:id.json", async ({ request, params }) => {
+      const microClusterId = params.id;
+      const body = await request.json();
 
       // Verify the request body format
       expect(body.data.type).toBe("micro_cluster");
       expect(body.data.attributes.ignored).toBe(true);
 
-      return res(
-        ctx.json({
-          data: {
-            id: microClusterId,
-            type: "micro_cluster",
-            attributes: {
-              simplified_brand_name: "Brand",
-              simplified_line_name: "Line",
-              simplified_ink_name: "Ink",
-              ignored: true
-            }
+      return HttpResponse.json({
+        data: {
+          id: microClusterId,
+          type: "micro_cluster",
+          attributes: {
+            simplified_brand_name: "Brand",
+            simplified_line_name: "Line",
+            simplified_ink_name: "Ink",
+            ignored: true
           }
-        })
-      );
+        }
+      });
     })
   );
 
@@ -65,8 +63,8 @@ describe("ignoreCluster", () => {
 
   it("handles server errors gracefully", async () => {
     server.use(
-      rest.put("/admins/micro_clusters/:id.json", (req, res, ctx) => {
-        return res(ctx.status(500), ctx.json({ error: "Internal server error" }));
+      http.put("/admins/micro_clusters/:id.json", () => {
+        return HttpResponse.json({ error: "Internal server error" }, { status: 500 });
       })
     );
 
@@ -79,8 +77,8 @@ describe("ignoreCluster", () => {
 
   it("handles network errors", async () => {
     server.use(
-      rest.put("/admins/micro_clusters/:id.json", (req, res) => {
-        return res.networkError("Network error");
+      http.put("/admins/micro_clusters/:id.json", () => {
+        return HttpResponse.error();
       })
     );
 
@@ -91,8 +89,8 @@ describe("ignoreCluster", () => {
 
   it("handles 404 errors when cluster doesn't exist", async () => {
     server.use(
-      rest.put("/admins/micro_clusters/:id.json", (req, res, ctx) => {
-        return res(ctx.status(404), ctx.json({ error: "Cluster not found" }));
+      http.put("/admins/micro_clusters/:id.json", () => {
+        return HttpResponse.json({ error: "Cluster not found" }, { status: 404 });
       })
     );
 
@@ -105,14 +103,14 @@ describe("ignoreCluster", () => {
 
   it("handles validation errors", async () => {
     server.use(
-      rest.put("/admins/micro_clusters/:id.json", (req, res, ctx) => {
-        return res(
-          ctx.status(422),
-          ctx.json({
+      http.put("/admins/micro_clusters/:id.json", () => {
+        return HttpResponse.json(
+          {
             errors: {
               ignored: ["cannot be set for this cluster"]
             }
-          })
+          },
+          { status: 422 }
         );
       })
     );
@@ -129,9 +127,9 @@ describe("ignoreCluster", () => {
 
     let requestUrl;
     server.use(
-      rest.put("/admins/micro_clusters/:id.json", (req, res, ctx) => {
-        requestUrl = req.url.pathname;
-        return res(ctx.json({ data: { id: cluster.id, type: "micro_cluster" } }));
+      http.put("/admins/micro_clusters/:id.json", ({ request }) => {
+        requestUrl = new URL(request.url).pathname;
+        return HttpResponse.json({ data: { id: cluster.id, type: "micro_cluster" } });
       })
     );
 
@@ -145,9 +143,9 @@ describe("ignoreCluster", () => {
 
     let requestPayload;
     server.use(
-      rest.put("/admins/micro_clusters/:id.json", (req, res, ctx) => {
-        requestPayload = req.body;
-        return res(ctx.json({ data: { id: cluster.id, type: "micro_cluster" } }));
+      http.put("/admins/micro_clusters/:id.json", async ({ request }) => {
+        requestPayload = await request.json();
+        return HttpResponse.json({ data: { id: cluster.id, type: "micro_cluster" } });
       })
     );
 

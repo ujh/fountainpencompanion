@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { rest } from "msw";
+import { HttpResponse, http } from "msw";
 import { setupServer } from "msw/node";
 import { UsageRecordForm } from "./UsageRecordForm";
 
@@ -107,14 +107,14 @@ const setup = (jsx) => {
 
 describe("<UsageRecordForm />", () => {
   const server = setupServer(
-    rest.get("/api/v1/currently_inked.json", (req, res, ctx) => {
-      const archived = req.url.searchParams.get("filter[archived]");
+    http.get("/api/v1/currently_inked.json", ({ request }) => {
+      const archived = new URL(request.url).searchParams.get("filter[archived]");
       if (archived === "false") {
-        return res(ctx.json(makeResponse([activeEntry])));
+        return HttpResponse.json(makeResponse([activeEntry]));
       } else if (archived === "true") {
-        return res(ctx.json(makeResponse([archivedEntry, oldArchivedEntry])));
+        return HttpResponse.json(makeResponse([archivedEntry, oldArchivedEntry]));
       }
-      return res(ctx.json(makeResponse([])));
+      return HttpResponse.json(makeResponse([]));
     })
   );
 
@@ -269,12 +269,12 @@ describe("<UsageRecordForm />", () => {
     };
 
     server.use(
-      rest.get("/api/v1/currently_inked.json", (req, res, ctx) => {
-        const archived = req.url.searchParams.get("filter[archived]");
+      http.get("/api/v1/currently_inked.json", ({ request }) => {
+        const archived = new URL(request.url).searchParams.get("filter[archived]");
         if (archived === "false") {
-          return res(ctx.json(makeResponse([zebra, apple, middle])));
+          return HttpResponse.json(makeResponse([zebra, apple, middle]));
         }
-        return res(ctx.json(makeResponse([])));
+        return HttpResponse.json(makeResponse([]));
       })
     );
 
@@ -321,15 +321,15 @@ describe("<UsageRecordForm />", () => {
     };
 
     server.use(
-      rest.get("/api/v1/currently_inked.json", (req, res, ctx) => {
-        const archived = req.url.searchParams.get("filter[archived]");
+      http.get("/api/v1/currently_inked.json", ({ request }) => {
+        const archived = new URL(request.url).searchParams.get("filter[archived]");
         if (archived === "false") {
-          return res(ctx.json(makeResponse([activeEntry])));
+          return HttpResponse.json(makeResponse([activeEntry]));
         }
         if (archived === "true") {
-          return res(ctx.json(makeResponse([zebra, apple])));
+          return HttpResponse.json(makeResponse([zebra, apple]));
         }
-        return res(ctx.json(makeResponse([])));
+        return HttpResponse.json(makeResponse([]));
       })
     );
 

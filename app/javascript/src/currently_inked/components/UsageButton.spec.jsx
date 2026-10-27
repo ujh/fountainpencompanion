@@ -1,7 +1,7 @@
 // @ts-check
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { rest } from "msw";
+import { HttpResponse, http } from "msw";
 import { setupServer } from "msw/node";
 import { UsageButton } from "./UsageButton";
 
@@ -36,8 +36,8 @@ const jsonApiResponse = {
 };
 
 const server = setupServer(
-  rest.post("/currently_inked/1/usage_record.json", (req, res, ctx) => {
-    return res(ctx.status(201), ctx.json(jsonApiResponse));
+  http.post("/currently_inked/1/usage_record.json", () => {
+    return HttpResponse.json(jsonApiResponse, { status: 201 });
   })
 );
 
@@ -79,8 +79,8 @@ describe("<UsageButton />", () => {
 
   it("handles network errors gracefully", async () => {
     server.use(
-      rest.post("/currently_inked/1/usage_record.json", (req, res) => {
-        return res.networkError("Failed to fetch");
+      http.post("/currently_inked/1/usage_record.json", () => {
+        return HttpResponse.error();
       })
     );
     render(<UsageButton used={false} id={1} />);

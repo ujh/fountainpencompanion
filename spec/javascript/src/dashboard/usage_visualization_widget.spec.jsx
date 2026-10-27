@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import { UsageVisualizationWidget, buildGrid } from "dashboard/usage_visualization_widget";
-import { rest } from "msw";
+import { HttpResponse, http } from "msw";
 import { setupServer } from "msw/node";
 
 beforeAll(() => {
@@ -29,25 +29,23 @@ const accountData = {
 
 describe("UsageVisualizationWidget", () => {
   const server = setupServer(
-    rest.get("/dashboard/widgets/usage_visualization.json", (req, res, ctx) => {
-      return res(
-        ctx.json(
-          widgetData(
-            [
-              { ink_name: "Pilot Blue", color: "#0000ff", count: 5 },
-              { ink_name: "Diamine Red", color: "#ff0000", count: 3 }
-            ],
-            "usage_records",
-            15
-          )
+    http.get("/dashboard/widgets/usage_visualization.json", () => {
+      return HttpResponse.json(
+        widgetData(
+          [
+            { ink_name: "Pilot Blue", color: "#0000ff", count: 5 },
+            { ink_name: "Diamine Red", color: "#ff0000", count: 3 }
+          ],
+          "usage_records",
+          15
         )
       );
     }),
-    rest.get("/account", (req, res, ctx) => {
-      return res(ctx.json(accountData));
+    http.get("/account", () => {
+      return HttpResponse.json(accountData);
     }),
-    rest.put("/account", (req, res, ctx) => {
-      return res(ctx.json({}));
+    http.put("/account", () => {
+      return HttpResponse.json({});
     })
   );
 
@@ -84,8 +82,8 @@ describe("UsageVisualizationWidget", () => {
 
   it("shows empty message when no data", async () => {
     server.use(
-      rest.get("/dashboard/widgets/usage_visualization.json", (req, res, ctx) => {
-        return res(ctx.json(widgetData([], "insufficient", 0)));
+      http.get("/dashboard/widgets/usage_visualization.json", () => {
+        return HttpResponse.json(widgetData([], "insufficient", 0));
       })
     );
 
@@ -95,15 +93,9 @@ describe("UsageVisualizationWidget", () => {
 
   it("shows fallback message when using currently inked data", async () => {
     server.use(
-      rest.get("/dashboard/widgets/usage_visualization.json", (req, res, ctx) => {
-        return res(
-          ctx.json(
-            widgetData(
-              [{ ink_name: "Pilot Blue", color: "#0000ff", count: 6 }],
-              "currently_inked",
-              5
-            )
-          )
+      http.get("/dashboard/widgets/usage_visualization.json", () => {
+        return HttpResponse.json(
+          widgetData([{ ink_name: "Pilot Blue", color: "#0000ff", count: 6 }], "currently_inked", 5)
         );
       })
     );

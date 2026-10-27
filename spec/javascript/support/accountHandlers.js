@@ -1,4 +1,4 @@
-import { rest } from "msw";
+import { HttpResponse, http } from "msw";
 
 // Components that use the useHiddenFields hook fire a background
 // `GET /account` (and a `PUT /account` when migrating local preferences to
@@ -9,6 +9,6 @@ const accountResponse = {
 };
 
 export const accountHandlers = [
-  rest.get("/account", (req, res, ctx) => res(ctx.json(accountResponse))),
-  rest.put("/account", (req, res, ctx) => res(ctx.json(accountResponse)))
+  http.get("/account", () => HttpResponse.json(accountResponse)),
+  http.put("/account", () => HttpResponse.json(accountResponse))
 ];

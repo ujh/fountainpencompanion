@@ -1,23 +1,21 @@
 import { act, renderHook } from "@testing-library/react";
 import { useDashboardPreferences } from "dashboard/useDashboardPreferences";
 import * as storage from "localStorage";
-import { rest } from "msw";
+import { HttpResponse, http } from "msw";
 import { setupServer } from "msw/node";
 
 const server = setupServer(
-  rest.get("/account", (req, res, ctx) => {
-    return res(
-      ctx.json({
-        data: {
-          attributes: {
-            preferences: {}
-          }
+  http.get("/account", () => {
+    return HttpResponse.json({
+      data: {
+        attributes: {
+          preferences: {}
         }
-      })
-    );
+      }
+    });
   }),
-  rest.put("/account", (req, res, ctx) => {
-    return res(ctx.json({ data: { attributes: { preferences: {} } } }));
+  http.put("/account", () => {
+    return HttpResponse.json({ data: { attributes: { preferences: {} } } });
   })
 );
 
@@ -99,16 +97,14 @@ describe("useDashboardPreferences", () => {
       removed: ["pens_summary"]
     };
     server.use(
-      rest.get("/account", (req, res, ctx) => {
-        return res(
-          ctx.json({
-            data: {
-              attributes: {
-                preferences: { dashboard_widgets: serverValue }
-              }
+      http.get("/account", () => {
+        return HttpResponse.json({
+          data: {
+            attributes: {
+              preferences: { dashboard_widgets: serverValue }
             }
-          })
-        );
+          }
+        });
       })
     );
 

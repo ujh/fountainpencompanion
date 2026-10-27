@@ -61,7 +61,7 @@
     "jest-environment-jsdom": "^30.5.2",
     "lint-staged": "^17.6.0",
     "mini-css-extract-plugin": "^2.10.2",
-    "msw": "1.0.1",
+    "msw": "3.0.3",
     "postcss-preset-env": "^11.6.1",
     "prettier": "^3.9.10",
     "sass": "^1.106.1",
@@ -92,7 +92,10 @@
     "setupFilesAfterEnv": [
       "<rootDir>/spec/javascript/support/setup.js"
     ],
-    "testEnvironment": "jest-environment-jsdom",
+    "testEnvironment": "<rootDir>/spec/javascript/support/jsdom-environment.js",
+    "testEnvironmentOptions": {
+      "url": "http://fpc.invalid/"
+    },
     "testPathIgnorePatterns": [
       "/node_modules/",
       "<rootDir>/config/"
@@ -109,7 +112,7 @@
     "eslint": "eslint .",
     "prettier": "prettier --check .",
     "prettier-fix": "prettier --write .",
-    "test": "jest"
+    "test": "NODE_OPTIONS='--experimental-vm-modules --disable-warning=ExperimentalWarning' jest"
   },
   "lint-staged": {
     "*.{css,html,js,json,jsx,md,rb,ru,scss,yml,yaml,rake}": "prettier --write",

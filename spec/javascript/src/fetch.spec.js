@@ -1,5 +1,5 @@
 import { deleteRequest, postRequest, putRequest } from "fetch";
-import { rest } from "msw";
+import { HttpResponse, http } from "msw";
 import { setupServer } from "msw/node";
 
 const csrfError = {
@@ -22,12 +22,12 @@ const currentToken = () =>
 // Accepts only the given token, like Rails' CSRF protection.
 const protectedHandler = (validToken, onSuccess = () => {}) => {
   const receivedTokens = [];
-  const handler = (req, res, ctx) => {
-    const token = req.headers.get("X-CSRF-Token");
+  const handler = ({ request }) => {
+    const token = request.headers.get("X-CSRF-Token");
     receivedTokens.push(token);
-    if (token !== validToken) return res(ctx.status(422), ctx.json(csrfError));
+    if (token !== validToken) return HttpResponse.json(csrfError, { status: 422 });
     onSuccess();
-    return res(ctx.status(200), ctx.json({ ok: true }));
+    return HttpResponse.json({ ok: true });
   };
   return { handler, receivedTokens };
 };
@@ -36,8 +36,8 @@ describe("CSRF token refresh", () => {
   it("refreshes the token and retries once after a CSRF failure", async () => {
     const { handler, receivedTokens } = protectedHandler("fresh-token");
     server.use(
-      rest.post("/things", handler),
-      rest.get("/csrf_token", (req, res, ctx) => res(ctx.json({ token: "fresh-token" })))
+      http.post("/things", handler),
+      http.get("/csrf_token", () => HttpResponse.json({ token: "fresh-token" }))
     );
 
     const response = await postRequest("/things", { a: 1 });
@@ -48,13 +48,13 @@ describe("CSRF token refresh", () => {
   });
 
   it.each([
-    ["PUT", putRequest, rest.put],
-    ["DELETE", deleteRequest, rest.delete]
-  ])("works for %s requests", async (_method, request, restMethod) => {
+    ["PUT", putRequest, http.put],
+    ["DELETE", deleteRequest, http.delete]
+  ])("works for %s requests", async (_method, request, httpMethod) => {
     const { handler } = protectedHandler("fresh-token");
     server.use(
-      restMethod("/things", handler),
-      rest.get("/csrf_token", (req, res, ctx) => res(ctx.json({ token: "fresh-token" })))
+      httpMethod("/things", handler),
+      http.get("/csrf_token", () => HttpResponse.json({ token: "fresh-token" }))
     );
 
     const response = await request("/things");
@@ -66,10 +66,10 @@ describe("CSRF token refresh", () => {
     const { handler, receivedTokens } = protectedHandler("fresh-token");
     let tokenRequests = 0;
     server.use(
-      rest.post("/things", handler),
-      rest.get("/csrf_token", (req, res, ctx) => {
+      http.post("/things", handler),
+      http.get("/csrf_token", () => {
         tokenRequests += 1;
-        return res(ctx.json({ token: "fresh-token" }));
+        return HttpResponse.json({ token: "fresh-token" });
       })
     );
 
@@ -84,10 +84,10 @@ describe("CSRF token refresh", () => {
     const { handler, receivedTokens } = protectedHandler("fresh-token");
     let tokenRequests = 0;
     server.use(
-      rest.post("/things", handler),
-      rest.get("/csrf_token", (req, res, ctx) => {
+      http.post("/things", handler),
+      http.get("/csrf_token", () => {
         tokenRequests += 1;
-        return res(ctx.json({ token: `fresh-token${tokenRequests > 1 ? tokenRequests : ""}` }));
+        return HttpResponse.json({ token: `fresh-token${tokenRequests > 1 ? tokenRequests : ""}` });
       })
     );
 
@@ -101,8 +101,8 @@ describe("CSRF token refresh", () => {
   it("retries only once if the refreshed token is rejected too", async () => {
     const { handler, receivedTokens } = protectedHandler("never-valid");
     server.use(
-      rest.post("/things", handler),
-      rest.get("/csrf_token", (req, res, ctx) => res(ctx.json({ token: "fresh-token" })))
+      http.post("/things", handler),
+      http.get("/csrf_token", () => HttpResponse.json({ token: "fresh-token" }))
     );
 
     const response = await postRequest("/things");
@@ -114,12 +114,12 @@ describe("CSRF token refresh", () => {
   it("does not refresh the token for other 422 errors", async () => {
     let tokenRequests = 0;
     server.use(
-      rest.post("/things", (req, res, ctx) =>
-        res(ctx.status(422), ctx.json({ errors: [{ detail: "Name can't be blank" }] }))
+      http.post("/things", () =>
+        HttpResponse.json({ errors: [{ detail: "Name can't be blank" }] }, { status: 422 })
       ),
-      rest.get("/csrf_token", (req, res, ctx) => {
+      http.get("/csrf_token", () => {
         tokenRequests += 1;
-        return res(ctx.json({ token: "fresh-token" }));
+        return HttpResponse.json({ token: "fresh-token" });
       })
     );
 
@@ -133,10 +133,10 @@ describe("CSRF token refresh", () => {
   it("does not refresh the token for 422 responses without a JSON body", async () => {
     let tokenRequests = 0;
     server.use(
-      rest.post("/things", (req, res, ctx) => res(ctx.status(422), ctx.text("Unprocessable"))),
-      rest.get("/csrf_token", (req, res, ctx) => {
+      http.post("/things", () => HttpResponse.text("Unprocessable", { status: 422 })),
+      http.get("/csrf_token", () => {
         tokenRequests += 1;
-        return res(ctx.json({ token: "fresh-token" }));
+        return HttpResponse.json({ token: "fresh-token" });
       })
     );
 
@@ -147,12 +147,12 @@ describe("CSRF token refresh", () => {
   });
 
   it.each([
-    ["errors", (req, res, ctx) => res(ctx.status(500))],
-    ["returns no token", (req, res, ctx) => res(ctx.json({}))],
-    ["fails with a network error", (req, res) => res.networkError("offline")]
+    ["errors", () => new HttpResponse(null, { status: 500 })],
+    ["returns no token", () => HttpResponse.json({})],
+    ["fails with a network error", () => HttpResponse.error()]
   ])("returns the original response if refreshing the token %s", async (_, tokenHandler) => {
     const { handler, receivedTokens } = protectedHandler("fresh-token");
-    server.use(rest.post("/things", handler), rest.get("/csrf_token", tokenHandler));
+    server.use(http.post("/things", handler), http.get("/csrf_token", tokenHandler));
 
     const response = await postRequest("/things");
 
@@ -166,10 +166,10 @@ describe("CSRF token refresh", () => {
     document.head.innerHTML = "";
     let tokenRequests = 0;
     server.use(
-      rest.post("/things", (req, res, ctx) => res(ctx.status(422), ctx.json(csrfError))),
-      rest.get("/csrf_token", (req, res, ctx) => {
+      http.post("/things", () => HttpResponse.json(csrfError, { status: 422 })),
+      http.get("/csrf_token", () => {
         tokenRequests += 1;
-        return res(ctx.json({ token: "fresh-token" }));
+        return HttpResponse.json({ token: "fresh-token" });
       })
     );
 

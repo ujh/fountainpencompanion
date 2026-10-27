@@ -1,24 +1,22 @@
 import { render, screen } from "@testing-library/react";
 import { LeaderboardRankingWidget } from "dashboard/leaderboard_ranking_widget";
-import { rest } from "msw";
+import { HttpResponse, http } from "msw";
 import { setupServer } from "msw/node";
 
 describe("LeaderboardRankingWidget", () => {
   const server = setupServer(
-    rest.get("/dashboard/widgets/leaderboard_ranking.json", (req, res, ctx) => {
-      return res(
-        ctx.json({
-          data: {
-            attributes: {
-              inks: 1,
-              bottles: 1,
-              samples: 1,
-              brands: 1,
-              ink_review_submissions: 1
-            }
+    http.get("/dashboard/widgets/leaderboard_ranking.json", () => {
+      return HttpResponse.json({
+        data: {
+          attributes: {
+            inks: 1,
+            bottles: 1,
+            samples: 1,
+            brands: 1,
+            ink_review_submissions: 1
           }
-        })
-      );
+        }
+      });
     })
   );
 

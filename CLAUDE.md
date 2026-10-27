@@ -82,19 +82,19 @@ docker-compose exec -T app yarn test
 Single file:
 
 ```
-docker-compose exec -T app yarn jest app/javascript/src/color-sorting.spec.js
+docker-compose exec -T app yarn test app/javascript/src/color-sorting.spec.js
 ```
 
 Filter by pattern:
 
 ```
-docker-compose exec -T app yarn jest --testPathPatterns="color-sorting"
+docker-compose exec -T app yarn test --testPathPatterns="color-sorting"
 ```
 
 Filter by test name:
 
 ```
-docker-compose exec -T app yarn jest -t "test name"
+docker-compose exec -T app yarn test -t "test name"
 ```
 
 ## Linting & Formatting
