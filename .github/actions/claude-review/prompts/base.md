@@ -143,7 +143,7 @@ re-running those commands:
 - `.pr-context/diff-code.patch` — **default diff for every
   subagent.** Same three-dot diff as `diff.patch` with
   generated/lockfile paths excluded (`*.lock` covers
-  `yarn.lock`, `Gemfile.lock`, etc.; plus `package-lock.json`,
+  `Gemfile.lock` etc.; plus `pnpm-lock.yaml`, `package-lock.json`,
   `db/structure.sql`, `db/schema.rb`, `app/assets/builds/`,
   `*.snap`, `__snapshots__/`, `*.min.js`, `*.min.css`). Read
   this in preference to `diff.patch` — the excluded paths

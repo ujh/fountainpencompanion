@@ -48,7 +48,7 @@ RUN apt-get update -qq && \
 COPY Gemfile Gemfile.lock ./
 
 # Install npm packages
-COPY .node-version package.json yarn.lock ./
+COPY .node-version package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 RUN if [ $(uname -m) = "aarch64" ]; then NODE_ARCH=arm64 ; else NODE_ARCH=x64 ; fi; \
   uname -m && \
   NODE_VERSION=$(cat .node-version) && \
@@ -62,8 +62,9 @@ RUN if [ $(uname -m) = "aarch64" ]; then NODE_ARCH=arm64 ; else NODE_ARCH=x64 ; 
   rm "node-$NODE_VERSION-linux-$NODE_ARCH.tar.gz" && \
   node -v
 
-RUN npm install --global yarn && ln -s /opt/nodejs/current/bin/yarn /usr/local/bin/yarn
-RUN yarn install
+RUN npm install --global --allow-scripts=pnpm "$(node -p 'require("./package.json").packageManager')" && \
+  ln -s /opt/nodejs/current/bin/pnpm /usr/local/bin/pnpm
+RUN pnpm install --frozen-lockfile
 
 FROM common-build AS dev
 

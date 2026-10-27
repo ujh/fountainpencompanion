@@ -36,7 +36,7 @@ From now on you'll only need to run `docker-compose up` to work on the app.
 ### Running the tests
 
 - Use `docker-compose exec app bundle exec rspec` to run the backend tests
-- Use `docker-compose exec app yarn test` to run the frontend tests
+- Use `docker-compose exec app pnpm test` to run the frontend tests
 
 ### Receiving emails during development
 

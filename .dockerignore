@@ -5,7 +5,6 @@
 /.gitignore
 /.git-blame-ignore-revs
 /.github/
-/.husky/
 
 # Environment files (may contain secrets)
 /.env*
@@ -26,8 +25,6 @@
 !/app/assets/builds/.keep
 /coverage/
 /js-coverage/
-/yarn-error.log
-yarn-debug.log*
 
 # Tests and docs aren't needed at runtime
 /spec/
@@ -37,7 +34,6 @@ yarn-debug.log*
 
 # Editor, tooling and local agent state
 /.claude/
-/.crush/
 /.ruby-lsp/
 /.zed/
 /.vscode/

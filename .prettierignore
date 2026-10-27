@@ -1,4 +1,4 @@
-.yarn
+pnpm-lock.yaml
 .ruby-lsp
 coverage/
 app/assets/builds/

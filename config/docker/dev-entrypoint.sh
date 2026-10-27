@@ -5,9 +5,9 @@ cd /app
 
 bundle check || bundle install || true
 
-if [[ $@ =~ 'yarn' ]]
+if [[ $@ =~ 'pnpm' ]]
 then
-  yarn install --frozen-lockfile
+  pnpm install --frozen-lockfile
 else
   # Remove a potentially pre-existing server.pid for Rails.
   rm -rf /app/tmp/pids/server.pid

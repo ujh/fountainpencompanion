@@ -76,25 +76,25 @@ docker-compose exec -T app bundle exec rspec -e "example name"
 All frontend tests:
 
 ```
-docker-compose exec -T app yarn test
+docker-compose exec -T app pnpm test
 ```
 
 Single file:
 
 ```
-docker-compose exec -T app yarn test app/javascript/src/color-sorting.spec.js
+docker-compose exec -T app pnpm test app/javascript/src/color-sorting.spec.js
 ```
 
 Filter by path pattern:
 
 ```
-docker-compose exec -T app yarn test color-sorting
+docker-compose exec -T app pnpm test color-sorting
 ```
 
 Filter by test name:
 
 ```
-docker-compose exec -T app yarn test -t "test name"
+docker-compose exec -T app pnpm test -t "test name"
 ```
 
 ## Linting & Formatting
@@ -102,19 +102,19 @@ docker-compose exec -T app yarn test -t "test name"
 Run all linters (Prettier + ESLint):
 
 ```
-docker-compose exec -T app yarn lint
+docker-compose exec -T app pnpm lint
 ```
 
 Auto-fix formatting:
 
 ```
-docker-compose exec -T app yarn prettier-fix
+docker-compose exec -T app pnpm prettier-fix
 ```
 
 Auto-fix ESLint issues:
 
 ```
-docker-compose exec -T app yarn eslint --fix
+docker-compose exec -T app pnpm eslint --fix
 ```
 
 ### Style Rules
@@ -162,7 +162,7 @@ spec/
 - **Tests document behaviour, not comments.** Don't add explanatory comments that describe why a check or branch exists; write a test that pins the behaviour instead. Comments are for the rare non-obvious implementation detail a test can't express.
 - **Ruby**: snake_case for methods/variables, CamelCase for classes/modules. Rescue specific errors only. Prefer `attr_accessor` with `self.x =` in constructors over bare `@x` instance variables.
 - **JavaScript/JSX**: PascalCase for components, camelCase for variables/functions. Tests use `*.spec.js(x)` extension.
-- **Commits**: lint-staged runs Prettier and ESLint on staged files via Husky pre-commit hook.
+- **Commits**: there is no pre-commit hook. Run `pnpm prettier-fix` and `pnpm eslint --fix` before committing; CI's `pnpm lint` fails on unformatted or lint-failing files.
 
 ## AI Agents (RubyLLM)
 

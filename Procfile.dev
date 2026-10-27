@@ -1,3 +1,0 @@
-web: rails s
-worker: sidekiq
-frontend: yarn dev

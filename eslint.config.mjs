@@ -30,9 +30,6 @@ export default [
     files: ["**/*.js", "**/*.jsx"]
   })),
   {
-    ignores: [".yarn/"]
-  },
-  {
     ignores: ["app/assets/builds/"]
   },
   {

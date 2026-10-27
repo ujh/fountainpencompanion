@@ -30,9 +30,6 @@ js-coverage/
 /public/packs
 /public/packs-test
 /node_modules
-/yarn-error.log
-yarn-debug.log*
-.yarn-integrity
 
 .env.local
 .env.development.local
@@ -44,9 +41,6 @@ yarn-debug.log*
 
 .vscode
 .DS_Store
-
-# Crush local state
-.crush/
 
 /.claude/*
 !/.claude/skills/

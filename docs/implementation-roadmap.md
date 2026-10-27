@@ -474,7 +474,7 @@ nil, ignored: false)`, call `agent.send(:ask!, agent.send(:user_prompt))` and re
 - **Does not include.** Any app code, any config layer, any prod call.
 - **Definition of done.**
   - Findings table (item, result, consequence) merged into `docs/llm-migration-plan.md`; run
-    `docker-compose exec -T app yarn prettier-fix` before pushing (CI's `prettier --check .` covers
+    `docker-compose exec -T app pnpm prettier-fix` before pushing (CI's `prettier --check .` covers
     `docs/*.md`).
   - Catalog table (model id, response `model` string, price in/out per M tokens, vision yes/no)
     recorded; this feeds the hand-maintained, bench-only price table the harness builds in S20 —
@@ -603,7 +603,7 @@ rails runner - < spike.rb`, or place it under the gitignored `tmp/` (.gitignore:
     0.8.7-vs-0.8.6 note. Q12's re-derivation of the held-out variant's (and single-variant model's)
     name and embedding is deliberately NOT done here — this is a cheap pre-tool probe, so its recall
     numbers are inflated and are not directly comparable with S21/S23, which add the re-derivation
-    inside the same rolled-back transaction. Run `docker-compose exec -T app yarn prettier-fix` before pushing (CI
+    inside the same rolled-back transaction. Run `docker-compose exec -T app pnpm prettier-fix` before pushing (CI
     checks `docs/*.md`, `lib/**/*.rb` and `lib/tasks/*.rake`).
   - Class and rake task committed, Prettier-clean, with a spec for the sampling/hide step.
   - Explicit verdict written down against the threshold under this roadmap's "Resolved without
@@ -704,9 +704,9 @@ different name` (that comment IS the false claim: `config/initializers/ruby_llm.
     is no migration in progress to mention). In spec/agents/README.md, delete the raix reference at
     line 598 and change `Faraday::ServerError` to `RubyLLM::ServerError` at lines 220 and 537 (grep
     the file for both strings after editing to confirm zero hits).
-  - Run `docker-compose exec -T app yarn prettier-fix` (or the repo's Prettier invocation for
+  - Run `docker-compose exec -T app pnpm prettier-fix` (or the repo's Prettier invocation for
     Markdown, since CLAUDE.md/spec/agents/README.md are Markdown) before committing; this is a docs
-    PR with no Ruby/JS changed, so `bundle exec rspec` and `yarn test` are unaffected but should still
+    PR with no Ruby/JS changed, so `bundle exec rspec` and `pnpm test` are unaffected but should still
     be run once as the final step per CLAUDE.md's own instruction.
 - **Decisions applied.** None of the 39 numbered decisions bear on this step directly; it is a v1
   DIGEST finding, renumbered only (S07 → S10 in "Why here").
@@ -1167,7 +1167,7 @@ cucumber]` means `Honeybadger.notify` is normally a no-op in the test environmen
   - Migration merged; `db/structure.sql` regenerated from the container's pg_dump 18.x
     (`docker-compose exec app bundle exec rails db:migrate` rewrites it), never from the host's
     Postgres.app; the diff contains exactly one new `CREATE INDEX index_agent_logs_on_name_and_state ON public.agent_logs USING btree (name, state);`
-    line and one new `schema_migrations` version. Full suite green, no new warnings, `yarn lint`
+    line and one new `schema_migrations` version. Full suite green, no new warnings, `pnpm lint`
     clean (Prettier formats `.rb` via @prettier/plugin-ruby).
 - **Implementation notes.**
   - Files to modify: app/models/agent_log.rb, app/models/pens/micro_cluster.rb,
@@ -1534,7 +1534,7 @@ cucumber]` means `Honeybadger.notify` is normally a no-op in the test environmen
     `ActiveRecord::InvalidForeignKey` (FK db/structure.sql:2384), so a wrong scope can never delete
     pens.
   - Rake wrappers exist for every operation (`bundle exec rake -T clusters embeddings` lists them
-    with a `desc`), Prettier-clean (lint-staged formats `.rake`, package.json:115).
+    with a `desc`), Prettier-clean (CI's `prettier --check .` covers `.rake`).
   - Tasks run on prod in the order below with before/after counts pasted into the pen plan's
     "Current state" section (and the PR description); the same on the dev copy. Verified after the
     prod run: `CollectedPen.where(pens_micro_cluster_id: nil).count` is 0 once the `RefreshPens`
@@ -2033,7 +2033,7 @@ agent_log).and_return(the_double)`. Serper (the underlying search API `GoogleSea
     prompt budget against).
   - `bundle exec rspec spec/agents/tools/pen_similarity_search_tool_spec.rb
 spec/agents/tools/pen_full_text_search_tool_spec.rb spec/agents/tools/pen_web_search_tool_spec.rb
-spec/agents/tools/pen_known_brand_tool_spec.rb` green, `yarn lint` unaffected (Ruby-only PR).
+spec/agents/tools/pen_known_brand_tool_spec.rb` green, `pnpm lint` unaffected (Ruby-only PR).
 - **Rollback.** No schema or data change; these are new files with zero callers until S11 merges, so
   a `git revert` is trivially safe. Prod risk: none.
 - **Decisions applied.**
@@ -3369,7 +3369,7 @@ owner_type = 'Pens::MicroCluster' ORDER BY owner_id, id DESC`, then filtered to 
     omission (something needed at boot but excluded here) would only be caught by that build failing, not
     by CI. Also gitignore `bench/data` (the migration plan already decides on gitignored JSON case files
     under `bench/data/`, `docs/llm-migration-plan.md:188`) and add the same path to `.prettierignore`
-    (nine entries today: `.yarn`, `.ruby-lsp`, `coverage/`, `app/assets/builds/`, `node_modules/`,
+    (nine entries today: `pnpm-lock.yaml`, `.ruby-lsp`, `coverage/`, `app/assets/builds/`, `node_modules/`,
     `public/`, `spec/fixtures/`, `tmp/`, `vendor/`).
   - Document on merge: ~14 GB on disk for the dump, roughly 15 GB+ of text-serialized vectors within it,
     a transfer rate of 1-1.5 MB/s from DO (so hours, not minutes, for the full dump), and that prod runs
@@ -3972,7 +3972,7 @@ fresh_bench_log)` — the `decide(agent_log:)` entry point S19 built, with a **f
   - Everything under `lib/bench/` needs specs so the Codecov project-coverage threshold (0.2%,
     `codecov.yml:10-12`, tracked by SimpleCov's `rails` profile over `{app,lib}/**/*.rb`) stays green,
     and needs to pass `prettier --check .` (Prettier covers `.rb`/`.rake` via the Prettier Ruby plugin;
-    `.prettierignore` already excludes `.yarn`, `coverage`, `builds`, `node_modules`, `public`,
+    `.prettierignore` already excludes `pnpm-lock.yaml`, `coverage`, `builds`, `node_modules`, `public`,
     `spec/fixtures`, `tmp`, `vendor` — bench code is not in that exclusion list, so it must be
     formatted, not ignored).
 - **Depends on.** S17 (bench DB + `Bench.isolate!` must exist), S04 (chat config + `LlmConfig.with_override`
