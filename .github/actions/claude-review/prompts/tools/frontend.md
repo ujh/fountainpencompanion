@@ -6,7 +6,7 @@ review the builds output; it is excluded from `diff-code.patch`).
 Tests are Vitest (jsdom environment), named `*.spec.js(x)`, under `spec/javascript/`
 mirroring the source tree. No Node toolchain runs in this
 workflow — review from source and the diff, do not try to run
-`yarn`, `vitest`, `eslint`, or `prettier`.
+`pnpm`, `vitest`, `eslint`, or `prettier`.
 
 ## Conventions to enforce (from CLAUDE.md)
 
@@ -25,7 +25,7 @@ workflow — review from source and the diff, do not try to run
 Prettier config: **100-char width, semicolons, double quotes,
 no trailing commas, `arrowParens: always`**. Quote style,
 semicolons, line width, trailing commas, and arrow-paren style
-are auto-fixed by the formatter and lint-staged on commit — do
+are owned by the formatter and enforced by `pnpm lint` in CI — do
 **not** raise findings about them. Likewise Ruby is formatted by
 the Prettier Ruby plugin. Focus on logic, correctness, hook
 usage, and structure, not anything a formatter rewrites.

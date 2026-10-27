@@ -53,7 +53,7 @@ services:
       - 80:80
   webpack:
     <<: *rails
-    command: yarn dev
+    command: pnpm dev
   sidekiq:
     <<: *rails
     command: bundle exec sidekiq

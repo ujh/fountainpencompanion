@@ -29,10 +29,10 @@ suppress the finding (and log the suppression in the step summary).
   it; excluded from `diff-code.patch`.
 
 - **Formatter-owned style.** Prettier (JS + Ruby via the Prettier Ruby
-  plugin) and ESLint run via lint-staged on commit. Do NOT raise
+  plugin) and ESLint run in CI via `pnpm lint`. Do NOT raise
   findings about quote style, semicolons, line width (100), trailing
   commas, arrow-paren style, or import ordering — the formatter owns
-  these and lint-staged enforces them.
+  these and CI enforces them.
 
 - **No issue/ticket requirement.** This is an open-source project. Do
   not require PR descriptions to link an issue or ticket. A `#123`

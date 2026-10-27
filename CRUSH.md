@@ -1,11 +1,11 @@
 Fountain Pen Companion – CRUSH quick guide
 
 - Stack: Ruby 3.4.4 / Rails 8; Node 24; React 19 + Vitest; Webpack 5; Prettier + ESLint
-- Install: yarn install; bundle install; DB: docker-compose up (see README)
-- Build: yarn build (prod to app/assets/builds); Dev: yarn dev
-- Lint/format: yarn lint; Auto-fix: yarn prettier-fix and/or yarn eslint --fix
+- Install: pnpm install; bundle install; DB: docker-compose up (see README)
+- Build: pnpm build (prod to app/assets/builds); Dev: pnpm dev
+- Lint/format: pnpm lint; Auto-fix: pnpm prettier-fix and/or pnpm eslint --fix
 - Tests (Rails): docker-compose exec app bundle exec rspec [spec/File.rb[:line] | -e "example"]
-- Tests (JS): yarn test; single file: yarn test path/to/Component.spec.jsx; -t "name"; watch mode: yarn vitest
+- Tests (JS): pnpm test; single file: pnpm test path/to/Component.spec.jsx; -t "name"; watch mode: pnpm vitest
 - CI mirrors these in .github/workflows/ci.yml
 
 JavaScript/React

@@ -87,13 +87,13 @@ runs:
         #
         # The `glob` magic is mandatory for `**/...` patterns. In
         # default pathspec magic, `**` is two `*`s and matches at
-        # least one path component, so `:(exclude)**/yarn.lock`
-        # silently fails on a root-level `yarn.lock`. `:(exclude,glob)`
+        # least one path component, so `:(exclude)**/pnpm-lock.yaml`
+        # silently fails on a root-level `pnpm-lock.yaml`. `:(exclude,glob)`
         # switches to gitignore-style globbing where `**/` collapses
         # to "any depth, including zero".
         git diff "$BASE_SHA...$HEAD_SHA" -- . \
           ':(exclude,glob)**/*.lock' \
-          ':(exclude,glob)**/yarn.lock' \
+          ':(exclude,glob)**/pnpm-lock.yaml' \
           ':(exclude,glob)**/package-lock.json' \
           ':(exclude,glob)**/db/structure.sql' \
           ':(exclude,glob)**/db/schema.rb' \

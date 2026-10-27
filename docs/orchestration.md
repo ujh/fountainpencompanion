@@ -222,7 +222,7 @@ links, commands, and consistency with repository instructions.
 | Focused RSpec/Vitest    | During each code step                                         | Pin the behavior the step changes.                           |
 | Per-commit review       | Before another step depends on a code commit                  | Catch defects before later work builds on them.              |
 | Full RSpec and Vitest   | Before a task is declared done and before opening its PR      | Check backend and frontend regressions.                      |
-| `yarn lint`             | Before opening a PR                                           | Match CI formatting and ESLint checks.                       |
+| `pnpm lint`             | Before opening a PR                                           | Match CI formatting and ESLint checks.                       |
 | Whole-branch review     | Before pushing and after fixes                                | Check how the complete change fits together.                 |
 | Application smoke check | End of the last code PR; earlier where stubs hide integration | Exercise the application path beyond isolated tests.         |
 | GitHub CI               | Each PR and subsequent push                                   | Verify the submitted commit, including the production image. |
