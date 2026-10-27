@@ -40,14 +40,15 @@ suppress the finding (and log the suppression in the step summary).
 
 ## Must-flag rules
 
-- **Ruby version must match in three places.** The Ruby version is
-  declared in `.ruby-version`, in `ruby "x.y.z"` in the `Gemfile`
-  (and the `RUBY VERSION` stanza of `Gemfile.lock`), and in
-  `ARG RUBY_VERSION=` in the `Dockerfile`. Dependabot's `docker`
-  updater only bumps the Dockerfile. Whenever a PR changes any one
-  of these, verify all of them agree and raise a `correctness`
-  finding if they diverge — the production image would run a
-  different Ruby than the one bundler and developers use.
+- **Runtime versions live in a fixed set of files.** The Ruby version
+  is in `.ruby-version` (the `Gemfile` reads it), the `RUBY VERSION`
+  stanza of `Gemfile.lock` and the `ruby` `FROM` line of the
+  `Dockerfile`; the Node version is in `.nvmrc` (CI reads it),
+  `engines` in `package.json` and the `node` `FROM` line.
+  `spec/config/runtime_versions_spec.rb` fails when they diverge.
+  Raise a `correctness` finding when a PR writes a Ruby or Node
+  version anywhere else without extending that spec, or turns a
+  `FROM` tag back into an `ARG`, which Dependabot cannot bump.
 
 ## Calibration
 
