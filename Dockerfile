@@ -7,9 +7,11 @@
 
 # For a containerized dev environment, see Dev Containers: https://guides.rubyonrails.org/getting_started_with_devcontainer.html
 
-# Make sure RUBY_VERSION matches the Ruby version in .ruby-version
-ARG RUBY_VERSION=4.0.7
-FROM docker.io/library/ruby:$RUBY_VERSION-slim AS base
+# Literal tags so Dependabot can bump them; spec/config/runtime_versions_spec.rb keeps
+# .ruby-version and .nvmrc in sync with them.
+FROM docker.io/library/node:24.22.1-trixie-slim AS node
+
+FROM docker.io/library/ruby:4.0.7-slim-trixie AS base
 
 # Rails app lives here
 WORKDIR /app
@@ -45,25 +47,17 @@ RUN apt-get update -qq && \
   rm -rf /var/lib/apt/lists /var/cache/apt/archives
 
 # Install application gems
-COPY Gemfile Gemfile.lock ./
+COPY .ruby-version Gemfile Gemfile.lock ./
 
 # Install npm packages
-COPY .node-version package.json pnpm-lock.yaml pnpm-workspace.yaml ./
-RUN if [ $(uname -m) = "aarch64" ]; then NODE_ARCH=arm64 ; else NODE_ARCH=x64 ; fi; \
-  uname -m && \
-  NODE_VERSION=$(cat .node-version) && \
-  NODE_TAR_FILE="node-$NODE_VERSION-linux-$NODE_ARCH.tar.gz" && \
-  curl -s "https://nodejs.org/dist/$NODE_VERSION/$NODE_TAR_FILE" --output $NODE_TAR_FILE && \
-  mkdir -p /opt/nodejs && \
-  tar -xvzf "$NODE_TAR_FILE" -C /opt/nodejs/ && \
-  mv "/opt/nodejs/node-$NODE_VERSION-linux-$NODE_ARCH" "/opt/nodejs/current" && \
-  ln -s /opt/nodejs/current/bin/node /usr/local/bin/node && \
-  ln -s /opt/nodejs/current/bin/npm /usr/local/bin/npm && \
-  rm "node-$NODE_VERSION-linux-$NODE_ARCH.tar.gz" && \
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY --from=node /usr/local/bin/node /usr/local/bin/
+COPY --from=node /usr/local/include/node /usr/local/include/node
+COPY --from=node /usr/local/lib/node_modules /usr/local/lib/node_modules
+RUN ln -s ../lib/node_modules/npm/bin/npm-cli.js /usr/local/bin/npm && \
   node -v
 
-RUN npm install --global --allow-scripts=pnpm "$(node -p 'require("./package.json").packageManager')" && \
-  ln -s /opt/nodejs/current/bin/pnpm /usr/local/bin/pnpm
+RUN npm install --global --allow-scripts=pnpm "$(node -p 'require("./package.json").packageManager')"
 RUN pnpm install --frozen-lockfile
 
 FROM common-build AS dev
