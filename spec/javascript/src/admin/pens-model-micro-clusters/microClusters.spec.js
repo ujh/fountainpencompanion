@@ -7,24 +7,26 @@ import {
 import { getRequest, putRequest } from "fetch";
 
 // Mock the fetch functions
-jest.mock("fetch", () => ({
-  getRequest: jest.fn(),
-  putRequest: jest.fn()
+vi.mock("fetch", () => ({
+  getRequest: vi.fn(),
+  putRequest: vi.fn()
 }));
 
 // Mock Jsona
-jest.mock("jsona", () => {
-  return jest.fn().mockImplementation(() => ({
-    deserialize: jest.fn((data) => data.data || data)
-  }));
-});
+vi.mock("jsona", () => ({
+  default: vi.fn(function () {
+    return {
+      deserialize: vi.fn((data) => data.data || data)
+    };
+  })
+}));
 
 describe("microClusters", () => {
   let mockDispatch;
 
   beforeEach(() => {
-    mockDispatch = jest.fn();
-    jest.clearAllMocks();
+    mockDispatch = vi.fn();
+    vi.clearAllMocks();
   });
 
   describe("getMicroClusters", () => {

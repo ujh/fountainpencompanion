@@ -4,17 +4,16 @@ import * as fetchModule from "../../../fetch";
 import { Agents } from "../Agents";
 
 // Mock Highcharts to prevent real code execution
-jest.mock("highcharts", () => ({}));
+vi.mock("highcharts", () => ({ default: {} }));
 
 // Mock Spinner to avoid unrelated markup
-jest.mock("../../components/Spinner", () => ({
+vi.mock("../../components/Spinner", () => ({
   Spinner: () => <div data-testid="spinner" />
 }));
 
 // Mock HighchartsReact to inspect props
-jest.mock("highcharts-react-official", () => ({
-  __esModule: true,
-  default: jest.fn(() => <div data-testid="highcharts-chart" />)
+vi.mock("highcharts-react-official", () => ({
+  default: vi.fn(() => <div data-testid="highcharts-chart" />)
 }));
 
 // Mock navigator.locks
@@ -30,12 +29,12 @@ afterAll(() => {
 
 describe("Agents component", () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it("shows spinner while loading", () => {
     // Don't resolve fetch immediately
-    jest.spyOn(fetchModule, "getRequest").mockReturnValue(new Promise(() => {}));
+    vi.spyOn(fetchModule, "getRequest").mockReturnValue(new Promise(() => {}));
     render(<Agents />);
     expect(screen.getByTestId("spinner")).toBeInTheDocument();
   });
@@ -45,7 +44,7 @@ describe("Agents component", () => {
       { name: "Agent A", data: [1, 2, 3] },
       { name: "Agent B", data: [4, 5, 6] }
     ];
-    jest.spyOn(fetchModule, "getRequest").mockResolvedValue({
+    vi.spyOn(fetchModule, "getRequest").mockResolvedValue({
       json: () => Promise.resolve(mockData)
     });
 

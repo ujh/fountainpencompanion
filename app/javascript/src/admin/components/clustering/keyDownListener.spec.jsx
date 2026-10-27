@@ -8,14 +8,14 @@ describe("keyDownListener", () => {
   let removeEventListenerSpy;
 
   beforeEach(() => {
-    mockCallback = jest.fn();
+    mockCallback = vi.fn();
 
     // Reset the inBrandSelector state
     setInBrandSelector(false);
 
     // Mock document event listener methods
-    addEventListenerSpy = jest.spyOn(document, "addEventListener");
-    removeEventListenerSpy = jest.spyOn(document, "removeEventListener");
+    addEventListenerSpy = vi.spyOn(document, "addEventListener");
+    removeEventListenerSpy = vi.spyOn(document, "removeEventListener");
 
     // Clear any existing event listeners
     if (removeListener) {
@@ -34,7 +34,7 @@ describe("keyDownListener", () => {
     // Restore mocks
     addEventListenerSpy.mockRestore();
     removeEventListenerSpy.mockRestore();
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe("Basic functionality", () => {
@@ -297,7 +297,7 @@ describe("keyDownListener", () => {
 
   describe("Multiple listeners", () => {
     it("supports multiple simultaneous listeners", () => {
-      const mockCallback2 = jest.fn();
+      const mockCallback2 = vi.fn();
 
       const removeListener1 = keyDownListener(mockCallback);
       const removeListener2 = keyDownListener(mockCallback2);
@@ -314,7 +314,7 @@ describe("keyDownListener", () => {
     });
 
     it("removes only the specific listener when cleanup is called", () => {
-      const mockCallback2 = jest.fn();
+      const mockCallback2 = vi.fn();
 
       const removeListener1 = keyDownListener(mockCallback);
       const removeListener2 = keyDownListener(mockCallback2);

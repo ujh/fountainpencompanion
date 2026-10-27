@@ -24,7 +24,7 @@ describe("Autocomplete", () => {
 
   describe("with a function source", () => {
     it("shows suggestions when typing", async () => {
-      const mockSource = jest.fn().mockResolvedValue(["Apple", "Apricot", "Avocado"]);
+      const mockSource = vi.fn().mockResolvedValue(["Apple", "Apricot", "Avocado"]);
 
       render(<Autocomplete inputSelector="#test-input" source={mockSource} />);
 
@@ -44,7 +44,7 @@ describe("Autocomplete", () => {
     });
 
     it("selects a suggestion when clicked", async () => {
-      const mockSource = jest.fn().mockResolvedValue(["Apple", "Apricot"]);
+      const mockSource = vi.fn().mockResolvedValue(["Apple", "Apricot"]);
 
       render(<Autocomplete inputSelector="#test-input" source={mockSource} />);
 
@@ -63,7 +63,7 @@ describe("Autocomplete", () => {
     });
 
     it("does not fetch again after selecting a suggestion", async () => {
-      const mockSource = jest.fn().mockResolvedValue(["Apple", "Apricot"]);
+      const mockSource = vi.fn().mockResolvedValue(["Apple", "Apricot"]);
 
       render(<Autocomplete inputSelector="#test-input" source={mockSource} />);
 
@@ -92,8 +92,8 @@ describe("Autocomplete", () => {
     });
 
     it("calls getDependencies when provided", async () => {
-      const mockSource = jest.fn().mockResolvedValue(["Result"]);
-      const mockGetDependencies = jest.fn().mockReturnValue({ brandName: "TestBrand" });
+      const mockSource = vi.fn().mockResolvedValue(["Result"]);
+      const mockGetDependencies = vi.fn().mockReturnValue({ brandName: "TestBrand" });
 
       render(
         <Autocomplete
@@ -112,7 +112,7 @@ describe("Autocomplete", () => {
     });
 
     it("hides suggestions when input is empty", async () => {
-      const mockSource = jest.fn().mockResolvedValue(["Apple"]);
+      const mockSource = vi.fn().mockResolvedValue(["Apple"]);
 
       render(<Autocomplete inputSelector="#test-input" source={mockSource} />);
 
@@ -134,7 +134,7 @@ describe("Autocomplete", () => {
 
   describe("keyboard navigation", () => {
     it("navigates with arrow keys", async () => {
-      const mockSource = jest.fn().mockResolvedValue(["Apple", "Apricot"]);
+      const mockSource = vi.fn().mockResolvedValue(["Apple", "Apricot"]);
 
       render(<Autocomplete inputSelector="#test-input" source={mockSource} />);
 
@@ -166,7 +166,7 @@ describe("Autocomplete", () => {
     });
 
     it("selects with Enter key", async () => {
-      const mockSource = jest.fn().mockResolvedValue(["Apple", "Apricot"]);
+      const mockSource = vi.fn().mockResolvedValue(["Apple", "Apricot"]);
 
       render(<Autocomplete inputSelector="#test-input" source={mockSource} />);
 
@@ -192,7 +192,7 @@ describe("Autocomplete", () => {
     });
 
     it("closes suggestions with Escape key", async () => {
-      const mockSource = jest.fn().mockResolvedValue(["Apple"]);
+      const mockSource = vi.fn().mockResolvedValue(["Apple"]);
 
       render(<Autocomplete inputSelector="#test-input" source={mockSource} />);
 
@@ -224,7 +224,7 @@ describe("Autocomplete", () => {
 
     const renderAndType = async (text, suggestions = ["Pilot", "Pelikan"]) => {
       const user = userEvent.setup();
-      const mockSource = jest.fn().mockResolvedValue(suggestions);
+      const mockSource = vi.fn().mockResolvedValue(suggestions);
       render(<Autocomplete inputSelector="#test-input" source={mockSource} />);
       await user.type(inputElement, text);
       await waitFor(() => expect(screen.getByRole("listbox")).toBeInTheDocument());
@@ -255,7 +255,7 @@ describe("Autocomplete", () => {
     });
 
     it("does not complete when the input is not focused", async () => {
-      const mockSource = jest.fn().mockResolvedValue(["Pilot"]);
+      const mockSource = vi.fn().mockResolvedValue(["Pilot"]);
       render(<Autocomplete inputSelector="#test-input" source={mockSource} />);
 
       fireEvent.input(inputElement, { target: { value: "pi" } });
@@ -286,7 +286,7 @@ describe("Autocomplete", () => {
     it("dispatches change and input events when filling in the suggestion", async () => {
       const { mockSource } = await renderAndType("pi");
       await waitFor(() => expect(inputElement.value).toBe("pilot"));
-      const onChange = jest.fn();
+      const onChange = vi.fn();
       inputElement.addEventListener("change", onChange);
 
       await blur();
@@ -307,7 +307,7 @@ describe("Autocomplete", () => {
     });
 
     it("replaces the completion when typing another character", async () => {
-      const mockSource = jest
+      const mockSource = vi
         .fn()
         .mockResolvedValueOnce(["Pilot", "Pelikan"])
         .mockResolvedValue(["Pelikan"]);
@@ -406,7 +406,7 @@ describe("Autocomplete", () => {
 
     it("ignores responses for outdated requests", async () => {
       let resolveFirst;
-      const mockSource = jest
+      const mockSource = vi
         .fn()
         .mockImplementationOnce(() => new Promise((resolve) => (resolveFirst = resolve)))
         .mockResolvedValue(["Pelikan"]);
@@ -431,21 +431,21 @@ describe("Autocomplete", () => {
     const ITEM_HEIGHT = 40;
 
     beforeEach(() => {
-      jest.spyOn(HTMLElement.prototype, "offsetTop", "get").mockImplementation(function () {
+      vi.spyOn(HTMLElement.prototype, "offsetTop", "get").mockImplementation(function () {
         return this.classList.contains("fpc-autocomplete-item")
           ? Array.from(this.parentNode.children).indexOf(this) * ITEM_HEIGHT
           : 0;
       });
-      jest.spyOn(HTMLElement.prototype, "offsetHeight", "get").mockReturnValue(ITEM_HEIGHT);
-      jest.spyOn(HTMLElement.prototype, "clientHeight", "get").mockReturnValue(100);
+      vi.spyOn(HTMLElement.prototype, "offsetHeight", "get").mockReturnValue(ITEM_HEIGHT);
+      vi.spyOn(HTMLElement.prototype, "clientHeight", "get").mockReturnValue(100);
     });
 
     afterEach(() => {
-      jest.restoreAllMocks();
+      vi.restoreAllMocks();
     });
 
     it("keeps the highlighted suggestion in view when navigating with the arrow keys", async () => {
-      const mockSource = jest.fn().mockResolvedValue(["A1", "A2", "A3", "A4", "A5"]);
+      const mockSource = vi.fn().mockResolvedValue(["A1", "A2", "A3", "A4", "A5"]);
       render(<Autocomplete inputSelector="#test-input" source={mockSource} />);
       fireEvent.input(inputElement, { target: { value: "A" } });
       await waitFor(() => expect(screen.getByRole("listbox")).toBeInTheDocument());
@@ -474,7 +474,7 @@ describe("Autocomplete", () => {
 
   describe("with empty results", () => {
     it("does not show dropdown when no suggestions", async () => {
-      const mockSource = jest.fn().mockResolvedValue([]);
+      const mockSource = vi.fn().mockResolvedValue([]);
 
       render(<Autocomplete inputSelector="#test-input" source={mockSource} />);
 
@@ -491,8 +491,8 @@ describe("Autocomplete", () => {
 
   describe("error handling", () => {
     it("handles fetch errors gracefully", async () => {
-      const consoleSpy = jest.spyOn(console, "error").mockImplementation(() => {});
-      const mockSource = jest.fn().mockRejectedValue(new Error("Network error"));
+      const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+      const mockSource = vi.fn().mockRejectedValue(new Error("Network error"));
 
       render(<Autocomplete inputSelector="#test-input" source={mockSource} />);
 
@@ -511,7 +511,7 @@ describe("Autocomplete", () => {
 
   describe("when input element does not exist", () => {
     it("renders nothing and does not crash", () => {
-      const mockSource = jest.fn().mockResolvedValue(["Apple"]);
+      const mockSource = vi.fn().mockResolvedValue(["Apple"]);
 
       // Remove the input element
       inputElement.parentNode.removeChild(inputElement);

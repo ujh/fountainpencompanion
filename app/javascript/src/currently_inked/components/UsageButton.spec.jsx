@@ -61,7 +61,7 @@ describe("<UsageButton />", () => {
   });
 
   it("calls onUsageRecorded with updated entry after clicking", async () => {
-    const onUsageRecorded = jest.fn();
+    const onUsageRecorded = vi.fn();
     render(<UsageButton used={false} id={1} onUsageRecorded={onUsageRecorded} />);
 
     const button = await screen.findByTitle("Record usage for today");

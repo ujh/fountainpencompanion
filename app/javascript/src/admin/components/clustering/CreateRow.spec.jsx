@@ -3,21 +3,20 @@ import userEvent from "@testing-library/user-event";
 import { DispatchContext, StateContext } from "./App";
 import { CreateRow } from "./CreateRow";
 import { REMOVE_MICRO_CLUSTER } from "./actions";
+import { keyDownListener } from "./keyDownListener";
 
 // Mock the keyDownListener module
-jest.mock("./keyDownListener", () => ({
-  keyDownListener: jest.fn()
+vi.mock("./keyDownListener", () => ({
+  keyDownListener: vi.fn()
 }));
 
-const mockDispatch = jest.fn();
-const mockAfterCreate = jest.fn();
-const mockCreateMacroClusterAndAssign = jest.fn();
-const mockIgnoreCluster = jest.fn();
-
-const { keyDownListener } = require("./keyDownListener");
+const mockDispatch = vi.fn();
+const mockAfterCreate = vi.fn();
+const mockCreateMacroClusterAndAssign = vi.fn();
+const mockIgnoreCluster = vi.fn();
 
 // Mock window.open
-const mockOpen = jest.fn();
+const mockOpen = vi.fn();
 Object.defineProperty(window, "open", {
   writable: true,
   value: mockOpen
@@ -64,7 +63,7 @@ const renderWithContext = (props = {}, state = defaultState) => {
 
 describe("CreateRow", () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     mockIgnoreCluster.mockResolvedValue();
   });
 
@@ -252,7 +251,7 @@ describe("CreateRow", () => {
     });
 
     it("cleans up keyboard listener on unmount", () => {
-      const mockRemoveListener = jest.fn();
+      const mockRemoveListener = vi.fn();
       keyDownListener.mockReturnValue(mockRemoveListener);
 
       const { unmount } = renderWithContext();
@@ -262,7 +261,7 @@ describe("CreateRow", () => {
     });
 
     it("updates keyboard listener when dependencies change", () => {
-      const mockRemoveListener = jest.fn();
+      const mockRemoveListener = vi.fn();
       keyDownListener.mockReturnValue(mockRemoveListener);
 
       const { rerender } = renderWithContext();

@@ -2,7 +2,7 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import { Dashboard } from "dashboard/index";
 import { useDashboardPreferences } from "dashboard/useDashboardPreferences";
 
-jest.mock("dashboard/widget_registry", () => {
+vi.mock("dashboard/widget_registry", () => {
   const WidgetA = () => <div data-testid="widget-a">Widget A</div>;
   const WidgetB = () => <div data-testid="widget-b">Widget B</div>;
   const WidgetC = () => <div data-testid="widget-c">Widget C</div>;
@@ -19,11 +19,11 @@ jest.mock("dashboard/widget_registry", () => {
   };
 });
 
-const mockSetVisibleWidgetIds = jest.fn();
-const mockSaveToServer = jest.fn();
+const mockSetVisibleWidgetIds = vi.fn();
+const mockSaveToServer = vi.fn();
 
-jest.mock("dashboard/useDashboardPreferences", () => ({
-  useDashboardPreferences: jest.fn()
+vi.mock("dashboard/useDashboardPreferences", () => ({
+  useDashboardPreferences: vi.fn()
 }));
 
 function setupPreferences(visibleIds = ["widget_a", "widget_b", "widget_c"]) {

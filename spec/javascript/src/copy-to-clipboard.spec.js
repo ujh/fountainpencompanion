@@ -11,7 +11,7 @@ describe("setupCopyButtons", () => {
       <button type="button" data-copy-target="example">Copy</button>
       <button type="button" data-copy-target="missing">Copy</button>
     `;
-    Object.assign(navigator, { clipboard: { writeText: jest.fn() } });
+    Object.assign(navigator, { clipboard: { writeText: vi.fn() } });
   });
 
   const button = (target) => document.querySelector(`[data-copy-target="${target}"]`);

@@ -56,7 +56,7 @@ jobs:
       - name: Install correct Node version
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
-          node-version: "v24.14.0"
+          node-version: "v24.22.1"
           cache: yarn
       - name: Set up Ruby
         uses: ruby/setup-ruby@7f797815d8adceb1c412e7abefdd1ab4abc47a5f # v1.335.0
@@ -80,7 +80,7 @@ jobs:
       - name: Install correct Node version
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
-          node-version: "v24.14.0"
+          node-version: "v24.22.1"
           cache: yarn
       - name: Set up Ruby
         uses: ruby/setup-ruby@7f797815d8adceb1c412e7abefdd1ab4abc47a5f # v1.335.0

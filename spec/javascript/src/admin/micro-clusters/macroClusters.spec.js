@@ -90,10 +90,10 @@ describe("getMacroClusters", () => {
 
   afterAll(() => server.close());
 
-  it("loads and transforms the cluster data", (done) => {
-    const dispatch = jest.fn();
+  it("loads and transforms the cluster data", async () => {
+    const dispatch = vi.fn();
     getMacroClusters(dispatch);
-    setTimeout(() => {
+    await vi.waitFor(() => {
       expect(dispatch.mock.calls).toHaveLength(2);
       const firstCall = dispatch.mock.calls[0][0];
       expect(firstCall.type).toBe("SET_LOADING_PERCENTAGE");
@@ -106,7 +106,6 @@ describe("getMacroClusters", () => {
       expect(macroCluster.grouped_entries).toHaveLength(2);
       const microCluster = macroCluster.micro_clusters[0];
       expect(microCluster.entries).toHaveLength(2);
-      done();
-    }, 500);
+    });
   });
 });

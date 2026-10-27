@@ -2,22 +2,21 @@ import { render, screen, waitFor } from "@testing-library/react";
 import * as fetchModule from "../../../fetch";
 import { CollectedInks } from "../CollectedInks";
 
-jest.mock("highcharts", () => ({}));
+vi.mock("highcharts", () => ({ default: {} }));
 
 // Mock HighchartsReact to just render a div with its props for inspection
-jest.mock("highcharts-react-official", () => {
+vi.mock("highcharts-react-official", () => {
   const MockHighchartsReact = (props) => (
     <div data-testid="highcharts-mock">{JSON.stringify(props.options)}</div>
   );
   MockHighchartsReact.displayName = "MockHighchartsReact";
   return {
-    __esModule: true,
     default: MockHighchartsReact
   };
 });
 
 // Mock Spinner
-jest.mock("../../components/Spinner", () => ({
+vi.mock("../../components/Spinner", () => ({
   Spinner: () => <div data-testid="spinner">Loading...</div>
 }));
 
@@ -39,7 +38,7 @@ describe("CollectedInks", () => {
   ];
 
   beforeEach(() => {
-    jest.spyOn(fetchModule, "getRequest").mockImplementation(() =>
+    vi.spyOn(fetchModule, "getRequest").mockImplementation(() =>
       Promise.resolve({
         json: () => Promise.resolve(mockData)
       })
@@ -47,12 +46,12 @@ describe("CollectedInks", () => {
   });
 
   afterEach(() => {
-    jest.restoreAllMocks();
+    vi.restoreAllMocks();
   });
 
   it("shows spinner while loading", async () => {
     // Delay the promise to simulate loading
-    jest.spyOn(fetchModule, "getRequest").mockImplementation(
+    vi.spyOn(fetchModule, "getRequest").mockImplementation(
       () =>
         new Promise((resolve) => {
           setTimeout(

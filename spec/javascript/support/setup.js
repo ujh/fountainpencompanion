@@ -1,5 +1,4 @@
-import "@testing-library/jest-dom";
-import "regenerator-runtime/runtime";
+import "@testing-library/jest-dom/vitest";
 
 // jsdom does not implement the canvas API; chart components call getContext.
 // Stub it so suites that render charts don't emit "Not implemented:

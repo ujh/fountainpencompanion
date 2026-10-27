@@ -44,11 +44,12 @@
     "@eslint/js": "^10.0.1",
     "@honeybadger-io/webpack": "^6.3.4",
     "@prettier/plugin-ruby": "^4.0.4",
-    "@testing-library/jest-dom": "^6.9.1",
-    "@testing-library/react": "^15.0.7",
+    "@testing-library/dom": "^10.4.2",
+    "@testing-library/jest-dom": "^7.0.1",
+    "@testing-library/react": "^16.3.3",
     "@testing-library/user-event": "^14.6.8",
     "@trivago/prettier-plugin-sort-imports": "^6.0.2",
-    "@types/jest": "^30.0.0",
+    "@vitest/coverage-v8": "^5.0.5",
     "babel-loader": "^10.1.1",
     "css-loader": "^7.1.5",
     "eslint": "^9.39.2",
@@ -57,52 +58,21 @@
     "eslint-plugin-react-hooks": "^7.1.1",
     "globals": "^17.13.0",
     "husky": "^9.1.7",
-    "jest": "^30.5.2",
-    "jest-environment-jsdom": "^30.5.2",
+    "jsdom": "^30.1.3",
     "lint-staged": "^17.6.0",
     "mini-css-extract-plugin": "^2.10.2",
     "msw": "3.0.3",
-    "postcss-preset-env": "^11.6.1",
     "prettier": "^3.9.10",
     "sass": "^1.106.1",
     "sass-loader": "^17.0.1",
+    "vite": "^8.3.5",
+    "vitest": "^5.0.5",
     "webpack": "^5.112.2",
     "webpack-cli": "^7.2.3",
     "webpack-remove-empty-scripts": "^1.1.1"
   },
   "engines": {
-    "node": "v24.14.0"
-  },
-  "jest": {
-    "collectCoverage": true,
-    "collectCoverageFrom": [
-      "app/javascript/**/*.{js,jsx}"
-    ],
-    "coverageReporters": [
-      "html",
-      "lcov",
-      "text-summary"
-    ],
-    "modulePaths": [
-      "<rootDir>/app/javascript/src"
-    ],
-    "moduleNameMapper": {
-      "^.+\\.(css|scss)$": "<rootDir>/spec/javascript/support/identity-mapper.js"
-    },
-    "setupFilesAfterEnv": [
-      "<rootDir>/spec/javascript/support/setup.js"
-    ],
-    "testEnvironment": "<rootDir>/spec/javascript/support/jsdom-environment.js",
-    "testEnvironmentOptions": {
-      "url": "http://fpc.invalid/"
-    },
-    "testPathIgnorePatterns": [
-      "/node_modules/",
-      "<rootDir>/config/"
-    ],
-    "transformIgnorePatterns": [
-      "node_modules/(?!(d3-scale-chromatic|d3-interpolate|d3-color|color-convert|color-name)/)"
-    ]
+    "node": "v24.22.1"
   },
   "scripts": {
     "prepare": "husky",
@@ -112,7 +82,7 @@
     "eslint": "eslint .",
     "prettier": "prettier --check .",
     "prettier-fix": "prettier --write .",
-    "test": "NODE_OPTIONS='--experimental-vm-modules --disable-warning=ExperimentalWarning' jest"
+    "test": "vitest run"
   },
   "lint-staged": {
     "*.{css,html,js,json,jsx,md,rb,ru,scss,yml,yaml,rake}": "prettier --write",

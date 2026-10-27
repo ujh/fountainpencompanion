@@ -6,7 +6,7 @@ import { HttpResponse, http } from "msw";
 import { setupServer } from "msw/node";
 
 // Mock the assignCluster function
-jest.mock("admin/micro-clusters/assignCluster");
+vi.mock("admin/micro-clusters/assignCluster");
 
 describe("createMacroClusterAndAssign", () => {
   const server = setupServer(
@@ -41,21 +41,21 @@ describe("createMacroClusterAndAssign", () => {
 
   beforeEach(() => {
     // Mock timers to control setTimeout behavior
-    jest.useFakeTimers();
+    vi.useFakeTimers();
   });
 
   afterEach(() => {
     server.resetHandlers();
-    jest.clearAllMocks();
-    jest.clearAllTimers();
-    jest.useRealTimers();
+    vi.clearAllMocks();
+    vi.clearAllTimers();
+    vi.useRealTimers();
   });
 
   afterAll(() => server.close());
 
   it("creates a macro cluster, assigns the micro cluster, and dispatches actions", async () => {
-    const mockDispatch = jest.fn();
-    const mockAfterCreate = jest.fn();
+    const mockDispatch = vi.fn();
+    const mockAfterCreate = vi.fn();
     const mockMicroCluster = {
       id: "micro-456",
       macro_cluster: {
@@ -98,10 +98,10 @@ describe("createMacroClusterAndAssign", () => {
     expect(mockDispatch).toHaveBeenCalledWith({ type: UPDATING });
 
     // Fast-forward timers to trigger the setTimeout
-    jest.advanceTimersByTime(10);
+    vi.advanceTimersByTime(10);
 
     // The request goes over the (real) network stack, so wait for it with real timers
-    jest.useRealTimers();
+    vi.useRealTimers();
     await waitFor(() => expect(mockAfterCreate).toHaveBeenCalled());
 
     // Verify assignCluster was called with correct parameters
@@ -147,8 +147,8 @@ describe("createMacroClusterAndAssign", () => {
   });
 
   it("dispatches UPDATING action immediately", () => {
-    const mockDispatch = jest.fn();
-    const mockAfterCreate = jest.fn();
+    const mockDispatch = vi.fn();
+    const mockAfterCreate = vi.fn();
     const values = { brand_name: "Test Brand" };
 
     createMacroClusterAndAssign(values, "micro-456", mockDispatch, mockAfterCreate);
@@ -157,8 +157,8 @@ describe("createMacroClusterAndAssign", () => {
   });
 
   it("handles basic error cases gracefully", () => {
-    const mockDispatch = jest.fn();
-    const mockAfterCreate = jest.fn();
+    const mockDispatch = vi.fn();
+    const mockAfterCreate = vi.fn();
     const values = { brand_name: "Test Brand" };
 
     // Should not throw when called
@@ -171,11 +171,11 @@ describe("createMacroClusterAndAssign", () => {
   });
 
   it("calls setTimeout with correct delay", () => {
-    const mockDispatch = jest.fn();
-    const mockAfterCreate = jest.fn();
+    const mockDispatch = vi.fn();
+    const mockAfterCreate = vi.fn();
     const values = { brand_name: "Test Brand" };
 
-    const setTimeoutSpy = jest.spyOn(global, "setTimeout");
+    const setTimeoutSpy = vi.spyOn(global, "setTimeout");
 
     createMacroClusterAndAssign(values, "micro-456", mockDispatch, mockAfterCreate);
 

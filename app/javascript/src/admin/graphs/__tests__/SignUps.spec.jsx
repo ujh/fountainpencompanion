@@ -2,11 +2,10 @@ import { render, screen, waitFor } from "@testing-library/react";
 import * as fetchModule from "../../../fetch";
 import { SignUps } from "../SignUps";
 
-jest.mock("highcharts", () => ({}));
+vi.mock("highcharts", () => ({ default: {} }));
 
 // Mock HighchartsReact to just render a div with the options as data-prop
-jest.mock("highcharts-react-official", () => ({
-  __esModule: true,
+vi.mock("highcharts-react-official", () => ({
   default: ({ options }) => (
     <div data-testid="highcharts-mock">
       <span>{options?.title?.text}</span>
@@ -16,7 +15,7 @@ jest.mock("highcharts-react-official", () => ({
 }));
 
 // Mock Spinner
-jest.mock("../../components/Spinner", () => ({
+vi.mock("../../components/Spinner", () => ({
   Spinner: () => <div data-testid="spinner">Loading...</div>
 }));
 
@@ -50,7 +49,7 @@ describe("SignUps", () => {
   ];
 
   beforeEach(() => {
-    jest.spyOn(fetchModule, "getRequest").mockImplementation(() =>
+    vi.spyOn(fetchModule, "getRequest").mockImplementation(() =>
       Promise.resolve({
         json: () => Promise.resolve(mockData)
       })
@@ -58,7 +57,7 @@ describe("SignUps", () => {
   });
 
   afterEach(() => {
-    jest.restoreAllMocks();
+    vi.restoreAllMocks();
   });
 
   it("shows spinner while loading", async () => {

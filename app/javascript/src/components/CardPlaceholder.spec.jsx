@@ -3,11 +3,11 @@ import { CardsPlaceholder } from "./CardsPlaceholder";
 
 describe("<CardsPlaceholder />", () => {
   beforeEach(() => {
-    jest.useFakeTimers();
+    vi.useFakeTimers();
   });
 
   afterEach(() => {
-    jest.useRealTimers();
+    vi.useRealTimers();
   });
 
   it("only renders after a delay of 250ms", async () => {
@@ -15,7 +15,7 @@ describe("<CardsPlaceholder />", () => {
     let placeholder = queryByTestId("cards-placeholder");
     expect(placeholder).toBeNull();
 
-    act(() => jest.advanceTimersByTime(251));
+    act(() => vi.advanceTimersByTime(251));
 
     placeholder = queryByTestId("cards-placeholder");
     expect(placeholder).not.toBeNull();

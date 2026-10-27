@@ -18,9 +18,9 @@ describe("<Table />", () => {
   const mockGetCellProps = () => ({});
   const mockGetRowProps = () => ({});
   const mockGetFooterProps = () => ({});
-  const mockGetSortByToggleProps = () => ({ onClick: jest.fn() });
+  const mockGetSortByToggleProps = () => ({ onClick: vi.fn() });
 
-  const mockPrepareRow = jest.fn();
+  const mockPrepareRow = vi.fn();
 
   const headerGroups = [
     {
@@ -268,7 +268,7 @@ describe("<Table />", () => {
   });
 
   it("calls prepareRow for each row", () => {
-    const localMockPrepareRow = jest.fn();
+    const localMockPrepareRow = vi.fn();
     setup(
       <Table
         getTableProps={mockGetTableProps}

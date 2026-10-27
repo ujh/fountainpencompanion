@@ -247,8 +247,8 @@ describe("<CurrentlyInkedTable />", () => {
   });
 
   it("global filter reduces visible rows", async () => {
-    jest.useFakeTimers();
-    const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
     try {
       const { getByLabelText, container } = render(
         <CurrentlyInkedTable
@@ -261,7 +261,7 @@ describe("<CurrentlyInkedTable />", () => {
 
       await user.type(getByLabelText("Search"), "Platinum");
       await act(async () => {
-        jest.runAllTimers();
+        vi.runAllTimers();
       });
 
       await waitFor(() => {
@@ -271,13 +271,13 @@ describe("<CurrentlyInkedTable />", () => {
 
       expect(container).toHaveTextContent("Platinum #3776 Century, Black Diamond, F");
     } finally {
-      jest.useRealTimers();
+      vi.useRealTimers();
     }
   });
 
   it("filter persists during sort", async () => {
-    jest.useFakeTimers();
-    const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
     try {
       const { getByLabelText, getByText, container } = render(
         <CurrentlyInkedTable
@@ -290,7 +290,7 @@ describe("<CurrentlyInkedTable />", () => {
 
       await user.type(getByLabelText("Search"), "Platinum");
       await act(async () => {
-        jest.runAllTimers();
+        vi.runAllTimers();
       });
 
       await waitFor(() => {
@@ -307,7 +307,7 @@ describe("<CurrentlyInkedTable />", () => {
 
       expect(container).toHaveTextContent("Platinum #3776 Century, Black Diamond, F");
     } finally {
-      jest.useRealTimers();
+      vi.useRealTimers();
     }
   });
 });

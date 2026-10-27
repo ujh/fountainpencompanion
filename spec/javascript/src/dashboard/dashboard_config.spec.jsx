@@ -1,16 +1,33 @@
 import { act, fireEvent, render, renderHook, screen } from "@testing-library/react";
 import { DraggableWidget, HiddenWidget, useDragReorder } from "dashboard/dashboard_config";
+import { HttpResponse, http } from "msw";
+import { setupServer } from "msw/node";
 
 describe("HiddenWidget", () => {
-  it("renders the widget content and add button", () => {
-    render(<HiddenWidget id="inks_summary" onAdd={jest.fn()} />);
+  const server = setupServer(
+    http.get("/dashboard/widgets/inks_summary.json", () =>
+      HttpResponse.json({
+        data: {
+          attributes: { count: 1, used: 1, swabbed: 1, archived: 1, inks_without_reviews: 1 }
+        }
+      })
+    )
+  );
+
+  beforeAll(() => server.listen());
+  afterAll(() => server.close());
+
+  it("renders the widget content and add button", async () => {
+    render(<HiddenWidget id="inks_summary" onAdd={vi.fn()} />);
     expect(screen.getByText("Inks")).toBeInTheDocument();
     expect(screen.getByLabelText("Add Inks Summary")).toBeInTheDocument();
+    await screen.findByText(/Collection/);
   });
 
-  it("calls onAdd with the widget id when clicked", () => {
-    const onAdd = jest.fn();
+  it("calls onAdd with the widget id when clicked", async () => {
+    const onAdd = vi.fn();
     render(<HiddenWidget id="inks_summary" onAdd={onAdd} />);
+    await screen.findByText(/Collection/);
     fireEvent.click(screen.getByLabelText("Add Inks Summary"));
     expect(onAdd).toHaveBeenCalledWith("inks_summary");
   });
@@ -24,13 +41,13 @@ describe("DraggableWidget", () => {
     isLast: false,
     configuring: true,
     dragging: false,
-    onRemove: jest.fn(),
-    onMoveUp: jest.fn(),
-    onMoveDown: jest.fn(),
-    onDragStart: jest.fn(),
-    onDragOver: jest.fn(),
-    onDrop: jest.fn(),
-    onDragEnd: jest.fn()
+    onRemove: vi.fn(),
+    onMoveUp: vi.fn(),
+    onMoveDown: vi.fn(),
+    onDragStart: vi.fn(),
+    onDragOver: vi.fn(),
+    onDrop: vi.fn(),
+    onDragEnd: vi.fn()
   };
 
   it("renders children without configure UI when not configuring", () => {
@@ -56,7 +73,7 @@ describe("DraggableWidget", () => {
   });
 
   it("calls onRemove when remove is clicked", () => {
-    const onRemove = jest.fn();
+    const onRemove = vi.fn();
     render(
       <DraggableWidget {...defaultProps} onRemove={onRemove}>
         <div>Content</div>
@@ -107,7 +124,7 @@ describe("DraggableWidget", () => {
   });
 
   it("calls onMoveUp with index when up is clicked", () => {
-    const onMoveUp = jest.fn();
+    const onMoveUp = vi.fn();
     render(
       <DraggableWidget {...defaultProps} index={1} isFirst={false} onMoveUp={onMoveUp}>
         <div>Content</div>
@@ -118,7 +135,7 @@ describe("DraggableWidget", () => {
   });
 
   it("calls onMoveDown with index when down is clicked", () => {
-    const onMoveDown = jest.fn();
+    const onMoveDown = vi.fn();
     render(
       <DraggableWidget {...defaultProps} index={2} isFirst={false} onMoveDown={onMoveDown}>
         <div>Content</div>
@@ -132,8 +149,8 @@ describe("DraggableWidget", () => {
 describe("useDragReorder", () => {
   it("reorders items live on dragOver with skipServer", () => {
     const ids = ["a", "b", "c"];
-    const setIds = jest.fn();
-    const saveToServer = jest.fn();
+    const setIds = vi.fn();
+    const saveToServer = vi.fn();
     const { result } = renderHook(() => useDragReorder(ids, setIds, saveToServer));
 
     act(() => {
@@ -141,10 +158,7 @@ describe("useDragReorder", () => {
     });
 
     act(() => {
-      result.current.onDragOver(
-        { preventDefault: jest.fn(), dataTransfer: { dropEffect: null } },
-        2
-      );
+      result.current.onDragOver({ preventDefault: vi.fn(), dataTransfer: { dropEffect: null } }, 2);
     });
 
     expect(setIds).toHaveBeenCalled();
@@ -155,8 +169,8 @@ describe("useDragReorder", () => {
 
   it("calls saveToServer on drop", () => {
     const ids = ["a", "b"];
-    const setIds = jest.fn();
-    const saveToServer = jest.fn();
+    const setIds = vi.fn();
+    const saveToServer = vi.fn();
     const { result } = renderHook(() => useDragReorder(ids, setIds, saveToServer));
 
     act(() => {
@@ -164,7 +178,7 @@ describe("useDragReorder", () => {
     });
 
     act(() => {
-      result.current.onDrop({ preventDefault: jest.fn() });
+      result.current.onDrop({ preventDefault: vi.fn() });
     });
 
     expect(saveToServer).toHaveBeenCalled();
@@ -173,8 +187,8 @@ describe("useDragReorder", () => {
 
   it("reverts to pre-drag order on dragEnd (cancel)", () => {
     const ids = ["a", "b"];
-    const setIds = jest.fn();
-    const saveToServer = jest.fn();
+    const setIds = vi.fn();
+    const saveToServer = vi.fn();
     const { result } = renderHook(() => useDragReorder(ids, setIds, saveToServer));
 
     act(() => {
@@ -192,8 +206,8 @@ describe("useDragReorder", () => {
 
   it("does nothing on dragOver when hovering same index", () => {
     const ids = ["a", "b"];
-    const setIds = jest.fn();
-    const saveToServer = jest.fn();
+    const setIds = vi.fn();
+    const saveToServer = vi.fn();
     const { result } = renderHook(() => useDragReorder(ids, setIds, saveToServer));
 
     act(() => {
@@ -201,10 +215,7 @@ describe("useDragReorder", () => {
     });
 
     act(() => {
-      result.current.onDragOver(
-        { preventDefault: jest.fn(), dataTransfer: { dropEffect: null } },
-        1
-      );
+      result.current.onDragOver({ preventDefault: vi.fn(), dataTransfer: { dropEffect: null } }, 1);
     });
 
     expect(setIds).not.toHaveBeenCalled();

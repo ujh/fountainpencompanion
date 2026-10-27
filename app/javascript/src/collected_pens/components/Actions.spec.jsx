@@ -37,7 +37,7 @@ describe("<Actions />", () => {
   });
 
   it("calls onFilterChange on change for the ink filter input field", async () => {
-    const onFilterChange = jest.fn();
+    const onFilterChange = vi.fn();
     const { user, getByRole } = setup(
       <Actions
         activeLayout="table"
@@ -60,7 +60,7 @@ describe("<Actions />", () => {
   });
 
   it("calls onFilterChange with undefined when emptied", async () => {
-    const onFilterChange = jest.fn();
+    const onFilterChange = vi.fn();
     const { user, getByRole } = setup(
       <Actions
         activeLayout="table"
@@ -87,7 +87,7 @@ describe("<Actions />", () => {
   });
 
   it("calls onHiddenFieldsChange with expected result when turning switch on", async () => {
-    const onHiddenFieldsChange = jest.fn();
+    const onHiddenFieldsChange = vi.fn();
     const { user, getByTitle, getByLabelText } = setup(
       <Actions
         activeLayout="table"
@@ -128,7 +128,7 @@ describe("<Actions />", () => {
   });
 
   it("calls onHiddenFieldsChange with expected result when turning switch off", async () => {
-    const onHiddenFieldsChange = jest.fn();
+    const onHiddenFieldsChange = vi.fn();
     const { user, getByTitle, getByLabelText } = setup(
       <Actions
         activeLayout="table"

@@ -78,10 +78,10 @@ describe("getMicroClusters", () => {
 
   afterAll(() => server.close());
 
-  it("loads and transforms the cluster data", (done) => {
-    const dispatch = jest.fn();
+  it("loads and transforms the cluster data", async () => {
+    const dispatch = vi.fn();
     getMicroClusters(dispatch);
-    setTimeout(() => {
+    await vi.waitFor(() => {
       expect(dispatch).toHaveBeenCalled();
       const args = dispatch.mock.calls[0];
       expect(args).toHaveLength(1);
@@ -92,7 +92,6 @@ describe("getMicroClusters", () => {
       const microCluster = payload[0];
       expect(microCluster.entries).toHaveLength(2);
       expect(microCluster.grouped_entries).toHaveLength(1);
-      done();
-    }, 500);
+    });
   });
 });
