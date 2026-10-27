@@ -20,7 +20,7 @@ its own definition below.
    is covered by a new or updated test. Walk each non-test
    file in the diff and check that the corresponding test
    file (per the repo's test layout conventions — Ruby specs
-   under `spec/` mirroring `app/`, Jest specs as `*.spec.js(x)`
+   under `spec/` mirroring `app/`, Vitest specs as `*.spec.js(x)`
    under `spec/javascript/` mirroring `app/javascript/src/`)
    exercises the new code path. Pure refactors with no
    behavior change are exempt. Report each uncovered change as

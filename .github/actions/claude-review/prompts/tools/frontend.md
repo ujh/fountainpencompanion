@@ -3,10 +3,10 @@
 React components and hooks live in `app/javascript/src/`,
 bundled by Webpack into `app/assets/builds/` (generated — never
 review the builds output; it is excluded from `diff-code.patch`).
-Tests are Jest, named `*.spec.js(x)`, under `spec/javascript/`
+Tests are Vitest (jsdom environment), named `*.spec.js(x)`, under `spec/javascript/`
 mirroring the source tree. No Node toolchain runs in this
 workflow — review from source and the diff, do not try to run
-`yarn`, `jest`, `eslint`, or `prettier`.
+`yarn`, `vitest`, `eslint`, or `prettier`.
 
 ## Conventions to enforce (from CLAUDE.md)
 

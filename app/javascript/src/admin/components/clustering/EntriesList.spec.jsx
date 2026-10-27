@@ -2,7 +2,7 @@ import { render, screen } from "@testing-library/react";
 import { EntriesList } from "./EntriesList";
 
 // Mock the SearchLink component since it's tested separately
-jest.mock("./SearchLink", () => ({
+vi.mock("./SearchLink", () => ({
   SearchLink: ({ e, fields }) => (
     <div data-testid="search-link" data-entry-id={e.id} data-fields={fields.join(",")}>
       Search Link
@@ -102,7 +102,7 @@ describe("EntriesList", () => {
   });
 
   it("handles extraColumn function correctly", () => {
-    const extraColumnFn = jest.fn((entry) => `Extra: ${entry.brand}`);
+    const extraColumnFn = vi.fn((entry) => `Extra: ${entry.brand}`);
     const singleEntry = [{ id: 1, brand: "Pilot", line: "Iroshizuku", name: "Tsuki-yo" }];
 
     const { container } = render(

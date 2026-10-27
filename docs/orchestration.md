@@ -111,7 +111,7 @@ files, inspect the final diff, then push and open the PR when authorized by the 
 
 Use `gh pr checks PR --watch` to wait for CI. Verify that the checks belong to the pushed commit, that
 all required checks passed (a skipped or pending check is not a pass), and that the PR has no base
-conflict. FPC CI checks RSpec, Jest and lint, and the production Docker build; read the current
+conflict. FPC CI checks RSpec, Vitest and lint, and the production Docker build; read the current
 workflow rather than copying evo's mise tasks or assuming additional reviewers are installed. After
 a later change, repeat the whole-branch review and the affected checks, then verify CI again.
 
@@ -219,9 +219,9 @@ links, commands, and consistency with repository instructions.
 | Check                   | When                                                          | Purpose                                                      |
 | ----------------------- | ------------------------------------------------------------- | ------------------------------------------------------------ |
 | Whole-plan review       | Before code; again after a design change                      | Find gaps before implementation.                             |
-| Focused RSpec/Jest      | During each code step                                         | Pin the behavior the step changes.                           |
+| Focused RSpec/Vitest    | During each code step                                         | Pin the behavior the step changes.                           |
 | Per-commit review       | Before another step depends on a code commit                  | Catch defects before later work builds on them.              |
-| Full RSpec and Jest     | Before a task is declared done and before opening its PR      | Check backend and frontend regressions.                      |
+| Full RSpec and Vitest   | Before a task is declared done and before opening its PR      | Check backend and frontend regressions.                      |
 | `yarn lint`             | Before opening a PR                                           | Match CI formatting and ESLint checks.                       |
 | Whole-branch review     | Before pushing and after fixes                                | Check how the complete change fits together.                 |
 | Application smoke check | End of the last code PR; earlier where stubs hide integration | Exercise the application path beyond isolated tests.         |

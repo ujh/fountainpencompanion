@@ -3,19 +3,20 @@ import userEvent from "@testing-library/user-event";
 import { DispatchContext, StateContext } from "./App";
 import { MacroClusterRow } from "./MacroClusterRow";
 import { ASSIGN_TO_MACRO_CLUSTER, UPDATING } from "./actions";
+import { keyDownListener } from "./keyDownListener";
 
 // Mock the dependencies
-jest.mock("react-scroll-into-view-if-needed", () => {
-  return function MockScrollIntoViewIfNeeded({ children, active }) {
+vi.mock("react-scroll-into-view-if-needed", () => ({
+  default: function MockScrollIntoViewIfNeeded({ children, active }) {
     return (
       <div data-testid="scroll-into-view" data-active={active}>
         {children}
       </div>
     );
-  };
-});
+  }
+}));
 
-jest.mock("./EntriesList", () => ({
+vi.mock("./EntriesList", () => ({
   // The real EntriesList renders <tr> rows; mock it with valid table markup so
   // it doesn't trigger invalid-nesting warnings inside the surrounding <tbody>.
   EntriesList: ({ entries }) => (
@@ -27,7 +28,7 @@ jest.mock("./EntriesList", () => ({
   )
 }));
 
-jest.mock("./SearchLink", () => ({
+vi.mock("./SearchLink", () => ({
   SearchLink: ({ e }) => (
     <div data-testid="search-link" data-entry-id={e.id}>
       Search Link
@@ -35,16 +36,14 @@ jest.mock("./SearchLink", () => ({
   )
 }));
 
-jest.mock("./keyDownListener", () => ({
-  keyDownListener: jest.fn()
+vi.mock("./keyDownListener", () => ({
+  keyDownListener: vi.fn()
 }));
 
-const mockDispatch = jest.fn();
-const mockAfterAssign = jest.fn();
-const mockAssignCluster = jest.fn();
-const mockExtraColumn = jest.fn((cluster) => `Extra: ${cluster.id}`);
-
-const { keyDownListener } = require("./keyDownListener");
+const mockDispatch = vi.fn();
+const mockAfterAssign = vi.fn();
+const mockAssignCluster = vi.fn();
+const mockExtraColumn = vi.fn((cluster) => `Extra: ${cluster.id}`);
 
 const defaultMacroCluster = {
   id: 1,
@@ -96,7 +95,7 @@ const renderWithContext = (props = {}, state = defaultState) => {
 
 describe("MacroClusterRow", () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     mockAssignCluster.mockResolvedValue({ id: 99, type: "micro_cluster" });
   });
 
@@ -307,7 +306,7 @@ describe("MacroClusterRow", () => {
     });
 
     it("triggers assign when 'a' key is pressed and selected", async () => {
-      const mockRemoveListener = jest.fn();
+      const mockRemoveListener = vi.fn();
       keyDownListener.mockReturnValue(mockRemoveListener);
 
       renderWithContext({ selected: true });
@@ -327,7 +326,7 @@ describe("MacroClusterRow", () => {
     });
 
     it("does not trigger assign when other keys are pressed", () => {
-      const mockRemoveListener = jest.fn();
+      const mockRemoveListener = vi.fn();
       keyDownListener.mockReturnValue(mockRemoveListener);
 
       renderWithContext({ selected: true });
@@ -341,7 +340,7 @@ describe("MacroClusterRow", () => {
     });
 
     it("cleans up keyboard listener on unmount", () => {
-      const mockRemoveListener = jest.fn();
+      const mockRemoveListener = vi.fn();
       keyDownListener.mockReturnValue(mockRemoveListener);
 
       const { unmount } = renderWithContext({ selected: true });
@@ -352,7 +351,7 @@ describe("MacroClusterRow", () => {
     });
 
     it("updates keyboard listener when dependencies change", () => {
-      const mockRemoveListener = jest.fn();
+      const mockRemoveListener = vi.fn();
       keyDownListener.mockReturnValue(mockRemoveListener);
 
       const { rerender } = renderWithContext({ selected: true });
@@ -439,7 +438,7 @@ describe("MacroClusterRow", () => {
   describe("Error handling", () => {
     it("handles assignCluster promise rejection gracefully", async () => {
       const user = userEvent.setup();
-      const consoleErrorSpy = jest.spyOn(console, "error").mockImplementation(() => {});
+      const consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
 
       // Mock the assignCluster to return a rejected promise
       mockAssignCluster.mockImplementation(

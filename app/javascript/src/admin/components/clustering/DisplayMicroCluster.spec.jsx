@@ -3,7 +3,7 @@ import { StateContext } from "./App";
 import { DisplayMicroCluster } from "./DisplayMicroCluster";
 
 // Mock the child components
-jest.mock("./CreateRow", () => ({
+vi.mock("./CreateRow", () => ({
   CreateRow: ({ afterCreate, createMacroClusterAndAssign, ignoreCluster, fields }) => (
     <tr data-testid="create-row">
       <td>
@@ -15,7 +15,7 @@ jest.mock("./CreateRow", () => ({
   )
 }));
 
-jest.mock("./DisplayMacroClusters", () => ({
+vi.mock("./DisplayMacroClusters", () => ({
   DisplayMacroClusters: ({ afterAssign, assignCluster, extraColumn, withDistance, fields }) => (
     <tr data-testid="display-macro-clusters">
       <td>
@@ -27,7 +27,7 @@ jest.mock("./DisplayMacroClusters", () => ({
   )
 }));
 
-jest.mock("./EntriesList", () => ({
+vi.mock("./EntriesList", () => ({
   EntriesList: ({ entries, fields, extraColumn }) => (
     <tr data-testid="entries-list">
       <td>
@@ -38,11 +38,11 @@ jest.mock("./EntriesList", () => ({
   )
 }));
 
-const mockAfterCreate = jest.fn();
-const mockAssignCluster = jest.fn();
-const mockIgnoreCluster = jest.fn();
-const mockExtraColumn = jest.fn();
-const mockCreateMacroClusterAndAssign = jest.fn();
+const mockAfterCreate = vi.fn();
+const mockAssignCluster = vi.fn();
+const mockIgnoreCluster = vi.fn();
+const mockExtraColumn = vi.fn();
+const mockCreateMacroClusterAndAssign = vi.fn();
 
 const defaultActiveCluster = {
   id: 1,
@@ -80,7 +80,7 @@ const renderWithContext = (props = {}, state = defaultState) => {
 
 describe("DisplayMicroCluster", () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe("Structure and Layout", () => {
@@ -199,7 +199,7 @@ describe("DisplayMicroCluster", () => {
     });
 
     it("passes afterCreate as afterAssign to DisplayMacroClusters", () => {
-      const customAfterCreate = jest.fn();
+      const customAfterCreate = vi.fn();
       renderWithContext({ afterCreate: customAfterCreate });
 
       const displayMacroClusters = screen.getByTestId("display-macro-clusters");

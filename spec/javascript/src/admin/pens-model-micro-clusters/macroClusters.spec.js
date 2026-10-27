@@ -8,21 +8,23 @@ import { assignCluster } from "admin/pens-model-micro-clusters/microClusters";
 import { getRequest, postRequest } from "fetch";
 
 // Mock the fetch functions
-jest.mock("fetch", () => ({
-  getRequest: jest.fn(),
-  postRequest: jest.fn()
+vi.mock("fetch", () => ({
+  getRequest: vi.fn(),
+  postRequest: vi.fn()
 }));
 
 // Mock Jsona
-jest.mock("jsona", () => {
-  return jest.fn().mockImplementation(() => ({
-    deserialize: jest.fn((data) => data.data || data)
-  }));
-});
+vi.mock("jsona", () => ({
+  default: vi.fn(function () {
+    return {
+      deserialize: vi.fn((data) => data.data || data)
+    };
+  })
+}));
 
 // Mock assignCluster
-jest.mock("admin/pens-model-micro-clusters/microClusters", () => ({
-  assignCluster: jest.fn()
+vi.mock("admin/pens-model-micro-clusters/microClusters", () => ({
+  assignCluster: vi.fn()
 }));
 
 describe("macroClusters", () => {
@@ -30,14 +32,14 @@ describe("macroClusters", () => {
   let mockAfterCreate;
 
   beforeEach(() => {
-    mockDispatch = jest.fn();
-    mockAfterCreate = jest.fn();
-    jest.clearAllMocks();
-    jest.useFakeTimers();
+    mockDispatch = vi.fn();
+    mockAfterCreate = vi.fn();
+    vi.clearAllMocks();
+    vi.useFakeTimers();
   });
 
   afterEach(() => {
-    jest.useRealTimers();
+    vi.useRealTimers();
   });
 
   describe("getMacroClusters", () => {
@@ -95,7 +97,7 @@ describe("macroClusters", () => {
 
       createMacroClusterAndAssign(values, microClusterId, mockDispatch, mockAfterCreate);
 
-      jest.advanceTimersByTime(10);
+      vi.advanceTimersByTime(10);
 
       expect(postRequest).toHaveBeenCalledWith("/admins/pens/models.json", {
         data: {
@@ -119,7 +121,7 @@ describe("macroClusters", () => {
 
       updateMacroCluster(clusterId, mockDispatch);
 
-      jest.advanceTimersByTime(500);
+      vi.advanceTimersByTime(500);
 
       expect(getRequest).toHaveBeenCalledWith(`/admins/pens/models/${clusterId}.json`);
     });
@@ -136,7 +138,7 @@ describe("macroClusters", () => {
 
       updateMacroCluster(clusterId, mockDispatch);
 
-      jest.advanceTimersByTime(500);
+      vi.advanceTimersByTime(500);
 
       expect(getRequest).toHaveBeenCalledWith("/admins/pens/models/123.json");
     });

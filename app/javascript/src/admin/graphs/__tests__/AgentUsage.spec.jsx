@@ -3,22 +3,21 @@ import * as fetchModule from "../../../fetch";
 import { AgentUsage } from "../AgentUsage";
 
 // Mock Highcharts to avoid running real code
-jest.mock("highcharts", () => ({}));
+vi.mock("highcharts", () => ({ default: {} }));
 
 // Mock HighchartsReact to just render a div with the options as data-prop
-jest.mock("highcharts-react-official", () => {
+vi.mock("highcharts-react-official", () => {
   const MockHighchartsReact = ({ options }) => (
     <div data-testid="highcharts-mock">{JSON.stringify(options)}</div>
   );
   MockHighchartsReact.displayName = "MockHighchartsReact";
   return {
-    __esModule: true,
     default: MockHighchartsReact
   };
 });
 
 // Mock Spinner
-jest.mock("../../components/Spinner", () => ({
+vi.mock("../../components/Spinner", () => ({
   Spinner: () => <div data-testid="spinner">Loading...</div>
 }));
 
@@ -52,7 +51,7 @@ describe("AgentUsage", () => {
   ];
 
   beforeEach(() => {
-    jest.spyOn(fetchModule, "getRequest").mockImplementation(() =>
+    vi.spyOn(fetchModule, "getRequest").mockImplementation(() =>
       Promise.resolve({
         json: () => Promise.resolve(mockData)
       })
@@ -60,7 +59,7 @@ describe("AgentUsage", () => {
   });
 
   afterEach(() => {
-    jest.restoreAllMocks();
+    vi.restoreAllMocks();
   });
 
   it("shows spinner while loading", async () => {

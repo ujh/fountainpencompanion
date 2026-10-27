@@ -3,11 +3,11 @@ import { TablePlaceholder } from "./TablePlaceholder";
 
 describe("<TablePlaceholder />", () => {
   beforeEach(() => {
-    jest.useFakeTimers();
+    vi.useFakeTimers();
   });
 
   afterEach(() => {
-    jest.useRealTimers();
+    vi.useRealTimers();
   });
 
   it("only renders after a delay of 250ms", async () => {
@@ -15,7 +15,7 @@ describe("<TablePlaceholder />", () => {
     let placeholder = queryByTestId("table-placeholder");
     expect(placeholder).toBeNull();
 
-    act(() => jest.advanceTimersByTime(251));
+    act(() => vi.advanceTimersByTime(251));
 
     placeholder = queryByTestId("table-placeholder");
     expect(placeholder).not.toBeNull();

@@ -10,7 +10,7 @@ import {
 import { getRequest } from "fetch";
 import { StrictMode } from "react";
 
-jest.mock("fetch", () => ({ getRequest: jest.fn() }));
+vi.mock("fetch", () => ({ getRequest: vi.fn() }));
 
 const SUGGESTION_PATH = "/dashboard/widgets/pen_and_ink_suggestion.json";
 const SETTINGS_PATH = "/dashboard/widgets/pen_and_ink_suggestion_settings.json";
@@ -35,7 +35,7 @@ describe("PenAndInkSuggestionWidget", () => {
 
   const advance = async (ms) => {
     await act(async () => {
-      await jest.advanceTimersByTimeAsync(ms);
+      await vi.advanceTimersByTimeAsync(ms);
     });
   };
 
@@ -54,7 +54,7 @@ describe("PenAndInkSuggestionWidget", () => {
   const clickButton = async (name) => {
     await act(async () => {
       fireEvent.click(screen.getByRole("button", { name }));
-      await jest.advanceTimersByTimeAsync(0);
+      await vi.advanceTimersByTimeAsync(0);
     });
   };
 
@@ -65,7 +65,7 @@ describe("PenAndInkSuggestionWidget", () => {
   };
 
   beforeEach(() => {
-    jest.useFakeTimers();
+    vi.useFakeTimers();
     instructionsAllowed = true;
     enqueueResponse = null;
     pollResponses = [];
@@ -89,7 +89,7 @@ describe("PenAndInkSuggestionWidget", () => {
   });
 
   afterEach(() => {
-    jest.useRealTimers();
+    vi.useRealTimers();
   });
 
   describe("instruction gate", () => {
@@ -281,7 +281,7 @@ describe("PenAndInkSuggestionWidget", () => {
 
   describe("errors", () => {
     beforeEach(() => {
-      jest.spyOn(console, "error").mockImplementation(() => {});
+      vi.spyOn(console, "error").mockImplementation(() => {});
     });
 
     afterEach(() => {

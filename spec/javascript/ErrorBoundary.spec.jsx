@@ -2,16 +2,15 @@ import { ErrorBoundary } from "ErrorBoundary";
 import { render, screen } from "@testing-library/react";
 import honeybadger from "honeybadger";
 
-jest.mock("@honeybadger-io/js", () => ({
-  __esModule: true,
+vi.mock("@honeybadger-io/js", () => ({
   default: {
-    configure: jest.fn(),
-    notify: jest.fn()
+    configure: vi.fn(),
+    notify: vi.fn()
   }
 }));
 
-jest.mock("@honeybadger-io/react", () => {
-  const React = require("react");
+vi.mock("@honeybadger-io/react", async () => {
+  const React = await import("react");
   class MockHoneybadgerErrorBoundary extends React.Component {
     constructor(props) {
       super(props);
@@ -41,8 +40,8 @@ const ThrowingComponent = () => {
 const WorkingComponent = () => <div>Working content</div>;
 
 beforeEach(() => {
-  jest.clearAllMocks();
-  jest.spyOn(console, "error").mockImplementation(() => {});
+  vi.clearAllMocks();
+  vi.spyOn(console, "error").mockImplementation(() => {});
 });
 
 afterEach(() => {

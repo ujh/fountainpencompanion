@@ -27,9 +27,9 @@ describe("admin stats", () => {
   });
 
   beforeEach(() => {
-    jest.useFakeTimers();
+    vi.useFakeTimers();
     requests = [];
-    jest.spyOn(fetchModule, "getRequest").mockImplementation((url) => {
+    vi.spyOn(fetchModule, "getRequest").mockImplementation((url) => {
       const request = deferredResponse();
       requests.push({ url, ...request });
       return request.promise;
@@ -37,8 +37,8 @@ describe("admin stats", () => {
   });
 
   afterEach(() => {
-    jest.useRealTimers();
-    jest.restoreAllMocks();
+    vi.useRealTimers();
+    vi.restoreAllMocks();
   });
 
   const respond = async (index, json) => {
@@ -53,7 +53,7 @@ describe("admin stats", () => {
   };
 
   const poll = async () => {
-    await act(async () => jest.advanceTimersByTime(1000 * 30));
+    await act(async () => vi.advanceTimersByTime(1000 * 30));
   };
 
   describe("Stat", () => {

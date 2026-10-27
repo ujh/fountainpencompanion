@@ -3,8 +3,8 @@ import App from "../app";
 import Table from "../table";
 
 // Mock fetch and dependencies
-jest.mock("../../fetch", () => ({
-  getRequest: jest.fn(() =>
+vi.mock("../../fetch", () => ({
+  getRequest: vi.fn(() =>
     Promise.resolve({
       ok: true,
       json: () =>
@@ -103,7 +103,7 @@ describe("Table component", () => {
     it("writes active filters to the URL and drops 'all' and empty values", () => {
       window.history.replaceState(null, "", "/users/1?utm_source=foo");
       const instance = new Table({});
-      instance.setState = jest.fn();
+      instance.setState = vi.fn();
       instance.onFilteredChange([
         { id: "kind", value: "bottle" },
         { id: "comparison", value: "all" },
@@ -127,7 +127,7 @@ describe("Table component", () => {
     it("does not write the comparison filter to the URL", () => {
       window.history.replaceState(null, "", "/users/1");
       const instance = new Table({});
-      instance.setState = jest.fn();
+      instance.setState = vi.fn();
       instance.onFilteredChange([
         { id: "comparison", value: "you" },
         { id: "kind", value: "bottle" }
@@ -153,7 +153,7 @@ describe("Table component", () => {
     it("clears a filter param when its value is reset", () => {
       window.history.replaceState(null, "", "/users/1?kind=sample");
       const instance = new Table({});
-      instance.setState = jest.fn();
+      instance.setState = vi.fn();
       instance.onFilteredChange([]);
       expect(window.location.search).toEqual("");
     });

@@ -64,7 +64,7 @@ describe("UsageButton", () => {
   });
 
   it("makes a POST request and calls onUsageRecorded on click", async () => {
-    const onUsageRecorded = jest.fn();
+    const onUsageRecorded = vi.fn();
     render(<UsageButton id="42" used={false} onUsageRecorded={onUsageRecorded} />);
 
     const button = screen.getByTitle("Record usage for today");

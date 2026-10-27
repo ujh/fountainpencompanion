@@ -71,7 +71,7 @@ Filter by example name:
 docker-compose exec -T app bundle exec rspec -e "example name"
 ```
 
-### Frontend (Jest)
+### Frontend (Vitest)
 
 All frontend tests:
 
@@ -85,10 +85,10 @@ Single file:
 docker-compose exec -T app yarn test app/javascript/src/color-sorting.spec.js
 ```
 
-Filter by pattern:
+Filter by path pattern:
 
 ```
-docker-compose exec -T app yarn test --testPathPatterns="color-sorting"
+docker-compose exec -T app yarn test color-sorting
 ```
 
 Filter by test name:
@@ -147,7 +147,7 @@ db/
   views/           # Scenic database views
 spec/
   controllers/     # Controller specs
-  javascript/      # Jest tests (mirrors app/javascript/src/)
+  javascript/      # Vitest tests (mirrors app/javascript/src/)
   models/          # Model specs
   operations/      # Operation specs
   requests/        # Request specs
@@ -269,6 +269,6 @@ See `spec/agents/spam_classifier_spec.rb` or `spec/agents/ink_brand_clusterer_sp
 Defined in `.github/workflows/ci.yml`. Runs on push to master and on PRs:
 
 - **rspec**: full Rails test suite
-- **jest**: linting + JS test suite
+- **jest**: linting + JS test suite (Vitest)
 - **docker-build**: verifies production Docker image builds
 - **deploy**: auto-deploys to Fly.io on master after tests pass

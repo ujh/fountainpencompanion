@@ -3,15 +3,16 @@ import userEvent from "@testing-library/user-event";
 import { DispatchContext, StateContext } from "./App";
 import { BrandSelector } from "./BrandSelector";
 import { UPDATE_SELECTED_BRANDS } from "./actions";
+import { setInBrandSelector } from "./keyDownListener";
 
 // Mock the keyDownListener module
-jest.mock("./keyDownListener", () => ({
-  setInBrandSelector: jest.fn()
+vi.mock("./keyDownListener", () => ({
+  setInBrandSelector: vi.fn()
 }));
 
 // Mock react-select to make testing easier
-jest.mock("react-select", () => {
-  return function MockSelect({ options, onChange, value, onFocus, onBlur }) {
+vi.mock("react-select", () => ({
+  default: function MockSelect({ options, onChange, value, onFocus, onBlur }) {
     return (
       <div data-testid="brand-selector">
         <div data-testid="select-element">
@@ -48,12 +49,10 @@ jest.mock("react-select", () => {
         </div>
       </div>
     );
-  };
-});
+  }
+}));
 
-const mockDispatch = jest.fn();
-const { setInBrandSelector } = require("./keyDownListener");
-
+const mockDispatch = vi.fn();
 const renderWithContext = (state, field = "simplified_brand_name") => {
   return render(
     <StateContext.Provider value={state}>
@@ -66,7 +65,7 @@ const renderWithContext = (state, field = "simplified_brand_name") => {
 
 describe("BrandSelector", () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   const mockMicroClusters = [

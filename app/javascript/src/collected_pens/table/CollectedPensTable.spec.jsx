@@ -198,8 +198,8 @@ describe("<CollectedPensTable />", () => {
   });
 
   it("global filter reduces visible rows", async () => {
-    jest.useFakeTimers();
-    const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
     try {
       const { getByLabelText, container } = render(
         <CollectedPensTable
@@ -212,7 +212,7 @@ describe("<CollectedPensTable />", () => {
 
       await user.type(getByLabelText("Search"), "Majohn");
       await act(async () => {
-        jest.runAllTimers();
+        vi.runAllTimers();
       });
 
       await waitFor(() => {
@@ -222,13 +222,13 @@ describe("<CollectedPensTable />", () => {
 
       expect(container).toHaveTextContent("Q1");
     } finally {
-      jest.useRealTimers();
+      vi.useRealTimers();
     }
   });
 
   it("footer counts update after filtering", async () => {
-    jest.useFakeTimers();
-    const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
     try {
       const { getByLabelText, getByText } = render(
         <CollectedPensTable
@@ -246,7 +246,7 @@ describe("<CollectedPensTable />", () => {
       // Filter to only Majohn
       await user.type(getByLabelText("Search"), "Majohn");
       await act(async () => {
-        jest.runAllTimers();
+        vi.runAllTimers();
       });
 
       await waitFor(() => {
@@ -254,7 +254,7 @@ describe("<CollectedPensTable />", () => {
         expect(getByText("1 pens")).toBeInTheDocument();
       });
     } finally {
-      jest.useRealTimers();
+      vi.useRealTimers();
     }
   });
 

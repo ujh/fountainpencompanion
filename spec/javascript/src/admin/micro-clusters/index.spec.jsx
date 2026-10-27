@@ -1,51 +1,46 @@
-/**
- * @jest-environment jsdom
- */
-
 // Mock all the dependencies
-jest.mock("react-dom/client", () => ({
-  createRoot: jest.fn()
+vi.mock("react-dom/client", () => ({
+  createRoot: vi.fn()
 }));
 
-jest.mock("admin/components/clustering/App", () => ({
-  App: jest.fn(() => <div data-testid="app">App</div>)
+vi.mock("admin/components/clustering/App", () => ({
+  App: vi.fn(() => <div data-testid="app">App</div>)
 }));
 
-jest.mock("admin/micro-clusters/assignCluster", () => ({
-  assignCluster: jest.fn()
+vi.mock("admin/micro-clusters/assignCluster", () => ({
+  assignCluster: vi.fn()
 }));
 
-jest.mock("admin/micro-clusters/createMacroClusterAndAssign", () => ({
-  createMacroClusterAndAssign: jest.fn()
+vi.mock("admin/micro-clusters/createMacroClusterAndAssign", () => ({
+  createMacroClusterAndAssign: vi.fn()
 }));
 
-jest.mock("admin/micro-clusters/extraColumn", () => ({
-  extraColumn: jest.fn()
+vi.mock("admin/micro-clusters/extraColumn", () => ({
+  extraColumn: vi.fn()
 }));
 
-jest.mock("admin/micro-clusters/ignoreCluster", () => ({
-  ignoreCluster: jest.fn()
+vi.mock("admin/micro-clusters/ignoreCluster", () => ({
+  ignoreCluster: vi.fn()
 }));
 
-jest.mock("admin/micro-clusters/macroClusters", () => ({
-  getMacroClusters: jest.fn(),
-  updateMacroCluster: jest.fn()
+vi.mock("admin/micro-clusters/macroClusters", () => ({
+  getMacroClusters: vi.fn(),
+  updateMacroCluster: vi.fn()
 }));
 
-jest.mock("admin/micro-clusters/microClusters", () => ({
-  getMicroClusters: jest.fn()
+vi.mock("admin/micro-clusters/microClusters", () => ({
+  getMicroClusters: vi.fn()
 }));
 
-jest.mock("admin/micro-clusters/withDistance", () => ({
-  withDistance: jest.fn()
+vi.mock("admin/micro-clusters/withDistance", () => ({
+  withDistance: vi.fn()
 }));
 
-jest.mock("@honeybadger-io/js", () => ({
-  __esModule: true,
-  default: { configure: jest.fn(), notify: jest.fn() }
+vi.mock("@honeybadger-io/js", () => ({
+  default: { configure: vi.fn(), notify: vi.fn() }
 }));
 
-jest.mock("@honeybadger-io/react", () => ({
+vi.mock("@honeybadger-io/react", () => ({
   HoneybadgerErrorBoundary: ({ children }) => children
 }));
 
@@ -55,19 +50,19 @@ describe("micro-clusters index", () => {
   let addEventListenerSpy;
   let getElementByIdSpy;
 
-  beforeEach(() => {
-    jest.clearAllMocks();
-    jest.resetModules();
+  beforeEach(async () => {
+    vi.clearAllMocks();
+    vi.resetModules();
 
-    // Spy on document methods BEFORE requiring the module
-    addEventListenerSpy = jest.spyOn(document, "addEventListener");
-    getElementByIdSpy = jest.spyOn(document, "getElementById");
+    // Spy on document methods BEFORE importing the module
+    addEventListenerSpy = vi.spyOn(document, "addEventListener");
+    getElementByIdSpy = vi.spyOn(document, "getElementById");
 
     // Set up mocks
-    mockRender = jest.fn();
-    mockCreateRoot = jest.fn(() => ({ render: mockRender }));
+    mockRender = vi.fn();
+    mockCreateRoot = vi.fn(() => ({ render: mockRender }));
 
-    const { createRoot } = require("react-dom/client");
+    const { createRoot } = await import("react-dom/client");
     createRoot.mockImplementation(mockCreateRoot);
   });
 
@@ -76,19 +71,19 @@ describe("micro-clusters index", () => {
     getElementByIdSpy.mockRestore();
   });
 
-  it("sets up DOMContentLoaded event listener on import", () => {
+  it("sets up DOMContentLoaded event listener on import", async () => {
     // Import the module
-    require("admin/micro-clusters/index");
+    await import("admin/micro-clusters/index");
 
     expect(addEventListenerSpy).toHaveBeenCalledWith("DOMContentLoaded", expect.any(Function));
   });
 
-  it("renders App when element exists", () => {
+  it("renders App when element exists", async () => {
     const mockElement = document.createElement("div");
     getElementByIdSpy.mockReturnValue(mockElement);
 
     // Import the module and trigger the event
-    require("admin/micro-clusters/index");
+    await import("admin/micro-clusters/index");
     const eventHandler = addEventListenerSpy.mock.calls[0][1];
     eventHandler();
 
@@ -97,10 +92,10 @@ describe("micro-clusters index", () => {
     expect(mockRender).toHaveBeenCalled();
   });
 
-  it("does not render when element does not exist", () => {
+  it("does not render when element does not exist", async () => {
     getElementByIdSpy.mockReturnValue(null);
 
-    require("admin/micro-clusters/index");
+    await import("admin/micro-clusters/index");
     const eventHandler = addEventListenerSpy.mock.calls[0][1];
     eventHandler();
 
@@ -109,11 +104,11 @@ describe("micro-clusters index", () => {
     expect(mockRender).not.toHaveBeenCalled();
   });
 
-  it("passes correct props to App component", () => {
+  it("passes correct props to App component", async () => {
     const mockElement = document.createElement("div");
     getElementByIdSpy.mockReturnValue(mockElement);
 
-    require("admin/micro-clusters/index");
+    await import("admin/micro-clusters/index");
     const eventHandler = addEventListenerSpy.mock.calls[0][1];
     eventHandler();
 
@@ -127,11 +122,11 @@ describe("micro-clusters index", () => {
     );
   });
 
-  it("includes all required function props", () => {
+  it("includes all required function props", async () => {
     const mockElement = document.createElement("div");
     getElementByIdSpy.mockReturnValue(mockElement);
 
-    require("admin/micro-clusters/index");
+    await import("admin/micro-clusters/index");
     const eventHandler = addEventListenerSpy.mock.calls[0][1];
     eventHandler();
 

@@ -105,13 +105,13 @@ export default [
     languageOptions: {
       globals: {
         ...globals.browser,
-        ...globals.jest,
+        ...globals.vitest,
         ...globals.node
       }
     }
   },
   {
-    files: ["**/*.config.js", "spec/javascript/support/jsdom-environment.js"],
+    files: ["**/*.config.js", "**/*.config.mjs"],
 
     languageOptions: {
       globals: {

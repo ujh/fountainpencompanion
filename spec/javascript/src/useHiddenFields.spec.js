@@ -50,15 +50,19 @@ function mockAccountUpdate(callback) {
 }
 
 describe("useHiddenFields", () => {
-  it("initializes from localStorage synchronously", () => {
+  it("initializes from localStorage synchronously", async () => {
     storage.setItem(storageKey, JSON.stringify(["comment"]));
     mockAccountResponse({});
-    mockAccountUpdate();
+    let migrated = false;
+    mockAccountUpdate(() => {
+      migrated = true;
+    });
 
     const { result } = renderHook(() => useHiddenFields(storageKey, defaultHiddenFields));
 
     // Synchronously available — no waitFor needed
     expect(result.current.hiddenFields).toEqual(["comment"]);
+    await waitFor(() => expect(migrated).toBe(true));
   });
 
   it("initializes from defaults when localStorage is empty", () => {
@@ -86,16 +90,18 @@ describe("useHiddenFields", () => {
   it("keeps localStorage value when server has no preference", async () => {
     storage.setItem(storageKey, JSON.stringify(["comment"]));
     mockAccountResponse({});
-    mockAccountUpdate();
+    let migrated = false;
+    mockAccountUpdate(() => {
+      migrated = true;
+    });
 
     const { result } = renderHook(() => useHiddenFields(storageKey, defaultHiddenFields));
 
     expect(result.current.hiddenFields).toEqual(["comment"]);
 
     // Wait for sync to complete — value should remain unchanged
-    await waitFor(() => {
-      expect(result.current.hiddenFields).toEqual(["comment"]);
-    });
+    await waitFor(() => expect(migrated).toBe(true));
+    expect(result.current.hiddenFields).toEqual(["comment"]);
   });
 
   it("keeps localStorage value on network error", async () => {

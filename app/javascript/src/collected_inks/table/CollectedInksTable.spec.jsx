@@ -165,8 +165,8 @@ describe("<CollectedInksTable />", () => {
   });
 
   it("global filter reduces visible rows", async () => {
-    jest.useFakeTimers();
-    const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
     try {
       const { getByLabelText, container } = render(
         <CollectedInksTable
@@ -181,7 +181,7 @@ describe("<CollectedInksTable />", () => {
       await user.type(getByLabelText("Search"), "Miruai");
       // Advance timers to ensure debounce fires
       await act(async () => {
-        jest.advanceTimersByTime(1000);
+        vi.advanceTimersByTime(1000);
       });
 
       await waitFor(() => {
@@ -192,13 +192,13 @@ describe("<CollectedInksTable />", () => {
 
       expect(container).toHaveTextContent("Miruai");
     } finally {
-      jest.useRealTimers();
+      vi.useRealTimers();
     }
   });
 
   it("footer counts update correctly after filtering", async () => {
-    jest.useFakeTimers();
-    const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
     try {
       const { getByLabelText, getByText } = render(
         <CollectedInksTable
@@ -218,7 +218,7 @@ describe("<CollectedInksTable />", () => {
       await user.type(getByLabelText("Search"), "Yozakura");
       // Advance timers to ensure debounce fires
       await act(async () => {
-        jest.advanceTimersByTime(1000);
+        vi.advanceTimersByTime(1000);
       });
 
       // After filtering, should update counts
@@ -231,7 +231,7 @@ describe("<CollectedInksTable />", () => {
         { timeout: 500 }
       );
     } finally {
-      jest.useRealTimers();
+      vi.useRealTimers();
     }
   });
 

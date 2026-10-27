@@ -1,25 +1,28 @@
 import { assignCluster, ignoreCluster } from "admin/pens-micro-clusters/microClusters";
 import * as fetchModule from "fetch";
+import Jsona from "jsona";
 
 // Mock the fetch functions
-jest.mock("fetch", () => ({
-  getRequest: jest.fn(),
-  putRequest: jest.fn()
+vi.mock("fetch", () => ({
+  getRequest: vi.fn(),
+  putRequest: vi.fn()
 }));
 
 // Mock Jsona
-jest.mock("jsona", () => {
-  return jest.fn().mockImplementation(() => ({
-    deserialize: jest.fn()
-  }));
-});
+vi.mock("jsona", () => ({
+  default: vi.fn(function () {
+    return {
+      deserialize: vi.fn()
+    };
+  })
+}));
 
 describe("microClusters", () => {
   let mockPutRequest;
 
   beforeEach(() => {
     mockPutRequest = fetchModule.putRequest;
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe("ignoreCluster", () => {
@@ -79,12 +82,13 @@ describe("microClusters", () => {
         }
       };
 
-      const Jsona = require("jsona");
-      const mockJsona = { deserialize: jest.fn().mockReturnValue(mockDeserializedData) };
-      Jsona.mockImplementation(() => mockJsona);
+      const mockJsona = { deserialize: vi.fn().mockReturnValue(mockDeserializedData) };
+      Jsona.mockImplementation(function () {
+        return mockJsona;
+      });
 
       mockPutRequest.mockResolvedValue({
-        json: jest.fn().mockResolvedValue(mockApiResponse)
+        json: vi.fn().mockResolvedValue(mockApiResponse)
       });
 
       const result = await assignCluster(microClusterId, macroClusterId);
@@ -121,12 +125,13 @@ describe("microClusters", () => {
         }
       };
 
-      const Jsona = require("jsona");
-      const mockJsona = { deserialize: jest.fn().mockReturnValue(mockDeserializedData) };
-      Jsona.mockImplementation(() => mockJsona);
+      const mockJsona = { deserialize: vi.fn().mockReturnValue(mockDeserializedData) };
+      Jsona.mockImplementation(function () {
+        return mockJsona;
+      });
 
       mockPutRequest.mockResolvedValue({
-        json: jest.fn().mockResolvedValue({})
+        json: vi.fn().mockResolvedValue({})
       });
 
       const result = await assignCluster(microClusterId, macroClusterId);

@@ -5,8 +5,8 @@ import { setupServer } from "msw/node";
 import { UsageRecordForm } from "./UsageRecordForm";
 
 // Mock react-select to make testing easier
-jest.mock("react-select", () => {
-  return function MockSelect({ inputId, options, value, onChange, placeholder }) {
+vi.mock("react-select", () => ({
+  default: function MockSelect({ inputId, options, value, onChange, placeholder }) {
     const allOptions = (options || []).flatMap((group) =>
       (group.options || []).map((opt) => ({ ...opt, groupLabel: group.label }))
     );
@@ -37,8 +37,8 @@ jest.mock("react-select", () => {
         </select>
       </div>
     );
-  };
-});
+  }
+}));
 
 const activeEntry = {
   id: "1",

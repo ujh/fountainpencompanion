@@ -2,11 +2,10 @@ import { render, screen, waitFor } from "@testing-library/react";
 import * as fetchModule from "../../../fetch";
 import { CollectedPens } from "../CollectedPens";
 
-jest.mock("highcharts", () => ({}));
+vi.mock("highcharts", () => ({ default: {} }));
 
 // Mock HighchartsReact to just render its props for inspection
-jest.mock("highcharts-react-official", () => ({
-  __esModule: true,
+vi.mock("highcharts-react-official", () => ({
   default: ({ options }) => (
     <div data-testid="highcharts-mock">
       <span>Highcharts chart</span>
@@ -19,7 +18,7 @@ jest.mock("highcharts-react-official", () => ({
 }));
 
 // Mock Spinner
-jest.mock("../../components/Spinner", () => ({
+vi.mock("../../components/Spinner", () => ({
   Spinner: () => <div data-testid="spinner">Loading...</div>
 }));
 
@@ -37,7 +36,7 @@ afterAll(() => {
 describe("CollectedPens", () => {
   it("shows spinner while loading", () => {
     // Don't resolve fetch immediately
-    jest.spyOn(fetchModule, "getRequest").mockReturnValue(new Promise(() => {}));
+    vi.spyOn(fetchModule, "getRequest").mockReturnValue(new Promise(() => {}));
     render(<CollectedPens />);
     expect(screen.getByTestId("spinner")).toBeInTheDocument();
   });
@@ -47,7 +46,7 @@ describe("CollectedPens", () => {
       [1714608000000, 10],
       [1714694400000, 12]
     ];
-    jest.spyOn(fetchModule, "getRequest").mockResolvedValue({
+    vi.spyOn(fetchModule, "getRequest").mockResolvedValue({
       json: () => Promise.resolve(mockData)
     });
 
