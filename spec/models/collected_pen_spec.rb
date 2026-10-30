@@ -16,6 +16,12 @@ describe CollectedPen do
     expect(subject.errors).to include(:model)
   end
 
+  it "rejects an implausible archived on date" do
+    subject.archived_on = "72026-10-07"
+    expect(subject).to_not be_valid
+    expect(subject.errors).to include(:archived_on)
+  end
+
   describe "#name" do
     it "combines brand, model, nib, and color" do
       subject.brand = "brand"

@@ -1,6 +1,8 @@
 module Archivable
   extend ActiveSupport::Concern
 
+  included { validates :archived_on, plausible_date: true }
+
   class_methods do
     def active
       where(archived_on: nil)

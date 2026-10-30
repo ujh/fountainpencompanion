@@ -23,6 +23,16 @@ describe("<RelativeDate>", () => {
     expect(screen.getByText("1 day ago")).toBeInTheDocument();
   });
 
+  it("shows an unparseable date as is", () => {
+    render(<RelativeDate date="72026-10-07" />);
+    expect(screen.getByText("72026-10-07")).toBeInTheDocument();
+  });
+
+  it("shows an unparseable date as is when absolute is the default", () => {
+    render(<RelativeDate date="72026-10-07" relativeAsDefault={false} />);
+    expect(screen.getByText("72026-10-07")).toBeInTheDocument();
+  });
+
   it("shows the absolute date when clicking on it", async () => {
     const yesterday = add(new Date(), { days: -1 });
     const dateStr = formatISO9075(yesterday, { representation: "date" });

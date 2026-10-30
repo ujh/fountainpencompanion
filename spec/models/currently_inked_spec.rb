@@ -52,6 +52,18 @@ describe CurrentlyInked do
       expect(subject).to be_invalid
       expect(subject.errors).to_not include(:collected_pen)
     end
+
+    it "fails if the inked on date is implausible" do
+      subject.inked_on = "72026-10-07"
+      expect(subject).to be_invalid
+      expect(subject.errors).to include(:inked_on)
+    end
+
+    it "fails if the archived on date is implausible" do
+      subject.archived_on = "72026-10-07"
+      expect(subject).to be_invalid
+      expect(subject.errors).to include(:archived_on)
+    end
   end
 
   describe "#initialize" do
