@@ -1,6 +1,8 @@
 require "rails_helper"
 
 describe CurrentlyInkedArchiveController do
+  include ActiveSupport::Testing::TimeHelpers
+
   render_views
 
   let(:user) { create(:user) }
@@ -64,6 +66,16 @@ describe CurrentlyInkedArchiveController do
         get :edit, params: { id: currently_inked.id }
         expect(response).to be_successful
         expect(response).to render_template(:edit)
+      end
+
+      it "limits the date pickers to plausible dates" do
+        travel_to(Date.new(2026, 10, 30)) { get :edit, params: { id: currently_inked.id } }
+        page = Nokogiri.HTML(response.body)
+        %w[#currently_inked_inked_on #currently_inked_archived_on].each do |selector|
+          input = page.at_css(selector)
+          expect(input["min"]).to eq("1900-01-01")
+          expect(input["max"]).to eq("2027-10-30")
+        end
       end
     end
   end

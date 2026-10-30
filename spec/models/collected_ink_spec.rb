@@ -16,6 +16,12 @@ describe CollectedInk do
     expect(subject.errors).to include(:brand_name)
   end
 
+  it "rejects an implausible archived on date" do
+    subject.archived_on = "72026-10-07"
+    expect(subject).to_not be_valid
+    expect(subject.errors).to include(:archived_on)
+  end
+
   it "deletes all linked currently inked entries when deleting a model" do
     ink = create(:collected_ink)
     create_list(:currently_inked, 2, collected_ink: ink)

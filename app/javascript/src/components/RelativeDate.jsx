@@ -1,4 +1,4 @@
-import { formatDistanceStrict, formatISO, parseISO, startOfToday } from "date-fns";
+import { formatDistanceStrict, formatISO, isValid, parseISO, startOfToday } from "date-fns";
 import { useMemo, useState } from "react";
 
 export const RelativeDate = ({ date, relativeAsDefault = true }) => {
@@ -6,6 +6,8 @@ export const RelativeDate = ({ date, relativeAsDefault = true }) => {
   const [showRelative, setShowRelative] = useState(relativeAsDefault);
 
   if (!date) return;
+
+  if (!isValid(parseISO(date))) return <span>{date}</span>;
 
   if (showRelative) {
     return (
@@ -26,6 +28,8 @@ const relativeDateString = (date) => {
   if (!date) return;
 
   const parsedDate = parseISO(date);
+  if (!isValid(parsedDate)) return;
+
   const today = startOfToday();
   if (parsedDate.getTime() == today.getTime()) return "today";
   return formatDistanceStrict(parsedDate, today, {

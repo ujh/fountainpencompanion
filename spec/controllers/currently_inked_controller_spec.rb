@@ -1,6 +1,8 @@
 require "rails_helper"
 
 describe CurrentlyInkedController do
+  include ActiveSupport::Testing::TimeHelpers
+
   render_views
 
   let(:user) { create(:user) }
@@ -96,6 +98,20 @@ describe CurrentlyInkedController do
           expect(response).to render_template(:new)
         end.to_not change { user.currently_inkeds.count }
       end
+
+      it "rejects an implausible inked on date" do
+        expect do
+          post :create,
+               params: {
+                 currently_inked: {
+                   collected_ink_id: collected_ink.id,
+                   collected_pen_id: collected_pen.id,
+                   inked_on: "72026-10-07"
+                 }
+               }
+          expect(response).to render_template(:new)
+        end.to_not change { user.currently_inkeds.count }
+      end
     end
   end
 
@@ -133,6 +149,13 @@ describe CurrentlyInkedController do
         get :new
         expect(response).to be_successful
         expect(response).to render_template(:new)
+      end
+
+      it "limits the inked on date picker to plausible dates" do
+        travel_to(Date.new(2026, 10, 30)) { get :new }
+        input = Nokogiri.HTML(response.body).at_css("#currently_inked_inked_on")
+        expect(input["min"]).to eq("1900-01-01")
+        expect(input["max"]).to eq("2027-10-30")
       end
     end
   end
