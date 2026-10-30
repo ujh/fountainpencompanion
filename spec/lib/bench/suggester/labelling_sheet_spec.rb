@@ -165,8 +165,8 @@ RSpec.describe Bench::Suggester::LabellingSheet do
       text = files.fetch("cases/7.json")
 
       expect(JSON.parse(text)).to eq(document)
-      expect(text.lines.grep(/"id":#{pen.id},/).size).to eq(1)
-      expect(text.lines.grep(/"id":#{ink.id},/).size).to eq(1)
+      expect(text.lines.grep(/"id":#{pen.id},"brand":"Lamy"/).size).to eq(1)
+      expect(text.lines.grep(/"id":#{ink.id},"brand":"Sailor"/).size).to eq(1)
     end
 
     it "indexes the cases without their outcomes" do
