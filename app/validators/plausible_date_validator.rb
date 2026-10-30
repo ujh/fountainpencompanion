@@ -5,8 +5,10 @@ class PlausibleDateValidator < ActiveModel::EachValidator
 
   def validate_each(record, attribute, value)
     return if value.blank?
-    return if value.between?(EARLIEST, self.class.latest)
 
-    record.errors.add(attribute, "must be between #{EARLIEST} and #{self.class.latest}")
+    latest = self.class.latest
+    return if value.between?(EARLIEST, latest)
+
+    record.errors.add(attribute, "must be between #{EARLIEST} and #{latest}")
   end
 end
