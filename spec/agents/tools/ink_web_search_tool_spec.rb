@@ -10,7 +10,7 @@ RSpec.describe Tools::InkWebSearchTool do
 
   it "has the correct description" do
     expect(subject.description).to eq(
-      "Search the web for an ink. The word 'ink' is automatically appended to the search query."
+      "Search the web for an ink. The word 'ink' is automatically appended to the search query unless it already ends with it."
     )
   end
 
@@ -25,6 +25,26 @@ RSpec.describe Tools::InkWebSearchTool do
 
     expect(result).to include("blue pen ink")
     expect(result).to include("Summary of results")
+  end
+
+  it "does not append 'ink' when the search query already ends with it" do
+    summarizer = instance_double(GoogleSearchSummarizer, perform: "Summary of results")
+    expect(GoogleSearchSummarizer).to receive(:new).with(
+      "Sailor Jentle Ink",
+      parent_agent_log: agent_log
+    ).and_return(summarizer)
+
+    subject.call(search_query: "Sailor Jentle Ink ")
+  end
+
+  it "appends 'ink' when the search query ends with a word ending in 'ink'" do
+    summarizer = instance_double(GoogleSearchSummarizer, perform: "Summary of results")
+    expect(GoogleSearchSummarizer).to receive(:new).with(
+      "Diamine Pink ink",
+      parent_agent_log: agent_log
+    ).and_return(summarizer)
+
+    subject.call(search_query: "Diamine Pink")
   end
 
   it "returns formatted search results" do
