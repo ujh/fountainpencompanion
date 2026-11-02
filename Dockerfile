@@ -9,7 +9,7 @@
 
 # Literal tags so Dependabot can bump them; spec/config/runtime_versions_spec.rb keeps
 # .ruby-version and .nvmrc in sync with them.
-FROM docker.io/library/node:24.22.1-trixie-slim AS node
+FROM docker.io/library/node:24.22.2-trixie-slim AS node
 
 FROM docker.io/library/ruby:4.0.9-slim-trixie AS base
 
