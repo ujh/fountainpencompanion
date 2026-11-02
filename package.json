@@ -71,7 +71,7 @@
     "webpack-remove-empty-scripts": "^1.1.1"
   },
   "engines": {
-    "node": "v24.22.1"
+    "node": "v24.22.2"
   },
   "scripts": {
     "build": "NODE_ENV=production webpack --config webpack.config.js",
