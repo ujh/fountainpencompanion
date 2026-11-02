@@ -32,7 +32,7 @@
     "react-table-6": "^6.11.0",
     "recharts": "3.10.1",
     "regenerator-runtime": "^0.14.1",
-    "slim-select": "^4.6.1",
+    "slim-select": "^4.6.2",
     "whatwg-fetch": "^3.6.20"
   },
   "devDependencies": {
