@@ -486,9 +486,9 @@ GEM
     ruby_llm-schema (0.4.0)
     rufus-scheduler (3.9.2)
       fugit (~> 1.1, >= 1.11.1)
-    sanitize (7.0.1)
+    sanitize (7.0.2)
       crass (~> 1.0.8)
-      nokogiri (>= 1.16.8)
+      nokogiri (>= 1.19.7)
     sass-rails (6.0.0)
       sassc-rails (~> 2.1, >= 2.1.1)
     sassc (2.4.0)
@@ -644,7 +644,7 @@ DEPENDENCIES
   ruby-lsp
   ruby-progressbar
   ruby_llm
-  sanitize (~> 7.0.0)
+  sanitize (~> 7.0.2)
   sass-rails
   scenic
   sidekiq (= 8.1.7)
