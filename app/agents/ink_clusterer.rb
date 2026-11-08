@@ -129,6 +129,10 @@ class InkClusterer
     * brand_catalogue_inks: how many inks of this brand are in the catalogue (existing clusters).
       Generic and placeholder brands ("Generic", "Unknown", "No name", "Unbranded" and similar) never
       count as catalogued brands, so for them it is always 0.
+    * catalogued_brand (only when the brand as entered has no catalogue inks): the catalogued brand
+      that the brand as entered starts with. The rest of the brand field is then usually a line,
+      edition, sub-brand or collaborator name, and brand_users and brand_catalogue_inks count the
+      catalogued brand together with the brand as entered.
 
     Evidence rule: when ink_users is at least 3, or brand_catalogue_inks is at least 3, few or no web
     results are not evidence that the ink does not exist, because small makers often have little or no
@@ -154,14 +158,45 @@ class InkClusterer
       name, a generic name or a colour-only name. A decision that relies on this exception must say so
       in its explanation.
 
-    Assigning to an existing cluster: judge the name most users entered (the ink's main name), not a
-    stray entry. Assign only when that name is the same ink, i.e. an exact match, a clear spelling
-    variant, a translation, or the same name with or without the line name; an odd extra word in one
-    entry (e.g. a suffix on the brand) does not prevent this. A similar-looking word is not enough. An
-    unknown ink name that could combine or blend names of the maker's inks is a possible mix, not a
-    typo. When in doubt between a typo and a different name, do not assign. A cluster whose names are
-    the same name with different line or format words (bottle, cartridge, standard line, product codes)
-    is one ink, and an exact match to that name is assigned to it.
+    Assigning to an existing cluster: judge the full name most users entered (the ink's main name), not
+    a stray entry. Compare full names as one string: how a name is split into brand, line and ink
+    fields (names_as_elements) carries no meaning, and two names that differ only in that split are
+    the same name. Users often type a line, edition, sub-brand or collaborator into the brand field
+    (e.g. "Pelikan Edelstein" as the brand of Pelikan Edelstein Sapphire); that makes neither the brand unknown
+    nor the name incomplete. Assign when the main name is the same ink, i.e. one of these:
+    * a name that is already in the cluster, ignoring case, spacing, punctuation and how it is split
+      into brand, line and ink
+    * a clear spelling variant or a translation
+    * the same name with or without the line, collection or format words (bottle, cartridge, standard
+      line, product codes), also with a dash or colon between those words and the ink name
+    * the same name with or without a word that describes the ink (sheen, shimmer, glistening), unless
+      the catalogue has both versions as separate clusters
+    * a collaboration ink entered with only some of the brands named in the cluster
+    * another maker's catalogued ink entered under the wrong brand (e.g. "Diamine Kon-peki" is Pilot
+      Iroshizuku Kon-peki). When the brand as entered is itself a catalogued maker
+      (brand_catalogue_inks at least 3, or a catalogued_brand) and the rest of the name is another
+      maker's catalogued ink, the user picked the wrong brand: assign it to that ink, do not ignore it.
+      Finding no source for the brand as entered selling that ink confirms this. An unknown brand with
+      ink names of other makers is a one-person label or a mix, not this.
+    An odd extra word in one entry (e.g. a suffix on the brand) does not prevent this. A similar-looking
+    word is not enough. An unknown ink name that could combine or blend names of the maker's inks is a
+    possible mix, not a typo. Do not assign when there is a concrete reason to doubt:
+    * an unknown word that could be a typo or a different name
+    * a word of the ink name itself that is missing or added (Autumn Harvest is not Autumn
+      Harvest Moon), even when no ink of the shorter name exists; only line, collection, format and
+      describing words may differ
+    * a year, number, edition or event on only one side (Ink of the Year is not Ink of the Year 2019,
+      a limited edition is not the maker's regular ink of that name)
+    * a word that contradicts the cluster (e.g. pigment against dye, matte against shimmer)
+    * a collaborator the cluster does not name
+    * a cluster of another maker while the brand as entered is not a catalogued maker
+      (brand_catalogue_inks below 3 and no catalogued_brand): an unknown brand with ink names of other
+      makers is a one-person label or a mix, even when no source shows that brand selling the ink
+    * a name of a set of several inks, even when it also names one ink of the set
+    * a catalogue cluster or a source showing a different ink of that name
+    A field split, a line or describing word, or a missing collaborator is not such a doubt. A cluster
+    whose names are the same name with different line or format words is one ink, and an exact match
+    to that name is assigned to it.
 
     Reasons to ignore an ink:
     * It is a mix of inks, including known mixes and personal mixes, even when many users entered them
@@ -169,12 +204,18 @@ class InkClusterer
       (a bottle or a pen bundle) is an ink, while named recipes that users mix themselves from the
       maker's published formulas are mixes. For Platinum Mixable, the base colours, the Dilution Liquid
       and specials sold as their own product are inks; the named recipes from Platinum's mixing
-      formulas are mixes.
+      formulas are mixes. A dash or colon between a line or collection name and the ink name does not
+      make a name a mix; only two names of different inks do. A name that adds another ink or
+      colour with "w/", "with" or "+" (e.g. Blue Velvet w/ Red Dragon) is a mix, not a
+      describing word.
     * It is an unidentified ink: the user does not know which ink it is
+    * It names a set of several inks (e.g. "Aurora & Midnight Sun Set - Aurora"), even when one ink
+      of the set follows the set name. Such a name is not a variant of that one ink.
     * It is an incomplete name, e.g. only the brand and line name, with the line name typed into the ink
       name field. A name that is the line of existing catalogue inks (the similarity search shows
       several "<brand> <line> <ink>" clusters whose line is this name, e.g. Stipula Calamo or Sailor
-      Shikiori) is incomplete.
+      Shikiori) is incomplete. A line or edition typed into the brand field is not incomplete when the
+      full name still names an ink.
     * It is not an ink, e.g. a rollerball, ballpoint or gel refill, a pen or a cleaning solution
     * It is an ink someone made themselves (DIY), including inks with "custom" as the line name
     * It is a placeholder, a test entry or gibberish
@@ -201,6 +242,9 @@ class InkClusterer
   MODEL_ID = "gpt-4.1"
 
   DEBOUNCE_WINDOW = 30.seconds
+
+  EXACT_NAME_MATCH_EXPLANATION =
+    "The cluster already contains a micro cluster with the same name, so no review was needed."
 
   SYSTEM_DIRECTIVE = <<~TEXT
     You are a clustering algorithm that groups similar inks together based on their properties.
@@ -292,6 +336,8 @@ class InkClusterer
   end
 
   def schedule_follow_up!
+    return approve_exact_name_match! if exact_name_match?
+
     follow_up_agent =
       case (agent_log.extra_data || {})["action"]
       when "assign_to_cluster"
@@ -372,6 +418,36 @@ class InkClusterer
   private
 
   attr_accessor :micro_cluster, :agent_log_id
+
+  def exact_name_match?
+    data = agent_log.extra_data || {}
+    return false unless data["action"] == "assign_to_cluster"
+
+    MicroCluster
+      .where(macro_cluster_id: data["cluster_id"])
+      .where.not(id: micro_cluster.id)
+      .where(
+        "concat(simplified_brand_name, simplified_line_name, simplified_ink_name) = ?",
+        [
+          micro_cluster.simplified_brand_name,
+          micro_cluster.simplified_line_name,
+          micro_cluster.simplified_ink_name
+        ].join
+      )
+      .exists?
+  end
+
+  def approve_exact_name_match!
+    agent_log.update!(
+      extra_data:
+        agent_log.extra_data.merge(
+          "follow_up_done" => true,
+          "follow_up_action" => CheckInkClustering::Base::APPROVE,
+          "follow_up_action_explanation" => EXACT_NAME_MATCH_EXPLANATION
+        )
+    )
+    approve!(agent: true)
+  end
 
   def recent_activity?
     last_update = micro_cluster.collected_inks.maximum(:updated_at)
