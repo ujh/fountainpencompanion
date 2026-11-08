@@ -4676,7 +4676,7 @@ owner.agent_logs.create!(name: self.class.name, transcript: [])`) is already saf
     app/models/admin_stats.rb:14-21) is scoped to `.ink_clusterer` (name `"InkClusterer"` exactly), so
     `InkClusterer::Shadow` rows — which never enter `waiting_for_approval` anyway — do not appear
     here; verify this with a spec rather than trusting it silently.
-  - `app/views/admins/reviews/index.html.slim:67`
+  - `app/views/admins/reviews/index.html.slim:73`
     (`ink_review.agent_logs.select { |l| l.name == "ReviewApprover" }.max_by(&:created_at)`) already
     filters by the EXACT name `"ReviewApprover"`, so `ReviewApprover::Shadow` rows are already
     excluded there with no code change needed — confirm with a view/request spec, don't just assume.
