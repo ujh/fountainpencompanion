@@ -294,3 +294,70 @@ namespace :bench do
     end
   end
 end
+
+namespace :bench do
+  namespace :clusterer do
+    task setup: :environment do
+      require Rails.root.join("lib/bench/clusterer").to_s
+      ActiveRecord::Base.logger = nil
+    end
+
+    desc "Export InkClusterer replay cases, graded by the current state of their micro clusters " \
+           "(SOURCE_DATABASE_URL= SINCE= BEFORE= PER_GROUP=15 ROUND1_PER_GROUP=8 SEED=1 EXCLUDE_DIR=)"
+    task export: :setup do
+      store = Bench::Clusterer::Store.new
+      excluded =
+        ENV["EXCLUDE_DIR"].present? ? Bench::Clusterer::Store.new(ENV["EXCLUDE_DIR"]).cases : []
+      exporter =
+        Bench::Clusterer::CaseExporter.new(
+          source: Bench::Clusterer::Source.connect(ENV["SOURCE_DATABASE_URL"]),
+          since: Bench::Clusterer.parse_time(ENV["SINCE"], name: "SINCE") || 4.weeks.ago,
+          before: Bench::Clusterer.parse_time(ENV["BEFORE"], name: "BEFORE") || Time.current,
+          per_group: Integer(ENV.fetch("PER_GROUP", "15")),
+          round1_per_group: Integer(ENV.fetch("ROUND1_PER_GROUP", "8")),
+          seed: ENV.fetch("SEED", "1"),
+          excluded:
+        )
+      cases = exporter.export.cases
+      store.write_cases(cases)
+      puts "exported #{cases.size} cases to #{store.path("cases.json")}"
+      puts cases
+             .map { |c| [c.kind, c.expected, c.disputed ? "disputed" : nil].compact.join(" ") }
+             .tally
+    end
+
+    desc "Replay the exported cases through the current clusterer and checkers on the development " \
+           "database, each inside a rolled-back transaction (RUN=current RUNS=2 THREADS=4 KIND= LIMIT=)"
+    task run: :setup do
+      abort "The bench replays only against the development database." unless Rails.env.development?
+
+      store = Bench::Clusterer::Store.new
+      cases = store.cases
+      cases = cases.select { |c| c.kind == ENV["KIND"] } if ENV["KIND"].present?
+      cases = cases.first(Integer(ENV["LIMIT"])) if ENV["LIMIT"]
+      replayer =
+        Bench::Clusterer::Replayer.new(
+          cases:,
+          runs: Integer(ENV.fetch("RUNS", "2")),
+          threads: Integer(ENV.fetch("THREADS", "4"))
+        )
+      results = replayer.run { print "." }
+      puts
+      name = ENV.fetch("RUN", "current")
+      store.write_results(name, results)
+      puts "wrote #{results.size} results to #{store.path("results/#{name}.json")}"
+    end
+
+    desc "Compare recorded runs; the first run is the baseline (RUNS=master,current)"
+    task report: :setup do
+      store = Bench::Clusterer::Store.new
+      names = ENV.fetch("RUNS", "current").split(",")
+      report =
+        Bench::Clusterer::Report.new(
+          cases: store.cases,
+          runs: names.index_with { |name| store.results(name) }
+        )
+      puts report.to_text
+    end
+  end
+end

@@ -54,7 +54,8 @@ class CheckInkClustering::Ignore < CheckInkClustering::Base
       * It is a mix of inks
       * It is an unidentified ink
       * It is an ink that someone created themselves
-      * It is an incomplete entry, e.g. a name that is not a full ink name on its own
+      * It is an incomplete entry, e.g. a name that is not a full ink name on its own. A line or
+        edition typed into the brand field is not incomplete when the full name still names an ink.
       * It references a product that is not an ink, e.g. a rollberball or ballpoint pen. Ink additives
         (shimmer, glitter and similar) are inks and are not ignored.
 
