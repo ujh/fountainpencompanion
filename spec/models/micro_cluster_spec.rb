@@ -96,5 +96,87 @@ RSpec.describe MicroCluster do
         brand_catalogue_inks: 0
       )
     end
+
+    context "when the brand as entered starts with a catalogued brand" do
+      let(:brand) { "vintaheritage" }
+      let(:vinta) { create(:brand_cluster, name: "Vinta Inks") }
+
+      def vinta_ink(spelling = "vinta")
+        catalogued_micro_cluster(spelling, create(:macro_cluster, brand_cluster: vinta))
+      end
+
+      it "counts the users and catalogue inks of the catalogued brand and names it" do
+        3.times { add_inks(vinta_ink, create(:user)) }
+        add_inks(micro_cluster, create(:user))
+
+        expect(micro_cluster.clustering_evidence).to eq(
+          ink_users: 1,
+          brand_users: 4,
+          brand_catalogue_inks: 3,
+          catalogued_brand: "Vinta Inks"
+        )
+      end
+
+      it "uses the longest catalogued spelling the brand starts with" do
+        4.times { vinta_ink }
+        3.times { vinta_ink("vintaher") }
+
+        evidence = micro_cluster.clustering_evidence
+
+        expect(evidence[:brand_catalogue_inks]).to eq(3)
+        expect(evidence[:catalogued_brand]).to eq("Vinta Inks")
+      end
+
+      it "ignores spellings with fewer than three catalogue inks" do
+        2.times { vinta_ink }
+
+        expect(micro_cluster.clustering_evidence).not_to have_key(:catalogued_brand)
+      end
+
+      it "ignores spellings shorter than four characters" do
+        micro_cluster.update!(simplified_brand_name: "vinheritage")
+        3.times { vinta_ink("vin") }
+
+        expect(micro_cluster.clustering_evidence).not_to have_key(:catalogued_brand)
+      end
+
+      it "ignores catalogue inks without a brand cluster" do
+        3.times { catalogued_micro_cluster("vinta") }
+
+        expect(micro_cluster.clustering_evidence).not_to have_key(:catalogued_brand)
+      end
+
+      it "ignores ignored micro clusters of the catalogued spelling" do
+        3.times do
+          catalogued_micro_cluster(
+            "vinta",
+            create(:macro_cluster, brand_cluster: vinta),
+            ignored: true
+          )
+        end
+
+        expect(micro_cluster.clustering_evidence).not_to have_key(:catalogued_brand)
+      end
+
+      it "keeps the brand as entered when it has catalogue inks of its own" do
+        3.times { vinta_ink }
+        catalogued_micro_cluster(brand)
+
+        evidence = micro_cluster.clustering_evidence
+
+        expect(evidence[:brand_catalogue_inks]).to eq(1)
+        expect(evidence).not_to have_key(:catalogued_brand)
+      end
+
+      it "does not look for a catalogued brand for a placeholder brand" do
+        unknown_cluster = create(:micro_cluster, simplified_brand_name: "unknowngreen")
+        unknown = create(:brand_cluster, name: "Unknown")
+        3.times do
+          catalogued_micro_cluster("unknown", create(:macro_cluster, brand_cluster: unknown))
+        end
+
+        expect(unknown_cluster.clustering_evidence).not_to have_key(:catalogued_brand)
+      end
+    end
   end
 end
