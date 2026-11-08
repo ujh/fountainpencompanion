@@ -170,6 +170,14 @@ AI agents live in `app/agents/` and use the `RubyLlmAgent` concern (`app/agents/
 
 **PenAndInkSuggester**: read `docs/pen-and-ink-suggester.md` before changing the suggester, its constraint extractor, their prompts or models; nib rules live in `docs/nib-reference.md`. Run the suggester bench (`lib/bench/suggester`, section 13 of that doc) before changing a prompt, a model, the candidate selection or a normaliser, and compare with its reference numbers; after deploying such a change, run the online watch in section 11.
 
+**InkClusterer and its checkers** (`app/agents/ink_clusterer.rb`, `app/agents/check_ink_clustering/`): `InkClusterer::SHARED_RULES` goes into the prompt of the clusterer and of every checker, so a change there changes all of them. Judge a prompt change with the clusterer bench (`lib/bench/clusterer`, tasks in `lib/tasks/bench.rake`), not by reading transcripts:
+
+- `bin/rails bench:clusterer:export SOURCE_DATABASE_URL="$PRODUCTION_READONLY_DATABASE_URL" SINCE= BEFORE=` exports cases from production `agent_logs`, graded by the owner's corrections (the micro cluster's current macro cluster or ignored flag). It samples every kind and expected decision, keeps the cases where the checker disagreed with the owner (`disputed`) apart, and adds round-1 cases. Looser rules mostly break the negatives, so look at every group, not only the one you are fixing.
+- `bin/rails bench:clusterer:run RUN=<name>` replays the cases on the development database, each inside a rolled-back transaction with Sidekiq faked per thread; `bin/rails bench:clusterer:report RUNS=master,<name>` compares runs (the first is the baseline) and lists the cases that changed. Run master from a `git worktree` under `tmp/` (visible in the container; `docker-compose exec -w /app/tmp/<worktree> -e BENCH_DIR=/app/tmp/bench/clusterer app bin/rails bench:clusterer:run RUN=master`) and remove the worktree afterwards, as `pnpm lint` checks it too. Use at least two runs per case: single runs of the same prompt flip on borderline inks.
+- Never put an eval case into a prompt as an example. Examples must be invented or come from inks outside the eval set; otherwise the eval measures recall of the example, not the rule.
+- Tune on one export, then report on a holdout you have not looked at: export it into another `BENCH_DIR` with `EXCLUDE_DIR=` set to the tuning export. Wording that was rewritten several times on the same cases is fitted to them.
+- The dev DB is an older production copy, so cases whose target cluster is missing there are skipped. When replaying by hand, keep the bench's safeguards: a `return` inside `ensure` swallows `ActiveRecord::Rollback` and commits the transaction, and an existing micro cluster with the same simplified names must be unassigned inside the transaction, or the target cluster already contains the answer.
+
 ### Agent structure
 
 An agent includes `RubyLlmAgent` and must implement four methods:
