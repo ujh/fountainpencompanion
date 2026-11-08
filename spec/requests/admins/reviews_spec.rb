@@ -59,6 +59,67 @@ describe "Admins::Reviews" do
         end
       end
 
+      describe "action buttons" do
+        def shortcut_link(shortcut)
+          Nokogiri.HTML(response.body).at_css("a[data-shortcut='#{shortcut}']")
+        end
+
+        context "when the agent approved the review" do
+          let!(:ink_review) { create(:ink_review, approved_at: Time.current, agent_approved: true) }
+
+          it "approves the review on a" do
+            get "/admins/reviews"
+            link = shortcut_link("approve")
+            expect(link.text).to eq("Approve (a)")
+            expect(link["data-method"]).to eq("put")
+            expect(link["href"]).to start_with("/admins/reviews/#{ink_review.id}")
+          end
+
+          it "rejects the review on r" do
+            get "/admins/reviews"
+            link = shortcut_link("reject")
+            expect(link.text).to eq("Reject (r)")
+            expect(link["data-method"]).to eq("delete")
+            expect(link["href"]).to start_with("/admins/reviews/#{ink_review.id}")
+          end
+        end
+
+        context "when the agent rejected the review" do
+          let(:you_tube_channel) { create(:you_tube_channel) }
+          let!(:ink_review) do
+            create(
+              :ink_review,
+              rejected_at: Time.current,
+              agent_approved: true,
+              you_tube_channel: you_tube_channel
+            )
+          end
+
+          it "keeps the review rejected on a" do
+            get "/admins/reviews"
+            link = shortcut_link("approve")
+            expect(link.text).to eq("Approve rejection (a)")
+            expect(link["data-method"]).to eq("delete")
+            expect(link["href"]).to start_with("/admins/reviews/#{ink_review.id}")
+          end
+
+          it "approves the review on r" do
+            get "/admins/reviews"
+            link = shortcut_link("reject")
+            expect(link.text).to eq("Should have been approved (r)")
+            expect(link["data-method"]).to eq("put")
+            expect(link["href"]).to start_with("/admins/reviews/#{ink_review.id}")
+          end
+
+          it "offers to keep the rejection and ignore the channel" do
+            get "/admins/reviews"
+            link = Nokogiri.HTML(response.body).at_css("a[href*='ignore_youtube_channel=true']")
+            expect(link.text).to eq("Approve rejection AND ignore channel")
+            expect(link["data-method"]).to eq("delete")
+          end
+        end
+      end
+
       describe "transcript section" do
         let(:agent_processed_review) do
           review =

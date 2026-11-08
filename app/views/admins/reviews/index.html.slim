@@ -32,10 +32,16 @@ table class="table table-striped"
 
     dt class="col-sm-3" Actions
     dd class="col-sm-9"
-      = link_to "Approve (a)", admins_review_path(ink_review, page: params[:page]), method: :put, class: 'btn btn-success me-2', data: { shortcut: "approve" }
-      = link_to "Reject (r)", admins_review_path(ink_review, page: params[:page]), method: :delete, class: 'btn btn-danger', data: { shortcut: "reject" }
-      - if ink_review.you_tube_channel.present?
-        = link_to "Reject AND ignore channel", admins_review_path(ink_review, page: params[:page], ignore_youtube_channel: true), method: :delete, class: 'btn btn-secondary ms-2'
+      - if ink_review.rejected?
+        = link_to "Approve rejection (a)", admins_review_path(ink_review, page: params[:page]), method: :delete, class: 'btn btn-success me-2', data: { shortcut: "approve" }
+        = link_to "Should have been approved (r)", admins_review_path(ink_review, page: params[:page]), method: :put, class: 'btn btn-danger', data: { shortcut: "reject" }
+        - if ink_review.you_tube_channel.present?
+          = link_to "Approve rejection AND ignore channel", admins_review_path(ink_review, page: params[:page], ignore_youtube_channel: true), method: :delete, class: 'btn btn-secondary ms-2'
+      - else
+        = link_to "Approve (a)", admins_review_path(ink_review, page: params[:page]), method: :put, class: 'btn btn-success me-2', data: { shortcut: "approve" }
+        = link_to "Reject (r)", admins_review_path(ink_review, page: params[:page]), method: :delete, class: 'btn btn-danger', data: { shortcut: "reject" }
+        - if ink_review.you_tube_channel.present?
+          = link_to "Reject AND ignore channel", admins_review_path(ink_review, page: params[:page], ignore_youtube_channel: true), method: :delete, class: 'btn btn-secondary ms-2'
 
     dt class="col-sm-3" Ink
     dd class="col-sm-9" = link_to ink_review.macro_cluster.name, ink_path(ink_review.macro_cluster)
