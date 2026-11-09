@@ -362,22 +362,22 @@ importers:
         version: 2.10.2(webpack@5.112.2)
       msw:
         specifier: 3.0.4
-        version: 3.0.4(supports-color@8.1.1)(vite@8.3.6(sass@1.107.1)(terser@5.51.2)(yaml@2.9.1))
+        version: 3.0.4(supports-color@8.1.1)(vite@8.3.6(sass@1.108.0)(terser@5.51.2)(yaml@2.9.1))
       prettier:
         specifier: ^3.9.10
         version: 3.9.10
       sass:
-        specifier: ^1.107.1
-        version: 1.107.1
+        specifier: ^1.108.0
+        version: 1.108.0
       sass-loader:
         specifier: ^17.1.0
-        version: 17.1.0(sass@1.107.1)(webpack@5.112.2)
+        version: 17.1.0(sass@1.108.0)(webpack@5.112.2)
       vite:
         specifier: ^8.3.6
-        version: 8.3.6(sass@1.107.1)(terser@5.51.2)(yaml@2.9.1)
+        version: 8.3.6(sass@1.108.0)(terser@5.51.2)(yaml@2.9.1)
       vitest:
         specifier: ^5.0.5
-        version: 5.0.5(@vitest/coverage-v8@5.0.5)(jsdom@31.0.0)(msw@3.0.4(supports-color@8.1.1)(vite@8.3.6(sass@1.107.1)(terser@5.51.2)(yaml@2.9.1)))(vite@8.3.6(sass@1.107.1)(terser@5.51.2)(yaml@2.9.1))
+        version: 5.0.5(@vitest/coverage-v8@5.0.5)(jsdom@31.0.0)(msw@3.0.4(supports-color@8.1.1)(vite@8.3.6(sass@1.108.0)(terser@5.51.2)(yaml@2.9.1)))(vite@8.3.6(sass@1.108.0)(terser@5.51.2)(yaml@2.9.1))
       webpack:
         specifier: ^5.112.2
         version: 5.112.2(lightningcss@1.33.0)(postcss@8.5.25)(webpack-cli@7.3.1)
@@ -3369,8 +3369,8 @@ packages:
       webpack:
         optional: true
 
-  sass@1.107.1:
-    resolution: {integrity: sha512-aJ1/LvxOOb04YhmiBjzZn3jVwdHKol+OVhoMV6fFl02fF9T3i+5Mg9l/CnzqtM+NX5Jn5o3lAbs/ZJivTCLHfQ==}
+  sass@1.108.0:
+    resolution: {integrity: sha512-9HwnefouIfwY+XuA1rS5xOhALH5vsoe3SzYICG3MEwpkMbE7tpuh5ytZFRXUKPYkxY7lKdIbqxl+DxQGo8jwQQ==}
     engines: {node: '>=20.19.0'}
     hasBin: true
 
@@ -5118,7 +5118,7 @@ snapshots:
       picocolors: 1.1.1
       redent: 3.0.0
     optionalDependencies:
-      vitest: 5.0.5(@vitest/coverage-v8@5.0.5)(jsdom@31.0.0)(msw@3.0.4(supports-color@8.1.1)(vite@8.3.6(sass@1.107.1)(terser@5.51.2)(yaml@2.9.1)))(vite@8.3.6(sass@1.107.1)(terser@5.51.2)(yaml@2.9.1))
+      vitest: 5.0.5(@vitest/coverage-v8@5.0.5)(jsdom@31.0.0)(msw@3.0.4(supports-color@8.1.1)(vite@8.3.6(sass@1.108.0)(terser@5.51.2)(yaml@2.9.1)))(vite@8.3.6(sass@1.108.0)(terser@5.51.2)(yaml@2.9.1))
 
   '@testing-library/react@16.3.3(@testing-library/dom@10.4.2)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)':
     dependencies:
@@ -5261,7 +5261,7 @@ snapshots:
       obug: 3.0.0
       std-env: 4.3.0
       tinyrainbow: 3.2.0
-      vitest: 5.0.5(@vitest/coverage-v8@5.0.5)(jsdom@31.0.0)(msw@3.0.4(supports-color@8.1.1)(vite@8.3.6(sass@1.107.1)(terser@5.51.2)(yaml@2.9.1)))(vite@8.3.6(sass@1.107.1)(terser@5.51.2)(yaml@2.9.1))
+      vitest: 5.0.5(@vitest/coverage-v8@5.0.5)(jsdom@31.0.0)(msw@3.0.4(supports-color@8.1.1)(vite@8.3.6(sass@1.108.0)(terser@5.51.2)(yaml@2.9.1)))(vite@8.3.6(sass@1.108.0)(terser@5.51.2)(yaml@2.9.1))
 
   '@vitest/istanbul-lib-coverage@1.0.2': {}
 
@@ -5269,15 +5269,15 @@ snapshots:
     dependencies:
       '@vitest/istanbul-lib-coverage': 1.0.2
 
-  '@vitest/mocker@5.0.5(msw@3.0.4(supports-color@8.1.1)(vite@8.3.6(sass@1.107.1)(terser@5.51.2)(yaml@2.9.1)))(vite@8.3.6(sass@1.107.1)(terser@5.51.2)(yaml@2.9.1))':
+  '@vitest/mocker@5.0.5(msw@3.0.4(supports-color@8.1.1)(vite@8.3.6(sass@1.108.0)(terser@5.51.2)(yaml@2.9.1)))(vite@8.3.6(sass@1.108.0)(terser@5.51.2)(yaml@2.9.1))':
     dependencies:
       '@jridgewell/trace-mapping': 0.3.31
       '@vitest/spy': 5.0.5
       estree-walker: 3.0.3
       magic-string: 1.4.4
     optionalDependencies:
-      msw: 3.0.4(supports-color@8.1.1)(vite@8.3.6(sass@1.107.1)(terser@5.51.2)(yaml@2.9.1))
-      vite: 8.3.6(sass@1.107.1)(terser@5.51.2)(yaml@2.9.1)
+      msw: 3.0.4(supports-color@8.1.1)(vite@8.3.6(sass@1.108.0)(terser@5.51.2)(yaml@2.9.1))
+      vite: 8.3.6(sass@1.108.0)(terser@5.51.2)(yaml@2.9.1)
 
   '@vitest/spy@5.0.5': {}
 
@@ -6613,7 +6613,7 @@ snapshots:
 
   ms@2.1.3: {}
 
-  msw@3.0.4(supports-color@8.1.1)(vite@8.3.6(sass@1.107.1)(terser@5.51.2)(yaml@2.9.1)):
+  msw@3.0.4(supports-color@8.1.1)(vite@8.3.6(sass@1.108.0)(terser@5.51.2)(yaml@2.9.1)):
     dependencies:
       '@inquirer/confirm': 6.3.4
       '@msw/url': 0.1.2
@@ -6628,7 +6628,7 @@ snapshots:
       until-async: 3.0.2
       yargs: 18.2.0
     optionalDependencies:
-      vite: 8.3.6(sass@1.107.1)(terser@5.51.2)(yaml@2.9.1)
+      vite: 8.3.6(sass@1.108.0)(terser@5.51.2)(yaml@2.9.1)
     transitivePeerDependencies:
       - '@types/node'
       - supports-color
@@ -7046,12 +7046,12 @@ snapshots:
       es-errors: 1.3.0
       is-regex: 1.2.1
 
-  sass-loader@17.1.0(sass@1.107.1)(webpack@5.112.2):
+  sass-loader@17.1.0(sass@1.108.0)(webpack@5.112.2):
     optionalDependencies:
-      sass: 1.107.1
+      sass: 1.108.0
       webpack: 5.112.2(lightningcss@1.33.0)(postcss@8.5.25)(webpack-cli@7.3.1)
 
-  sass@1.107.1:
+  sass@1.108.0:
     dependencies:
       chokidar: 5.0.0
       immutable: 5.1.9
@@ -7401,7 +7401,7 @@ snapshots:
       d3-time: 3.1.0
       d3-timer: 3.0.1
 
-  vite@8.3.6(sass@1.107.1)(terser@5.51.2)(yaml@2.9.1):
+  vite@8.3.6(sass@1.108.0)(terser@5.51.2)(yaml@2.9.1):
     dependencies:
       lightningcss: 1.33.0
       picomatch: 4.0.7
@@ -7410,14 +7410,14 @@ snapshots:
       tinyglobby: 0.2.17
     optionalDependencies:
       fsevents: 2.3.3
-      sass: 1.107.1
+      sass: 1.108.0
       terser: 5.51.2
       yaml: 2.9.1
 
-  vitest@5.0.5(@vitest/coverage-v8@5.0.5)(jsdom@31.0.0)(msw@3.0.4(supports-color@8.1.1)(vite@8.3.6(sass@1.107.1)(terser@5.51.2)(yaml@2.9.1)))(vite@8.3.6(sass@1.107.1)(terser@5.51.2)(yaml@2.9.1)):
+  vitest@5.0.5(@vitest/coverage-v8@5.0.5)(jsdom@31.0.0)(msw@3.0.4(supports-color@8.1.1)(vite@8.3.6(sass@1.108.0)(terser@5.51.2)(yaml@2.9.1)))(vite@8.3.6(sass@1.108.0)(terser@5.51.2)(yaml@2.9.1)):
     dependencies:
       '@types/chai': 5.2.3
-      '@vitest/mocker': 5.0.5(msw@3.0.4(supports-color@8.1.1)(vite@8.3.6(sass@1.107.1)(terser@5.51.2)(yaml@2.9.1)))(vite@8.3.6(sass@1.107.1)(terser@5.51.2)(yaml@2.9.1))
+      '@vitest/mocker': 5.0.5(msw@3.0.4(supports-color@8.1.1)(vite@8.3.6(sass@1.108.0)(terser@5.51.2)(yaml@2.9.1)))(vite@8.3.6(sass@1.108.0)(terser@5.51.2)(yaml@2.9.1))
       chai: 6.3.0
       es-module-lexer: 2.3.2
       expect-type: 1.4.0
@@ -7428,7 +7428,7 @@ snapshots:
       tinybench: 6.2.2
       tinyexec: 1.3.1
       tinyglobby: 0.2.17
-      vite: 8.3.6(sass@1.107.1)(terser@5.51.2)(yaml@2.9.1)
+      vite: 8.3.6(sass@1.108.0)(terser@5.51.2)(yaml@2.9.1)
       why-is-node-running: 3.2.1
     optionalDependencies:
       '@vitest/coverage-v8': 5.0.5(vitest@5.0.5)
