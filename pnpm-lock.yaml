@@ -246,8 +246,8 @@ importers:
         specifier: ^4.18.1
         version: 4.18.1
       match-sorter:
-        specifier: ^8.3.0
-        version: 8.3.0
+        specifier: ^8.3.1
+        version: 8.3.1
       prop-types:
         specifier: ^15.8.1
         version: 15.8.1
@@ -2855,8 +2855,8 @@ packages:
   magicast@0.5.5:
     resolution: {integrity: sha512-UicdXN8zQ3JHlxVq+28afMXPr1z7WNY6+7EJnzTdQWkTAlMLF5fNCCKxJHBQwGaNGR11581EiQmQzx73+MvszA==}
 
-  match-sorter@8.3.0:
-    resolution: {integrity: sha512-8Py1GbZi5zsclYSFcPAH4H5xfTbeD0bOREA7qP/t8bW4MbOSlPl8sbqHOedEV7O+Bxyvxm6xs/v6BXJGe+JDNA==}
+  match-sorter@8.3.1:
+    resolution: {integrity: sha512-tHtqmEREd+8EQHERElN1xp3eCnCJu2VnXpluj8bwsQvuRfLj5hldq/Mc3UhILZxT1Cff6o+ZdP4frAetZbqNbQ==}
 
   material-colors@1.2.6:
     resolution: {integrity: sha512-6qE4B9deFBIa9YSpOc9O0Sgc43zTeVYbgDT5veRKSlB2+ZuHNoVVxA1L/ckMUayV9Ay9y7Z/SZCLcGteW9i7bg==}
@@ -6557,7 +6557,7 @@ snapshots:
       '@babel/types': 7.29.7
       source-map-js: 1.2.2
 
-  match-sorter@8.3.0:
+  match-sorter@8.3.1:
     dependencies:
       '@babel/runtime': 7.29.2
       remove-accents: 0.5.0
