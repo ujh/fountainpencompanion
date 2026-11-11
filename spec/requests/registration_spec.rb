@@ -43,6 +43,51 @@ describe "sign up" do
       expect(user.sign_up_user_agent).to eq("TestAgent/1.0")
     end
 
+    context "behind Fly's proxy" do
+      let(:fly_env) do
+        {
+          "REMOTE_ADDR" => "172.16.4.186",
+          "HTTP_FLY_CLIENT_IP" => "198.51.100.7",
+          "HTTP_X_FORWARDED_FOR" => "198.51.100.7, 66.241.124.196"
+        }
+      end
+
+      it "records the client IP instead of Fly's ingress IP" do
+        post "/users", params: full_params, env: fly_env
+
+        expect(User.find_by(email: "user@example.com").sign_up_ip).to eq("198.51.100.7")
+      end
+
+      it "sends the client IP to hCaptcha" do
+        post "/users", params: full_params, env: fly_env
+
+        expect(WebMock).to have_requested(:post, "https://api.hcaptcha.com/siteverify").with(
+          body: hash_including("remoteip" => "198.51.100.7")
+        )
+      end
+
+      it "does not count other clients' sign-ups towards the same-IP limit" do
+        create_list(:user, User::MAX_SAME_IP_24H, sign_up_ip: "66.241.124.196")
+
+        post "/users", params: full_params, env: fly_env
+
+        expect(User.find_by(email: "user@example.com")).not_to be_bot
+      end
+
+      it "ignores a spoofed Forwarded header" do
+        post "/users",
+             params: full_params,
+             env:
+               fly_env.merge(
+                 "HTTP_X_FORWARDED_FOR" => "10.0.0.1, 198.51.100.7, 66.241.124.196",
+                 "HTTP_FORWARDED" => "for=10.0.0.1"
+               )
+
+        expect(response).to be_redirect
+        expect(User.find_by(email: "user@example.com").sign_up_ip).to eq("198.51.100.7")
+      end
+    end
+
     context "when the IP has reached the same-IP sign-up limit" do
       before { create_list(:user, User::MAX_SAME_IP_24H, sign_up_ip: "203.0.113.57") }
 
