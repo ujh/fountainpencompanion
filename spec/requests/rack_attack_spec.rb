@@ -139,6 +139,37 @@ describe "Rack::Attack throttles", type: :request do
       expect(results.first(5)).to all(be < 429)
       expect(results.last).to eq(429)
     end
+
+    def fly_signup(index, client_ip, extra_env = {})
+      post "/users",
+           params: {
+             user: {
+               email: "fly-signup-#{index}@example.com",
+               password: "password123"
+             }
+           },
+           env: {
+             "REMOTE_ADDR" => "172.16.4.186",
+             "HTTP_FLY_CLIENT_IP" => client_ip,
+             "HTTP_X_FORWARDED_FOR" => "#{client_ip}, 66.241.124.196"
+           }.merge(extra_env)
+    end
+
+    it "counts each Fly client separately behind the shared ingress IP" do
+      results = statuses(6) { |i| fly_signup(i, "198.51.100.#{i + 1}") }
+
+      expect(results).to all(be < 429)
+    end
+
+    it "throttles a Fly client that rotates a spoofed Forwarded header" do
+      results =
+        statuses(6) do |i|
+          fly_signup(i, "198.51.100.20", "HTTP_FORWARDED" => "for=203.0.113.#{i + 1}")
+        end
+
+      expect(results.first(5)).to all(be < 429)
+      expect(results.last).to eq(429)
+    end
   end
 
   describe "magic link throttles on POST /users/sign_in without a password" do
