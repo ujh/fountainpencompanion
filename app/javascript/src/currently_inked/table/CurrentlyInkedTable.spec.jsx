@@ -310,4 +310,43 @@ describe("<CurrentlyInkedTable />", () => {
       vi.useRealTimers();
     }
   });
+
+  describe("state in the URL", () => {
+    const params = () => new URLSearchParams(window.location.search);
+
+    it("restores the sorting from the URL", () => {
+      window.history.replaceState(null, "", "/currently_inked?sort=pen_name");
+      const { getAllByRole } = setup(
+        <CurrentlyInkedTable currentlyInked={currentlyInked} onLayoutChange={() => {}} />
+      );
+
+      const rows = getAllByRole("row");
+      expect(rows[1]).toHaveTextContent(/Platinum/);
+      expect(rows[2]).toHaveTextContent(/Sailor/);
+    });
+
+    it("restores the search from the URL", () => {
+      window.history.replaceState(null, "", "/currently_inked?q=Platinum");
+      const { getByLabelText, container } = setup(
+        <CurrentlyInkedTable currentlyInked={currentlyInked} onLayoutChange={() => {}} />
+      );
+
+      expect(getByLabelText("Search")).toHaveValue("Platinum");
+      const rows = container.querySelectorAll("tbody tr");
+      expect(rows).toHaveLength(1);
+      expect(rows[0]).toHaveTextContent(/Platinum/);
+    });
+
+    it("writes sorting by a nested column and search to the URL", async () => {
+      const { getByText, getByLabelText, user } = setup(
+        <CurrentlyInkedTable currentlyInked={currentlyInked} onLayoutChange={() => {}} />
+      );
+
+      await user.click(getByText("Color"));
+      expect(params().get("sort")).toEqual("collected_ink_color");
+
+      await user.type(getByLabelText("Search"), "Sailor");
+      await waitFor(() => expect(params().get("q")).toEqual("Sailor"));
+    });
+  });
 });

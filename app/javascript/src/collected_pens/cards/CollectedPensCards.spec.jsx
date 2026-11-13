@@ -116,4 +116,15 @@ describe("<CollectedPensCards />", () => {
 
     expect(queryByText("1 inked (2 daily usages)")).not.toBeInTheDocument();
   });
+
+  it("restores the search from the URL", () => {
+    window.history.replaceState(null, "", "/collected_pens?q=Majohn");
+    const { getByLabelText, queryByText } = setup(
+      <CollectedPensCards pens={pens} onLayoutChange={() => {}} />
+    );
+
+    expect(getByLabelText("Search")).toHaveValue("Majohn");
+    expect(queryByText("Majohn Q1")).toBeInTheDocument();
+    expect(queryByText("Faber-Castell Loom")).not.toBeInTheDocument();
+  });
 });

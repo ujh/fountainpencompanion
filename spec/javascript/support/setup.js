@@ -1,4 +1,5 @@
 import "@testing-library/jest-dom/vitest";
+import { afterEach } from "vitest";
 
 // jsdom does not implement the canvas API; chart components call getContext.
 // Stub it so suites that render charts don't emit "Not implemented:
@@ -27,3 +28,7 @@ console.log = (...args) => {
   if (message.startsWith("Retrying")) return;
   originalConsoleLog(...args);
 };
+
+afterEach(() => {
+  window.history.replaceState(null, "", "/");
+});

@@ -5,10 +5,11 @@ import {
   useReactTable
 } from "@tanstack/react-table";
 import _ from "lodash";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo } from "react";
 import { RelativeDate } from "../../components/RelativeDate";
 import { Table } from "../../components/Table";
 import { useHiddenFields } from "../../useHiddenFields";
+import { useSearchParamState, useUrlSorting } from "../../useUrlState";
 import { Actions } from "../components";
 import { fuzzyMatch } from "../match";
 import { ActionsCell } from "./ActionsCell";
@@ -228,7 +229,8 @@ export const CollectedInksTable = ({ data, archive, onLayoutChange }) => {
     defaultHiddenFields
   );
 
-  const [filterText, setFilterText] = useState("");
+  const [filterText, setFilterText] = useSearchParamState("q");
+  const [sorting, setSorting] = useUrlSorting(columns);
 
   const filteredData = useMemo(
     () => fuzzyMatch(data, filterText, hiddenFields),
@@ -240,7 +242,9 @@ export const CollectedInksTable = ({ data, archive, onLayoutChange }) => {
     data: filteredData,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
+    onSortingChange: setSorting,
     state: {
+      sorting,
       columnVisibility: hiddenFields.reduce((acc, field) => ({ ...acc, [field]: false }), {})
     },
     onColumnVisibilityChange: (updater) => {
@@ -253,8 +257,6 @@ export const CollectedInksTable = ({ data, archive, onLayoutChange }) => {
       }
     }
   });
-
-  const setGlobalFilter = (value) => setFilterText(value || "");
 
   useEffect(() => {
     const visibility = hiddenFields.reduce((acc, field) => ({ ...acc, [field]: false }), {});
@@ -351,7 +353,8 @@ export const CollectedInksTable = ({ data, archive, onLayoutChange }) => {
         archive={archive}
         activeLayout="table"
         numberOfInks={data.length}
-        onFilterChange={setGlobalFilter}
+        initialFilter={filterText}
+        onFilterChange={setFilterText}
         onLayoutChange={onLayoutChange}
         hiddenFields={hiddenFields}
         onHiddenFieldsChange={onHiddenFieldsChange}

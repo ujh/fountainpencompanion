@@ -103,4 +103,14 @@ describe("<CurrentlyInkedCards />", () => {
 
     expect(queryByText("Sailor Pro Gear, Black, M")).not.toBeInTheDocument();
   });
+
+  it("restores the search from the URL", () => {
+    window.history.replaceState(null, "", "/currently_inked?q=nomatch");
+    const { getByLabelText, queryByText } = setup(
+      <CurrentlyInkedCards currentlyInked={currentlyInked} onLayoutChange={() => {}} />
+    );
+
+    expect(getByLabelText("Search")).toHaveValue("nomatch");
+    expect(queryByText("Sailor Shikiori Yozakura")).not.toBeInTheDocument();
+  });
 });
