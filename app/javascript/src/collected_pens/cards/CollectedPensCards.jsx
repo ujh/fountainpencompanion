@@ -11,6 +11,7 @@ export const storageKeyHiddenFields = "fpc-collected-pens-cards-hidden-fields";
 export const CollectedPensCards = ({ pens, onLayoutChange }) => {
   const [matchOn, setMatchOn] = useSearchParamState("q");
   const [sort] = useSearchParamState("sort");
+  const listState = useMemo(() => ({ q: matchOn, sort }), [matchOn, sort]);
 
   const defaultHiddenFields = useMemo(() => {
     let hideIfNoneWithValue = [
@@ -36,7 +37,7 @@ export const CollectedPensCards = ({ pens, onLayoutChange }) => {
   const visible = fuzzyMatch(pens, matchOn, hiddenFields);
 
   return (
-    <ListStateContext value={{ q: matchOn, sort }}>
+    <ListStateContext value={listState}>
       <div data-testid="card-layout">
         <Actions
           activeLayout="card"
