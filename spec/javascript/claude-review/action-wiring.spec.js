@@ -23,6 +23,16 @@ const claudeStep = () => {
 };
 
 describe("claude-review action wiring", () => {
+  it("allows only the commands Claude Code's read-only check cannot cover", () => {
+    expect(claudeStep()).toContain(
+      '--allowedTools "Bash(gh pr comment:*),Bash(git ls-tree:*),Bash(./.claude-review-post:*),Task,Agent"'
+    );
+  });
+
+  it("denies what no rule allows instead of leaving it to auto mode", () => {
+    expect(claudeStep()).toContain("--permission-mode default");
+  });
+
   it("runs the reviewer under the session id the trace is collected for", () => {
     expect(claudeStep()).toContain("--session-id ${{ steps.trace.outputs.session_id }}");
     expect(step("Collect reviewer trace")).toContain(

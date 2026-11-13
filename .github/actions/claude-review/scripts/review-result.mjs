@@ -64,9 +64,11 @@ export const commentBody = (calls, { runUrl, sha, trace = null }) => {
     ...codeBlock(calls),
     "",
     ...traceLines(trace),
-    "If a maintainer's security review of these calls says they're safe, add them to the " +
-      "`--allowedTools` list in `.github/actions/claude-review/action.yml` so future reviews " +
-      "don't have to improvise.",
+    "Read-only commands need no `--allowedTools` entry: Claude Code's own check allows them " +
+      "and denies flags that write files or run programs, and a `Bash(<command>:*)` rule turns " +
+      "that check off for the command. Only if a maintainer's security review of a call says " +
+      "it's safe and it is not read-only, add it to the `--allowedTools` list in " +
+      "`.github/actions/claude-review/action.yml`.",
     "",
     "⚠️ Do **not** blanket-allow `Bash` or use `--dangerously-skip-permissions`. The reviewer " +
       "reads PR content as input, so a malicious PR can prompt-inject it into running shell, " +
