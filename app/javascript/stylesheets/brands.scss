@@ -120,10 +120,12 @@
     flex-grow: 1;
     min-width: 0;
   }
-  &__love {
+  &__actions {
     flex: 0 0 2.5rem;
     text-align: center;
     color: var(--bs-secondary-color);
+  }
+  &__love {
     font-size: 1.25rem;
   }
   &__love-count {
@@ -139,6 +141,36 @@
 
   .fa-heart {
     color: var(--bs-danger);
+  }
+}
+
+.fpc-report-button__icon {
+  margin-top: 8px;
+  padding: 0;
+  font-size: 1.25rem;
+  line-height: 1;
+  color: inherit;
+}
+
+.fpc-report-dialog {
+  width: 32rem;
+  padding: 20px;
+  border: 1px solid var(--bs-border-color);
+  border-radius: var(--bs-border-radius-lg);
+  background-color: var(--bs-body-bg);
+  color: var(--bs-body-color);
+  font-size: 1rem;
+  text-align: start;
+
+  &::backdrop {
+    background-color: rgba(0, 0, 0, 0.5);
+  }
+
+  &__buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 16px;
   }
 }
 

@@ -75,6 +75,7 @@ Rails.application.routes.draw do
 
   resources :ink_reviews, only: [] do
     resource :love, only: %i[create destroy], controller: "ink_review_loves"
+    resource :report, only: :create, controller: "ink_review_reports"
   end
 
   resources :pen_brands, only: %i[index show] do
@@ -82,11 +83,16 @@ Rails.application.routes.draw do
       resources :pen_variants, only: %i[show]
     end
   end
-  resources :pen_models, only: %i[index show]
-  resources :pen_variants, only: %i[show]
+  resources :pen_models, only: %i[index show] do
+    resource :report, only: :create, controller: "pen_model_reports"
+  end
+  resources :pen_variants, only: %i[show] do
+    resource :report, only: :create, controller: "pen_variant_reports"
+  end
 
   resources :inks, only: %i[index show] do
     resource :history, only: [:show]
+    resource :report, only: :create, controller: "ink_reports"
   end
   namespace :pens do
     resources :brands, only: [:index]

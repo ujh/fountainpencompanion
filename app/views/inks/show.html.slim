@@ -84,8 +84,10 @@ div class="row fpc-ink-details"
           ' If the ink name  or description is wrong, click on the edit icon or button respectively above to make
           ' changes yourself. Colors that do not belong can be hidden by clicking the edit icon next to the colors heading.
 
-      = link_to "Report an error",
-                "mailto:clustering-error@fountainpencompanion.com?subject=#{@ink.name}"
+      - if user_signed_in?
+        div class="fpc-report-button" data={ url: ink_report_path(@ink), heading: "Report an error with #{@ink.name}", label: "Report an error" }
+      - else
+        = link_to "Sign in to report an error", new_user_session_path
 
     div class="fpc-ink-details__submit-review"
       - if user_signed_in?
@@ -99,7 +101,10 @@ div class="row fpc-ink-details"
           - group.each do |ink_review|
             div class="col-sm-12 col-md-6"
               div class="fpc-ink-review"
-                = render "ink_review_love", ink_review: ink_review, loved: @loved_ink_review_ids.include?(ink_review.id)
+                div class="fpc-ink-review__actions"
+                  = render "ink_review_love", ink_review: ink_review, loved: @loved_ink_review_ids.include?(ink_review.id)
+                  - if user_signed_in?
+                    div class="fpc-report-button" data={ url: ink_review_report_path(ink_review), heading: "Report a problem with this review", label: "Report this review", icon: "true" }
                 div class="fpc-ink-review__content row"
                   div class="col-sm-12 col-md-6"
                     = ink_review_link ink_review.title, ink_review.url

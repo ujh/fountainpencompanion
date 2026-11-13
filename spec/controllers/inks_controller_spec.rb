@@ -85,6 +85,17 @@ describe InksController do
       expect(rows).to eq([%w[R3 R2], %w[R1 R0]])
     end
 
+    it "asks signed out users to sign in to report errors" do
+      create(:ink_review, macro_cluster: ink, approved_at: Time.current)
+
+      get :show, params: { id: ink.id, brand_id: brand.id }
+
+      expect(page.css(".fpc-report-button")).to be_empty
+      expect(page.at_css(".fpc-ink-details__error-reporting a[href='/users/sign_in']").text).to eq(
+        "Sign in to report an error"
+      )
+    end
+
     it "shows the love count without a button when signed out" do
       create(:ink_review, macro_cluster: ink, approved_at: Time.current, loves_count: 4)
 
@@ -123,6 +134,27 @@ describe InksController do
           "/ink_reviews/#{not_loved.id}/love" => {
             "data-loved" => "false",
             "data-count" => "1"
+          }
+        )
+      end
+
+      it "offers a report button for the ink and for each review" do
+        review = create(:ink_review, macro_cluster: ink, approved_at: Time.current)
+
+        get :show, params: { id: ink.id, brand_id: brand.id }
+
+        buttons =
+          page
+            .css(".fpc-report-button")
+            .map do |el|
+              el.attributes.slice("data-url", "data-label", "data-icon").transform_values(&:value)
+            end
+        expect(buttons).to contain_exactly(
+          { "data-url" => ink_report_path(ink), "data-label" => "Report an error" },
+          {
+            "data-url" => "/ink_reviews/#{review.id}/report",
+            "data-label" => "Report this review",
+            "data-icon" => "true"
           }
         )
       end

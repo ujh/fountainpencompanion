@@ -1,0 +1,9 @@
+<p><%= @user.name.presence || "(no name)" %> reported a problem with a review of <%= @ink.name %>.</p>
+
+<ul>
+  <li>Review: <%= link_to @ink_review.title, @ink_review.url %> (id <%= @ink_review.id %>)</li>
+  <li>Ink: <%= link_to @ink.name, ink_url(@ink) %></li>
+  <li>Reporter: <%= @user.email %> (<%= link_to "admin", admins_user_url(@user) %>)</li>
+</ul>
+
+<%= simple_format(@description) %>

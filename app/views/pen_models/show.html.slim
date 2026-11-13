@@ -26,8 +26,10 @@ div class="row fpc-ink-details"
         ' If there are any pens variants that don't belong here or if there is anything
         ' else that is wrong, feel free to report this using the button below.
         ' We will try to fix it as soon as possible.
-      = link_to "Report an error",
-                "mailto:clustering-error@fountainpencompanion.com?subject=#{@model.name}"
+      - if user_signed_in?
+        div class="fpc-report-button" data={ url: pen_model_report_path(@model), heading: "Report an error with #{@model.name}", label: "Report an error" }
+      - else
+        = link_to "Sign in to report an error", new_user_session_path
 
   h2 Model variants
 
