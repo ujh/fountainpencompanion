@@ -1,9 +1,10 @@
 name: Claude Code Review
 description: >
   Run Claude Code as a PR reviewer using a prompt assembled from
-  prompts/*.md. Generic guidance lives in prompts/base.md and
-  prompts/review-checks.md; the fixed Ruby/Rails and React toolset
-  fragments under prompts/tools/ are always appended.
+  prompts/*.md. prompts/base.md holds the main thread's process;
+  prompts/shared.md, prompts/review-checks.md and the fixed Ruby/Rails
+  and React toolset fragments under prompts/tools/ are appended to it
+  and also staged in .pr-context/subagent-rules.md for the subagents.
 
 inputs:
   claude_code_oauth_token:

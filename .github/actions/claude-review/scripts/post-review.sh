@@ -8,7 +8,7 @@
 # (`gh api --input <file>` and `gh api --input -` via stdin) both
 # require either the `Write` tool (not allowlisted: it has no path
 # scoping) or shell constructs like pipes / `<` redirection (banned
-# by the allowlist policy in prompts/base.md).
+# by the allowlist policy in prompts/shared.md).
 #
 # This helper is the narrow, audited bridge: a single bash entry point
 # that takes structured args, JSON-encodes everything via `jq --arg /
