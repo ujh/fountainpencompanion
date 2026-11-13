@@ -116,32 +116,38 @@ runs:
         REPO: ${{ github.repository }}
         BASE_SHA: ${{ github.event.pull_request.base.sha }}
         HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        RULES: ${{ github.workspace }}/.pr-context/subagent-rules.md
       run: |
         set -euo pipefail
+        fragment() {
+          envsubst '$PR_NUMBER $REPO $BASE_SHA $HEAD_SHA' < "$ACTION_PATH/prompts/$1"
+          echo
+        }
+        # Subagents only see the prompt the main thread writes for
+        # them, so everything they need is staged in one file that
+        # each of them reads first. The main prompt gets the same
+        # text plus the main-thread process in base.md.
         {
-          echo "prompt<<PROMPT_EOF"
-          # Inline REVIEW.md (if present) at the top so subagents
-          # do not each re-read it from disk on every run. The
-          # inlined copy is canonical; the on-disk file is not read
-          # by the reviewer.
           if [ -s "$GITHUB_WORKSPACE/REVIEW.md" ]; then
             echo "# Repository review rules (inlined from REVIEW.md)"
             echo
-            echo "These rules are the highest-priority review guidance and override the default checks below. Apply them in every subagent and in the verification pass. Do not Read REVIEW.md from disk — this inlined copy is canonical."
+            echo "These rules are the highest-priority review guidance and override the default checks below. Do not Read REVIEW.md from disk — this inlined copy is canonical."
             echo
             cat "$GITHUB_WORKSPACE/REVIEW.md"
             echo
             echo "---"
             echo
           fi
-          envsubst '$PR_NUMBER $REPO $BASE_SHA $HEAD_SHA' < "$ACTION_PATH/prompts/base.md"
-          echo
-          envsubst '$PR_NUMBER $REPO $BASE_SHA $HEAD_SHA' < "$ACTION_PATH/prompts/review-checks.md"
+          fragment shared.md
+          fragment review-checks.md
           # Fixed toolset for this repo: Ruby/Rails + React frontend.
-          echo
-          envsubst '$PR_NUMBER $REPO $BASE_SHA $HEAD_SHA' < "$ACTION_PATH/prompts/tools/ruby.md"
-          echo
-          envsubst '$PR_NUMBER $REPO $BASE_SHA $HEAD_SHA' < "$ACTION_PATH/prompts/tools/frontend.md"
+          fragment tools/ruby.md
+          fragment tools/frontend.md
+        } > "$RULES"
+        {
+          echo "prompt<<PROMPT_EOF"
+          fragment base.md
+          cat "$RULES"
           echo "PROMPT_EOF"
         } >> "$GITHUB_OUTPUT"
 
@@ -191,7 +197,7 @@ runs:
         claude_args: |
           --model opus
           --allowedTools "Bash(gh pr comment:*),Bash(git fetch:*),Bash(git log:*),Bash(git show:*),Bash(git blame:*),Bash(git diff:*),Bash(git ls-files:*),Bash(git ls-tree:*),Bash(git cat-file:*),Bash(git status),Bash(grep:*),Bash(head:*),Bash(tail:*),Bash(ls:*),Bash(cat:*),Bash(wc:*),Bash(./.claude-review-post:*),Task,Agent"
-          --append-system-prompt "Repo-specific review rules are inlined at the top of the review prompt under the 'Repository review rules' section. Apply them in every subagent and validation pass — they override default rules. Findings that violate the inlined skip rules must not be reported. Do not Read REVIEW.md from disk; the inlined copy is canonical."
+          --append-system-prompt "Repo-specific review rules are inlined in the review prompt under the 'Repository review rules' section, and staged for subagents in .pr-context/subagent-rules.md. Apply them in every subagent and validation pass — they override default rules. Findings that violate the inlined skip rules must not be reported. Do not Read REVIEW.md from disk; the inlined copy is canonical."
 
     - name: Report denied tool calls
       # The list comes from the execution file, not from the model, so
