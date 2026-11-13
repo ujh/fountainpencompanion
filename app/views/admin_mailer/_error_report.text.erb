@@ -1,0 +1,8 @@
+<%= user.name.presence || "(no name)" %> reported an error with the <%= kind %> <%= name %>.
+
+Page: <%= url %>
+
+Reporter: <%= user.email %>
+          <%= admins_user_url(user) %>
+
+<%= description %>

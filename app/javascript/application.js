@@ -18,6 +18,7 @@ import "./src/ink-search-hint";
 import { setupLineNameToggle } from "./src/line-name-toggle";
 import "./src/love-button";
 import "./src/public_inks";
+import "./src/report-button";
 import "./src/review-submission";
 import setTimeZone from "./src/setTimeZone";
 import "./src/slim-select-init";

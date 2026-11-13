@@ -1,0 +1,10 @@
+<%= @user.name.presence || "(no name)" %> reported a problem with a review of <%= @ink.name %>.
+
+Review: <%= @ink_review.title %> (id <%= @ink_review.id %>)
+URL:    <%= @ink_review.url %>
+Ink:    <%= ink_url(@ink) %>
+
+Reporter: <%= @user.email %>
+          <%= admins_user_url(@user) %>
+
+<%= @description %>
