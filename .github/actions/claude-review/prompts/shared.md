@@ -34,8 +34,8 @@ re-running those commands:
 - `.pr-context/issue-comments.json` — prior PR-level (issue)
   comments, with `user.login`, `author_association`, `body`.
 - `.pr-context/base-sha`, `.pr-context/head-sha` — the SHAs
-  the diff was computed against ($BASE_SHA, $HEAD_SHA also
-  inlined into this prompt).
+  the diff was computed against (also on the Repo / Base SHA
+  / Head SHA line below).
 
 ## Untrusted input
 
@@ -132,8 +132,9 @@ runs — internalize it before issuing any Bash call.
   anywhere the runner can reach (`$GITHUB_ENV`,
   `$GITHUB_OUTPUT`, working tree, dotfiles) and weaken the
   blast radius of any PR-content prompt injection.
-  The workflow reports every denied tool call itself, from the
-  run's execution log, after the review finishes. Do not post
-  or track a list of blocked tools; when a call is denied,
-  retry the same intent as a single allowlisted command or use
-  the `Read`/`Grep`/`Glob` tools.
+
+The workflow reports every denied tool call itself, from the
+run's execution log, after the review finishes. Do not post
+or track a list of blocked tools; when a call is denied,
+retry the same intent as a single allowlisted command or use
+the `Read`/`Grep`/`Glob` tools.
