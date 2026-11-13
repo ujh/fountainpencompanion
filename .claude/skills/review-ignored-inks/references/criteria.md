@@ -123,7 +123,7 @@ Patterns learned in runs (pattern, verdict, why). Keep it short.
 - Renamed, translated or romanised inks with their own clusters (Noodler's Azure = Ottoman Azure, Kingdom
   Note Japanese vs romanised vs English names, Pennonia Hungarian vs English, Phoenix Feathers English vs
   凤凰翎 names): `merge_suggestions`.
-- Kingdom Note Genji inks: keep the official romanised name (Fuyu no Onkata, 11591); English renderings
+- Kingdom Note Genji inks: merge into the romanised cluster (Fuyu no Onkata, 11591); English renderings
   (Winter Way, Winter Lady) and the Japanese name are the same ink. Colours of Time (刻の色) names in kana
   or English are the romanised inks (よるのなごり = Remaining Night = Zanya 残夜, 9440).
 - Kingdom Note Biology series clusters use scientific names; Japanese common names (Kiji, Hoteiuo,
