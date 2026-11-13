@@ -2,7 +2,7 @@
 // claude-code-action) and reports on it from the workflow, not from the model:
 //
 //   node review-result.mjs report   list denied tool calls in the step summary
-//                                   and in one PR comment that is kept current
+//                                   and, if any, in one PR comment kept current
 //   node review-result.mjs check    fail the job when the reviewer errored
 //
 // Environment: EXECUTION_FILE, and for `report` also GITHUB_STEP_SUMMARY,
@@ -45,9 +45,6 @@ export const summarySection = (calls) =>
 
 export const commentBody = (calls, { runUrl, sha }) => {
   const run = `[the latest run](${runUrl}) on ${sha.slice(0, 7)}`;
-  if (!calls.length) {
-    return [MARKER, `**Reviewer tools blocked:** none in ${run}.`].join("\n");
-  }
   return [
     MARKER,
     "**Reviewer tools blocked during the latest run**",
@@ -97,10 +94,11 @@ const findStickyComment = async (request, commentsUrl) => {
 };
 
 export const upsertComment = async ({ calls, repo, pr, token, runUrl, sha, fetchImpl = fetch }) => {
+  if (!calls.length) return "none";
+
   const request = github(fetchImpl, token);
   const commentsUrl = `https://api.github.com/repos/${repo}/issues/${pr}/comments`;
   const sticky = await findStickyComment(request, commentsUrl);
-  if (!sticky && !calls.length) return "none";
 
   const body = JSON.stringify({ body: commentBody(calls, { runUrl, sha }) });
   if (sticky) {

@@ -107,12 +107,6 @@ describe("commentBody", () => {
     expect(body).toContain("[the latest run](https://run) on abcdef1");
     expect(body).toContain("\n\n    Bash: jq -n env\n\n");
   });
-
-  it("says none were blocked when the list is empty", () => {
-    expect(commentBody([], context)).toBe(
-      `${MARKER}\n**Reviewer tools blocked:** none in [the latest run](https://run) on abcdef1.`
-    );
-  });
 });
 
 describe("upsertComment", () => {
@@ -158,18 +152,11 @@ describe("upsertComment", () => {
     expect(await upsertComment({ ...options, calls: ["Bash: y"], fetchImpl })).toBe("updated");
   });
 
-  it("marks the existing comment as resolved when a later run has no denials", async () => {
+  it("leaves the PR alone when nothing was denied, even with an earlier comment", async () => {
     const fetchImpl = fakeFetch([[sticky]]);
 
-    expect(await upsertComment({ ...options, calls: [], fetchImpl })).toBe("updated");
-    expect(JSON.parse(fetchImpl.mock.calls.at(-1)[1].body).body).toContain("none in");
-  });
-
-  it("posts nothing when there are no denials and no earlier comment", async () => {
-    const fetchImpl = fakeFetch([[]]);
-
     expect(await upsertComment({ ...options, calls: [], fetchImpl })).toBe("none");
-    expect(fetchImpl).toHaveBeenCalledTimes(1);
+    expect(fetchImpl).not.toHaveBeenCalled();
   });
 
   it("raises when GitHub rejects the request", async () => {
