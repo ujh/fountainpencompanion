@@ -8,7 +8,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const root = createRoot(el);
     root.render(
       <ErrorBoundary>
-        <App />
+        <App loggedIn={"loggedIn" in el.dataset} />
       </ErrorBoundary>
     );
   }
