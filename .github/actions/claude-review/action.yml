@@ -69,7 +69,7 @@ runs:
           | jq -s "add // [] | $trusted" > "$DEST/inline-comments.json"
         gh api "repos/$REPO/issues/$PR_NUMBER/comments" --paginate \
           | jq -s "add // [] | $trusted" > "$DEST/issue-comments.json"
-        # checkout@v6 with fetch-depth: 0 already fetched all
+        # checkout with fetch-depth: 0 already fetched all
         # history; the explicit fetch is a safety net for repos
         # configured with a different depth.
         git fetch --no-tags origin "$BASE_SHA" "$HEAD_SHA" 2>/dev/null || true
@@ -137,8 +137,6 @@ runs:
           envsubst '$PR_NUMBER $REPO $BASE_SHA $HEAD_SHA' < "$ACTION_PATH/prompts/base.md"
           echo
           envsubst '$PR_NUMBER $REPO $BASE_SHA $HEAD_SHA' < "$ACTION_PATH/prompts/review-checks.md"
-          echo
-          envsubst '$PR_NUMBER $REPO $BASE_SHA $HEAD_SHA' < "$ACTION_PATH/prompts/blocked-tools-comment.md"
           # Fixed toolset for this repo: Ruby/Rails + React frontend.
           echo
           envsubst '$PR_NUMBER $REPO $BASE_SHA $HEAD_SHA' < "$ACTION_PATH/prompts/tools/ruby.md"
@@ -177,7 +175,7 @@ runs:
           sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
         fi
 
-    - uses: anthropics/claude-code-action@806af32823ef69c8ef357086c573a902af641307 # v1
+    - uses: anthropics/claude-code-action@4d75e5f390ee76b2e09c1980ecc99ff3a2e088c8 # v1.0.275
       id: claude
       if: steps.guard.outputs.skip != 'true'
       env:
@@ -190,6 +188,29 @@ runs:
           --model opus
           --allowedTools "Bash(gh pr comment:*),Bash(git fetch:*),Bash(git log:*),Bash(git show:*),Bash(git blame:*),Bash(git diff:*),Bash(git ls-files:*),Bash(git ls-tree:*),Bash(git cat-file:*),Bash(git status),Bash(grep:*),Bash(head:*),Bash(tail:*),Bash(ls:*),Bash(cat:*),Bash(wc:*),Bash(./.claude-review-post:*),Task,Agent"
           --append-system-prompt "Repo-specific review rules are inlined at the top of the review prompt under the 'Repository review rules' section. Apply them in every subagent and validation pass — they override default rules. Findings that violate the inlined skip rules must not be reported. Do not Read REVIEW.md from disk; the inlined copy is canonical."
+
+    - name: Report denied tool calls
+      # The list comes from the execution file, not from the model, so
+      # denials inside subagents are reported too.
+      if: always() && steps.guard.outputs.skip != 'true' && steps.claude.outputs.execution_file != ''
+      shell: bash
+      env:
+        ACTION_PATH: ${{ github.action_path }}
+        EXECUTION_FILE: ${{ steps.claude.outputs.execution_file }}
+        GITHUB_TOKEN: ${{ github.token }}
+        REPO: ${{ github.repository }}
+        PR_NUMBER: ${{ github.event.pull_request.number }}
+        HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+      run: node "$ACTION_PATH/scripts/review-result.mjs" report
+
+    - name: Fail when the reviewer errored
+      if: always() && steps.guard.outputs.skip != 'true' && steps.claude.outcome == 'success'
+      shell: bash
+      env:
+        ACTION_PATH: ${{ github.action_path }}
+        EXECUTION_FILE: ${{ steps.claude.outputs.execution_file }}
+      run: node "$ACTION_PATH/scripts/review-result.mjs" check
 
     - name: Remove staged review helper
       if: always() && steps.guard.outputs.skip != 'true'

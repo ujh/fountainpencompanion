@@ -37,5 +37,3 @@ To inspect the source of a gem this repo depends on:
 2. Gem source is not reachable from the reviewer (`gh api`
    is not allowlisted and gems are not installed); note in
    the finding that external gem source was not inspected.
-   Do not list this as a blocked tool in the trailing
-   comment.

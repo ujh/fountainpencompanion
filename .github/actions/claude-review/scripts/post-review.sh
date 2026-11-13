@@ -32,6 +32,8 @@
 #     PR numbers must be digits, and the commit SHA must be hex.
 #   - The `gh` CLI uses the runner's GITHUB_TOKEN; this script does
 #     not handle auth.
+#   - Exits 3 without posting when the bot already reviewed <commit_sha>,
+#     so a retry cannot post the same review twice.
 
 set -euo pipefail
 
@@ -86,6 +88,15 @@ for arg in "$@"; do
   i=$((i + 1))
 done
 
+existing=$(
+  gh api "repos/$repo/pulls/$pr/reviews" --paginate \
+    --jq ".[] | select(.user.login == \"github-actions[bot]\" and .commit_id == \"$commit\") | .id"
+)
+if [ -n "$existing" ]; then
+  echo "Not posting: review $(echo "$existing" | head -n 1) already covers commit $commit." >&2
+  exit 3
+fi
+
 comments=$(
   jq -n --args '
     [ $ARGS.positional as $a
@@ -104,4 +115,5 @@ jq -n \
     "repos/$repo/pulls/$pr/reviews" \
     --method POST \
     -H "Accept: application/vnd.github+json" \
+    --jq ".id | \"Posted review \\(.) with $((remaining / 3)) inline comment(s).\"" \
     --input -

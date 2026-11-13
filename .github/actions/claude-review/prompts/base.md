@@ -214,10 +214,6 @@ and `.pr-context/issue-comments.json`:
   of truth — the reviewer runs on every push to the PR, so
   treat any prior member response as the final word on that
   finding.
-- Any "Reviewer tools blocked during this run" comment
-  already on the PR → if the set of blocked tools this run
-  is a subset of (or equal to) the already-posted one, skip
-  the new tools-blocked comment.
 
 ## Finding shape
 
@@ -278,9 +274,7 @@ to the PR. Do not post
 a top-level "no findings", "all clear", "automated review —
 no blocking findings", or any other status/summary comment.
 Silence means success. The step summary and execution log
-already record what ran; the PR stays clean. This rule does
-not affect the separate blocked-tools comment described
-below, which has its own posting condition.
+already record what ran; the PR stays clean.
 
 ## Shell command constraints
 
@@ -325,9 +319,7 @@ runs — internalize it before issuing any Bash call.
   no path-scoping syntax, so granting it would permit writes
   anywhere the runner can reach (`$GITHUB_ENV`,
   `$GITHUB_OUTPUT`, working tree, dotfiles) and weaken the
-  blast radius of any PR-content prompt injection. Do not
-  log `Write` rejections in the blocked-tools list — this
-  is expected and not a gap to be filled.
+  blast radius of any PR-content prompt injection.
 - For a multi-comment inline review, use the staged helper
   `./.claude-review-post`, which is allowlisted and built for
   this purpose. It takes structured args, JSON-encodes them
@@ -350,13 +342,15 @@ runs — internalize it before issuing any Bash call.
   include verbatim — `jq --args` JSON-encodes it, nothing
   is interpreted as shell. The helper is the preferred path
   for any review with more than one inline comment.
+  It refuses to post a second review on the same commit and
+  prints `Posted review <id>` on success — post once, and do
+  not retry after that line.
 
 - For simple top-level comments, `gh pr comment --body '...'`
   is fine; it is the only `gh` subcommand that is
   allowlisted. Inline comments always go through the helper.
-- When the body contains backticks (e.g. the verbatim
-  blocked-tools-comment template, which uses Markdown code
-  spans), wrap the `--body` value in **single quotes**, not
+- When the body contains backticks (Markdown code spans),
+  wrap the `--body` value in **single quotes**, not
   double quotes. Backticks inside double-quoted shell
   arguments are command substitution and the allowlist
   rejects them; inside single quotes they are literal and
@@ -364,21 +358,10 @@ runs — internalize it before issuing any Bash call.
   single quote, splice it with `'\''` (close, escaped quote,
   reopen).
   Do not strip backticks, swap them for unicode look-alikes,
-  or indent-escape them; those mangle the rendered Markdown
-  and the blocked-tools-comment template must post verbatim.
+  or indent-escape them; those mangle the rendered Markdown.
 
-While the review runs, keep a list of every tool call that
-was rejected with a "requires approval" / "permission denied"
-/ "command not allowed" response, recording the tool name
-and the exact command or arguments that were blocked.
-Before recording a rejection, first retry the same intent
-as a single bare command per the constraints above; only
-log it as blocked if the simplified single-command form
-was also rejected.
-
-After the review completes (regardless of whether findings
-were posted), if that list is non-empty, post ONE additional
-PR comment via `gh pr comment $PR_NUMBER --body ...` using
-the exact body template in the "Blocked-tools PR comment"
-section below. If the list is empty, do not post this
-comment.
+The workflow reports every denied tool call itself, from the
+run's execution log, after the review finishes. Do not post
+or track a list of blocked tools; when a call is denied,
+retry the same intent as a single allowlisted command or use
+the `Read`/`Grep`/`Glob` tools.
