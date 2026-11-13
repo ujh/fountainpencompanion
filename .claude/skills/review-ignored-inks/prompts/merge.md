@@ -30,8 +30,11 @@ Read-only, run from the repository root:
 - One user owning both clusters: separate samples entered the same day point to different inks. Entering
   a whole line at once (both labels of the same inks), or a sample and then a bottle much later, is no
   evidence against a merge.
-- Direction: keep the cluster with the official or more complete name; when equal, the one with more
-  users. Swap `from` and `into` if needed.
+- Direction: the merge keeps the `into` cluster's id, manual brand, line and ink names and description,
+  and drops those of `from` (its description survives only when `into` has none). The shown name follows
+  the names most users entered unless the cluster has manual names, so an official name does not decide
+  the direction. Keep the cluster with manual names or a description the other lacks; otherwise the one
+  with more users. Swap `from` and `into` if needed.
 
 ## Output
 
