@@ -90,9 +90,16 @@ Each finding returned by a subagent must include:
 
 ## Shell command constraints
 
-**The allowlist matches single bare commands, not shell
-constructs.** This is the #1 source of wasted retries in past
-runs — internalize it before issuing any Bash call.
+**Read-only commands are allowed one at a time; shell
+constructs are not.** This is the #1 source of wasted retries
+in past runs — internalize it before issuing any Bash call.
+Claude Code's own read-only check allows `git log`, `git
+show`, `git diff`, `git blame`, `git ls-files`, `git
+cat-file`, `git status`, `grep`, `head`, `tail`, `ls`, `cat`
+and `wc`, and denies any flag that writes a file or runs a
+program (for example `--output`). `git ls-tree` is allowed
+too. `git fetch` is not: the checkout has the full history
+and the diffs are already on disk.
 
 - Run ONE command per `Bash` call. **No** pipes (`|`),
   command chaining (`;`, `&&`, `||`), output redirection
@@ -100,14 +107,14 @@ runs — internalize it before issuing any Bash call.
   backticks), or `cd`. If you need a piped pipeline, split
   it across multiple Bash calls and process the
   intermediate output yourself.
-- **No `git -C <path>` and no `git -c <key>=<value>`.** The
-  allowlist is prefix-matched, so `git -C ...` does not
-  match `Bash(git diff:*)` and is rejected. `git -c` is
-  forbidden because it can override `core.sshCommand` to
-  exec arbitrary shell. The workflow checkout is your cwd
-  — run bare git commands directly (`git diff <range>`).
-- Allowlisted single-purpose filters are available so you
-  don't need to pipe: `grep`, `head`, `tail`, `ls`, `cat`.
+- **No `git -C <path>`, no `git -c <key>=<value>` and no
+  `git -P` / `git --no-pager`.** Put the subcommand right
+  after `git`. `git -c` can override `core.sshCommand` to
+  exec arbitrary shell, and no pager runs here anyway. The
+  workflow checkout is your cwd — run bare git commands
+  directly (`git diff <range>`).
+- Single-purpose filters are available so you don't need to
+  pipe: `grep`, `head`, `tail`, `ls`, `cat`.
   Use them in their own Bash call against the pre-fetched
   `.pr-context/*` files or against a path on disk.
   Example: instead of `git diff <range> | grep <file>`,
@@ -116,15 +123,14 @@ runs — internalize it before issuing any Bash call.
   output in the next turn. For JSON parsing, use the
   `Read` tool on `.pr-context/*.json` and process the
   structure in your own context.
-- `awk`, `sed`, `find`, `xargs`, `jq` are NOT allowlisted.
+- `awk`, `sed`, `find`, `xargs`, `jq` are NOT allowed.
   Each has a primitive that defeats the "single read-only
   filter" property: `awk`/`sed` exec arbitrary shell
   (`system()`, `-e`, `-i`), `find`/`xargs` exec arbitrary
   commands (`-exec`, by-design), and `jq -n env` dumps
   every environment variable — including the Claude auth
   token and `GITHUB_TOKEN` — as JSON in a single bare
-  command that passes prefix-match allowlisting. Use the
-  allowlisted filters above instead.
+  command. Use the filters above instead.
 - Do NOT use the `Write` or `Edit` tools and do not stage
   JSON or other payloads to disk to feed `gh api --input`.
   The `Write` tool is intentionally not allowlisted: it has
@@ -136,5 +142,5 @@ runs — internalize it before issuing any Bash call.
 The workflow reports every denied tool call itself, from the
 run's execution log, after the review finishes. Do not post
 or track a list of blocked tools; when a call is denied,
-retry the same intent as a single allowlisted command or use
+retry the same intent as a single read-only command or use
 the `Read`/`Grep`/`Glob` tools.

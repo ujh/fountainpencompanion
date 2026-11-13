@@ -117,6 +117,12 @@ describe("commentBody", () => {
     );
   });
 
+  it("warns that an allow rule turns off the read-only check", () => {
+    expect(commentBody(["Bash: git log --output=x"], context)).toContain(
+      "a `Bash(<command>:*)` rule turns that check off for the command"
+    );
+  });
+
   it("does not mention an artifact when none was uploaded", () => {
     expect(commentBody(["Bash: jq -n env"], context)).not.toContain("artifact");
   });

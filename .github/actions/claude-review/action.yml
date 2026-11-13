@@ -209,7 +209,8 @@ runs:
         claude_args: |
           --model opus
           --session-id ${{ steps.trace.outputs.session_id }}
-          --allowedTools "Bash(gh pr comment:*),Bash(git fetch:*),Bash(git log:*),Bash(git show:*),Bash(git blame:*),Bash(git diff:*),Bash(git ls-files:*),Bash(git ls-tree:*),Bash(git cat-file:*),Bash(git status),Bash(grep:*),Bash(head:*),Bash(tail:*),Bash(ls:*),Bash(cat:*),Bash(wc:*),Bash(./.claude-review-post:*),Task,Agent"
+          --permission-mode default
+          --allowedTools "Bash(gh pr comment:*),Bash(git ls-tree:*),Bash(./.claude-review-post:*),Task,Agent"
           --append-system-prompt "Repo-specific review rules are inlined in the review prompt under the 'Repository review rules' section, and staged for subagents in .pr-context/subagent-rules.md. Apply them in every subagent and validation pass — they override default rules. Findings that violate the inlined skip rules must not be reported. Do not Read REVIEW.md from disk; the inlined copy is canonical."
 
     - name: Collect reviewer trace
