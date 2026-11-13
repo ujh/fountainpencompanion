@@ -5,6 +5,10 @@ const ACTION = readFileSync(
   join(process.cwd(), ".github/actions/claude-review/action.yml"),
   "utf8"
 );
+const WORKFLOW = readFileSync(
+  join(process.cwd(), ".github/workflows/claude-code-review.yml"),
+  "utf8"
+);
 
 const step = (name) => {
   const start = ACTION.indexOf(`    - name: ${name}\n`);
@@ -39,8 +43,19 @@ describe("claude-review action wiring", () => {
     );
   });
 
-  it("does not fail the review when the trace cannot be collected", () => {
+  it("does not fail the review when the trace cannot be collected or uploaded", () => {
     expect(step("Collect reviewer trace")).toContain("continue-on-error: true");
+    expect(step("Upload reviewer trace")).toContain("continue-on-error: true");
+  });
+
+  it("checks out without leaving the checkout token in the git config", () => {
+    const start = WORKFLOW.indexOf("- uses: actions/checkout@");
+    const checkout = WORKFLOW.slice(
+      start,
+      WORKFLOW.indexOf("- uses: ./.github/actions/claude-review")
+    );
+
+    expect(checkout).toContain("persist-credentials: false");
   });
 
   it("names the artifact and its retention in one place for the upload and the comment", () => {
