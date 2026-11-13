@@ -91,26 +91,28 @@ div class="row fpc-ink-details"
       - if user_signed_in?
         div class="fpc-review-submission" data-url=brand_ink_ink_review_submissions_path(params[:brand_id], params[:id])
 
-  - if @ink.approved_ink_reviews.exists?
+  - if @ink_reviews.any?
     h2 Reviews
     div class="fpc-ink-details__reviews"
-      -@ink.approved_ink_reviews.in_groups_of(2, false) do |group|
+      - @ink_reviews.in_groups_of(2, false) do |group|
         div class="row"
           - group.each do |ink_review|
             div class="col-sm-12 col-md-6"
-              div class="fpc-ink-review row"
-                div class="col-sm-12 col-md-6"
-                  = ink_review_link ink_review.title, ink_review.url
-                  - if admin?
-                    | &nbsp;
-                    = link_to "❌", admins_review_path(ink_review), method: :delete, data: { confirm: 'Reject?' }
-                  div class="fpc-ink-review__source"
-                    = URI(ink_review.url).host
-                    - if ink_review.author
-                      = " | #{ink_review.author}"
-                  div class="description"= truncate(ink_review.description, length: 200)
-                div class="col-sm-12 col-md-6"
-                  = image_tag ink_review.image
+              div class="fpc-ink-review"
+                = render "ink_review_love", ink_review: ink_review, loved: @loved_ink_review_ids.include?(ink_review.id)
+                div class="fpc-ink-review__content row"
+                  div class="col-sm-12 col-md-6"
+                    = ink_review_link ink_review.title, ink_review.url
+                    - if admin?
+                      | &nbsp;
+                      = link_to "❌", admins_review_path(ink_review), method: :delete, data: { confirm: 'Reject?' }
+                    div class="fpc-ink-review__source"
+                      = URI(ink_review.url).host
+                      - if ink_review.author
+                        = " | #{ink_review.author}"
+                    div class="description"= truncate(ink_review.description, length: 200)
+                  div class="col-sm-12 col-md-6"
+                    = image_tag ink_review.image
 
   h2 Names for this ink
 

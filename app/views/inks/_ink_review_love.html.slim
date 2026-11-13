@@ -1,0 +1,8 @@
+- if user_signed_in?
+  div class="fpc-ink-review__love fpc-love-button" data={ url: ink_review_love_path(ink_review), loved: loved.to_s, count: ink_review.loves_count }
+- else
+  div class="fpc-ink-review__love" title="Loves"
+    i class="fa fa-heart-o" aria-hidden="true"
+    div class="fpc-ink-review__love-count"
+      = ink_review.loves_count
+      span class="visually-hidden"= " loves"

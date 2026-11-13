@@ -10,12 +10,14 @@ class InksController < ApplicationController
 
   def show
     @ink = MacroCluster.find(params[:id])
+    return redirect_to brand_ink_path(@ink.brand_cluster, @ink) unless params[:brand_id]
+
     @description = build_description
+    @ink_reviews = @ink.approved_ink_reviews.to_a
+    @loved_ink_review_ids = loved_ink_review_ids(@ink_reviews)
     add_breadcrumb "Inks", "/brands"
     add_breadcrumb "#{@ink.brand_cluster.name}", brand_path(@ink.brand_cluster)
     add_breadcrumb "#{@ink.name}", brand_ink_path(@ink.brand_cluster, @ink)
-
-    redirect_to brand_ink_path(@ink.brand_cluster, @ink) unless params[:brand_id]
   end
 
   def edit
@@ -39,6 +41,12 @@ class InksController < ApplicationController
   end
 
   private
+
+  def loved_ink_review_ids(ink_reviews)
+    return Set.new unless user_signed_in?
+
+    current_user.ink_review_loves.where(ink_review: ink_reviews).pluck(:ink_review_id).to_set
+  end
 
   def update_params
     params.require(:macro_cluster).permit(

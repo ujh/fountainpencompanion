@@ -8,6 +8,7 @@ class InkReview < ApplicationRecord
   has_many :ink_review_submissions, dependent: :destroy
   has_many :ink_review_checks, dependent: :destroy
   has_many :agent_logs, as: :owner, dependent: :destroy
+  has_many :loves, class_name: "InkReviewLove", dependent: :delete_all
 
   paginates_per 1
 
@@ -28,6 +29,7 @@ class InkReview < ApplicationRecord
   scope :due_for_check, -> { approved.where("next_check_at <= ?", Time.zone.now) }
   scope :link_broken, -> { where("check_count > 0 AND check_count < ?", MAX_FAILED_CHECKS) }
   scope :link_removed, -> { where("check_count >= ?", MAX_FAILED_CHECKS) }
+  scope :by_loves, -> { order(loves_count: :desc).order(Arel.sql("RANDOM()")) }
 
   def reject!
     update!(

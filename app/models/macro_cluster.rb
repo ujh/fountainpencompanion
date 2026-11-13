@@ -245,7 +245,7 @@ class MacroCluster < ApplicationRecord
   end
 
   def approved_ink_reviews
-    ink_reviews.live
+    ink_reviews.live.by_loves
   end
 
   def public_collected_inks_count

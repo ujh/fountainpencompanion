@@ -553,6 +553,38 @@ ALTER SEQUENCE public.ink_review_checks_id_seq OWNED BY public.ink_review_checks
 
 
 --
+-- Name: ink_review_loves; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.ink_review_loves (
+    id bigint NOT NULL,
+    ink_review_id bigint NOT NULL,
+    user_id bigint NOT NULL,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
+);
+
+
+--
+-- Name: ink_review_loves_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.ink_review_loves_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: ink_review_loves_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.ink_review_loves_id_seq OWNED BY public.ink_review_loves.id;
+
+
+--
 -- Name: ink_review_submissions; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -616,7 +648,8 @@ CREATE TABLE public.ink_reviews (
     youtube_tags jsonb DEFAULT '[]'::jsonb NOT NULL,
     youtube_comments jsonb DEFAULT '[]'::jsonb NOT NULL,
     youtube_captions text,
-    youtube_metadata_fetched_at timestamp(6) without time zone
+    youtube_metadata_fetched_at timestamp(6) without time zone,
+    loves_count integer DEFAULT 0 NOT NULL
 );
 
 
@@ -1403,6 +1436,13 @@ ALTER TABLE ONLY public.ink_review_checks ALTER COLUMN id SET DEFAULT nextval('p
 
 
 --
+-- Name: ink_review_loves id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.ink_review_loves ALTER COLUMN id SET DEFAULT nextval('public.ink_review_loves_id_seq'::regclass);
+
+
+--
 -- Name: ink_review_submissions id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -1645,6 +1685,14 @@ ALTER TABLE ONLY public.ink_embeddings
 
 ALTER TABLE ONLY public.ink_review_checks
     ADD CONSTRAINT ink_review_checks_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: ink_review_loves ink_review_loves_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.ink_review_loves
+    ADD CONSTRAINT ink_review_loves_pkey PRIMARY KEY (id);
 
 
 --
@@ -2053,6 +2101,20 @@ CREATE INDEX index_ink_review_checks_on_result_and_created_at ON public.ink_revi
 
 
 --
+-- Name: index_ink_review_loves_on_ink_review_id_and_user_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_ink_review_loves_on_ink_review_id_and_user_id ON public.ink_review_loves USING btree (ink_review_id, user_id);
+
+
+--
+-- Name: index_ink_review_loves_on_user_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_ink_review_loves_on_user_id ON public.ink_review_loves USING btree (user_id);
+
+
+--
 -- Name: index_ink_review_submissions_on_ink_review_id; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -2457,6 +2519,14 @@ ALTER TABLE ONLY public.ink_reviews
 
 
 --
+-- Name: ink_review_loves fk_rails_7d0e4917a5; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.ink_review_loves
+    ADD CONSTRAINT fk_rails_7d0e4917a5 FOREIGN KEY (ink_review_id) REFERENCES public.ink_reviews(id) ON DELETE CASCADE;
+
+
+--
 -- Name: collected_inks fk_rails_86cd529415; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -2502,6 +2572,14 @@ ALTER TABLE ONLY public.leader_board_rows
 
 ALTER TABLE ONLY public.collected_pens
     ADD CONSTRAINT fk_rails_a020b0d7bb FOREIGN KEY (pens_micro_cluster_id) REFERENCES public.pens_micro_clusters(id);
+
+
+--
+-- Name: ink_review_loves fk_rails_a1581227f0; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.ink_review_loves
+    ADD CONSTRAINT fk_rails_a1581227f0 FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE;
 
 
 --
@@ -2575,6 +2653,7 @@ ALTER TABLE ONLY public.collected_inks
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20261113120000'),
 ('20261111053935'),
 ('20261008080000'),
 ('20261007130000'),

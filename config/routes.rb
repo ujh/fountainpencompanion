@@ -73,6 +73,10 @@ Rails.application.routes.draw do
     end
   end
 
+  resources :ink_reviews, only: [] do
+    resource :love, only: %i[create destroy], controller: "ink_review_loves"
+  end
+
   resources :pen_brands, only: %i[index show] do
     resources :pen_models, only: %i[show] do
       resources :pen_variants, only: %i[show]

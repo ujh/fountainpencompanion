@@ -102,6 +102,8 @@
 }
 
 .fpc-ink-review {
+  display: flex;
+  gap: 12px;
   margin-bottom: 20px;
   img {
     max-width: 100%;
@@ -113,6 +115,30 @@
   }
   &__source {
     color: gray;
+  }
+  &__content {
+    flex-grow: 1;
+    min-width: 0;
+  }
+  &__love {
+    flex: 0 0 2.5rem;
+    text-align: center;
+    color: var(--bs-secondary-color);
+    font-size: 1.25rem;
+  }
+  &__love-count {
+    font-size: 0.875rem;
+  }
+}
+
+.fpc-love-button__toggle {
+  padding: 0;
+  font-size: inherit;
+  line-height: inherit;
+  color: inherit;
+
+  .fa-heart {
+    color: var(--bs-danger);
   }
 }
 

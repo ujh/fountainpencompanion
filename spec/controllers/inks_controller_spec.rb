@@ -1,6 +1,9 @@
 require "rails_helper"
+require "active_record/testing/query_assertions"
 
 describe InksController do
+  include ActiveRecord::Assertions::QueryAssertions
+
   render_views
 
   let(:brand) { create(:brand_cluster) }
@@ -16,6 +19,122 @@ describe InksController do
     it "renders inks for a tag" do
       get :index, params: { tag: "blue" }
       expect(response).to be_successful
+    end
+  end
+
+  describe "#show" do
+    let(:page) { Nokogiri.HTML(response.body) }
+
+    def love_elements
+      page.css(".fpc-ink-review__love")
+    end
+
+    it "redirects to the brand scoped path" do
+      get :show, params: { id: ink.id }
+      expect(response).to redirect_to(brand_ink_path(brand, ink))
+    end
+
+    it "orders the reviews by loves" do
+      create(
+        :ink_review,
+        macro_cluster: ink,
+        approved_at: Time.current,
+        title: "Few",
+        loves_count: 1
+      )
+      create(
+        :ink_review,
+        macro_cluster: ink,
+        approved_at: Time.current,
+        title: "Most",
+        loves_count: 7
+      )
+      create(
+        :ink_review,
+        macro_cluster: ink,
+        approved_at: Time.current,
+        title: "Some",
+        loves_count: 3
+      )
+
+      get :show, params: { id: ink.id, brand_id: brand.id }
+
+      titles = page.css(".fpc-ink-review__content > div:first-child > a:first-child").map(&:text)
+      expect(titles).to eq(%w[Most Some Few])
+    end
+
+    it "fills the two columns row by row" do
+      4.times do |i|
+        create(
+          :ink_review,
+          macro_cluster: ink,
+          approved_at: Time.current,
+          title: "R#{i}",
+          loves_count: i
+        )
+      end
+
+      get :show, params: { id: ink.id, brand_id: brand.id }
+
+      rows =
+        page
+          .css(".fpc-ink-details__reviews > .row")
+          .map do |row|
+            row.css(".fpc-ink-review__content > div:first-child > a:first-child").map(&:text)
+          end
+      expect(rows).to eq([%w[R3 R2], %w[R1 R0]])
+    end
+
+    it "shows the love count without a button when signed out" do
+      create(:ink_review, macro_cluster: ink, approved_at: Time.current, loves_count: 4)
+
+      get :show, params: { id: ink.id, brand_id: brand.id }
+
+      expect(love_elements.first.at_css(".fpc-ink-review__love-count").text).to eq("4 loves")
+      expect(page.css(".fpc-love-button")).to be_empty
+    end
+
+    context "signed in" do
+      before(:each) { sign_in(user) }
+
+      it "marks the reviews the user loved" do
+        loved = create(:ink_review, macro_cluster: ink, approved_at: Time.current)
+        create(:ink_review_love, ink_review: loved, user: user)
+        create(:ink_review_love, ink_review: loved)
+        not_loved = create(:ink_review, macro_cluster: ink, approved_at: Time.current)
+        create(:ink_review_love, ink_review: not_loved)
+
+        get :show, params: { id: ink.id, brand_id: brand.id }
+
+        buttons =
+          page
+            .css(".fpc-love-button")
+            .to_h do |el|
+              [
+                el["data-url"],
+                el.attributes.slice("data-loved", "data-count").transform_values(&:value)
+              ]
+            end
+        expect(buttons).to eq(
+          "/ink_reviews/#{loved.id}/love" => {
+            "data-loved" => "true",
+            "data-count" => "2"
+          },
+          "/ink_reviews/#{not_loved.id}/love" => {
+            "data-loved" => "false",
+            "data-count" => "1"
+          }
+        )
+      end
+
+      it "looks up the user's loves in one query" do
+        reviews = create_list(:ink_review, 3, macro_cluster: ink, approved_at: Time.current)
+        reviews.each { |review| create(:ink_review_love, ink_review: review, user: user) }
+
+        assert_queries_match(/FROM "ink_review_loves"/, count: 1) do
+          get :show, params: { id: ink.id, brand_id: brand.id }
+        end
+      end
     end
   end
 
