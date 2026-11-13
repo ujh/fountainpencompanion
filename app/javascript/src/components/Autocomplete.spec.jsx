@@ -191,6 +191,35 @@ describe("Autocomplete", () => {
       });
     });
 
+    describe("outside of act, like in a browser", () => {
+      beforeEach(() => {
+        globalThis.IS_REACT_ACT_ENVIRONMENT = false;
+      });
+
+      afterEach(() => {
+        globalThis.IS_REACT_ACT_ENVIRONMENT = true;
+      });
+
+      it("handles arrow keys pressed as soon as the suggestions appear", async () => {
+        const mockSource = vi.fn().mockResolvedValue(["Apple", "Apricot"]);
+        render(<Autocomplete inputSelector="#test-input" source={mockSource} />);
+
+        const valueAfterArrowDown = new Promise((resolve) => {
+          const observer = new MutationObserver(() => {
+            if (!screen.queryByRole("listbox")) return;
+            observer.disconnect();
+            inputElement.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowDown" }));
+            resolve(inputElement.value);
+          });
+          observer.observe(document.body, { childList: true, subtree: true });
+        });
+        inputElement.value = "A";
+        inputElement.dispatchEvent(new Event("input"));
+
+        expect(await valueAfterArrowDown).toBe("Apple");
+      });
+    });
+
     it("closes suggestions with Escape key", async () => {
       const mockSource = vi.fn().mockResolvedValue(["Apple"]);
 
