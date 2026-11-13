@@ -7,13 +7,15 @@ from this list; if that section defines its own check list,
 follow it instead. Otherwise run every applicable check
 below.
 
-Some checks are **gated** — they self-skip when the diff is
-too small or otherwise not a candidate. The main thread
-reads `.pr-context/meta.json` in Phase 1 specifically so it
-can apply these gates before fan-out. A gated-out check is
-**not dispatched at all** in Phase 2 (no Agent block, no
-wasted turn). Each gated check states its skip condition in
-its own definition below.
+Some checks are **gated** — the main thread skips them when
+the diff is too small. It reads `.pr-context/meta.json` in
+Phase 1 specifically so it can apply these gates before
+fan-out. A gated-out check is **not dispatched at all** in
+Phase 2 (no Agent block, no wasted turn). Each gated check
+states its skip condition in its own definition below. The
+gate is the main thread's decision only: a subagent that was
+dispatched runs its check in full, even when the diff looks
+below the threshold.
 
 1. test-coverage — Verify every behavioral change in the diff
    is covered by a new or updated test. Walk each non-test
@@ -34,8 +36,8 @@ its own definition below.
    unseeded randomness, and JS tests that assert before an
    effect, timer or promise has settled.
 
-2. consistency — **Gated: skip when `additions + deletions ≤
-100`.** Small diffs rarely introduce genuinely novel
+2. consistency — **Gated: the main thread skips it when
+   `additions + deletions ≤ 100`.** Small diffs rarely introduce genuinely novel
    patterns and consistency findings on them are mostly
    noise. File count is irrelevant — a 50-LOC change spread
    across 10 files is still too small to warrant a consistency
