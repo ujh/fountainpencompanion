@@ -19,6 +19,7 @@ class User < ApplicationRecord
   has_many :usage_records, through: :currently_inkeds
   has_many :reading_statuses, dependent: :destroy
   has_many :ink_review_submissions, dependent: :destroy
+  has_many :ink_review_loves, class_name: "InkReviewLove", dependent: :destroy
   has_many :leader_board_rows, dependent: :destroy
   has_many :agent_logs, as: :owner, dependent: :destroy
 

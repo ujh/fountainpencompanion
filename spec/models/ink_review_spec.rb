@@ -344,4 +344,24 @@ describe InkReview do
       expect(review.video_id).to eq("short42")
     end
   end
+
+  describe ".by_loves" do
+    let(:macro_cluster) { create(:macro_cluster) }
+
+    it "puts reviews with more loves first" do
+      few = create(:ink_review, macro_cluster: macro_cluster, loves_count: 1)
+      most = create(:ink_review, macro_cluster: macro_cluster, loves_count: 5)
+      none = create(:ink_review, macro_cluster: macro_cluster, loves_count: 0)
+
+      expect(described_class.by_loves).to eq([most, few, none])
+    end
+
+    it "shuffles reviews with the same number of loves" do
+      create_list(:ink_review, 3, macro_cluster: macro_cluster, loves_count: 2)
+
+      orders = Array.new(20) { described_class.by_loves.ids }
+
+      expect(orders.uniq.size).to be > 1
+    end
+  end
 end
