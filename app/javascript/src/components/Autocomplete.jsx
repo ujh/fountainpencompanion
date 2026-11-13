@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import "./autocomplete.scss";
 
 /**
@@ -33,7 +33,7 @@ export const Autocomplete = ({ inputSelector, source, getDependencies }) => {
   const requestIdRef = useRef(0);
 
   // Find and store reference to the target input
-  useEffect(() => {
+  useLayoutEffect(() => {
     const input = document.querySelector(inputSelector);
     if (input) {
       inputRef.current = input;
@@ -252,7 +252,7 @@ export const Autocomplete = ({ inputSelector, source, getDependencies }) => {
   );
 
   // Attach event listeners to the input
-  useEffect(() => {
+  useLayoutEffect(() => {
     const input = inputRef.current;
     if (!input) return;
 
