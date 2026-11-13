@@ -401,6 +401,25 @@ describe("<CollectedPensTable />", () => {
 
   describe("state in the URL", () => {
     const params = () => new URLSearchParams(window.location.search);
+    const linkParams = (link) =>
+      new URL(link.getAttribute("href"), window.location.origin).searchParams;
+
+    it("carries the search and the sorting into its links", () => {
+      window.history.replaceState(null, "", "/collected_pens?q=Faber&sort=-usage");
+      const { getByRole, getAllByTitle } = setup(
+        <CollectedPensTable pens={pens} onLayoutChange={() => {}} />
+      );
+
+      const links = [
+        getByRole("link", { name: /Add.pen/ }),
+        getAllByTitle("edit")[0],
+        getAllByTitle("archive")[0]
+      ];
+      links.forEach((link) => {
+        expect(linkParams(link).get("q")).toEqual("Faber");
+        expect(linkParams(link).get("sort")).toEqual("-usage");
+      });
+    });
 
     it("restores the sorting from the URL", () => {
       window.history.replaceState(null, "", "/collected_pens?sort=usage");

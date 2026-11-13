@@ -2,6 +2,7 @@ import _ from "lodash";
 import { useMemo, useState } from "react";
 import { LayoutToggle } from "../../components/LayoutToggle";
 import { Switch } from "../../components/Switch";
+import { useWithListState } from "../../listState";
 import { useFieldSwitcher } from "../../useFieldSwitcher";
 import "./actions.scss";
 
@@ -32,6 +33,7 @@ export const Actions = ({
     [onFilterChange, numberOfInks]
   );
 
+  const withListState = useWithListState();
   const { isSwitchedOn, onSwitchChange } = useFieldSwitcher(hiddenFields, onHiddenFieldsChange);
 
   return (
@@ -170,7 +172,7 @@ export const Actions = ({
             />
           </div>
           {!archive && (
-            <a className="ms-2 btn btn-success" href="/collected_inks/new">
+            <a className="ms-2 btn btn-success" href={withListState("/collected_inks/new")}>
               Add&nbsp;ink
             </a>
           )}

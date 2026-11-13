@@ -542,6 +542,50 @@ describe("<CollectedInksTable />", () => {
 
   describe("state in the URL", () => {
     const params = () => new URLSearchParams(window.location.search);
+    const linkParams = (link) =>
+      new URL(link.getAttribute("href"), window.location.origin).searchParams;
+
+    it("carries the search and the sorting into its links", () => {
+      window.history.replaceState(null, "", "/collected_inks?q=Shikiori&sort=-usage");
+      const { getByRole, getAllByTitle } = setup(
+        <CollectedInksTable archive={false} data={data} onLayoutChange={() => {}} />
+      );
+
+      const links = [
+        getByRole("link", { name: /Add.ink/ }),
+        getAllByTitle(/^Edit /)[0],
+        getAllByTitle(/^Archive /)[0]
+      ];
+      links.forEach((link) => {
+        expect(linkParams(link).get("q")).toEqual("Shikiori");
+        expect(linkParams(link).get("sort")).toEqual("-usage");
+      });
+    });
+
+    it("updates its links when the sorting changes", async () => {
+      const { getByText, getAllByTitle, user } = setup(
+        <CollectedInksTable archive={false} data={data} onLayoutChange={() => {}} />
+      );
+      expect(linkParams(getAllByTitle(/^Edit /)[0]).has("sort")).toBe(false);
+
+      await user.click(getByText("Name"));
+
+      expect(linkParams(getAllByTitle(/^Edit /)[0]).get("sort")).toEqual("ink_name");
+    });
+
+    it("carries the search into the links of the archive", () => {
+      window.history.replaceState(null, "", "/collected_inks?search%5Barchive%5D=true&q=Shikiori");
+      const archived = data.map((ink) => ({ ...ink, archived: true }));
+      const { getAllByTitle } = setup(
+        <CollectedInksTable archive={true} data={archived} onLayoutChange={() => {}} />
+      );
+
+      const edit = getAllByTitle(/^Edit /)[0];
+      expect(linkParams(edit).get("search[archive]")).toEqual("true");
+      expect(linkParams(edit).get("q")).toEqual("Shikiori");
+      expect(linkParams(getAllByTitle(/^Unarchive /)[0]).get("q")).toEqual("Shikiori");
+      expect(linkParams(getAllByTitle(/^Delete /)[0]).get("q")).toEqual("Shikiori");
+    });
 
     it("restores the sorting from the URL", () => {
       window.history.replaceState(null, "", "/collected_inks?sort=ink_name");

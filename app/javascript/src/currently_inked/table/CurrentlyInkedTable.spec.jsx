@@ -313,6 +313,26 @@ describe("<CurrentlyInkedTable />", () => {
 
   describe("state in the URL", () => {
     const params = () => new URLSearchParams(window.location.search);
+    const linkParams = (link) =>
+      new URL(link.getAttribute("href"), window.location.origin).searchParams;
+
+    it("carries the search and the sorting into its links", () => {
+      window.history.replaceState(null, "", "/currently_inked?q=Sailor&sort=pen_name");
+      const { getByRole, getAllByTitle } = setup(
+        <CurrentlyInkedTable currentlyInked={currentlyInked} onLayoutChange={() => {}} />
+      );
+
+      const links = [
+        getByRole("link", { name: /Add.entry/ }),
+        getAllByTitle("Refill this pen")[0],
+        getAllByTitle("edit")[0],
+        getAllByTitle("archive")[0]
+      ];
+      links.forEach((link) => {
+        expect(linkParams(link).get("q")).toEqual("Sailor");
+        expect(linkParams(link).get("sort")).toEqual("pen_name");
+      });
+    });
 
     it("restores the sorting from the URL", () => {
       window.history.replaceState(null, "", "/currently_inked?sort=pen_name");

@@ -1,5 +1,6 @@
 import { Card } from "../../components/Card";
 import { RelativeDate } from "../../components/RelativeDate";
+import { useWithListState } from "../../listState";
 import { UsageButton } from "../components/UsageButton";
 import "./currently-inked-card.scss";
 
@@ -54,6 +55,7 @@ export const CurrentlyInkedCard = (props) => {
     collected_pen
   } = props;
 
+  const withListState = useWithListState();
   const color = collected_ink.color;
   const macro_cluster = collected_ink.micro_cluster?.macro_cluster;
   const model_variant_id = collected_pen?.model_variant_id;
@@ -121,7 +123,7 @@ export const CurrentlyInkedCard = (props) => {
               <a
                 className="btn btn-secondary ms-2"
                 title="Refill this pen"
-                href={`/currently_inked/${id}/refill`}
+                href={withListState(`/currently_inked/${id}/refill`)}
                 data-method="post"
                 data-confirm={`Really refill ${ink_name}?`}
               >
@@ -131,14 +133,14 @@ export const CurrentlyInkedCard = (props) => {
             <a
               className="btn btn-secondary  ms-2"
               title="edit"
-              href={`/currently_inked/${id}/edit`}
+              href={withListState(`/currently_inked/${id}/edit`)}
             >
               <i className="fa fa-pencil" />
             </a>
             <a
               className="btn btn-secondary ms-2"
               title="archive"
-              href={`/currently_inked/${id}/archive`}
+              href={withListState(`/currently_inked/${id}/archive`)}
               data-method="post"
             >
               <i className="fa fa-archive" />
