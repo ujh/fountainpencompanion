@@ -43,7 +43,16 @@ const codeBlock = (calls) => calls.map((call) => `    ${call}`);
 export const summarySection = (calls) =>
   ["### Denied tool calls", "", ...(calls.length ? codeBlock(calls) : ["None."]), ""].join("\n");
 
-export const commentBody = (calls, { runUrl, sha }) => {
+const traceLines = (trace) =>
+  trace
+    ? [
+        "The reviewer's transcripts, with its reasoning before each call, are attached to the " +
+          `run as the \`${trace.artifact}\` artifact for ${trace.retentionDays} days.`,
+        ""
+      ]
+    : [];
+
+export const commentBody = (calls, { runUrl, sha, trace = null }) => {
   const run = `[this run](${runUrl}) on ${sha.slice(0, 7)}`;
   return [
     MARKER,
@@ -53,6 +62,7 @@ export const commentBody = (calls, { runUrl, sha }) => {
     "",
     ...codeBlock(calls),
     "",
+    ...traceLines(trace),
     "If a maintainer's security review of these calls says they're safe, add them to the " +
       "`--allowedTools` list in `.github/actions/claude-review/action.yml` so future reviews " +
       "don't have to improvise.",
@@ -93,14 +103,23 @@ const findStickyComment = async (request, commentsUrl) => {
   }
 };
 
-export const upsertComment = async ({ calls, repo, pr, token, runUrl, sha, fetchImpl = fetch }) => {
+export const upsertComment = async ({
+  calls,
+  repo,
+  pr,
+  token,
+  runUrl,
+  sha,
+  trace = null,
+  fetchImpl = fetch
+}) => {
   if (!calls.length) return "none";
 
   const request = github(fetchImpl, token);
   const commentsUrl = `https://api.github.com/repos/${repo}/issues/${pr}/comments`;
   const sticky = await findStickyComment(request, commentsUrl);
 
-  const body = JSON.stringify({ body: commentBody(calls, { runUrl, sha }) });
+  const body = JSON.stringify({ body: commentBody(calls, { runUrl, sha, trace }) });
   if (sticky) {
     await request(`https://api.github.com/repos/${repo}/issues/comments/${sticky.id}`, {
       method: "PATCH",
@@ -111,6 +130,11 @@ export const upsertComment = async ({ calls, repo, pr, token, runUrl, sha, fetch
   await request(commentsUrl, { method: "POST", body });
   return "created";
 };
+
+export const traceFromEnv = (env) =>
+  env.TRACE_ARTIFACT
+    ? { artifact: env.TRACE_ARTIFACT, retentionDays: env.TRACE_RETENTION_DAYS }
+    : null;
 
 const readMessages = (path) => JSON.parse(readFileSync(path, "utf8"));
 
@@ -123,7 +147,8 @@ const report = async (env) => {
     pr: env.PR_NUMBER,
     token: env.GITHUB_TOKEN,
     runUrl: env.RUN_URL,
-    sha: env.HEAD_SHA
+    sha: env.HEAD_SHA,
+    trace: traceFromEnv(env)
   });
   console.log(`${calls.length} denied tool call(s); PR comment: ${outcome}`);
 };
