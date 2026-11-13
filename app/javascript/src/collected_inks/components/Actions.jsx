@@ -6,7 +6,7 @@ import { useFieldSwitcher } from "../../useFieldSwitcher";
 import "./actions.scss";
 
 /**
- * @param {{ archive: boolean; activeLayout: "card" | "table"; numberOfInks: number; hiddenFields: string[]; onHiddenFieldsChange: (newValues: string[]) => void; onFilterChange: (val: string | undefined) => void; onLayoutChange: (e: import('react').ChangeEvent) => void; }} props
+ * @param {{ archive: boolean; activeLayout: "card" | "table"; numberOfInks: number; hiddenFields: string[]; onHiddenFieldsChange: (newValues: string[]) => void; initialFilter?: string; onFilterChange: (val: string | undefined) => void; onLayoutChange: (e: import('react').ChangeEvent) => void; }} props
  */
 export const Actions = ({
   archive,
@@ -14,10 +14,11 @@ export const Actions = ({
   numberOfInks,
   hiddenFields,
   onHiddenFieldsChange,
+  initialFilter,
   onFilterChange,
   onLayoutChange
 }) => {
-  const [globalFilter, setGlobalFilter] = useState("");
+  const [globalFilter, setGlobalFilter] = useState(initialFilter || "");
 
   // We debounce to not melt mountainofinks' phone when filtering :D
   const debouncedOnFilterChange = useMemo(

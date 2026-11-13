@@ -1,5 +1,6 @@
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { useHiddenFields } from "../../useHiddenFields";
+import { useSearchParamState } from "../../useUrlState";
 import { Actions } from "../components/Actions";
 import { fuzzyMatch } from "../match";
 import { Cards } from "./Cards";
@@ -7,7 +8,7 @@ import { Cards } from "./Cards";
 export const storageKeyHiddenFields = "fpc-collected-pens-cards-hidden-fields";
 
 export const CollectedPensCards = ({ pens, onLayoutChange }) => {
-  const [matchOn, setMatchOn] = useState("");
+  const [matchOn, setMatchOn] = useSearchParamState("q");
 
   const defaultHiddenFields = useMemo(() => {
     let hideIfNoneWithValue = [
@@ -37,6 +38,7 @@ export const CollectedPensCards = ({ pens, onLayoutChange }) => {
       <Actions
         activeLayout="card"
         numberOfPens={pens.length}
+        initialFilter={matchOn}
         onFilterChange={setMatchOn}
         onLayoutChange={onLayoutChange}
         hiddenFields={hiddenFields}

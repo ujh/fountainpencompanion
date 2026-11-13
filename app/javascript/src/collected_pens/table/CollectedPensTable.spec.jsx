@@ -398,4 +398,42 @@ describe("<CollectedPensTable />", () => {
     const modelLinks = container.querySelectorAll('a[href*="/pen_variants/"]');
     expect(modelLinks.length).toBe(2);
   });
+
+  describe("state in the URL", () => {
+    const params = () => new URLSearchParams(window.location.search);
+
+    it("restores the sorting from the URL", () => {
+      window.history.replaceState(null, "", "/collected_pens?sort=usage");
+      const { getAllByRole } = setup(<CollectedPensTable pens={pens} onLayoutChange={() => {}} />);
+
+      const rows = getAllByRole("row");
+      expect(rows[1]).toHaveTextContent(/Ambition/);
+      expect(rows[2]).toHaveTextContent(/Loom/);
+      expect(rows[3]).toHaveTextContent(/Q1/);
+    });
+
+    it("restores the search from the URL", () => {
+      window.history.replaceState(null, "", "/collected_pens?q=Majohn");
+      const { getByLabelText, container } = setup(
+        <CollectedPensTable pens={pens} onLayoutChange={() => {}} />
+      );
+
+      expect(getByLabelText("Search")).toHaveValue("Majohn");
+      const rows = container.querySelectorAll("tbody tr");
+      expect(rows).toHaveLength(1);
+      expect(rows[0]).toHaveTextContent(/Q1/);
+    });
+
+    it("writes sorting and search to the URL", async () => {
+      const { getByText, getByLabelText, user } = setup(
+        <CollectedPensTable pens={pens} onLayoutChange={() => {}} />
+      );
+
+      await user.click(getByText("Model"));
+      expect(params().get("sort")).toEqual("model");
+
+      await user.type(getByLabelText("Search"), "Majohn");
+      await waitFor(() => expect(params().get("q")).toEqual("Majohn"));
+    });
+  });
 });

@@ -118,4 +118,14 @@ describe("<CollectedInksCards />", () => {
 
     expect(queryByText("2 inked (1 daily usages)")).not.toBeInTheDocument();
   });
+
+  it("restores the search from the URL", () => {
+    window.history.replaceState(null, "", "/collected_inks?q=nomatch");
+    const { getByLabelText, queryByText } = setup(
+      <CollectedInksCards data={data} archive={false} onLayoutChange={() => {}} />
+    );
+
+    expect(getByLabelText("Search")).toHaveValue("nomatch");
+    expect(queryByText("Yozakura")).not.toBeInTheDocument();
+  });
 });

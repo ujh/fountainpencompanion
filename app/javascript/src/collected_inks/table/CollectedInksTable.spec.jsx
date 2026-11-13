@@ -539,4 +539,47 @@ describe("<CollectedInksTable />", () => {
     // Cluster Tags column should not be visible
     expect(queryByText("Cluster Tags")).not.toBeInTheDocument();
   });
+
+  describe("state in the URL", () => {
+    const params = () => new URLSearchParams(window.location.search);
+
+    it("restores the sorting from the URL", () => {
+      window.history.replaceState(null, "", "/collected_inks?sort=ink_name");
+      const { getAllByRole } = setup(
+        <CollectedInksTable archive={false} data={data} onLayoutChange={() => {}} />
+      );
+
+      const rows = getAllByRole("row");
+      expect(rows[1]).toHaveTextContent(/miruai/i);
+      expect(rows[2]).toHaveTextContent(/yozakura/i);
+    });
+
+    it("restores the search from the URL", () => {
+      window.history.replaceState(null, "", "/collected_inks?q=Yozakura");
+      const { getByLabelText, container } = setup(
+        <CollectedInksTable archive={false} data={data} onLayoutChange={() => {}} />
+      );
+
+      expect(getByLabelText("Search")).toHaveValue("Yozakura");
+      const rows = container.querySelectorAll("tbody tr");
+      expect(rows).toHaveLength(1);
+      expect(rows[0]).toHaveTextContent(/yozakura/i);
+    });
+
+    it("writes sorting and search to the URL", async () => {
+      window.history.replaceState(null, "", "/collected_inks?search%5Barchive%5D=true");
+      const { getByText, getByLabelText, user } = setup(
+        <CollectedInksTable archive={true} data={data} onLayoutChange={() => {}} />
+      );
+
+      await user.click(getByText("Name"));
+      expect(params().get("sort")).toEqual("ink_name");
+      await user.click(getByText("Name"));
+      expect(params().get("sort")).toEqual("-ink_name");
+
+      await user.type(getByLabelText("Search"), "Miruai");
+      await waitFor(() => expect(params().get("q")).toEqual("Miruai"));
+      expect(params().get("search[archive]")).toEqual("true");
+    });
+  });
 });

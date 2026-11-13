@@ -6,17 +6,18 @@ import { useFieldSwitcher } from "../../useFieldSwitcher";
 import "./actions.scss";
 
 /**
- * @param {{ activeLayout: "card" | "table"; numberOfEntries: number; hiddenFields: string[]; onHiddenFieldsChange: (newValues: string[]) => void; onFilterChange: (val: string | undefined) => void; onLayoutChange: (e: import('react').ChangeEvent) => void; }} props
+ * @param {{ activeLayout: "card" | "table"; numberOfEntries: number; hiddenFields: string[]; onHiddenFieldsChange: (newValues: string[]) => void; initialFilter?: string; onFilterChange: (val: string | undefined) => void; onLayoutChange: (e: import('react').ChangeEvent) => void; }} props
  */
 export const Actions = ({
   activeLayout,
   numberOfEntries,
   hiddenFields,
   onHiddenFieldsChange,
+  initialFilter,
   onFilterChange,
   onLayoutChange
 }) => {
-  const [globalFilter, setGlobalFilter] = useState("");
+  const [globalFilter, setGlobalFilter] = useState(initialFilter || "");
 
   const debouncedOnFilterChange = useMemo(
     () =>

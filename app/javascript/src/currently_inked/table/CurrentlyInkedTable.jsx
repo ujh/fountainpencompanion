@@ -5,10 +5,11 @@ import {
   useReactTable
 } from "@tanstack/react-table";
 import _ from "lodash";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo } from "react";
 import { RelativeDate } from "../../components/RelativeDate";
 import { Table } from "../../components/Table";
 import { useHiddenFields } from "../../useHiddenFields";
+import { useSearchParamState, useUrlSorting } from "../../useUrlState";
 import { Actions } from "../components/Actions";
 import { fuzzyMatch } from "../match";
 import { ActionsCell } from "./ActionsCell";
@@ -126,7 +127,8 @@ export const CurrentlyInkedTable = ({ currentlyInked, onLayoutChange, onUsageRec
     defaultHiddenFields
   );
 
-  const [filterText, setFilterText] = useState("");
+  const [filterText, setFilterText] = useSearchParamState("q");
+  const [sorting, setSorting] = useUrlSorting(columns);
   const filteredData = useMemo(
     () => fuzzyMatch(currentlyInked, filterText, hiddenFields),
     [currentlyInked, filterText, hiddenFields]
@@ -138,7 +140,9 @@ export const CurrentlyInkedTable = ({ currentlyInked, onLayoutChange, onUsageRec
     getRowId: (row) => String(row.id),
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
+    onSortingChange: setSorting,
     state: {
+      sorting,
       columnVisibility: hiddenFields.reduce((acc, field) => ({ ...acc, [field]: false }), {})
     },
     onColumnVisibilityChange: (updater) => {
@@ -151,8 +155,6 @@ export const CurrentlyInkedTable = ({ currentlyInked, onLayoutChange, onUsageRec
       }
     }
   });
-
-  const handleFilterChange = useCallback((value) => setFilterText(value || ""), []);
 
   useEffect(() => {
     const visibility = hiddenFields.reduce((acc, field) => ({ ...acc, [field]: false }), {});
@@ -248,7 +250,8 @@ export const CurrentlyInkedTable = ({ currentlyInked, onLayoutChange, onUsageRec
       <Actions
         activeLayout="table"
         numberOfEntries={currentlyInked.length}
-        onFilterChange={handleFilterChange}
+        initialFilter={filterText}
+        onFilterChange={setFilterText}
         onLayoutChange={onLayoutChange}
         hiddenFields={hiddenFields}
         onHiddenFieldsChange={onHiddenFieldsChange}
