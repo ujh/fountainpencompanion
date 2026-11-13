@@ -180,6 +180,10 @@ runs:
       if: steps.guard.outputs.skip != 'true'
       env:
         CLAUDE_CODE_SUBPROCESS_ENV_SCRUB: "1"
+        # Subagents start in the background by default since Claude Code
+        # 2.1.3xx, and the action stops at the first result, so the review
+        # ended before any check reported back.
+        CLAUDE_CODE_DISABLE_BACKGROUND_TASKS: "1"
       with:
         claude_code_oauth_token: ${{ inputs.claude_code_oauth_token }}
         github_token: ${{ github.token }}
