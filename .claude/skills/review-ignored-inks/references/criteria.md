@@ -72,6 +72,10 @@ is not a cleaning solution.
   cluster already contains that edition. Names that differ only in line or format words (bottle,
   cartridge, standard line, product codes such as T52/T10) are one ink, not several. A similar-looking
   name is not enough: a name that could blend two of the maker's ink names is a possible mix, not a typo.
+  Another maker's catalogued ink entered under the wrong brand is `assign` to that ink when the brand as
+  entered is itself a catalogued maker and no source shows that brand selling the ink ("Diamine
+  Kon-peki" is Pilot Iroshizuku Kon-peki), as the clusterer's rules say. An unknown brand with other
+  makers' ink names stays ignored (`personal_brand` or `mix`).
 - `create` — a real ink with no macro cluster yet. Group micro clusters that are the same new ink with
   `group_with` so they end up in one cluster.
 - Duplicate macro clusters (two clusters for the same ink, e.g. a renamed ink or a translated name) are
