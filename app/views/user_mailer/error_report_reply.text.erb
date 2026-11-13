@@ -1,0 +1,12 @@
+Hi<%= @user.name.present? ? " #{@user.name}" : "" %>,
+
+<%= @entry.body %>
+
+---
+Your report from <%= l(@error_report.created_at.to_date, format: :long) %> about <%= @error_report.reportable_name %>:
+
+<%= @error_report.description %>
+<% if (url = error_report_page_url(@error_report)) %>
+
+<%= url %>
+<% end %>

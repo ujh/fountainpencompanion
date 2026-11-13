@@ -389,6 +389,76 @@ ALTER SEQUENCE public.currently_inked_id_seq OWNED BY public.currently_inked.id;
 
 
 --
+-- Name: error_report_entries; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.error_report_entries (
+    id bigint NOT NULL,
+    error_report_id bigint NOT NULL,
+    user_id bigint NOT NULL,
+    kind character varying NOT NULL,
+    body text NOT NULL,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
+);
+
+
+--
+-- Name: error_report_entries_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.error_report_entries_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: error_report_entries_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.error_report_entries_id_seq OWNED BY public.error_report_entries.id;
+
+
+--
+-- Name: error_reports; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.error_reports (
+    id bigint NOT NULL,
+    user_id bigint NOT NULL,
+    reportable_type character varying NOT NULL,
+    reportable_id bigint NOT NULL,
+    reportable_name character varying NOT NULL,
+    description text NOT NULL,
+    resolved_at timestamp(6) without time zone,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
+);
+
+
+--
+-- Name: error_reports_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.error_reports_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: error_reports_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.error_reports_id_seq OWNED BY public.error_reports.id;
+
+
+--
 -- Name: gutentag_taggings; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -1401,6 +1471,20 @@ ALTER TABLE ONLY public.currently_inked ALTER COLUMN id SET DEFAULT nextval('pub
 
 
 --
+-- Name: error_report_entries id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.error_report_entries ALTER COLUMN id SET DEFAULT nextval('public.error_report_entries_id_seq'::regclass);
+
+
+--
+-- Name: error_reports id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.error_reports ALTER COLUMN id SET DEFAULT nextval('public.error_reports_id_seq'::regclass);
+
+
+--
 -- Name: gutentag_taggings id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -1645,6 +1729,22 @@ ALTER TABLE ONLY public.csp_reports
 
 ALTER TABLE ONLY public.currently_inked
     ADD CONSTRAINT currently_inked_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: error_report_entries error_report_entries_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.error_report_entries
+    ADD CONSTRAINT error_report_entries_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: error_reports error_reports_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.error_reports
+    ADD CONSTRAINT error_reports_pkey PRIMARY KEY (id);
 
 
 --
@@ -2035,6 +2135,41 @@ CREATE INDEX index_currently_inked_on_collected_pen_id ON public.currently_inked
 --
 
 CREATE INDEX index_currently_inked_on_user_id ON public.currently_inked USING btree (user_id);
+
+
+--
+-- Name: index_error_report_entries_on_error_report_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_error_report_entries_on_error_report_id ON public.error_report_entries USING btree (error_report_id);
+
+
+--
+-- Name: index_error_report_entries_on_user_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_error_report_entries_on_user_id ON public.error_report_entries USING btree (user_id);
+
+
+--
+-- Name: index_error_reports_on_reportable; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_error_reports_on_reportable ON public.error_reports USING btree (reportable_type, reportable_id);
+
+
+--
+-- Name: index_error_reports_on_user_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_error_reports_on_user_id ON public.error_reports USING btree (user_id);
+
+
+--
+-- Name: index_error_reports_open; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_error_reports_open ON public.error_reports USING btree (created_at) WHERE (resolved_at IS NULL);
 
 
 --
@@ -2463,6 +2598,14 @@ ALTER TABLE ONLY public.ink_review_checks
 
 
 --
+-- Name: error_report_entries fk_rails_3877ce90c9; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.error_report_entries
+    ADD CONSTRAINT fk_rails_3877ce90c9 FOREIGN KEY (error_report_id) REFERENCES public.error_reports(id) ON DELETE CASCADE;
+
+
+--
 -- Name: macro_clusters fk_rails_4b634dc145; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -2511,6 +2654,14 @@ ALTER TABLE ONLY public.pens_models
 
 
 --
+-- Name: error_report_entries fk_rails_7c3f742948; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.error_report_entries
+    ADD CONSTRAINT fk_rails_7c3f742948 FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE;
+
+
+--
 -- Name: ink_reviews fk_rails_7ce1cd1ba7; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -2532,6 +2683,14 @@ ALTER TABLE ONLY public.ink_review_loves
 
 ALTER TABLE ONLY public.collected_inks
     ADD CONSTRAINT fk_rails_86cd529415 FOREIGN KEY (micro_cluster_id) REFERENCES public.micro_clusters(id);
+
+
+--
+-- Name: error_reports fk_rails_8c062b9b87; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.error_reports
+    ADD CONSTRAINT fk_rails_8c062b9b87 FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE;
 
 
 --
@@ -2653,6 +2812,7 @@ ALTER TABLE ONLY public.collected_inks
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20261113150000'),
 ('20261113120000'),
 ('20261111053935'),
 ('20261008080000'),

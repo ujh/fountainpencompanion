@@ -1,8 +1,0 @@
-<p><%= user.name.presence || "(no name)" %> reported an error with the <%= kind %> <%= name %>.</p>
-
-<ul>
-  <li>Page: <%= link_to name, url %></li>
-  <li>Reporter: <%= user.email %> (<%= link_to "admin", admins_user_url(user) %>)</li>
-</ul>
-
-<%= simple_format(description) %>

@@ -19,3 +19,16 @@
     padding-top: 0;
   }
 }
+
+.fpc-error-reports {
+  td {
+    padding: 0;
+  }
+
+  &__cell {
+    display: block;
+    padding: 0.5rem;
+    color: inherit;
+    text-decoration: none;
+  }
+}

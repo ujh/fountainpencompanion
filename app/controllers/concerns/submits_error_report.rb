@@ -1,10 +1,13 @@
 module SubmitsErrorReport
   private
 
-  def submit_error_report
-    report = ErrorReport.new(description: report_params[:description])
-    if report.valid?
-      yield report.description
+  def submit_error_report(reportable)
+    report =
+      current_user.error_reports.build(
+        reportable: reportable,
+        description: report_params[:description]
+      )
+    if report.save
       head :ok
     else
       render json: { errors: report.errors.full_messages }, status: :unprocessable_content

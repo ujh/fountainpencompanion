@@ -160,6 +160,7 @@ spec/
 - **Larger changes**: For work spanning several PRs or requiring several design decisions, follow [the orchestration workflow](docs/orchestration.md): plan, delegate, review, and report. Claude Code in the owner conversation is the orchestrator.
 - **New code should be well-structured and thoroughly tested.** Existing code quality varies; don't model new additions after poorly-tested older code.
 - **Tests document behaviour, not comments.** Don't add explanatory comments that describe why a check or branch exists; write a test that pins the behaviour instead. Comments are for the rare non-obvious implementation detail a test can't express.
+- **Thin controllers**: a controller action finds the records, calls one operation and picks the response. Saving that comes with side effects (emails, jobs, status changes on other records) lives in an operation in `app/operations/`, following `SaveCollectedInk` / `SaveCollectedPen`: the constructor takes the record and the params, `perform` returns whether it saved, and the spec lives in `spec/operations/`.
 - **Ruby**: snake_case for methods/variables, CamelCase for classes/modules. Rescue specific errors only. Prefer `attr_accessor` with `self.x =` in constructors over bare `@x` instance variables.
 - **JavaScript/JSX**: PascalCase for components, camelCase for variables/functions. Tests use `*.spec.js(x)` extension.
 - **Commits**: there is no pre-commit hook. Run `pnpm prettier-fix` and `pnpm eslint --fix` before committing; CI's `pnpm lint` fails on unformatted or lint-failing files.

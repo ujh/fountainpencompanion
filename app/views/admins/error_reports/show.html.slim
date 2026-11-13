@@ -1,0 +1,71 @@
+- content_for :title, "#{@error_report.kind} report: #{@error_report.reportable_name}"
+
+dl class="row"
+  dt class="col-sm-3" Status
+  dd class="col-sm-9"
+    - if @error_report.resolved?
+      ' Resolved
+      = time_ago_in_words(@error_report.resolved_at)
+      '  ago
+      = button_to "Reopen", admins_error_report_path(@error_report), method: :patch, params: { resolved: "false" }, class: "btn btn-sm btn-outline-secondary ms-2", form: { class: "d-inline" }
+    - else
+      ' Open
+      = button_to "Mark resolved", admins_error_report_path(@error_report), method: :patch, params: { resolved: "true" }, class: "btn btn-sm btn-success ms-2", form: { class: "d-inline" }
+
+  dt class="col-sm-3" Item
+  dd class="col-sm-9"
+    = @error_report.kind
+    | :
+    - if (url = error_report_page_url(@error_report))
+      = link_to @error_report.reportable_name, url
+    - else
+      = @error_report.reportable_name
+      |  (no longer exists)
+
+  - if @error_report.reportable.is_a?(InkReview)
+    dt class="col-sm-3" Review URL
+    dd class="col-sm-9"= ink_review_link @error_report.reportable.url, @error_report.reportable.url, target: "_blank"
+
+  dt class="col-sm-3" Reporter
+  dd class="col-sm-9"
+    = @error_report.user.email
+    |  (
+    = link_to "admin", admins_user_path(@error_report.user)
+    | )
+
+  dt class="col-sm-3" Reported
+  dd class="col-sm-9"= l(@error_report.created_at, format: :long)
+
+  dt class="col-sm-3" Description
+  dd class="col-sm-9"= simple_format(@error_report.description)
+
+h2 class="h4" History
+- if @error_report.entries.empty?
+  p class="text-muted" No notes or replies yet.
+- else
+  - @error_report.entries.each do |entry|
+    div class=["card mb-2", ("border-primary" if entry.reply?)]
+      div class="card-header"
+        strong= entry.reply? ? "Reply sent to user" : "Internal note"
+        |  by
+        = entry.user.public_name
+        |  ·
+        = l(entry.created_at, format: :short)
+      div class="card-body"= simple_format(entry.body)
+
+div class="row mt-4"
+  div class="col-md-6"
+    h2 class="h5" Add internal note
+    = form_with model: ErrorReportEntry.new(kind: "note"), url: admins_error_report_entries_path(@error_report) do |f|
+      = f.hidden_field :kind
+      = f.text_area :body, rows: 6, required: true, class: "form-control", "aria-label": "Internal note"
+      = f.submit "Add note", class: "btn btn-secondary mt-2"
+  div class="col-md-6"
+    h2 class="h5" Reply to user
+    = form_with model: ErrorReportEntry.new(kind: "reply"), url: admins_error_report_entries_path(@error_report) do |f|
+      = f.hidden_field :kind
+      = f.text_area :body, rows: 6, required: true, class: "form-control", "aria-label": "Reply to user"
+      div class="form-check mt-2"
+        = check_box_tag :resolve, "1", !@error_report.resolved?, class: "form-check-input", id: "resolve"
+        = label_tag :resolve, "Mark as resolved", class: "form-check-label", for: "resolve"
+      = f.submit "Send reply to #{@error_report.user.email}", class: "btn btn-primary mt-2", data: { confirm: "Send this reply to #{@error_report.user.email}?" }
