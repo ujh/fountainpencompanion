@@ -7,6 +7,11 @@ describe ErrorReportEntry do
     expect(build(:error_report_entry, kind: "other")).not_to be_valid
   end
 
+  it "tells notes and replies apart" do
+    expect(build(:error_report_entry, kind: "note")).to have_attributes(note?: true, reply?: false)
+    expect(build(:error_report_entry, kind: "reply")).to have_attributes(note?: false, reply?: true)
+  end
+
   it "requires a body" do
     expect(build(:error_report_entry, body: " ")).not_to be_valid
   end

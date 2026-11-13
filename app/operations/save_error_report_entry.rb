@@ -7,7 +7,10 @@ class SaveErrorReportEntry
 
   def perform
     saved = entry.update(entry_params)
-    reply_to_reporter if saved && entry.reply?
+    if saved && entry.reply?
+      deliver_reply
+      entry.error_report.resolve! if resolve
+    end
 
     saved
   end
@@ -16,8 +19,7 @@ class SaveErrorReportEntry
 
   attr_accessor :entry, :entry_params, :resolve
 
-  def reply_to_reporter
+  def deliver_reply
     UserMailer.error_report_reply(entry).deliver_later
-    entry.error_report.resolve! if resolve
   end
 end
