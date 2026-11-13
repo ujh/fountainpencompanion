@@ -320,4 +320,85 @@ describe CurrentlyInkedController do
       end
     end
   end
+
+  describe "keeping the search and sorting of the list" do
+    let(:list_state) { { q: "pilot", sort: "-last_used_on" } }
+    let!(:currently_inked) do
+      user.currently_inkeds.create!(collected_ink: collected_ink, collected_pen: collected_pen)
+    end
+
+    before { sign_in(user) }
+
+    it "keeps them in the new form" do
+      get :new, params: list_state
+
+      form = Nokogiri.HTML(response.body).at_css("form#new_currently_inked")
+      expect(form.at_css("input[type=hidden][name=q]")["value"]).to eq("pilot")
+      expect(form.at_css("input[type=hidden][name=sort]")["value"]).to eq("-last_used_on")
+      expect(form.at_css("a.btn-secondary")["href"]).to eq(currently_inked_index_path(list_state))
+    end
+
+    it "keeps them in the edit form" do
+      get :edit, params: { id: currently_inked.id, **list_state }
+
+      form = Nokogiri.HTML(response.body).at_css("form.edit_currently_inked")
+      expect(form.at_css("input[type=hidden][name=q]")["value"]).to eq("pilot")
+      expect(form.at_css("input[type=hidden][name=sort]")["value"]).to eq("-last_used_on")
+    end
+
+    it "keeps them when the form is shown again after a validation error" do
+      post :create,
+           params: {
+             currently_inked: {
+               collected_ink_id: collected_ink.id
+             },
+             **list_state
+           }
+
+      form = Nokogiri.HTML(response.body).at_css("form#new_currently_inked")
+      expect(form.at_css("input[type=hidden][name=q]")["value"]).to eq("pilot")
+      expect(form.at_css("input[type=hidden][name=sort]")["value"]).to eq("-last_used_on")
+      expect(form.at_css("a.btn-secondary")["href"]).to eq(currently_inked_index_path(list_state))
+    end
+
+    it "redirects back with them after creating an entry" do
+      other_pen = create(:collected_pen, user: user)
+      post :create,
+           params: {
+             currently_inked: {
+               collected_ink_id: collected_ink.id,
+               collected_pen_id: other_pen.id
+             },
+             **list_state
+           }
+      expect(response).to redirect_to(currently_inked_index_path(list_state))
+    end
+
+    it "redirects back with them after updating an entry" do
+      put :update,
+          params: {
+            id: currently_inked.id,
+            currently_inked: {
+              comment: "new"
+            },
+            **list_state
+          }
+      expect(response).to redirect_to(currently_inked_index_path(list_state))
+    end
+
+    it "redirects back with them after refilling an entry" do
+      post :refill, params: { id: currently_inked.id, **list_state }
+      expect(response).to redirect_to(currently_inked_index_path(list_state))
+    end
+
+    it "redirects back with them after archiving an entry" do
+      post :archive, params: { id: currently_inked.id, **list_state }
+      expect(response).to redirect_to(currently_inked_index_path(list_state))
+    end
+
+    it "redirects back with them after deleting an entry" do
+      delete :destroy, params: { id: currently_inked.id, **list_state }
+      expect(response).to redirect_to(currently_inked_index_path(list_state))
+    end
+  end
 end

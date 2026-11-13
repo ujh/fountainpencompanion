@@ -127,4 +127,22 @@ describe("<CollectedPensCards />", () => {
     expect(queryByText("Majohn Q1")).toBeInTheDocument();
     expect(queryByText("Faber-Castell Loom")).not.toBeInTheDocument();
   });
+
+  it("carries the search and the sorting from the URL into its links", () => {
+    window.history.replaceState(null, "", "/collected_pens?q=Faber&sort=-usage");
+    const { getByRole, getAllByTitle } = setup(
+      <CollectedPensCards pens={pens} onLayoutChange={() => {}} />
+    );
+    const linkParams = (link) =>
+      new URL(link.getAttribute("href"), window.location.origin).searchParams;
+
+    [
+      getByRole("link", { name: /Add.pen/ }),
+      getAllByTitle("edit")[0],
+      getAllByTitle("archive")[0]
+    ].forEach((link) => {
+      expect(linkParams(link).get("q")).toEqual("Faber");
+      expect(linkParams(link).get("sort")).toEqual("-usage");
+    });
+  });
 });

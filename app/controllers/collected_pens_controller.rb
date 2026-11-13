@@ -1,4 +1,6 @@
 class CollectedPensController < ApplicationController
+  include ListState
+
   before_action :authenticate_user!
   before_action :set_flash, except: [:import]
   before_action :retrieve_collected_pen, only: %i[edit update archive]
@@ -36,7 +38,7 @@ class CollectedPensController < ApplicationController
   def create
     @collected_pen = current_user.collected_pens.build(collected_pen_params)
     if SaveCollectedPen.new(@collected_pen, collected_pen_params).perform
-      redirect_to collected_pens_path
+      redirect_to collected_pens_path(list_state)
     else
       render :new
     end
@@ -44,7 +46,7 @@ class CollectedPensController < ApplicationController
 
   def update
     if SaveCollectedPen.new(@collected_pen, collected_pen_params).perform
-      redirect_to collected_pens_path
+      redirect_to collected_pens_path(list_state)
     else
       render :edit
     end
@@ -53,7 +55,7 @@ class CollectedPensController < ApplicationController
   def archive
     flash[:notice] = "Successfully archived '#{@collected_pen.name}'" if @collected_pen
     @collected_pen&.archive!
-    redirect_to collected_pens_path
+    redirect_to collected_pens_path(list_state)
   end
 
   private

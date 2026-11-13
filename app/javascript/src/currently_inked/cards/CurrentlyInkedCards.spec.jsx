@@ -113,4 +113,23 @@ describe("<CurrentlyInkedCards />", () => {
     expect(getByLabelText("Search")).toHaveValue("nomatch");
     expect(queryByText("Sailor Shikiori Yozakura")).not.toBeInTheDocument();
   });
+
+  it("carries the search and the sorting from the URL into its links", () => {
+    window.history.replaceState(null, "", "/currently_inked?q=Sailor&sort=-usage");
+    const { getByRole, getAllByTitle } = setup(
+      <CurrentlyInkedCards currentlyInked={currentlyInked} onLayoutChange={() => {}} />
+    );
+    const linkParams = (link) =>
+      new URL(link.getAttribute("href"), window.location.origin).searchParams;
+
+    [
+      getByRole("link", { name: /Add.entry/ }),
+      getAllByTitle("Refill this pen")[0],
+      getAllByTitle("edit")[0],
+      getAllByTitle("archive")[0]
+    ].forEach((link) => {
+      expect(linkParams(link).get("q")).toEqual("Sailor");
+      expect(linkParams(link).get("sort")).toEqual("-usage");
+    });
+  });
 });

@@ -8,8 +8,9 @@ import _ from "lodash";
 import { useEffect, useMemo } from "react";
 import { RelativeDate } from "../../components/RelativeDate";
 import { Table } from "../../components/Table";
+import { ListStateContext } from "../../listState";
 import { useHiddenFields } from "../../useHiddenFields";
-import { useSearchParamState, useUrlSorting } from "../../useUrlState";
+import { serializeSorting, useSearchParamState, useUrlSorting } from "../../useUrlState";
 import { Actions } from "../components/Actions";
 import { fuzzyMatch } from "../match";
 import { ActionsCell } from "./ActionsCell";
@@ -129,6 +130,10 @@ export const CurrentlyInkedTable = ({ currentlyInked, onLayoutChange, onUsageRec
 
   const [filterText, setFilterText] = useSearchParamState("q");
   const [sorting, setSorting] = useUrlSorting(columns);
+  const listState = useMemo(
+    () => ({ q: filterText, sort: serializeSorting(sorting) }),
+    [filterText, sorting]
+  );
   const filteredData = useMemo(
     () => fuzzyMatch(currentlyInked, filterText, hiddenFields),
     [currentlyInked, filterText, hiddenFields]
@@ -246,24 +251,26 @@ export const CurrentlyInkedTable = ({ currentlyInked, onLayoutChange, onUsageRec
   const prepareRow = () => {};
 
   return (
-    <div className="fpc-currently-inked-table">
-      <Actions
-        activeLayout="table"
-        numberOfEntries={currentlyInked.length}
-        initialFilter={filterText}
-        onFilterChange={setFilterText}
-        onLayoutChange={onLayoutChange}
-        hiddenFields={hiddenFields}
-        onHiddenFieldsChange={onHiddenFieldsChange}
-      />
-      <Table
-        getTableProps={getTableProps}
-        headerGroups={headerGroups}
-        getTableBodyProps={getTableBodyProps}
-        rows={rows}
-        prepareRow={prepareRow}
-        footerGroups={footerGroups}
-      />
-    </div>
+    <ListStateContext value={listState}>
+      <div className="fpc-currently-inked-table">
+        <Actions
+          activeLayout="table"
+          numberOfEntries={currentlyInked.length}
+          initialFilter={filterText}
+          onFilterChange={setFilterText}
+          onLayoutChange={onLayoutChange}
+          hiddenFields={hiddenFields}
+          onHiddenFieldsChange={onHiddenFieldsChange}
+        />
+        <Table
+          getTableProps={getTableProps}
+          headerGroups={headerGroups}
+          getTableBodyProps={getTableBodyProps}
+          rows={rows}
+          prepareRow={prepareRow}
+          footerGroups={footerGroups}
+        />
+      </div>
+    </ListStateContext>
   );
 };

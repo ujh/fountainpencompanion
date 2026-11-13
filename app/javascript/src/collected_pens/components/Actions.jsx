@@ -2,6 +2,7 @@ import _ from "lodash";
 import { useMemo, useState } from "react";
 import { LayoutToggle } from "../../components/LayoutToggle";
 import { Switch } from "../../components/Switch";
+import { useWithListState } from "../../listState";
 import { useFieldSwitcher } from "../../useFieldSwitcher";
 import "./actions.scss";
 
@@ -30,6 +31,7 @@ export const Actions = ({
     [onFilterChange, numberOfPens]
   );
 
+  const withListState = useWithListState();
   const { isSwitchedOn, onSwitchChange } = useFieldSwitcher(hiddenFields, onHiddenFieldsChange);
 
   return (
@@ -153,7 +155,7 @@ export const Actions = ({
               aria-label="Search"
             />
           </div>
-          <a className="ms-2 btn btn-success" href="/collected_pens/new">
+          <a className="ms-2 btn btn-success" href={withListState("/collected_pens/new")}>
             Add&nbsp;pen
           </a>
         </div>

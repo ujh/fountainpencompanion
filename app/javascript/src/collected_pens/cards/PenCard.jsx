@@ -1,5 +1,6 @@
 import { Card } from "../../components/Card";
 import { RelativeDate } from "../../components/RelativeDate";
+import { useWithListState } from "../../listState";
 import "./pen-card.scss";
 
 /**
@@ -43,6 +44,7 @@ export const PenCard = (props) => {
     created_at
   } = props;
 
+  const withListState = useWithListState();
   const fullName = `${brand} ${model}`;
   const isVisible = (field) => props[field] && !hiddenFields.includes(field);
   const hasUsage = isVisible("usage") || isVisible("daily_usage") || isVisible("last_used_on");
@@ -115,13 +117,17 @@ export const PenCard = (props) => {
         ) : null}
         <div className="fpc-pen-card__footer">
           <div className="fpc-pen-card__actions">
-            <a className="btn btn-secondary me-2" title="edit" href={`/collected_pens/${id}/edit`}>
+            <a
+              className="btn btn-secondary me-2"
+              title="edit"
+              href={withListState(`/collected_pens/${id}/edit`)}
+            >
               <i className="fa fa-pencil" />
             </a>
             <a
               className="btn btn-secondary"
               title="archive"
-              href={`/collected_pens/${id}/archive`}
+              href={withListState(`/collected_pens/${id}/archive`)}
               data-method="post"
             >
               <i className="fa fa-archive" />

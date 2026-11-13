@@ -128,4 +128,22 @@ describe("<CollectedInksCards />", () => {
     expect(getByLabelText("Search")).toHaveValue("nomatch");
     expect(queryByText("Yozakura")).not.toBeInTheDocument();
   });
+
+  it("carries the search and the sorting from the URL into its links", () => {
+    window.history.replaceState(null, "", "/collected_inks?q=Sailor&sort=-usage");
+    const { getByRole, getAllByTitle } = setup(
+      <CollectedInksCards data={data} archive={false} onLayoutChange={() => {}} />
+    );
+    const linkParams = (link) =>
+      new URL(link.getAttribute("href"), window.location.origin).searchParams;
+
+    [
+      getByRole("link", { name: /Add.ink/ }),
+      getAllByTitle(/^Edit /)[0],
+      getAllByTitle(/^Archive /)[0]
+    ].forEach((link) => {
+      expect(linkParams(link).get("q")).toEqual("Sailor");
+      expect(linkParams(link).get("sort")).toEqual("-usage");
+    });
+  });
 });

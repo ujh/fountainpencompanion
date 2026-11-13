@@ -1,4 +1,5 @@
 = simple_form_for pen do |f|
+  = render "shared/list_state_fields"
   div style="max-width: 450px"
     = f.input :brand, required: true, hint: "e.g. Pilot, Parker, Waterman"
   div style="max-width: 650px"
@@ -15,4 +16,4 @@
 
   div class="pt-2 mb-5"
     = f.submit 'Save', class: "btn btn-success"
-    = link_to 'Cancel', collected_pens_path, class: "btn btn-secondary"
+    = link_to 'Cancel', collected_pens_path(list_state), class: "btn btn-secondary"

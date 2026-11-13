@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { ListStateContext } from "../../listState";
 import { useHiddenFields } from "../../useHiddenFields";
 import { useSearchParamState } from "../../useUrlState";
 import { Actions } from "../components/Actions";
@@ -9,6 +10,8 @@ export const storageKeyHiddenFields = "fpc-collected-pens-cards-hidden-fields";
 
 export const CollectedPensCards = ({ pens, onLayoutChange }) => {
   const [matchOn, setMatchOn] = useSearchParamState("q");
+  const [sort] = useSearchParamState("sort");
+  const listState = useMemo(() => ({ q: matchOn, sort }), [matchOn, sort]);
 
   const defaultHiddenFields = useMemo(() => {
     let hideIfNoneWithValue = [
@@ -34,17 +37,19 @@ export const CollectedPensCards = ({ pens, onLayoutChange }) => {
   const visible = fuzzyMatch(pens, matchOn, hiddenFields);
 
   return (
-    <div data-testid="card-layout">
-      <Actions
-        activeLayout="card"
-        numberOfPens={pens.length}
-        initialFilter={matchOn}
-        onFilterChange={setMatchOn}
-        onLayoutChange={onLayoutChange}
-        hiddenFields={hiddenFields}
-        onHiddenFieldsChange={onHiddenFieldsChange}
-      />
-      <Cards data={visible} hiddenFields={hiddenFields} />
-    </div>
+    <ListStateContext value={listState}>
+      <div data-testid="card-layout">
+        <Actions
+          activeLayout="card"
+          numberOfPens={pens.length}
+          initialFilter={matchOn}
+          onFilterChange={setMatchOn}
+          onLayoutChange={onLayoutChange}
+          hiddenFields={hiddenFields}
+          onHiddenFieldsChange={onHiddenFieldsChange}
+        />
+        <Cards data={visible} hiddenFields={hiddenFields} />
+      </div>
+    </ListStateContext>
   );
 };

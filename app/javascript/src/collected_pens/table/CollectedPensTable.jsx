@@ -8,8 +8,9 @@ import _ from "lodash";
 import { useEffect, useMemo } from "react";
 import { RelativeDate } from "../../components/RelativeDate";
 import { Table } from "../../components/Table";
+import { ListStateContext } from "../../listState";
 import { useHiddenFields } from "../../useHiddenFields";
-import { useSearchParamState, useUrlSorting } from "../../useUrlState";
+import { serializeSorting, useSearchParamState, useUrlSorting } from "../../useUrlState";
 import { Actions } from "../components/Actions";
 import { fuzzyMatch } from "../match";
 import { ActionsCell } from "./ActionsCell";
@@ -136,6 +137,10 @@ export const CollectedPensTable = ({ pens, onLayoutChange }) => {
 
   const [filterText, setFilterText] = useSearchParamState("q");
   const [sorting, setSorting] = useUrlSorting(columns);
+  const listState = useMemo(
+    () => ({ q: filterText, sort: serializeSorting(sorting) }),
+    [filterText, sorting]
+  );
   const filteredData = useMemo(
     () => fuzzyMatch(pens, filterText, hiddenFields),
     [pens, filterText, hiddenFields]
@@ -252,24 +257,26 @@ export const CollectedPensTable = ({ pens, onLayoutChange }) => {
   const prepareRow = () => {};
 
   return (
-    <div>
-      <Actions
-        activeLayout="table"
-        numberOfPens={pens.length}
-        initialFilter={filterText}
-        onFilterChange={setFilterText}
-        onLayoutChange={onLayoutChange}
-        hiddenFields={hiddenFields}
-        onHiddenFieldsChange={onHiddenFieldsChange}
-      />
-      <Table
-        getTableProps={getTableProps}
-        headerGroups={headerGroups}
-        getTableBodyProps={getTableBodyProps}
-        rows={rows}
-        prepareRow={prepareRow}
-        footerGroups={footerGroups}
-      />
-    </div>
+    <ListStateContext value={listState}>
+      <div>
+        <Actions
+          activeLayout="table"
+          numberOfPens={pens.length}
+          initialFilter={filterText}
+          onFilterChange={setFilterText}
+          onLayoutChange={onLayoutChange}
+          hiddenFields={hiddenFields}
+          onHiddenFieldsChange={onHiddenFieldsChange}
+        />
+        <Table
+          getTableProps={getTableProps}
+          headerGroups={headerGroups}
+          getTableBodyProps={getTableBodyProps}
+          rows={rows}
+          prepareRow={prepareRow}
+          footerGroups={footerGroups}
+        />
+      </div>
+    </ListStateContext>
   );
 };
