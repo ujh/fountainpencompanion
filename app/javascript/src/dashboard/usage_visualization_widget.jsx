@@ -107,7 +107,6 @@ export const UsageVisualizationWidget = ({ renderWhenInvisible }) => {
   );
 };
 
-// No time limit — animation runs until component unmounts
 const GRID_SIZE = 140;
 const SWAP_RADIUS = 15;
 const BLUR_RADIUS = 2;
@@ -118,32 +117,38 @@ export function buildGrid(entries, cols, rows) {
   const totalCount = entries.reduce((sum, e) => sum + e.count, 0);
   if (totalCount === 0) return { grid: [], inkInfo: [] };
 
+  const shares = entries.map((entry) => (entry.count / totalCount) * totalPixels);
+  const counts = shares.map(Math.floor);
+  let unassigned = totalPixels - counts.reduce((sum, c) => sum + c, 0);
+  const byRemainder = shares
+    .map((share, i) => i)
+    .sort((a, b) => shares[b] - counts[b] - (shares[a] - counts[a]));
+  for (let k = 0; unassigned > 0; k++, unassigned--) counts[byRemainder[k]]++;
+
   const pixels = [];
   const inkInfo = [];
-  let assigned = 0;
-
-  for (let i = 0; i < entries.length; i++) {
-    const entry = entries[i];
-    const isLast = i === entries.length - 1;
-    const count = isLast
-      ? totalPixels - assigned
-      : Math.round((entry.count / totalCount) * totalPixels);
+  entries.forEach((entry, i) => {
     const info = { name: entry.ink_name, inkId: entry.ink_id || null };
-    for (let j = 0; j < count; j++) {
+    for (let j = 0; j < counts[i]; j++) {
       pixels.push(entry.color);
       inkInfo.push(info);
     }
-    assigned += count;
-  }
+  });
 
   // Fisher-Yates shuffle
   for (let i = pixels.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
-    [pixels[i], pixels[j]] = [pixels[j], pixels[i]];
-    [inkInfo[i], inkInfo[j]] = [inkInfo[j], inkInfo[i]];
+    swap(pixels, i, j);
+    swap(inkInfo, i, j);
   }
 
   return { grid: pixels, inkInfo };
+}
+
+function swap(array, i, j) {
+  const tmp = array[i];
+  array[i] = array[j];
+  array[j] = tmp;
 }
 
 function toroidalDist(r1, c1, r2, c2, rows, cols) {
@@ -183,97 +188,117 @@ function colorDistance(hexA, hexB) {
 
 const SIMILARITY_BLEND = 1.5; // How much similar colors pull toward each other
 
-function circularMean(angles, period) {
-  let sinSum = 0;
-  let cosSum = 0;
-  for (const a of angles) {
-    const theta = (a / period) * 2 * Math.PI;
-    sinSum += Math.sin(theta);
-    cosSum += Math.cos(theta);
+function angleTable(period) {
+  const sin = new Float64Array(period);
+  const cos = new Float64Array(period);
+  for (let i = 0; i < period; i++) {
+    const theta = (i / period) * 2 * Math.PI;
+    sin[i] = Math.sin(theta);
+    cos[i] = Math.cos(theta);
   }
+  return { sin, cos };
+}
+
+function circularMean(sinSum, cosSum, period) {
   const theta = Math.atan2(sinSum, cosSum);
   return ((theta / (2 * Math.PI)) * period + period) % period;
 }
 
-function computeCenters(grid, cols, colorDistances) {
-  const rows = grid.length / cols;
-  const byColor = {};
-  for (let i = 0; i < grid.length; i++) {
-    const color = grid[i];
-    if (!byColor[color]) byColor[color] = { rs: [], cs: [] };
-    byColor[color].rs.push(Math.floor(i / cols));
-    byColor[color].cs.push(i % cols);
+export function createPalette(entries) {
+  const colors = [...new Set(entries.map((e) => e.color))];
+  const index = new Map(colors.map((color, i) => [color, i]));
+  return { colors, toCells: (grid) => Int32Array.from(grid, (color) => index.get(color)) };
+}
+
+export function computeColorWeights(colors) {
+  const n = colors.length;
+  const weights = new Float64Array(n * n);
+  for (let a = 0; a < n; a++) {
+    for (let b = 0; b < n; b++) {
+      if (a !== b) weights[a * n + b] = 1 / (1 + colorDistance(colors[a], colors[b]) / 15);
+    }
+  }
+  return weights;
+}
+
+function wrapDelta(d, period) {
+  if (d > period / 2) return d - period;
+  if (d < -period / 2) return d + period;
+  return d;
+}
+
+export function computeCenters(cells, cols, numColors, colorWeights) {
+  const rows = cells.length / cols;
+  const rowAngles = angleTable(rows);
+  const colAngles = angleTable(cols);
+  const rowSin = new Float64Array(numColors);
+  const rowCos = new Float64Array(numColors);
+  const colSin = new Float64Array(numColors);
+  const colCos = new Float64Array(numColors);
+  const present = new Uint8Array(numColors);
+  for (let i = 0; i < cells.length; i++) {
+    const color = cells[i];
+    const r = Math.floor(i / cols);
+    const c = i % cols;
+    present[color] = 1;
+    rowSin[color] += rowAngles.sin[r];
+    rowCos[color] += rowAngles.cos[r];
+    colSin[color] += colAngles.sin[c];
+    colCos[color] += colAngles.cos[c];
   }
 
   // Raw centers of mass using circular mean (torus-aware)
-  const rawCenters = {};
-  const colors = Object.keys(byColor);
-  for (const color of colors) {
-    rawCenters[color] = {
-      r: circularMean(byColor[color].rs, rows),
-      c: circularMean(byColor[color].cs, cols)
-    };
+  const rawR = new Float64Array(numColors);
+  const rawC = new Float64Array(numColors);
+  for (let color = 0; color < numColors; color++) {
+    if (!present[color]) continue;
+    rawR[color] = circularMean(rowSin[color], rowCos[color], rows);
+    rawC[color] = circularMean(colSin[color], colCos[color], cols);
   }
 
   // Blended centers: pulled toward similar colors
-  const blendedCenters = {};
-  for (const color of colors) {
+  const blendedR = new Float64Array(numColors);
+  const blendedC = new Float64Array(numColors);
+  for (let color = 0; color < numColors; color++) {
+    if (!present[color]) continue;
     let pullR = 0;
     let pullC = 0;
     let totalWeight = 0;
-
-    for (const other of colors) {
-      if (other === color) continue;
-      const dist = colorDistances[color][other];
-      const weight = 1 / (1 + dist / 15);
-      let dr = rawCenters[other].r - rawCenters[color].r;
-      let dc = rawCenters[other].c - rawCenters[color].c;
-      if (dr > rows / 2) dr -= rows;
-      else if (dr < -rows / 2) dr += rows;
-      if (dc > cols / 2) dc -= cols;
-      else if (dc < -cols / 2) dc += cols;
-      pullR += dr * weight;
-      pullC += dc * weight;
+    for (let other = 0; other < numColors; other++) {
+      if (other === color || !present[other]) continue;
+      const weight = colorWeights[color * numColors + other];
+      pullR += wrapDelta(rawR[other] - rawR[color], rows) * weight;
+      pullC += wrapDelta(rawC[other] - rawC[color], cols) * weight;
       totalWeight += weight;
     }
-
     if (totalWeight > 0) {
-      blendedCenters[color] = {
-        r:
-          (((rawCenters[color].r + (pullR / totalWeight) * SIMILARITY_BLEND) % rows) + rows) % rows,
-        c: (((rawCenters[color].c + (pullC / totalWeight) * SIMILARITY_BLEND) % cols) + cols) % cols
-      };
+      blendedR[color] =
+        (((rawR[color] + (pullR / totalWeight) * SIMILARITY_BLEND) % rows) + rows) % rows;
+      blendedC[color] =
+        (((rawC[color] + (pullC / totalWeight) * SIMILARITY_BLEND) % cols) + cols) % cols;
     } else {
-      blendedCenters[color] = rawCenters[color];
+      blendedR[color] = rawR[color];
+      blendedC[color] = rawC[color];
     }
   }
 
-  return { rawCenters, blendedCenters };
-}
-
-function precomputeColorDistances(entries) {
-  const distances = {};
-  for (const a of entries) {
-    distances[a.color] = {};
-    for (const b of entries) {
-      if (a.color === b.color) continue;
-      distances[a.color][b.color] = colorDistance(a.color, b.color);
-    }
-  }
-  return distances;
+  return { rawR, rawC, blendedR, blendedC };
 }
 
 const SPEED_OPTIONS = [
   { value: "slow", label: "Slow", fps: 15, multiplier: 1 },
   { value: "medium", label: "Medium", fps: 30, multiplier: 3 },
-  { value: "fast", label: "Fast", fps: 60, multiplier: 6 }
+  { value: "fast", label: "Fast", fps: 30, multiplier: 6 }
 ];
 
-function simulationTick(grid, inkInfo, cols, rows, rawCenters, blendedCenters, multiplier) {
-  const totalPixels = grid.length;
+const MAX_ATTEMPTS_PER_SWAP = 300;
+const CONVERGED_SWAP_RATIO = 1 / 3;
+
+export function simulationTick(cells, inkInfo, cols, rows, centers, multiplier) {
+  const { rawR, rawC, blendedR, blendedC } = centers;
+  const totalPixels = cells.length;
   const targetSwaps = Math.floor(totalPixels * 0.005 * multiplier);
-  const maxAttempts = totalPixels * multiplier * 6;
-  const dirty = new Set();
+  const maxAttempts = targetSwaps * MAX_ATTEMPTS_PER_SWAP;
   let attempts = 0;
   let successes = 0;
 
@@ -281,9 +306,7 @@ function simulationTick(grid, inkInfo, cols, rows, rawCenters, blendedCenters, m
     attempts++;
     const a = Math.floor(Math.random() * totalPixels);
 
-    const colorA = grid[a];
-    const blendedA = blendedCenters[colorA];
-    const rawA = rawCenters[colorA];
+    const colorA = cells[a];
     const rowA = Math.floor(a / cols);
     const colA = a % cols;
 
@@ -294,40 +317,36 @@ function simulationTick(grid, inkInfo, cols, rows, rawCenters, blendedCenters, m
     const bCol = (((colA + offsetC) % cols) + cols) % cols;
     const b = bRow * cols + bCol;
 
-    if (a === b || grid[a] === grid[b]) continue;
+    if (a === b || colorA === cells[b]) continue;
 
-    const colorB = grid[b];
-    const rawB = rawCenters[colorB];
-    const blendedB = blendedCenters[colorB];
+    const colorB = cells[b];
     const rowB = Math.floor(b / cols);
     const colB = b % cols;
 
-    const happyA = countSameNeighbors(grid, a, cols, rows);
-    const happyB = countSameNeighbors(grid, b, cols, rows);
+    const happyA = countSameNeighbors(cells, a, cols, rows);
+    const happyB = countSameNeighbors(cells, b, cols, rows);
 
     // Compactness: does swap move pixels closer to their own raw center?
     const compactA =
-      toroidalDist(rowA, colA, rawA.r, rawA.c, rows, cols) -
-      toroidalDist(rowB, colB, rawA.r, rawA.c, rows, cols);
+      toroidalDist(rowA, colA, rawR[colorA], rawC[colorA], rows, cols) -
+      toroidalDist(rowB, colB, rawR[colorA], rawC[colorA], rows, cols);
     const compactB =
-      toroidalDist(rowB, colB, rawB.r, rawB.c, rows, cols) -
-      toroidalDist(rowA, colA, rawB.r, rawB.c, rows, cols);
+      toroidalDist(rowB, colB, rawR[colorB], rawC[colorB], rows, cols) -
+      toroidalDist(rowA, colA, rawR[colorB], rawC[colorB], rows, cols);
 
     // Drift: does swap move pixels closer to their blended center?
     const driftA =
-      toroidalDist(rowA, colA, blendedA.r, blendedA.c, rows, cols) -
-      toroidalDist(rowB, colB, blendedA.r, blendedA.c, rows, cols);
+      toroidalDist(rowA, colA, blendedR[colorA], blendedC[colorA], rows, cols) -
+      toroidalDist(rowB, colB, blendedR[colorA], blendedC[colorA], rows, cols);
     const driftB =
-      toroidalDist(rowB, colB, blendedB.r, blendedB.c, rows, cols) -
-      toroidalDist(rowA, colA, blendedB.r, blendedB.c, rows, cols);
+      toroidalDist(rowB, colB, blendedR[colorB], blendedC[colorB], rows, cols) -
+      toroidalDist(rowA, colA, blendedR[colorB], blendedC[colorB], rows, cols);
 
     const centerPull = (compactA + compactB) * 0.5 + (driftA + driftB) * 4.5;
 
-    [grid[a], grid[b]] = [grid[b], grid[a]];
-    [inkInfo[a], inkInfo[b]] = [inkInfo[b], inkInfo[a]];
-
-    const newHappyA = countSameNeighbors(grid, a, cols, rows);
-    const newHappyB = countSameNeighbors(grid, b, cols, rows);
+    swap(cells, a, b);
+    const newHappyA = countSameNeighbors(cells, a, cols, rows);
+    const newHappyB = countSameNeighbors(cells, b, cols, rows);
 
     const localImprovement = (newHappyA + newHappyB - happyA - happyB) * 0.8;
     // Combined score: local happiness + strong drift
@@ -343,19 +362,17 @@ function simulationTick(grid, inkInfo, cols, rows, rawCenters, blendedCenters, m
     }
 
     if (doSwap) {
-      dirty.add(a);
-      dirty.add(b);
+      swap(inkInfo, a, b);
       successes++;
     } else {
-      [grid[a], grid[b]] = [grid[b], grid[a]];
-      [inkInfo[a], inkInfo[b]] = [inkInfo[b], inkInfo[a]];
+      swap(cells, a, b);
     }
   }
 
-  return dirty;
+  return { converged: successes < targetSwaps * CONVERGED_SWAP_RATIO };
 }
 
-function gaussianKernel(radius) {
+export function gaussianKernel(radius) {
   const sigma = radius / 2;
   const size = radius * 2 + 1;
   const kernel = new Float32Array(size);
@@ -369,111 +386,144 @@ function gaussianKernel(radius) {
   return kernel;
 }
 
-function blurPass(src, dst, w, h, kernel, horizontal) {
-  const r = (kernel.length - 1) / 2;
-  if (horizontal) {
-    for (let y = 0; y < h; y++) {
-      const rowOff = y * w;
-      for (let x = 0; x < w; x++) {
-        let sum = 0;
-        for (let k = -r; k <= r; k++) {
-          sum += src[rowOff + ((x + k + w) % w)] * kernel[k + r];
+// Paints each output pixel with the color whose Gaussian-blurred presence is strongest
+// there. Blur and bilinear upsampling only read the cells around a pixel, so a frame
+// only recomputes what is near the cells that changed, whatever the number of inks.
+export function createVoronoiRenderer(colors, cols, rows, scale, kernel) {
+  const colorRgb = colors.map((hex) => convert.hex.rgb(hex));
+  const radius = (kernel.length - 1) / 2;
+  const taps = kernel.length * kernel.length;
+  const totalCells = cols * rows;
+  const renderW = cols * scale;
+  const renderH = rows * scale;
+  const gridIdx = new Int32Array(totalCells).fill(-1);
+  const cellColors = new Int32Array(totalCells * taps);
+  const cellWeights = new Float64Array(totalCells * taps);
+  const cellCounts = new Uint8Array(totalCells);
+  const acc = new Float64Array(colors.length);
+  const touched = new Int32Array(taps * 4);
+  const staleCells = createWorkList(totalCells);
+  const staleBlocks = createWorkList(totalCells);
+
+  function wrap(row, col) {
+    return ((row + rows) % rows) * cols + ((col + cols) % cols);
+  }
+
+  function blurCell(cell) {
+    const row = Math.floor(cell / cols);
+    const col = cell % cols;
+    let n = 0;
+    for (let i = -radius; i <= radius; i++) {
+      const ki = kernel[i + radius];
+      for (let j = -radius; j <= radius; j++) {
+        const c = gridIdx[wrap(row + i, col + j)];
+        if (acc[c] === 0) touched[n++] = c;
+        acc[c] += ki * kernel[j + radius];
+      }
+    }
+    const base = cell * taps;
+    for (let t = 0; t < n; t++) {
+      const c = touched[t];
+      cellColors[base + t] = c;
+      cellWeights[base + t] = acc[c];
+      acc[c] = 0;
+    }
+    cellCounts[cell] = n;
+  }
+
+  function addCell(cell, weight, n) {
+    const base = cell * taps;
+    const count = cellCounts[cell];
+    for (let t = 0; t < count; t++) {
+      const c = cellColors[base + t];
+      if (acc[c] === 0) touched[n++] = c;
+      acc[c] += cellWeights[base + t] * weight;
+    }
+    return n;
+  }
+
+  function paintBlock(block, data) {
+    const y0 = Math.floor(block / cols);
+    const x0 = block % cols;
+    const c00 = block;
+    const c01 = wrap(y0, x0 + 1);
+    const c10 = wrap(y0 + 1, x0);
+    const c11 = wrap(y0 + 1, x0 + 1);
+    for (let sy = 0; sy < scale; sy++) {
+      const fy = sy / scale;
+      for (let sx = 0; sx < scale; sx++) {
+        const fx = sx / scale;
+        let n = addCell(c00, (1 - fx) * (1 - fy), 0);
+        if (fx > 0) n = addCell(c01, fx * (1 - fy), n);
+        if (fy > 0) n = addCell(c10, (1 - fx) * fy, n);
+        if (fx > 0 && fy > 0) n = addCell(c11, fx * fy, n);
+        let maxVal = -1;
+        let maxIdx = 0;
+        for (let t = 0; t < n; t++) {
+          const c = touched[t];
+          if (acc[c] > maxVal || (acc[c] === maxVal && c < maxIdx)) {
+            maxVal = acc[c];
+            maxIdx = c;
+          }
+          acc[c] = 0;
         }
-        dst[rowOff + x] = sum;
-      }
-    }
-  } else {
-    for (let y = 0; y < h; y++) {
-      for (let x = 0; x < w; x++) {
-        let sum = 0;
-        for (let k = -r; k <= r; k++) {
-          sum += src[((y + k + h) % h) * w + x] * kernel[k + r];
-        }
-        dst[y * w + x] = sum;
+        const rgb = colorRgb[maxIdx];
+        const off = ((y0 * scale + sy) * renderW + x0 * scale + sx) * 4;
+        data[off] = rgb[0];
+        data[off + 1] = rgb[1];
+        data[off + 2] = rgb[2];
+        data[off + 3] = 255;
       }
     }
   }
-}
 
-function buildAndBlurMask(
-  grid,
-  totalPixels,
-  color,
-  maskBuffer,
-  blurTemp,
-  blurred,
-  cols,
-  rows,
-  kernel
-) {
-  maskBuffer.fill(0);
-  for (let i = 0; i < totalPixels; i++) {
-    if (grid[i] === color) maskBuffer[i] = 1.0;
-  }
-  blurPass(maskBuffer, blurTemp, cols, rows, kernel, true);
-  blurPass(blurTemp, blurred, cols, rows, kernel, false);
-}
-
-function upsampleMask(src, dst, srcW, srcH, dstW, dstH) {
-  const scaleX = srcW / dstW;
-  const scaleY = srcH / dstH;
-  for (let dy = 0; dy < dstH; dy++) {
-    const sy = dy * scaleY;
-    const y0 = Math.floor(sy);
-    const y1 = (y0 + 1) % srcH;
-    const fy = sy - y0;
-    for (let dx = 0; dx < dstW; dx++) {
-      const sx = dx * scaleX;
-      const x0 = Math.floor(sx);
-      const x1 = (x0 + 1) % srcW;
-      const fx = sx - x0;
-      dst[dy * dstW + dx] =
-        src[y0 * srcW + x0] * (1 - fx) * (1 - fy) +
-        src[y0 * srcW + x1] * fx * (1 - fy) +
-        src[y1 * srcW + x0] * (1 - fx) * fy +
-        src[y1 * srcW + x1] * fx * fy;
-    }
-  }
-}
-
-function renderVoronoi(
-  mainCtx,
-  offCtx,
-  imageData,
-  upsampledMasks,
-  colors,
-  colorRgb,
-  renderW,
-  renderH,
-  canvasSize
-) {
-  const numColors = colors.length;
-  const maskArrays = colors.map((c) => upsampledMasks.get(c));
-  const data = imageData.data;
-  const totalPixels = renderW * renderH;
-
-  for (let i = 0; i < totalPixels; i++) {
-    let maxVal = -1;
-    let maxIdx = 0;
-    for (let c = 0; c < numColors; c++) {
-      const val = maskArrays[c][i];
-      if (val > maxVal) {
-        maxVal = val;
-        maxIdx = c;
+  function render(cells, data) {
+    for (let cell = 0; cell < totalCells; cell++) {
+      const c = cells[cell];
+      if (c === gridIdx[cell]) continue;
+      gridIdx[cell] = c;
+      const row = Math.floor(cell / cols);
+      const col = cell % cols;
+      for (let i = -radius; i <= radius; i++) {
+        for (let j = -radius; j <= radius; j++) staleCells.add(wrap(row + i, col + j));
       }
     }
-    const rgb = colorRgb[maxIdx];
-    const off = i * 4;
-    data[off] = rgb[0];
-    data[off + 1] = rgb[1];
-    data[off + 2] = rgb[2];
-    data[off + 3] = 255;
+    for (let t = 0; t < staleCells.size; t++) {
+      const cell = staleCells.items[t];
+      blurCell(cell);
+      const row = Math.floor(cell / cols);
+      const col = cell % cols;
+      staleBlocks.add(cell);
+      staleBlocks.add(wrap(row - 1, col));
+      staleBlocks.add(wrap(row, col - 1));
+      staleBlocks.add(wrap(row - 1, col - 1));
+    }
+    for (let t = 0; t < staleBlocks.size; t++) paintBlock(staleBlocks.items[t], data);
+    const changed = staleBlocks.size > 0;
+    staleCells.clear();
+    staleBlocks.clear();
+    return changed;
   }
 
-  offCtx.putImageData(imageData, 0, 0);
-  mainCtx.imageSmoothingEnabled = true;
-  mainCtx.imageSmoothingQuality = "high";
-  mainCtx.drawImage(offCtx.canvas, 0, 0, canvasSize, canvasSize);
+  return { render, width: renderW, height: renderH };
+}
+
+function createWorkList(capacity) {
+  const seen = new Uint8Array(capacity);
+  const list = {
+    items: new Int32Array(capacity),
+    size: 0,
+    add(i) {
+      if (seen[i]) return;
+      seen[i] = 1;
+      list.items[list.size++] = i;
+    },
+    clear() {
+      for (let t = 0; t < list.size; t++) seen[list.items[t]] = 0;
+      list.size = 0;
+    }
+  };
+  return list;
 }
 
 function renderHighlight(mainCtx, canvasSize, lockedInk, inkInfo, cols, rows, renderScale) {
@@ -529,7 +579,6 @@ const UsageVisualizationWidgetContent = ({ range, setRange, speed, setSpeed }) =
   const entries = data.attributes.entries;
   const source = data.attributes.source;
   const canvasRef = useRef(null);
-  const gridRef = useRef(null);
   const inkInfoRef = useRef(null);
   const runningRef = useRef(true);
   const visibleRef = useRef(false);
@@ -583,7 +632,6 @@ const UsageVisualizationWidgetContent = ({ range, setRange, speed, setSpeed }) =
 
     const cols = GRID_SIZE;
     const rows = GRID_SIZE;
-    const totalPixels = cols * rows;
     const canvasSize = GRID_SIZE * RENDER_SCALE;
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -596,57 +644,32 @@ const UsageVisualizationWidgetContent = ({ range, setRange, speed, setSpeed }) =
     runningRef.current = true;
 
     const { grid, inkInfo } = buildGrid(entries, cols, rows);
-    gridRef.current = grid;
     inkInfoRef.current = inkInfo;
+    const palette = createPalette(entries);
+    const numColors = palette.colors.length;
+    const cells = palette.toCells(grid);
+    const colorWeights = computeColorWeights(palette.colors);
 
-    // Voronoi rendering setup
-    const kernel = gaussianKernel(BLUR_RADIUS);
-    const uniqueColors = entries.map((e) => e.color);
-    const colorRgb = uniqueColors.map((hex) => convert.hex.rgb(hex));
-    const blurredMasks = new Map();
-    const upsampledMasks = new Map();
-    const maskBuffer = new Float32Array(totalPixels);
-    const blurTemp = new Float32Array(totalPixels);
-    const renderW = cols * RENDER_SCALE;
-    const renderH = rows * RENDER_SCALE;
-    const offscreen = document.createElement("canvas");
-    offscreen.width = renderW;
-    offscreen.height = renderH;
-    const offCtx = offscreen.getContext("2d");
-    const voronoiImageData = offCtx.createImageData(renderW, renderH);
-
-    // Build, blur, and upsample initial masks for all colors
-    for (const color of uniqueColors) {
-      const blurred = new Float32Array(totalPixels);
-      buildAndBlurMask(grid, totalPixels, color, maskBuffer, blurTemp, blurred, cols, rows, kernel);
-      blurredMasks.set(color, blurred);
-      const upsampled = new Float32Array(renderW * renderH);
-      upsampleMask(blurred, upsampled, cols, rows, renderW, renderH);
-      upsampledMasks.set(color, upsampled);
-    }
+    const renderer = createVoronoiRenderer(
+      palette.colors,
+      cols,
+      rows,
+      RENDER_SCALE,
+      gaussianKernel(BLUR_RADIUS)
+    );
+    const imageData = ctx.createImageData(renderer.width, renderer.height);
 
     function redraw() {
-      renderVoronoi(
-        ctx,
-        offCtx,
-        voronoiImageData,
-        upsampledMasks,
-        uniqueColors,
-        colorRgb,
-        renderW,
-        renderH,
-        canvasSize
-      );
+      ctx.putImageData(imageData, 0, 0);
       renderHighlight(ctx, canvasSize, lockedInkRef.current, inkInfo, cols, rows, RENDER_SCALE);
     }
 
     redrawRef.current = redraw;
+    renderer.render(cells, imageData.data);
     redraw();
 
     let lastFrame = performance.now();
     let autoStopped = false;
-    const colorDistances = precomputeColorDistances(entries);
-    let { rawCenters, blendedCenters } = computeCenters(grid, cols, colorDistances);
 
     function animate(now) {
       if (!runningRef.current || !visibleRef.current) {
@@ -659,45 +682,17 @@ const UsageVisualizationWidgetContent = ({ range, setRange, speed, setSpeed }) =
 
       if (now - lastFrame >= frameInterval) {
         lastFrame = now;
-        ({ rawCenters, blendedCenters } = computeCenters(grid, cols, colorDistances));
-        const dirty = simulationTick(
-          grid,
+        const { converged } = simulationTick(
+          cells,
           inkInfo,
           cols,
           rows,
-          rawCenters,
-          blendedCenters,
+          computeCenters(cells, cols, numColors, colorWeights),
           currentSpeed ? currentSpeed.multiplier : 3
         );
-        if (dirty.size > 0) {
-          // Rebuild blurred masks for colors that had cells change
-          const dirtyColors = new Set();
-          for (const i of dirty) dirtyColors.add(grid[i]);
-          for (const color of dirtyColors) {
-            buildAndBlurMask(
-              grid,
-              totalPixels,
-              color,
-              maskBuffer,
-              blurTemp,
-              blurredMasks.get(color),
-              cols,
-              rows,
-              kernel
-            );
-            upsampleMask(
-              blurredMasks.get(color),
-              upsampledMasks.get(color),
-              cols,
-              rows,
-              renderW,
-              renderH
-            );
-          }
-          redraw();
-        }
+        if (renderer.render(cells, imageData.data)) redraw();
         // Auto-stop once when converged
-        if (!autoStopped && dirty.size < totalPixels * 0.02) {
+        if (!autoStopped && converged) {
           autoStopped = true;
           runningRef.current = false;
           setRunning(false);
