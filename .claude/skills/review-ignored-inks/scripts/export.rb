@@ -23,7 +23,7 @@ REJECTED_CREATE_MIN_USERS = 3
 REJECTED_CREATE_MIN_CATALOGUE_INKS = 3
 # Date of the last clusterer prompt change. export.json and finalize.rb split
 # clusters by whether their latest approved ignore came before or after it.
-CLUSTERER_PROMPT_CHANGED_AT = "2026-10-21T11:51:47Z"
+CLUSTERER_PROMPT_CHANGED_AT = "2026-11-08T10:35:45Z"
 
 dir = IgnoredInksReview.run_dir(ARGV[0])
 limit = 25
