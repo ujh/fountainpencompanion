@@ -44,12 +44,12 @@ export const summarySection = (calls) =>
   ["### Denied tool calls", "", ...(calls.length ? codeBlock(calls) : ["None."]), ""].join("\n");
 
 export const commentBody = (calls, { runUrl, sha }) => {
-  const run = `[the latest run](${runUrl}) on ${sha.slice(0, 7)}`;
+  const run = `[this run](${runUrl}) on ${sha.slice(0, 7)}`;
   return [
     MARKER,
-    "**Reviewer tools blocked during the latest run**",
+    "**Reviewer tools blocked**",
     "",
-    `The CI permission gate rejected these calls in ${run}, so the reviewer had to work around them:`,
+    `The CI permission gate rejected these calls in ${run}, so the reviewer had to work around them. A later run without denials leaves this comment as it is.`,
     "",
     ...codeBlock(calls),
     "",

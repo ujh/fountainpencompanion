@@ -104,7 +104,7 @@ describe("commentBody", () => {
     const body = commentBody(["Bash: jq -n env"], context);
 
     expect(body.startsWith(`${MARKER}\n`)).toBe(true);
-    expect(body).toContain("[the latest run](https://run) on abcdef1");
+    expect(body).toContain("[this run](https://run) on abcdef1");
     expect(body).toContain("\n\n    Bash: jq -n env\n\n");
   });
 });

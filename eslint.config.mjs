@@ -108,6 +108,18 @@ export default [
     }
   },
   {
+    ...js.configs.recommended,
+    files: [".github/**/*.mjs"],
+
+    languageOptions: {
+      ecmaVersion: "latest",
+      sourceType: "module",
+      globals: {
+        ...globals.node
+      }
+    }
+  },
+  {
     files: ["**/*.config.js", "**/*.config.mjs"],
 
     languageOptions: {
