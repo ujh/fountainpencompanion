@@ -82,6 +82,23 @@ describe "Admins::ErrorReports" do
         )
       end
 
+      it "lists the newest reports first with their note and reply counts" do
+        newer = create(:error_report, description: "Newer report", created_at: 1.minute.ago)
+        error_report.update!(created_at: 1.day.ago)
+        create_list(:error_report_entry, 2, error_report: newer, kind: "note")
+        create(:error_report_entry, error_report: newer, kind: "reply")
+
+        get "/admins/error_reports"
+
+        rows =
+          Nokogiri
+            .HTML(response.body)
+            .css(".fpc-error-reports tbody tr")
+            .map { |row| row.css("td").map { |cell| cell.text.strip } }
+        expect(rows.map { |cells| cells[4] }).to eq(["Newer report", "Two inks merged"])
+        expect(rows.map { |cells| cells[5] }).to eq(["2 / 1", "0 / 0"])
+      end
+
       it "falls back to the open reports for an unknown status" do
         get "/admins/error_reports", params: { status: "bogus" }
 
@@ -119,6 +136,31 @@ describe "Admins::ErrorReports" do
         )
       end
 
+      it "offers to resolve an open report" do
+        get "/admins/error_reports/#{error_report.id}"
+
+        form =
+          Nokogiri.HTML(response.body).at_css(
+            "form[action='/admins/error_reports/#{error_report.id}']"
+          )
+        expect(form.at_css("input[name='_method']")["value"]).to eq("patch")
+        expect(form.at_css("input[name='resolved']")["value"]).to eq("true")
+        expect(form.at_css("button").text).to eq("Mark resolved")
+      end
+
+      it "offers to reopen a resolved report" do
+        error_report.resolve!
+
+        get "/admins/error_reports/#{error_report.id}"
+
+        form =
+          Nokogiri.HTML(response.body).at_css(
+            "form[action='/admins/error_reports/#{error_report.id}']"
+          )
+        expect(form.at_css("input[name='resolved']")["value"]).to eq("false")
+        expect(form.at_css("button").text).to eq("Reopen")
+      end
+
       it "has breadcrumbs back to the report queue" do
         get "/admins/error_reports/#{error_report.id}"
 
@@ -135,7 +177,9 @@ describe "Admins::ErrorReports" do
 
         get "/admins/error_reports/#{review_report.id}"
 
-        expect(response.body).to include("https://example.com/the-review")
+        link = Nokogiri.HTML(response.body).at_css("a[href='https://example.com/the-review']")
+        expect(link["rel"]).to eq("noopener noreferrer")
+        expect(link["target"]).to eq("_blank")
       end
 
       it "still shows a report whose item was deleted" do

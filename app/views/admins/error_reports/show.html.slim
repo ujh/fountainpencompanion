@@ -24,7 +24,7 @@ dl class="row"
 
   - if @error_report.reportable.is_a?(InkReview)
     dt class="col-sm-3" Review URL
-    dd class="col-sm-9"= link_to @error_report.reportable.url, @error_report.reportable.url
+    dd class="col-sm-9"= ink_review_link @error_report.reportable.url, @error_report.reportable.url, target: "_blank"
 
   dt class="col-sm-3" Reporter
   dd class="col-sm-9"
