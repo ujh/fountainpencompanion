@@ -138,4 +138,51 @@ describe CollectedPensController do
       end
     end
   end
+
+  describe "keeping the search and sorting of the list" do
+    let(:list_state) { { q: "wing sung", sort: "-usage" } }
+
+    before { sign_in(user) }
+
+    it "keeps them in the new form" do
+      get :new, params: list_state
+
+      form = Nokogiri.HTML(response.body).at_css("form#new_collected_pen")
+      expect(form.at_css("input[type=hidden][name=q]")["value"]).to eq("wing sung")
+      expect(form.at_css("input[type=hidden][name=sort]")["value"]).to eq("-usage")
+      expect(form.at_css("a.btn-secondary")["href"]).to eq(collected_pens_path(list_state))
+    end
+
+    it "keeps them in the edit form" do
+      get :edit, params: { id: wing_sung.id, **list_state }
+
+      form = Nokogiri.HTML(response.body).at_css("form.edit_collected_pen")
+      expect(form.at_css("input[type=hidden][name=q]")["value"]).to eq("wing sung")
+      expect(form.at_css("input[type=hidden][name=sort]")["value"]).to eq("-usage")
+    end
+
+    it "keeps them when the form is shown again after a validation error" do
+      post :create, params: { collected_pen: { brand: "Pelikan" }, **list_state }
+
+      form = Nokogiri.HTML(response.body).at_css("form#new_collected_pen")
+      expect(form.at_css("input[type=hidden][name=q]")["value"]).to eq("wing sung")
+      expect(form.at_css("input[type=hidden][name=sort]")["value"]).to eq("-usage")
+      expect(form.at_css("a.btn-secondary")["href"]).to eq(collected_pens_path(list_state))
+    end
+
+    it "redirects back with them after creating a pen" do
+      post :create, params: { collected_pen: { brand: "Pelikan", model: "M205" }, **list_state }
+      expect(response).to redirect_to(collected_pens_path(list_state))
+    end
+
+    it "redirects back with them after updating a pen" do
+      put :update, params: { id: wing_sung.id, collected_pen: { brand: "New" }, **list_state }
+      expect(response).to redirect_to(collected_pens_path(list_state))
+    end
+
+    it "redirects back with them after archiving a pen" do
+      post :archive, params: { id: wing_sung.id, **list_state }
+      expect(response).to redirect_to(collected_pens_path(list_state))
+    end
+  end
 end

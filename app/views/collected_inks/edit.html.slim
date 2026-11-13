@@ -6,7 +6,7 @@
       li class="breadcrumb-item"
         = link_to "Inks", collected_inks_path
       li class="breadcrumb-item"
-        = link_to "Archive",  "/collected_inks?search[archive]=true"
+        = link_to "Archive", collected_inks_path(search: { archive: true }, **list_state)
       li class="breadcrumb-item active" aria-current="page"
         = @ink.short_name
 

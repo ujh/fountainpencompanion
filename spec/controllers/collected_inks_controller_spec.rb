@@ -410,4 +410,111 @@ describe CollectedInksController do
       end
     end
   end
+
+  describe "keeping the search and sorting of the list" do
+    let(:list_state) { { q: "sailor blue", sort: "brand_name,-usage" } }
+    let(:ink) { create(:collected_ink, user: user) }
+    let(:archived_ink) { create(:collected_ink, user: user, archived_on: Date.current) }
+
+    before { sign_in(user) }
+
+    it "keeps them in the new form" do
+      get :new, params: list_state
+
+      form = Nokogiri.HTML(response.body).at_css("form#new_collected_ink")
+      expect(form.at_css("input[type=hidden][name=q]")["value"]).to eq("sailor blue")
+      expect(form.at_css("input[type=hidden][name=sort]")["value"]).to eq("brand_name,-usage")
+      expect(form.at_css("a.btn-secondary")["href"]).to eq(collected_inks_path(list_state))
+    end
+
+    it "keeps them in the edit form of an archived ink" do
+      get :edit, params: { id: archived_ink.id, search: { archive: true }, **list_state }
+
+      page = Nokogiri.HTML(response.body)
+      breadcrumb = page.at_xpath("//ol[contains(@class, 'breadcrumb')]//a[text()='Archive']")
+      expect(breadcrumb["href"]).to eq(collected_inks_path(search: { archive: true }, **list_state))
+      form = page.at_css("form.edit_collected_ink")
+      expect(form.at_css("input[type=hidden][name=q]")["value"]).to eq("sailor blue")
+      expect(form.at_css("input[type=hidden][name=archive]")["value"]).to eq("true")
+      cancel = form.at_css("a.btn-secondary")["href"]
+      expect(cancel).to eq(collected_inks_path(search: { archive: true }, **list_state))
+    end
+
+    it "keeps them when the form is shown again after a validation error" do
+      post :create, params: { collected_ink: { brand_name: "brand" }, **list_state }
+
+      form = Nokogiri.HTML(response.body).at_css("form#new_collected_ink")
+      expect(form.at_css("input[type=hidden][name=q]")["value"]).to eq("sailor blue")
+      expect(form.at_css("input[type=hidden][name=sort]")["value"]).to eq("brand_name,-usage")
+      expect(form.at_css("a.btn-secondary")["href"]).to eq(collected_inks_path(list_state))
+    end
+
+    it "leaves them out when there are none" do
+      get :new
+
+      form = Nokogiri.HTML(response.body).at_css("form#new_collected_ink")
+      expect(form.at_css("input[name=q]")).to be_nil
+      expect(form.at_css("input[name=sort]")).to be_nil
+    end
+
+    it "redirects back with them after creating an ink" do
+      post :create,
+           params: {
+             collected_ink: {
+               brand_name: "brand",
+               ink_name: "ink"
+             },
+             **list_state
+           }
+      expect(response).to redirect_to(collected_inks_path(list_state))
+    end
+
+    it "redirects back with them after updating an ink" do
+      put :update, params: { id: ink.id, collected_ink: { brand_name: "new" }, **list_state }
+      expect(response).to redirect_to(collected_inks_path(list_state))
+    end
+
+    it "redirects back to the archive with them after updating an archived ink" do
+      put :update,
+          params: {
+            id: archived_ink.id,
+            archive: "true",
+            collected_ink: {
+              brand_name: "new"
+            },
+            **list_state
+          }
+      expect(response).to redirect_to(collected_inks_path(search: { archive: true }, **list_state))
+    end
+
+    it "redirects back with them after archiving an ink" do
+      post :archive, params: { id: ink.id, **list_state }
+      expect(response).to redirect_to(collected_inks_path(list_state))
+    end
+
+    it "redirects back to the archive with them after unarchiving an ink" do
+      post :unarchive, params: { id: archived_ink.id, **list_state }
+      expect(response).to redirect_to(collected_inks_path(search: { archive: true }, **list_state))
+    end
+
+    it "redirects back to the archive with them after deleting an ink" do
+      delete :destroy, params: { id: archived_ink.id, **list_state }
+      expect(response).to redirect_to(collected_inks_path(search: { archive: true }, **list_state))
+    end
+
+    it "ignores values that are not strings" do
+      post :archive, params: { id: ink.id, q: { evil: "1" }, sort: ["a"] }
+      expect(response).to redirect_to(collected_inks_path)
+    end
+
+    it "ignores blank values" do
+      post :archive, params: { id: ink.id, q: "", sort: "usage" }
+      expect(response).to redirect_to(collected_inks_path(sort: "usage"))
+    end
+
+    it "truncates overly long values" do
+      post :archive, params: { id: ink.id, q: "a" * 300 }
+      expect(response).to redirect_to(collected_inks_path(q: "a" * 200))
+    end
+  end
 end

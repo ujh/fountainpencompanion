@@ -1,4 +1,5 @@
 = simple_form_for record do |f|
+  = render "shared/list_state_fields"
   div style="max-width: 650px"
       = f.association :collected_pen, collection: record.collected_pens_for_active_select, selected: record.collected_pen_id || params[:collected_pen_id], prompt: "(Pick a pen)", wrapper: :vertical_form
       = f.association :collected_ink, collection: record.collected_inks_for_active_select, selected: record.collected_ink_id || params[:collected_ink_id], prompt: "(Pick an ink)", wrapper: :vertical_form
@@ -11,4 +12,4 @@
 
   div class="pt-2 mb-5"
       = f.submit "Save", class: "btn btn-success"
-      = link_to "Cancel", currently_inked_index_path, class: "btn btn-secondary"
+      = link_to "Cancel", currently_inked_index_path(list_state), class: "btn btn-secondary"

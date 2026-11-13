@@ -1,4 +1,6 @@
 class CollectedInksController < ApplicationController
+  include ListState
+
   before_action :authenticate_user!
   before_action :find_ink, only: %i[edit update destroy archive unarchive destroy]
 
@@ -55,7 +57,7 @@ class CollectedInksController < ApplicationController
         self.ink = collected_ink = current_user.collected_inks.build
         render :new
       else
-        redirect_to collected_inks_path
+        redirect_to collected_inks_path(list_state)
       end
     else
       render :new
@@ -71,9 +73,9 @@ class CollectedInksController < ApplicationController
     if SaveCollectedInk.new(ink, collected_ink_params).perform
       flash[:notice] = "Successfully updated ink"
       if archive?
-        redirect_to collected_inks_path(search: { archive: true })
+        redirect_to collected_inks_path(search: { archive: true }, **list_state)
       else
-        redirect_to collected_inks_path
+        redirect_to collected_inks_path(list_state)
       end
     else
       render :edit
@@ -83,19 +85,19 @@ class CollectedInksController < ApplicationController
   def archive
     flash[:notice] = "Successfully archived '#{ink.name}'" if ink
     ink&.archive!
-    redirect_to collected_inks_path
+    redirect_to collected_inks_path(list_state)
   end
 
   def unarchive
     flash[:notice] = "Successfully unarchived '#{ink.name}'" if ink
     ink&.unarchive!
-    redirect_to collected_inks_path(search: { archive: true })
+    redirect_to collected_inks_path(search: { archive: true }, **list_state)
   end
 
   def destroy
     flash[:notice] = "Successfully deleted '#{ink.name}'" if ink
     ink&.destroy
-    redirect_to collected_inks_path(search: { archive: true })
+    redirect_to collected_inks_path(search: { archive: true }, **list_state)
   end
 
   private

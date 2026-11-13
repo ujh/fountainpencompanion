@@ -1,4 +1,6 @@
 class CurrentlyInkedController < ApplicationController
+  include ListState
+
   before_action :authenticate_user!
   before_action :retrieve_record, only: %i[edit update destroy archive refill]
   before_action :set_empty_record, only: %i[new]
@@ -23,7 +25,7 @@ class CurrentlyInkedController < ApplicationController
   def update
     if @record.update(currently_inked_params)
       flash[:notice] = "Successfully updated entry"
-      redirect_to currently_inked_index_path
+      redirect_to currently_inked_index_path(list_state)
     else
       render :edit
     end
@@ -31,13 +33,13 @@ class CurrentlyInkedController < ApplicationController
 
   def archive
     @record.archive!
-    redirect_to currently_inked_index_path
+    redirect_to currently_inked_index_path(list_state)
   end
 
   def refill
     @record.refill!
     flash[:notice] = "Refilled your #{@record.pen_name} with #{@record.ink_name}."
-    redirect_to currently_inked_index_path
+    redirect_to currently_inked_index_path(list_state)
   end
 
   def new
@@ -48,7 +50,7 @@ class CurrentlyInkedController < ApplicationController
     @record = current_user.currently_inkeds.build(currently_inked_params)
     if @record.save
       flash[:notice] = "Successfully created entry"
-      redirect_to currently_inked_index_path
+      redirect_to currently_inked_index_path(list_state)
     else
       render :new
     end
@@ -56,7 +58,7 @@ class CurrentlyInkedController < ApplicationController
 
   def destroy
     @record.destroy
-    redirect_to currently_inked_index_path
+    redirect_to currently_inked_index_path(list_state)
   end
 
   private
