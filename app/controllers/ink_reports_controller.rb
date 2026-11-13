@@ -4,9 +4,6 @@ class InkReportsController < ApplicationController
   before_action :authenticate_user!
 
   def create
-    ink = MacroCluster.find(params[:ink_id])
-    submit_error_report do |description|
-      AdminMailer.ink_report(ink, current_user, description).deliver_later
-    end
+    submit_error_report(MacroCluster.find(params[:ink_id]))
   end
 end

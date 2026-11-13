@@ -24,4 +24,13 @@ describe AdminStats do
       expect(described_class.new.micro_cluster_agent_review_count).to eq(1)
     end
   end
+
+  describe "#open_error_reports_count" do
+    it "counts the reports that are not resolved" do
+      create_list(:error_report, 2)
+      create(:error_report, resolved_at: Time.current)
+
+      expect(described_class.new.open_error_reports_count).to eq(2)
+    end
+  end
 end

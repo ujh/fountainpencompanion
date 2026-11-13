@@ -1,0 +1,32 @@
+- content_for :title, "Reports"
+
+ul class="nav nav-tabs mb-3"
+  - { "open" => "Open", "resolved" => "Resolved", "all" => "All" }.each do |status, label|
+    li class="nav-item"
+      = link_to "#{label} (#{@counts[status]})", admins_error_reports_path(status: status), class: ["nav-link", ("active" if status == @status)], "aria-current": ("page" if status == @status)
+
+- if @error_reports.empty?
+  p class="text-muted" No reports.
+- else
+  table class="table table-striped table-hover fpc-error-reports"
+    thead
+      tr
+        th Reported
+        th Kind
+        th Item
+        th Reporter
+        th Description
+        th Notes / replies
+        th Status
+    tbody
+      - @error_reports.each do |error_report|
+        - report_path = admins_error_report_path(error_report)
+        tr
+          td= link_to l(error_report.created_at, format: :short), report_path, class: "fpc-error-reports__cell"
+          td= link_to error_report.kind, report_path, class: "fpc-error-reports__cell"
+          td= link_to error_report.reportable_name, report_path, class: "fpc-error-reports__cell"
+          td= link_to error_report.user.email, report_path, class: "fpc-error-reports__cell"
+          td= link_to truncate(error_report.description, length: 120), report_path, class: "fpc-error-reports__cell"
+          td= link_to "#{error_report.entries.count(&:note?)} / #{error_report.entries.count(&:reply?)}", report_path, class: "fpc-error-reports__cell"
+          td= link_to (error_report.resolved? ? "Resolved" : "Open"), report_path, class: "fpc-error-reports__cell"
+  = paginate @error_reports

@@ -137,6 +137,9 @@ Rails.application.routes.draw do
     resource :patreon, only: [:show], controller: "patreon"
     resources :agent_logs, only: [:index]
     resources :csp_reports, only: [:index]
+    resources :error_reports, only: %i[index show update] do
+      resources :entries, only: [:create], controller: "error_reports/entries"
+    end
     namespace :agents do
       resources :ink_clusterer, only: %i[index destroy update]
     end

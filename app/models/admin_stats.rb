@@ -100,6 +100,10 @@ class AdminStats
     @active_users_last_year_count ||= User.active.where("current_sign_in_at > ?", 1.year.ago).count
   end
 
+  def open_error_reports_count
+    ErrorReport.open.count
+  end
+
   def users_to_review_count
     User.to_review.count
   end
