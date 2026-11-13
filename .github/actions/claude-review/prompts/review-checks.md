@@ -1,20 +1,21 @@
 # Required review checks
 
-Required review checks. Each check is independent — run them in
-parallel as subagents per the dispatch instructions in
-`base.md`. The inlined "Repository review rules" section at
-the top of this prompt may add to, replace, or remove items
+Required review checks. Each check is independent and runs
+as its own subagent. The "Repository review rules" section
+may add to, replace, or remove items
 from this list; if that section defines its own check list,
 follow it instead. Otherwise run every applicable check
 below.
 
-Some checks are **gated** — they self-skip when the diff is
-too small or otherwise not a candidate. The main thread
-reads `.pr-context/meta.json` in Phase 1 specifically so it
-can apply these gates before fan-out. A gated-out check is
-**not dispatched at all** in Phase 2 (no Agent block, no
-wasted turn). Each gated check states its skip condition in
-its own definition below.
+Some checks are **gated** — the main thread skips them when
+the diff is too small. It reads `.pr-context/meta.json` in
+Phase 1 specifically so it can apply these gates before
+fan-out. A gated-out check is **not dispatched at all** in
+Phase 2 (no Agent block, no wasted turn). Each gated check
+states its skip condition in its own definition below. The
+gate is the main thread's decision only: a subagent that was
+dispatched runs its check in full, even when the diff looks
+below the threshold.
 
 1. test-coverage — Verify every behavioral change in the diff
    is covered by a new or updated test. Walk each non-test
@@ -26,39 +27,17 @@ its own definition below.
    behavior change are exempt. Report each uncovered change as
    one finding pinned to the production file:line that lacks
    coverage.
+   Also read each new or changed test for assumptions that
+   hold today only by luck, and report them pinned to the
+   test line: ids or counts from different tables compared
+   or matched against each other (separate sequences can
+   produce the same id), expected order without an explicit
+   `order`, dates and times near day or year boundaries,
+   unseeded randomness, and JS tests that assert before an
+   effect, timer or promise has settled.
 
-2. pr-meta — Combined PR-description + PR-size check. Read
-   `.pr-context/meta.json` (`.title`, `.body`, `.additions`,
-   `.deletions`, `.changedFiles`) and `.pr-context/diff-stat.txt`.
-   Do NOT Read any source file in this check — meta.json and
-   diff-stat are sufficient. Run two sub-checks and report at
-   most one finding per sub-check (so 0–2 findings total,
-   all PR-level, none pinned to a file):
-
-   (a) Description quality. Verify the body explains WHY
-   the change is being made, not just what changed. If
-   the description is missing or only restates the diff,
-   surface one PR-level finding asking for the
-   motivation/context. This is an open-source project —
-   do NOT require a linked issue or ticket; a `#123`
-   GitHub issue reference is welcome where one plausibly
-   exists, but its absence is not a finding. Trivial
-   chores (typo fixes, dependency bumps, internal
-   tooling) may have a terse description — use judgement.
-   Do not re-run `gh pr view`; the data is in `meta.json`.
-
-   (b) PR size and seams. If the diff is large or spans
-   multiple unrelated concerns, surface one PR-level
-   finding proposing a split along logical seams (e.g.
-   refactor vs. feature, independent modules, prep
-   commits vs. behavior change, test scaffolding vs.
-   production code) — name the files/commits in each
-   smaller PR and the seam. Cohesive small changes and
-   pure mechanical sweeps (renames, formatting) are
-   exempt — use judgement.
-
-3. consistency — **Gated: skip when `additions + deletions ≤
-100`.** Small diffs rarely introduce genuinely novel
+2. consistency — **Gated: the main thread skips it when
+   `additions + deletions ≤ 100`.** Small diffs rarely introduce genuinely novel
    patterns and consistency findings on them are mostly
    noise. File count is irrelevant — a 50-LOC change spread
    across 10 files is still too small to warrant a consistency
@@ -71,7 +50,7 @@ its own definition below.
    Report each as a finding on the new code with a pointer to
    the existing pattern (file:line) to follow instead.
 
-4. clean-code — Enforce SOLID principles and top-down
+3. clean-code — Enforce SOLID principles and top-down
    readability. Each new or modified function/method should
    read as a short sequence of well-named steps at one level
    of abstraction, with complexity hidden behind those names.
@@ -88,7 +67,7 @@ its own definition below.
    code on its own merits, do not excuse it because nearby
    legacy code is worse.
 
-5. correctness — Hunt for bugs that would break production.
+4. correctness — Hunt for bugs that would break production.
    Walk every changed line and ask: does this match the
    author's intent and the surrounding contract? Flag nil /
    null / undefined access on paths that weren't there before,
@@ -105,12 +84,23 @@ its own definition below.
    logs, auth bypass). Report each as one finding pinned to
    the file:line with a short description of the failure mode
    and a minimal reproducer or counter-example when possible.
+   Bugs often sit outside the diff, so for each changed
+   method, constant, scope, prompt rule or data shape, `grep`
+   its callers and the code that consumes its output, and
+   check the contract still holds there. For new polling,
+   timers, queues and locks, ask what happens when one round
+   takes longer than the interval. When the PR body or
+   `docs/` records a decision (an approved setting, a
+   documented rule), flag code that silently diverges from
+   it. When a PR changes an AI agent's prompt or the data fed
+   into it, look for realistic inputs the new wording or data
+   mishandles (for example values keyed on user-typed text).
    Mark severity `important` for behavior-breaking bugs, `nit`
    for narrow edge cases that are unlikely to fire, and
    `pre-existing` for bugs the diff did not introduce but
    exposed.
 
-6. simplification — Flag unnecessary complexity the diff
+5. simplification — Flag unnecessary complexity the diff
    adds. Look for: redundant or derivable state (values
    recomputed or stored that could be derived from existing
    ones), copy-paste with slight variation (extract a
@@ -120,11 +110,15 @@ its own definition below.
    branches, commented-out blocks), redundant conditionals,
    and abstractions introduced for a single caller. For each
    finding, name the simpler form that does the same job and
-   pin it to file:line. This check is distinct from
+   pin it to file:line. Before reporting, confirm the simpler
+   form behaves the same on every path: nil inputs, rescue
+   paths, and React effects that re-run (StrictMode mounts,
+   unmounts and mounts again). If you cannot show it is
+   equivalent, drop the finding. This check is distinct from
    clean-code (SOLID): it targets local mechanical
    simplifications, not architectural shape.
 
-7. efficiency — Flag wasted work the diff introduces.
+6. efficiency — Flag wasted work the diff introduces.
    Look for: redundant computation inside loops (hoist
    invariants), repeated I/O that could be batched or
    cached, N+1 query patterns (a recurring Rails hazard —
@@ -138,4 +132,6 @@ its own definition below.
    name the cheaper alternative and pin it to file:line.
    Do not flag micro-optimizations on cold paths — the bar
    is "wasted work the diff introduces", not theoretical
-   speedups.
+   speedups. A finding you would call "minor", "trivial" or
+   "cold path" is below the bar: drop it rather than report
+   it as a nit.

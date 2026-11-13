@@ -52,6 +52,30 @@ suppress the finding (and log the suppression in the step summary).
 
 ## Calibration
 
+- **Efficiency on cold paths.** Sidekiq workers, AI agents, rake and
+  bench tasks (`lib/tasks/`, `lib/bench/`), console scripts under
+  `.claude/` and admin-only pages are cold paths. Do not raise
+  efficiency findings there for a repeated cheap call, a second parse,
+  an extra in-memory lookup or one extra query. Report them only when
+  the waste grows with the data (an N+1 over unbounded rows, loading a
+  whole table) or a request path waits on it.
+
+- **Tests, not comments.** CLAUDE.md says tests document behaviour.
+  Never suggest adding an explanatory code comment to protect a
+  behaviour; suggest the spec that would pin it instead (for query
+  counts, `assert_queries_match`).
+
+- **No claims about third-party behaviour from memory.** Gem source is
+  not available to the reviewer and dependencies change their defaults
+  between versions. Do not state how a gem, CLI tool or library
+  behaves (flags, defaults, exit codes, error classes) as a fact unless
+  the repo's own code, specs or docs show it. If the risk matters, ask
+  it as a question in a `nit`; never make it `important`.
+
+- **Data migrations stay in SQL.** Application models change after a
+  migration is written, so raw SQL in a migration is deliberate. Do not
+  suggest replacing it with model calls such as `User.where(...)`.
+
 - CLAUDE.md notes existing code quality varies and that older code is
   often poorly tested. Judge new and changed code on its own merits and
   hold it to the "well-structured and thoroughly tested" bar — do not

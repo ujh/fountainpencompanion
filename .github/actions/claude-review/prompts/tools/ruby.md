@@ -22,11 +22,12 @@ allowlist — review from source and the diff, do not try to run
 - Service/business logic lives in `app/operations/`,
   background work in `app/jobs/` (ActiveJob) and
   `app/workers/` (Sidekiq), AI agents in `app/agents/`.
-- **New AI agents must use the `RubyLlmAgent` concern, not
-  raix** (raix agents are legacy, being migrated). Flag a new
-  agent built on raix. RubyLLM inner-class tools **must
-  override `def name`** — the auto-generated name includes the
-  module prefix, so a missing `name` override is a bug.
+- **AI agents use the `RubyLlmAgent` concern.** RubyLLM
+  inner-class tools should override `def name`. Without it,
+  `config/initializers/ruby_llm.rb` derives the name from the
+  demodulized class name, so renaming or moving the class
+  silently changes the name the system prompt and saved
+  transcripts refer to. Flag a missing override as a `nit`.
 
 ## Reading gem source
 
@@ -37,5 +38,3 @@ To inspect the source of a gem this repo depends on:
 2. Gem source is not reachable from the reviewer (`gh api`
    is not allowlisted and gems are not installed); note in
    the finding that external gem source was not inspected.
-   Do not list this as a blocked tool in the trailing
-   comment.
