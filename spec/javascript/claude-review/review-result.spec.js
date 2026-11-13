@@ -5,6 +5,7 @@ import {
   deniedCalls,
   reviewerFailed,
   summarySection,
+  traceFromEnv,
   upsertComment
 } from "../../../.github/actions/claude-review/scripts/review-result.mjs";
 
@@ -107,6 +108,18 @@ describe("commentBody", () => {
     expect(body).toContain("[this run](https://run) on abcdef1");
     expect(body).toContain("\n\n    Bash: jq -n env\n\n");
   });
+
+  it("points to the uploaded transcript artifact", () => {
+    const trace = { artifact: "claude-review-trace", retentionDays: "7" };
+
+    expect(commentBody(["Bash: jq -n env"], { ...context, trace })).toContain(
+      "attached to the run as the `claude-review-trace` artifact for 7 days"
+    );
+  });
+
+  it("does not mention an artifact when none was uploaded", () => {
+    expect(commentBody(["Bash: jq -n env"], context)).not.toContain("artifact");
+  });
 });
 
 describe("upsertComment", () => {
@@ -145,6 +158,27 @@ describe("upsertComment", () => {
     expect(request.method).toBe("PATCH");
   });
 
+  it("mentions the uploaded trace in the comment it posts", async () => {
+    const fetchImpl = fakeFetch([[sticky]]);
+    const trace = { artifact: "claude-review-trace", retentionDays: "7" };
+
+    await upsertComment({ ...options, calls: ["Bash: y"], trace, fetchImpl });
+
+    const [, request] = fetchImpl.mock.calls.at(-1);
+    expect(JSON.parse(request.body).body).toContain(
+      "attached to the run as the `claude-review-trace` artifact for 7 days"
+    );
+  });
+
+  it("does not mention a trace in the comment it posts when none was uploaded", async () => {
+    const fetchImpl = fakeFetch([[sticky]]);
+
+    await upsertComment({ ...options, calls: ["Bash: y"], fetchImpl });
+
+    const [, request] = fetchImpl.mock.calls.at(-1);
+    expect(JSON.parse(request.body).body).not.toContain("artifact");
+  });
+
   it("finds the existing comment on a later page", async () => {
     const filler = Array.from({ length: 100 }, (_, id) => ({ id, user: { login: "x" }, body: "" }));
     const fetchImpl = fakeFetch([filler, [sticky]]);
@@ -165,5 +199,17 @@ describe("upsertComment", () => {
     await expect(upsertComment({ ...options, calls: ["Bash: x"], fetchImpl })).rejects.toThrow(
       "GET https://api.github.com/repos/o/r/issues/7/comments?per_page=100&page=1 failed with 403"
     );
+  });
+});
+
+describe("traceFromEnv", () => {
+  it("reads the uploaded artifact and its retention", () => {
+    expect(
+      traceFromEnv({ TRACE_ARTIFACT: "claude-review-trace", TRACE_RETENTION_DAYS: "7" })
+    ).toEqual({ artifact: "claude-review-trace", retentionDays: "7" });
+  });
+
+  it("is null when no artifact was uploaded", () => {
+    expect(traceFromEnv({ TRACE_ARTIFACT: "", TRACE_RETENTION_DAYS: "7" })).toBeNull();
   });
 });

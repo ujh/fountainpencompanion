@@ -182,6 +182,17 @@ runs:
           sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
         fi
 
+    - name: Prepare reviewer trace
+      id: trace
+      if: steps.guard.outputs.skip != 'true'
+      shell: bash
+      run: |
+        {
+          echo "session_id=$(cat /proc/sys/kernel/random/uuid)"
+          echo "artifact=claude-review-trace"
+          echo "retention_days=7"
+        } >> "$GITHUB_OUTPUT"
+
     - uses: anthropics/claude-code-action@4d75e5f390ee76b2e09c1980ecc99ff3a2e088c8 # v1.0.275
       id: claude
       if: steps.guard.outputs.skip != 'true'
@@ -197,8 +208,34 @@ runs:
         prompt: ${{ steps.assemble.outputs.prompt }}
         claude_args: |
           --model opus
+          --session-id ${{ steps.trace.outputs.session_id }}
           --allowedTools "Bash(gh pr comment:*),Bash(git fetch:*),Bash(git log:*),Bash(git show:*),Bash(git blame:*),Bash(git diff:*),Bash(git ls-files:*),Bash(git ls-tree:*),Bash(git cat-file:*),Bash(git status),Bash(grep:*),Bash(head:*),Bash(tail:*),Bash(ls:*),Bash(cat:*),Bash(wc:*),Bash(./.claude-review-post:*),Task,Agent"
           --append-system-prompt "Repo-specific review rules are inlined in the review prompt under the 'Repository review rules' section, and staged for subagents in .pr-context/subagent-rules.md. Apply them in every subagent and validation pass — they override default rules. Findings that violate the inlined skip rules must not be reported. Do not Read REVIEW.md from disk; the inlined copy is canonical."
+
+    - name: Collect reviewer trace
+      id: collect_trace
+      if: always() && steps.guard.outputs.skip != 'true'
+      continue-on-error: true
+      shell: bash
+      env:
+        ACTION_PATH: ${{ github.action_path }}
+        SESSION_ID: ${{ steps.trace.outputs.session_id }}
+        EXECUTION_FILE: ${{ steps.claude.outputs.execution_file }}
+        DEST: ${{ runner.temp }}/claude-review-trace
+        REDACT_GITHUB_TOKEN: ${{ github.token }}
+        REDACT_CLAUDE_TOKEN: ${{ inputs.claude_code_oauth_token }}
+      run: '"$ACTION_PATH/scripts/collect-trace.sh" "$SESSION_ID" "$EXECUTION_FILE" "$DEST"'
+
+    - name: Upload reviewer trace
+      id: upload_trace
+      if: always() && steps.collect_trace.outcome == 'success'
+      continue-on-error: true
+      uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+      with:
+        name: ${{ steps.trace.outputs.artifact }}
+        path: ${{ runner.temp }}/claude-review-trace
+        retention-days: ${{ steps.trace.outputs.retention_days }}
+        if-no-files-found: ignore
 
     - name: Report denied tool calls
       # The list comes from the execution file, not from the model, so
@@ -212,6 +249,8 @@ runs:
         REPO: ${{ github.repository }}
         PR_NUMBER: ${{ github.event.pull_request.number }}
         HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        TRACE_ARTIFACT: ${{ steps.upload_trace.outputs.artifact-id != '' && steps.trace.outputs.artifact || '' }}
+        TRACE_RETENTION_DAYS: ${{ steps.trace.outputs.retention_days }}
         RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
       run: node "$ACTION_PATH/scripts/review-result.mjs" report
 
