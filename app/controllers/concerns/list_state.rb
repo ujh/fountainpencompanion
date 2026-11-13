@@ -1,17 +1,13 @@
 module ListState
   extend ActiveSupport::Concern
 
-  KEYS = %i[q sort].freeze
-  MAX_LENGTH = 200
-
   included { helper_method :list_state }
 
   private
 
   def list_state
-    KEYS.each_with_object({}) do |key, state|
-      value = params[key]
-      state[key] = value.first(MAX_LENGTH) if value.is_a?(String) && value.present?
-    end
+    sort = params[:sort]
+    sort = sort.is_a?(String) ? sort.first(SearchQuery::MAX_LENGTH) : ""
+    { q: search_query, sort: sort }.compact_blank
   end
 end

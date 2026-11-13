@@ -512,9 +512,14 @@ describe CollectedInksController do
       expect(response).to redirect_to(collected_inks_path(sort: "usage"))
     end
 
+    it "strips whitespace around the search like the search itself does" do
+      post :archive, params: { id: ink.id, q: "  sailor  " }
+      expect(response).to redirect_to(collected_inks_path(q: "sailor"))
+    end
+
     it "truncates overly long values" do
-      post :archive, params: { id: ink.id, q: "a" * 300 }
-      expect(response).to redirect_to(collected_inks_path(q: "a" * 200))
+      post :archive, params: { id: ink.id, q: "a" * 300, sort: "b" * 300 }
+      expect(response).to redirect_to(collected_inks_path(q: "a" * 200, sort: "b" * 200))
     end
   end
 end

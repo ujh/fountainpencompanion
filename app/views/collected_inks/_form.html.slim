@@ -35,6 +35,6 @@ div id="ink-search-hint"
   div class="pt-2 mb-5"
     = f.submit 'Save', class: "btn btn-success"
     - if archive?
-      = link_to 'Cancel', collected_inks_path(search: { archive: true }, **list_state), class: "btn btn-secondary"
+      = link_to 'Cancel', archived_inks_path, class: "btn btn-secondary"
     - else
       = link_to 'Cancel', collected_inks_path(list_state), class: "btn btn-secondary"

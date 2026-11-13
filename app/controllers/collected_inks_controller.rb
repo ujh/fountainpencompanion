@@ -73,7 +73,7 @@ class CollectedInksController < ApplicationController
     if SaveCollectedInk.new(ink, collected_ink_params).perform
       flash[:notice] = "Successfully updated ink"
       if archive?
-        redirect_to collected_inks_path(search: { archive: true }, **list_state)
+        redirect_to archived_inks_path
       else
         redirect_to collected_inks_path(list_state)
       end
@@ -91,13 +91,13 @@ class CollectedInksController < ApplicationController
   def unarchive
     flash[:notice] = "Successfully unarchived '#{ink.name}'" if ink
     ink&.unarchive!
-    redirect_to collected_inks_path(search: { archive: true }, **list_state)
+    redirect_to archived_inks_path
   end
 
   def destroy
     flash[:notice] = "Successfully deleted '#{ink.name}'" if ink
     ink&.destroy
-    redirect_to collected_inks_path(search: { archive: true }, **list_state)
+    redirect_to archived_inks_path
   end
 
   private
@@ -106,6 +106,11 @@ class CollectedInksController < ApplicationController
 
   def find_ink
     self.ink = current_user.collected_inks.find(params[:id])
+  end
+
+  helper_method :archived_inks_path
+  def archived_inks_path
+    collected_inks_path(search: { archive: true }, **list_state)
   end
 
   helper_method :archive?
