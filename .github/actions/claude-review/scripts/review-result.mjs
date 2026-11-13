@@ -6,7 +6,8 @@
 //   node review-result.mjs check    fail the job when the reviewer errored
 //
 // Environment: EXECUTION_FILE, and for `report` also GITHUB_STEP_SUMMARY,
-// GITHUB_TOKEN, REPO, PR_NUMBER, HEAD_SHA and RUN_URL.
+// GITHUB_TOKEN, REPO, PR_NUMBER, HEAD_SHA, RUN_URL, TRACE_ARTIFACT (empty when
+// no trace was uploaded) and TRACE_RETENTION_DAYS.
 import { appendFileSync, readFileSync } from "node:fs";
 import { pathToFileURL } from "node:url";
 

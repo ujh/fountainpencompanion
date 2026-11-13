@@ -107,6 +107,16 @@ describe("collect-trace.sh", () => {
     }
   });
 
+  it("redacts only the GitHub token when no Claude token is given", () => {
+    const executionFile = leaveInEveryFile(`token ${GITHUB_TOKEN} here\n`);
+
+    run("this-run", executionFile, { REDACT_CLAUDE_TOKEN: "" });
+
+    for (const content of collectedFiles()) {
+      expect(content).toBe("token [REDACTED] here\n");
+    }
+  });
+
   it("refuses to collect anything without the GitHub token to redact", () => {
     const executionFile = leaveInEveryFile(`${GITHUB_TOKEN}\n`);
 

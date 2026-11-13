@@ -39,6 +39,10 @@ describe("claude-review action wiring", () => {
     );
   });
 
+  it("does not fail the review when the trace cannot be collected", () => {
+    expect(step("Collect reviewer trace")).toContain("continue-on-error: true");
+  });
+
   it("names the artifact and its retention in one place for the upload and the comment", () => {
     const upload = step("Upload reviewer trace");
     const report = step("Report denied tool calls");
