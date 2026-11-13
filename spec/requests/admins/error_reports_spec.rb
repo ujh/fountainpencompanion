@@ -200,6 +200,18 @@ describe "Admins::ErrorReports" do
         expect(response).to redirect_to("/admins/error_reports/#{error_report.id}")
       end
 
+      it "changes nothing without a valid resolved value" do
+        error_report.resolve!
+
+        patch "/admins/error_reports/#{error_report.id}"
+        expect(response).to have_http_status(:bad_request)
+
+        patch "/admins/error_reports/#{error_report.id}", params: { resolved: "maybe" }
+        expect(response).to have_http_status(:bad_request)
+
+        expect(error_report.reload).to be_resolved
+      end
+
       it "reopens the report" do
         error_report.resolve!
 

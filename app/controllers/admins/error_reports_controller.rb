@@ -22,10 +22,13 @@ class Admins::ErrorReportsController < Admins::BaseController
 
   def update
     error_report = ErrorReport.find(params[:id])
-    if params[:resolved] == "true"
+    case params[:resolved]
+    when "true"
       error_report.resolve!
-    else
+    when "false"
       error_report.reopen!
+    else
+      return head :bad_request
     end
     redirect_to admins_error_report_path(error_report)
   end
