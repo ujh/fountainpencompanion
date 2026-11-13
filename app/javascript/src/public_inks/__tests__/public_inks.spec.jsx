@@ -1,4 +1,5 @@
-import { render, screen, within } from "@testing-library/react";
+import { render, screen, waitFor, within } from "@testing-library/react";
+import { getRequest } from "../../fetch";
 import App from "../app";
 import Table from "../table";
 
@@ -31,12 +32,28 @@ vi.mock("../../fetch", () => ({
 }));
 
 describe("App component", () => {
+  beforeEach(() => {
+    getRequest.mockClear();
+  });
+
   it("renders without crashing and passes data to Table", async () => {
     render(<App />);
     // Wait for Table to appear (brand name should be rendered)
     expect(await screen.findByText("BrandA")).toBeInTheDocument();
     expect(screen.getByText("InkA")).toBeInTheDocument();
     expect(screen.getByText("LineA")).toBeInTheDocument();
+  });
+
+  it("does not request the viewer's account when logged out", async () => {
+    render(<App loggedIn={false} />);
+    expect(await screen.findByText("BrandA")).toBeInTheDocument();
+    expect(getRequest).toHaveBeenCalledWith(location.href);
+    expect(getRequest).not.toHaveBeenCalledWith("/account?include=collected_inks");
+  });
+
+  it("requests the viewer's account when logged in", async () => {
+    render(<App loggedIn={true} />);
+    await waitFor(() => expect(getRequest).toHaveBeenCalledWith("/account?include=collected_inks"));
   });
 
   it("calculates comparison correctly", () => {

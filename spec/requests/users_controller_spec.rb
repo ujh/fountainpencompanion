@@ -101,6 +101,23 @@ describe UsersController do
       expect(response).to have_http_status(:not_found)
     end
 
+    it "tells the public inks table that the viewer is logged out" do
+      user = create(:user, name: "the name")
+      get "/users/#{user.id}"
+      expect(response).to be_successful
+      table = Nokogiri.HTML(response.body).at_css("#new-public-inks")
+      expect(table.key?("data-logged-in")).to be(false)
+    end
+
+    it "tells the public inks table that the viewer is logged in" do
+      user = create(:user, name: "the name")
+      sign_in(create(:user))
+      get "/users/#{user.id}"
+      expect(response).to be_successful
+      table = Nokogiri.HTML(response.body).at_css("#new-public-inks")
+      expect(table.key?("data-logged-in")).to be(true)
+    end
+
     it "works for users without a user name" do
       user = create(:user, name: "")
       get "/users/#{user.id}"
