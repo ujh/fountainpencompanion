@@ -46,6 +46,20 @@ describe ReviewFeed do
       expect(described_class.normalize_host("  example.com \n")).to eq("example.com")
     end
 
+    it "accepts a URL with non-ASCII characters in the path" do
+      expect(described_class.normalize_host("https://example.com/tinte-grün/")).to eq("example.com")
+    end
+
+    it "accepts a URL with a space in the path" do
+      expect(described_class.normalize_host("https://example.com/a b")).to eq("example.com")
+    end
+
+    it "accepts a URL with a pipe in the query" do
+      expect(described_class.normalize_host("https://www.example.com/search?q=a|b")).to eq(
+        "example.com"
+      )
+    end
+
     it "returns nil for nil" do
       expect(described_class.normalize_host(nil)).to be_nil
     end
@@ -79,11 +93,18 @@ describe ReviewFeed do
       expect(feed.reload.host).to eq("example.com")
     end
 
-    it "is invalid when the host cannot be normalised" do
+    it "reports a host that cannot be normalised as invalid" do
       feed = build(:review_feed, host: "not a host")
 
       expect(feed).not_to be_valid
-      expect(feed.errors[:host]).to be_present
+      expect(feed.errors[:host]).to eq(["is invalid"])
+    end
+
+    it "reports a blank host as blank" do
+      feed = build(:review_feed, host: "  ")
+
+      expect(feed).not_to be_valid
+      expect(feed.errors[:host]).to eq(["can't be blank"])
     end
   end
 
@@ -92,11 +113,11 @@ describe ReviewFeed do
       expect(build(:review_feed)).to be_valid
     end
 
-    it "accepts every state in STATES" do
+    it "saves every state in STATES" do
       described_class::STATES.each do |state|
-        feed = build(:review_feed, state: state)
+        feed = create(:review_feed, state: state)
 
-        expect(feed).to be_valid, "expected #{state} to be valid"
+        expect(feed.reload.state).to eq(state)
       end
     end
 
