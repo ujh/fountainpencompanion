@@ -47,7 +47,19 @@ a task done.
 
 Important: When running the tests, check the output to ensure that no new warnings were introduced.
 
-All backend tests:
+All backend tests, in parallel (one process per CPU, each with its own test database):
+
+```
+docker-compose exec -T app bundle exec parallel_rspec
+```
+
+The first time, and after adding a migration, create and load the extra test databases with
+`docker-compose exec -T app bin/rails parallel:create parallel:prepare`. Each run records file runtimes in
+`tmp/parallel_runtime_rspec.log` and uses them to balance the next run. CI splits the suite into two jobs by
+the committed `spec/parallel_runtime_rspec.log`; when the jobs drift apart, refresh it with
+`docker-compose exec -T app cp tmp/parallel_runtime_rspec.log spec/parallel_runtime_rspec.log`.
+
+All backend tests in one process (slower; useful when a failure depends on test order):
 
 ```
 docker-compose exec -T app bundle exec rspec

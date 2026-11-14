@@ -20,7 +20,7 @@
 # Ignore Byebug command history file.
 .byebug_history
 
-spec/examples.txt
+spec/examples*.txt
 coverage/
 js-coverage/
 /public/packs
