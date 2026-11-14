@@ -147,6 +147,31 @@ describe DiscoverFeed do
     comment_feeds.each { |stub| expect(stub).not_to have_been_requested }
   end
 
+  it "skips the comment feed of the sample post whatever its title" do
+    post_feed = stub_ok("https://blog.test/2026/ink-review/feed/", blog_rss)
+    stub_ok(
+      "https://blog.test/2026/ink-review/",
+      html(link_tag("/2026/ink-review/feed/", title: "Blog » Revue d'encre Flux des commentaires"))
+    )
+    stub_ok("https://blog.test/", html(link_tag("/feed/")))
+    stub_ok("https://blog.test/feed/", blog_rss)
+
+    expect(discover(sample_urls: ["https://blog.test/2026/ink-review/"])).to eq(
+      "https://blog.test/feed/"
+    )
+    expect(post_feed).not_to have_been_requested
+  end
+
+  it "prefers the feed linked from the sample page over the one on the homepage" do
+    stub_ok("https://blog.test/2026/ink-review", html(link_tag("/feed/")))
+    stub_ok("https://blog.test/", html(link_tag("/other.rss")))
+    stub_ok("https://blog.test/feed/", blog_rss)
+    other = stub_ok("https://blog.test/other.rss", blog_rss)
+
+    expect(discover).to eq("https://blog.test/feed/")
+    expect(other).not_to have_been_requested
+  end
+
   it "accepts an Atom feed" do
     stub_ok(
       "https://blog.test/2026/ink-review",
@@ -178,14 +203,36 @@ describe DiscoverFeed do
     expect(discover).to eq("https://blog.test/feeds/posts/default?alt=rss")
   end
 
-  it "does not try the fallback paths when the pages link feeds that fail" do
-    stub_ok("https://blog.test/2026/ink-review", html(link_tag("/feed.xml")))
+  it "tries the fallback paths when the linked feeds fail" do
+    stub_ok("https://blog.test/2026/ink-review", html(link_tag("/posts.rss")))
     stub_ok("https://blog.test/", html)
-    stub_missing("https://blog.test/feed.xml")
-    fallbacks = stub_no_fallbacks
+    stub_missing("https://blog.test/posts.rss")
+    stub_ok("https://blog.test/feed/", blog_rss)
 
-    expect(discover).to be_nil
-    fallbacks.each { |stub| expect(stub).not_to have_been_requested }
+    expect(discover).to eq("https://blog.test/feed/")
+  end
+
+  it "tries the fallback paths on the www host of a www-only site" do
+    stub_ok("https://www.blog.test/2026/ink-review", html)
+    stub_ok("https://www.blog.test/", html)
+    stub_ok("https://www.blog.test/feed/", rss("https://www.blog.test/2026/a"))
+
+    expect(discover(sample_urls: ["https://www.blog.test/2026/ink-review"])).to eq(
+      "https://www.blog.test/feed/"
+    )
+  end
+
+  it "tries the Jekyll and Hugo feed paths last" do
+    stub_ok("https://blog.test/2026/ink-review", html)
+    stub_ok("https://blog.test/", html)
+    stub_missing(
+      *%w[/feed/ /?format=rss /feeds/posts/default?alt=rss /rss/ /atom.xml /feed.xml].map do
+        "https://blog.test#{_1}"
+      end
+    )
+    stub_ok("https://blog.test/index.xml", blog_rss)
+
+    expect(discover).to eq("https://blog.test/index.xml")
   end
 
   it "accepts a feed on another host whose items link to the blog" do
@@ -222,6 +269,23 @@ describe DiscoverFeed do
       "https://blog.test/feed/",
       rss("https://blog.test/2026/a", "https://blog.test/2026/b", "https://shop.test/c")
     )
+
+    expect(discover).to eq("https://blog.test/feed/")
+  end
+
+  it "rejects a feed with exactly half of its items on the blog" do
+    stub_ok("https://blog.test/2026/ink-review", html(link_tag("/half.rss"), link_tag("/feed/")))
+    stub_ok("https://blog.test/", html)
+    stub_ok(
+      "https://blog.test/half.rss",
+      rss(
+        "https://blog.test/2026/a",
+        "https://blog.test/2026/b",
+        "https://other.test/c",
+        "https://shop.test/d"
+      )
+    )
+    stub_ok("https://blog.test/feed/", blog_rss)
 
     expect(discover).to eq("https://blog.test/feed/")
   end
@@ -368,12 +432,18 @@ describe DiscoverFeed do
 
   it "does not fetch the same URL twice" do
     samples = %w[https://blog.test/2026/a https://blog.test/2026/b https://blog.test/]
-    page = html(link_tag("https://blog.test/"), link_tag("https://planet.test/feed/"))
+    page =
+      html(
+        link_tag("https://blog.test/"),
+        link_tag("https://planet.test/feed/"),
+        link_tag("https://blog.test/rss/")
+      )
     pages = samples.map { |url| stub_ok(url, page) }
     planet = stub_ok("https://planet.test/feed/", rss("https://planet.test/a"))
+    fallbacks = stub_no_fallbacks
 
     expect(discover(sample_urls: samples)).to be_nil
-    pages.each { |stub| expect(stub).to have_been_requested.once }
+    (pages + fallbacks).each { |stub| expect(stub).to have_been_requested.once }
     expect(planet).to have_been_requested.once
   end
 

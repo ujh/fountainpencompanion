@@ -1,6 +1,14 @@
 class DiscoverFeed
   FEED_TYPES = %w[application/rss+xml application/atom+xml].freeze
-  FALLBACK_PATHS = %w[/feed/ /?format=rss /feeds/posts/default?alt=rss /rss/ /atom.xml].freeze
+  FALLBACK_PATHS = %w[
+    /feed/
+    /?format=rss
+    /feeds/posts/default?alt=rss
+    /rss/
+    /atom.xml
+    /feed.xml
+    /index.xml
+  ].freeze
   COMMENT_FEED_URL = %r{/comments\b|comments-(rss|atom)}i
   HTTP_URL = %r{\Ahttps?://}i
   MAX_SAMPLE_URLS = 3
@@ -16,8 +24,7 @@ class DiscoverFeed
   def perform
     pages = page_urls.filter_map { |url| fetch(url) }
     hosts = site_hosts(pages)
-    candidates = pages.flat_map { |page| feed_links(page) }.uniq
-    candidates = fallback_urls if candidates.empty?
+    candidates = (pages.flat_map { |page| feed_links(page) } + fallback_urls).uniq
     candidates.lazy.filter_map { |url| site_feed_url(url, hosts) }.first
   end
 
@@ -67,7 +74,7 @@ class DiscoverFeed
         next unless feed_link?(link)
 
         url = absolute_url(link["href"], page.final_url)
-        url unless url.nil? || comment_feed?(url, link["title"])
+        url unless url.nil? || comment_feed?(url, link["title"]) || under_page?(url, page)
       end
   end
 
@@ -86,6 +93,13 @@ class DiscoverFeed
 
   def comment_feed?(url, title)
     url.match?(COMMENT_FEED_URL) || title.to_s.match?(/comments/i)
+  end
+
+  def under_page?(url, page)
+    path = URI(page.final_url).path.chomp("/")
+    path.present? && url.start_with?(URI.join(page.final_url, "#{path}/").to_s)
+  rescue URI::Error
+    false
   end
 
   def site_feed_url(url, hosts)
