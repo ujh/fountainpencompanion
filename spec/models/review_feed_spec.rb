@@ -1,4 +1,5 @@
 require "rails_helper"
+require "active_record/testing/query_assertions"
 
 describe ReviewFeed do
   describe ".normalize_host" do
@@ -216,6 +217,182 @@ describe ReviewFeed do
       create(:review_feed, state: "duplicate", feed_url: nil)
 
       expect(described_class.fetchable).to be_empty
+    end
+  end
+
+  describe ".denylisted?" do
+    it "is true for a denylisted host" do
+      expect(described_class.denylisted?("youtube.com")).to be(true)
+    end
+
+    it "is true for a subdomain of a denylisted host" do
+      expect(described_class.denylisted?("m.youtube.com")).to be(true)
+      expect(described_class.denylisted?("en.wikipedia.org")).to be(true)
+    end
+
+    it "normalises the host" do
+      expect(described_class.denylisted?("WWW.YouTube.com")).to be(true)
+    end
+
+    it "accepts a URL" do
+      expect(
+        described_class.denylisted?("https://www.youtube.com/feeds/videos.xml?channel_id=x")
+      ).to(be(true))
+    end
+
+    it "is false for a host that only ends with a denylisted name" do
+      expect(described_class.denylisted?("notyoutube.com")).to be(false)
+    end
+
+    it "is false for other hosts" do
+      expect(described_class.denylisted?("mountainofink.com")).to be(false)
+    end
+
+    it "is false for a blank host" do
+      expect(described_class.denylisted?(nil)).to be(false)
+    end
+
+    it "covers every platform on the list" do
+      expect(described_class::DENYLIST).to contain_exactly(
+        "youtube.com",
+        "youtu.be",
+        "instagram.com",
+        "reddit.com",
+        "wikipedia.org",
+        "fountainpennetwork.com",
+        "facebook.com",
+        "medium.com",
+        "pinterest.com",
+        "flickr.com"
+      )
+    end
+  end
+
+  describe ".qualifying_hosts" do
+    include RSpec::Rails::MinitestAssertionAdapter
+    include ActiveSupport::Testing::Assertions
+    include ActiveRecord::Assertions::QueryAssertions
+
+    def approved_reviews(host, count, created_at: 1.month.ago, **attributes)
+      create_list(
+        :ink_review,
+        count,
+        approved_at: Time.current,
+        created_at:,
+        **attributes
+      ) { |r, i| r.update!(url: "https://#{host}/review-#{i}-#{SecureRandom.hex(4)}") }
+    end
+
+    it "returns hosts with at least three approved reviews" do
+      approved_reviews("three.test", 3)
+      approved_reviews("two.test", 2)
+
+      expect(described_class.qualifying_hosts).to eq(["three.test"])
+    end
+
+    it "requires one of the reviews to be less than two years old" do
+      approved_reviews("recent.test", 2, created_at: 3.years.ago)
+      approved_reviews("recent.test", 1, created_at: 23.months.ago)
+      approved_reviews("old.test", 3, created_at: 25.months.ago)
+
+      expect(described_class.qualifying_hosts).to eq(["recent.test"])
+    end
+
+    it "does not count unapproved reviews" do
+      approved_reviews("blog.test", 2)
+      create(:ink_review, url: "https://blog.test/queued")
+      create(:ink_review, url: "https://blog.test/rejected", rejected_at: Time.current)
+
+      expect(described_class.qualifying_hosts).to be_empty
+    end
+
+    it "does not count YouTube reviews" do
+      channel = create(:you_tube_channel)
+      approved_reviews("video.test", 3, you_tube_channel: channel)
+      approved_reviews("mixed.test", 2)
+      approved_reviews("mixed.test", 1, you_tube_channel: channel)
+
+      expect(described_class.qualifying_hosts).to be_empty
+    end
+
+    it "groups hosts by their normalised form" do
+      approved_reviews("www.blog.test", 1)
+      approved_reviews("Blog.test", 1)
+      approved_reviews("WWW.BLOG.TEST", 1)
+
+      expect(described_class.qualifying_hosts).to eq(["blog.test"])
+    end
+
+    it "keeps subdomains apart" do
+      approved_reviews("a.blog.test", 2)
+      approved_reviews("b.blog.test", 1)
+
+      expect(described_class.qualifying_hosts).to be_empty
+    end
+
+    it "excludes hosts that already have a feed in any state" do
+      approved_reviews("www.active.test", 3)
+      approved_reviews("ignored.test", 3)
+      approved_reviews("no-feed.test", 3)
+      approved_reviews("new.test", 3)
+      create(:review_feed, host: "active.test")
+      create(:review_feed, :ignored, host: "ignored.test")
+      create(:review_feed, :no_feed, host: "no-feed.test")
+
+      expect(described_class.qualifying_hosts).to eq(["new.test"])
+    end
+
+    it "excludes denylisted hosts and their subdomains" do
+      approved_reviews("www.youtube.com", 3)
+      approved_reviews("en.wikipedia.org", 3)
+      approved_reviews("blog.test", 3)
+
+      expect(described_class.qualifying_hosts).to eq(["blog.test"])
+    end
+
+    it "ignores reviews without a host" do
+      approved_reviews("blog.test", 3).each { |review| review.update_columns(host: nil) }
+
+      expect(described_class.qualifying_hosts).to be_empty
+    end
+
+    it "runs a single query" do
+      approved_reviews("a.test", 3)
+      approved_reviews("b.test", 3)
+      approved_reviews("www.youtube.com", 3)
+      create(:review_feed, host: "b.test")
+
+      hosts = nil
+      assert_queries_match(/SELECT/, count: 1) { hosts = described_class.qualifying_hosts }
+      expect(hosts).to eq(["a.test"])
+    end
+  end
+
+  describe ".due_for_rediscovery" do
+    it "returns no_feed rows that were never discovered" do
+      feed = create(:review_feed, :no_feed, discovered_at: nil)
+
+      expect(described_class.due_for_rediscovery).to eq([feed])
+    end
+
+    it "returns no_feed rows discovered more than 30 days ago" do
+      feed = create(:review_feed, :no_feed, discovered_at: 31.days.ago)
+
+      expect(described_class.due_for_rediscovery).to eq([feed])
+    end
+
+    it "skips no_feed rows discovered recently" do
+      create(:review_feed, :no_feed, discovered_at: 29.days.ago)
+
+      expect(described_class.due_for_rediscovery).to be_empty
+    end
+
+    it "skips rows in other states" do
+      create(:review_feed, discovered_at: nil)
+      create(:review_feed, :ignored, discovered_at: nil)
+      create(:review_feed, state: "duplicate", feed_url: nil, discovered_at: nil)
+
+      expect(described_class.due_for_rediscovery).to be_empty
     end
   end
 
