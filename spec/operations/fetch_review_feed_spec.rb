@@ -150,7 +150,7 @@ describe FetchReviewFeed do
     it "processes items published after the first fetch" do
       stub_feed(%w[First https://feed.test/first])
       described_class.new(review_feed).perform
-      stub_feed(%w[Second https://feed.test/second], %w[First https://feed.test/first])
+      stub_feed(["Second ink", "https://feed.test/second"], %w[First https://feed.test/first])
 
       described_class.new(review_feed).perform
 
@@ -165,6 +165,90 @@ describe FetchReviewFeed do
       described_class.new(review_feed).perform
 
       expect(review_feed.reload.back_catalog_imported).to be(false)
+    end
+  end
+
+  describe "pre-filter" do
+    let(:review_feed) { create(:review_feed, feed_url:, back_catalog_imported: true) }
+
+    it "creates a pending page for a matching item, enqueues it and records the match" do
+      create(:brand_cluster, name: "Diamine")
+      stub_feed(["Diamine Oxblood", "https://feed.test/oxblood"])
+
+      described_class.new(review_feed).perform
+
+      page = WebPageForReview.sole
+      expect(page).to have_attributes(state: "pending", review_feed:)
+      expect(page.data).to eq(
+        "search_term" => "Diamine Oxblood",
+        "filter_rule" => "brand",
+        "filter_text" => "Diamine"
+      )
+      expect(enqueued_page_ids).to eq([page.id])
+    end
+
+    it "records an item that does not match as filtered without enqueueing it" do
+      stub_feed(["My trip to Japan", "https://feed.test/japan"])
+
+      described_class.new(review_feed).perform
+
+      expect(WebPageForReview.sole).to have_attributes(
+        state: "filtered",
+        review_feed:,
+        data: {
+          "search_term" => "My trip to Japan"
+        }
+      )
+      expect(enqueued_page_ids).to be_empty
+    end
+
+    it "builds the filter once per run" do
+      allow(ReviewFeedFilter).to receive(:new).and_call_original
+      stub_feed(%w[Swatches https://feed.test/a], %w[Holiday https://feed.test/b])
+
+      described_class.new(review_feed).perform
+
+      expect(ReviewFeedFilter).to have_received(:new).once
+      expect(WebPageForReview.order(:url).pluck(:state)).to eq(%w[pending filtered])
+    end
+
+    it "does not build the filter when there is no new item" do
+      allow(ReviewFeedFilter).to receive(:new)
+      create_page("https://feed.test/old", state: "processed")
+      stub_feed(%w[Old https://feed.test/old])
+
+      described_class.new(review_feed).perform
+
+      expect(ReviewFeedFilter).not_to have_received(:new)
+    end
+
+    it "does not filter the items of a curated feed" do
+      review_feed.update!(curated: true)
+      allow(ReviewFeedFilter).to receive(:new)
+      stub_feed(["My trip to Japan", "https://feed.test/japan"])
+
+      described_class.new(review_feed).perform
+
+      page = WebPageForReview.sole
+      expect(page).to have_attributes(
+        state: "pending",
+        data: {
+          "search_term" => "My trip to Japan"
+        }
+      )
+      expect(enqueued_page_ids).to eq([page.id])
+      expect(ReviewFeedFilter).not_to have_received(:new)
+    end
+
+    it "skips the back catalog of a new feed without filtering it" do
+      review_feed.update!(back_catalog_imported: false)
+      allow(ReviewFeedFilter).to receive(:new)
+      stub_feed(["Diamine Oxblood", "https://feed.test/oxblood"])
+
+      described_class.new(review_feed).perform
+
+      expect(WebPageForReview.sole.state).to eq("skipped")
+      expect(ReviewFeedFilter).not_to have_received(:new)
     end
   end
 
