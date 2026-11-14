@@ -162,6 +162,41 @@ describe DiscoverFeed do
     expect(post_feed).not_to have_been_requested
   end
 
+  it "keeps the feed under the page the homepage redirected to" do
+    stub_redirect("https://blog.test/", "https://blog.test/blog/")
+    stub_ok("https://blog.test/blog/", html(link_tag("/blog/feed/")))
+    stub_ok("https://blog.test/blog/feed/", blog_rss)
+
+    expect(discover(sample_urls: [])).to eq("https://blog.test/blog/feed/")
+  end
+
+  it "keeps the feed under the redirected homepage when the sample page links none" do
+    stub_ok("https://blog.test/2026/ink-review", html)
+    stub_redirect("https://blog.test/", "https://blog.test/blog/")
+    stub_ok("https://blog.test/blog/", html(link_tag("/blog/feed/")))
+    stub_ok("https://blog.test/blog/feed/", blog_rss)
+
+    expect(discover).to eq("https://blog.test/blog/feed/")
+  end
+
+  it "ignores feed links that are not web URLs with a host" do
+    allow(SafeHttp).to receive(:get).and_call_original
+    stub_ok(
+      "https://blog.test/2026/ink-review",
+      html(
+        link_tag("mailto:feeds@blog.test"),
+        link_tag("https:///no-host.rss"),
+        link_tag("http://exa mple.test/feed"),
+        link_tag("/feed/")
+      )
+    )
+    stub_ok("https://blog.test/", html)
+    stub_ok("https://blog.test/feed/", blog_rss)
+
+    expect(discover).to eq("https://blog.test/feed/")
+    expect(SafeHttp).to have_received(:get).exactly(3).times
+  end
+
   it "prefers the feed linked from the sample page over the one on the homepage" do
     stub_ok("https://blog.test/2026/ink-review", html(link_tag("/feed/")))
     stub_ok("https://blog.test/", html(link_tag("/other.rss")))

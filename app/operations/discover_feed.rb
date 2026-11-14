@@ -10,7 +10,6 @@ class DiscoverFeed
     /index.xml
   ].freeze
   COMMENT_FEED_URL = %r{/comments\b|comments-(rss|atom)}i
-  HTTP_URL = %r{\Ahttps?://}i
   MAX_SAMPLE_URLS = 3
   MAX_FETCHES = 12
 
@@ -22,9 +21,9 @@ class DiscoverFeed
   end
 
   def perform
-    pages = page_urls.filter_map { |url| fetch(url) }
-    hosts = site_hosts(pages)
-    candidates = (pages.flat_map { |page| feed_links(page) } + fallback_urls).uniq
+    pages = page_urls.index_with { |url| fetch(url) }.compact
+    hosts = site_hosts(pages.values)
+    candidates = (linked_feeds(pages) + fallback_urls).uniq
     candidates.lazy.filter_map { |url| site_feed_url(url, hosts) }.first
   end
 
@@ -41,12 +40,8 @@ class DiscoverFeed
   end
 
   def site_root(url)
-    return if url.blank?
-
-    uri = URI(url)
-    URI.join(uri, "/").to_s if uri.is_a?(URI::HTTP) && uri.host.present?
-  rescue URI::Error
-    nil
+    uri = SafeHttp.parse_uri(url)
+    URI.join(uri, "/").to_s if uri
   end
 
   def site_hosts(pages)
@@ -66,6 +61,13 @@ class DiscoverFeed
     nil
   end
 
+  def linked_feeds(pages)
+    pages.flat_map do |url, page|
+      links = feed_links(page)
+      url == homepage_url ? links : links.reject { |link| under_page?(link, page) }
+    end
+  end
+
   def feed_links(page)
     Nokogiri
       .HTML(page.body)
@@ -74,7 +76,7 @@ class DiscoverFeed
         next unless feed_link?(link)
 
         url = absolute_url(link["href"], page.final_url)
-        url unless url.nil? || comment_feed?(url, link["title"]) || under_page?(url, page)
+        url unless url.nil? || comment_feed?(url, link["title"])
       end
   end
 
@@ -86,7 +88,7 @@ class DiscoverFeed
 
   def absolute_url(href, base_url)
     url = URI.join(base_url, href.strip).to_s
-    url if url.match?(HTTP_URL)
+    url if SafeHttp.parse_uri(url)
   rescue URI::Error
     nil
   end
