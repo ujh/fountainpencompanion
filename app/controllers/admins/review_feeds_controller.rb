@@ -2,7 +2,8 @@ class Admins::ReviewFeedsController < Admins::BaseController
   add_breadcrumb "Review feeds", :admins_review_feeds_path
 
   def index
-    @state = params[:state] if ReviewFeed::STATES.include?(params[:state])
+    @empty = params[:empty] == "1"
+    @state = params[:state] if !@empty && ReviewFeed::STATES.include?(params[:state])
     @review_feeds = filtered_feeds.order(:state, :host).to_a
     @page_counts = page_counts
     @review_counts = approved_review_counts
@@ -54,11 +55,20 @@ class Admins::ReviewFeedsController < Admins::BaseController
     else
       flash[:alert] = review_feed.errors.full_messages.to_sentence
     end
-    redirect_to admins_review_feeds_path(state: params[:filter_state].presence)
+    redirect_to admins_review_feeds_path(
+                  state: params[:filter_state].presence,
+                  empty: params[:filter_empty].presence
+                )
   end
 
   def filtered_feeds
-    @state ? ReviewFeed.where(state: @state) : ReviewFeed.all
+    if @empty
+      ReviewFeed.stale_empty
+    elsif @state
+      ReviewFeed.where(state: @state)
+    else
+      ReviewFeed.all
+    end
   end
 
   def page_counts

@@ -3,10 +3,12 @@
 div class="d-flex justify-content-between align-items-center mb-3"
   ul class="nav nav-pills"
     li class="nav-item"
-      = link_to "All", admins_review_feeds_path, class: ["nav-link", ("active" if @state.nil?)], "aria-current": ("page" if @state.nil?)
+      = link_to "All", admins_review_feeds_path, class: ["nav-link", ("active" if @state.nil? && !@empty)], "aria-current": ("page" if @state.nil? && !@empty)
     - ReviewFeed::STATES.each do |state|
       li class="nav-item"
         = link_to state, admins_review_feeds_path(state: state), class: ["nav-link", ("active" if state == @state)], "aria-current": ("page" if state == @state)
+    li class="nav-item"
+      = link_to "empty", admins_review_feeds_path(empty: 1), class: ["nav-link", ("active" if @empty)], "aria-current": ("page" if @empty)
   = link_to "New hand-picked feed", new_admins_review_feed_path, class: "btn btn-success"
 
 - if @review_feeds.empty?
@@ -22,6 +24,7 @@ div class="d-flex justify-content-between align-items-center mb-3"
           th Feed URL
           th Last fetched
           th Last attempted
+          th Empty since
           th Failures
           th Last error
           - WebPageForReview::STATES.each do |page_state|
@@ -40,6 +43,11 @@ div class="d-flex justify-content-between align-items-center mb-3"
             td= feed.last_fetched_at && l(feed.last_fetched_at, format: :short)
             td= feed.last_attempted_at && l(feed.last_attempted_at, format: :short)
             td
+              - if feed.stale_empty?
+                span class="badge text-bg-danger"= l(feed.empty_since, format: :short)
+              - elsif feed.empty_since
+                = l(feed.empty_since, format: :short)
+            td
               = feed.failure_count
               - if feed.first_failed_at
                 div class="small text-muted"= "since #{l(feed.first_failed_at, format: :short)}"
@@ -52,6 +60,6 @@ div class="d-flex justify-content-between align-items-center mb-3"
             td class="text-nowrap"
               = link_to "Edit", edit_admins_review_feed_path(feed), class: "btn btn-sm btn-outline-secondary me-1"
               - unless feed.state == "ignored"
-                = button_to "Ignore", ignore_admins_review_feed_path(feed), method: :patch, params: { filter_state: @state }, class: "btn btn-sm btn-outline-danger me-1", form: { class: "d-inline" }
+                = button_to "Ignore", ignore_admins_review_feed_path(feed), method: :patch, params: { filter_state: @state, filter_empty: (1 if @empty) }, class: "btn btn-sm btn-outline-danger me-1", form: { class: "d-inline" }
               - unless feed.state == "active"
-                = button_to "Re-enable", enable_admins_review_feed_path(feed), method: :patch, params: { filter_state: @state }, class: "btn btn-sm btn-outline-success", form: { class: "d-inline" }
+                = button_to "Re-enable", enable_admins_review_feed_path(feed), method: :patch, params: { filter_state: @state, filter_empty: (1 if @empty) }, class: "btn btn-sm btn-outline-success", form: { class: "d-inline" }

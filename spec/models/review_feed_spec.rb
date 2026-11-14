@@ -235,6 +235,48 @@ describe ReviewFeed do
     end
   end
 
+  describe "#stale_empty?" do
+    include ActiveSupport::Testing::TimeHelpers
+
+    before { freeze_time }
+
+    it "is false for a feed that is not empty" do
+      expect(build(:review_feed, empty_since: nil).stale_empty?).to be(false)
+    end
+
+    it "is false while the feed has been empty for at most EMPTY_AFTER" do
+      feed = build(:review_feed, empty_since: described_class::EMPTY_AFTER.ago)
+
+      expect(feed.stale_empty?).to be(false)
+    end
+
+    it "is true once the feed has been empty for longer than EMPTY_AFTER" do
+      feed = build(:review_feed, empty_since: (described_class::EMPTY_AFTER + 1.second).ago)
+
+      expect(feed.stale_empty?).to be(true)
+    end
+
+    it "is checked at the given time" do
+      feed = build(:review_feed, empty_since: 8.days.ago)
+
+      expect(feed.stale_empty?(2.days.ago)).to be(false)
+      expect(feed.stale_empty?(1.hour.from_now)).to be(true)
+    end
+  end
+
+  describe ".stale_empty" do
+    include ActiveSupport::Testing::TimeHelpers
+
+    it "returns the feeds empty for longer than EMPTY_AFTER" do
+      freeze_time
+      stale = create(:review_feed, empty_since: (described_class::EMPTY_AFTER + 1.second).ago)
+      create(:review_feed, empty_since: described_class::EMPTY_AFTER.ago)
+      create(:review_feed, empty_since: nil)
+
+      expect(described_class.stale_empty).to contain_exactly(stale)
+    end
+  end
+
   describe ".denylisted?" do
     it "is true for a denylisted host" do
       expect(described_class.denylisted?("youtube.com")).to be(true)
