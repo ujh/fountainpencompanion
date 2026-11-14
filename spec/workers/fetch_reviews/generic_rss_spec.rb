@@ -90,6 +90,15 @@ describe FetchReviews::GenericRss do
     expect(review_feed.reload.last_attempted_at).to be_nil
   end
 
+  it "does not fetch an ignored feed from a legacy job queued with its feed URL" do
+    review_feed.update!(state: "ignored")
+
+    described_class.new.perform(feed_url)
+
+    expect(a_request(:get, feed_url)).not_to have_been_made
+    expect(review_feed.reload.last_attempted_at).to be_nil
+  end
+
   it "fetches a failing feed" do
     review_feed.update!(state: "failing", first_failed_at: 4.days.ago, failure_count: 30)
     stub_feed(rss_feed)
