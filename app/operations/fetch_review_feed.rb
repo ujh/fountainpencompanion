@@ -40,7 +40,7 @@ class FetchReviewFeed
   end
 
   def skip_back_catalog(items)
-    existing = WebPageForReview.where(url: urls(items)).pluck(:url).to_set
+    existing = existing_page_urls(items)
     items
       .reject { |item| existing.include?(item[:url]) }
       .each { |item| create_page(item, "skipped") }
@@ -48,9 +48,12 @@ class FetchReviewFeed
   end
 
   def items_without_page_or_review(items)
-    known = WebPageForReview.where(url: urls(items)).pluck(:url).to_set
-    known.merge(InkReview.where(url: urls(items)).pluck(:url))
+    known = existing_page_urls(items).merge(InkReview.where(url: urls(items)).pluck(:url))
     items.reject { |item| known.include?(item[:url]) }
+  end
+
+  def existing_page_urls(items)
+    WebPageForReview.where(url: urls(items)).pluck(:url).to_set
   end
 
   def process(item)

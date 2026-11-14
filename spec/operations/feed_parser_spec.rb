@@ -141,6 +141,15 @@ describe FeedParser do
     )
   end
 
+  it "drops entries whose relative URL cannot be resolved" do
+    items = parse(rss(<<~XML))
+      <item><title>Broken</title><link>%zz</link></item>
+      <item><title>Fine</title><link>https://blog.test/fine</link></item>
+    XML
+
+    expect(items.map { |item| item[:title] }).to eq(["Fine"])
+  end
+
   it "keeps absolute entry URLs as they are" do
     items = parse(rss("<item><title>T</title><link>https://Other.test/Post?a=1</link></item>"))
 
