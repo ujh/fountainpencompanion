@@ -76,6 +76,7 @@ class ReviewFeed < ApplicationRecord
       .having("max(ink_reviews.created_at) > ?", QUALIFYING_RECENCY.ago)
       .order(InkReview::NORMALIZED_HOST)
       .pluck(InkReview::NORMALIZED_HOST)
+      .select { |host| normalize_host(host) == host }
       .reject { |host| denylisted?(host) }
   end
 

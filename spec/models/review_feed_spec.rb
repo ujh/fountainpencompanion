@@ -354,6 +354,13 @@ describe ReviewFeed do
       expect(described_class.qualifying_hosts).to eq(["blog.test"])
     end
 
+    it "ignores hosts that do not normalise to themselves" do
+      approved_reviews("blog.test", 3).each { |review| review.update_columns(host: "blog.test.") }
+      approved_reviews("fine.test", 3)
+
+      expect(described_class.qualifying_hosts).to eq(["fine.test"])
+    end
+
     it "ignores reviews without a host" do
       approved_reviews("blog.test", 3).each { |review| review.update_columns(host: nil) }
 

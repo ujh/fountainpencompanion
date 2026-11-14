@@ -30,7 +30,7 @@ class InkReview < ApplicationRecord
   scope :due_for_check, -> { approved.where("next_check_at <= ?", Time.zone.now) }
   scope :link_broken, -> { where("check_count > 0 AND check_count < ?", MAX_FAILED_CHECKS) }
   scope :link_removed, -> { where("check_count >= ?", MAX_FAILED_CHECKS) }
-  scope :with_normalized_host, ->(host) { where("#{NORMALIZED_HOST} = ?", host) }
+  scope :with_normalized_host, ->(host) { where(NORMALIZED_HOST.eq(host)) }
   scope :by_loves, -> { order(loves_count: :desc).order(Arel.sql("RANDOM()")) }
 
   def reject!
