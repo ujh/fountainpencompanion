@@ -16,6 +16,7 @@ class UpdateReviewFeed
 
   def apply_feed_url_change
     review_feed.back_catalog_imported = false
+    review_feed.empty_since = nil
     return if review_feed.feed_url.blank?
 
     review_feed.assign_attributes(state: "active", **ReviewFeed::FAILURE_RESET)

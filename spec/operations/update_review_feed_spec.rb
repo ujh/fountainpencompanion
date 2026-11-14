@@ -55,6 +55,23 @@ describe UpdateReviewFeed do
     end
   end
 
+  it "starts a new empty streak when the feed URL changes" do
+    feed = create(:review_feed, empty_since: 10.days.ago)
+
+    update(feed, { feed_url: "https://example.com/new-feed" })
+
+    expect(feed.reload.empty_since).to be_nil
+  end
+
+  it "keeps the empty streak when only curated changes" do
+    empty_since = 10.days.ago.round
+    feed = create(:review_feed, empty_since:)
+
+    update(feed, { feed_url: feed.feed_url, curated: "1" })
+
+    expect(feed.reload.empty_since).to eq(empty_since)
+  end
+
   it "keeps the failure streak when only curated changes" do
     feed =
       create(

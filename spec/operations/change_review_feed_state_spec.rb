@@ -88,10 +88,30 @@ describe ChangeReviewFeedState do
     end
 
     it "leaves an active feed as it is" do
-      feed = create(:review_feed, back_catalog_imported: true)
+      empty_since = 10.days.ago.round
+      feed = create(:review_feed, back_catalog_imported: true, empty_since:)
 
       expect(change_state(feed, enabled: true)).to be true
-      expect(feed.reload).to have_attributes(state: "active", back_catalog_imported: true)
+      expect(feed.reload).to have_attributes(
+        state: "active",
+        back_catalog_imported: true,
+        empty_since:
+      )
+    end
+
+    [
+      { state: "ignored" },
+      { state: "failing" },
+      { state: "duplicate", feed_url: nil },
+      { state: "no_feed", feed_url: nil }
+    ].each do |attributes|
+      url = attributes.key?(:feed_url) ? "without" : "with"
+      it "starts a new empty streak for a #{attributes[:state]} feed #{url} a feed URL" do
+        feed = create(:review_feed, **attributes, empty_since: 10.days.ago)
+
+        expect(change_state(feed, enabled: true)).to be true
+        expect(feed.reload.empty_since).to be_nil
+      end
     end
   end
 end

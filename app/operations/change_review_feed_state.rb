@@ -14,13 +14,17 @@ class ChangeReviewFeedState
 
   def enabled_attributes
     if review_feed.feed_url.blank?
-      { state: "no_feed", discovered_at: nil, **ReviewFeed::FAILURE_RESET }
+      { state: "no_feed", discovered_at: nil, **streak_reset }
     elsif review_feed.state == "active"
       {}
     elsif review_feed.failing?
-      { state: "active", **ReviewFeed::FAILURE_RESET }
+      { state: "active", **streak_reset }
     else
-      { state: "active", back_catalog_imported: false, **ReviewFeed::FAILURE_RESET }
+      { state: "active", back_catalog_imported: false, **streak_reset }
     end
+  end
+
+  def streak_reset
+    { **ReviewFeed::FAILURE_RESET, empty_since: nil }
   end
 end
