@@ -80,6 +80,8 @@ describe ReviewFeedFilter do
     it "matches multi-word brands with other whitespace or a typographic apostrophe" do
       expect(match(title: "De  Atramentis Document Black").text).to eq("De  Atramentis")
       expect(match(title: "Van Dieman’s Night Sky").text).to eq("Van Dieman’s")
+      expect(match(title: "De\u00A0Atramentis Document Black").text).to eq("De\u00A0Atramentis")
+      expect(match(title: "De\u2009Atramentis Document Black").text).to eq("De\u2009Atramentis")
     end
 
     it "prefers the longest brand name" do
@@ -99,9 +101,10 @@ describe ReviewFeedFilter do
     end
 
     it "ignores brand names shorter than three characters" do
-      filter = described_class.new(brand_names: %w[GP Fe Ñ])
+      filter = described_class.new(brand_names: %w[GP Fe Ñ KWZ])
 
       expect(filter.passes?(item(title: "GP and Fe at the shop"))).to be(false)
+      expect(filter.match(item(title: "KWZ Honey")).text).to eq("KWZ")
     end
 
     it "ignores brand names on the stoplist in any case" do
@@ -135,6 +138,16 @@ describe ReviewFeedFilter do
       )
       expect(filter.match(item(title: "Wearingeul Ophelia")).text).to eq("Wearingeul")
       expect(filter.passes?(item(title: "Unassigned Brand Ophelia"))).to be(false)
+    end
+
+    it "loads brand cluster names and macro cluster brand names independently" do
+      brand_cluster = create(:brand_cluster, name: "Kobe")
+      create(:macro_cluster, brand_cluster:, brand_name: "Nagasawa")
+
+      filter = described_class.new
+
+      expect(filter.match(item(title: "Kobe #51 Rokko Green")).text).to eq("Kobe")
+      expect(filter.match(item(title: "Nagasawa Sannomiya")).text).to eq("Nagasawa")
     end
 
     it "loads the brand names in two queries" do
@@ -184,6 +197,16 @@ describe ReviewFeedFilter do
     expect(passes?(title: nil)).to be(false)
     expect(passes?(title: "")).to be(false)
     expect(passes?(title: "\u0000")).to be(false)
+  end
+
+  it "only looks at the start of very long titles" do
+    expect(match(title: "Diamine #{"a" * 300_000}").text).to eq("Diamine")
+    expect(passes?(title: "#{"word " * 300} Diamine Oxblood")).to be(false)
+    expect(passes?(title: "#{"word " * 60_000} Diamine Oxblood")).to be(false)
+  end
+
+  it "only looks at the start of very long categories" do
+    expect(passes?(categories: ["#{"word " * 300} Inks"])).to be(false)
   end
 
   it "matches across NUL characters" do

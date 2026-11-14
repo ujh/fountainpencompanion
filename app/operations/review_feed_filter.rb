@@ -2,6 +2,7 @@ class ReviewFeedFilter
   Match = Data.define(:rule, :text)
 
   MIN_BRAND_LENGTH = 3
+  MAX_TEXT_LENGTH = 1000
 
   BRAND_STOPLIST = [
     "alchemy",
@@ -81,18 +82,22 @@ class ReviewFeedFilter
   attr_accessor :brand_pattern
 
   def category_match(categories)
-    category = Array(categories).find { |c| CATEGORY_WORD.match?(c.to_s) }
+    category = Array(categories).find { |c| CATEGORY_WORD.match?(truncate(c)) }
     Match.new(rule: :category, text: category) if category
   end
 
   def brand_match(title)
-    found = brand_pattern&.match(title.to_s)
+    found = brand_pattern&.match(truncate(title))
     Match.new(rule: :brand, text: found[0]) if found
   end
 
   def keyword_match(title)
-    found = TITLE_KEYWORD.match(title.to_s)
+    found = TITLE_KEYWORD.match(truncate(title))
     Match.new(rule: :keyword, text: found[1].downcase) if found
+  end
+
+  def truncate(text)
+    text.to_s[0, MAX_TEXT_LENGTH]
   end
 
   def build_brand_pattern(names)
@@ -110,7 +115,7 @@ class ReviewFeedFilter
   end
 
   def pattern_for(name)
-    Regexp.escape(name).gsub("\\ ", "\\s+").gsub(/['’]/, "['’]")
+    Regexp.escape(name).gsub("\\ ", "[[:space:]]+").gsub(/['’]/, "['’]")
   end
 
   def normalize(name)
