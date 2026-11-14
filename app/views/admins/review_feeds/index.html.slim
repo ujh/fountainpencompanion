@@ -3,10 +3,10 @@
 div class="d-flex justify-content-between align-items-center mb-3"
   ul class="nav nav-pills"
     li class="nav-item"
-      = link_to "All", admins_review_feeds_path, class: ["nav-link", ("active" if @state.nil?)]
+      = link_to "All", admins_review_feeds_path, class: ["nav-link", ("active" if @state.nil?)], "aria-current": ("page" if @state.nil?)
     - ReviewFeed::STATES.each do |state|
       li class="nav-item"
-        = link_to state, admins_review_feeds_path(state: state), class: ["nav-link", ("active" if state == @state)]
+        = link_to state, admins_review_feeds_path(state: state), class: ["nav-link", ("active" if state == @state)], "aria-current": ("page" if state == @state)
   = link_to "New hand-picked feed", new_admins_review_feed_path, class: "btn btn-success"
 
 - if @review_feeds.empty?

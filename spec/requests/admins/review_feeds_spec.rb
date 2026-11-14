@@ -94,6 +94,13 @@ describe "Admins::ReviewFeeds" do
         expect(response.body).not_to include("inkblog.example.com")
       end
 
+      it "marks the selected state filter as the current page" do
+        get "/admins/review_feeds", params: { state: "ignored" }
+
+        current = Nokogiri.HTML(response.body).css(".nav-pills a[aria-current='page']")
+        expect(current.map(&:text)).to eq(["ignored"])
+      end
+
       it "lists every feed for an unknown state" do
         create(:review_feed, :ignored, host: "shop.example.com")
 
