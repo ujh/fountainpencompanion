@@ -14,4 +14,11 @@ module InkReviewsHelper
 
     user.admin? ? "System" : user.public_name
   end
+
+  def ignore_review_source_data(ink_review)
+    feed = IgnoreReviewSource.new(ink_review).curated_feed
+    return {} if feed.nil?
+
+    { confirm: "This switches off the hand-picked feed of #{feed.host}. Continue?" }
+  end
 end

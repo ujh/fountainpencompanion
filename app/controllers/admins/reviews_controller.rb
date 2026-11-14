@@ -9,10 +9,9 @@ class Admins::ReviewsController < Admins::BaseController
 
   def destroy
     @ink_review = InkReview.find(params[:id])
-    @ink_review.reject!
-    if params[:ignore_youtube_channel] && @ink_review.you_tube_channel.present?
-      @ink_review.you_tube_channel.update(ignored: true)
-    end
+    rejection = RejectInkReview.new(@ink_review, ignore_source: params[:ignore_source].present?)
+    rejection.perform
+    flash[:alert] = "Rejected; no source to ignore" if rejection.nothing_to_ignore?
     redirect_after_change
   end
 
