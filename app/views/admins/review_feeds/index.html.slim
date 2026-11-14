@@ -1,0 +1,57 @@
+- content_for :title, "Review feeds"
+
+div class="d-flex justify-content-between align-items-center mb-3"
+  ul class="nav nav-pills"
+    li class="nav-item"
+      = link_to "All", admins_review_feeds_path, class: ["nav-link", ("active" if @state.nil?)]
+    - ReviewFeed::STATES.each do |state|
+      li class="nav-item"
+        = link_to state, admins_review_feeds_path(state: state), class: ["nav-link", ("active" if state == @state)]
+  = link_to "New hand-picked feed", new_admins_review_feed_path, class: "btn btn-success"
+
+- if @review_feeds.empty?
+  p class="text-muted" No feeds.
+- else
+  div class="table-responsive"
+    table class="table table-striped table-sm align-middle"
+      thead
+        tr
+          th Host
+          th State
+          th Curated
+          th Feed URL
+          th Last fetched
+          th Last attempted
+          th Failures
+          th Last error
+          - Admins::ReviewFeedsController::PAGE_STATES.each do |page_state|
+            th= page_state.capitalize
+          th Approved reviews
+          th
+      tbody
+        - @review_feeds.each do |feed|
+          tr id=dom_id(feed)
+            td= feed.host
+            td= feed.state
+            td= feed.curated ? "yes" : "no"
+            td
+              - if feed.feed_url.present?
+                = ink_review_link truncate(feed.feed_url, length: 60), feed.feed_url, target: "_blank"
+            td= feed.last_fetched_at && l(feed.last_fetched_at, format: :short)
+            td= feed.last_attempted_at && l(feed.last_attempted_at, format: :short)
+            td
+              = feed.failure_count
+              - if feed.first_failed_at
+                div class="small text-muted"= "since #{l(feed.first_failed_at, format: :short)}"
+            td
+              - if feed.last_error.present?
+                span title=feed.last_error = truncate(feed.last_error, length: 80)
+            - Admins::ReviewFeedsController::PAGE_STATES.each do |page_state|
+              td= @page_counts.fetch([feed.id, page_state], 0)
+            td= @review_counts.fetch(feed.host, 0)
+            td class="text-nowrap"
+              = link_to "Edit", edit_admins_review_feed_path(feed), class: "btn btn-sm btn-outline-secondary me-1"
+              - unless feed.state == "ignored"
+                = button_to "Ignore", ignore_admins_review_feed_path(feed), method: :patch, params: { filter_state: @state }, class: "btn btn-sm btn-outline-danger me-1", form: { class: "d-inline" }
+              - unless feed.state == "active"
+                = button_to "Re-enable", enable_admins_review_feed_path(feed), method: :patch, params: { filter_state: @state }, class: "btn btn-sm btn-outline-success", form: { class: "d-inline" }

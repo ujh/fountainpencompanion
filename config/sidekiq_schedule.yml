@@ -37,3 +37,6 @@ enqueue_ink_review_checks:
 sync_patreon_patrons:
   cron: "0 4 * * *" # Every day at 4am
   class: SyncPatreonPatrons
+discover_review_feeds:
+  cron: "20 3 * * *" # Every day at 3:20am
+  class: DiscoverReviewFeeds

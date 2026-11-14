@@ -1,0 +1,3 @@
+- content_for :title, "Edit feed for #{@review_feed.host}"
+
+= render partial: "form", locals: { review_feed: @review_feed }

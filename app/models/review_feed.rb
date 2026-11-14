@@ -2,6 +2,7 @@ class ReviewFeed < ApplicationRecord
   STATES = %w[active no_feed ignored failing duplicate].freeze
   FETCHABLE_STATES = %w[active failing].freeze
   FAILING_AFTER = 3.days
+  FAILURE_RESET = { failure_count: 0, first_failed_at: nil, last_error: nil }.freeze
   HOST_FORMAT = /\A[a-z0-9_-]+(\.[a-z0-9_-]+)*\z/
   SCHEME_PREFIX = %r{\A[a-z][a-z0-9+.-]*://}i
   AUTHORITY = %r{\A[a-z][a-z0-9+.-]*://[^/?#]+}i
@@ -27,7 +28,9 @@ class ReviewFeed < ApplicationRecord
 
   has_many :web_page_for_reviews, dependent: :nullify
 
-  before_validation :normalize_host_attribute, :normalize_feed_url
+  normalizes :feed_url, with: ->(url) { url.strip.presence }
+
+  before_validation :normalize_host_attribute
 
   validates :state, inclusion: { in: STATES }
   validates :host, presence: true, uniqueness: true
@@ -102,10 +105,6 @@ class ReviewFeed < ApplicationRecord
 
   def normalize_host_attribute
     self.host = self.class.normalize_host(host) || host
-  end
-
-  def normalize_feed_url
-    self.feed_url = feed_url.to_s.strip.presence
   end
 
   def fetchable_state?

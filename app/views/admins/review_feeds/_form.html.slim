@@ -1,0 +1,13 @@
+= simple_form_for [:admins, review_feed] do |f|
+  = f.error_notification
+  - if review_feed.new_record?
+    = f.input :host, hint: "The site's host, e.g. example.com (a leading www. is dropped)"
+  - else
+    p
+      strong Host:
+      = " #{review_feed.host} (#{review_feed.state})"
+  = f.input :feed_url, label: "Feed URL", as: :string
+  - unless review_feed.new_record?
+    = f.input :curated, as: :boolean, label: "Hand-picked: fetch hourly, no pre-filter"
+  = f.submit class: "btn btn-success me-2"
+  = link_to "Cancel", admins_review_feeds_path, class: "btn btn-secondary"
