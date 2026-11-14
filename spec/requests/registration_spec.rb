@@ -112,6 +112,16 @@ describe "sign up" do
         body: hash_including("remoteip" => "203.0.113.55")
       )
     end
+
+    it "identifies the app to hCaptcha" do
+      post "/users", params: full_params
+
+      expect(WebMock).to have_requested(:post, "https://api.hcaptcha.com/siteverify").with(
+        headers: {
+          "User-Agent" => Fountainpencompanion::USER_AGENT
+        }
+      )
+    end
   end
 
   context "captcha fails (hCaptcha returns success: false)" do

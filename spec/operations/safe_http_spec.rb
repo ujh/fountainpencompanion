@@ -179,6 +179,48 @@ describe SafeHttp do
       expect(SafeHttp.get("http://public.test/").body).to eq("ok")
     end
 
+    it "identifies the app in the User-Agent header" do
+      stub_resolv("public.test", ["93.184.216.34"])
+      stub_request(:get, "http://public.test/").with(
+        headers: {
+          "User-Agent" => Fountainpencompanion::USER_AGENT
+        }
+      ).to_return(status: 200, body: "ok")
+
+      expect(SafeHttp.get("http://public.test/").body).to eq("ok")
+    end
+
+    it "keeps the User-Agent header on a cross-origin redirect" do
+      stub_resolv("first.test", ["93.184.216.34"])
+      stub_resolv("second.test", ["93.184.216.35"])
+      stub_request(:get, "http://first.test/").to_return(
+        status: 302,
+        headers: {
+          "Location" => "http://second.test/x"
+        }
+      )
+      stub_request(:get, "http://second.test/x").with(
+        headers: {
+          "User-Agent" => Fountainpencompanion::USER_AGENT
+        }
+      ).to_return(status: 200, body: "redirected")
+
+      expect(SafeHttp.get("http://first.test/").body).to eq("redirected")
+    end
+
+    it "lets the caller override the User-Agent header" do
+      stub_resolv("public.test", ["93.184.216.34"])
+      stub_request(:get, "http://public.test/").with(
+        headers: {
+          "User-Agent" => "Custom/2.0"
+        }
+      ).to_return(status: 200, body: "ok")
+
+      response = SafeHttp.get("http://public.test/", headers: { "User-Agent" => "Custom/2.0" })
+
+      expect(response.body).to eq("ok")
+    end
+
     it "enforces a total deadline across the whole fetch" do
       stub_const("SafeHttp::TOTAL_TIMEOUT", 0.2)
       stub_resolv("slow.test", ["8.8.8.8"])
@@ -293,6 +335,17 @@ describe SafeHttp do
       response = SafeHttp.head("http://public.test/img.png")
       expect(response.status).to eq(200)
       expect(response.headers["content-type"]).to eq("image/png")
+    end
+
+    it "identifies the app in the User-Agent header" do
+      stub_resolv("public.test", ["8.8.8.8"])
+      stub_request(:head, "http://public.test/img.png").with(
+        headers: {
+          "User-Agent" => Fountainpencompanion::USER_AGENT
+        }
+      ).to_return(status: 200)
+
+      expect(SafeHttp.head("http://public.test/img.png").status).to eq(200)
     end
   end
 end

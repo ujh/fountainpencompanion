@@ -22,6 +22,8 @@ Bundler.require(*Rails.groups)
 require_relative "../lib/fly_client_ip"
 
 module Fountainpencompanion
+  USER_AGENT = "FountainPenCompanion/1.0 (+https://www.fountainpencompanion.com)"
+
   class Application < Rails::Application
     # Initialize configuration defaults for originally generated Rails version.
     config.load_defaults 8.0

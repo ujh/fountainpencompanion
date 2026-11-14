@@ -27,6 +27,20 @@ RSpec.describe Unfurler::Youtube::Captions do
     expect(result).to eq("Today we review Pilot Iroshizuku Tsuki-yo & its sheen")
   end
 
+  it "identifies the app in the User-Agent header" do
+    stub_request(:get, "https://www.youtube.com/api/timedtext").with(
+      query: {
+        lang: "en",
+        v: video_id
+      },
+      headers: {
+        "User-Agent" => Fountainpencompanion::USER_AGENT
+      }
+    ).to_return(status: 200, body: sample_track)
+
+    expect(described_class.new(video_id).fetch).to include("Pilot Iroshizuku")
+  end
+
   it "falls back to en-US when en returns empty body" do
     stub_timedtext({ lang: "en" }, status: 200, body: "")
     stub_timedtext({ lang: "en-US" }, status: 200, body: sample_track)

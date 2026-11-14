@@ -36,4 +36,16 @@ RSpec.describe Unfurler::Youtube do
 
     expect(result.youtube[:tags]).to eq([])
   end
+
+  it "identifies the app when checking whether the video is a Short" do
+    stub_request(:get, "https://www.youtube.com/shorts/#{video_id}").with(
+      headers: {
+        "User-Agent" => Fountainpencompanion::USER_AGENT
+      }
+    ).to_return(status: 200)
+    client = double(:client, list_videos: double(:r, items: [build_video(tags: nil)]))
+    allow_any_instance_of(described_class).to receive(:client).and_return(client)
+
+    expect(described_class.new(video_id).perform.is_youtube_short).to be(true)
+  end
 end
