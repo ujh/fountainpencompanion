@@ -64,6 +64,10 @@ describe "Admins::Reviews" do
           Nokogiri.HTML(response.body).at_css("a[data-shortcut='#{shortcut}']")
         end
 
+        def ignore_source_link
+          Nokogiri.HTML(response.body).at_css("a[href*='ignore_source=true']")
+        end
+
         context "when the agent approved the review" do
           let!(:ink_review) { create(:ink_review, approved_at: Time.current, agent_approved: true) }
 
@@ -111,11 +115,61 @@ describe "Admins::Reviews" do
             expect(link["href"]).to start_with("/admins/reviews/#{ink_review.id}")
           end
 
-          it "offers to keep the rejection and ignore the channel" do
+          it "offers to keep the rejection and ignore the source" do
             get "/admins/reviews"
-            link = Nokogiri.HTML(response.body).at_css("a[href*='ignore_youtube_channel=true']")
-            expect(link.text).to eq("Approve rejection AND ignore channel")
+            link = ignore_source_link
+            expect(link.text).to eq("Approve rejection AND ignore source")
             expect(link["data-method"]).to eq("delete")
+            expect(link["href"]).to start_with("/admins/reviews/#{ink_review.id}")
+            expect(link["data-confirm"]).to be_nil
+          end
+        end
+
+        context "when the review has neither a channel nor a host to ignore" do
+          let!(:ink_review) do
+            create(
+              :ink_review,
+              url: "https://www.youtube.com/watch?v=abc",
+              approved_at: Time.current,
+              agent_approved: true
+            )
+          end
+
+          it "still offers to reject and ignore the source" do
+            get "/admins/reviews"
+            link = ignore_source_link
+            expect(link.text).to eq("Reject AND ignore source")
+            expect(link["data-method"]).to eq("delete")
+            expect(link["data-confirm"]).to be_nil
+          end
+        end
+
+        context "when the source is a feed" do
+          let!(:ink_review) do
+            create(
+              :ink_review,
+              url: "https://www.mountainofink.com/a-review",
+              approved_at: Time.current,
+              agent_approved: true
+            )
+          end
+
+          it "asks for confirmation before ignoring an active curated feed" do
+            create(:review_feed, :curated, host: "mountainofink.com")
+            get "/admins/reviews"
+            expect(ignore_source_link["data-confirm"]).to include("mountainofink.com")
+          end
+
+          it "does not ask for confirmation for a discovered feed" do
+            create(:review_feed, host: "mountainofink.com")
+            get "/admins/reviews"
+            expect(ignore_source_link["data-confirm"]).to be_nil
+          end
+
+          it "does not ask for confirmation for an ignored curated feed" do
+            create(:review_feed, :curated, host: "mountainofink.com", state: "ignored")
+            get "/admins/reviews"
+            expect(ignore_source_link["data-confirm"]).to be_nil
           end
         end
       end
@@ -338,6 +392,15 @@ describe "Admins::Reviews" do
       expect(response).to redirect_to(new_user_session_path)
     end
 
+    it "does not reject or ignore anything for a non-admin" do
+      sign_in(create(:user))
+
+      delete "/admins/reviews/#{ink_review.id}?ignore_source=true"
+
+      expect(ink_review.reload).not_to be_rejected
+      expect(ReviewFeed.count).to eq(0)
+    end
+
     context "signed in" do
       before(:each) { sign_in(admin) }
 
@@ -347,15 +410,49 @@ describe "Admins::Reviews" do
         }.from(false).to(true)
       end
 
-      it "ignores the YouTube channel when rejecting a review with ignore_youtube_channel param" do
+      it "leaves the source alone without ignore_source" do
+        youtube_channel = create(:you_tube_channel, ignored: false)
+        ink_review_with_channel = create(:ink_review, you_tube_channel: youtube_channel)
+
+        delete "/admins/reviews/#{ink_review_with_channel.id}"
+
+        expect(ink_review_with_channel.reload).to be_rejected
+        expect(youtube_channel.reload).not_to be_ignored
+        expect(flash[:alert]).to be_nil
+      end
+
+      it "ignores the YouTube channel of a YouTube review with ignore_source" do
         youtube_channel = create(:you_tube_channel, ignored: false)
         ink_review_with_channel = create(:ink_review, you_tube_channel: youtube_channel)
 
         expect do
-          delete "/admins/reviews/#{ink_review_with_channel.id}?ignore_youtube_channel=true"
+          delete "/admins/reviews/#{ink_review_with_channel.id}?ignore_source=true"
         end.to change { youtube_channel.reload.ignored? }.from(false).to(true)
 
         expect(ink_review_with_channel.reload.rejected?).to be true
+        expect(flash[:alert]).to be_nil
+      end
+
+      it "ignores the feed of a blog review with ignore_source" do
+        blog_review = create(:ink_review, url: "https://www.blog.example.com/a-review")
+
+        delete "/admins/reviews/#{blog_review.id}?ignore_source=true&page=3"
+
+        expect(blog_review.reload).to be_rejected
+        expect(ReviewFeed.find_by(host: "blog.example.com").state).to eq("ignored")
+        expect(flash[:alert]).to be_nil
+        expect(response).to redirect_to("/admins/reviews?page=3")
+      end
+
+      it "rejects and says so when there is no source to ignore" do
+        old_youtube_review = create(:ink_review, url: "https://www.youtube.com/watch?v=abc")
+
+        delete "/admins/reviews/#{old_youtube_review.id}?ignore_source=true"
+
+        expect(old_youtube_review.reload).to be_rejected
+        expect(ReviewFeed.count).to eq(0)
+        expect(flash[:alert]).to eq("Rejected; no source to ignore")
+        expect(response).to redirect_to("/admins/reviews")
       end
     end
   end

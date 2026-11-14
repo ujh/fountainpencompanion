@@ -1,0 +1,5 @@
+- content_for :title, "New hand-picked feed"
+
+p class="text-muted" Hand-picked feeds are fetched hourly without the pre-filter. Posts already in the feed are skipped on the first fetch.
+
+= render partial: "form", locals: { review_feed: @review_feed }

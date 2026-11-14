@@ -186,6 +186,12 @@ Rails.application.routes.draw do
         member { post "add" }
       end
     end
+    resources :review_feeds, only: %i[index new create edit update] do
+      member do
+        patch "ignore"
+        patch "enable"
+      end
+    end
     namespace :descriptions do
       resources :brands, only: [:index]
       resources :inks, only: [:index]

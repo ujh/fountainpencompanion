@@ -2,6 +2,7 @@ class ReviewFeed < ApplicationRecord
   STATES = %w[active no_feed ignored failing duplicate].freeze
   FETCHABLE_STATES = %w[active failing].freeze
   FAILING_AFTER = 3.days
+  FAILURE_RESET = { failure_count: 0, first_failed_at: nil, last_error: nil }.freeze
   HOST_FORMAT = /\A[a-z0-9_-]+(\.[a-z0-9_-]+)*\z/
   SCHEME_PREFIX = %r{\A[a-z][a-z0-9+.-]*://}i
   AUTHORITY = %r{\A[a-z][a-z0-9+.-]*://[^/?#]+}i
@@ -27,13 +28,16 @@ class ReviewFeed < ApplicationRecord
 
   has_many :web_page_for_reviews, dependent: :nullify
 
-  before_validation :normalize_host_attribute, :normalize_feed_url
+  normalizes :feed_url, with: ->(url) { url.strip.presence }
+
+  before_validation :normalize_host_attribute
 
   validates :state, inclusion: { in: STATES }
   validates :host, presence: true, uniqueness: true
   validates :host, format: { with: HOST_FORMAT }, allow_blank: true
   validates :feed_url, uniqueness: { allow_nil: true }
   validates :feed_url, presence: true, if: :fetchable_state?
+  validate :feed_url_is_http_url
 
   scope :fetchable, -> { where(state: FETCHABLE_STATES).where.not(feed_url: nil) }
   scope :due_for_rediscovery,
@@ -84,6 +88,10 @@ class ReviewFeed < ApplicationRecord
     state == "no_feed" && (discovered_at.nil? || discovered_at < REDISCOVER_AFTER.ago)
   end
 
+  def fetchable_state?
+    FETCHABLE_STATES.include?(state)
+  end
+
   def failing?
     state == "failing"
   end
@@ -104,11 +112,9 @@ class ReviewFeed < ApplicationRecord
     self.host = self.class.normalize_host(host) || host
   end
 
-  def normalize_feed_url
-    self.feed_url = feed_url.to_s.strip.presence
-  end
+  def feed_url_is_http_url
+    return if feed_url.nil? || SafeHttp.parse_uri(feed_url)
 
-  def fetchable_state?
-    FETCHABLE_STATES.include?(state)
+    errors.add(:feed_url, "must be an http(s) URL with a host")
   end
 end
