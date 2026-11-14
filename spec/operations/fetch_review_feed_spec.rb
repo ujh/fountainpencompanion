@@ -323,6 +323,7 @@ describe FetchReviewFeed do
     it "starts an empty streak on a successful fetch without items" do
       fetch_at(start)
 
+      expect(review_feed.empty_since).to eq(start)
       expect(review_feed.reload.empty_since).to eq(start)
     end
 
@@ -427,15 +428,33 @@ describe FetchReviewFeed do
       expect(notified_at).to be_empty
     end
 
-    describe "admin changes during the fetch that crosses EMPTY_AFTER" do
-      def fetch_changing(time, **changes)
-        stub_request(:get, feed_url).to_return do
-          ReviewFeed.where(id: review_feed.id).update_all(changes)
-          { status: 200, body: rss }
-        end
-        travel_to(time) { described_class.new(review_feed.reload).perform }
+    def fetch_changing(time, **changes)
+      stub_request(:get, feed_url).to_return do
+        ReviewFeed.where(id: review_feed.id).update_all(changes)
+        { status: 200, body: rss }
       end
+      travel_to(time) { described_class.new(review_feed.reload).perform }
+    end
 
+    it "does not start a streak for a feed whose URL changed during the fetch" do
+      fetch_changing(start, feed_url: "https://feed.test/new", empty_since: nil)
+
+      expect(review_feed.empty_since).to be_nil
+      expect(review_feed.reload).to have_attributes(
+        feed_url: "https://feed.test/new",
+        empty_since: nil
+      )
+    end
+
+    it "keeps a streak reset during the fetch" do
+      review_feed.update!(empty_since: start)
+
+      fetch_changing(start + 2.days, empty_since: nil)
+
+      expect(review_feed.reload.empty_since).to be_nil
+    end
+
+    describe "admin changes during the fetch that crosses EMPTY_AFTER" do
       before { fetch_at(start) }
 
       it "does not notify for a feed ignored meanwhile" do

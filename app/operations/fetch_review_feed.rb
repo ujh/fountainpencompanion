@@ -93,12 +93,19 @@ class FetchReviewFeed
   def record_success(items)
     transition_state(from: "failing", to: "active")
     previous_fetch_at = review_feed.last_fetched_at
-    review_feed.update!(
-      **ReviewFeed::FAILURE_RESET,
-      last_fetched_at: Time.current,
-      empty_since: items.empty? ? (review_feed.empty_since || Time.current) : nil
-    )
+    review_feed.update!(**ReviewFeed::FAILURE_RESET, last_fetched_at: Time.current)
+    record_empty_since(items.empty? ? (review_feed.empty_since || Time.current) : nil)
     notify_empty if newly_stale_empty?(previous_fetch_at) && unchanged_during_fetch?
+  end
+
+  def record_empty_since(empty_since)
+    updated =
+      ReviewFeed.where(
+        id: review_feed.id,
+        feed_url: review_feed.feed_url,
+        empty_since: review_feed.empty_since
+      ).update_all(empty_since:)
+    review_feed.empty_since = empty_since if updated == 1
   end
 
   def newly_stale_empty?(previous_fetch_at)

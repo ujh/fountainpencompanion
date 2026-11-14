@@ -130,6 +130,18 @@ describe "Admins::ReviewFeeds" do
           expect(current.map(&:text)).to eq(["empty"])
         end
 
+        it "applies only the empty filter when a state is given too" do
+          feed.update!(empty_since: (ReviewFeed::EMPTY_AFTER + 1.hour).ago)
+          create(:review_feed, :ignored, host: "shop.example.com")
+
+          get "/admins/review_feeds", params: { state: "ignored", empty: "1" }
+
+          expect(response.body).to include("inkblog.example.com")
+          expect(response.body).not_to include("shop.example.com")
+          current = Nokogiri.HTML(response.body).css(".nav-pills a[aria-current='page']")
+          expect(current.map(&:text)).to eq(["empty"])
+        end
+
         it "returns to the empty feeds after a state change" do
           feed.update!(empty_since: (ReviewFeed::EMPTY_AFTER + 1.hour).ago)
 
