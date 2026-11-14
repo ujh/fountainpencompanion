@@ -318,6 +318,18 @@ describe "Admins::ReviewFeeds" do
         expect(feed.reload).to have_attributes(state: "active", back_catalog_imported: false)
       end
 
+      it "reports why a feed could not be re-enabled" do
+        feed.update!(state: "ignored")
+        feed.update_column(:feed_url, "inkblog.example.com/feed")
+
+        patch "/admins/review_feeds/#{feed.id}/enable", params: { filter_state: "ignored" }
+
+        expect(response).to redirect_to(admins_review_feeds_path(state: "ignored"))
+        expect(flash[:alert]).to eq("Feed url must be an http(s) URL with a host")
+        expect(flash[:notice]).to be_nil
+        expect(feed.reload.state).to eq("ignored")
+      end
+
       it "queues a feed without a URL for discovery" do
         ignored = create(:review_feed, :ignored, discovered_at: 1.day.ago)
 

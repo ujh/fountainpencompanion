@@ -24,7 +24,7 @@ div class="d-flex justify-content-between align-items-center mb-3"
           th Last attempted
           th Failures
           th Last error
-          - Admins::ReviewFeedsController::PAGE_STATES.each do |page_state|
+          - WebPageForReview::STATES.each do |page_state|
             th= page_state.capitalize
           th Approved reviews
           th
@@ -46,7 +46,7 @@ div class="d-flex justify-content-between align-items-center mb-3"
             td
               - if feed.last_error.present?
                 span title=feed.last_error = truncate(feed.last_error, length: 80)
-            - Admins::ReviewFeedsController::PAGE_STATES.each do |page_state|
+            - WebPageForReview::STATES.each do |page_state|
               td= @page_counts.fetch([feed.id, page_state], 0)
             td= @review_counts.fetch(feed.host, 0)
             td class="text-nowrap"

@@ -13,10 +13,6 @@ class RejectInkReview
     true
   end
 
-  def source_ignored?
-    source_ignored
-  end
-
   def nothing_to_ignore?
     ignore_source && !source_ignored
   end

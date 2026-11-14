@@ -92,12 +92,7 @@ class FetchReviewFeed
 
   def record_success
     transition_state(from: "failing", to: "active")
-    review_feed.update!(
-      failure_count: 0,
-      first_failed_at: nil,
-      last_error: nil,
-      last_fetched_at: Time.current
-    )
+    review_feed.update!(**ReviewFeed::FAILURE_RESET, last_fetched_at: Time.current)
   end
 
   def record_failure(error)

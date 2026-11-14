@@ -88,6 +88,10 @@ class ReviewFeed < ApplicationRecord
     state == "no_feed" && (discovered_at.nil? || discovered_at < REDISCOVER_AFTER.ago)
   end
 
+  def fetchable_state?
+    FETCHABLE_STATES.include?(state)
+  end
+
   def failing?
     state == "failing"
   end
@@ -112,9 +116,5 @@ class ReviewFeed < ApplicationRecord
     return if feed_url.nil? || SafeHttp.parse_uri(feed_url)
 
     errors.add(:feed_url, "must be an http(s) URL with a host")
-  end
-
-  def fetchable_state?
-    FETCHABLE_STATES.include?(state)
   end
 end

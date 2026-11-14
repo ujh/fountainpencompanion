@@ -1,6 +1,4 @@
 class Admins::ReviewFeedsController < Admins::BaseController
-  PAGE_STATES = %w[pending processed skipped filtered].freeze
-
   add_breadcrumb "Review feeds", :admins_review_feeds_path
 
   def index

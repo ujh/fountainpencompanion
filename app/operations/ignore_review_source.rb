@@ -23,7 +23,7 @@ class IgnoreReviewSource
     source = self.source
     return unless source.is_a?(ReviewFeed) && source.curated
 
-    source if ReviewFeed::FETCHABLE_STATES.include?(source.state)
+    source if source.fetchable_state?
   end
 
   private

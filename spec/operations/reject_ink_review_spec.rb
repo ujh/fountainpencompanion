@@ -16,7 +16,6 @@ describe RejectInkReview do
     rejection.perform
 
     expect(ReviewFeed.count).to eq(0)
-    expect(rejection).not_to be_source_ignored
     expect(rejection).not_to be_nothing_to_ignore
   end
 
@@ -26,7 +25,6 @@ describe RejectInkReview do
     expect(rejection.perform).to be true
     expect(ink_review.reload).to be_rejected
     expect(ReviewFeed.find_by(host: "blog.example.com").state).to eq("ignored")
-    expect(rejection).to be_source_ignored
     expect(rejection).not_to be_nothing_to_ignore
   end
 
@@ -36,7 +34,6 @@ describe RejectInkReview do
 
     expect(rejection.perform).to be true
     expect(ink_review.reload).to be_rejected
-    expect(rejection).not_to be_source_ignored
     expect(rejection).to be_nothing_to_ignore
   end
 
