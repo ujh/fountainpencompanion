@@ -92,15 +92,33 @@ RSpec.describe PenAndInkSuggester do
     end
 
     it "sends refs and compact rows, but no database ids" do
-      stub_pick
+      other_user = create(:user)
+      create(
+        :collected_pen,
+        user: other_user,
+        brand: "Pilot",
+        model: "Custom 74",
+        color: "Smoke",
+        nib: "M"
+      )
+      create(
+        :collected_ink,
+        user: other_user,
+        brand_name: "Pilot",
+        ink_name: "Kon-peki",
+        kind: "bottle"
+      )
+      captured = capture_requests(completion(tool_calls: [record_call]))
 
       described_class.new(user).perform
+      described_class.new(other_user).perform
 
-      user_message = message_content(requests.first, "user")
+      expect(captured.length).to eq(2)
+      user_message, other_user_message = captured.map { |body| message_content(body, "user") }
       expect(user_message).to include("PENS (1 of 1 uninked)\nP1 | Pilot Custom 74, Smoke")
       expect(user_message).to include("INKS (1 of 1)\nI1 | Pilot Kon-peki | bottle")
       expect(user_message).to include("CURRENTLY INKED (0)")
-      expect(user_message).not_to match(/\b(#{pen.id}|#{ink.id})\b/)
+      expect(other_user_message).to eq(user_message)
     end
 
     it "offers the record_suggestion tool with refs and reasoning, one call at a time" do
