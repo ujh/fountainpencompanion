@@ -10,8 +10,12 @@ permissions:
 
 jobs:
   rspec:
+    strategy:
+      fail-fast: false
+      matrix:
+        group: [1, 2]
     concurrency:
-      group: rspec-${{ github.ref }}
+      group: rspec-${{ github.ref }}-${{ matrix.group }}
       cancel-in-progress: true
     env:
       RAILS_ENV: test
@@ -69,8 +73,10 @@ jobs:
           bundler-cache: true # runs 'bundle install' and caches installed gems automatically
       - name: Install JS dependencies
         run: pnpm install --frozen-lockfile
+      - name: Prepare assets and database
+        run: bin/rails test:prepare db:schema:load
       - name: Run tests
-        run: bundle exec rake
+        run: bundle exec parallel_rspec -n 2 --only-group ${{ matrix.group }} --group-by runtime --runtime-log spec/parallel_runtime_rspec.log
       - name: Report to CodeCov
         uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
         with:

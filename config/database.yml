@@ -15,7 +15,7 @@ development:
 
 test:
   <<: *default
-  database: fountainpencompanion_test
+  database: fountainpencompanion_test<%= ENV["TEST_ENV_NUMBER"] %>
   host: postgres
   username: fpc
   password: fpc
