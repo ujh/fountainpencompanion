@@ -311,6 +311,22 @@ RSpec.describe RubyLlmAgent do
       expect(result.content).to eq("decided: yes")
     end
 
+    it "identifies the app to the LLM provider" do
+      stub_request(:post, "https://api.openai.com/v1/chat/completions").with(
+        headers: {
+          "User-Agent" => Fountainpencompanion::USER_AGENT
+        }
+      ).to_return(
+        status: 200,
+        body: tool_call_response.to_json,
+        headers: {
+          "Content-Type" => "application/json"
+        }
+      )
+
+      expect(agent_with_tools.ask!("Make a decision")).to be_a(RubyLLM::Tool::Halt)
+    end
+
     it "retries when LLM responds with text and succeeds on retry" do
       stub_request(:post, "https://api.openai.com/v1/chat/completions").to_return(
         {

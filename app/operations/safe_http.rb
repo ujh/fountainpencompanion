@@ -136,7 +136,7 @@ class SafeHttp
           url.to_s,
           max_redirects: MAX_REDIRECTS,
           scheme_whitelist: %w[http https],
-          headers: headers.merge(DEFAULT_HEADERS),
+          headers: request_headers(headers),
           http_options: HTTP_OPTIONS,
           on_cross_origin_redirect: :strip
         ) { |hop| body = read_body(hop) if verb == :get }
@@ -163,6 +163,10 @@ class SafeHttp
          Net::HTTPBadResponse,
          Net::ProtocolError => e
     raise Faraday::ConnectionFailed, e.message
+  end
+
+  def self.request_headers(headers)
+    { "user-agent" => Fountainpencompanion::USER_AGENT }.merge(headers, DEFAULT_HEADERS)
   end
 
   def self.read_body(hop)

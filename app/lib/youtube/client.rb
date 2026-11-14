@@ -1,6 +1,6 @@
 class Youtube
   class Client
-    APPLICATION_NAME = "Fountain Pen Companion"
+    APPLICATION_NAME, APPLICATION_VERSION = Fountainpencompanion::USER_AGENT.split("/", 2)
     CREDENTIALS = YAML.load(ENV["GOOGLE_CREDENTIALS"])
     SECRETS = YAML.load(ENV["GOOGLE_CLIENT_SECRETS"])
     SCOPE = [
@@ -25,6 +25,7 @@ class Youtube
     def initialize
       self.service = Google::Apis::YoutubeV3::YouTubeService.new
       self.service.client_options.application_name = APPLICATION_NAME
+      self.service.client_options.application_version = APPLICATION_VERSION
       self.service.authorization = authorize
     end
 

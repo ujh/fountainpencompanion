@@ -141,6 +141,29 @@ describe PatreonClient do
 
       expect(stub).to have_been_requested
     end
+
+    it "identifies the app in the User-Agent header" do
+      stub =
+        stub_request(
+          :get,
+          "https://www.patreon.com/api/oauth2/v2/campaigns/#{campaign_id}/members"
+        ).with(
+          query: hash_including({}),
+          headers: {
+            "User-Agent" => Fountainpencompanion::USER_AGENT
+          }
+        ).to_return(
+          status: 200,
+          headers: {
+            "Content-Type" => "application/json"
+          },
+          body: { data: [], meta: { pagination: { cursors: { next: nil } } } }.to_json
+        )
+
+      described_class.new("token").members(campaign_id)
+
+      expect(stub).to have_been_requested
+    end
   end
 
   describe ".refresh_token" do
@@ -172,6 +195,25 @@ describe PatreonClient do
         refresh_token: "new-refresh",
         expires_in: 2_678_400
       )
+    end
+
+    it "identifies the app in the User-Agent header" do
+      stub =
+        stub_request(:post, "https://www.patreon.com/api/oauth2/token").with(
+          headers: {
+            "User-Agent" => Fountainpencompanion::USER_AGENT
+          }
+        ).to_return(
+          status: 200,
+          headers: {
+            "Content-Type" => "application/json"
+          },
+          body: { access_token: "a", refresh_token: "r", expires_in: 1 }.to_json
+        )
+
+      described_class.refresh_token("old-refresh")
+
+      expect(stub).to have_been_requested
     end
   end
 
