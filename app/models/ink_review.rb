@@ -2,6 +2,7 @@ class InkReview < ApplicationRecord
   CHECK_INTERVAL = 2.months
   RETRY_INTERVAL = 24.hours
   MAX_FAILED_CHECKS = 5
+  NORMALIZED_HOST = Arel.sql(%q{regexp_replace(lower(ink_reviews.host), '^www\.', '')})
 
   belongs_to :macro_cluster
   belongs_to :you_tube_channel, optional: true
@@ -29,6 +30,7 @@ class InkReview < ApplicationRecord
   scope :due_for_check, -> { approved.where("next_check_at <= ?", Time.zone.now) }
   scope :link_broken, -> { where("check_count > 0 AND check_count < ?", MAX_FAILED_CHECKS) }
   scope :link_removed, -> { where("check_count >= ?", MAX_FAILED_CHECKS) }
+  scope :with_normalized_host, ->(host) { where(NORMALIZED_HOST.eq(host)) }
   scope :by_loves, -> { order(loves_count: :desc).order(Arel.sql("RANDOM()")) }
 
   def reject!

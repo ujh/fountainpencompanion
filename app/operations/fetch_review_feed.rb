@@ -17,7 +17,7 @@ class FetchReviewFeed
 
   private
 
-  attr_accessor :review_feed
+  attr_accessor :review_feed, :review_feed_filter
 
   def fetch_items
     response = SafeHttp.get(review_feed.feed_url)
@@ -57,17 +57,31 @@ class FetchReviewFeed
   end
 
   def process(item)
-    page = create_page(item, "pending")
+    if review_feed.curated
+      enqueue(create_page(item, "pending"))
+    elsif (match = filter.match(item))
+      enqueue(create_page(item, "pending", filter_rule: match.rule, filter_text: match.text))
+    else
+      create_page(item, "filtered")
+    end
+  end
+
+  def filter
+    self.review_feed_filter ||= ReviewFeedFilter.new
+  end
+
+  def enqueue(page)
     FetchReviews::ProcessWebPageForReview.perform_async(page.id)
   end
 
-  def create_page(item, state)
+  def create_page(item, state, data = {})
     WebPageForReview.create!(
       url: item[:url],
       state:,
       review_feed:,
       data: {
-        search_term: item[:title]
+        search_term: item[:title],
+        **data
       }
     )
   end
