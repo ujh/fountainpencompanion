@@ -263,7 +263,11 @@ describe ReviewFeed do
         "facebook.com",
         "medium.com",
         "pinterest.com",
-        "flickr.com"
+        "flickr.com",
+        "fountainpennetwork.net",
+        "badgerandblade.com",
+        "ko-fi.com",
+        "write.as"
       )
     end
   end
@@ -365,6 +369,27 @@ describe ReviewFeed do
       hosts = nil
       assert_queries_match(/SELECT/, count: 1) { hosts = described_class.qualifying_hosts }
       expect(hosts).to eq(["a.test"])
+    end
+  end
+
+  describe "#due_for_rediscovery?" do
+    it "is true for a no_feed row that was never discovered" do
+      expect(build(:review_feed, :no_feed, discovered_at: nil)).to be_due_for_rediscovery
+    end
+
+    it "is true for a no_feed row discovered more than 30 days ago" do
+      expect(build(:review_feed, :no_feed, discovered_at: 31.days.ago)).to be_due_for_rediscovery
+    end
+
+    it "is false for a no_feed row discovered recently" do
+      expect(build(:review_feed, :no_feed, discovered_at: 29.days.ago)).not_to(
+        be_due_for_rediscovery
+      )
+    end
+
+    it "is false for rows in other states" do
+      expect(build(:review_feed, discovered_at: nil)).not_to be_due_for_rediscovery
+      expect(build(:review_feed, :ignored, discovered_at: nil)).not_to be_due_for_rediscovery
     end
   end
 

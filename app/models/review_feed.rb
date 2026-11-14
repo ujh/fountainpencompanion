@@ -16,6 +16,10 @@ class ReviewFeed < ApplicationRecord
     medium.com
     pinterest.com
     flickr.com
+    fountainpennetwork.net
+    badgerandblade.com
+    ko-fi.com
+    write.as
   ].freeze
   QUALIFYING_REVIEW_COUNT = 3
   QUALIFYING_RECENCY = 2.years
@@ -73,6 +77,10 @@ class ReviewFeed < ApplicationRecord
       .order(InkReview::NORMALIZED_HOST)
       .pluck(InkReview::NORMALIZED_HOST)
       .reject { |host| denylisted?(host) }
+  end
+
+  def due_for_rediscovery?
+    state == "no_feed" && (discovered_at.nil? || discovered_at < REDISCOVER_AFTER.ago)
   end
 
   def failing?

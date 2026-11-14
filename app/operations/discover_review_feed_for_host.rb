@@ -17,7 +17,7 @@ class DiscoverReviewFeedForHost
   attr_accessor :host
 
   def discoverable?(review_feed)
-    review_feed.nil? || review_feed.state == "no_feed"
+    review_feed.nil? || review_feed.due_for_rediscovery?
   end
 
   def sample_urls
@@ -67,6 +67,6 @@ class DiscoverReviewFeedForHost
   end
 
   def active_attributes(feed_url)
-    { state: "active", feed_url:, curated: false, back_catalog_imported: false, last_error: nil }
+    { state: "active", feed_url:, back_catalog_imported: false, last_error: nil }
   end
 end

@@ -13,7 +13,12 @@ describe FetchReviewFeed do
 
   def rss(*items)
     entries =
-      items.map { |title, url| "<item><title>#{title}</title><link>#{url}</link></item>" }.join
+      items
+        .map do |title, url, category|
+          category_tag = category && "<category>#{category}</category>"
+          "<item><title>#{title}</title><link>#{url}</link>#{category_tag}</item>"
+        end
+        .join
     <<~XML
       <?xml version="1.0"?>
       <rss version="2.0"><channel><title>t</title><link>https://feed.test</link><description>d</description>
@@ -183,6 +188,21 @@ describe FetchReviewFeed do
         "search_term" => "Diamine Oxblood",
         "filter_rule" => "brand",
         "filter_text" => "Diamine"
+      )
+      expect(enqueued_page_ids).to eq([page.id])
+    end
+
+    it "passes an item through its category" do
+      stub_feed(["Weekend notes", "https://feed.test/notes", "Ink Reviews"])
+
+      described_class.new(review_feed).perform
+
+      page = WebPageForReview.sole
+      expect(page).to have_attributes(state: "pending", review_feed:)
+      expect(page.data).to eq(
+        "search_term" => "Weekend notes",
+        "filter_rule" => "category",
+        "filter_text" => "Ink Reviews"
       )
       expect(enqueued_page_ids).to eq([page.id])
     end

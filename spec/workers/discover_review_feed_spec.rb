@@ -19,4 +19,8 @@ describe DiscoverReviewFeed do
   it "uses the reviews queue" do
     expect(described_class.get_sidekiq_options["queue"]).to eq("reviews")
   end
+
+  it "retries a failed discovery at most three times" do
+    expect(described_class.get_sidekiq_options["retry"]).to eq(3)
+  end
 end

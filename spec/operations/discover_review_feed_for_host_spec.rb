@@ -159,6 +159,24 @@ describe DiscoverReviewFeedForHost do
       end
     end
 
+    it "keeps the curated flag of a no_feed row it turns active" do
+      review_feed =
+        create(:review_feed, :no_feed, host: "blog.test", curated: true, discovered_at: nil)
+
+      discover
+
+      expect(review_feed.reload).to have_attributes(state: "active", feed_url:, curated: true)
+    end
+
+    it "leaves a no_feed row alone that was discovered recently" do
+      review_feed = create(:review_feed, :no_feed, host: "blog.test", discovered_at: 29.days.ago)
+
+      expect(discover).to be(false)
+
+      expect(DiscoverFeed).not_to have_received(:new)
+      expect(review_feed.reload).to have_attributes(state: "no_feed", feed_url: nil)
+    end
+
     it "keeps a no_feed row and records the attempt when still no feed is found" do
       allow(discover_feed).to receive(:perform).and_return(nil)
       review_feed = create(:review_feed, :no_feed, host: "blog.test", discovered_at: 40.days.ago)
