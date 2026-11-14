@@ -28,9 +28,16 @@ describe ReviewFeedFilter do
       )
     end
 
-    it "matches the category case-insensitively as a substring" do
-      expect(passes?(categories: ["INK REVIEW"])).to be(true)
-      expect(passes?(categories: ["FountainPenInks"])).to be(true)
+    it "matches ink at a word start in the category, case-insensitively" do
+      ["INK REVIEW", "Inks", "Ink Reviews", "Fountain Pen Inks", "Inkvent"].each do |category|
+        expect(passes?(categories: [category])).to be(true)
+      end
+    end
+
+    it "fails categories that only contain ink inside a word" do
+      %w[Pink Links Thinking FountainPenInks].each do |category|
+        expect(passes?(title: "Weekend notes", categories: [category])).to be(false)
+      end
     end
 
     it "fails an item whose categories do not mention ink" do
@@ -149,14 +156,18 @@ describe ReviewFeedFilter do
       end
     end
 
-    it "passes titles with swatch or review words" do
+    it "passes titles with swatch words" do
       expect(match(title: "Swatching blues").text).to eq("swatch")
-      expect(match(title: "A notebook REVIEW").text).to eq("review")
-      expect(match(title: "Reviewed: a notebook").text).to eq("review")
+      expect(match(title: "A SWATCH card").text).to eq("swatch")
     end
 
-    it "fails words that only contain ink, swatch or review inside" do
-      %w[pink think link drink preview Smartswatch].each do |word|
+    it "fails review titles without a brand or an ink word" do
+      expect(passes?(title: "A notebook Review")).to be(false)
+      expect(passes?(title: "Reviewed: a pencil case")).to be(false)
+    end
+
+    it "fails words that only contain ink or swatch inside" do
+      %w[pink think link drink Smartswatch].each do |word|
         expect(passes?(title: "A #{word} notebook")).to be(false)
       end
     end

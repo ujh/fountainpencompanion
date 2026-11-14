@@ -56,8 +56,8 @@ class ReviewFeedFilter
     "zodiac"
   ].to_set.freeze
 
-  CATEGORY_WORD = "ink"
-  TITLE_KEYWORD = /(?<![[:alnum:]])(ink|swatch|review)/i
+  CATEGORY_WORD = /(?<![[:alnum:]])ink/i
+  TITLE_KEYWORD = /(?<![[:alnum:]])(ink|swatch)/i
 
   def self.brand_names
     BrandCluster.pluck(:name) +
@@ -81,7 +81,7 @@ class ReviewFeedFilter
   attr_accessor :brand_pattern
 
   def category_match(categories)
-    category = Array(categories).find { |c| c.to_s.downcase.include?(CATEGORY_WORD) }
+    category = Array(categories).find { |c| CATEGORY_WORD.match?(c.to_s) }
     Match.new(rule: :category, text: category) if category
   end
 
