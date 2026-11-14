@@ -2,6 +2,8 @@ require "rails_helper"
 require "active_record/testing/query_assertions"
 
 describe ReviewFeed do
+  include ActiveSupport::Testing::TimeHelpers
+
   describe ".normalize_host" do
     it "returns the host of a URL" do
       expect(described_class.normalize_host("https://example.com/2024/01/review/")).to eq(
@@ -236,8 +238,6 @@ describe ReviewFeed do
   end
 
   describe "#stale_empty?" do
-    include ActiveSupport::Testing::TimeHelpers
-
     before { freeze_time }
 
     it "is false for a feed that is not empty" do
@@ -283,8 +283,6 @@ describe ReviewFeed do
   end
 
   describe ".stale_empty" do
-    include ActiveSupport::Testing::TimeHelpers
-
     it "returns the feeds empty for longer than EMPTY_AFTER" do
       freeze_time
       stale = create(:review_feed, empty_since: (described_class::EMPTY_AFTER + 1.second).ago)

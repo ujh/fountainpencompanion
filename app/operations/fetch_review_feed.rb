@@ -99,12 +99,7 @@ class FetchReviewFeed
   end
 
   def record_empty_since(empty_since)
-    updated =
-      ReviewFeed.where(
-        id: review_feed.id,
-        feed_url: review_feed.feed_url,
-        empty_since: review_feed.empty_since
-      ).update_all(empty_since:)
+    updated = unchanged_feed.update_all(empty_since:)
     review_feed.empty_since = empty_since if updated == 1
   end
 
@@ -114,7 +109,11 @@ class FetchReviewFeed
   end
 
   def unchanged_during_fetch?
-    ReviewFeed.fetchable.exists?(
+    unchanged_feed.fetchable.exists?
+  end
+
+  def unchanged_feed
+    ReviewFeed.where(
       id: review_feed.id,
       feed_url: review_feed.feed_url,
       empty_since: review_feed.empty_since
