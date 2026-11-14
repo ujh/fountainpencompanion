@@ -4,7 +4,7 @@ class FetchReviews
   STAGGER_INTERVAL = 30 # seconds between enqueued source jobs
 
   def perform
-    jobs = feeds.map { |url| [FetchReviews::GenericRss, url] }
+    jobs = due_feeds.map { |feed| [FetchReviews::GenericRss, feed.id] }
     jobs += youtube_channels.map { |channel_id| [FetchReviews::YoutubeChannel, channel_id] }
 
     # Spread the per-source jobs out instead of enqueueing them all at once. Each
@@ -17,22 +17,9 @@ class FetchReviews
 
   private
 
-  def feeds
-    %w[
-      https://inkcrediblecolours.com/feed/
-      https://inksharks.blogspot.com/feeds/posts/default?alt=rss
-      https://inkyfountainpens.wordpress.com/feed/
-      https://mountainofink.com/?format=rss
-      https://mymanymuses.com/category/ink/feed/
-      https://nickstewart.ink/feed
-      https://penaddict.com/blog?format=rss
-      https://toomanypurples.blogspot.com/feeds/posts/default?alt=rss
-      https://wondernaut.wordpress.com/category/ink-review/feed/
-      https://writingatlarge.com/feed/
-      https://www.fountainpenpharmacist.com/feeds/posts/default?alt=rss
-      https://www.inkyinspirations.com/inkreviews?format=rss
-      https://www.wellappointeddesk.com/category/ink-review/feed/
-    ]
+  def due_feeds
+    hour = Time.current.utc.hour
+    ReviewFeed.fetchable.order(:id).select { |feed| feed.due?(hour) }
   end
 
   def youtube_channels

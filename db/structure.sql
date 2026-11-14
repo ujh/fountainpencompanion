@@ -1207,6 +1207,49 @@ ALTER SEQUENCE public.reading_statuses_id_seq OWNED BY public.reading_statuses.i
 
 
 --
+-- Name: review_feeds; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.review_feeds (
+    id bigint NOT NULL,
+    host text NOT NULL,
+    feed_url text,
+    state text NOT NULL,
+    curated boolean DEFAULT false NOT NULL,
+    back_catalog_imported boolean DEFAULT false NOT NULL,
+    failure_count integer DEFAULT 0 NOT NULL,
+    first_failed_at timestamp(6) without time zone,
+    last_error text,
+    last_fetched_at timestamp(6) without time zone,
+    last_attempted_at timestamp(6) without time zone,
+    discovered_at timestamp(6) without time zone,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL,
+    CONSTRAINT review_feeds_fetchable_feed_url CHECK (((state <> ALL (ARRAY['active'::text, 'failing'::text])) OR (feed_url IS NOT NULL))),
+    CONSTRAINT review_feeds_state_values CHECK ((state = ANY (ARRAY['active'::text, 'no_feed'::text, 'ignored'::text, 'failing'::text, 'duplicate'::text])))
+);
+
+
+--
+-- Name: review_feeds_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.review_feeds_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: review_feeds_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.review_feeds_id_seq OWNED BY public.review_feeds.id;
+
+
+--
 -- Name: schema_migrations; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -1358,7 +1401,8 @@ CREATE TABLE public.web_page_for_reviews (
     url text NOT NULL,
     data jsonb DEFAULT '{}'::jsonb,
     created_at timestamp(6) without time zone NOT NULL,
-    updated_at timestamp(6) without time zone NOT NULL
+    updated_at timestamp(6) without time zone NOT NULL,
+    review_feed_id bigint
 );
 
 
@@ -1622,6 +1666,13 @@ ALTER TABLE ONLY public.pens_models ALTER COLUMN id SET DEFAULT nextval('public.
 --
 
 ALTER TABLE ONLY public.reading_statuses ALTER COLUMN id SET DEFAULT nextval('public.reading_statuses_id_seq'::regclass);
+
+
+--
+-- Name: review_feeds id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.review_feeds ALTER COLUMN id SET DEFAULT nextval('public.review_feeds_id_seq'::regclass);
 
 
 --
@@ -1905,6 +1956,14 @@ ALTER TABLE ONLY public.pens_models
 
 ALTER TABLE ONLY public.reading_statuses
     ADD CONSTRAINT reading_statuses_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: review_feeds review_feeds_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.review_feeds
+    ADD CONSTRAINT review_feeds_pkey PRIMARY KEY (id);
 
 
 --
@@ -2453,6 +2512,20 @@ CREATE INDEX index_reading_statuses_on_user_id ON public.reading_statuses USING 
 
 
 --
+-- Name: index_review_feeds_on_feed_url; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_review_feeds_on_feed_url ON public.review_feeds USING btree (feed_url) WHERE (feed_url IS NOT NULL);
+
+
+--
+-- Name: index_review_feeds_on_host; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_review_feeds_on_host ON public.review_feeds USING btree (host);
+
+
+--
 -- Name: index_usage_records_on_currently_inked_id_and_used_on; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -2513,6 +2586,13 @@ CREATE INDEX index_versions_on_item_type_and_item_id ON public.versions USING bt
 --
 
 CREATE INDEX index_versions_on_whodunnit ON public.versions USING btree (whodunnit);
+
+
+--
+-- Name: index_web_page_for_reviews_on_review_feed_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_web_page_for_reviews_on_review_feed_id ON public.web_page_for_reviews USING btree (review_feed_id);
 
 
 --
@@ -2782,6 +2862,14 @@ ALTER TABLE ONLY public.pens_micro_clusters
 
 
 --
+-- Name: web_page_for_reviews fk_rails_e0ed00aea8; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.web_page_for_reviews
+    ADD CONSTRAINT fk_rails_e0ed00aea8 FOREIGN KEY (review_feed_id) REFERENCES public.review_feeds(id);
+
+
+--
 -- Name: ink_review_submissions fk_rails_ee836511b9; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -2812,6 +2900,10 @@ ALTER TABLE ONLY public.collected_inks
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20261114100300'),
+('20261114100200'),
+('20261114100100'),
+('20261114100000'),
 ('20261113150000'),
 ('20261113120000'),
 ('20261111053935'),
