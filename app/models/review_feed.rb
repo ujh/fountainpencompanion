@@ -1,6 +1,7 @@
 class ReviewFeed < ApplicationRecord
   STATES = %w[active no_feed ignored failing duplicate].freeze
   FETCHABLE_STATES = %w[active failing].freeze
+  FAILING_AFTER = 3.days
   HOST_FORMAT = /\A[a-z0-9_-]+(\.[a-z0-9_-]+)*\z/
   SCHEME_PREFIX = %r{\A[a-z][a-z0-9+.-]*://}i
   AUTHORITY = %r{\A[a-z][a-z0-9+.-]*://[^/?#]+}i
