@@ -24,21 +24,39 @@ describe FetchReviews do
     expect(FetchReviews::YoutubeChannel.jobs.map { |j| j["args"] }).to eq([[channel.channel_id]])
   end
 
-  it "staggers the source jobs by STAGGER_INTERVAL seconds" do
+  def delays
+    now = Time.now.to_f
+    (FetchReviews::GenericRss.jobs + FetchReviews::YoutubeChannel.jobs).map do |job|
+      job["at"] ? job["at"] - now : 0
+    end
+  end
+
+  it "staggers a few source jobs by STAGGER_INTERVAL seconds, feeds first" do
     create_list(:review_feed, 2, :curated)
     channel = create(:you_tube_channel)
     allow(YouTubeChannel).to receive(:channel_ids_for_reviews).and_return([channel.channel_id])
 
     subject.perform
 
-    now = Time.now.to_f
     interval = FetchReviews::STAGGER_INTERVAL
-    rss_jobs = FetchReviews::GenericRss.jobs
-    expect(rss_jobs.first["at"]).to be_nil
-    expect(rss_jobs.last["at"] - now).to be_within(2).of(interval)
+    expect(FetchReviews::GenericRss.jobs.first["at"]).to be_nil
+    expect(delays).to match([0, be_within(2).of(interval), be_within(2).of(interval * 2)])
+  end
 
-    yt_job = FetchReviews::YoutubeChannel.jobs.first
-    expect(yt_job["at"] - now).to be_within(2).of(interval * 2)
+  it "spreads many source jobs evenly over SPREAD_WINDOW, feeds first" do
+    create_list(:review_feed, 200, :curated)
+    channel_ids = (1..40).map { |i| "channel-#{i}" }
+    allow(YouTubeChannel).to receive(:channel_ids_for_reviews).and_return(channel_ids)
+
+    subject.perform
+
+    interval = FetchReviews::SPREAD_WINDOW / 240.0
+    expect(interval).to be < FetchReviews::STAGGER_INTERVAL
+    expect(delays).to match(Array.new(240) { |i| be_within(2).of(i * interval) })
+    expect(delays.last).to be < FetchReviews::SPREAD_WINDOW
+    expect(FetchReviews::YoutubeChannel.jobs.map { |job| job["args"].first }).to eq(channel_ids)
+    expect(FetchReviews::YoutubeChannel.jobs.first["at"]).to be >
+      FetchReviews::GenericRss.jobs.last["at"]
   end
 
   it "uses the UTC hour" do
