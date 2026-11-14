@@ -1,6 +1,4 @@
 class UpdateReviewFeed
-  REACTIVATED_STATES = %w[no_feed ignored duplicate].freeze
-
   def initialize(review_feed, review_feed_params)
     self.review_feed = review_feed
     self.review_feed_params = review_feed_params
@@ -18,7 +16,7 @@ class UpdateReviewFeed
 
   def apply_feed_url_change
     review_feed.back_catalog_imported = false
-    return unless review_feed.feed_url.present? && REACTIVATED_STATES.include?(review_feed.state)
+    return if review_feed.feed_url.blank?
 
     review_feed.assign_attributes(state: "active", **ReviewFeed::FAILURE_RESET)
   end

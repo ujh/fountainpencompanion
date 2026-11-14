@@ -37,6 +37,7 @@ class ReviewFeed < ApplicationRecord
   validates :host, format: { with: HOST_FORMAT }, allow_blank: true
   validates :feed_url, uniqueness: { allow_nil: true }
   validates :feed_url, presence: true, if: :fetchable_state?
+  validate :feed_url_is_http_url
 
   scope :fetchable, -> { where(state: FETCHABLE_STATES).where.not(feed_url: nil) }
   scope :due_for_rediscovery,
@@ -105,6 +106,12 @@ class ReviewFeed < ApplicationRecord
 
   def normalize_host_attribute
     self.host = self.class.normalize_host(host) || host
+  end
+
+  def feed_url_is_http_url
+    return if feed_url.nil? || SafeHttp.parse_uri(feed_url)
+
+    errors.add(:feed_url, "must be an http(s) URL with a host")
   end
 
   def fetchable_state?

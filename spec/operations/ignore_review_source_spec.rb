@@ -48,6 +48,16 @@ describe IgnoreReviewSource do
         expect(feed.reload.state).to eq("ignored")
       end
 
+      it "ignores the feed of the newest page when several feeds found the review" do
+        newer_feed = create(:review_feed, host: "mirror.example.com")
+        create(:web_page_for_review, url: ink_review.url, review_feed: feed)
+        create(:web_page_for_review, url: ink_review.url, review_feed: newer_feed)
+
+        expect(described_class.new(ink_review).perform).to be true
+        expect(newer_feed.reload.state).to eq("ignored")
+        expect(feed.reload.state).to eq("active")
+      end
+
       it "falls back to the host when the page has no feed" do
         create(:web_page_for_review, url: ink_review.url, review_feed: nil)
 

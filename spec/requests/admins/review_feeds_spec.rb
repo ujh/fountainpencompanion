@@ -117,6 +117,48 @@ describe "Admins::ReviewFeeds" do
         expect(response).to be_successful
       end
 
+      describe "state buttons" do
+        def state_forms(feed)
+          get "/admins/review_feeds", params: { state: feed.state }
+          row = Nokogiri.HTML(response.body).at_css("#review_feed_#{feed.id}")
+          row.css("form").to_h { |form| [form["action"], form] }
+        end
+
+        def expect_patch_form(form, state)
+          expect(form["method"]).to eq("post")
+          expect(form.at_css("input[name='_method']")["value"]).to eq("patch")
+          expect(form.at_css("input[name='filter_state']")["value"]).to eq(state)
+        end
+
+        it "offers only Ignore for an active feed" do
+          forms = state_forms(feed)
+
+          expect(forms.keys).to eq(["/admins/review_feeds/#{feed.id}/ignore"])
+          expect_patch_form(forms.values.first, "active")
+          expect(forms.values.first.text).to include("Ignore")
+        end
+
+        it "offers only Re-enable for an ignored feed" do
+          feed.update!(state: "ignored")
+
+          forms = state_forms(feed)
+
+          expect(forms.keys).to eq(["/admins/review_feeds/#{feed.id}/enable"])
+          expect_patch_form(forms.values.first, "ignored")
+        end
+
+        it "offers both for a failing feed" do
+          feed.update!(state: "failing")
+
+          forms = state_forms(feed)
+
+          expect(forms.keys).to eq(
+            %W[/admins/review_feeds/#{feed.id}/ignore /admins/review_feeds/#{feed.id}/enable]
+          )
+          forms.each_value { |form| expect_patch_form(form, "failing") }
+        end
+      end
+
       it "links to the feeds page from the admin nav" do
         get "/admins/review_feeds"
 
@@ -227,6 +269,22 @@ describe "Admins::ReviewFeeds" do
         expect(response).to have_http_status(:unprocessable_content)
         expect(response.body).to include("can&#39;t be blank")
         expect(feed.reload.feed_url).to eq("https://inkblog.example.com/feed")
+      end
+
+      it "shows the stored state when a new feed URL on an ignored feed is refused" do
+        ignored = create(:review_feed, :ignored, host: "shop.example.com")
+
+        patch "/admins/review_feeds/#{ignored.id}",
+              params: {
+                review_feed: {
+                  feed_url: "shop/feed"
+                }
+              }
+
+        expect(response).to have_http_status(:unprocessable_content)
+        expect(response.body).to include("shop.example.com (ignored)")
+        expect(response.body).to include("must be an http(s) URL with a host")
+        expect(ignored.reload.state).to eq("ignored")
       end
     end
 

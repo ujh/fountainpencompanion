@@ -32,24 +32,45 @@ describe UpdateReviewFeed do
     )
   end
 
-  it "keeps a failing feed failing when its feed URL changes" do
+  %w[active failing].each do |state|
+    it "clears the failure streak of a #{state} feed when its feed URL changes" do
+      feed =
+        create(
+          :review_feed,
+          :curated,
+          state: state,
+          failure_count: 7,
+          first_failed_at: 4.days.ago,
+          last_error: "timeout"
+        )
+
+      expect(update(feed, { feed_url: "https://example.com/new-feed" })).to be true
+      expect(feed.reload).to have_attributes(
+        state: "active",
+        failure_count: 0,
+        first_failed_at: nil,
+        last_error: nil,
+        back_catalog_imported: false
+      )
+    end
+  end
+
+  it "keeps the failure streak when only curated changes" do
     feed =
       create(
         :review_feed,
-        :curated,
         state: "failing",
         failure_count: 7,
         first_failed_at: 4.days.ago,
         last_error: "timeout"
       )
 
-    update(feed, { feed_url: "https://example.com/new-feed" })
+    update(feed, { feed_url: feed.feed_url, curated: "1" })
 
     expect(feed.reload).to have_attributes(
       state: "failing",
       failure_count: 7,
-      last_error: "timeout",
-      back_catalog_imported: false
+      last_error: "timeout"
     )
   end
 
@@ -105,6 +126,13 @@ describe UpdateReviewFeed do
       expect(feed.errors[:feed_url]).to include("can't be blank")
       expect(feed.reload.feed_url).to eq("https://example.com/feed")
     end
+  end
+
+  it "refuses a feed URL that is not an http(s) URL" do
+    feed = create(:review_feed, feed_url: "https://example.com/feed")
+
+    expect(update(feed, { feed_url: "example.com/feed" })).to be false
+    expect(feed.errors[:feed_url]).to include("must be an http(s) URL with a host")
   end
 
   it "refuses a feed URL another feed already uses" do

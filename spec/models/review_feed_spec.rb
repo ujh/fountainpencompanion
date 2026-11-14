@@ -158,6 +158,21 @@ describe ReviewFeed do
       expect(feed.reload.feed_url).to be_nil
     end
 
+    %w[http://example.com/feed https://feeds.feedburner.com/example].each do |feed_url|
+      it "accepts #{feed_url}" do
+        expect(build(:review_feed, feed_url:)).to be_valid
+      end
+    end
+
+    %w[example.com/feed ftp://example.com/feed https:///feed javascript:alert(1)].each do |feed_url|
+      it "rejects #{feed_url} as a feed URL" do
+        feed = build(:review_feed, state: "ignored", feed_url:)
+
+        expect(feed).not_to be_valid
+        expect(feed.errors[:feed_url]).to include("must be an http(s) URL with a host")
+      end
+    end
+
     %w[active failing].each do |state|
       it "requires a feed URL when #{state}" do
         feed = build(:review_feed, state: state, feed_url: nil)

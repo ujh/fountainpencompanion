@@ -5,7 +5,7 @@
   - else
     p
       strong Host:
-      = " #{review_feed.host} (#{review_feed.state})"
+      = " #{review_feed.host} (#{review_feed.state_in_database})"
   = f.input :feed_url, label: "Feed URL", as: :string
   - unless review_feed.new_record?
     = f.input :curated, as: :boolean, label: "Hand-picked: fetch hourly, no pre-filter"
