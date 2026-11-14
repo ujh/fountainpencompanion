@@ -69,10 +69,6 @@ class ReviewFeedFilter
     self.brand_pattern = build_brand_pattern(brand_names)
   end
 
-  def passes?(item)
-    match(item).present?
-  end
-
   def match(item)
     category_match(item[:categories]) || brand_match(item[:title]) || keyword_match(item[:title])
   end

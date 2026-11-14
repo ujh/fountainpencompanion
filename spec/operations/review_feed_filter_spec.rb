@@ -18,7 +18,7 @@ describe ReviewFeedFilter do
   end
 
   def passes?(**attributes)
-    filter.passes?(item(**attributes))
+    filter.match(item(**attributes)).present?
   end
 
   describe "category rule" do
@@ -46,7 +46,7 @@ describe ReviewFeedFilter do
 
     it "handles missing categories" do
       expect(passes?(title: "Weekend notes", categories: nil)).to be(false)
-      expect(filter.passes?({ title: "Weekend notes" })).to be(false)
+      expect(filter.match({ title: "Weekend notes" })).to be_nil
     end
   end
 
@@ -97,20 +97,20 @@ describe ReviewFeedFilter do
       expect(filter.match(item(title: "forme. Kamogawa")).text).to eq("forme.")
       expect(filter.match(item(title: "Pen (Sketch) black")).text).to eq("Pen (Sketch)")
       expect(filter.match(item(title: "Push/Pull green")).text).to eq("Push/Pull")
-      expect(filter.passes?(item(title: "Styloo forme"))).to be(false)
+      expect(filter.match(item(title: "Styloo forme"))).to be_nil
     end
 
     it "ignores brand names shorter than three characters" do
       filter = described_class.new(brand_names: %w[GP Fe Ñ KWZ])
 
-      expect(filter.passes?(item(title: "GP and Fe at the shop"))).to be(false)
+      expect(filter.match(item(title: "GP and Fe at the shop"))).to be_nil
       expect(filter.match(item(title: "KWZ Honey")).text).to eq("KWZ")
     end
 
     it "ignores brand names on the stoplist in any case" do
       filter = described_class.new(brand_names: %w[There ORIGINAL modern Cross Diamine])
 
-      expect(filter.passes?(item(title: "There is the original modern cross"))).to be(false)
+      expect(filter.match(item(title: "There is the original modern cross"))).to be_nil
       expect(filter.match(item(title: "Cross and Diamine")).text).to eq("Diamine")
     end
 
@@ -122,7 +122,7 @@ describe ReviewFeedFilter do
     it "fails every title when there are no brand names" do
       filter = described_class.new(brand_names: [])
 
-      expect(filter.passes?(item(title: "Diamine Oxblood"))).to be(false)
+      expect(filter.match(item(title: "Diamine Oxblood"))).to be_nil
     end
 
     it "loads brand names and synonyms from brand clusters" do
@@ -137,7 +137,7 @@ describe ReviewFeedFilter do
         "Wearingeul Ink Lab"
       )
       expect(filter.match(item(title: "Wearingeul Ophelia")).text).to eq("Wearingeul")
-      expect(filter.passes?(item(title: "Unassigned Brand Ophelia"))).to be(false)
+      expect(filter.match(item(title: "Unassigned Brand Ophelia"))).to be_nil
     end
 
     it "loads brand cluster names and macro cluster brand names independently" do
