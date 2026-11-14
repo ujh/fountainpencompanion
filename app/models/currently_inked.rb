@@ -120,7 +120,7 @@ class CurrentlyInked < ApplicationRecord
   def collected_inks_for_active_select
     user
       .active_collected_inks
-      .or(CollectedInk.where(id: collected_ink_id))
+      .or(user.collected_inks.where(id: collected_ink_id))
       .order("brand_name, line_name, ink_name")
   end
 
