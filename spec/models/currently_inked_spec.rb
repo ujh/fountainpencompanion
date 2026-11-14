@@ -353,6 +353,14 @@ describe CurrentlyInked do
         currently_inked.collected_ink
       )
     end
+
+    it "does not include another user's ink assigned to it" do
+      currently_inked = create(:currently_inked)
+      other_ink = create(:collected_ink, private: true)
+      currently_inked.collected_ink_id = other_ink.id
+
+      expect(currently_inked.collected_inks_for_active_select).not_to include(other_ink)
+    end
   end
 
   describe "#daily_usage_count" do

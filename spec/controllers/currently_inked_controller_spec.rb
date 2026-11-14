@@ -112,6 +112,21 @@ describe CurrentlyInkedController do
           expect(response).to render_template(:new)
         end.to_not change { user.currently_inkeds.count }
       end
+
+      it "does not show another user's ink when the new page is rendered again" do
+        other_ink = create(:collected_ink, ink_name: "Secret Hidden Ink", private: true)
+
+        post :create,
+             params: {
+               currently_inked: {
+                 collected_ink_id: other_ink.id,
+                 collected_pen_id: collected_pen.id
+               }
+             }
+
+        expect(response).to render_template(:new)
+        expect(response.body).not_to include("Secret Hidden Ink")
+      end
     end
   end
 
@@ -250,6 +265,22 @@ describe CurrentlyInkedController do
         end.to_not change { currently_inked.reload.collected_ink_id }
         expect(response).to be_successful
         expect(response).to render_template(:edit)
+      end
+
+      it "does not show another user's ink when the edit page is rendered again" do
+        other_ink = create(:collected_ink, ink_name: "Secret Hidden Ink", private: true)
+
+        put :update,
+            params: {
+              id: currently_inked.id,
+              currently_inked: {
+                collected_ink_id: other_ink.id
+              }
+            }
+
+        expect(response).to render_template(:edit)
+        expect(response.body).not_to include("Secret Hidden Ink")
+        expect(currently_inked.reload.collected_ink).to eq(collected_ink)
       end
     end
   end
