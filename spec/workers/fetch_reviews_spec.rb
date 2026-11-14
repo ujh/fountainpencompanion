@@ -41,38 +41,6 @@ describe FetchReviews do
     expect(yt_job["at"] - now).to be_within(2).of(interval * 2)
   end
 
-  def due_hours(feed)
-    (0..23).select do |hour|
-      FetchReviews::GenericRss.jobs.clear
-      at_hour(hour) { subject.perform }
-      enqueued_feed_ids.include?(feed.id)
-    end
-  end
-
-  it "fetches curated active feeds every hour" do
-    feed = create(:review_feed, :curated)
-
-    expect(due_hours(feed)).to eq((0..23).to_a)
-  end
-
-  it "fetches curated failing feeds every hour" do
-    feed = create(:review_feed, :curated, state: "failing")
-
-    expect(due_hours(feed)).to eq((0..23).to_a)
-  end
-
-  it "fetches non-curated active feeds every four hours, spread by id" do
-    feed = create(:review_feed)
-
-    expect(due_hours(feed)).to eq((0..23).select { |hour| hour % 4 == feed.id % 4 })
-  end
-
-  it "fetches non-curated failing feeds once a day, spread by id" do
-    feed = create(:review_feed, state: "failing")
-
-    expect(due_hours(feed)).to eq([feed.id % 24])
-  end
-
   it "uses the UTC hour" do
     feed = create(:review_feed, state: "failing")
     due_hour = feed.id % 24

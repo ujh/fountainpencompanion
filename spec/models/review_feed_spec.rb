@@ -219,6 +219,32 @@ describe ReviewFeed do
     end
   end
 
+  describe "#due?" do
+    def due_hours(feed)
+      (0..23).select { |hour| feed.due?(hour) }
+    end
+
+    it "is due every hour for a curated active feed" do
+      expect(due_hours(create(:review_feed, :curated))).to eq((0..23).to_a)
+    end
+
+    it "is due every hour for a curated failing feed" do
+      expect(due_hours(create(:review_feed, :curated, state: "failing"))).to eq((0..23).to_a)
+    end
+
+    it "is due every fourth hour for a non-curated active feed, spread by id" do
+      feed = create(:review_feed)
+
+      expect(due_hours(feed)).to eq((0..23).select { |hour| hour % 4 == feed.id % 4 })
+    end
+
+    it "is due once a day for a non-curated failing feed, spread by id" do
+      feed = create(:review_feed, state: "failing")
+
+      expect(due_hours(feed)).to eq([feed.id % 24])
+    end
+  end
+
   describe "#web_page_for_reviews" do
     it "returns the pages found through the feed" do
       feed = create(:review_feed)

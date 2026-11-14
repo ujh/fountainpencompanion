@@ -30,6 +30,20 @@ class ReviewFeed < ApplicationRecord
     nil
   end
 
+  def failing?
+    state == "failing"
+  end
+
+  def due?(hour)
+    if curated
+      true
+    elsif failing?
+      id % 24 == hour
+    else
+      id % 4 == hour % 4
+    end
+  end
+
   private
 
   def normalize_host_attribute

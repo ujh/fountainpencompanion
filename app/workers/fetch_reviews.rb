@@ -19,17 +19,7 @@ class FetchReviews
 
   def due_feeds
     hour = Time.current.utc.hour
-    ReviewFeed.fetchable.order(:id).select { |feed| due?(feed, hour) }
-  end
-
-  def due?(feed, hour)
-    if feed.curated
-      true
-    elsif feed.state == "failing"
-      feed.id % 24 == hour
-    else
-      feed.id % 4 == hour % 4
-    end
+    ReviewFeed.fetchable.order(:id).select { |feed| feed.due?(hour) }
   end
 
   def youtube_channels
