@@ -25,7 +25,13 @@ RSpec.describe PenAndInkSuggestion::PickPrompt do
     )
   end
 
-  def prompt_for(selection, rejected_pairs: [], notes: [], instruction: nil)
+  def prompt_for(
+    selection,
+    rejected_pairs: [],
+    notes: [],
+    instruction: nil,
+    snapshot: self.snapshot
+  )
     described_class.new(snapshot:, selection:, rejected_pairs:, notes:, instruction:)
   end
 
@@ -187,14 +193,23 @@ RSpec.describe PenAndInkSuggestion::PickPrompt do
 
   describe "#user_message" do
     it "lists the shown pens and inks with refs and totals, without database ids" do
+      other_user = create(:user)
+      pen.dup.update!(user: other_user)
+      ink.dup.update!(user: other_user)
+      other_snapshot = PenAndInkSuggestion::CollectionSnapshot.new(other_user)
+      other_prompt =
+        prompt_for(
+          selection_of([other_snapshot.pens.sole], [other_snapshot.inks.sole]),
+          snapshot: other_snapshot
+        )
       prompt = prompt_for(selection_of([snapshot_item(pen)], [snapshot_item(ink)]))
 
       message = prompt.user_message
 
       expect(message).to include("PENS (1 of 46 uninked)\nP1 | Lamy 2000")
       expect(message).to include("INKS (1 of 212)\nI1 | Diamine Oxblood")
-      expect(message).not_to match(/\b(#{pen.id}|#{ink.id})\b/)
       expect(message).to end_with(described_class::NO_REQUEST)
+      expect(other_prompt.user_message).to eq(message)
     end
 
     it "lists the currently inked pens and the colours of recent fills" do

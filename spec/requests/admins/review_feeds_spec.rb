@@ -3,6 +3,7 @@ require "active_record/testing/query_assertions"
 
 describe "Admins::ReviewFeeds" do
   include ActiveRecord::Assertions::QueryAssertions
+  include ActiveSupport::Testing::TimeHelpers
 
   let(:admin) { create(:user, :admin) }
   let!(:feed) do
@@ -79,10 +80,90 @@ describe "Admins::ReviewFeeds" do
         expect(cells[0..3]).to eq(
           %w[inkblog.example.com active no https://inkblog.example.com/feed]
         )
-        expect(cells[6]).to include("3", "since")
-        expect(cells[7]).to eq("Faraday::TimeoutError: execution expired")
-        expect(cells[8..12]).to eq(%w[0 2 0 1 2])
+        expect(cells[6]).to eq("")
+        expect(cells[7]).to include("3", "since")
+        expect(cells[8]).to eq("Faraday::TimeoutError: execution expired")
+        expect(cells[9..13]).to eq(%w[0 2 0 1 2])
         expect(row.at_css("a[href='https://inkblog.example.com/feed']")).to be_present
+      end
+
+      describe "empty feeds" do
+        let(:empty_since) { Time.zone.local(2026, 11, 1, 8, 0) }
+
+        def empty_cell(feed)
+          Nokogiri.HTML(response.body).at_css("#review_feed_#{feed.id}").css("td")[6]
+        end
+
+        it "shows when a feed started to be empty" do
+          travel_to(empty_since + 2.days) do
+            feed.update!(empty_since:)
+
+            get "/admins/review_feeds"
+          end
+
+          cell = empty_cell(feed)
+          expect(cell.text.squish).to eq(I18n.l(empty_since, format: :short))
+          expect(cell.at_css(".text-bg-danger")).to be_nil
+        end
+
+        it "highlights a feed empty for longer than EMPTY_AFTER" do
+          travel_to(empty_since + ReviewFeed::EMPTY_AFTER + 1.hour) do
+            feed.update!(empty_since:)
+
+            get "/admins/review_feeds"
+          end
+
+          badge = empty_cell(feed).at_css(".badge.text-bg-danger")
+          expect(badge.text.squish).to eq(I18n.l(empty_since, format: :short))
+        end
+
+        it "lists only the feeds empty for longer than EMPTY_AFTER" do
+          feed.update!(empty_since: (ReviewFeed::EMPTY_AFTER + 1.hour).ago)
+          create(:review_feed, host: "recent.example.com", empty_since: 1.day.ago)
+          create(:review_feed, host: "full.example.com")
+
+          get "/admins/review_feeds", params: { empty: "1" }
+
+          expect(response.body).to include("inkblog.example.com")
+          expect(response.body).not_to include("recent.example.com", "full.example.com")
+          current = Nokogiri.HTML(response.body).css(".nav-pills a[aria-current='page']")
+          expect(current.map(&:text)).to eq(["empty"])
+        end
+
+        it "applies only the empty filter when a state is given too" do
+          feed.update!(empty_since: (ReviewFeed::EMPTY_AFTER + 1.hour).ago)
+          create(:review_feed, :ignored, host: "shop.example.com")
+
+          get "/admins/review_feeds", params: { state: "ignored", empty: "1" }
+
+          expect(response.body).to include("inkblog.example.com")
+          expect(response.body).not_to include("shop.example.com")
+          current = Nokogiri.HTML(response.body).css(".nav-pills a[aria-current='page']")
+          expect(current.map(&:text)).to eq(["empty"])
+        end
+
+        it "returns to the empty feeds after a state change" do
+          feed.update!(empty_since: (ReviewFeed::EMPTY_AFTER + 1.hour).ago)
+
+          get "/admins/review_feeds", params: { empty: "1" }
+          form = Nokogiri.HTML(response.body).at_css("#review_feed_#{feed.id} form")
+          expect(form.at_css("input[name='filter_empty']")["value"]).to eq("1")
+
+          patch form["action"], params: { filter_empty: "1" }
+
+          expect(response).to redirect_to(admins_review_feeds_path(empty: "1"))
+          expect(feed.reload.state).to eq("ignored")
+          follow_redirect!
+          expect(Nokogiri.HTML(response.body).at_css("#review_feed_#{feed.id}")).to be_nil
+        end
+
+        it "does not highlight an ignored feed" do
+          feed.update!(state: "ignored", empty_since: (ReviewFeed::EMPTY_AFTER + 1.hour).ago)
+
+          get "/admins/review_feeds", params: { state: "ignored" }
+
+          expect(empty_cell(feed).at_css(".text-bg-danger")).to be_nil
+        end
       end
 
       it "filters by state" do
@@ -111,7 +192,7 @@ describe "Admins::ReviewFeeds" do
 
       it "loads the counts with one query each, whatever the number of feeds" do
         3.times do |i|
-          other = create(:review_feed, host: "blog#{i}.example.com")
+          other = create(:review_feed, host: "blog#{i}.example.com", empty_since: (i * 5).days.ago)
           create(:web_page_for_review, review_feed: other, state: "pending")
           create(:ink_review, url: "https://blog#{i}.example.com/review", approved_at: Time.current)
         end

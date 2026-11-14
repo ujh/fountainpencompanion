@@ -18,28 +18,15 @@ class FetchReviews
 
     def import!
       videos.each do |video|
-        video = video.merge(search_term: video[:title])
         next if WebPageForReview.where(url: video[:url]).exists?
 
-        page =
-          WebPageForReview.create!(url: video[:url], data: { search_term: video[:search_term] })
-        if Rails.cache.exist?("youtube:#{video[:url]}")
-          page.update!(state: "processed")
-        else
-          FetchReviews::ProcessWebPageForReview.perform_async(page.id)
-        end
+        page = WebPageForReview.create!(url: video[:url], data: { search_term: video[:title] })
+        FetchReviews::ProcessWebPageForReview.perform_async(page.id)
       end
     end
 
     def videos
-      if channel.back_catalog_imported
-        client.fetch_videos.take(5)
-      else
-        channel.update!(back_catalog_imported: true)
-        # Do not import the back catalog, as that will incur a lot of LLM API calls
-        # and will be super expensive.
-        client.fetch_videos.take(5)
-      end
+      client.fetch_videos.take(5)
     end
 
     def client

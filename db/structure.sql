@@ -1225,6 +1225,7 @@ CREATE TABLE public.review_feeds (
     discovered_at timestamp(6) without time zone,
     created_at timestamp(6) without time zone NOT NULL,
     updated_at timestamp(6) without time zone NOT NULL,
+    empty_since timestamp(6) without time zone,
     CONSTRAINT review_feeds_fetchable_feed_url CHECK (((state <> ALL (ARRAY['active'::text, 'failing'::text])) OR (feed_url IS NOT NULL))),
     CONSTRAINT review_feeds_state_values CHECK ((state = ANY (ARRAY['active'::text, 'no_feed'::text, 'ignored'::text, 'failing'::text, 'duplicate'::text])))
 );
@@ -2900,6 +2901,7 @@ ALTER TABLE ONLY public.collected_inks
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20261114133635'),
 ('20261114130000'),
 ('20261114100300'),
 ('20261114100200'),

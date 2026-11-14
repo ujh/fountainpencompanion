@@ -2,6 +2,7 @@ class ReviewFeed < ApplicationRecord
   STATES = %w[active no_feed ignored failing duplicate].freeze
   FETCHABLE_STATES = %w[active failing].freeze
   FAILING_AFTER = 3.days
+  EMPTY_AFTER = 7.days
   FAILURE_RESET = { failure_count: 0, first_failed_at: nil, last_error: nil }.freeze
   HOST_FORMAT = /\A[a-z0-9_-]+(\.[a-z0-9_-]+)*\z/
   SCHEME_PREFIX = %r{\A[a-z][a-z0-9+.-]*://}i
@@ -40,6 +41,7 @@ class ReviewFeed < ApplicationRecord
   validate :feed_url_is_http_url
 
   scope :fetchable, -> { where(state: FETCHABLE_STATES).where.not(feed_url: nil) }
+  scope :stale_empty, -> { fetchable.where(empty_since: ...EMPTY_AFTER.ago) }
   scope :due_for_rediscovery,
         -> do
           where(state: "no_feed").where(
@@ -92,8 +94,16 @@ class ReviewFeed < ApplicationRecord
     FETCHABLE_STATES.include?(state)
   end
 
+  def fetchable?
+    fetchable_state? && feed_url.present?
+  end
+
   def failing?
     state == "failing"
+  end
+
+  def stale_empty?(at = Time.current)
+    fetchable? && empty_since.present? && empty_since < at - EMPTY_AFTER
   end
 
   def due?(hour)

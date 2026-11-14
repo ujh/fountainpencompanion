@@ -11,7 +11,7 @@ class FetchReviewFeed
     false
   else
     import(items)
-    record_success
+    record_success(items)
     true
   end
 
@@ -90,9 +90,34 @@ class FetchReviewFeed
     items.map { |item| item[:url] }
   end
 
-  def record_success
+  def record_success(items)
     transition_state(from: "failing", to: "active")
+    previous_fetch_at = review_feed.last_fetched_at
     review_feed.update!(**ReviewFeed::FAILURE_RESET, last_fetched_at: Time.current)
+    record_empty_since(items.empty? ? (review_feed.empty_since || Time.current) : nil)
+    notify_empty if newly_stale_empty?(previous_fetch_at) && unchanged_during_fetch?
+  end
+
+  def record_empty_since(empty_since)
+    updated = unchanged_feed.update_all(empty_since:)
+    review_feed.empty_since = empty_since if updated == 1
+  end
+
+  def newly_stale_empty?(previous_fetch_at)
+    review_feed.stale_empty? &&
+      (previous_fetch_at.nil? || !review_feed.stale_empty?(previous_fetch_at))
+  end
+
+  def unchanged_during_fetch?
+    unchanged_feed.fetchable.exists?
+  end
+
+  def unchanged_feed
+    ReviewFeed.where(
+      id: review_feed.id,
+      feed_url: review_feed.feed_url,
+      empty_since: review_feed.empty_since
+    )
   end
 
   def record_failure(error)
@@ -117,6 +142,20 @@ class FetchReviewFeed
   def error_message(error)
     status = error.try(:response_status)
     [error.class.name, status && "status #{status}", error.message.presence].compact.join(": ")
+  end
+
+  def notify_empty
+    Honeybadger.notify(
+      "Review feed #{review_feed.host} empty since #{review_feed.empty_since.iso8601}",
+      error_class: "ReviewFeedEmpty",
+      fingerprint: "review_feed_empty_#{review_feed.id}",
+      context: {
+        review_feed_id: review_feed.id,
+        host: review_feed.host,
+        feed_url: review_feed.feed_url,
+        empty_since: review_feed.empty_since.iso8601
+      }
+    )
   end
 
   def notify_failing
