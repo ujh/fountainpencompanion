@@ -23,7 +23,7 @@ class FeedParser
     url = absolute_url(entry.try(:alternate_url).presence || entry.url)
     return unless url
 
-    { url:, title: entry.title.to_s.strip, categories: categories_for(entry) }
+    { url:, title: clean(entry.title), categories: categories_for(entry) }
   end
 
   def absolute_url(raw_url)
@@ -37,6 +37,10 @@ class FeedParser
   end
 
   def categories_for(entry)
-    Array(entry.try(:categories)).map { |category| category.to_s.strip }.compact_blank.uniq
+    Array(entry.try(:categories)).map { |category| clean(category) }.compact_blank.uniq
+  end
+
+  def clean(text)
+    text.to_s.delete("\u0000").strip
   end
 end

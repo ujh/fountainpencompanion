@@ -87,6 +87,23 @@ describe FetchReviewFeed do
       expect(enqueued_page_ids).to be_empty
     end
 
+    it "resolves relative item links against the redirected feed URL" do
+      stub_request(:get, feed_url).to_return(
+        status: 301,
+        headers: {
+          "Location" => "https://feed.test/blog/feed/"
+        }
+      )
+      stub_request(:get, "https://feed.test/blog/feed/").to_return(
+        status: 200,
+        body: rss(%w[Relative kon-peki])
+      )
+
+      described_class.new(review_feed).perform
+
+      expect(WebPageForReview.pluck(:url)).to eq(["https://feed.test/blog/feed/kon-peki"])
+    end
+
     it "links existing pages without a feed to the feed" do
       unlinked = create_page("https://feed.test/unlinked")
       other_feed = create(:review_feed)
@@ -180,6 +197,34 @@ describe FetchReviewFeed do
     end
   end
 
+  describe "admin changes during a run" do
+    def ignore_during_fetch(response)
+      stub_request(:get, feed_url).to_return do
+        ReviewFeed.where(id: review_feed.id).update_all(state: "ignored")
+        response
+      end
+    end
+
+    it "keeps a feed ignored that was ignored while a failing feed was fetched" do
+      review_feed.update!(state: "failing", first_failed_at: 4.days.ago, failure_count: 80)
+      ignore_during_fetch(status: 200, body: rss)
+
+      described_class.new(review_feed).perform
+
+      expect(review_feed.reload).to have_attributes(state: "ignored", failure_count: 0)
+    end
+
+    it "keeps a feed ignored that was ignored while its fetch failed" do
+      review_feed.update!(failure_count: 72, first_failed_at: 4.days.ago)
+      ignore_during_fetch(status: 503)
+
+      described_class.new(review_feed).perform
+
+      expect(review_feed.reload).to have_attributes(state: "ignored", failure_count: 73)
+      expect(Honeybadger).not_to have_received(:notify)
+    end
+  end
+
   describe "failure" do
     it "records the first failure without raising" do
       stub_failure
@@ -255,6 +300,7 @@ describe FetchReviewFeed do
       expect(Honeybadger).to have_received(:notify).once.with(
         a_string_including(review_feed.host),
         error_class: "ReviewFeedFailing",
+        fingerprint: "review_feed_failing_#{review_feed.id}",
         context: {
           review_feed_id: review_feed.id,
           feed_url:,

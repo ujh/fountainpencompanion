@@ -1,4 +1,4 @@
-Feedjira::Feed.add_common_feed_entry_element(
+Feedjira::Parser::AtomEntry.element(
   :link,
   as: :alternate_url,
   value: :href,

@@ -92,6 +92,23 @@ describe FeedParser do
     expect(items.map { |item| item[:url] }).to eq(["https://blog.test/post"])
   end
 
+  it "uses the original link of a FeedBurner Atom entry" do
+    items = parse(<<~XML)
+      <?xml version="1.0" encoding="UTF-8"?>
+      <feed xmlns="http://www.w3.org/2005/Atom" xmlns:feedburner="http://rssnamespace.org/feedburner/ext/1.0">
+        <title>Blog</title>
+        <link rel="alternate" type="text/html" href="https://blog.test/"/>
+        <entry>
+          <title>Post</title>
+          <link rel="alternate" type="text/html" href="http://feedproxy.google.com/~r/Blog/~3/abc/post.html"/>
+          <feedburner:origLink>https://blog.test/post.html</feedburner:origLink>
+        </entry>
+      </feed>
+    XML
+
+    expect(items.map { |item| item[:url] }).to eq(["https://blog.test/post.html"])
+  end
+
   it "parses an RDF (RSS 1.0) feed" do
     items = parse(<<~XML)
       <?xml version="1.0"?>
@@ -169,6 +186,20 @@ describe FeedParser do
     body = rss("<item><title>Kon-peki – 紺碧</title><link>https://blog.test/k</link></item>").b
 
     expect(parse(body).first[:title]).to eq("Kon-peki – 紺碧")
+  end
+
+  it "removes NUL characters from titles and categories" do
+    body = {
+      version: "https://jsonfeed.org/version/1.1",
+      title: "Blog",
+      items: [
+        { id: "1", url: "https://blog.test/nul", title: "Kon\u0000-peki", tags: ["In\u0000ks"] }
+      ]
+    }.to_json
+
+    expect(parse(body)).to eq(
+      [{ url: "https://blog.test/nul", title: "Kon-peki", categories: ["Inks"] }]
+    )
   end
 
   it "raises FeedParser::Error for input that is not a feed" do

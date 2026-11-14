@@ -74,7 +74,7 @@ class FetchReviewFeed
   end
 
   def record_success
-    review_feed.state = "active" if review_feed.state == "failing"
+    transition_state(from: "failing", to: "active")
     review_feed.update!(
       failure_count: 0,
       first_failed_at: nil,
@@ -87,10 +87,15 @@ class FetchReviewFeed
     review_feed.first_failed_at ||= Time.current
     review_feed.failure_count += 1
     review_feed.last_error = error_message(error)
-    starts_failing = review_feed.state == "active" && failing_long_enough?
-    review_feed.state = "failing" if starts_failing
     review_feed.save!
-    notify_failing if starts_failing
+    notify_failing if failing_long_enough? && transition_state(from: "active", to: "failing")
+  end
+
+  def transition_state(from:, to:)
+    ReviewFeed.where(id: review_feed.id, state: from).update_all(
+      state: to,
+      updated_at: Time.current
+    ) == 1
   end
 
   def failing_long_enough?
@@ -106,6 +111,7 @@ class FetchReviewFeed
     Honeybadger.notify(
       "Review feed #{review_feed.host} failing since #{review_feed.first_failed_at.iso8601}",
       error_class: "ReviewFeedFailing",
+      fingerprint: "review_feed_failing_#{review_feed.id}",
       context: {
         review_feed_id: review_feed.id,
         feed_url: review_feed.feed_url,
