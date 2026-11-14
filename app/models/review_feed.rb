@@ -41,7 +41,7 @@ class ReviewFeed < ApplicationRecord
   validate :feed_url_is_http_url
 
   scope :fetchable, -> { where(state: FETCHABLE_STATES).where.not(feed_url: nil) }
-  scope :stale_empty, -> { where(empty_since: ...EMPTY_AFTER.ago) }
+  scope :stale_empty, -> { fetchable.where(empty_since: ...EMPTY_AFTER.ago) }
   scope :due_for_rediscovery,
         -> do
           where(state: "no_feed").where(
@@ -94,12 +94,16 @@ class ReviewFeed < ApplicationRecord
     FETCHABLE_STATES.include?(state)
   end
 
+  def fetchable?
+    fetchable_state? && feed_url.present?
+  end
+
   def failing?
     state == "failing"
   end
 
   def stale_empty?(at = Time.current)
-    empty_since.present? && empty_since < at - EMPTY_AFTER
+    fetchable? && empty_since.present? && empty_since < at - EMPTY_AFTER
   end
 
   def due?(hour)

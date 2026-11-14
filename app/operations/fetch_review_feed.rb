@@ -98,12 +98,20 @@ class FetchReviewFeed
       last_fetched_at: Time.current,
       empty_since: items.empty? ? (review_feed.empty_since || Time.current) : nil
     )
-    notify_empty if newly_stale_empty?(previous_fetch_at)
+    notify_empty if newly_stale_empty?(previous_fetch_at) && unchanged_during_fetch?
   end
 
   def newly_stale_empty?(previous_fetch_at)
     review_feed.stale_empty? &&
       (previous_fetch_at.nil? || !review_feed.stale_empty?(previous_fetch_at))
+  end
+
+  def unchanged_during_fetch?
+    ReviewFeed.fetchable.exists?(
+      id: review_feed.id,
+      feed_url: review_feed.feed_url,
+      empty_since: review_feed.empty_since
+    )
   end
 
   def record_failure(error)

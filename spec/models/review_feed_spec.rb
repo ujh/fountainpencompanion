@@ -256,6 +256,24 @@ describe ReviewFeed do
       expect(feed.stale_empty?).to be(true)
     end
 
+    it "is false for an ignored feed with an old empty_since" do
+      feed = build(:review_feed, state: "ignored", empty_since: 30.days.ago)
+
+      expect(feed.stale_empty?).to be(false)
+    end
+
+    it "is false for an unsaved active feed without a feed URL" do
+      feed = build(:review_feed, feed_url: nil, empty_since: 30.days.ago)
+
+      expect(feed.stale_empty?).to be(false)
+    end
+
+    it "is true for a failing feed with an old empty_since" do
+      feed = build(:review_feed, state: "failing", empty_since: 30.days.ago)
+
+      expect(feed.stale_empty?).to be(true)
+    end
+
     it "is checked at the given time" do
       feed = build(:review_feed, empty_since: 8.days.ago)
 
@@ -272,6 +290,8 @@ describe ReviewFeed do
       stale = create(:review_feed, empty_since: (described_class::EMPTY_AFTER + 1.second).ago)
       create(:review_feed, empty_since: described_class::EMPTY_AFTER.ago)
       create(:review_feed, empty_since: nil)
+      create(:review_feed, state: "ignored", empty_since: 30.days.ago)
+      create(:review_feed, :no_feed, empty_since: 30.days.ago)
 
       expect(described_class.stale_empty).to contain_exactly(stale)
     end

@@ -140,6 +140,17 @@ describe "Admins::ReviewFeeds" do
           patch form["action"], params: { filter_empty: "1" }
 
           expect(response).to redirect_to(admins_review_feeds_path(empty: "1"))
+          expect(feed.reload.state).to eq("ignored")
+          follow_redirect!
+          expect(Nokogiri.HTML(response.body).at_css("#review_feed_#{feed.id}")).to be_nil
+        end
+
+        it "does not highlight an ignored feed" do
+          feed.update!(state: "ignored", empty_since: (ReviewFeed::EMPTY_AFTER + 1.hour).ago)
+
+          get "/admins/review_feeds", params: { state: "ignored" }
+
+          expect(empty_cell(feed).at_css(".text-bg-danger")).to be_nil
         end
       end
 

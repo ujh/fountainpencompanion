@@ -406,6 +406,65 @@ describe FetchReviewFeed do
         [start + ReviewFeed::EMPTY_AFTER + 6.hours, restart + ReviewFeed::EMPTY_AFTER + 6.hours]
       )
     end
+
+    it "ends the streak when every item already has a page" do
+      review_feed.update!(empty_since: start)
+      create_page("https://feed.test/known", state: "processed")
+
+      fetch_at(start + ReviewFeed::EMPTY_AFTER + 1.day, %w[Known https://feed.test/known])
+
+      expect(review_feed.reload.empty_since).to be_nil
+      expect(notified_at).to be_empty
+    end
+
+    it "ends the streak when every item already has an ink review" do
+      review_feed.update!(empty_since: start)
+      create(:ink_review, url: "https://feed.test/reviewed")
+
+      fetch_at(start + ReviewFeed::EMPTY_AFTER + 1.day, %w[Reviewed https://feed.test/reviewed])
+
+      expect(review_feed.reload.empty_since).to be_nil
+      expect(notified_at).to be_empty
+    end
+
+    describe "admin changes during the fetch that crosses EMPTY_AFTER" do
+      def fetch_changing(time, **changes)
+        stub_request(:get, feed_url).to_return do
+          ReviewFeed.where(id: review_feed.id).update_all(changes)
+          { status: 200, body: rss }
+        end
+        travel_to(time) { described_class.new(review_feed.reload).perform }
+      end
+
+      before { fetch_at(start) }
+
+      it "does not notify for a feed ignored meanwhile" do
+        fetch_changing(start + ReviewFeed::EMPTY_AFTER + 1.hour, state: "ignored")
+
+        expect(review_feed.reload.state).to eq("ignored")
+        expect(notified_at).to be_empty
+      end
+
+      it "does not notify for a feed whose URL changed meanwhile" do
+        fetch_changing(start + ReviewFeed::EMPTY_AFTER + 1.hour, feed_url: "https://feed.test/new")
+
+        expect(review_feed.reload.feed_url).to eq("https://feed.test/new")
+        expect(notified_at).to be_empty
+      end
+
+      it "does not notify for a feed whose streak was reset meanwhile" do
+        fetch_changing(start + ReviewFeed::EMPTY_AFTER + 1.hour, empty_since: nil)
+
+        expect(review_feed.reload.empty_since).to be_nil
+        expect(notified_at).to be_empty
+      end
+
+      it "notifies when only other fields changed" do
+        fetch_changing(start + ReviewFeed::EMPTY_AFTER + 1.hour, curated: false)
+
+        expect(notified_at).to eq([start + ReviewFeed::EMPTY_AFTER + 1.hour])
+      end
+    end
   end
 
   describe "admin changes during a run" do
