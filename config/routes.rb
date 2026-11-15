@@ -15,9 +15,11 @@ Rails.application.routes.draw do
   mount LetterOpenerWeb::Engine, at: "/letter_opener" if Rails.env.development?
 
   devise_for :users,
+             format: false,
              controllers: {
                registrations: "users/registrations",
-               sessions: "custom_sessions"
+               sessions: "custom_sessions",
+               magic_links: "custom_magic_links"
              }
 
   resource :csrf_token, only: [:show]

@@ -33,8 +33,19 @@ end
 # are both blunted. Mail-sending endpoints (magic link, email change,
 # confirmation resend) get tighter hourly limits on top.
 
+def fpc_rails_params(request)
+  request.env["fpc.rack_attack.params"] ||= fpc_parse_rails_params(request)
+end
+
+def fpc_parse_rails_params(request)
+  ad = ActionDispatch::Request.new(request.env)
+  ad.request_parameters.merge(ad.query_parameters)
+rescue ActionDispatch::Http::Parameters::ParseError, ActionController::BadRequest
+  {}
+end
+
 def fpc_devise_user_params(request)
-  user = request.params["user"]
+  user = fpc_rails_params(request)["user"]
   user.is_a?(Hash) ? user : {}
 end
 
@@ -67,8 +78,10 @@ Rack::Attack.throttle("signups/ip", limit: 5, period: 1.hour) do |request|
 end
 
 def fpc_magic_link_request?(request)
-  request.post? && request.path == "/users/sign_in" &&
-    fpc_devise_user_params(request)["password"].blank?
+  return false unless request.post? && request.path == "/users/sign_in"
+
+  password = fpc_devise_user_params(request)["password"]
+  password.is_a?(Hash) || password.is_a?(Array) || password.blank?
 end
 
 Rack::Attack.throttle("magic_link/ip", limit: 10, period: 1.hour) do |request|
@@ -100,7 +113,7 @@ Rack::Attack.throttle("confirmation/email", limit: 3, period: 1.hour) do |reques
 end
 
 def fpc_search_query?(request)
-  request.params["q"].present?
+  fpc_rails_params(request)["q"].present?
 end
 
 Rack::Attack.throttle("full text search limit", limit: 1, period: 3) do |request|
