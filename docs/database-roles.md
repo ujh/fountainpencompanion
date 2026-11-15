@@ -16,8 +16,11 @@ Why:
 - **Statement timeout for web requests.** rack-timeout abandons a request after 25 s, but its query
   keeps running in Postgres and holds the connection. The 15 s role default cancels any single web
   statement that runs longer, so a request whose query used to take 15–25 s now fails with
-  `ActiveRecord::QueryCanceled` instead of succeeding slowly. Worker
-  jobs (matview refresh, `ANALYZE`, embedding searches) take longer and get no timeout. The timeout
+  `ActiveRecord::QueryCanceled` instead of succeeding slowly. New Relic showed no such web
+  statement over 30 days (November 2026) outside a database-wide stall on 2026-11-11/12; the slowest
+  page was the pen model search (`/pen_models`, `Pens::Model.embedding_search`) at 8.7 s of database
+  time over three queries. Worker jobs (matview refresh, `ANALYZE`, `MacroCluster.embedding_search`
+  in agents and review workers) take longer and get no timeout. The timeout
   has to be a role default: under transaction pooling a session `SET` reaches whichever server
   connection the next statement lands on. PgBouncer keeps server connections per (user, database)
   and Postgres applies role defaults when a server connection starts, so the web role's timeout
@@ -250,7 +253,8 @@ after another one has been shrunk to make room.
 
 Final layout: `pool` (no fixed user, `doadmin`: migrations and console) 15, `worker`
 (`fpc_worker`) 15, `web` (`fpc_web`) 40: 70 of 97. Worker demand is machines × 6 Sidekiq threads
-(default capsule 5 + `slow` 1, `config/initializers/sidekiq.rb`); `fly scale show` lists the
+(default capsule `SIDEKIQ_CONCURRENCY` from `config/sidekiq.yml`, set to 5 in `fly.toml`, plus the
+`slow` capsule's 1 in `config/initializers/sidekiq.rb`); `fly scale show` lists the
 machines. Confirm the sizes with the stage 0 measurement.
 
 `WEB_DATABASE_URL` and `WORKER_DATABASE_URL` are the pools' connection strings (same host and port
@@ -283,7 +287,7 @@ shrink that makes room for it.
    Rollback: unset `WORKER_DATABASE_URL`; `pool` at 30 has room for the worker.
 3. **Web** (total 85: `pool` 30, `worker` 15, `web` 40). Create the `web` pool, run the web smoke
    test, set `WEB_DATABASE_URL`, run the `bin/rails runner` check, watch Honeybadger for permission
-   errors and `ActiveRecord::QueryCanceled`.
+   errors and `ActiveRecord::QueryCanceled`, especially on `/pen_models`.
    Rollback: unset `WEB_DATABASE_URL` if `pool` at 30 holds web's measured peak; otherwise shrink
    or delete `web` and grow `pool` first, then unset.
 4. **Shrink** (total 70: `pool` 15, `worker` 15, `web` 40). After a few days without problems,
