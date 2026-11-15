@@ -144,5 +144,17 @@ describe CreateInkReviewSubmission do
         ).perform
       end.not_to change(ProcessInkReviewSubmission.jobs, :count)
     end
+
+    it "is not counted as submitted by a person, even without an explanation" do
+      submission = subject.perform
+
+      expect(InkReviewSubmission.submitted_by_people).not_to include(submission)
+    end
+  end
+
+  it "counts a human submission as submitted by a person" do
+    submission = subject.perform
+
+    expect(InkReviewSubmission.submitted_by_people).to include(submission)
   end
 end
