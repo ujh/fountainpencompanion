@@ -636,6 +636,18 @@ describe WidgetsController do
         expect(response).to have_http_status(:ok)
         expect(captured[:extra_user_input]).to be_nil
       end
+
+      it "reads the instruction from a plain JSON body" do
+        start_suggestion(
+          { extra_user_input: "Something blue" },
+          headers: {
+            "CONTENT_TYPE" => "application/json",
+            "ACCEPT" => "application/json"
+          }
+        )
+
+        expect(captured[:extra_user_input]).to eq("Something blue")
+      end
     end
   end
 end

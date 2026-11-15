@@ -179,3 +179,22 @@ describe("CSRF token refresh", () => {
     expect(tokenRequests).toBe(0);
   });
 });
+
+describe("retries", () => {
+  it.each([
+    ["a server error", () => HttpResponse.json({}, { status: 500 })],
+    ["a network error", () => HttpResponse.error()]
+  ])("sends a POST only once after %s", async (_, failure) => {
+    let posts = 0;
+    server.use(
+      http.post("/things", () => {
+        posts += 1;
+        return failure();
+      })
+    );
+
+    await postRequest("/things").catch(() => {});
+
+    expect(posts).toBe(1);
+  });
+});

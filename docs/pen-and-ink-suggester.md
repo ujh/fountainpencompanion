@@ -86,7 +86,7 @@ which sends the CSRF token; `rejected_suggestions` is a JSON string of the pairs
 `status: "error"`, or after 60 s.
 
 **Controller and operation.** `WidgetsController#start_pen_and_ink_suggestion` (the `POST`) reads
-`extra_user_input` and `rejected_suggestions` from the JSON:API body and hands them to
+`extra_user_input` and `rejected_suggestions` from the request body (JSON:API, plain JSON or form) and hands them to
 `RequestPenAndInkSuggestion`, which checks the daily cap (writing the cap message straight to the
 cache when it is reached) and enqueues the worker with the enqueue time. It ignores any
 `suggestion_id`, so every `POST` starts a run. `WidgetsController#show` (the `GET`) needs a
