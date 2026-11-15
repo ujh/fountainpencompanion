@@ -98,8 +98,31 @@ class MacroCluster < ApplicationRecord
   def self.embedding_search(query)
     return [] if query.blank?
 
-    connection.execute("SET hnsw.ef_search = 200")
     query_embedding = EmbeddingsClient.new.fetch(query)
+    embeddings =
+      transaction do
+        connection.execute("SET LOCAL hnsw.ef_search = 200")
+        nearest_embeddings(query_embedding)
+      end
+    clusters = Hash.new { |h, k| h[k] = OpenStruct.new(distance: 1.0, cluster: nil) }
+    embeddings.each do |embedding|
+      owner = embedding.owner
+      next unless owner
+
+      cluster = owner.macro_cluster
+      next unless cluster
+
+      cluster_id = cluster.id
+      next unless clusters[cluster_id].distance > embedding.neighbor_distance
+
+      clusters[cluster_id].distance = embedding.neighbor_distance
+      clusters[cluster_id].cluster = cluster
+    end
+    # Return data sorted by neighbor_distance
+    clusters.values.sort_by(&:distance)
+  end
+
+  def self.nearest_embeddings(query_embedding)
     # This needs to do multiple queries as it is not possible to do the filtering
     # by distance in the database. So we need to get the first N results and do
     # the filtering afterwards. With so many collected inks this in turn means
@@ -138,24 +161,9 @@ class MacroCluster < ApplicationRecord
         .order(:neighbor_distance)
         .first(2000)
         .reject { |e| e.neighbor_distance > 0.6 }
-    embeddings = [*macro_cluster_embeddings, *micro_cluster_embeddings, *collected_ink_embeddings]
-    clusters = Hash.new { |h, k| h[k] = OpenStruct.new(distance: 1.0, cluster: nil) }
-    embeddings.each do |embedding|
-      owner = embedding.owner
-      next unless owner
-
-      cluster = owner.macro_cluster
-      next unless cluster
-
-      cluster_id = cluster.id
-      next unless clusters[cluster_id].distance > embedding.neighbor_distance
-
-      clusters[cluster_id].distance = embedding.neighbor_distance
-      clusters[cluster_id].cluster = cluster
-    end
-    # Return data sorted by neighbor_distance
-    clusters.values.sort_by(&:distance)
+    [*macro_cluster_embeddings, *micro_cluster_embeddings, *collected_ink_embeddings]
   end
+  private_class_method :nearest_embeddings
 
   def self.effective_column(field)
     coalesce = "COALESCE(NULLIF(macro_clusters.manual_#{field}, ''), macro_clusters.#{field})"

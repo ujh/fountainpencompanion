@@ -30,8 +30,38 @@ class Pens::Model < ApplicationRecord
   def self.embedding_search(query)
     return [] if query.blank?
 
-    connection.execute("SET hnsw.ef_search = 1000")
     query_embedding = EmbeddingsClient.new.fetch(query)
+    embeddings =
+      transaction do
+        connection.execute("SET LOCAL hnsw.ef_search = 1000")
+        nearest_embeddings(query_embedding)
+      end
+    models = Hash.new { |h, k| h[k] = OpenStruct.new(distance: 1.0, results: []) }
+    embeddings.each do |embedding|
+      owner = embedding.owner
+      model = owner.pen_model
+      next unless model
+
+      model_id = model.id
+      models[model_id].results << owner
+      if models[model_id].distance > embedding.neighbor_distance
+        models[model_id].distance = embedding.neighbor_distance
+        models[model_id].owner = owner
+      end
+    end
+    models.values.each do |data|
+      data.model_variants =
+        data
+          .results
+          .reject { |result| result.is_a?(Pens::Model) }
+          .map { |result| result.is_a?(Pens::ModelVariant) ? result : result.pen_variant }
+          .uniq
+    end
+    # Return data sorted by neighbor_distance
+    models.values.sort_by(&:distance)
+  end
+
+  def self.nearest_embeddings(query_embedding)
     model_embeddings =
       PenEmbedding
         .where(owner_type: "Pens::Model")
@@ -69,31 +99,9 @@ class Pens::Model < ApplicationRecord
         .order(:neighbor_distance)
         .first(2000)
         .reject { |e| e.neighbor_distance > 0.6 }
-    embeddings = [*model_embeddings, *model_variant_embeddings, *collected_pens_embeddings]
-    models = Hash.new { |h, k| h[k] = OpenStruct.new(distance: 1.0, results: []) }
-    embeddings.each do |embedding|
-      owner = embedding.owner
-      model = owner.pen_model
-      next unless model
-
-      model_id = model.id
-      models[model_id].results << owner
-      if models[model_id].distance > embedding.neighbor_distance
-        models[model_id].distance = embedding.neighbor_distance
-        models[model_id].owner = owner
-      end
-    end
-    models.values.each do |data|
-      data.model_variants =
-        data
-          .results
-          .reject { |result| result.is_a?(Pens::Model) }
-          .map { |result| result.is_a?(Pens::ModelVariant) ? result : result.pen_variant }
-          .uniq
-    end
-    # Return data sorted by neighbor_distance
-    models.values.sort_by(&:distance)
+    [*model_embeddings, *model_variant_embeddings, *collected_pens_embeddings]
   end
+  private_class_method :nearest_embeddings
 
   def name
     "#{brand} #{model}"
