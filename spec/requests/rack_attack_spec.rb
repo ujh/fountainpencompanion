@@ -337,6 +337,27 @@ describe "Rack::Attack throttles", type: :request do
       expect(results.last).to eq(429)
     end
 
+    it "counts form requests with a hash password, which sign-in ignores" do
+      results =
+        statuses(4) do |i|
+          post "/users/sign_in",
+               params: {
+                 user: {
+                   email: "hash-form-victim@example.com",
+                   password: {
+                     a: "b"
+                   }
+                 }
+               },
+               env: {
+                 "REMOTE_ADDR" => "203.0.113.#{i + 104}"
+               }
+        end
+
+      expect(results.first(3)).to all(be < 429)
+      expect(results.last).to eq(429)
+    end
+
     it "does not count password logins against the magic link limits" do
       results =
         statuses(4) do |i|
