@@ -26,6 +26,10 @@ docker-compose up
 
 This starts: app (Puma), webpack (dev server), sidekiq (workers), postgres, and redis.
 
+The `sidekiq` container runs `config/sidekiq_schedule.yml` like production, so scheduled jobs fetch real
+feeds and agents can make paid LLM calls. It loads the bundle at boot: restart it
+(`docker-compose restart sidekiq app`) after adding or updating a gem, or jobs fail with `NameError`.
+
 On first setup:
 
 ```
@@ -58,6 +62,11 @@ The first time, and after adding a migration, create and load the extra test dat
 `tmp/parallel_runtime_rspec.log` and uses them to balance the next run. CI splits the suite into two jobs by
 the committed `spec/parallel_runtime_rspec.log`; when the jobs drift apart, refresh it with
 `docker-compose exec -T app cp tmp/parallel_runtime_rspec.log spec/parallel_runtime_rspec.log`.
+
+Each test database starts its id sequences fresh, so record ids are small. Don't check that an id is
+missing from generated text by searching for the number; a small id matches digits of other numbers in
+the text. Compare with the text generated for a second set of records with the same content
+instead.
 
 All backend tests in one process (slower; useful when a failure depends on test order):
 
@@ -129,6 +138,22 @@ Auto-fix ESLint issues:
 docker-compose exec -T app pnpm eslint --fix
 ```
 
+### Security Checks
+
+CI's `security` job runs both of these; run them before opening a PR:
+
+```
+docker-compose exec -T app bundle exec brakeman --no-pager -q
+docker-compose exec -T app bundle exec bundler-audit check --update
+```
+
+Prefer Arel over interpolating SQL fragments into strings: Brakeman flags interpolated constants it can
+resolve to a method call, e.g. `where("#{NORMALIZED_HOST} = ?")` inside `InkReview`, where
+`NORMALIZED_HOST = Arel.sql(...)`; use `NORMALIZED_HOST.eq(value)` instead. A new advisory for a gem on `master` fails the `security` job on
+every PR. Fix it in its own PR from `master` with the smallest bump that clears it
+(`bundle update <gem> --patch --conservative`), then rebase the PRs you are working on
+(`gh pr update-branch <PR> --rebase`).
+
 ### Style Rules
 
 - **Prettier**: 100 char width, semicolons, double quotes, no trailing commas, `arrowParens: always`
@@ -175,6 +200,7 @@ spec/
 - **Thin controllers**: a controller action finds the records, calls one operation and picks the response. Saving that comes with side effects (emails, jobs, status changes on other records) lives in an operation in `app/operations/`, following `SaveCollectedInk` / `SaveCollectedPen`: the constructor takes the record and the params, `perform` returns whether it saved, and the spec lives in `spec/operations/`.
 - **Ruby**: snake_case for methods/variables, CamelCase for classes/modules. Rescue specific errors only. Prefer `attr_accessor` with `self.x =` in constructors over bare `@x` instance variables.
 - **JavaScript/JSX**: PascalCase for components, camelCase for variables/functions. Tests use `*.spec.js(x)` extension.
+- **Migrations**: `add_reference ... foreign_key: { validate: false }` cannot be rolled back from `change` once a later migration validates the key (`remove_reference` then finds no foreign key matching `validate: false`); write explicit `up` and `down` methods.
 - **Commits**: there is no pre-commit hook. Run `pnpm prettier-fix` and `pnpm eslint --fix` before committing; CI's `pnpm lint` fails on unformatted or lint-failing files.
 
 ## AI Agents (RubyLLM)
@@ -287,9 +313,13 @@ See `spec/agents/spam_classifier_spec.rb` or `spec/agents/ink_brand_clusterer_sp
 
 ## CI
 
-Defined in `.github/workflows/ci.yml`. Runs on push to master and on PRs:
+Runs on PRs and on push to master (`review` only on PRs). Required for merging: `rspec (1)`, `rspec (2)`, `jest`, `docker-build`, `security`, `codecov/patch` and `codecov/project`.
 
-- **rspec**: full Rails test suite
-- **jest**: linting + JS test suite (Vitest)
-- **docker-build**: verifies production Docker image builds
-- **deploy**: auto-deploys to Fly.io on master after tests pass
+- **`.github/workflows/ci.yml`**:
+  - **rspec (1)**, **rspec (2)**: the Rails test suite, split into two jobs by `spec/parallel_runtime_rspec.log`
+  - **jest**: linting + JS test suite (Vitest)
+  - **docker-build**: verifies the production Docker image builds
+  - **Deploy app**: deploys to Fly.io on master after rspec, jest and docker-build pass
+- **`.github/workflows/security.yml`**: **security** runs bundler-audit and Brakeman (see [Security Checks](#security-checks)); also weekly on master
+- **`.github/workflows/claude-code-review.yml`**: **review** posts inline review comments on PRs. Judge them by the [review rules](docs/orchestration.md#review-rules): fix blockers and important findings; style-only nits do not need another push.
+- **Codecov**: `codecov/patch` and `codecov/project` report after all three coverage uploads (both rspec jobs and jest; `codecov.yml`).
