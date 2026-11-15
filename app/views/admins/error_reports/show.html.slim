@@ -37,7 +37,7 @@ dl class="row"
   dd class="col-sm-9"= l(@error_report.created_at, format: :long)
 
   dt class="col-sm-3" Description
-  dd class="col-sm-9"= simple_format(@error_report.description)
+  dd class="col-sm-9"= simple_format(h(@error_report.description))
 
 h2 class="h4" History
 - if @error_report.entries.empty?
@@ -51,7 +51,7 @@ h2 class="h4" History
         = entry.user.public_name
         |  ·
         = l(entry.created_at, format: :short)
-      div class="card-body"= simple_format(entry.body)
+      div class="card-body"= simple_format(h(entry.body))
 
 div class="row mt-4"
   div class="col-md-6"
