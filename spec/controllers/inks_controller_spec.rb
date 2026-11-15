@@ -334,6 +334,23 @@ describe InksController do
         expect(ink.reload.description).to eq("old")
       end
 
+      it "shows the name form with the error when a name is too long" do
+        ink.update!(manual_ink_name: "Old Ink")
+        put :update,
+            params: {
+              id: ink.id,
+              brand_id: brand.id,
+              macro_cluster: {
+                manual_ink_name: "x" * 101
+              }
+            }
+
+        expect(response).to have_http_status(:unprocessable_content)
+        expect(response.body).to include("is too long (maximum is 100 characters)")
+        expect(response.body).to include('maxlength="100"')
+        expect(ink.reload.manual_ink_name).to eq("Old Ink")
+      end
+
       it "updates the ink embedding with the new name" do
         ink.create_ink_embedding(content: "old name")
         put :update,
