@@ -133,6 +133,7 @@ class Api::V1::CollectedInksController < Api::V1::BaseController
     end
   end
   returns code: 201, desc: "Collected ink created successfully"
+  returns code: 413, desc: "Request body larger than 1 MB"
   returns code: 422, desc: "Validation errors"
 
   def create
@@ -168,6 +169,7 @@ class Api::V1::CollectedInksController < Api::V1::BaseController
   end
   returns code: 200, desc: "Collected ink updated successfully"
   returns code: 404, desc: "Collected ink not found"
+  returns code: 413, desc: "Request body larger than 1 MB"
   returns code: 422, desc: "Validation errors"
 
   def update
