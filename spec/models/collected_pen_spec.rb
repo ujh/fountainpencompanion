@@ -22,6 +22,33 @@ describe CollectedPen do
     expect(subject.errors).to include(:archived_on)
   end
 
+  describe "free-text limits" do
+    let(:pen) { create(:collected_pen) }
+
+    {
+      comment: 20_000,
+      material: 1_000,
+      price: 1_000,
+      trim_color: 1_000,
+      filling_system: 1_000
+    }.each do |attribute, limit|
+      it "accepts a #{attribute} of #{limit} characters" do
+        expect(pen.update(attribute => "x" * limit)).to be(true)
+      end
+
+      it "rejects a #{attribute} of more than #{limit} characters" do
+        expect(pen.update(attribute => "x" * (limit + 1))).to be(false)
+        expect(pen.errors[attribute]).to eq(["is too long (maximum is #{limit} characters)"])
+      end
+
+      it "keeps a pen with an existing over-long #{attribute} saveable" do
+        pen.update_column(attribute, "x" * (limit + 1))
+
+        expect(pen.reload.update(nib: "F")).to be(true)
+      end
+    end
+  end
+
   describe "#name" do
     it "combines brand, model, nib, and color" do
       subject.brand = "brand"

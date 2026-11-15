@@ -8,7 +8,7 @@
       = f.input :inked_on, as: :string, required: false, input_html: { type: 'date', min: PlausibleDateValidator::EARLIEST, max: PlausibleDateValidator.latest }
 
   div style="max-width: 850px"
-      = f.input :comment, as: :string
+      = f.input :comment, as: :string, input_html: { maxlength: ApplicationRecord::MAX_COMMENT_LENGTH }
 
   div class="pt-2 mb-5"
       = f.submit "Save", class: "btn btn-success"

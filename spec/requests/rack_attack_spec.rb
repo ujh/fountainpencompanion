@@ -498,6 +498,17 @@ describe "Rack::Attack throttles", type: :request do
       expect(log.string.scan("Error occurred while parsing request parameters").size).to eq(1)
     end
 
+    it "treats a body with an invalid content type as no parameters" do
+      env =
+        Rack::MockRequest.env_for(
+          "/users/sign_in",
+          :method => "POST",
+          "CONTENT_TYPE" => "not a media type",
+          :input => "{\"user\": {\"email\": \"a@example.com\"}}"
+        )
+      expect(fpc_devise_user_params(Rack::Request.new(env))).to eq({})
+    end
+
     it "treats a malformed query string as no parameters" do
       env =
         Rack::MockRequest.env_for("/users/sign_in?user=a&user[email]=b@example.com", method: "POST")

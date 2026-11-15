@@ -118,19 +118,22 @@ class Api::V1::CollectedInksController < Api::V1::BaseController
       param :brand_name, String, required: true, desc: "Brand name of the ink (1-100 characters)"
       param :ink_name, String, required: true, desc: "Name of the ink (1-100 characters)"
       param :line_name, String, desc: "Line name of the ink (1-100 characters)"
-      param :maker, String, desc: "Maker of the ink"
+      param :maker, String, desc: "Maker of the ink (up to 1,000 characters)"
       param :kind, %w[bottle sample cartridge swab], desc: "Type of ink"
       param :color, String, desc: "Color hex code of the ink (e.g., '#FF0000')"
       param :swabbed, [true, false], desc: "Whether the ink has been swabbed"
       param :used, [true, false], desc: "Whether the ink has been used"
-      param :comment, String, desc: "User comment about the ink"
-      param :private_comment, String, desc: "Private comment about the ink"
+      param :comment, String, desc: "User comment about the ink (up to 20,000 characters)"
+      param :private_comment,
+            String,
+            desc: "Private comment about the ink (up to 20,000 characters)"
       param :private, [true, false], desc: "Whether the ink is private"
       param :archived_on, Date, desc: "Date when the ink was archived"
       param :tags_as_string, String, desc: "Comma-separated list of tags"
     end
   end
   returns code: 201, desc: "Collected ink created successfully"
+  returns code: 413, desc: "Request body larger than 1 MB"
   returns code: 422, desc: "Validation errors"
 
   def create
@@ -150,13 +153,15 @@ class Api::V1::CollectedInksController < Api::V1::BaseController
       param :brand_name, String, desc: "Brand name of the ink (1-100 characters)"
       param :ink_name, String, desc: "Name of the ink (1-100 characters)"
       param :line_name, String, desc: "Line name of the ink (1-100 characters)"
-      param :maker, String, desc: "Maker of the ink"
+      param :maker, String, desc: "Maker of the ink (up to 1,000 characters)"
       param :kind, %w[bottle sample cartridge swab], desc: "Type of ink"
       param :color, String, desc: "Color hex code of the ink (e.g., '#FF0000')"
       param :swabbed, [true, false], desc: "Whether the ink has been swabbed"
       param :used, [true, false], desc: "Whether the ink has been used"
-      param :comment, String, desc: "User comment about the ink"
-      param :private_comment, String, desc: "Private comment about the ink"
+      param :comment, String, desc: "User comment about the ink (up to 20,000 characters)"
+      param :private_comment,
+            String,
+            desc: "Private comment about the ink (up to 20,000 characters)"
       param :private, [true, false], desc: "Whether the ink is private"
       param :archived, [true, false], desc: "Whether the ink is archived"
       param :tags_as_string, String, desc: "Comma-separated list of tags"
@@ -164,6 +169,7 @@ class Api::V1::CollectedInksController < Api::V1::BaseController
   end
   returns code: 200, desc: "Collected ink updated successfully"
   returns code: 404, desc: "Collected ink not found"
+  returns code: 413, desc: "Request body larger than 1 MB"
   returns code: 422, desc: "Validation errors"
 
   def update

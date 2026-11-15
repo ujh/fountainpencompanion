@@ -43,6 +43,27 @@ describe CollectedInk do
     end
   end
 
+  describe "free-text limits" do
+    let(:ink) { create(:collected_ink) }
+
+    { comment: 20_000, private_comment: 20_000, maker: 1_000 }.each do |attribute, limit|
+      it "accepts a #{attribute} of #{limit} characters" do
+        expect(ink.update(attribute => "x" * limit)).to be(true)
+      end
+
+      it "rejects a #{attribute} of more than #{limit} characters" do
+        expect(ink.update(attribute => "x" * (limit + 1))).to be(false)
+        expect(ink.errors[attribute]).to eq(["is too long (maximum is #{limit} characters)"])
+      end
+
+      it "keeps an ink with an existing over-long #{attribute} saveable" do
+        ink.update_column(attribute, "x" * (limit + 1))
+
+        expect(ink.reload.update(used: true)).to be(true)
+      end
+    end
+  end
+
   describe "comment" do
     let(:existing_ink) { create(:collected_ink, kind: "bottle", ink_name: "Syrah") }
 

@@ -66,6 +66,25 @@ describe CurrentlyInked do
     end
   end
 
+  describe "comment" do
+    let(:currently_inked) { create(:currently_inked) }
+
+    it "accepts 20,000 characters" do
+      expect(currently_inked.update(comment: "x" * 20_000)).to be(true)
+    end
+
+    it "rejects more than 20,000 characters" do
+      expect(currently_inked.update(comment: "x" * 20_001)).to be(false)
+      expect(currently_inked.errors[:comment]).to eq(["is too long (maximum is 20000 characters)"])
+    end
+
+    it "keeps an entry with an existing over-long comment saveable" do
+      currently_inked.update_column(:comment, "x" * 20_001)
+
+      expect(currently_inked.reload.update(inked_on: Date.current)).to be(true)
+    end
+  end
+
   describe "#initialize" do
     it "sets a default inked_on" do
       expect(subject.inked_on).to eq(Date.today)

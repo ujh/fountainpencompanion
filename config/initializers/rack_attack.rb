@@ -40,7 +40,9 @@ end
 def fpc_parse_rails_params(request)
   ad = ActionDispatch::Request.new(request.env)
   ad.request_parameters.merge(ad.query_parameters)
-rescue ActionDispatch::Http::Parameters::ParseError, ActionController::BadRequest
+rescue ActionDispatch::Http::Parameters::ParseError,
+       ActionController::BadRequest,
+       ActionDispatch::Http::MimeNegotiation::InvalidType
   {}
 end
 

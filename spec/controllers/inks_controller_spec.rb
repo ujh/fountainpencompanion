@@ -327,6 +327,24 @@ describe InksController do
         end.to change { ink.reload.ignored_colors }.to(%w[#FF0000 #00FF00])
       end
 
+      it "shows the colors page with the error when ignored_colors is invalid" do
+        ink.update!(ignored_colors: %w[#FF0000])
+        put :update,
+            params: {
+              id: ink.id,
+              brand_id: brand.id,
+              macro_cluster: {
+                ignored_colors: %w[#00FF00 #00FF000]
+              }
+            }
+
+        expect(response).to have_http_status(:unprocessable_content)
+        expect(response).to render_template(:edit_colors)
+        expect(response.body).to include("has an entry that is too long")
+        expect(response.body).not_to include("#00FF000")
+        expect(ink.reload.ignored_colors).to eq(%w[#FF0000])
+      end
+
       it "shows the edit form with the error when the description is invalid" do
         ink.update!(description: "old")
         put :update,

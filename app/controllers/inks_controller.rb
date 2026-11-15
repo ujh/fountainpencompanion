@@ -40,6 +40,9 @@ class InksController < ApplicationController
       return render :edit, status: :unprocessable_content
     elsif MacroCluster::MANUAL_NAME_FIELDS.any? { |field| @ink.errors.include?(field) }
       return render :edit_name, status: :unprocessable_content
+    elsif @ink.errors.include?(:ignored_colors)
+      @ink.restore_attributes([:ignored_colors])
+      return render :edit_colors, status: :unprocessable_content
     end
 
     redirect_to ink_path(@ink)

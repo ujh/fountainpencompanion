@@ -576,6 +576,38 @@ describe Api::V1::CollectedInksController do
         expect(json[:errors]).to be_present
       end
 
+      it "returns validation errors for a comment that is too long" do
+        ink = create(:collected_ink, user: user, comment: "old")
+
+        patch "/api/v1/collected_inks/#{ink.id}",
+              params: {
+                data: {
+                  type: "collected_ink",
+                  attributes: {
+                    comment: "x" * 20_001
+                  }
+                }
+              },
+              headers: {
+                "ACCEPT" => "application/json",
+                "CONTENT_TYPE" => "application/json"
+              },
+              as: :json
+
+        expect(response).to have_http_status(:unprocessable_content)
+        expect(json[:errors]).to eq(
+          [
+            {
+              source: {
+                pointer: "/data/attributes/comment"
+              },
+              detail: "Comment is too long (maximum is 20000 characters)"
+            }
+          ]
+        )
+        expect(ink.reload.comment).to eq("old")
+      end
+
       it "can set the archived date" do
         ink = create(:collected_ink, user: user, archived_on: nil)
 

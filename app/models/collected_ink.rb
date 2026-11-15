@@ -14,6 +14,9 @@ class CollectedInk < ApplicationRecord
   validates :brand_name, length: { in: 1..100 }
   validates :ink_name, length: { in: 1..100 }
   validates :line_name, length: { in: 1..100, allow_blank: true }
+  validates :maker, length: { maximum: MAX_DETAIL_LENGTH }, if: :maker_changed?
+  validates :comment, length: { maximum: MAX_COMMENT_LENGTH }, if: :comment_changed?
+  validates :private_comment, length: { maximum: MAX_COMMENT_LENGTH }, if: :private_comment_changed?
 
   validate :color_valid
 
