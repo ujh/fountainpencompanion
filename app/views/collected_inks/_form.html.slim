@@ -15,12 +15,12 @@ div id="ink-search-hint"
     = f.input :swabbed
     = f.input :used, hint: "Also gets set when you create a Currently inked entry"
   div style="max-width: 450px"
-    = f.input :maker, as: :string, hint: "e.g. Sailor or Diamine (the big two when it comes to making inks for other brands)"
+    = f.input :maker, as: :string, input_html: { maxlength: ApplicationRecord::MAX_DETAIL_LENGTH }, hint: "e.g. Sailor or Diamine (the big two when it comes to making inks for other brands)"
   = f.input :color, as: :hidden
   div class="color-picker mb-3" data-input="collected_ink_color"
   div style="max-width: 850px"
-    = f.input :comment, hint: "Will be visible to everyone if the ink is public. Use the private comment field below for private data."
-    = f.input :private_comment, hint: "Will only be visible to you even if you've made the ink itself public."
+    = f.input :comment, input_html: { maxlength: ApplicationRecord::MAX_COMMENT_LENGTH }, hint: "Will be visible to everyone if the ink is public. Use the private comment field below for private data."
+    = f.input :private_comment, input_html: { maxlength: ApplicationRecord::MAX_COMMENT_LENGTH }, hint: "Will only be visible to you even if you've made the ink itself public."
 
   div style="max-width: 450px"
     = f.input :tags_as_string, label: "Tags", hint: "A comma separated list of tags to classify your inks"

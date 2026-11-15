@@ -31,6 +31,7 @@ class CurrentlyInked < ApplicationRecord
   validate :collected_pen_belongs_to_user
   validate :pen_not_already_in_use
   validates :inked_on, presence: true, plausible_date: true
+  validates :comment, length: { maximum: MAX_COMMENT_LENGTH }, if: :comment_changed?
 
   after_initialize :set_default_inked_on
   before_save :update_nib

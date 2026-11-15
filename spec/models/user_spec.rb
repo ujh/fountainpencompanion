@@ -44,6 +44,28 @@ describe User do
     end
   end
 
+  describe "preferences" do
+    let(:user) { create(:user) }
+    let(:preference_with_size) do
+      ->(bytes) { { "dashboard_widgets" => "x" * (bytes - '{"dashboard_widgets":""}'.bytesize) } }
+    end
+
+    it "accepts preferences of 10,000 bytes" do
+      expect(user.update(preferences: preference_with_size.call(10_000))).to be(true)
+    end
+
+    it "rejects preferences of more than 10,000 bytes" do
+      expect(user.update(preferences: preference_with_size.call(10_001))).to be(false)
+      expect(user.errors[:preferences]).to eq(["are too large (maximum is 10000 bytes)"])
+    end
+
+    it "keeps a user with existing over-large preferences saveable" do
+      user.update_column(:preferences, preference_with_size.call(10_001))
+
+      expect(user.reload.update(spam: true)).to be(true)
+    end
+  end
+
   describe "time zone" do
     it "accepts IANA time zone identifiers" do
       expect(build(:user, time_zone: "America/Argentina/Buenos_Aires")).to be_valid

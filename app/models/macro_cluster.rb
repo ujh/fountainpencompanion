@@ -4,6 +4,8 @@ class MacroCluster < ApplicationRecord
   MAX_DESCRIPTION_LENGTH = 5_000
   MAX_NAME_LENGTH = 100
   MANUAL_NAME_FIELDS = %i[manual_brand_name manual_line_name manual_ink_name].freeze
+  MAX_IGNORED_COLORS = 1_000
+  MAX_IGNORED_COLOR_LENGTH = 7
 
   TRACKED_FIELDS = {
     "description" => "Description",
@@ -62,6 +64,7 @@ class MacroCluster < ApplicationRecord
   MANUAL_NAME_FIELDS.each do |field|
     validates field, length: { maximum: MAX_NAME_LENGTH }, if: :"#{field}_changed?"
   end
+  validate :ignored_colors_size, if: :ignored_colors_changed?
 
   before_save :recalculate_color, if: :will_save_change_to_ignored_colors?
   after_commit :enqueue_update, if: :saved_change_to_color?
@@ -373,6 +376,18 @@ class MacroCluster < ApplicationRecord
   end
 
   private
+
+  def ignored_colors_size
+    if ignored_colors.size > MAX_IGNORED_COLORS
+      errors.add(:ignored_colors, "has too many entries (maximum is #{MAX_IGNORED_COLORS})")
+    end
+    return if ignored_colors.all? { |color| color.to_s.length <= MAX_IGNORED_COLOR_LENGTH }
+
+    errors.add(
+      :ignored_colors,
+      "has an entry that is too long (maximum is #{MAX_IGNORED_COLOR_LENGTH} characters)"
+    )
+  end
 
   def expire_missing_descriptions
     MissingDescriptions.expire_inks

@@ -136,6 +136,24 @@ describe CollectedPensController do
           expect(response).to redirect_to(collected_pens_path)
         end.to change { wing_sung.reload.brand }.from("Wing Sung").to("Not Wing Sung")
       end
+
+      it "shows the error for a material that is too long" do
+        put :update, params: { id: wing_sung.id, collected_pen: { material: "x" * 1_001 } }
+
+        expect(response).to render_template(:edit)
+        expect(response.body).to include("is too long (maximum is 1000 characters)")
+        expect(wing_sung.reload.material).to eq("plastic")
+      end
+
+      it "limits the length of the free-text inputs" do
+        get :edit, params: { id: wing_sung.id }
+
+        page = Nokogiri.HTML(response.body)
+        %w[material trim_color filling_system price].each do |field|
+          expect(page.at_css("#collected_pen_#{field}")["maxlength"]).to eq("1000")
+        end
+        expect(page.at_css("#collected_pen_comment")["maxlength"]).to eq("20000")
+      end
     end
   end
 

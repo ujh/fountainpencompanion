@@ -220,6 +220,18 @@ describe AccountsController do
           expect(user.reload.preferences).to eq({})
         end
 
+        it "rejects preferences larger than 10,000 bytes" do
+          user.update!(preferences: { "collected_inks_table_hidden_fields" => ["nib"] })
+          put "/account",
+              params: { user: { preferences: { dashboard_widgets: ["x" * 10_000] } } }.to_json,
+              headers: jsonapi_headers
+          expect(response).to have_http_status(:unprocessable_content)
+          expect(JSON.parse(response.body)["errors"].first["detail"]).to eq(
+            "Preferences are too large (maximum is 10000 bytes)"
+          )
+          expect(user.reload.preferences).to eq("collected_inks_table_hidden_fields" => ["nib"])
+        end
+
         it "returns updated user in jsonapi response" do
           put "/account",
               params: {

@@ -261,6 +261,16 @@ describe CollectedInksController do
         get :edit, params: { id: ink.id }
         expect(response).to be_successful
       end
+
+      it "limits the length of the free-text inputs" do
+        ink = create(:collected_ink, user: user)
+        get :edit, params: { id: ink.id }
+
+        page = Nokogiri.HTML(response.body)
+        expect(page.at_css("#collected_ink_maker")["maxlength"]).to eq("1000")
+        expect(page.at_css("#collected_ink_comment")["maxlength"]).to eq("20000")
+        expect(page.at_css("#collected_ink_private_comment")["maxlength"]).to eq("20000")
+      end
     end
   end
 
@@ -309,6 +319,15 @@ describe CollectedInksController do
         ink = create(:collected_ink, user: user)
         put :update, params: { id: ink.id, collected_ink: { brand_name: "" } }
         expect(response).to render_template(:edit)
+      end
+
+      it "shows the error for a comment that is too long" do
+        ink = create(:collected_ink, user: user, comment: "old")
+        put :update, params: { id: ink.id, collected_ink: { comment: "x" * 20_001 } }
+
+        expect(response).to render_template(:edit)
+        expect(response.body).to include("is too long (maximum is 20000 characters)")
+        expect(ink.reload.comment).to eq("old")
       end
     end
   end

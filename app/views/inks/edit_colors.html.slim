@@ -1,5 +1,8 @@
 - content_for :title, "Edit colors of #{@ink.name}"
 
+- if @ink.errors.include?(:ignored_colors)
+  div class="alert alert-danger" = @ink.errors.full_messages_for(:ignored_colors).to_sentence
+
 p
   ' This is list of all colors added my users for this ink. You can add colors to
   ' the ignore list, if the average color is wrong because of them. At least one

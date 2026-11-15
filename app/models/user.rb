@@ -1,6 +1,7 @@
 class User < ApplicationRecord
   MAX_SAME_IP_24H = 4
   MAX_BLURB_LENGTH = 5_000
+  MAX_PREFERENCES_BYTES = 10_000
 
   # Include default devise modules. Others available are:
   # :confirmable, :lockable, :timeoutable and :omniauthable
@@ -33,6 +34,7 @@ class User < ApplicationRecord
             },
             markdown_complexity: true,
             if: :blurb_changed?
+  validate :preferences_size, if: :preferences_changed?
 
   before_save :check_if_we_should_skip_confirmation
 
@@ -197,6 +199,12 @@ class User < ApplicationRecord
     return if time_zone.blank? || ActiveSupport::TimeZone[time_zone]
 
     errors.add(:time_zone, :invalid)
+  end
+
+  def preferences_size
+    return if preferences.to_json.bytesize <= MAX_PREFERENCES_BYTES
+
+    errors.add(:preferences, "are too large (maximum is #{MAX_PREFERENCES_BYTES} bytes)")
   end
 
   def check_if_we_should_skip_confirmation

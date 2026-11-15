@@ -18,6 +18,10 @@ class CollectedPen < ApplicationRecord
   validates :color, length: { in: 0..100, allow_blank: true }
   validates :model, length: { in: 1..100 }
   validates :nib, length: { in: 1..100, allow_blank: true }
+  %i[material price trim_color filling_system].each do |field|
+    validates field, length: { maximum: MAX_DETAIL_LENGTH }, if: :"#{field}_changed?"
+  end
+  validates :comment, length: { maximum: MAX_COMMENT_LENGTH }, if: :comment_changed?
 
   paginates_per 500
   max_paginates_per 500

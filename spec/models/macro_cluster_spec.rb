@@ -65,6 +65,36 @@ describe MacroCluster do
     end
   end
 
+  describe "ignored colors" do
+    let(:record) { create(:macro_cluster) }
+
+    it "accepts 1,000 entries of 7 characters" do
+      expect(record.update(ignored_colors: Array.new(1_000) { "#ABCDEF" })).to be(true)
+    end
+
+    it "accepts entries that are not hex colors" do
+      expect(record.update(ignored_colors: ["", "15305A", "black"])).to be(true)
+    end
+
+    it "rejects more than 1,000 entries" do
+      expect(record.update(ignored_colors: Array.new(1_001) { "#ABCDEF" })).to be(false)
+      expect(record.errors[:ignored_colors]).to eq(["has too many entries (maximum is 1000)"])
+    end
+
+    it "rejects an entry of more than 7 characters" do
+      expect(record.update(ignored_colors: %w[#ABCDEF #ABCDEF0])).to be(false)
+      expect(record.errors[:ignored_colors]).to eq(
+        ["has an entry that is too long (maximum is 7 characters)"]
+      )
+    end
+
+    it "keeps a record with existing over-limit ignored colors saveable" do
+      record.update_column(:ignored_colors, Array.new(1_001) { "#ABCDEF0" })
+
+      expect(record.reload.update(description: "New description")).to be(true)
+    end
+  end
+
   describe "#without_review" do
     let!(:macro_cluster) { create(:macro_cluster) }
 
