@@ -21,15 +21,11 @@ module IgnoredInksReview
     end
 
     def generate_json(value)
-      JSON.generate(value).gsub(UNSAFE_CHARACTERS) { |char| json_escape(char) }
-    end
-
-    def json_escape(char)
-      code = char.ord
-      return format("\\u%04x", code) if code <= 0xffff
-
-      code -= 0x10000
-      format("\\u%04x\\u%04x", 0xd800 + (code >> 10), 0xdc00 + (code & 0x3ff))
+      JSON
+        .generate(value)
+        .gsub(UNSAFE_CHARACTERS) do |char|
+          char.encode("UTF-16BE").unpack("n*").map { |unit| format("\\u%04x", unit) }.join
+        end
     end
   end
 end

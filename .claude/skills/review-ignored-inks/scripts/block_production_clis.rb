@@ -7,7 +7,12 @@ require "json"
 
 module IgnoredInksReview
   module ProductionCliGuard
-    CLI = %r{(?:\A|[\s;&|()`'"/\\])(?:doctl|flyctl|fly|gh)(?=\z|[\s;&|()`'"<>])}i
+    COMMAND_START = /(?:\A|[;&|(`\n]|\$\()/
+    ASSIGNMENT = /[A-Za-z_]\w*=(?:'[^']*'|"[^"]*"|[^\s;&|]*)\s+/
+    WRAPPER =
+      /(?:(?:sudo|env|exec|command|time|nohup|xargs)(?:\s+-\S+)*\s+|(?:eval|(?:ba|z|da)?sh\s+(?:-\S+\s+)*-c)\s+['"]?)/
+    CLI =
+      %r{#{COMMAND_START}\s*(?:#{ASSIGNMENT}|#{WRAPPER})*\\?(?:[^\s;&|()`'"]*/)?(?:doctl|flyctl|fly|gh)(?=\z|[\s;&|()`'"<>])}i
     CREDENTIALS =
       %r{Library/Application(?:\\?\s)Support/doctl|\.config/doctl|\.config/gh(?=\z|[/\s'"*])|(?:\A|[/~])\.fly(?=\z|[/\s'"*])}i
     FIELDS = {

@@ -30,7 +30,19 @@ RSpec.describe IgnoredInksReview::ProductionCliGuard do
     "env DIGITALOCEAN_CONTEXT=x doctl account get",
     "x=$(gh auth token)",
     "`flyctl auth token`",
-    "DOCTL version"
+    "DOCTL version",
+    "./fly deploy",
+    "FOO=bar doctl account get",
+    "nohup gh auth token",
+    "xargs gh",
+    "command doctl version",
+    "exec fly status",
+    "time flyctl status",
+    "ls\ndoctl version",
+    "true || gh auth token",
+    "sleep 1 & doctl version",
+    "(doctl version)",
+    "eval \"gh auth token\""
   ].each do |command|
     it "blocks #{command.inspect}" do
       expect(described_class.reason(bash(command))).to match(/doctl, fly and gh are blocked/)
@@ -44,6 +56,10 @@ RSpec.describe IgnoredInksReview::ProductionCliGuard do
     "git push origin gh-pages",
     "docker-compose exec -T app bundle exec rspec spec/models/flyweight_spec.rb",
     "ruby .claude/skills/review-ignored-inks/scripts/lookup.rb search 'Ghost Grey'",
+    "ruby .claude/skills/review-ignored-inks/scripts/lookup.rb search \"Dragon Fly\" --brand \"Gh\"",
+    "echo \"select id from macro_clusters where brand_name ilike 'gh'\" | ruby query.rb",
+    "ruby query.rb <<'SQL'\nselect id from micro_clusters\nwhere simplified_brand_name in ('gh', 'fly')\nSQL",
+    "echo fly",
     "grep -r doctlx ."
   ].each do |command|
     it "allows #{command.inspect}" do

@@ -121,8 +121,9 @@ WHERE a.attrelid IN ('collected_inks'::regclass, 'agent_logs'::regclass)
 ORDER BY 1, 2;
 ```
 
-No write privilege anywhere (expect no rows; `has_table_privilege` is true if any privilege of a
-list is held, so this checks one at a time):
+No write privilege anywhere, column grants included (expect no rows; the privilege functions are
+true if any privilege of a list is held, so this checks one at a time). The scripts run the same
+check:
 
 ```sql
 SELECT c.relname, p.privilege
@@ -130,8 +131,10 @@ FROM pg_class c
 JOIN pg_namespace n ON n.oid = c.relnamespace
 CROSS JOIN (VALUES ('INSERT'), ('UPDATE'), ('DELETE'), ('TRUNCATE')) AS p(privilege)
 WHERE n.nspname = 'public'
-  AND c.relkind IN ('r', 'p')
-  AND has_table_privilege('fpc_ink_review', c.oid, p.privilege);
+  AND c.relkind IN ('r', 'p', 'v', 'm', 'f')
+  AND CASE WHEN p.privilege IN ('INSERT', 'UPDATE')
+           THEN has_any_column_privilege('fpc_ink_review', c.oid, p.privilege)
+           ELSE has_table_privilege('fpc_ink_review', c.oid, p.privilege) END;
 ```
 
 Then through the skill, from the repository root (expect `fpc_ink_review`, `on`, `2min`, then

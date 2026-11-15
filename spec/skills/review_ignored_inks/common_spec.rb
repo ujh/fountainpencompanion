@@ -83,6 +83,20 @@ RSpec.describe IgnoredInksReview do
       end
     end
 
+    it "refuses a role that can write to a view" do
+      view = "ink_review_test_view_#{SecureRandom.hex(4)}"
+      admin_connection.exec("CREATE VIEW #{view} AS SELECT id, state FROM agent_logs")
+      url = create_ink_review_role("GRANT INSERT ON #{view} TO %{role}")
+
+      with_ink_review_url(url) do
+        expect { described_class.connection }.to raise_error(SystemExit).and output(
+                /can write to #{view}\./
+              ).to_stderr
+      end
+    ensure
+      admin_connection.exec("DROP VIEW IF EXISTS #{view}")
+    end
+
     %w[SUPERUSER CREATEDB CREATEROLE BYPASSRLS].each do |attribute|
       it "refuses a role with #{attribute}" do
         url = create_ink_review_role("ALTER ROLE %{role} #{attribute}")

@@ -111,6 +111,11 @@ module IgnoredInksReview
     "The database role can read users." if users_readable == "t"
   end
 
+  def disconnect
+    @connection&.close
+    @connection = nil
+  end
+
   def embedding_query(sql, params)
     connection.transaction do |conn|
       conn.exec("SET LOCAL hnsw.ef_search = 200")

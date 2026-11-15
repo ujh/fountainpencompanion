@@ -11,10 +11,7 @@ module InkReviewRoleHelpers
     end
 
     base.after do
-      if IgnoredInksReview.instance_variable_get(:@connection)
-        IgnoredInksReview.connection.close
-        IgnoredInksReview.instance_variable_set(:@connection, nil)
-      end
+      IgnoredInksReview.disconnect
       ink_review_roles.each do |role|
         admin_connection.exec("DROP OWNED BY #{role}")
         admin_connection.exec("DROP ROLE #{role}")
