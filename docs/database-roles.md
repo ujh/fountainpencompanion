@@ -15,11 +15,10 @@ Why:
 
 - **Statement timeout for web requests.** rack-timeout abandons a request after 25 s, but its query
   keeps running in Postgres and holds the connection. The 15 s role default cancels any single web
-  statement that runs longer, so a request whose query used to take 15–25 s now fails with
-  `ActiveRecord::QueryCanceled` instead of succeeding slowly. New Relic showed no such web
-  statement over 30 days (November 2026) outside a database-wide stall on 2026-11-11/12; the slowest
-  page was the pen model search (`/pen_models`, `Pens::Model.embedding_search`) at 8.7 s of database
-  time over three queries. Worker jobs (matview refresh, `ANALYZE`, `MacroCluster.embedding_search`
+  statement that runs longer: such a request fails with `ActiveRecord::QueryCanceled` instead of
+  finishing slowly. The slowest regular web page is the pen model search (`/pen_models`,
+  `Pens::Model.embedding_search`, up to about 9 s of database time over three queries), so watch it
+  for `QueryCanceled`. Worker jobs (matview refresh, `ANALYZE`, `MacroCluster.embedding_search`
   in agents and review workers) take longer and get no timeout. The timeout
   has to be a role default: under transaction pooling a session `SET` reaches whichever server
   connection the next statement lands on. PgBouncer keeps server connections per (user, database)
@@ -252,7 +251,7 @@ without a fixed user is sized per pool or per (user, database) pair, and Digital
 sum of pool sizes at the backend limit. So each role has its own pool with a fixed user and
 explicit size, and a pool is only created or grown after another one has been shrunk to make room.
 
-Current layout (since 2026-11-15):
+Layout:
 
 | Pool     | User         | Size | Used by                         |
 | -------- | ------------ | ---- | ------------------------------- |
@@ -262,8 +261,8 @@ Current layout (since 2026-11-15):
 
 That is all 97 connections. `fpc_readonly` connects directly (port 25060), not through a pool;
 its connections only fail if the pools are ever saturated. PgBouncer opens server connections
-only while a transaction runs: measured average concurrency before the switch (New Relic, 5-minute
-buckets, 2026-11-05 to 11-10) peaked at 0.7 for web and 0.16 for the worker. Worker demand is
+only while a transaction runs, and average concurrency peaks well below 1 for both web and the
+worker (New Relic, 5-minute buckets). Worker demand is
 machines × 6 Sidekiq threads (default capsule `SIDEKIQ_CONCURRENCY` from `config/sidekiq.yml`, set
 to 5 in `fly.toml`, plus the `slow` capsule's 1 in `config/initializers/sidekiq.rb`); `fly scale
 show` lists the machines. Before changing a size, add up all pools and keep the total at or below
@@ -286,26 +285,14 @@ doctl databases pool update <cluster-id> web --db defaultdb --mode transaction -
 `doctl databases pool create` prints the new pool's connection string **including the password**,
 even without `--show`; send its output to `/dev/null` and fetch the string with `pool get --show`
 into a file. A new pool takes about 20 seconds before PgBouncer accepts connections to it ("no such
-database"). Resizing a pool did not drop open connections.
+database"). Resizing a pool doesn't drop open connections.
 
-## Rollout history
+To go back to `doadmin` for web or the worker: grow `pool` first (shrinking `web` or `worker` to stay
+within 97), then unset `WEB_DATABASE_URL` or `WORKER_DATABASE_URL`.
 
-Done on 2026-11-15, in this order; each step lists the total of pool sizes afterwards.
+## Checking which role a process uses
 
-0. **Measure** (total 90: `pool` 90). Connections per role, worker machine count.
-1. **Roles** (total 90). Users created, setup SQL and verification run as `doadmin`. The `public`
-   schema still granted `CREATE` to `PUBLIC` (it predates PostgreSQL 15), so that grant was revoked;
-   `doadmin` keeps `CREATE` as owner of `defaultdb` through `pg_database_owner`.
-2. **Worker** (total 45: `pool` 30, `worker` 15). Shrank `pool`, created `worker`, smoke test,
-   set `WORKER_DATABASE_URL`, ran `RefreshAutocompletePopularities` once by hand.
-3. **Web** (total 90: `pool` 30, `worker` 15, `web` 45). Created `web`, smoke test (including a
-   `pg_sleep(16)` that the timeout cancels), set `WEB_DATABASE_URL`.
-4. **Resize** (total 97: `pool` 5, `worker` 15, `web` 77). Shrank `pool`, then grew `web`.
-
-To check which role a process uses, look at the last statement of each backend as `fpc_readonly`
+Look at the last statement of each backend as `fpc_readonly`
 (`SELECT usename, state, state_change, left(query, 90) FROM pg_stat_activity`); web backends run
 request queries. `/proc/<pid>/environ` is not a valid check for Puma: it shows the environment at
 process start, not the `ENV["DATABASE_URL"]` that `config/puma.rb` sets.
-
-Rollback: grow `pool` first (shrinking `web` or `worker` to stay within 97), then unset
-`WEB_DATABASE_URL` or `WORKER_DATABASE_URL`.
