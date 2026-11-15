@@ -13,6 +13,7 @@ Fountain Pen Companion (FPC) is a web application for managing fountain pen ink 
 - **Auth**: Devise (with passwordless support)
 - **DB schema format**: `structure.sql` (not `schema.rb`)
 - **Deployment**: Fly.io via CI (master branch auto-deploys)
+- **Database roles**: with `WEB_DATABASE_URL` / `WORKER_DATABASE_URL` set, Puma connects as `fpc_web` (15 s statement timeout) and Sidekiq as `fpc_worker`, each through its own PgBouncer pool; migrations and the console stay on `doadmin`. Setup SQL, verification and rollout: [docs/database-roles.md](docs/database-roles.md)
 
 ## Development Environment
 
