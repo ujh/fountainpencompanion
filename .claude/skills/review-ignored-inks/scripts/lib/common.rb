@@ -51,11 +51,12 @@ module IgnoredInksReview
   module_function
 
   def database_url
-    url = ENV["FPC_READONLY_DATABASE_URL"]
+    url = ENV["FPC_INK_REVIEW_DATABASE_URL"]
     url = File.read(DATABASE_URL_FILE).strip if (url.nil? || url.empty?) &&
       File.exist?(DATABASE_URL_FILE)
     if url.nil? || url.empty?
-      abort "No read-only database URL. Set FPC_READONLY_DATABASE_URL or write #{DATABASE_URL_FILE}."
+      abort "No database URL for the fpc_ink_review role. Set FPC_INK_REVIEW_DATABASE_URL or write " \
+              "#{DATABASE_URL_FILE} (see references/database-role.md)."
     end
     url
   end
@@ -64,29 +65,46 @@ module IgnoredInksReview
     @connection ||=
       begin
         conn = PG.connect(database_url)
-        refuse_writable_role(conn)
+        refuse_unsafe_role(conn)
         conn.exec("SET SESSION CHARACTERISTICS AS TRANSACTION READ ONLY")
         conn.exec("SET statement_timeout = '120s'")
         conn
       end
   end
 
-  def refuse_writable_role(conn)
-    writable =
-      conn.exec_params(
-        <<~SQL,
+  def refuse_unsafe_role(conn)
+    problem = unsafe_role_problem(conn)
+    return unless problem
+
+    conn.close
+    abort "#{problem} These scripts only run as the fpc_ink_review role " \
+            "(see references/database-role.md); use its connection URL."
+  end
+
+  def unsafe_role_problem(conn)
+    writable_tables =
+      conn
+        .exec_params(
+          <<~SQL,
         select t as table_name, p as privilege
         from unnest($1::text[]) t, unnest($2::text[]) p
         where has_table_privilege(t, p)
       SQL
-        ["{#{WRITE_CHECK_TABLES.join(",")}}", "{#{WRITE_PRIVILEGES.join(",")}}"]
-      ).to_a
-    return if writable.empty?
+          ["{#{WRITE_CHECK_TABLES.join(",")}}", "{#{WRITE_PRIVILEGES.join(",")}}"]
+        )
+        .map { |row| row["table_name"] }
+        .uniq
+    return "The database role can write to #{writable_tables.join(", ")}." if writable_tables.any?
 
-    conn.close
-    tables = writable.map { |w| w["table_name"] }.uniq.join(", ")
-    abort "The database role can write to #{tables}. These scripts only run with a read-only role; " \
-            "use a read-only connection URL."
+    users_readable = conn.exec("select has_any_column_privilege('users', 'SELECT')").getvalue(0, 0)
+    "The database role can read users." if users_readable == "t"
+  end
+
+  def embedding_query(sql, params)
+    connection.transaction do |conn|
+      conn.exec("SET LOCAL hnsw.ef_search = 200")
+      conn.exec_params(sql, params).to_a
+    end
   end
 
   def query(sql, params = [])

@@ -24,9 +24,11 @@ All scripts are read-only. Run them from the repository root.
   name search over the catalogue and the ignored clusters; try with and without brand, with the line
   name, with the words reordered
 - `ruby .claude/skills/review-ignored-inks/scripts/lookup.rb macro ID...` — details of macro clusters
-- `ruby .claude/skills/review-ignored-inks/scripts/query.rb` with SQL on stdin, for anything else
-  (tables: `macro_clusters`, `micro_clusters`, `collected_inks`, `agent_logs`); select only what you need,
-  never `user_id`s or other personal data
+- `ruby .claude/skills/review-ignored-inks/scripts/query.rb` with SQL on stdin, for anything else. It
+  can read only the tables and columns listed under "What the scripts read" in
+  `.claude/skills/review-ignored-inks/references/database-role.md` (`select *` on `collected_inks` or
+  `agent_logs` fails; name the columns). Select only what you need, never `user_id`s or other
+  personal data
 - Web search and web fetch
 
 ## Per ink

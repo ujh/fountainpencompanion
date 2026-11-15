@@ -9,7 +9,8 @@ connection pools in transaction mode. Each process connects as its own database 
 | `fpc_worker` | Sidekiq (`worker` process group)                | `worker` | none              |
 | `doadmin`    | `release_command` (migrations, seeds), consoles | `pool`   | none              |
 
-`fpc_readonly` (read-only analysis, see the ignored-inks skill) is separate and not covered here.
+`fpc_readonly` (read-only analysis) and `fpc_ink_review` (the ignored-inks skill, see
+`.claude/skills/review-ignored-inks/references/database-role.md`) are separate and not covered here.
 
 Why:
 
@@ -259,8 +260,8 @@ Layout:
 | `worker` | `fpc_worker` | 15   | Sidekiq                         |
 | `pool`   | none         | 5    | `doadmin`: migrations, consoles |
 
-That is all 97 connections. `fpc_readonly` connects directly (port 25060), not through a pool;
-its connections only fail if the pools are ever saturated. PgBouncer opens server connections
+That is all 97 connections. `fpc_readonly` and `fpc_ink_review` connect directly (port 25060), not
+through a pool; their connections only fail if the pools are ever saturated. PgBouncer opens server connections
 only while a transaction runs, and average concurrency peaks well below 1 for both web and the
 worker (New Relic, 5-minute buckets). Worker demand is
 machines × 6 Sidekiq threads (default capsule `SIDEKIQ_CONCURRENCY` from `config/sidekiq.yml`, set
