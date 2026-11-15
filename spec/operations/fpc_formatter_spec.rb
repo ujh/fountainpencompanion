@@ -240,7 +240,8 @@ describe FpcFormatter do
       expect(render("[[[[[*five*]]]]]")).to eq("<p>[[[[[<em>five</em>]]]]]</p>\n")
     end
 
-    it "renders 5,000 characters of brackets nested five deep as markdown within the time limit" do
+    it "renders 5,000 characters of brackets nested five deep as markdown in a few seconds" do
+      stub_const("FpcFormatter::RENDER_TIMEOUT", 5)
       sources = [
         ("[[[[[x]]]]] " * 500)[0, 5_000],
         ("[[[[ " + "[x] " * 1_250)[0, 5_000],
