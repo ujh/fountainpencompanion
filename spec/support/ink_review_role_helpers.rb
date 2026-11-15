@@ -47,7 +47,9 @@ module InkReviewRoleHelpers
   def create_ink_review_role(*extra_statements)
     role = "fpc_ink_review_test_#{SecureRandom.hex(4)}"
     password = SecureRandom.hex(16)
-    admin_connection.exec("CREATE ROLE #{role} LOGIN CREATEDB CREATEROLE PASSWORD '#{password}'")
+    admin_connection.exec(
+      "CREATE ROLE #{role} LOGIN CREATEDB CREATEROLE REPLICATION PASSWORD '#{password}'"
+    )
     ink_review_roles << role
     database = test_database_params.fetch(:dbname)
     admin_connection.exec(

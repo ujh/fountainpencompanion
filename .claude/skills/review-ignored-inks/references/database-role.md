@@ -5,7 +5,7 @@ review needs. Subagents read user-typed names and agent logs, have web access an
 `SELECT` through `scripts/query.rb`, so the role, not the prompts, decides what they can reach.
 `scripts/lib/common.rb` refuses to run as a role that can write to any table or view in `public`, read
 `users` (such as `fpc_readonly`), is a member of any role (such as `pg_read_all_stats`) or has
-`SUPERUSER`, `CREATEDB`, `CREATEROLE` or `BYPASSRLS`.
+`SUPERUSER`, `CREATEDB`, `CREATEROLE`, `BYPASSRLS` or `REPLICATION`.
 
 ## What the scripts read
 
@@ -44,8 +44,8 @@ doctl databases user create <cluster-id> fpc_ink_review
 ```
 
 Then run [`database-role.sql`](database-role.sql) as `doadmin` against `defaultdb`. It grants the
-table and column privileges above, removes `CREATEDB` and `CREATEROLE` in case the new user has
-them, and sets three role defaults:
+table and column privileges above, removes `CREATEDB`, `CREATEROLE` and `REPLICATION` in case the
+new user has them, and sets three role defaults:
 
 - `default_transaction_read_only = on` and `statement_timeout = '120s'`: role defaults apply to
   every connection of the role, also when a statement reaches the server through a pooler. The
@@ -74,10 +74,10 @@ Write `postgresql://fpc_ink_review:<password>@<host>:25060/defaultdb?sslmode=req
 
 ## Verification (as `doadmin`)
 
-Attributes and defaults (expect `f, f, f, f, 6, {default_transaction_read_only=on,statement_timeout=120s}`):
+Attributes and defaults (expect `f, f, f, f, f, 6, {default_transaction_read_only=on,statement_timeout=120s}`):
 
 ```sql
-SELECT rolsuper, rolcreaterole, rolcreatedb, rolbypassrls, rolconnlimit, rolconfig
+SELECT rolsuper, rolcreaterole, rolcreatedb, rolbypassrls, rolreplication, rolconnlimit, rolconfig
 FROM pg_roles WHERE rolname = 'fpc_ink_review';
 ```
 

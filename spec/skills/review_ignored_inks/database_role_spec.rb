@@ -47,13 +47,14 @@ RSpec.describe "review-ignored-inks database role" do
     role = ink_review_roles.last
 
     attributes = admin_connection.exec_params(<<~SQL, [role]).first
-        select rolcreatedb, rolcreaterole, rolconnlimit, array_to_string(rolconfig, ' ') as config
+        select rolcreatedb, rolcreaterole, rolreplication, rolconnlimit, array_to_string(rolconfig, ' ') as config
         from pg_roles where rolname = $1
       SQL
 
     expect(attributes).to include(
       "rolcreatedb" => "f",
       "rolcreaterole" => "f",
+      "rolreplication" => "f",
       "rolconnlimit" => "6"
     )
     expect(attributes["config"].split).to match_array(

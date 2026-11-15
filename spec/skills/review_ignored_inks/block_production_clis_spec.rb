@@ -42,7 +42,14 @@ RSpec.describe IgnoredInksReview::ProductionCliGuard do
     "true || gh auth token",
     "sleep 1 & doctl version",
     "(doctl version)",
-    "eval \"gh auth token\""
+    "eval \"gh auth token\"",
+    "bash -lc 'gh auth token'",
+    "sh -ec \"doctl version\"",
+    "zsh -ic 'fly status'",
+    "timeout 5 gh api user",
+    "timeout -s KILL 5s doctl version",
+    "nice -n 10 doctl version",
+    "nice gh auth token"
   ].each do |command|
     it "blocks #{command.inspect}" do
       expect(described_class.reason(bash(command))).to match(/doctl, fly and gh are blocked/)

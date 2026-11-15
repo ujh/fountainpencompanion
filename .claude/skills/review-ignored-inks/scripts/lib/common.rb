@@ -48,7 +48,8 @@ module IgnoredInksReview
     "rolsuper" => "SUPERUSER",
     "rolcreatedb" => "CREATEDB",
     "rolcreaterole" => "CREATEROLE",
-    "rolbypassrls" => "BYPASSRLS"
+    "rolbypassrls" => "BYPASSRLS",
+    "rolreplication" => "REPLICATION"
   }.freeze
 
   module_function

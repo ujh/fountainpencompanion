@@ -10,7 +10,12 @@ module IgnoredInksReview
     COMMAND_START = /(?:\A|[;&|(`\n]|\$\()/
     ASSIGNMENT = /[A-Za-z_]\w*=(?:'[^']*'|"[^"]*"|[^\s;&|]*)\s+/
     WRAPPER =
-      /(?:(?:sudo|env|exec|command|time|nohup|xargs)(?:\s+-\S+)*\s+|(?:eval|(?:ba|z|da)?sh\s+(?:-\S+\s+)*-c)\s+['"]?)/
+      Regexp.union(
+        /(?:sudo|env|exec|command|time|nohup|xargs)(?:\s+-\S+)*\s+/,
+        /timeout(?:\s+(?:-[ks]|--signal|--kill-after)\s+\S+|\s+-\S+)*\s+\d\S*\s+/,
+        /nice(?:\s+-n\s+-?\d+|\s+-\S+)*\s+/,
+        /(?:eval|(?:ba|z|da)?sh\s+(?:-\S+\s+)*-\w*c)\s+['"]?/
+      )
     CLI =
       %r{#{COMMAND_START}\s*(?:#{ASSIGNMENT}|#{WRAPPER})*\\?(?:[^\s;&|()`'"]*/)?(?:doctl|flyctl|fly|gh)(?=\z|[\s;&|()`'"<>])}i
     CREDENTIALS =

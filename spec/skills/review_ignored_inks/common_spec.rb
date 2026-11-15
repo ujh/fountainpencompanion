@@ -97,7 +97,7 @@ RSpec.describe IgnoredInksReview do
       admin_connection.exec("DROP VIEW IF EXISTS #{view}")
     end
 
-    %w[SUPERUSER CREATEDB CREATEROLE BYPASSRLS].each do |attribute|
+    %w[SUPERUSER CREATEDB CREATEROLE BYPASSRLS REPLICATION].each do |attribute|
       it "refuses a role with #{attribute}" do
         url = create_ink_review_role("ALTER ROLE %{role} #{attribute}")
 

@@ -9,4 +9,4 @@ GRANT SELECT (id, name, owner_type, owner_id, state, agent_approved, extra_data,
 
 ALTER ROLE fpc_ink_review SET default_transaction_read_only = on;
 ALTER ROLE fpc_ink_review SET statement_timeout = '120s';
-ALTER ROLE fpc_ink_review NOCREATEDB NOCREATEROLE CONNECTION LIMIT 6;
+ALTER ROLE fpc_ink_review NOCREATEDB NOCREATEROLE NOREPLICATION CONNECTION LIMIT 6;
