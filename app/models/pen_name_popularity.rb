@@ -32,7 +32,7 @@ class PenNamePopularity < ApplicationRecord
   def self.merge_candidates(popular, own)
     union = Arel::Nodes::UnionAll.new(popular.arel, own.arel)
     candidates = Arel::Nodes::As.new(union, Arel.sql("candidates"))
-    from(candidates).group(Arel.sql("lower(candidates.name)")).select(
+    from(candidates).group(Arel.sql('lower(candidates.name) COLLATE "C"')).select(
       "(array_agg(candidates.name ORDER BY candidates.popularity DESC))[1] AS name",
       "max(candidates.popularity) AS popularity"
     )
