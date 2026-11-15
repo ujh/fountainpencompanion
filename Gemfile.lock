@@ -142,7 +142,6 @@ GEM
       devise
       globalid
     diff-lcs (1.6.2)
-    differ (0.1.2)
     drb (2.2.3)
     erb (6.0.7)
     erubi (1.13.1)
@@ -610,7 +609,6 @@ DEPENDENCIES
   derailed
   devise
   devise-passwordless
-  differ
   factory_bot_rails
   faraday
   faraday-follow_redirects

@@ -42,6 +42,29 @@ describe MacroCluster do
     end
   end
 
+  describe "manual names" do
+    let(:record) { create(:macro_cluster) }
+
+    %i[manual_brand_name manual_line_name manual_ink_name].each do |attribute|
+      it "accepts a #{attribute} of 100 characters" do
+        expect(record.update(attribute => "x" * 100)).to be(true)
+      end
+
+      it "rejects a #{attribute} of more than 100 characters" do
+        expect(record.update(attribute => "x" * 101)).to be(false)
+        expect(record.errors[attribute]).to eq(["is too long (maximum is 100 characters)"])
+      end
+
+      it "keeps a record with an existing over-long #{attribute} saveable" do
+        record.update_column(attribute, "x" * 101)
+
+        expect(record.reload.update(description: "New description")).to be(true)
+        expect(record.update(attribute => "y" * 101)).to be(false)
+        expect(record.errors[attribute]).to eq(["is too long (maximum is 100 characters)"])
+      end
+    end
+  end
+
   describe "#without_review" do
     let!(:macro_cluster) { create(:macro_cluster) }
 

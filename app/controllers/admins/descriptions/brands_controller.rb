@@ -16,7 +16,6 @@ class Admins::Descriptions::BrandsController < Admins::BaseController
   def calculate_diff(version)
     return "" unless version.changeset.key?("description")
 
-    changes = version.changeset["description"].reverse.map { |c| ERB::Util.html_escape(c.to_s) }
-    Differ.diff_by_word(*changes).format_as(:html).html_safe
+    WordDiff.new(*version.changeset["description"]).html
   end
 end

@@ -38,6 +38,8 @@ class InksController < ApplicationController
       @ink.ink_embedding&.update(content: @ink.name)
     elsif @ink.errors.include?(:description)
       return render :edit, status: :unprocessable_content
+    elsif MacroCluster::MANUAL_NAME_FIELDS.any? { |field| @ink.errors.include?(field) }
+      return render :edit_name, status: :unprocessable_content
     end
 
     redirect_to ink_path(@ink)

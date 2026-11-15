@@ -2,6 +2,8 @@ require "ostruct"
 
 class MacroCluster < ApplicationRecord
   MAX_DESCRIPTION_LENGTH = 5_000
+  MAX_NAME_LENGTH = 100
+  MANUAL_NAME_FIELDS = %i[manual_brand_name manual_line_name manual_ink_name].freeze
 
   TRACKED_FIELDS = {
     "description" => "Description",
@@ -57,6 +59,9 @@ class MacroCluster < ApplicationRecord
             },
             markdown_complexity: true,
             if: :description_changed?
+  MANUAL_NAME_FIELDS.each do |field|
+    validates field, length: { maximum: MAX_NAME_LENGTH }, if: :"#{field}_changed?"
+  end
 
   before_save :recalculate_color, if: :will_save_change_to_ignored_colors?
   after_commit :enqueue_update, if: :saved_change_to_color?

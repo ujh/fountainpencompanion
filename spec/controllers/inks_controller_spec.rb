@@ -199,6 +199,16 @@ describe InksController do
         get :edit_name, params: { id: ink.id, brand_id: brand.id }
         expect(response).to be_successful
       end
+
+      it "limits every name input to 100 characters" do
+        get :edit_name, params: { id: ink.id, brand_id: brand.id }
+
+        document = Nokogiri.HTML(response.body)
+        MacroCluster::MANUAL_NAME_FIELDS.each do |field|
+          input = document.at_css("input[name='macro_cluster[#{field}]']")
+          expect(input["maxlength"]).to eq("100")
+        end
+      end
     end
   end
 
@@ -332,6 +342,25 @@ describe InksController do
         expect(response.body).to include("is too long (maximum is 5000 characters)")
         expect(response.body).to include('maxlength="5000"')
         expect(ink.reload.description).to eq("old")
+      end
+
+      MacroCluster::MANUAL_NAME_FIELDS.each do |field|
+        it "shows the name form with the error when #{field} is too long" do
+          ink.update!(field => "Old Name")
+          put :update,
+              params: {
+                id: ink.id,
+                brand_id: brand.id,
+                macro_cluster: {
+                  field => "x" * 101
+                }
+              }
+
+          expect(response).to have_http_status(:unprocessable_content)
+          expect(response).to render_template(:edit_name)
+          expect(response.body).to include("is too long (maximum is 100 characters)")
+          expect(ink.reload.public_send(field)).to eq("Old Name")
+        end
       end
 
       it "updates the ink embedding with the new name" do
