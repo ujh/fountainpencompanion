@@ -245,52 +245,66 @@ Expect `"15s"` and `"fpc_web"`. The same with `WORKER_DATABASE_URL` on a worker 
 
 ## Pools and connection budget
 
-The cluster allows 100 connections, 3 reserved, so 97 for pools, `fpc_readonly` and
-DigitalOcean. It is unknown whether a pool without a fixed user is sized per pool or per
-(user, database) pair, and DigitalOcean may cap the sum of pool sizes at the backend limit. So each
-role gets its own pool with a fixed user and explicit size, and a pool is only created or grown
-after another one has been shrunk to make room.
+The cluster allows 100 connections, 3 of them reserved for superusers (DigitalOcean's own
+`postgres` role), so 97 for the pools and for direct connections. Neither `doadmin` nor
+`fpc_readonly` is a superuser, so neither can use the reserved slots. It is unknown whether a pool
+without a fixed user is sized per pool or per (user, database) pair, and DigitalOcean may cap the
+sum of pool sizes at the backend limit. So each role has its own pool with a fixed user and
+explicit size, and a pool is only created or grown after another one has been shrunk to make room.
 
-Final layout: `pool` (no fixed user, `doadmin`: migrations and console) 15, `worker`
-(`fpc_worker`) 15, `web` (`fpc_web`) 40: 70 of 97. Worker demand is machines × 6 Sidekiq threads
-(default capsule `SIDEKIQ_CONCURRENCY` from `config/sidekiq.yml`, set to 5 in `fly.toml`, plus the
-`slow` capsule's 1 in `config/initializers/sidekiq.rb`); `fly scale show` lists the
-machines. Confirm the sizes with the stage 0 measurement.
+Current layout (since 2026-11-15):
+
+| Pool     | User         | Size | Used by                         |
+| -------- | ------------ | ---- | ------------------------------- |
+| `web`    | `fpc_web`    | 77   | Puma                            |
+| `worker` | `fpc_worker` | 15   | Sidekiq                         |
+| `pool`   | none         | 5    | `doadmin`: migrations, consoles |
+
+That is all 97 connections. `fpc_readonly` connects directly (port 25060), not through a pool;
+its connections only fail if the pools are ever saturated. PgBouncer opens server connections
+only while a transaction runs: measured average concurrency before the switch (New Relic, 5-minute
+buckets, 2026-11-05 to 11-10) peaked at 0.7 for web and 0.16 for the worker. Worker demand is
+machines × 6 Sidekiq threads (default capsule `SIDEKIQ_CONCURRENCY` from `config/sidekiq.yml`, set
+to 5 in `fly.toml`, plus the `slow` capsule's 1 in `config/initializers/sidekiq.rb`); `fly scale
+show` lists the machines. Before changing a size, add up all pools and keep the total at or below
+97.
 
 `WEB_DATABASE_URL` and `WORKER_DATABASE_URL` are the pools' connection strings (same host and port
 as `DATABASE_URL`, the pool name as the database path, the pool's user and password). Setting or
-unsetting a Fly secret restarts the machines.
+unsetting a Fly secret restarts the machines. Set them with `fly secrets import` on stdin so the
+value appears neither in the shell's arguments nor in output, and only while no deploy is running
+(a secrets change starts its own release).
 
 ```sh
 doctl databases pool list <cluster-id>
-doctl databases pool update <cluster-id> pool --db defaultdb --mode transaction --size 30
-doctl databases pool create <cluster-id> worker --db defaultdb --mode transaction --size 15 --user fpc_worker
-doctl databases pool create <cluster-id> web --db defaultdb --mode transaction --size 40 --user fpc_web
-doctl databases pool get <cluster-id> web --show
+doctl databases pool update <cluster-id> pool --db defaultdb --mode transaction --size 5
+doctl databases pool update <cluster-id> web --db defaultdb --mode transaction --size 77 --user fpc_web
+doctl databases pool get <cluster-id> web --format URI --no-header --show > tmp/.web_url   # mode 600, delete after use
 ```
 
-## Rollout (owner, after the code is deployed)
+`doctl databases pool create` prints the new pool's connection string **including the password**,
+even without `--show`; send its output to `/dev/null` and fetch the string with `pool get --show`
+into a file. A new pool takes about 20 seconds before PgBouncer accepts connections to it ("no such
+database"). Resizing a pool did not drop open connections.
 
-Each stage lists the total of pool sizes once it is done. Never create or grow a pool before the
-shrink that makes room for it.
+## Rollout history
 
-0. **Measure** (total 90: `pool` 90). Sample connections per role at busy times (query above, as
-   `fpc_readonly`), `fly scale show` for the number of worker machines. Check at a quiet time
-   whether `doctl databases pool update` drops open connections.
-1. **Roles** (total 90). Create `fpc_web` and `fpc_worker`, run the setup SQL including
-   `ALTER ROLE fpc_web SET statement_timeout = '15s'`, run the verification queries. No pool for
-   the new roles exists yet.
-2. **Worker** (total 45: `pool` 30, `worker` 15). Shrink `pool` to 30 (sized from the
-   measurement), create the `worker` pool, run the worker smoke test, set `WORKER_DATABASE_URL`.
-   Watch Honeybadger and the Sidekiq dashboard for permission errors; check the next
-   `RefreshAutocompletePopularities` and `Analyze` runs.
-   Rollback: unset `WORKER_DATABASE_URL`; `pool` at 30 has room for the worker.
-3. **Web** (total 85: `pool` 30, `worker` 15, `web` 40). Create the `web` pool, run the web smoke
-   test, set `WEB_DATABASE_URL`, run the `bin/rails runner` check, watch Honeybadger for permission
-   errors and `ActiveRecord::QueryCanceled`, especially on `/pen_models`.
-   Rollback: unset `WEB_DATABASE_URL` if `pool` at 30 holds web's measured peak; otherwise shrink
-   or delete `web` and grow `pool` first, then unset.
-4. **Shrink** (total 70: `pool` 15, `worker` 15, `web` 40). After a few days without problems,
-   shrink `pool` to 15 for migrations and the console.
-   Rollback from here on: grow `pool` first (shrinking `web` or `worker` if the cap requires it),
-   then unset the secret.
+Done on 2026-11-15, in this order; each step lists the total of pool sizes afterwards.
+
+0. **Measure** (total 90: `pool` 90). Connections per role, worker machine count.
+1. **Roles** (total 90). Users created, setup SQL and verification run as `doadmin`. The `public`
+   schema still granted `CREATE` to `PUBLIC` (it predates PostgreSQL 15), so that grant was revoked;
+   `doadmin` keeps `CREATE` as owner of `defaultdb` through `pg_database_owner`.
+2. **Worker** (total 45: `pool` 30, `worker` 15). Shrank `pool`, created `worker`, smoke test,
+   set `WORKER_DATABASE_URL`, ran `RefreshAutocompletePopularities` once by hand.
+3. **Web** (total 90: `pool` 30, `worker` 15, `web` 45). Created `web`, smoke test (including a
+   `pg_sleep(16)` that the timeout cancels), set `WEB_DATABASE_URL`.
+4. **Resize** (total 97: `pool` 5, `worker` 15, `web` 77). Shrank `pool`, then grew `web`.
+
+To check which role a process uses, look at the last statement of each backend as `fpc_readonly`
+(`SELECT usename, state, state_change, left(query, 90) FROM pg_stat_activity`); web backends run
+request queries. `/proc/<pid>/environ` is not a valid check for Puma: it shows the environment at
+process start, not the `ENV["DATABASE_URL"]` that `config/puma.rb` sets.
+
+Rollback: grow `pool` first (shrinking `web` or `worker` to stay within 97), then unset
+`WEB_DATABASE_URL` or `WORKER_DATABASE_URL`.
