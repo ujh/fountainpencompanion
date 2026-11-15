@@ -5,7 +5,8 @@ describe WordDiff do
     described_class.new(new_text, old_text).html
   end
 
-  # Expectations generated with differ 0.1.2: Differ.diff_by_word(new, old).format_as(:html)
+  # Expectations generated with differ 0.1.2 on the escaped texts:
+  # Differ.diff_by_word(h(new), h(old)).format_as(:html)
   {
     "identical texts" => ["Blue ink", "Blue ink", "Blue ink"],
     "a replaced word" => [
@@ -45,15 +46,15 @@ describe WordDiff do
       "Blue ink with sheen",
       "Blue<ins class=\"differ\">  ink\nwith</ins> <del class=\"differ\">ink with </del>sheen"
     ],
-    "escaped entities" => [
-      "Tom &amp; Jerry &quot;Red&quot;",
-      "Tom and Jerry &quot;Blue&quot;",
+    "characters that need escaping" => [
+      "Tom & Jerry \"Red\"",
+      "Tom and Jerry \"Blue\"",
       'Tom<del class="differ"> and Jerry</del> &<ins class="differ">amp; Jerry &</ins>quot;' \
         '<del class="differ">Blue</del><ins class="differ">Red</ins>&quot;'
     ],
-    "a change inside an entity" => [
-      "edition&quot; ink",
-      "edition,&quot; ink",
+    "a change next to an escaped character" => [
+      "edition\" ink",
+      "edition,\" ink",
       'edition<del class="differ">,&</del><ins class="differ">&</ins>quot; ink'
     ],
     "CJK text" => [
@@ -68,6 +69,17 @@ describe WordDiff do
     it "renders #{name} like differ" do
       expect(diff(new_text, old_text)).to eq(expected)
     end
+  end
+
+  it "escapes HTML in the texts" do
+    expect(diff("<script>alert(1)</script>", "safe")).to eq(
+      '<del class="differ">safe</del><ins class="differ">&lt;script&gt;alert(1)&lt;/script&gt;</ins>'
+    )
+  end
+
+  it "returns HTML-safe output" do
+    expect(diff("A deep blue ink", "A blue ink")).to be_html_safe
+    expect(diff((["x"] * 1_501).join(" "), "x")).to be_html_safe
   end
 
   it "treats nil as an empty text" do

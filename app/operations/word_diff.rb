@@ -1,4 +1,4 @@
-# Word diff of two HTML-escaped texts, rendered as HTML with <del class="differ"> and
+# Word diff of two texts, HTML-escaped and rendered as HTML with <del class="differ"> and
 # <ins class="differ">. Ports the greedy word algorithm of the differ gem (0.1.2) so existing
 # history pages render the same, without its process-wide state.
 class WordDiff
@@ -12,7 +12,7 @@ class WordDiff
   end
 
   def html
-    self.result ||= render
+    self.result ||= render.html_safe
   end
 
   private
@@ -28,10 +28,7 @@ class WordDiff
   end
 
   def tokens(text)
-    text = text.to_s
-    return text.split(/\b/) if text.length <= MAX_TOKENS
-
-    split = text.split(/\b/)
+    split = ERB::Util.html_escape(text.to_s).to_str.split(/\b/)
     split if split.length <= MAX_TOKENS
   end
 

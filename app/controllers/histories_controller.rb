@@ -33,14 +33,10 @@ class HistoriesController < ApplicationController
         automatic_line_name = object.automatic_line_name.to_s
         old_display = old_value ? "" : automatic_line_name
         new_display = new_value ? "" : automatic_line_name
-        escaped_new = ERB::Util.html_escape(new_display)
-        escaped_old = ERB::Util.html_escape(old_display)
-        diff = WordDiff.new(escaped_new, escaped_old).html.html_safe
-        { label: "Line Name", type: :text, diff: diff }
+        { label: "Line Name", type: :text, diff: WordDiff.new(new_display, old_display).html }
       else
-        changes = version.changeset[field].reverse.map { |c| ERB::Util.html_escape(c.to_s) }
-        diff = WordDiff.new(*changes).html.html_safe
-        { label: label, type: :text, diff: diff }
+        old_value, new_value = version.changeset[field]
+        { label: label, type: :text, diff: WordDiff.new(new_value, old_value).html }
       end
     end
   end
