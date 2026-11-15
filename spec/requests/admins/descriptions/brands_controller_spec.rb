@@ -134,14 +134,12 @@ describe Admins::Descriptions::BrandsController do
       end
 
       it "calculates diff between old and new descriptions" do
-        allow(Differ).to receive(:diff_by_word).and_return(
-          double("diff", format_as: double("formatted", html_safe: "formatted diff"))
-        )
-
         result = controller.send(:calculate_diff, version)
 
-        expect(Differ).to have_received(:diff_by_word).with("New description", "Old description")
-        expect(result).to eq("formatted diff")
+        expect(result).to eq(
+          '<del class="differ">Old</del><ins class="differ">New</ins> description'
+        )
+        expect(result).to be_html_safe
       end
     end
 
@@ -149,13 +147,9 @@ describe Admins::Descriptions::BrandsController do
       let(:version) { double("version", changeset: { "description" => [nil, "New description"] }) }
 
       it "handles nil values by converting to string" do
-        allow(Differ).to receive(:diff_by_word).and_return(
-          double("diff", format_as: double("formatted", html_safe: "formatted diff"))
-        )
+        result = controller.send(:calculate_diff, version)
 
-        controller.send(:calculate_diff, version)
-
-        expect(Differ).to have_received(:diff_by_word).with("New description", "")
+        expect(result).to eq('<ins class="differ">New description</ins>')
       end
     end
 
@@ -163,13 +157,9 @@ describe Admins::Descriptions::BrandsController do
       let(:version) { double("version", changeset: { "description" => ["Old description", nil] }) }
 
       it "handles nil values by converting to string" do
-        allow(Differ).to receive(:diff_by_word).and_return(
-          double("diff", format_as: double("formatted", html_safe: "formatted diff"))
-        )
+        result = controller.send(:calculate_diff, version)
 
-        controller.send(:calculate_diff, version)
-
-        expect(Differ).to have_received(:diff_by_word).with("", "Old description")
+        expect(result).to eq('<del class="differ">Old description</del>')
       end
     end
 
@@ -178,17 +168,29 @@ describe Admins::Descriptions::BrandsController do
         double("version", changeset: { "description" => ["safe old", "<script>alert(1)</script>"] })
       end
 
-      it "HTML-escapes inputs before passing to Differ" do
-        allow(Differ).to receive(:diff_by_word).and_return(
-          double("diff", format_as: double("formatted", html_safe: "formatted diff"))
-        )
+      it "HTML-escapes the values before diffing them" do
+        result = controller.send(:calculate_diff, version)
 
-        controller.send(:calculate_diff, version)
-
-        expect(Differ).to have_received(:diff_by_word).with(
-          "&lt;script&gt;alert(1)&lt;/script&gt;",
-          "safe old"
+        expect(result).to eq(
+          '<del class="differ">safe old</del><ins class="differ">&lt;script&gt;alert(1)&lt;/script&gt;</ins>'
         )
+      end
+    end
+
+    context "with a description too long to compare" do
+      let(:version) do
+        double(
+          "version",
+          changeset: {
+            "description" => [(["word"] * 1_501).join(" "), "New description"]
+          }
+        )
+      end
+
+      it "shows a message instead of the diff" do
+        result = controller.send(:calculate_diff, version)
+
+        expect(result).to eq('<em class="text-muted">Too long to compare.</em>')
       end
     end
   end

@@ -17,6 +17,6 @@ class Admins::Descriptions::BrandsController < Admins::BaseController
     return "" unless version.changeset.key?("description")
 
     changes = version.changeset["description"].reverse.map { |c| ERB::Util.html_escape(c.to_s) }
-    Differ.diff_by_word(*changes).format_as(:html).html_safe
+    WordDiff.new(*changes).html.html_safe
   end
 end

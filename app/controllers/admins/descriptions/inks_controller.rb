@@ -25,7 +25,7 @@ class Admins::Descriptions::InksController < Admins::BaseController
         { label: label, type: :color, old_color: old_color, new_color: new_color }
       else
         changes = version.changeset[field].reverse.map { |c| ERB::Util.html_escape(c.to_s) }
-        diff = Differ.diff_by_word(*changes).format_as(:html).html_safe
+        diff = WordDiff.new(*changes).html.html_safe
         { label: label, type: :text, diff: diff }
       end
     end
