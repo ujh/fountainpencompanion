@@ -20,6 +20,7 @@ require "rails/test_unit/railtie"
 Bundler.require(*Rails.groups)
 
 require_relative "../lib/fly_client_ip"
+require_relative "../lib/safe_apipie_static_dispatcher"
 
 module Fountainpencompanion
   USER_AGENT = "FountainPenCompanion/1.0 (+https://www.fountainpencompanion.com)"
@@ -37,6 +38,17 @@ module Fountainpencompanion
 
     config.middleware.insert_before(0, FlyClientIp)
     config.middleware.insert_before(Rack::Sendfile, Rack::Deflater)
+
+    initializer "safe_apipie_static_dispatcher",
+                after: "static assets",
+                before: :build_middleware_stack do |app|
+      app.middleware.swap(
+        Apipie::StaticDispatcher,
+        SafeApipieStaticDispatcher,
+        Apipie::Application::Engine.root.join("app/public").to_s
+      )
+    end
+
     config.active_job.queue_adapter = :sidekiq
 
     config.active_record.schema_format = :sql
