@@ -101,6 +101,17 @@ describe AutocompleteRanking do
     expect(rank("pen", *rows, limit: 3)).to eq(["Pen 20", "Pen 19", "Pen 18"])
   end
 
+  it "only uses the first 100 characters of the term" do
+    rows = [["a" * 100, 1], ["a" * 100 + "z", 5]]
+    long_term = "A" * 100 + "z" * 100
+
+    expect(rank(long_term, *rows)).to eq(rank("a" * 100, *rows))
+    expect(rank(long_term, *rows)).to eq(["a" * 100, "a" * 100 + "z"])
+    expect(described_class.new(candidates(["Pilot", 1]), long_term).relation.to_sql).not_to include(
+      "z"
+    )
+  end
+
   it "returns the full candidate records" do
     relation = described_class.new(candidates(["Pilot", 7]), "pil").relation
 

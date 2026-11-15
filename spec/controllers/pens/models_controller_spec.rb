@@ -22,6 +22,16 @@ describe Pens::ModelsController do
   end
 
   describe "#index" do
+    it "rejects anonymous requests" do
+      get :index, params: { term: "" }, format: :json
+
+      expect(response).to have_http_status(:unauthorized)
+    end
+  end
+
+  describe "#index when signed in" do
+    before { sign_in(user) }
+
     it "returns all models with an empty search term" do
       get :index, params: { term: "" }, format: :json
       expect(response).to be_successful
