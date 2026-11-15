@@ -1,5 +1,5 @@
 import { useContext, useEffect, useRef, useState } from "react";
-import { getRequest } from "../fetch";
+import { getRequest, postRequest } from "../fetch";
 import "./pen_and_ink_suggestion_widget.css";
 import { Widget, WidgetDataContext } from "./widgets";
 
@@ -42,8 +42,8 @@ const PenAndInkSuggestionWidgetContent = () => {
   const { result, loading, requestSuggestion } = useSuggestion();
 
   const onAsk = async () => {
-    const query = suggestionQuery(instructionsAllowed ? extraInstructions : "", rejectedPairs);
-    const suggestion = await requestSuggestion(query);
+    const body = suggestionBody(instructionsAllowed ? extraInstructions : "", rejectedPairs);
+    const suggestion = await requestSuggestion(body);
     if (suggestion && isPair(suggestion)) {
       setRejectedPairs((pairs) => [
         ...pairs,
@@ -125,10 +125,10 @@ const useSuggestion = () => {
     };
   }, []);
 
-  const requestSuggestion = async (query) => {
+  const requestSuggestion = async (body) => {
     setLoading(true);
     setResult(null);
-    const suggestion = await fetchSuggestion(query, () => mounted.current);
+    const suggestion = await fetchSuggestion(body, () => mounted.current);
     if (!mounted.current) return null;
     setResult(suggestion);
     setLoading(false);
@@ -138,9 +138,9 @@ const useSuggestion = () => {
   return { result, loading, requestSuggestion };
 };
 
-const fetchSuggestion = async (query, isMounted) => {
+const fetchSuggestion = async (body, isMounted) => {
   try {
-    const response = await getRequest(query ? `${SUGGESTION_PATH}?${query}` : SUGGESTION_PATH);
+    const response = await postRequest(SUGGESTION_PATH, body);
     if (response?.status === 429) return errorResult(THROTTLED_MESSAGE);
     const { suggestion_id: suggestionId } = await readJson(response);
     if (!suggestionId) return errorResult(ERROR_MESSAGE);
@@ -183,11 +183,9 @@ const isCurrentlyInked = (result) =>
 const inkItUpUrl = (result) =>
   `/currently_inked/new?collected_ink_id=${result.ink.id}&collected_pen_id=${result.pen.id}`;
 
-const suggestionQuery = (extraInstructions, rejectedPairs) => {
-  const params = new URLSearchParams();
-  if (extraInstructions.trim()) params.set("extra_user_input", extraInstructions);
-  if (rejectedPairs.length > 0) {
-    params.set("rejected_suggestions", JSON.stringify(rejectedPairs));
-  }
-  return params.toString();
+const suggestionBody = (extraInstructions, rejectedPairs) => {
+  const body = {};
+  if (extraInstructions.trim()) body.extra_user_input = extraInstructions;
+  if (rejectedPairs.length > 0) body.rejected_suggestions = JSON.stringify(rejectedPairs);
+  return body;
 };

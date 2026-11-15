@@ -7,10 +7,10 @@ import {
   THROTTLED_MESSAGE,
   TIMEOUT_MESSAGE
 } from "dashboard/pen_and_ink_suggestion_widget";
-import { getRequest } from "fetch";
+import { getRequest, postRequest } from "fetch";
 import { StrictMode } from "react";
 
-vi.mock("fetch", () => ({ getRequest: vi.fn() }));
+vi.mock("fetch", () => ({ getRequest: vi.fn(), postRequest: vi.fn() }));
 
 const SUGGESTION_PATH = "/dashboard/widgets/pen_and_ink_suggestion.json";
 const SETTINGS_PATH = "/dashboard/widgets/pen_and_ink_suggestion_settings.json";
@@ -46,8 +46,7 @@ describe("PenAndInkSuggestionWidget", () => {
   };
 
   const requestedUrls = () => getRequest.mock.calls.map(([url]) => url);
-  const enqueueUrls = () =>
-    requestedUrls().filter((url) => url.startsWith(SUGGESTION_PATH) && !isPoll(url));
+  const enqueueBodies = () => postRequest.mock.calls.map(([, body]) => body);
   const pollUrls = () => requestedUrls().filter(isPoll);
   const isPoll = (url) => url.includes("suggestion_id=");
 
@@ -83,6 +82,11 @@ describe("PenAndInkSuggestionWidget", () => {
         });
       }
       if (isPoll(url)) return pollResponses.length > 0 ? pollResponses.shift() : response({});
+      return response({}, 400);
+    });
+    postRequest.mockReset();
+    postRequest.mockImplementation(async (url) => {
+      if (url !== SUGGESTION_PATH) return response({}, 404);
       enqueueCount += 1;
       return enqueueResponse ?? response({ suggestion_id: `suggestion-${enqueueCount}` });
     });
@@ -97,6 +101,7 @@ describe("PenAndInkSuggestionWidget", () => {
       await renderWidget();
 
       expect(requestedUrls()).toEqual([SETTINGS_PATH]);
+      expect(postRequest).not.toHaveBeenCalled();
     });
 
     it("shows a textarea limited to the server's maximum length when instructions are allowed", async () => {
@@ -124,7 +129,22 @@ describe("PenAndInkSuggestionWidget", () => {
 
       await clickButton("Suggest something!");
 
-      expect(enqueueUrls()).toEqual([SUGGESTION_PATH]);
+      expect(enqueueBodies()).toEqual([{}]);
+    });
+  });
+
+  describe("starting a suggestion", () => {
+    it("starts a suggestion with a POST and polls it with GETs", async () => {
+      await renderWidget();
+
+      await askAndPoll("Suggest something!", [response({}), response(pair(1, 2))]);
+
+      expect(postRequest.mock.calls).toEqual([[SUGGESTION_PATH, {}]]);
+      expect(requestedUrls()).toEqual([
+        SETTINGS_PATH,
+        `${SUGGESTION_PATH}?suggestion_id=suggestion-1`,
+        `${SUGGESTION_PATH}?suggestion_id=suggestion-1`
+      ]);
     });
   });
 
@@ -342,8 +362,6 @@ describe("PenAndInkSuggestionWidget", () => {
   });
 
   describe("retry payload", () => {
-    const enqueueParams = (index) => new URL(enqueueUrls()[index], "http://localhost").searchParams;
-
     it("sends the instruction and every suggested pair as rejected on retry", async () => {
       await renderWidget();
       fireEvent.change(screen.getByRole("textbox", { name: "Extra instructions" }), {
@@ -354,13 +372,13 @@ describe("PenAndInkSuggestionWidget", () => {
       await askAndPoll("Try again!", [response(pair(3, 4))]);
       await askAndPoll("Try again!", [response(pair(5, 6))]);
 
-      expect(enqueueParams(0).get("extra_user_input")).toEqual("Only samples & no reds");
-      expect(enqueueParams(0).has("rejected_suggestions")).toBe(false);
-      expect(JSON.parse(enqueueParams(2).get("rejected_suggestions"))).toEqual([
+      const bodies = enqueueBodies();
+      expect(bodies[0]).toEqual({ extra_user_input: "Only samples & no reds" });
+      expect(bodies[2].extra_user_input).toEqual("Only samples & no reds");
+      expect(JSON.parse(bodies[2].rejected_suggestions)).toEqual([
         { ink_id: 1, pen_id: 2 },
         { ink_id: 3, pen_id: 4 }
       ]);
-      expect(enqueueParams(2).get("extra_user_input")).toEqual("Only samples & no reds");
     });
 
     it("sends a suggested pair with a currently inked pen as rejected on retry", async () => {
@@ -371,7 +389,7 @@ describe("PenAndInkSuggestionWidget", () => {
       ]);
       await askAndPoll("Try again!", [response(pair(3, 4))]);
 
-      expect(JSON.parse(enqueueParams(1).get("rejected_suggestions"))).toEqual([
+      expect(JSON.parse(enqueueBodies()[1].rejected_suggestions)).toEqual([
         { ink_id: 1, pen_id: 2 }
       ]);
     });
@@ -384,7 +402,7 @@ describe("PenAndInkSuggestionWidget", () => {
       await askAndPoll("Try again!", [response({ status: "error", message: "Sorry" })]);
       await askAndPoll("Try again!", [response(pair(3, 4))]);
 
-      expect(JSON.parse(enqueueParams(3).get("rejected_suggestions"))).toEqual([
+      expect(JSON.parse(enqueueBodies()[3].rejected_suggestions)).toEqual([
         { ink_id: 1, pen_id: 2 }
       ]);
     });
@@ -397,7 +415,7 @@ describe("PenAndInkSuggestionWidget", () => {
 
       await clickButton("Suggest something!");
 
-      expect(enqueueUrls()).toEqual([SUGGESTION_PATH]);
+      expect(enqueueBodies()).toEqual([{}]);
     });
   });
 });
