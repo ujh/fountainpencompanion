@@ -42,6 +42,25 @@ RSpec.describe "review-ignored-inks database role" do
     )
   end
 
+  it "sets the role's defaults and removes administrative attributes" do
+    create_ink_review_role
+    role = ink_review_roles.last
+
+    attributes = admin_connection.exec_params(<<~SQL, [role]).first
+        select rolcreatedb, rolcreaterole, rolconnlimit, array_to_string(rolconfig, ' ') as config
+        from pg_roles where rolname = $1
+      SQL
+
+    expect(attributes).to include(
+      "rolcreatedb" => "f",
+      "rolcreaterole" => "f",
+      "rolconnlimit" => "6"
+    )
+    expect(attributes["config"].split).to match_array(
+      %w[default_transaction_read_only=on statement_timeout=120s]
+    )
+  end
+
   it "reads no personal columns of collected inks and no agent transcripts" do
     create_ink_review_role
     role = ink_review_roles.last

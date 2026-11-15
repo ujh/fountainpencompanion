@@ -4,6 +4,12 @@ module InkReviewRoleHelpers
   SKILL_DIR = Rails.root.join(".claude/skills/review-ignored-inks")
 
   def self.included(base)
+    base.around do |example|
+      example.run
+    rescue SystemExit => e
+      raise "The script exited unexpectedly (status #{e.status})"
+    end
+
     base.after do
       if IgnoredInksReview.instance_variable_get(:@connection)
         IgnoredInksReview.connection.close
@@ -44,7 +50,7 @@ module InkReviewRoleHelpers
   def create_ink_review_role(*extra_statements)
     role = "fpc_ink_review_test_#{SecureRandom.hex(4)}"
     password = SecureRandom.hex(16)
-    admin_connection.exec("CREATE ROLE #{role} LOGIN PASSWORD '#{password}'")
+    admin_connection.exec("CREATE ROLE #{role} LOGIN CREATEDB CREATEROLE PASSWORD '#{password}'")
     ink_review_roles << role
     database = test_database_params.fetch(:dbname)
     admin_connection.exec(

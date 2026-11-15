@@ -43,9 +43,6 @@ module IgnoredInksReview
 
   BATCH_SIZES = { "triage" => 150, "research" => 10, "verify" => 8, "merge" => 6 }.freeze
   STAGES = %w[triage research verify merge].freeze
-  # Tables the review reads. The scripts refuse to run with a role that can
-  # change any of them.
-  WRITE_CHECK_TABLES = %w[micro_clusters macro_clusters collected_inks agent_logs].freeze
   WRITE_PRIVILEGES = %w[INSERT UPDATE DELETE TRUNCATE].freeze
   ROLE_ATTRIBUTES = {
     "rolsuper" => "SUPERUSER",
@@ -88,20 +85,6 @@ module IgnoredInksReview
   end
 
   def unsafe_role_problem(conn)
-    writable_tables =
-      conn
-        .exec_params(
-          <<~SQL,
-        select distinct t as table_name
-        from unnest($1::text[]) t, unnest($2::text[]) p
-        where case when p in ('INSERT', 'UPDATE') then has_any_column_privilege(t, p)
-                   else has_table_privilege(t, p) end
-      SQL
-          ["{#{WRITE_CHECK_TABLES.join(",")}}", "{#{WRITE_PRIVILEGES.join(",")}}"]
-        )
-        .map { |row| row["table_name"] }
-    return "The database role can write to #{writable_tables.join(", ")}." if writable_tables.any?
-
     role = conn.exec(<<~SQL).first
       select r.*,
         (select string_agg(m.roleid::regrole::text, ', ' order by m.roleid::regrole::text)
@@ -111,6 +94,18 @@ module IgnoredInksReview
     attributes = ROLE_ATTRIBUTES.select { |column, _| role[column] == "t" }.values
     return "The database role has #{attributes.join(", ")}." if attributes.any?
     return "The database role is a member of #{role["memberships"]}." if role["memberships"]
+
+    writable = conn.exec_params(<<~SQL, ["{#{WRITE_PRIVILEGES.join(",")}}"]).column_values(0)
+      select distinct c.relname
+      from pg_class c
+      join pg_namespace n on n.oid = c.relnamespace
+      cross join unnest($1::text[]) p
+      where n.nspname = 'public' and c.relkind in ('r', 'p', 'v', 'm', 'f')
+        and case when p in ('INSERT', 'UPDATE') then has_any_column_privilege(c.oid, p)
+                 else has_table_privilege(c.oid, p) end
+      order by 1
+    SQL
+    return "The database role can write to #{writable.join(", ")}." if writable.any?
 
     users_readable = conn.exec("select has_any_column_privilege('users', 'SELECT')").getvalue(0, 0)
     "The database role can read users." if users_readable == "t"

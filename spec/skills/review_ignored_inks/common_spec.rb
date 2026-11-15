@@ -65,35 +65,43 @@ RSpec.describe IgnoredInksReview do
       end
     end
 
-    it "refuses a role that can write to the review's tables" do
-      url = create_ink_review_role("GRANT UPDATE ON agent_logs TO %{role}")
+    {
+      "UPDATE ON agent_logs" => "agent_logs",
+      "UPDATE (state) ON agent_logs" => "agent_logs",
+      "INSERT ON ink_embeddings" => "ink_embeddings",
+      "DELETE ON micro_clusters" => "micro_clusters",
+      "TRUNCATE ON collected_inks" => "collected_inks"
+    }.each do |privilege, table|
+      it "refuses a role with #{privilege}" do
+        url = create_ink_review_role("GRANT #{privilege} TO %{role}")
 
-      with_ink_review_url(url) do
-        expect { described_class.connection }.to raise_error(SystemExit).and output(
-                /can write to agent_logs/
-              ).to_stderr
+        with_ink_review_url(url) do
+          expect { described_class.connection }.to raise_error(SystemExit).and output(
+                  /can write to #{table}\./
+                ).to_stderr
+        end
       end
     end
 
-    it "refuses a role that can write to a column of the review's tables" do
-      url = create_ink_review_role("GRANT UPDATE (state) ON agent_logs TO %{role}")
-
-      with_ink_review_url(url) do
-        expect { described_class.connection }.to raise_error(SystemExit).and output(
-                /can write to agent_logs/
-              ).to_stderr
-      end
-    end
-
-    %w[CREATEDB CREATEROLE BYPASSRLS].each do |attribute|
+    %w[SUPERUSER CREATEDB CREATEROLE BYPASSRLS].each do |attribute|
       it "refuses a role with #{attribute}" do
         url = create_ink_review_role("ALTER ROLE %{role} #{attribute}")
 
         with_ink_review_url(url) do
           expect { described_class.connection }.to raise_error(SystemExit).and output(
-                  /has #{attribute}/
+                  /has #{attribute}\./
                 ).to_stderr
         end
+      end
+    end
+
+    it "names every administrative attribute the role has" do
+      url = create_ink_review_role("ALTER ROLE %{role} SUPERUSER CREATEDB BYPASSRLS")
+
+      with_ink_review_url(url) do
+        expect { described_class.connection }.to raise_error(SystemExit).and output(
+                /has SUPERUSER, CREATEDB, BYPASSRLS\./
+              ).to_stderr
       end
     end
 
