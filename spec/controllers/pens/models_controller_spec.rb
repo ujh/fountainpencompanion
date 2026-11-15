@@ -13,7 +13,7 @@ describe Pens::ModelsController do
       color: "Orange"
     )
   end
-  let(:platinum) { create(:collected_pen, brand: "Platinum", model: "3776 Chartres") }
+  let(:platinum) { create_list(:collected_pen, 2, brand: "Platinum", model: "3776 Chartres") }
   let(:pens) { [wing_sung, custom74, platinum] }
 
   before do
@@ -47,6 +47,14 @@ describe Pens::ModelsController do
     it "only returns models of the given brand" do
       get :index, params: { term: "7", brand: "pilot" }, format: :json
       expect(response).to be_successful
+      expect(JSON.parse(response.body)).to eq(["Custom 74"])
+    end
+
+    it "does not return models of a single other user" do
+      create(:collected_pen, brand: "Pilot", model: "Custom 823")
+      PenNamePopularity.refresh
+
+      get :index, params: { term: "custom" }, format: :json
       expect(JSON.parse(response.body)).to eq(["Custom 74"])
     end
   end
