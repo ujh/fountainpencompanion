@@ -33,10 +33,9 @@ class HistoriesController < ApplicationController
         automatic_line_name = object.automatic_line_name.to_s
         old_display = old_value ? "" : automatic_line_name
         new_display = new_value ? "" : automatic_line_name
-        { label: "Line Name", type: :text, diff: WordDiff.new(new_display, old_display).html }
+        { label: "Line Name", type: :text, diff: WordDiff.new(old_display, new_display).html }
       else
-        old_value, new_value = version.changeset[field]
-        { label: label, type: :text, diff: WordDiff.new(new_value, old_value).html }
+        { label: label, type: :text, diff: WordDiff.new(*version.changeset[field]).html }
       end
     end
   end

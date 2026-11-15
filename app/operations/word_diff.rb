@@ -5,9 +5,9 @@ class WordDiff
   MAX_TOKENS = 3_000
   TOO_LONG = '<em class="text-muted">Too long to compare.</em>'.freeze
 
-  def initialize(new_text, old_text)
-    self.target = tokens(new_text)
+  def initialize(old_text, new_text)
     self.source = tokens(old_text)
+    self.target = tokens(new_text)
     self.parts = []
   end
 

@@ -16,7 +16,6 @@ class Admins::Descriptions::BrandsController < Admins::BaseController
   def calculate_diff(version)
     return "" unless version.changeset.key?("description")
 
-    old_description, new_description = version.changeset["description"]
-    WordDiff.new(new_description, old_description).html
+    WordDiff.new(*version.changeset["description"]).html
   end
 end
