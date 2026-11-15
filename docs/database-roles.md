@@ -199,7 +199,7 @@ SELECT pg_get_userbyid(defaclrole) AS creator, defaclobjtype, defaclacl FROM pg_
 ```
 
 Connections per role (as `fpc_readonly`; through PgBouncer these are server connections per pool
-user). Use it before and after every rollout stage:
+user). Use it before and after changing a pool size or a secret:
 
 ```sql
 SELECT usename, state, count(*)
@@ -209,9 +209,9 @@ GROUP BY 1, 2
 ORDER BY 1, 2;
 ```
 
-A rolled-back smoke test as each role, connected through its pool (copy the connection string
-from `doctl databases pool get <cluster-id> web --show`, or `worker`). `nextval` is not rolled
-back and skips one id:
+A rolled-back smoke test as each role, connected through its pool (connection string written to a
+file as shown under [Pools and connection budget](#pools-and-connection-budget), never to the
+terminal). `nextval` is not rolled back and skips one id:
 
 ```sql
 BEGIN;
@@ -279,7 +279,8 @@ value appears neither in the shell's arguments nor in output, and only while no 
 doctl databases pool list <cluster-id>
 doctl databases pool update <cluster-id> pool --db defaultdb --mode transaction --size 5
 doctl databases pool update <cluster-id> web --db defaultdb --mode transaction --size 77 --user fpc_web
-doctl databases pool get <cluster-id> web --format URI --no-header --show > tmp/.web_url   # mode 600, delete after use
+(umask 077 && doctl databases pool get <cluster-id> web --format URI --no-header --show > tmp/.web_url)
+# use it, then: rm tmp/.web_url
 ```
 
 `doctl databases pool create` prints the new pool's connection string **including the password**,
