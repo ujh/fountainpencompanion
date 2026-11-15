@@ -47,4 +47,19 @@ describe MarkdownComplexityValidator do
     subject.description = "<div>" * 1_000
     expect(subject).to be_valid
   end
+
+  it "skips the render check when the text already has an error" do
+    limited_class =
+      Class.new(model_class) do
+        def self.name = "LimitedThing"
+
+        clear_validators!
+        validates :description, length: { maximum: 10 }, markdown_complexity: true
+      end
+    thing = limited_class.new(description: "*" * 11)
+
+    expect(FpcFormatter).not_to receive(:too_slow_to_render?)
+    expect(thing).to be_invalid
+    expect(thing.errors[:description]).to eq(["is too long (maximum is 10 characters)"])
+  end
 end

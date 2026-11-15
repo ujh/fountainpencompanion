@@ -8,10 +8,20 @@ class FpcFormatter < Slodown::Formatter
   HOST_NAME = /\A[a-z0-9_-]+(\.[a-z0-9_-]+)*\z/
   MAX_BRACKET_DEPTH = 5
   RENDER_TIMEOUT = 0.5
-  RENDER_ERRORS = [Kramdown::Error, ArgumentError, SystemStackError].freeze
+  RENDER_ERRORS = [Kramdown::Error, ArgumentError, SystemStackError, LoadError].freeze
   FORMAT_VERSION = 1
+  SOURCE_DIGEST =
+    Digest::SHA256.hexdigest(
+      [
+        *%w[
+          app/operations/fpc_formatter.rb
+          app/operations/blog_post_formatter.rb
+          app/lib/kramdown/converter/fpc_html.rb
+        ].map { |path| Rails.root.join(path).read },
+        *Fountainpencompanion::HOSTS
+      ].join("\n")
+    )
   CACHE_EXPIRY = 4.weeks
-  FALLBACK_CACHE_EXPIRY = 15.minutes
 
   def self.render(source)
     key = cache_key(source)
@@ -24,6 +34,7 @@ class FpcFormatter < Slodown::Formatter
       "markdown",
       name,
       FORMAT_VERSION,
+      SOURCE_DIGEST,
       Sanitize::VERSION,
       Nokogiri::VERSION,
       Kramdown::VERSION,
@@ -60,20 +71,20 @@ class FpcFormatter < Slodown::Formatter
   end
 
   def self.render_and_cache(source, key)
-    html, expires_in = render_with_expiry(source)
-    Rails.cache.write(key, html, expires_in:)
+    html = render_markdown(source)
+    return plain_text(source) unless html
+
+    Rails.cache.write(key, html, expires_in: CACHE_EXPIRY)
     html
   end
   private_class_method :render_and_cache
 
-  def self.render_with_expiry(source)
-    return plain_text(source), CACHE_EXPIRY if too_deeply_nested?(source)
-
-    [timed_render(source), CACHE_EXPIRY]
+  def self.render_markdown(source)
+    timed_render(source) unless too_deeply_nested?(source)
   rescue Timeout::Error, *RENDER_ERRORS
-    [plain_text(source), FALLBACK_CACHE_EXPIRY]
+    nil
   end
-  private_class_method :render_with_expiry
+  private_class_method :render_markdown
 
   def self.timed_render(source)
     Timeout.timeout(RENDER_TIMEOUT) { String.new(new(source).complete.to_s) }

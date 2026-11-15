@@ -272,6 +272,13 @@ describe FpcFormatter do
       expect(render("*a* <b>")).to eq("<p>*a* &lt;b&gt;</p>")
     end
 
+    it "renders escaped plain text when the renderer needs a missing library" do
+      source = %({::options transliterated_header_ids="true" auto_ids="true" /}\n\n# Héading)
+
+      expect(render(source)).to eq(%(<p>#{source.lines.first.chomp}</p>\n\n<p># Héading</p>))
+      expect(described_class.too_slow_to_render?(source)).to be(false)
+    end
+
     it "renders deeply nested quotes as escaped plain text" do
       expect(render(">" * 5_000 + " quote")).to eq("<p>#{"&gt;" * 5_000} quote</p>")
     end
@@ -293,20 +300,11 @@ describe FpcFormatter do
       expect(Process.clock_gettime(Process::CLOCK_MONOTONIC) - started).to be < 1
     end
 
-    it "caches the plain text of a slow text for 15 minutes" do
+    it "renders a slow text again on the next call" do
       render(slow_source)
 
-      travel(FpcFormatter::FALLBACK_CACHE_EXPIRY - 1.minute)
-      expect(Kramdown::Document).not_to receive(:new)
-      expect(render(slow_source)).to eq("<p>#{ERB::Util.html_escape(slow_source)}</p>")
-    end
-
-    it "renders a slow text again after 15 minutes" do
-      render(slow_source)
-
-      travel(FpcFormatter::FALLBACK_CACHE_EXPIRY + 1.minute)
       expect(Kramdown::Document).to receive(:new).and_call_original
-      render(slow_source)
+      expect(render(slow_source)).to eq("<p>#{ERB::Util.html_escape(slow_source)}</p>")
     end
 
     it "does not swallow an outer timeout" do
@@ -337,12 +335,12 @@ describe FpcFormatter do
       expect(second).to be_html_safe
     end
 
-    it "caches the plain text fallback" do
+    it "renders again after a renderer error" do
       allow(Kramdown::Document).to receive(:new).and_raise(Kramdown::Error, "broken")
-      render("*a*")
+      expect(render("*a*")).to eq("<p>*a*</p>")
       allow(Kramdown::Document).to receive(:new).and_call_original
 
-      expect(render("*a*")).to eq("<p>*a*</p>")
+      expect(render("*a*")).to eq("<p><em>a</em></p>\n")
     end
 
     it "keeps the output of different formatters apart" do
@@ -377,22 +375,10 @@ describe FpcFormatter do
       render("*kept*")
     end
 
-    it "keeps the plain text fallback after a renderer error for only 15 minutes" do
-      allow(Kramdown::Document).to receive(:new).and_raise(Kramdown::Error, "broken")
-      render("*a*")
-      allow(Kramdown::Document).to receive(:new).and_call_original
-
-      travel(FpcFormatter::FALLBACK_CACHE_EXPIRY - 1.minute)
-      expect(render("*a*")).to eq("<p>*a*</p>")
-      travel(2.minutes)
-      expect(render("*a*")).to eq("<p><em>a</em></p>\n")
-    end
-
-    it "keeps the escaped text of deep nesting for four weeks" do
+    it "does not cache the escaped text of deep nesting" do
       render("[[[[[[x")
 
-      travel(FpcFormatter::FALLBACK_CACHE_EXPIRY + 1.minute)
-      expect(described_class).not_to receive(:bracket_depth)
+      expect(described_class).to receive(:bracket_depth).and_call_original
       expect(render("[[[[[[x")).to eq("<p>[[[[[[x</p>")
     end
 
@@ -407,6 +393,13 @@ describe FpcFormatter do
       expect(described_class.too_slow_to_render?("[[[[[[*x*")).to be(false)
 
       expect(render("[[[[[[*x*")).to eq("<p>[[[[[[*x*</p>")
+    end
+
+    it "changes the cache key when the formatter source changes" do
+      key = described_class.cache_key("x")
+      stub_const("FpcFormatter::SOURCE_DIGEST", "changed")
+
+      expect(described_class.cache_key("x")).not_to eq(key)
     end
 
     it "changes the cache key when a renderer gem changes" do
