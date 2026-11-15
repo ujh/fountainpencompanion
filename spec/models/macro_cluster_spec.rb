@@ -253,11 +253,58 @@ describe MacroCluster do
   end
 
   describe ".embedding_search" do
+    include HnswEfSearchHelpers
+
+    let(:query_embedding) { Array.new(1536) { |i| i.zero? ? 1.0 : 0.0 } }
+    let(:embeddings_client) { instance_double(EmbeddingsClient, fetch: query_embedding) }
+
+    before { allow(EmbeddingsClient).to receive(:new).and_return(embeddings_client) }
+
     it "returns an empty array for a blank query without calling the embeddings client" do
       expect(EmbeddingsClient).not_to receive(:new)
 
       expect(described_class.embedding_search(nil)).to eq([])
       expect(described_class.embedding_search("")).to eq([])
+    end
+
+    it "returns the clusters closest to the query" do
+      cluster = create(:macro_cluster)
+      InkEmbedding.create!(owner: cluster, content: "blue", embedding: query_embedding)
+
+      results = described_class.embedding_search("blue")
+
+      expect(embeddings_client).to have_received(:fetch).with("blue")
+      expect(results.map(&:cluster)).to eq([cluster])
+      expect(results.first.distance).to be_within(0.0001).of(0)
+    end
+
+    it "runs every nearest neighbour query with ef_search set to 200" do
+      values =
+        hnsw_ef_search_during_nearest_neighbor_queries { described_class.embedding_search("blue") }
+
+      expect(values).to eq(%w[200 200 200])
+    end
+
+    context "without transactional tests" do
+      self.use_transactional_tests = false
+
+      it "fetches the embedding outside a transaction" do
+        transaction_open_at_fetch = nil
+        allow(embeddings_client).to receive(:fetch) do
+          transaction_open_at_fetch = ActiveRecord::Base.connection.transaction_open?
+          query_embedding
+        end
+
+        described_class.embedding_search("blue")
+
+        expect(transaction_open_at_fetch).to be(false)
+      end
+
+      it "does not leave ef_search set on the connection" do
+        described_class.embedding_search("blue")
+
+        expect(hnsw_ef_search).not_to eq("200")
+      end
     end
   end
 
