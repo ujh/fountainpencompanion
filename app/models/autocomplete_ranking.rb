@@ -29,7 +29,7 @@ class AutocompleteRanking
 
   def initialize(candidates, term, limit: LIMIT)
     self.candidates = candidates
-    self.term = term.to_s.strip.downcase.first(MAX_TERM_LENGTH)
+    self.term = term.to_s.strip.downcase.first(MAX_TERM_LENGTH).strip
     self.words = self.term.scan(/[[:alnum:]]+/)
     self.compact_term = words.join
     self.limit = limit

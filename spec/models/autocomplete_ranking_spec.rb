@@ -107,9 +107,20 @@ describe AutocompleteRanking do
 
     expect(rank(long_term, *rows)).to eq(rank("a" * 100, *rows))
     expect(rank(long_term, *rows)).to eq(["a" * 100, "a" * 100 + "z"])
-    expect(described_class.new(candidates(["Pilot", 1]), long_term).relation.to_sql).not_to include(
-      "z"
-    )
+  end
+
+  it "drops the text after the first 100 characters from the query" do
+    long_term = "a" * 100 + "marker-beyond-the-limit"
+
+    sql = described_class.new(candidates(["Pilot", 1]), long_term).relation.to_sql
+
+    expect(sql).not_to include("marker-beyond-the-limit")
+  end
+
+  it "does not keep a trailing space when the cut lands on one" do
+    ranking = described_class.new(candidates(["Pilot", 1]), "a" * 99 + " bcd")
+
+    expect(ranking.term).to eq("a" * 99)
   end
 
   it "returns the full candidate records" do
