@@ -113,7 +113,8 @@ class InkReview < ApplicationRecord
   end
 
   def auto_approve?
-    user&.auto_approve_ink_reviews? || ink_review_submissions.distinct.count(:user_id) > 1
+    user&.auto_approve_ink_reviews? ||
+      ink_review_submissions.submitted_by_people.distinct.count(:user_id) > 1
   end
 
   def auto_reject?

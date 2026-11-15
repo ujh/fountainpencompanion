@@ -8,6 +8,7 @@ class InkReviewSubmission < ApplicationRecord
   validate :url_not_instagram
 
   scope :unassigned, -> { where(ink_review: nil) }
+  scope :submitted_by_people, -> { where.not(Arel.sql("extra_data ? 'explanation'")) }
 
   private
 

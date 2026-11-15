@@ -162,6 +162,20 @@ describe InkReview do
 
         expect(review.auto_approve?).to be true
       end
+
+      it "does not count a review feed submission as a second user" do
+        create(
+          :ink_review_submission,
+          ink_review: review,
+          macro_cluster: review.macro_cluster,
+          url: review.url,
+          extra_data: {
+            explanation: "Found in a review feed"
+          }
+        )
+
+        expect(review.auto_approve?).to be false
+      end
     end
 
     context "when the submitter deleted their account" do
