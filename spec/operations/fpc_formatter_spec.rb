@@ -269,6 +269,87 @@ describe FpcFormatter do
     end
   end
 
+  describe "slow texts" do
+    let(:slow_source) { ("**a " * 8 + "[x]( " * 1_000)[0, 5_000] }
+
+    before { stub_const("FpcFormatter::RENDER_TIMEOUT", 0.05) }
+
+    it "renders a text that takes too long as escaped plain text" do
+      started = Process.clock_gettime(Process::CLOCK_MONOTONIC)
+
+      expect(render(slow_source)).to eq("<p>#{ERB::Util.html_escape(slow_source)}</p>")
+      expect(Process.clock_gettime(Process::CLOCK_MONOTONIC) - started).to be < 1
+    end
+
+    it "caches the plain text of a slow text" do
+      render(slow_source)
+      expect(Kramdown::Document).not_to receive(:new)
+
+      expect(render(slow_source)).to eq("<p>#{ERB::Util.html_escape(slow_source)}</p>")
+    end
+
+    it "does not swallow an outer timeout" do
+      stub_const("FpcFormatter::RENDER_TIMEOUT", 10)
+
+      expect { Timeout.timeout(0.05) { render(slow_source) } }.to raise_error(Timeout::Error)
+      expect do
+        Timeout.timeout(0.05, Rack::Timeout::RequestTimeoutException) { render(slow_source) }
+      end.to raise_error(Rack::Timeout::RequestTimeoutException)
+    end
+
+    it "reports which texts take too long" do
+      expect(described_class.too_slow_to_render?(slow_source)).to be(true)
+      expect(described_class.too_slow_to_render?("*quick*")).to be(false)
+      expect(described_class.too_slow_to_render?("<div>" * 1_000)).to be(false)
+    end
+  end
+
+  describe "caching" do
+    it "renders a source only once" do
+      expect(Kramdown::Document).to receive(:new).once.and_call_original
+
+      first = render("*cached*")
+      second = described_class.render("*cached*")
+
+      expect(second).to eq(first)
+      expect(second).to eq("<p><em>cached</em></p>\n")
+      expect(second).to be_html_safe
+    end
+
+    it "caches the plain text fallback" do
+      allow(Kramdown::Document).to receive(:new).and_raise(Kramdown::Error, "broken")
+      render("*a*")
+      allow(Kramdown::Document).to receive(:new).and_call_original
+
+      expect(render("*a*")).to eq("<p>*a*</p>")
+    end
+
+    it "keeps the output of different formatters apart" do
+      source = '<p class="lead">x</p>'
+
+      expect(render(source)).to eq("<p>x</p>\n")
+      expect(BlogPostFormatter.render(source).to_s).to eq(%(<p class="lead">x</p>\n))
+      expect(render(source)).to eq("<p>x</p>\n")
+    end
+
+    it "renders again after the format version changes" do
+      expect(Kramdown::Document).to receive(:new).twice.and_call_original
+
+      render("*versioned*")
+      stub_const("FpcFormatter::FORMAT_VERSION", FpcFormatter::FORMAT_VERSION + 1)
+      render("*versioned*")
+    end
+
+    it "expires cached output" do
+      expect(Rails.cache).to receive(:fetch).with(
+        a_string_starting_with("markdown/FpcFormatter/"),
+        expires_in: FpcFormatter::CACHE_EXPIRY
+      ).and_call_original
+
+      render("*expiring*")
+    end
+  end
+
   describe "regular markdown still renders" do
     it "renders headers, emphasis, lists, and links" do
       source = <<~MD

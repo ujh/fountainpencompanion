@@ -18,6 +18,17 @@ describe User do
       expect(user.errors[:blurb]).to eq(["has too many nested brackets"])
     end
 
+    it "rejects a blurb that takes too long to render" do
+      stub_const("FpcFormatter::RENDER_TIMEOUT", 0.05)
+
+      expect(user.update(blurb: ("**a " * 8 + "[x]( " * 1_000)[0, 5_000])).to be(false)
+      expect(user.errors[:blurb]).to eq(["is too complex to display"])
+    end
+
+    it "accepts a normal blurb" do
+      expect(user.update(blurb: "I *love* [Diamine](https://example.com) inks.")).to be(true)
+    end
+
     it "keeps a user with an existing long, deeply nested blurb saveable" do
       user.update_column(:blurb, "[[[[[[x]]]]]] " + "x" * 25_000)
 

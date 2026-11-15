@@ -31,7 +31,7 @@ class User < ApplicationRecord
             length: {
               maximum: MAX_BLURB_LENGTH
             },
-            markdown_nesting: true,
+            markdown_complexity: true,
             if: :blurb_changed?
 
   before_save :check_if_we_should_skip_confirmation

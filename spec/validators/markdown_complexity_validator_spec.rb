@@ -1,6 +1,6 @@
 require "rails_helper"
 
-describe MarkdownNestingValidator do
+describe MarkdownComplexityValidator do
   subject { model_class.new }
 
   let(:model_class) do
@@ -11,7 +11,7 @@ describe MarkdownNestingValidator do
       def self.name = "DescribedThing"
 
       attribute :description, :string
-      validates :description, markdown_nesting: true
+      validates :description, markdown_complexity: true
     end
   end
 
@@ -33,5 +33,18 @@ describe MarkdownNestingValidator do
   it "counts brackets that are never closed" do
     subject.description = "[a [b [c [d [e [f"
     expect(subject).to be_invalid
+  end
+
+  it "rejects a text that takes too long to render" do
+    stub_const("FpcFormatter::RENDER_TIMEOUT", 0.05)
+    subject.description = ("**a " * 8 + "[x]( " * 1_000)[0, 5_000]
+
+    expect(subject).to be_invalid
+    expect(subject.errors[:description]).to eq(["is too complex to display"])
+  end
+
+  it "accepts a text the renderer shows as plain text" do
+    subject.description = "<div>" * 1_000
+    expect(subject).to be_valid
   end
 end

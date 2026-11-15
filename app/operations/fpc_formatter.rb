@@ -1,4 +1,5 @@
 require "slodown"
+require "timeout"
 
 class FpcFormatter < Slodown::Formatter
   STRIPPED_ELEMENTS = %w[iframe object embed].freeze
@@ -6,17 +7,36 @@ class FpcFormatter < Slodown::Formatter
   ABSOLUTE_HTTP_URL = %r{\Ahttps?://}i
   HOST_NAME = /\A[a-z0-9_-]+(\.[a-z0-9_-]+)*\z/
   MAX_BRACKET_DEPTH = 5
+  RENDER_TIMEOUT = 0.5
+  FORMAT_VERSION = 1
+  CACHE_EXPIRY = 4.weeks
+
+  class RenderTimeout < StandardError
+  end
 
   def self.render(source)
-    return plain_text(source) if too_deeply_nested?(source)
+    html =
+      Rails
+        .cache
+        .fetch(cache_key(source), expires_in: CACHE_EXPIRY) { String.new(render_uncached(source)) }
+    html.html_safe
+  end
 
-    new(source).complete.to_s.html_safe
-  rescue Kramdown::Error, ArgumentError, SystemStackError
-    plain_text(source)
+  def self.cache_key(source)
+    ["markdown", name, FORMAT_VERSION, Digest::SHA256.hexdigest(source.to_s)].join("/")
   end
 
   def self.too_deeply_nested?(source)
     bracket_depth(source) > MAX_BRACKET_DEPTH
+  end
+
+  def self.too_slow_to_render?(source)
+    timed_render(source)
+    false
+  rescue RenderTimeout
+    true
+  rescue Kramdown::Error, ArgumentError, SystemStackError
+    false
   end
 
   def self.bracket_depth(source)
@@ -29,6 +49,20 @@ class FpcFormatter < Slodown::Formatter
       end
     max
   end
+
+  def self.render_uncached(source)
+    return plain_text(source) if too_deeply_nested?(source)
+
+    timed_render(source)
+  rescue RenderTimeout, Kramdown::Error, ArgumentError, SystemStackError
+    plain_text(source)
+  end
+  private_class_method :render_uncached
+
+  def self.timed_render(source)
+    Timeout.timeout(RENDER_TIMEOUT, RenderTimeout) { new(source).complete.to_s }
+  end
+  private_class_method :timed_render
 
   def self.plain_text(source)
     ActionController::Base.helpers.simple_format(ERB::Util.html_escape(source.to_s))

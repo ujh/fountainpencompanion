@@ -18,6 +18,13 @@ describe MacroCluster do
       expect(record.errors[:description]).to eq(["has too many nested brackets"])
     end
 
+    it "rejects a changed description that takes too long to render" do
+      stub_const("FpcFormatter::RENDER_TIMEOUT", 0.05)
+
+      expect(record.update(description: ("**a " * 8 + "[x]( " * 1_000)[0, 5_000])).to be(false)
+      expect(record.errors[:description]).to eq(["is too complex to display"])
+    end
+
     it "keeps a record with an existing deeply nested description saveable" do
       record.update_column(:description, "[[[[[[x]]]]]]")
 
