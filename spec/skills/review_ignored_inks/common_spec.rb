@@ -75,6 +75,53 @@ RSpec.describe IgnoredInksReview do
       end
     end
 
+    it "refuses a role that can write to a column of the review's tables" do
+      url = create_ink_review_role("GRANT UPDATE (state) ON agent_logs TO %{role}")
+
+      with_ink_review_url(url) do
+        expect { described_class.connection }.to raise_error(SystemExit).and output(
+                /can write to agent_logs/
+              ).to_stderr
+      end
+    end
+
+    %w[CREATEDB CREATEROLE BYPASSRLS].each do |attribute|
+      it "refuses a role with #{attribute}" do
+        url = create_ink_review_role("ALTER ROLE %{role} #{attribute}")
+
+        with_ink_review_url(url) do
+          expect { described_class.connection }.to raise_error(SystemExit).and output(
+                  /has #{attribute}/
+                ).to_stderr
+        end
+      end
+    end
+
+    %w[pg_read_all_data pg_read_all_stats pg_monitor].each do |built_in_role|
+      it "refuses a member of #{built_in_role}" do
+        url = create_ink_review_role("GRANT #{built_in_role} TO %{role}")
+
+        with_ink_review_url(url) do
+          expect { described_class.connection }.to raise_error(SystemExit).and output(
+                  /member of #{built_in_role}/
+                ).to_stderr
+        end
+      end
+    end
+
+    it "refuses a member of any role, even without inheriting its privileges" do
+      group = "fpc_ink_review_test_group_#{SecureRandom.hex(4)}"
+      admin_connection.exec("CREATE ROLE #{group} NOLOGIN")
+      ink_review_roles << group
+      url = create_ink_review_role("GRANT #{group} TO %{role} WITH INHERIT FALSE")
+
+      with_ink_review_url(url) do
+        expect { described_class.connection }.to raise_error(SystemExit).and output(
+                /member of #{group}/
+              ).to_stderr
+      end
+    end
+
     it "closes the connection it refuses" do
       connection = PG.connect(**test_database_params)
       allow(PG).to receive(:connect).and_return(connection)

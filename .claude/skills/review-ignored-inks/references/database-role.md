@@ -3,8 +3,9 @@
 The skill's scripts connect to production as `fpc_ink_review`, a role that can read only what the
 review needs. Subagents read user-typed names and agent logs, have web access and can run any
 `SELECT` through `scripts/query.rb`, so the role, not the prompts, decides what they can reach.
-`scripts/lib/common.rb` refuses to run as a role that can write to the review's tables or read
-`users` (such as `fpc_readonly`).
+`scripts/lib/common.rb` refuses to run as a role that can write to the review's tables, read
+`users` (such as `fpc_readonly`), is a member of any role (such as `pg_read_all_stats`) or has
+`SUPERUSER`, `CREATEDB`, `CREATEROLE` or `BYPASSRLS`.
 
 ## What the scripts read
 
@@ -43,7 +44,8 @@ doctl databases user create <cluster-id> fpc_ink_review
 ```
 
 Then run [`database-role.sql`](database-role.sql) as `doadmin` against `defaultdb`. It grants the
-table and column privileges above and sets three role defaults:
+table and column privileges above, removes `CREATEDB` and `CREATEROLE` in case the new user has
+them, and sets three role defaults:
 
 - `default_transaction_read_only = on` and `statement_timeout = '120s'`: role defaults apply to
   every connection of the role, also when a statement reaches the server through a pooler. The

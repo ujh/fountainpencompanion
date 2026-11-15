@@ -25,7 +25,8 @@ reviewable production scripts. It never writes to the database itself.
   with the URL in `FPC_INK_REVIEW_DATABASE_URL`, or in `tmp/ignored-inks-review/database_url`
   (gitignored). If neither exists, ask the owner for the `fpc_ink_review` URL, write it to that file
   with mode 600, and never print, log or commit it. The scripts refuse to run when the role can write
-  to the review's tables or read `users` (as `fpc_readonly` can).
+  to the review's tables, read `users` (as `fpc_readonly` can), is a member of any role or has
+  administrative attributes.
 - Subagents can read any file in the working tree, so the role only limits them while no URL of a
   broader production role is readable there. Before a run, check the `.env*` files in the repository
   root for production database URLs (names only, never print values) and ask the owner to move them

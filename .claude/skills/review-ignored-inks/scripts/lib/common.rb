@@ -47,6 +47,12 @@ module IgnoredInksReview
   # change any of them.
   WRITE_CHECK_TABLES = %w[micro_clusters macro_clusters collected_inks agent_logs].freeze
   WRITE_PRIVILEGES = %w[INSERT UPDATE DELETE TRUNCATE].freeze
+  ROLE_ATTRIBUTES = {
+    "rolsuper" => "SUPERUSER",
+    "rolcreatedb" => "CREATEDB",
+    "rolcreaterole" => "CREATEROLE",
+    "rolbypassrls" => "BYPASSRLS"
+  }.freeze
 
   module_function
 
@@ -86,15 +92,25 @@ module IgnoredInksReview
       conn
         .exec_params(
           <<~SQL,
-        select t as table_name, p as privilege
+        select distinct t as table_name
         from unnest($1::text[]) t, unnest($2::text[]) p
-        where has_table_privilege(t, p)
+        where case when p in ('INSERT', 'UPDATE') then has_any_column_privilege(t, p)
+                   else has_table_privilege(t, p) end
       SQL
           ["{#{WRITE_CHECK_TABLES.join(",")}}", "{#{WRITE_PRIVILEGES.join(",")}}"]
         )
         .map { |row| row["table_name"] }
-        .uniq
     return "The database role can write to #{writable_tables.join(", ")}." if writable_tables.any?
+
+    role = conn.exec(<<~SQL).first
+      select r.*,
+        (select string_agg(m.roleid::regrole::text, ', ' order by m.roleid::regrole::text)
+         from pg_auth_members m where m.member = r.oid) as memberships
+      from pg_roles r where r.rolname = current_user
+    SQL
+    attributes = ROLE_ATTRIBUTES.select { |column, _| role[column] == "t" }.values
+    return "The database role has #{attributes.join(", ")}." if attributes.any?
+    return "The database role is a member of #{role["memberships"]}." if role["memberships"]
 
     users_readable = conn.exec("select has_any_column_privilege('users', 'SELECT')").getvalue(0, 0)
     "The database role can read users." if users_readable == "t"
