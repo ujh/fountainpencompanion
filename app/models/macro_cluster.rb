@@ -51,8 +51,12 @@ class MacroCluster < ApplicationRecord
 
   belongs_to :brand_cluster, optional: true
 
-  validates :description, length: { maximum: MAX_DESCRIPTION_LENGTH }
-  validates :description, markdown_complexity: true, if: :description_changed?
+  validates :description,
+            length: {
+              maximum: MAX_DESCRIPTION_LENGTH
+            },
+            markdown_complexity: true,
+            if: :description_changed?
 
   before_save :recalculate_color, if: :will_save_change_to_ignored_colors?
   after_commit :enqueue_update, if: :saved_change_to_color?

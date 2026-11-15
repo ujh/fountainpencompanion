@@ -27,6 +27,14 @@ describe BrandCluster do
       expect(record.errors[:description]).to eq(["is too complex to display"])
     end
 
+    it "keeps a record with an existing over-long description saveable" do
+      record.update_column(:description, "x" * 5_001)
+
+      expect(record.reload.update(name: "Renamed Brand")).to be(true)
+      expect(record.update(description: "y" * 5_001)).to be(false)
+      expect(record.errors[:description]).to eq(["is too long (maximum is 5000 characters)"])
+    end
+
     it "keeps a record with an existing deeply nested description saveable" do
       record.update_column(:description, "[[[[[[x]]]]]]")
 

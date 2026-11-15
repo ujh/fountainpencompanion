@@ -9,18 +9,6 @@ class FpcFormatter < Slodown::Formatter
   MAX_BRACKET_DEPTH = 5
   RENDER_TIMEOUT = 0.5
   RENDER_ERRORS = [Kramdown::Error, ArgumentError, SystemStackError, LoadError].freeze
-  FORMAT_VERSION = 1
-  SOURCE_DIGEST =
-    Digest::SHA256.hexdigest(
-      [
-        *%w[
-          app/operations/fpc_formatter.rb
-          app/operations/blog_post_formatter.rb
-          app/lib/kramdown/converter/fpc_html.rb
-        ].map { |path| Rails.root.join(path).read },
-        *Fountainpencompanion::HOSTS
-      ].join("\n")
-    )
   CACHE_EXPIRY = 4.weeks
 
   def self.render(source)
@@ -30,18 +18,7 @@ class FpcFormatter < Slodown::Formatter
   end
 
   def self.cache_key(source)
-    [
-      "markdown",
-      name,
-      FORMAT_VERSION,
-      SOURCE_DIGEST,
-      Sanitize::VERSION,
-      Nokogiri::VERSION,
-      Kramdown::VERSION,
-      Rinku::VERSION,
-      Slodown::VERSION,
-      Digest::SHA256.hexdigest(source.to_s)
-    ].join("/")
+    "markdown/#{name}/#{Digest::SHA256.hexdigest(source.to_s)}"
   end
 
   def self.too_deeply_nested?(source)

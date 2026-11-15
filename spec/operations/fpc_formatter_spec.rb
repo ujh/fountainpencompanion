@@ -353,14 +353,6 @@ describe FpcFormatter do
       expect(render(source)).to eq("<p>x</p>\n")
     end
 
-    it "renders again after the format version changes" do
-      expect(Kramdown::Document).to receive(:new).twice.and_call_original
-
-      render("*versioned*")
-      stub_const("FpcFormatter::FORMAT_VERSION", FpcFormatter::FORMAT_VERSION + 1)
-      render("*versioned*")
-    end
-
     it "keeps rendered output for four weeks" do
       render("*kept*")
 
@@ -395,22 +387,6 @@ describe FpcFormatter do
       expect(described_class.too_slow_to_render?("[[[[[[*x*")).to be(false)
 
       expect(render("[[[[[[*x*")).to eq("<p>[[[[[[*x*</p>")
-    end
-
-    it "changes the cache key when the formatter source changes" do
-      key = described_class.cache_key("x")
-      stub_const("FpcFormatter::SOURCE_DIGEST", "changed")
-
-      expect(described_class.cache_key("x")).not_to eq(key)
-    end
-
-    it "changes the cache key when a renderer gem changes" do
-      %w[Sanitize Nokogiri Kramdown Rinku Slodown].each do |gem|
-        key = described_class.cache_key("x")
-        stub_const("#{gem}::VERSION", "0.0.0.test")
-
-        expect(described_class.cache_key("x")).not_to eq(key), gem
-      end
     end
   end
 
