@@ -1,6 +1,49 @@
 require "rails_helper"
 
 describe User do
+  include SlowMarkdownHelpers
+
+  describe "blurb" do
+    let(:user) { create(:user) }
+
+    it "accepts 5,000 characters" do
+      expect(user.update(blurb: "x" * 5_000)).to be(true)
+    end
+
+    it "rejects more than 5,000 characters" do
+      expect(user.update(blurb: "x" * 5_001)).to be(false)
+      expect(user.errors[:blurb]).to eq(["is too long (maximum is 5000 characters)"])
+    end
+
+    it "does not render an over-long blurb to check its complexity" do
+      expect(FpcFormatter).not_to receive(:too_slow_to_render?)
+
+      expect(user.update(blurb: "x" * 5_001)).to be(false)
+    end
+
+    it "rejects brackets nested more than five deep" do
+      expect(user.update(blurb: "[[[[[[x]]]]]]")).to be(false)
+      expect(user.errors[:blurb]).to eq(["has too many nested brackets"])
+    end
+
+    it "rejects a blurb that takes too long to render" do
+      make_markdown_slow
+
+      expect(user.update(blurb: SlowMarkdownHelpers::SLOW_MARKDOWN)).to be(false)
+      expect(user.errors[:blurb]).to eq(["is too complex to display"])
+    end
+
+    it "accepts a normal blurb" do
+      expect(user.update(blurb: "I *love* [Diamine](https://example.com) inks.")).to be(true)
+    end
+
+    it "keeps a user with an existing long, deeply nested blurb saveable" do
+      user.update_column(:blurb, "[[[[[[x]]]]]] " + "x" * 25_000)
+
+      expect(user.reload.update(spam: true)).to be(true)
+    end
+  end
+
   describe "time zone" do
     it "accepts IANA time zone identifiers" do
       expect(build(:user, time_zone: "America/Argentina/Buenos_Aires")).to be_valid

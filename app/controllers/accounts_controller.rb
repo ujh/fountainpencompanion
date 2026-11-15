@@ -22,7 +22,7 @@ class AccountsController < ApplicationController
         if successful
           redirect_to account_path
         else
-          render :edit
+          render :show, status: :unprocessable_content
         end
       end
       format.json do

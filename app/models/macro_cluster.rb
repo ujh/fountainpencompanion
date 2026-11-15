@@ -1,6 +1,8 @@
 require "ostruct"
 
 class MacroCluster < ApplicationRecord
+  MAX_DESCRIPTION_LENGTH = 5_000
+
   TRACKED_FIELDS = {
     "description" => "Description",
     "manual_brand_name" => "Brand Name",
@@ -48,6 +50,13 @@ class MacroCluster < ApplicationRecord
   has_many :agent_logs, as: :owner, dependent: :destroy
 
   belongs_to :brand_cluster, optional: true
+
+  validates :description,
+            length: {
+              maximum: MAX_DESCRIPTION_LENGTH
+            },
+            markdown_complexity: true,
+            if: :description_changed?
 
   before_save :recalculate_color, if: :will_save_change_to_ignored_colors?
   after_commit :enqueue_update, if: :saved_change_to_color?

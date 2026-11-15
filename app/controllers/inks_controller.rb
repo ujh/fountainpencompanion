@@ -34,8 +34,11 @@ class InksController < ApplicationController
 
   def update
     @ink = MacroCluster.find(params[:id])
-    @ink.update(update_params)
-    @ink.ink_embedding&.update(content: @ink.name)
+    if @ink.update(update_params)
+      @ink.ink_embedding&.update(content: @ink.name)
+    elsif @ink.errors.include?(:description)
+      return render :edit, status: :unprocessable_content
+    end
 
     redirect_to ink_path(@ink)
   end

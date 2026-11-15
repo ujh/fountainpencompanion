@@ -1,5 +1,6 @@
 class User < ApplicationRecord
   MAX_SAME_IP_24H = 4
+  MAX_BLURB_LENGTH = 5_000
 
   # Include default devise modules. Others available are:
   # :confirmable, :lockable, :timeoutable and :omniauthable
@@ -26,6 +27,12 @@ class User < ApplicationRecord
 
   validates :name, length: { in: 1..100, allow_blank: true }
   validate :time_zone_valid
+  validates :blurb,
+            length: {
+              maximum: MAX_BLURB_LENGTH
+            },
+            markdown_complexity: true,
+            if: :blurb_changed?
 
   before_save :check_if_we_should_skip_confirmation
 

@@ -317,6 +317,23 @@ describe InksController do
         end.to change { ink.reload.ignored_colors }.to(%w[#FF0000 #00FF00])
       end
 
+      it "shows the edit form with the error when the description is invalid" do
+        ink.update!(description: "old")
+        put :update,
+            params: {
+              id: ink.id,
+              brand_id: brand.id,
+              macro_cluster: {
+                description: "x" * 5_001
+              }
+            }
+
+        expect(response).to have_http_status(:unprocessable_content)
+        expect(response.body).to include("is too long (maximum is 5000 characters)")
+        expect(response.body).to include('maxlength="5000"')
+        expect(ink.reload.description).to eq("old")
+      end
+
       it "updates the ink embedding with the new name" do
         ink.create_ink_embedding(content: "old name")
         put :update,

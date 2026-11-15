@@ -15,6 +15,17 @@ describe BlogPostFormatter do
     expect(output).to include('<img src="https://fpc.nyc3.cdn.digitaloceanspaces.com/bottle.jpg"')
   end
 
+  it "keeps relative images and images from our own hosts" do
+    source = "![Pens](/images/pens.jpg) and ![Inks](https://www.fountainpencompanion.com/inks.jpg)"
+
+    output = render(source)
+    expect(output).to include('<img src="/images/pens.jpg" alt="Pens">')
+    expect(output).to include(
+      '<img src="https://www.fountainpencompanion.com/inks.jpg" alt="Inks">'
+    )
+    expect(FpcFormatter.render(source).to_s).not_to include("<img")
+  end
+
   it "still strips inline styles" do
     output = render('<p style="position:fixed">x</p>')
     expect(output).not_to include("style=")

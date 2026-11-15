@@ -261,6 +261,15 @@ describe AccountsController do
       end
 
       describe "validation failures" do
+        it "shows the account form with the error for an over-long blurb" do
+          put "/account", params: { user: { blurb: "x" * 5_001 } }
+
+          expect(response).to have_http_status(:unprocessable_content)
+          expect(response.body).to include("is too long (maximum is 5000 characters)")
+          expect(response.body).to include('maxlength="5000"')
+          expect(user.reload.blurb).to be_blank
+        end
+
         it "returns 422 with errors for json requests" do
           put "/account", params: { user: { name: "x" * 101 } }, as: :json
           expect(response).to have_http_status(:unprocessable_content)

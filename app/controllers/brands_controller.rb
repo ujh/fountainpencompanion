@@ -27,9 +27,11 @@ class BrandsController < ApplicationController
 
   def update
     @brand = BrandCluster.find(params[:id])
-    @brand.update(description: params[:brand_cluster][:description])
-
-    redirect_to brand_path(@brand)
+    if @brand.update(description: params[:brand_cluster][:description])
+      redirect_to brand_path(@brand)
+    else
+      render :edit, status: :unprocessable_content
+    end
   end
 
   private
