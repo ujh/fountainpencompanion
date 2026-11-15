@@ -13,15 +13,17 @@ connection pools in transaction mode. Each process connects as its own database 
 
 Why:
 
-- **Statement timeout for web requests.** A web request that runs longer than rack-timeout is
-  abandoned anyway; the 15 s role default cancels its query instead of letting it run on. Worker
+- **Statement timeout for web requests.** rack-timeout abandons a request after 25 s, but its query
+  keeps running in Postgres and holds the connection. The 15 s role default cancels any single web
+  statement that runs longer, so a request whose query used to take 15–25 s now fails with
+  `ActiveRecord::QueryCanceled` instead of succeeding slowly. Worker
   jobs (matview refresh, `ANALYZE`, embedding searches) take longer and get no timeout. The timeout
   has to be a role default: under transaction pooling a session `SET` reaches whichever server
   connection the next statement lands on. PgBouncer keeps server connections per (user, database)
   and Postgres applies role defaults when a server connection starts, so the web role's timeout
   never reaches worker or `doadmin` connections.
 - **Least privilege.** The app no longer runs as the cluster admin. `fpc_web` and `fpc_worker` can
-  read and write rows but cannot change the schema.
+  read and write rows but cannot change the schema (verified below).
 - **Migrations stay on `doadmin`.** DDL needs the table owner, and every table, matview and
   sequence in `public` is owned by `doadmin`. Session `SET`s from StrongMigrations stay on
   `doadmin`'s server connections.
@@ -31,7 +33,9 @@ Why:
 All Fly secrets reach every machine. The process decides which one it uses:
 
 - `config/puma.rb` replaces `DATABASE_URL` with `WEB_DATABASE_URL` when that is set, before the app
-  is preloaded, so all Puma workers connect as `fpc_web`.
+  is preloaded, so all Puma workers connect as `fpc_web`. This needs Puma started with
+  `bundle exec puma` (as `fly.toml` does): `bin/rails server` builds the app before it reads
+  `config/puma.rb`.
 - `bin/sidekiq-with-healthcheck` exports `DATABASE_URL="$WORKER_DATABASE_URL"` when that is set and
   non-empty, before starting Sidekiq.
 - Everything else (release command, console, `bin/rails runner`) uses `DATABASE_URL`, which points
@@ -127,6 +131,15 @@ Role defaults (expect `{statement_timeout=15s}` for `fpc_web` and nothing for `f
 SELECT rolname, rolconfig FROM pg_roles WHERE rolname LIKE 'fpc_%';
 ```
 
+Neither role may create objects in `public` (expect `f, f`). PostgreSQL 15+ creates `public` without
+`CREATE` for `PUBLIC`, but a database whose schema dates from before 15 keeps the old grant; if either
+is `t`, run `REVOKE CREATE ON SCHEMA public FROM PUBLIC;` as `doadmin`:
+
+```sql
+SELECT has_schema_privilege('fpc_web', 'public', 'CREATE'),
+       has_schema_privilege('fpc_worker', 'public', 'CREATE');
+```
+
 Table and matview privileges for both roles:
 
 ```sql
@@ -208,7 +221,7 @@ SELECT nextval('csp_reports_id_seq');
 ROLLBACK;
 ```
 
-As the worker also (takes as long as the nightly refresh):
+As the worker also (takes as long as the hourly refresh):
 
 ```sql
 BEGIN;
@@ -221,7 +234,7 @@ On a web machine after `WEB_DATABASE_URL` is set (the production image has no `p
 `fly ssh console --process-group web` and run:
 
 ```sh
-DATABASE_URL="$WEB_DATABASE_URL" bin/rails runner 'c = ActiveRecord::Base.connection; p c.select_value("show statement_timeout"), c.select_value("select current_user")'
+cd /app && DATABASE_URL="$WEB_DATABASE_URL" bin/rails runner 'c = ActiveRecord::Base.connection; p c.select_value("show statement_timeout"), c.select_value("select current_user")'
 ```
 
 Expect `"15s"` and `"fpc_web"`. The same with `WORKER_DATABASE_URL` on a worker machine
