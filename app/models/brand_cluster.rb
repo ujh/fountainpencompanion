@@ -1,4 +1,6 @@
 class BrandCluster < ApplicationRecord
+  MAX_DESCRIPTION_LENGTH = 5_000
+
   has_paper_trail
   has_many :description_versions,
            -> { where("object_changes like ?", "%description%").order("id desc") },
@@ -7,6 +9,9 @@ class BrandCluster < ApplicationRecord
 
   has_many :macro_clusters, dependent: :nullify
   has_many :collected_inks, through: :macro_clusters
+
+  validates :description, length: { maximum: MAX_DESCRIPTION_LENGTH }
+  validates :description, markdown_nesting: true, if: :description_changed?
 
   after_commit :expire_missing_descriptions, if: -> { destroyed? || saved_change_to_description? }
 

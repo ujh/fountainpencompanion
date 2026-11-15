@@ -211,6 +211,64 @@ describe FpcFormatter do
     end
   end
 
+  describe "bracket nesting" do
+    it "measures the deepest nesting of open brackets" do
+      expect(described_class.bracket_depth("[a] [b [c]] [[[d]]]")).to eq(3)
+    end
+
+    it "counts brackets that are never closed" do
+      expect(described_class.bracket_depth("[a [b [c")).to eq(3)
+    end
+
+    it "ignores closing brackets without an open one" do
+      expect(described_class.bracket_depth("]]] [a]")).to eq(1)
+    end
+
+    it "renders markdown with brackets nested five deep" do
+      expect(render("[[[[[*five*]]]]]")).to eq("<p>[[[[[<em>five</em>]]]]]</p>\n")
+    end
+
+    it "renders 5,000 characters of brackets nested five deep in well under a second" do
+      sources = [
+        ("[[[[[x]]]]] " * 500)[0, 5_000],
+        ("[[[[ " + "[x] " * 1_250)[0, 5_000],
+        ("[[[[[ " + "](x) " * 1_000)[0, 5_000],
+        ("![x]( " * 1_000)[0, 5_000]
+      ]
+
+      sources.each do |source|
+        started = Process.clock_gettime(Process::CLOCK_MONOTONIC)
+        render(source)
+        expect(Process.clock_gettime(Process::CLOCK_MONOTONIC) - started).to be < 1
+      end
+    end
+
+    it "renders deeper nesting as escaped plain text without parsing markdown" do
+      expect(Kramdown::Document).not_to receive(:new)
+
+      output = render("[[[[[[*six* <b>bold</b>\n\nnext")
+
+      expect(output).to eq("<p>[[[[[[*six* &lt;b&gt;bold&lt;/b&gt;</p>\n\n<p>next</p>")
+      expect(output).to be_html_safe
+    end
+  end
+
+  describe "texts the renderer cannot handle" do
+    it "renders escaped plain text when kramdown raises" do
+      allow(Kramdown::Document).to receive(:new).and_raise(Kramdown::Error, "broken")
+
+      expect(render("*a* <b>")).to eq("<p>*a* &lt;b&gt;</p>")
+    end
+
+    it "renders deeply nested quotes as escaped plain text" do
+      expect(render(">" * 5_000 + " quote")).to eq("<p>#{"&gt;" * 5_000} quote</p>")
+    end
+
+    it "renders deeply nested HTML as escaped plain text" do
+      expect(render("<div>" * 1_000)).to eq("<p>#{"&lt;div&gt;" * 1_000}</p>")
+    end
+  end
+
   describe "regular markdown still renders" do
     it "renders headers, emphasis, lists, and links" do
       source = <<~MD

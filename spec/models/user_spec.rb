@@ -1,6 +1,30 @@
 require "rails_helper"
 
 describe User do
+  describe "blurb" do
+    let(:user) { create(:user) }
+
+    it "accepts 5,000 characters" do
+      expect(user.update(blurb: "x" * 5_000)).to be(true)
+    end
+
+    it "rejects more than 5,000 characters" do
+      expect(user.update(blurb: "x" * 5_001)).to be(false)
+      expect(user.errors[:blurb]).to eq(["is too long (maximum is 5000 characters)"])
+    end
+
+    it "rejects brackets nested more than five deep" do
+      expect(user.update(blurb: "[[[[[[x]]]]]]")).to be(false)
+      expect(user.errors[:blurb]).to eq(["has too many nested brackets"])
+    end
+
+    it "keeps a user with an existing long, deeply nested blurb saveable" do
+      user.update_column(:blurb, "[[[[[[x]]]]]] " + "x" * 25_000)
+
+      expect(user.reload.update(spam: true)).to be(true)
+    end
+  end
+
   describe "time zone" do
     it "accepts IANA time zone identifiers" do
       expect(build(:user, time_zone: "America/Argentina/Buenos_Aires")).to be_valid

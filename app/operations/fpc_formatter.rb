@@ -5,10 +5,35 @@ class FpcFormatter < Slodown::Formatter
   STRIPPED_ATTRIBUTES = %w[style class id].freeze
   ABSOLUTE_HTTP_URL = %r{\Ahttps?://}i
   HOST_NAME = /\A[a-z0-9_-]+(\.[a-z0-9_-]+)*\z/
+  MAX_BRACKET_DEPTH = 5
 
   def self.render(source)
+    return plain_text(source) if too_deeply_nested?(source)
+
     new(source).complete.to_s.html_safe
+  rescue Kramdown::Error, ArgumentError, SystemStackError
+    plain_text(source)
   end
+
+  def self.too_deeply_nested?(source)
+    bracket_depth(source) > MAX_BRACKET_DEPTH
+  end
+
+  def self.bracket_depth(source)
+    depth = max = 0
+    source
+      .to_s
+      .scan(/[\[\]]/) do |bracket|
+        depth = bracket == "[" ? depth + 1 : [depth - 1, 0].max
+        max = depth if depth > max
+      end
+    max
+  end
+
+  def self.plain_text(source)
+    ActionController::Base.helpers.simple_format(ERB::Util.html_escape(source.to_s))
+  end
+  private_class_method :plain_text
 
   def markdown
     convert do |current|

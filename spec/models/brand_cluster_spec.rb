@@ -1,6 +1,30 @@
 require "rails_helper"
 
 describe BrandCluster do
+  describe "description" do
+    let(:record) { create(:brand_cluster) }
+
+    it "accepts 5,000 characters" do
+      expect(record.update(description: "x" * 5_000)).to be(true)
+    end
+
+    it "rejects more than 5,000 characters" do
+      expect(record.update(description: "x" * 5_001)).to be(false)
+      expect(record.errors[:description]).to eq(["is too long (maximum is 5000 characters)"])
+    end
+
+    it "rejects a changed description with brackets nested more than five deep" do
+      expect(record.update(description: "[[[[[[x]]]]]]")).to be(false)
+      expect(record.errors[:description]).to eq(["has too many nested brackets"])
+    end
+
+    it "keeps a record with an existing deeply nested description saveable" do
+      record.update_column(:description, "[[[[[[x]]]]]]")
+
+      expect(record.reload.update(updated_at: 1.minute.from_now)).to be(true)
+    end
+  end
+
   describe "#update_name!" do
     it "uses the most popular name as the new name" do
       mc1 = create(:macro_cluster, brand_name: "Pelikan")

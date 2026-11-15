@@ -16,7 +16,7 @@ div id="account" class="row"
       div style="max-width: 300px"
         = f.input :public_page, disabled: true, wrapper: :vertical_form, input_html: { value: user_url(current_user, domain: "fpc.ink", port: nil, protocol: 'http')}
 
-      = f.input :blurb, wrapper: :vertical_form, input_html: { rows: "10"}, hint: "This field allows styling through markdown", placeholder: "The contents of this field will show up on your public account page."
+      = f.input :blurb, wrapper: :vertical_form, input_html: { rows: "10", maxlength: User::MAX_BLURB_LENGTH }, hint: "This field allows styling through markdown", placeholder: "The contents of this field will show up on your public account page."
 
       div class="pt-2 mb-5"
         = f.button :button, "Save", class: "btn-success"
