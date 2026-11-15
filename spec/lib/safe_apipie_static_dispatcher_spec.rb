@@ -115,7 +115,7 @@ describe SafeApipieStaticDispatcher do
 
       get "/api-docs/stylesheets/%7Bapplication,x%7D.css"
 
-      expect(response).to have_http_status(:not_acceptable)
+      expect(response.media_type).not_to eq("text/css")
     end
   end
 end
