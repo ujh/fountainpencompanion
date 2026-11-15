@@ -92,6 +92,61 @@ describe FpcFormatter do
     end
   end
 
+  describe "image-only paragraphs" do
+    it "renders a YouTube watch URL as a figure without any HTTP request" do
+      output = render("![Swab](https://www.youtube.com/watch?v=dQw4w9WgXcQ)")
+
+      expect(output).to eq(
+        '<figure><img src="https://www.youtube.com/watch?v=dQw4w9WgXcQ" alt="Swab"></figure>' + "\n"
+      )
+      expect(a_request(:any, /.*/)).not_to have_been_made
+    end
+
+    it "uses the image title as the figure caption" do
+      output = render('![Swab](https://example.com/swab.jpg "Diamine Oxblood on Tomoe River")')
+
+      expect(output).to eq(
+        '<figure><img src="https://example.com/swab.jpg" alt="Swab" ' \
+          'title="Diamine Oxblood on Tomoe River">' \
+          "<figcaption>Diamine Oxblood on Tomoe River</figcaption></figure>\n"
+      )
+    end
+
+    it "keeps an image inside running text in its paragraph" do
+      output = render("Look: ![Swab](https://example.com/swab.jpg)")
+
+      expect(output).to eq(
+        '<p>Look: <img src="https://example.com/swab.jpg" alt="Swab"></p>' + "\n"
+      )
+    end
+  end
+
+  describe "rendering of typical descriptions" do
+    it "autolinks bare URLs" do
+      expect(render("More at https://example.com/ink.")).to eq(
+        '<p>More at <a href="https://example.com/ink">https://example.com/ink</a>.</p>' + "\n"
+      )
+    end
+
+    it "renders lists" do
+      expect(render("Notes:\n\n* wet\n* shading\n")).to eq(
+        "<p>Notes:</p>\n\n<ul>\n  <li>wet</li>\n  <li>shading</li>\n</ul>\n"
+      )
+    end
+
+    it "renders emphasis" do
+      expect(render("A *very* **dark** blue.")).to eq(
+        "<p>A <em>very</em> <strong>dark</strong> blue.</p>\n"
+      )
+    end
+
+    it "renders smart quotes and dashes" do
+      expect(render(%(It's "blue-black" -- mostly...))).to eq(
+        "<p>It’s “blue-black” – mostly…</p>\n"
+      )
+    end
+  end
+
   describe "regular markdown still renders" do
     it "renders headers, emphasis, lists, and links" do
       source = <<~MD

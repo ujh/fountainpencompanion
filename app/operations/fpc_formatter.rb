@@ -8,6 +8,13 @@ class FpcFormatter < Slodown::Formatter
     new(source).complete.to_s.html_safe
   end
 
+  def markdown
+    convert do |current|
+      document = Kramdown::Document.new(current, kramdown_options)
+      Kramdown::Converter::FpcHtml.convert(document.root, document.options).first
+    end
+  end
+
   def transformers
     []
   end
