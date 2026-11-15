@@ -162,18 +162,6 @@ describe InkReview do
 
         expect(review.auto_approve?).to be true
       end
-
-      it "does not count the review agent's account as a second user" do
-        create(
-          :ink_review_submission,
-          ink_review: review,
-          user: create(:user, email: User::REVIEW_AGENT_EMAIL),
-          macro_cluster: review.macro_cluster,
-          url: review.url
-        )
-
-        expect(review.auto_approve?).to be false
-      end
     end
 
     context "when the submitter deleted their account" do

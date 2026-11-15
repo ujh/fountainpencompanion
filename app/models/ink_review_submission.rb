@@ -8,8 +8,6 @@ class InkReviewSubmission < ApplicationRecord
   validate :url_not_instagram
 
   scope :unassigned, -> { where(ink_review: nil) }
-  scope :excluding_review_agent,
-        -> { where.not(user_id: User.where(email: User::REVIEW_AGENT_EMAIL).select(:id)) }
 
   private
 

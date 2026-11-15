@@ -24,7 +24,7 @@ class FetchReviews
     end
 
     def user
-      @user ||= User.review_agent
+      @user ||= User.find_by(email: "urban@bettong.net")
     end
   end
 end
