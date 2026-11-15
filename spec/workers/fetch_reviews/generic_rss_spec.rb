@@ -54,22 +54,11 @@ describe FetchReviews::GenericRss do
     expect(FetchReviews::ProcessWebPageForReview.jobs.map { |j| j["args"] }).to eq([[page.id]])
   end
 
-  it "fetches the feed of a legacy job queued with the feed URL" do
-    stub_feed(rss_feed)
+  it "returns quietly for an old job queued with the feed URL" do
+    expect { described_class.new.perform(feed_url) }.not_to raise_error
 
-    described_class.new.perform(feed_url)
-
-    expect(WebPageForReview.sole).to have_attributes(
-      url: "https://feed.test/kon-peki",
-      review_feed:
-    )
-    expect(review_feed.reload.last_fetched_at).to be_present
-  end
-
-  it "returns quietly for a legacy feed URL that has no feed" do
-    expect { described_class.new.perform("https://unknown.test/rss") }.not_to raise_error
-
-    expect(WebPageForReview.count).to eq(0)
+    expect(a_request(:get, feed_url)).not_to have_been_made
+    expect(review_feed.reload.last_attempted_at).to be_nil
   end
 
   it "returns quietly for a feed that no longer exists" do
@@ -85,15 +74,6 @@ describe FetchReviews::GenericRss do
     review_feed.update!(state: "ignored")
 
     described_class.new.perform(review_feed.id)
-
-    expect(a_request(:get, feed_url)).not_to have_been_made
-    expect(review_feed.reload.last_attempted_at).to be_nil
-  end
-
-  it "does not fetch an ignored feed from a legacy job queued with its feed URL" do
-    review_feed.update!(state: "ignored")
-
-    described_class.new.perform(feed_url)
 
     expect(a_request(:get, feed_url)).not_to have_been_made
     expect(review_feed.reload.last_attempted_at).to be_nil
