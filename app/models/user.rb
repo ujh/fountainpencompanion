@@ -1,6 +1,7 @@
 class User < ApplicationRecord
   MAX_SAME_IP_24H = 4
   MAX_BLURB_LENGTH = 5_000
+  REVIEW_AGENT_EMAIL = "urban@bettong.net"
   MAX_PREFERENCES_BYTES = 10_000
 
   # Include default devise modules. Others available are:
@@ -13,6 +14,10 @@ class User < ApplicationRecord
          :trackable,
          :validatable,
          :magic_link_authenticatable
+
+  def self.review_agent
+    find_by(email: REVIEW_AGENT_EMAIL)
+  end
 
   has_many :authentication_tokens, dependent: :destroy
   has_many :currently_inkeds, dependent: :destroy

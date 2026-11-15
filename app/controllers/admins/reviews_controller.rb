@@ -78,11 +78,7 @@ class Admins::ReviewsController < Admins::BaseController
 
   def stats_for_agent_submitted(rel)
     agent_submitted =
-      rel.joins(:ink_review_submissions).where(
-        ink_review_submissions: {
-          user: User.find_by(email: "urban@bettong.net")
-        }
-      )
+      rel.joins(:ink_review_submissions).where(ink_review_submissions: { user: User.review_agent })
     count = agent_submitted.count
     correct = agent_submitted.approved.count
     incorrect = agent_submitted.rejected.count

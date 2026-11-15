@@ -163,15 +163,13 @@ describe InkReview do
         expect(review.auto_approve?).to be true
       end
 
-      it "does not count a review feed submission as a second user" do
+      it "does not count the review agent's account as a second user" do
         create(
           :ink_review_submission,
           ink_review: review,
+          user: create(:user, email: User::REVIEW_AGENT_EMAIL),
           macro_cluster: review.macro_cluster,
-          url: review.url,
-          extra_data: {
-            explanation: "Found in a review feed"
-          }
+          url: review.url
         )
 
         expect(review.auto_approve?).to be false
