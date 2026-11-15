@@ -111,9 +111,16 @@ files, inspect the final diff, then push and open the PR when authorized by the 
 
 Use `gh pr checks PR --watch` to wait for CI. Verify that the checks belong to the pushed commit, that
 all required checks passed (a skipped or pending check is not a pass), and that the PR has no base
-conflict. FPC CI checks RSpec, Vitest and lint, and the production Docker build; read the current
-workflow rather than copying evo's mise tasks or assuming additional reviewers are installed. After
-a later change, repeat the whole-branch review and the affected checks, then verify CI again.
+conflict. FPC CI checks RSpec, Vitest and lint, the production Docker build, Brakeman and
+bundler-audit, and coverage; `CLAUDE.md` lists the jobs. Read the current workflows rather than
+copying evo's mise tasks or assuming additional reviewers are installed. After a later change, repeat
+the whole-branch review and the affected checks, then verify CI again.
+
+The `review` job posts the automated reviewer's comments on the PR. Judge each by the
+[review rules](#review-rules) as you would a fresh reviewer's finding: fix blockers and important
+findings, push, and read the comments on the new commit. Nits do not justify another push; fix one
+only when the branch changes anyway, and report the rest. Each push gets a new review that can raise
+new style nits, so pushing for nits does not converge.
 
 **Application smoke checks.** At the end of the last code PR, exercise the changed path in an
 isolated development environment: a request or browser flow through the backend and React UI, or a
@@ -140,7 +147,9 @@ Before reporting, give the out-of-scope list to a fresh reviewer to triage again
 open and merged PRs, and existing plans. Drop resolved items and duplicates. Report the remaining
 items in plain language with their location and benefit, and ask which should become follow-up work.
 Record approved follow-ups in the relevant existing design doc or an owner-requested issue. FPC does
-not use evo's `PROJECT_NOTES.md`; do not invent a parallel backlog by default.
+not use evo's `PROJECT_NOTES.md`; do not invent a parallel backlog by default. When the owner asks for
+a follow-up to be done now, build it as its own PR from `master` with the same steps (brief, review,
+checks, CI) and add it to the plan's checklist before the cleanup item.
 
 ### 7. Clean up
 
@@ -181,7 +190,8 @@ commands. Include `CLAUDE.md` and this guide. The agent:
 - Runs commands through the development environment described in `CLAUDE.md` and keeps scratch
   files out of tracked directories.
 - Checks `git status` and ignored files so required fixtures are committed and generated files stay
-  out. Lets the pre-commit hook format staged files and inspects the result.
+  out. FPC has no pre-commit hook: runs the formatters named in `CLAUDE.md` before committing and
+  inspects the result.
 - Leaves **[quiet]** measurements and unauthorized external actions to the orchestrator. It prepares
   exact commands and records provisional values where needed.
 - Commits without pushing and does not edit the execution plan or expand its step's scope.
@@ -223,13 +233,15 @@ links, commands, and consistency with repository instructions.
 | Per-commit review       | Before another step depends on a code commit                  | Catch defects before later work builds on them.              |
 | Full RSpec and Vitest   | Before a task is declared done and before opening its PR      | Check backend and frontend regressions.                      |
 | `pnpm lint`             | Before opening a PR                                           | Match CI formatting and ESLint checks.                       |
+| Brakeman, bundler-audit | Before opening a PR                                           | Match CI's `security` job.                                   |
 | Whole-branch review     | Before pushing and after fixes                                | Check how the complete change fits together.                 |
 | Application smoke check | End of the last code PR; earlier where stubs hide integration | Exercise the application path beyond isolated tests.         |
 | GitHub CI               | Each PR and subsequent push                                   | Verify the submitted commit, including the production image. |
 
 Use the commands in `CLAUDE.md`. When a test might pass despite broken behavior, ask the step agent
 to temporarily break that behavior, confirm the test fails, and restore the implementation before
-committing. Avoid wall-clock assertions for ordinary correctness tests.
+committing. Copy the file before breaking it and restore the copy; `git checkout -- <file>` would also
+discard uncommitted fixes in that file. Avoid wall-clock assertions for ordinary correctness tests.
 
 For **[quiet]** timings, first prepare the command and representative workload. The orchestrator
 coordinates a pause with the owner unless already authorized, records load and available disk,
