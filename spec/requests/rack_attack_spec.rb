@@ -304,6 +304,39 @@ describe "Rack::Attack throttles", type: :request do
       expect(results.last).to eq(429)
     end
 
+    it "counts JSON requests with an array password, which sign-in ignores" do
+      results =
+        statuses(4) do |i|
+          post_json(
+            "/users/sign_in",
+            { user: { email: "array-json-victim@example.com", password: ["wrong"] } },
+            "203.0.113.#{i + 84}"
+          )
+        end
+
+      expect(results.first(3)).to all(be < 429)
+      expect(results.last).to eq(429)
+    end
+
+    it "counts form requests with an array password, which sign-in ignores" do
+      results =
+        statuses(4) do |i|
+          post "/users/sign_in",
+               params: {
+                 user: {
+                   email: "array-form-victim@example.com",
+                   password: ["wrong"]
+                 }
+               },
+               env: {
+                 "REMOTE_ADDR" => "203.0.113.#{i + 94}"
+               }
+        end
+
+      expect(results.first(3)).to all(be < 429)
+      expect(results.last).to eq(429)
+    end
+
     it "does not count password logins against the magic link limits" do
       results =
         statuses(4) do |i|
@@ -425,6 +458,23 @@ describe "Rack::Attack throttles", type: :request do
           :input => "{\"user\": "
         )
       expect(fpc_devise_user_params(Rack::Request.new(env))).to eq({})
+    end
+
+    it "parses a malformed JSON body once per request" do
+      log = StringIO.new
+      env =
+        Rack::MockRequest.env_for(
+          "/users/sign_in",
+          :method => "POST",
+          "CONTENT_TYPE" => "application/json",
+          "action_dispatch.logger" => ActiveSupport::Logger.new(log),
+          :input => "{\"user\": "
+        )
+
+      fpc_devise_email(Rack::Request.new(env))
+      fpc_magic_link_request?(Rack::Request.new(env))
+
+      expect(log.string.scan("Error occurred while parsing request parameters").size).to eq(1)
     end
 
     it "treats a malformed query string as no parameters" do
