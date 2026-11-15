@@ -12,9 +12,9 @@ class FpcFormatter < Slodown::Formatter
   CACHE_EXPIRY = 4.weeks
 
   def self.render(source)
-    key = cache_key(source)
-    html = Rails.cache.read(key) || render_and_cache(source, key)
-    html.html_safe
+    options = { expires_in: CACHE_EXPIRY, skip_nil: true }
+    html = Rails.cache.fetch(cache_key(source), **options) { render_markdown(source) }
+    (html || plain_text(source)).html_safe
   end
 
   def self.cache_key(source)
@@ -46,15 +46,6 @@ class FpcFormatter < Slodown::Formatter
       end
     max
   end
-
-  def self.render_and_cache(source, key)
-    html = render_markdown(source)
-    return plain_text(source) unless html
-
-    Rails.cache.write(key, html, expires_in: CACHE_EXPIRY)
-    html
-  end
-  private_class_method :render_and_cache
 
   def self.render_markdown(source)
     timed_render(source) unless too_deeply_nested?(source)
