@@ -101,6 +101,28 @@ describe AutocompleteRanking do
     expect(rank("pen", *rows, limit: 3)).to eq(["Pen 20", "Pen 19", "Pen 18"])
   end
 
+  it "only uses the first 100 characters of the term" do
+    rows = [["a" * 100, 1], ["a" * 100 + "z", 5]]
+    long_term = "A" * 100 + "z" * 100
+
+    expect(rank(long_term, *rows)).to eq(rank("a" * 100, *rows))
+    expect(rank(long_term, *rows)).to eq(["a" * 100, "a" * 100 + "z"])
+  end
+
+  it "drops the text after the first 100 characters from the query" do
+    long_term = "a" * 100 + "marker-beyond-the-limit"
+
+    sql = described_class.new(candidates(["Pilot", 1]), long_term).relation.to_sql
+
+    expect(sql).not_to include("marker-beyond-the-limit")
+  end
+
+  it "does not keep a trailing space when the cut lands on one" do
+    ranking = described_class.new(candidates(["Pilot", 1]), "a" * 99 + " bcd")
+
+    expect(ranking.term).to eq("a" * 99)
+  end
+
   it "returns the full candidate records" do
     relation = described_class.new(candidates(["Pilot", 7]), "pil").relation
 

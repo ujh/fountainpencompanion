@@ -23,12 +23,13 @@ class AutocompleteRanking
   FUZZY_MIN_LENGTH = 4
   SIMILARITY_THRESHOLD = 0.5
   NO_MATCH = 5
+  MAX_TERM_LENGTH = 100
 
   attr_accessor :candidates, :term, :limit, :words, :compact_term
 
   def initialize(candidates, term, limit: LIMIT)
     self.candidates = candidates
-    self.term = term.to_s.strip.downcase
+    self.term = term.to_s.strip.downcase.first(MAX_TERM_LENGTH).strip
     self.words = self.term.scan(/[[:alnum:]]+/)
     self.compact_term = words.join
     self.limit = limit

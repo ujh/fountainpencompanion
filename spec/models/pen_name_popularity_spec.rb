@@ -12,17 +12,17 @@ describe PenNamePopularity do
     count.times { create(:collected_pen, **attributes) }
   end
 
-  def search(field, term, **options)
+  def search(field, term, user: create(:user), **options)
     described_class.refresh
-    described_class.autocomplete_search(term, field, **options)
+    described_class.autocomplete_search(term, field, user: user, **options)
   end
 
   describe ".autocomplete_search" do
     it "ranks brands by match quality and then by number of users" do
-      add_pens(1, brand: "Platinum")
-      add_pens(2, brand: "Pilot")
-      add_pens(3, brand: "Kaweco Sport")
-      add_pens(3, brand: "Pelikan")
+      add_pens(2, brand: "Platinum")
+      add_pens(3, brand: "Pilot")
+      add_pens(4, brand: "Kaweco Sport")
+      add_pens(4, brand: "Pelikan")
 
       expect(search(:brand, "p")).to eq(["Pelikan", "Pilot", "Platinum", "Kaweco Sport"])
     end
@@ -30,7 +30,8 @@ describe PenNamePopularity do
     it "counts users instead of pens" do
       user = create(:user)
       3.times { create(:collected_pen, user: user, brand: "Platinum") }
-      add_pens(2, brand: "Pilot")
+      add_pens(1, brand: "Platinum")
+      add_pens(3, brand: "Pilot")
 
       expect(search(:brand, "p")).to eq(%w[Pilot Platinum])
     end
@@ -44,17 +45,68 @@ describe PenNamePopularity do
     end
 
     it "finds values with typos" do
-      add_pens(1, brand: "Pelikan")
+      add_pens(2, brand: "Pelikan")
 
       expect(search(:brand, "pelican")).to eq(["Pelikan"])
     end
 
+    it "does not suggest values of a single other user" do
+      add_pens(1, brand: "Rare Pens", model: "Rare Model")
+
+      expect(search(:brand, "rare")).to eq([])
+      expect(search(:model, "rare")).to eq([])
+      expect(search(:model, "rare", brand: "Rare Pens")).to eq([])
+    end
+
+    it "suggests the user's own values" do
+      user = create(:user)
+      create(:collected_pen, user: user, brand: "Rare Pens", model: "Rare Model")
+
+      expect(search(:brand, "rare", user: user)).to eq(["Rare Pens"])
+      expect(search(:model, "rare", user: user)).to eq(["Rare Model"])
+      expect(search(:model, "rare", user: user, brand: " rare pens ")).to eq(["Rare Model"])
+    end
+
+    it "suggests the user's own archived values" do
+      user = create(:user)
+      create(:collected_pen, user: user, brand: "Rare Pens", archived_on: Date.current)
+
+      expect(search(:brand, "rare", user: user)).to eq(["Rare Pens"])
+    end
+
+    it "shows the user's own value once with the more common spelling" do
+      user = create(:user)
+      create(:collected_pen, user: user, brand: "pilot ")
+      add_pens(2, brand: "Pilot")
+
+      expect(search(:brand, "pil", user: user)).to eq(["Pilot"])
+    end
+
+    it "ranks the user's own values together with the popular ones" do
+      user = create(:user)
+      create(:collected_pen, user: user, brand: "Pebeo")
+      create(:collected_pen, user: user, brand: "Pent")
+      add_pens(3, brand: "Pelikan")
+      add_pens(2, brand: "Pent")
+
+      expect(search(:brand, "pe", user: user)).to eq(%w[Pelikan Pent Pebeo])
+    end
+
     it "only includes models of the given brand" do
-      add_pens(1, brand: "Pilot", model: "Custom 74")
-      add_pens(1, brand: "Pilot Namiki", model: "Custom 823")
-      add_pens(1, brand: "Sailor", model: "Pro Gear")
+      add_pens(2, brand: "Pilot", model: "Custom 74")
+      add_pens(2, brand: "Pilot Namiki", model: "Custom 823")
+      add_pens(2, brand: "Sailor", model: "Pro Gear")
 
       expect(search(:model, "c", brand: " pilot ")).to eq(["Custom 74"])
+    end
+
+    it "only includes the user's own models of the given brand" do
+      user = create(:user)
+      create(:collected_pen, user: user, brand: "Pilot", model: "Custom Heritage")
+      create(:collected_pen, user: user, brand: "Sailor", model: "Custom Pro")
+
+      expect(search(:model, "custom", user: user, brand: "pilot")).to eq(["Custom Heritage"])
+      expect(search(:model, "custom", user: user)).to eq(["Custom Heritage", "Custom Pro"])
     end
 
     it "merges the same model across brands when no brand is given" do
@@ -66,13 +118,15 @@ describe PenNamePopularity do
     end
 
     it "returns results even when there are many matches" do
-      150.times { |i| create(:collected_pen, model: "Model #{i}") }
+      20.times { |i| add_pens(2, model: "Model #{i}") }
 
       expect(search(:model, "mod").length).to eq(AutocompleteRanking::LIMIT)
     end
 
     it "rejects unsupported fields" do
-      expect { described_class.autocomplete_search("x", :nib) }.to raise_error(ArgumentError)
+      expect { described_class.autocomplete_search("x", :nib, user: create(:user)) }.to raise_error(
+        ArgumentError
+      )
     end
   end
 

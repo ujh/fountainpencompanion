@@ -29,25 +29,29 @@ class CollectedPen < ApplicationRecord
   AUTOCOMPLETE_FIELDS = %w[brand model nib].freeze
 
   # Values of the given field ranked by AutocompleteRanking, using the number of
-  # users as popularity. Spelling variants that only differ in case are merged
-  # and shown with their most common spelling.
+  # users as popularity.
   #
   # This aggregates the pens on every call, so only use it on small scopes (e.g.
   # a single user's pens). PenNamePopularity covers brands and models of all pens.
   def self.autocomplete_search(term, field)
+    AutocompleteRanking.new(autocomplete_candidates(field), term).names
+  end
+
+  # Values of the given field with their number of users, as candidates for
+  # AutocompleteRanking. Spelling variants that only differ in case are merged
+  # and shown with their most common spelling.
+  def self.autocomplete_candidates(field)
     field = field.to_s
     raise ArgumentError, "Unsupported field: #{field}" unless AUTOCOMPLETE_FIELDS.include?(field)
 
     normalized = "lower(trim(collected_pens.#{field}))"
-    candidates =
-      where
-        .not(field => [nil, ""])
-        .group(Arel.sql(normalized))
-        .select(
-          "mode() WITHIN GROUP (ORDER BY trim(collected_pens.#{field})) AS name",
-          "count(DISTINCT collected_pens.user_id) AS popularity"
-        )
-    AutocompleteRanking.new(candidates, term).names
+    where
+      .not(field => [nil, ""])
+      .group(Arel.sql(normalized))
+      .select(
+        "mode() WITHIN GROUP (ORDER BY trim(collected_pens.#{field})) AS name",
+        "count(DISTINCT collected_pens.user_id) AS popularity"
+      )
   end
 
   def self.to_csv
