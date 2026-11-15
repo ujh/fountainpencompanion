@@ -1,6 +1,6 @@
 <p>Hi<%= @user.name.present? ? " #{@user.name}" : "" %>,</p>
 
-<%= simple_format(@entry.body) %>
+<%= simple_format(h(@entry.body)) %>
 
 <hr>
 <p>
@@ -11,4 +11,4 @@
     <%= @error_report.reportable_name %>:
   <% end %>
 </p>
-<blockquote><%= simple_format(@error_report.description) %></blockquote>
+<blockquote><%= simple_format(h(@error_report.description)) %></blockquote>

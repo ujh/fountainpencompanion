@@ -136,6 +136,26 @@ describe "Admins::ErrorReports" do
         )
       end
 
+      it "shows markup in the description and the history as text, keeping line breaks" do
+        markup =
+          "<a class=\"x\" href=\"https://evil.example\">link</a> <img src=\"https://evil.example/i.png\">"
+        error_report.update!(description: "#{markup}\nsecond line\n\nnext paragraph")
+        create(:error_report_entry, error_report: error_report, body: "#{markup}\nnote line")
+
+        get "/admins/error_reports/#{error_report.id}"
+
+        page = Nokogiri.HTML(response.body)
+        expect(
+          page.css("a[href='https://evil.example'], img[src^='https://evil.example']")
+        ).to be_empty
+        description = page.at_css("dd:contains('second line')")
+        expect(description.css("p").map(&:text)).to eq(["#{markup}\nsecond line", "next paragraph"])
+        expect(description.css("p br").size).to eq(1)
+        entry = page.at_css(".card-body:contains('note line')")
+        expect(entry.at_css("p").text).to eq("#{markup}\nnote line")
+        expect(entry.css("p br").size).to eq(1)
+      end
+
       it "offers to resolve an open report" do
         get "/admins/error_reports/#{error_report.id}"
 

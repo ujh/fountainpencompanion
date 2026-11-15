@@ -66,5 +66,21 @@ describe UserMailer do
 
       expect(mail.html_part.body.decoded).not_to include("<script>")
     end
+
+    it "shows markup in the reply and the report as text in the HTML part, keeping line breaks" do
+      markup =
+        "<a class=\"x\" href=\"https://evil.example\">link</a> <img src=\"https://evil.example/i.png\">"
+      error_report.update!(description: "#{markup}\nreport line")
+      entry.update!(body: "#{markup}\nreply line\n\nreply paragraph")
+
+      html = Nokogiri.HTML(mail.html_part.body.decoded)
+
+      expect(
+        html.css("a[href='https://evil.example'], img[src^='https://evil.example']")
+      ).to be_empty
+      expect(html.css("p").map(&:text)).to include("#{markup}\nreply line", "reply paragraph")
+      expect(html.css("blockquote p").map(&:text)).to eq(["#{markup}\nreport line"])
+      expect(html.css("p br").size).to eq(2)
+    end
   end
 end
