@@ -32,18 +32,17 @@ command, *args = ARGV
 result =
   case command
   when "neighbours"
-    IgnoredInksReview.connection.exec("SET hnsw.ef_search = 200")
     args
       .map(&:to_i)
       .map do |id|
-        macros = IgnoredInksReview.query(<<~SQL, [id])
+        macros = IgnoredInksReview.embedding_query(<<~SQL, [id])
           select me.owner_id as id, round((me.embedding <=> e.embedding)::numeric, 3) as distance
           from ink_embeddings e, ink_embeddings me
           where e.owner_type = 'MicroCluster' and e.owner_id = $1 and me.owner_type = 'MacroCluster'
           order by me.embedding <=> e.embedding limit 8
         SQL
         distances = macros.to_h { |r| [r["id"].to_i, r["distance"].to_f] }
-        micros = IgnoredInksReview.query(<<~SQL, [id])
+        micros = IgnoredInksReview.embedding_query(<<~SQL, [id])
           select me.owner_id as id, round((me.embedding <=> e.embedding)::numeric, 3) as distance
           from ink_embeddings e, ink_embeddings me join micro_clusters mi on mi.id = me.owner_id
           where e.owner_type = 'MicroCluster' and e.owner_id = $1 and me.owner_type = 'MicroCluster'

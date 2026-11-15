@@ -19,7 +19,10 @@ The same read-only tools as the researcher (run from the repository root):
 - `ruby .claude/skills/review-ignored-inks/scripts/lookup.rb neighbours ID`
 - `ruby .claude/skills/review-ignored-inks/scripts/lookup.rb search "ink name" [--brand "brand"]`
 - `ruby .claude/skills/review-ignored-inks/scripts/lookup.rb macro ID...`
-- `ruby .claude/skills/review-ignored-inks/scripts/query.rb` (SQL on stdin; no personal data)
+- `ruby .claude/skills/review-ignored-inks/scripts/query.rb` with SQL on stdin; it can read only the
+  tables and columns listed under "What the scripts read" in
+  `.claude/skills/review-ignored-inks/references/database-role.md` (`select *` on `collected_inks` or
+  `agent_logs` fails; name the columns). Never select personal data
 - Web search and web fetch
 
 ## Checks

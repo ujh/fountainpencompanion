@@ -43,19 +43,24 @@ module IgnoredInksReview
 
   BATCH_SIZES = { "triage" => 150, "research" => 10, "verify" => 8, "merge" => 6 }.freeze
   STAGES = %w[triage research verify merge].freeze
-  # Tables the review reads. The scripts refuse to run with a role that can
-  # change any of them.
-  WRITE_CHECK_TABLES = %w[micro_clusters macro_clusters collected_inks agent_logs].freeze
   WRITE_PRIVILEGES = %w[INSERT UPDATE DELETE TRUNCATE].freeze
+  ROLE_ATTRIBUTES = {
+    "rolsuper" => "SUPERUSER",
+    "rolcreatedb" => "CREATEDB",
+    "rolcreaterole" => "CREATEROLE",
+    "rolbypassrls" => "BYPASSRLS",
+    "rolreplication" => "REPLICATION"
+  }.freeze
 
   module_function
 
   def database_url
-    url = ENV["FPC_READONLY_DATABASE_URL"]
+    url = ENV["FPC_INK_REVIEW_DATABASE_URL"]
     url = File.read(DATABASE_URL_FILE).strip if (url.nil? || url.empty?) &&
       File.exist?(DATABASE_URL_FILE)
     if url.nil? || url.empty?
-      abort "No read-only database URL. Set FPC_READONLY_DATABASE_URL or write #{DATABASE_URL_FILE}."
+      abort "No database URL for the fpc_ink_review role. Set FPC_INK_REVIEW_DATABASE_URL or write " \
+              "#{DATABASE_URL_FILE} (see references/database-role.md)."
     end
     url
   end
@@ -64,29 +69,59 @@ module IgnoredInksReview
     @connection ||=
       begin
         conn = PG.connect(database_url)
-        refuse_writable_role(conn)
+        refuse_unsafe_role(conn)
         conn.exec("SET SESSION CHARACTERISTICS AS TRANSACTION READ ONLY")
         conn.exec("SET statement_timeout = '120s'")
         conn
       end
   end
 
-  def refuse_writable_role(conn)
-    writable =
-      conn.exec_params(
-        <<~SQL,
-        select t as table_name, p as privilege
-        from unnest($1::text[]) t, unnest($2::text[]) p
-        where has_table_privilege(t, p)
-      SQL
-        ["{#{WRITE_CHECK_TABLES.join(",")}}", "{#{WRITE_PRIVILEGES.join(",")}}"]
-      ).to_a
-    return if writable.empty?
+  def refuse_unsafe_role(conn)
+    problem = unsafe_role_problem(conn)
+    return unless problem
 
     conn.close
-    tables = writable.map { |w| w["table_name"] }.uniq.join(", ")
-    abort "The database role can write to #{tables}. These scripts only run with a read-only role; " \
-            "use a read-only connection URL."
+    abort "#{problem} These scripts only run as the fpc_ink_review role " \
+            "(see references/database-role.md); use its connection URL."
+  end
+
+  def unsafe_role_problem(conn)
+    role = conn.exec(<<~SQL).first
+      select r.*,
+        (select string_agg(m.roleid::regrole::text, ', ' order by m.roleid::regrole::text)
+         from pg_auth_members m where m.member = r.oid) as memberships
+      from pg_roles r where r.rolname = current_user
+    SQL
+    attributes = ROLE_ATTRIBUTES.select { |column, _| role[column] == "t" }.values
+    return "The database role has #{attributes.join(", ")}." if attributes.any?
+    return "The database role is a member of #{role["memberships"]}." if role["memberships"]
+
+    writable = conn.exec_params(<<~SQL, ["{#{WRITE_PRIVILEGES.join(",")}}"]).column_values(0)
+      select distinct c.relname
+      from pg_class c
+      join pg_namespace n on n.oid = c.relnamespace
+      cross join unnest($1::text[]) p
+      where n.nspname = 'public' and c.relkind in ('r', 'p', 'v', 'm', 'f')
+        and case when p in ('INSERT', 'UPDATE') then has_any_column_privilege(c.oid, p)
+                 else has_table_privilege(c.oid, p) end
+      order by 1
+    SQL
+    return "The database role can write to #{writable.join(", ")}." if writable.any?
+
+    users_readable = conn.exec("select has_any_column_privilege('users', 'SELECT')").getvalue(0, 0)
+    "The database role can read users." if users_readable == "t"
+  end
+
+  def disconnect
+    @connection&.close
+    @connection = nil
+  end
+
+  def embedding_query(sql, params)
+    connection.transaction do |conn|
+      conn.exec("SET LOCAL hnsw.ef_search = 200")
+      conn.exec_params(sql, params).to_a
+    end
   end
 
   def query(sql, params = [])

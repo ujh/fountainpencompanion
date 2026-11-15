@@ -9,6 +9,7 @@
 # decisions or conflicting merges. Merges go straight to the final target, so
 # with A -> B and B -> C confirmed both A and B are merged into C.
 require_relative "lib/common"
+require_relative "lib/console_script"
 
 dir = IgnoredInksReview.run_dir(ARGV[0])
 chunk_size = ARGV.index("--chunk") ? ARGV[ARGV.index("--chunk") + 1].to_i : 400
@@ -73,19 +74,6 @@ change_units +=
   decisions.select { |d| change.(d) && d["verdict"] != "create" }.map { |d| console_entry(d) }
 keep_units = decisions.reject { |d| change.(d) }.map { |d| console_entry(d) }
 
-def render(template, run_id, part, summary, units)
-  json = "[\n" + units.map { |u| "    #{JSON.generate(u)}" }.join(",\n") + "\n    ]"
-  comment = ->(text) { text.to_s.gsub(/[[:cntrl:]]/, " ") }
-  # Block form, so backslashes in the JSON are not read as substitution escapes.
-  # The run id goes into the code as an inspected (escaped) string literal.
-  template
-    .sub("__RUN_LABEL__") { comment.(run_id) }
-    .sub("__RUN_ID__") { run_id.to_s.inspect }
-    .sub("__PART__") { comment.(part) }
-    .sub("__SUMMARY__") { comment.(summary) }
-    .sub("__DECISIONS__") { json }
-end
-
 console_dir = File.join(dir, "console")
 FileUtils.rm_rf(console_dir)
 FileUtils.mkdir_p(console_dir)
@@ -100,7 +88,7 @@ if change_units.any?
   path = File.join(console_dir, "01-changes.rb")
   File.write(
     path,
-    render(
+    IgnoredInksReview::ConsoleScript.render(
       template,
       data["run_id"],
       "01-changes",
@@ -118,7 +106,7 @@ keep_units
     path = File.join(console_dir, "#{part}.rb")
     File.write(
       path,
-      render(
+      IgnoredInksReview::ConsoleScript.render(
         template,
         data["run_id"],
         part,
