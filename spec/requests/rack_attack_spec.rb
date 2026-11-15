@@ -27,6 +27,28 @@ describe "Rack::Attack throttles", type: :request do
     end
   end
 
+  def post_json(path, body, ip)
+    post path,
+         params: body.to_json,
+         headers: {
+           "CONTENT_TYPE" => "application/json"
+         },
+         env: {
+           "REMOTE_ADDR" => ip
+         }
+  end
+
+  def get_with_json_body(path, body, ip)
+    json = body.to_json
+    get path,
+        env: {
+          "REMOTE_ADDR" => ip,
+          "CONTENT_TYPE" => "application/json",
+          "CONTENT_LENGTH" => json.bytesize.to_s,
+          "rack.input" => StringIO.new(json)
+        }
+  end
+
   describe "login throttles on POST /users/sign_in" do
     it "allows the first 5 attempts and throttles the 6th from the same IP" do
       results =
@@ -59,6 +81,40 @@ describe "Rack::Attack throttles", type: :request do
                },
                env: {
                  "REMOTE_ADDR" => "203.0.113.#{i + 10}"
+               }
+        end
+
+      expect(results.first(5)).to all(be < 429)
+      expect(results.last).to eq(429)
+    end
+
+    it "counts JSON sign-ins for the same email across IPs" do
+      results =
+        statuses(6) do |i|
+          post_json(
+            "/users/sign_in",
+            { user: { email: "json-victim@example.com", password: "wrong" } },
+            "203.0.113.#{i + 30}"
+          )
+        end
+
+      expect(results.first(5)).to all(be < 429)
+      expect(results.last).to eq(429)
+    end
+
+    it "counts the email in the query string when the form body names another email" do
+      query = { user: { email: "query-victim@example.com", password: "wrong" } }.to_query
+      results =
+        statuses(6) do |i|
+          post "/users/sign_in?#{query}",
+               params: {
+                 user: {
+                   email: "decoy-#{i}@example.com",
+                   password: "wrong"
+                 }
+               },
+               env: {
+                 "REMOTE_ADDR" => "203.0.113.#{i + 40}"
                }
         end
 
@@ -214,6 +270,40 @@ describe "Rack::Attack throttles", type: :request do
       expect(results.last).to eq(429)
     end
 
+    it "counts JSON magic link requests for the same email across IPs" do
+      results =
+        statuses(4) do |i|
+          post_json(
+            "/users/sign_in",
+            { user: { email: "json-magic-victim@example.com" } },
+            "203.0.113.#{i + 64}"
+          )
+        end
+
+      expect(results.first(3)).to all(be < 429)
+      expect(results.last).to eq(429)
+    end
+
+    it "counts the email in the query string when the form body carries a password" do
+      query = { user: { email: "query-magic-victim@example.com" } }.to_query
+      results =
+        statuses(4) do |i|
+          post "/users/sign_in?#{query}",
+               params: {
+                 user: {
+                   email: "decoy-#{i}@example.com",
+                   password: "wrong"
+                 }
+               },
+               env: {
+                 "REMOTE_ADDR" => "203.0.113.#{i + 74}"
+               }
+        end
+
+      expect(results.first(3)).to all(be < 429)
+      expect(results.last).to eq(429)
+    end
+
     it "does not count password logins against the magic link limits" do
       results =
         statuses(4) do |i|
@@ -324,6 +414,35 @@ describe "Rack::Attack throttles", type: :request do
       expect(fpc_devise_email(request)).to be_nil
       expect(fpc_magic_link_request?(request)).to eq(false)
     end
+
+    it "treats a malformed JSON body as no parameters" do
+      env =
+        Rack::MockRequest.env_for(
+          "/users/sign_in",
+          :method => "POST",
+          "CONTENT_TYPE" => "application/json",
+          "action_dispatch.logger" => Rails.logger,
+          :input => "{\"user\": "
+        )
+      expect(fpc_devise_user_params(Rack::Request.new(env))).to eq({})
+    end
+
+    it "treats a malformed query string as no parameters" do
+      env =
+        Rack::MockRequest.env_for("/users/sign_in?user=a&user[email]=b@example.com", method: "POST")
+      expect(fpc_devise_user_params(Rack::Request.new(env))).to eq({})
+    end
+
+    it "treats an invalid form body as no parameters" do
+      env =
+        Rack::MockRequest.env_for(
+          "/users/sign_in",
+          :method => "POST",
+          "CONTENT_TYPE" => "application/x-www-form-urlencoded",
+          :input => "user=a&user[email]=b@example.com"
+        )
+      expect(fpc_devise_user_params(Rack::Request.new(env))).to eq({})
+    end
   end
 
   describe "search throttles" do
@@ -345,6 +464,11 @@ describe "Rack::Attack throttles", type: :request do
       expect(results.last).to eq(429)
     end
 
+    it "throttles /inks when q is sent in a JSON body" do
+      results = statuses(2) { get_with_json_body("/inks", { q: "blue" }, "203.0.113.206") }
+      expect(results).to eq([200, 429])
+    end
+
     it "does not throttle /inks tag browsing" do
       results =
         statuses(2) do
@@ -359,6 +483,12 @@ describe "Rack::Attack throttles", type: :request do
         statuses(2) do
           get "/pen_models", params: { q: "eco" }, env: { "REMOTE_ADDR" => "203.0.113.204" }
         end
+      expect(results).to eq([200, 429])
+    end
+
+    it "throttles /pen_models when q is sent in a JSON body" do
+      allow(Pens::Model).to receive(:embedding_search).and_return([])
+      results = statuses(2) { get_with_json_body("/pen_models", { q: "eco" }, "203.0.113.208") }
       expect(results).to eq([200, 429])
     end
 
