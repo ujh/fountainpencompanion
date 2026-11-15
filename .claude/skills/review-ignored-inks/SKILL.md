@@ -1,6 +1,12 @@
 ---
 name: review-ignored-inks
 description: Periodic review of the ignored ink micro clusters in production. Finds ignored inks that are real (to assign to an existing macro cluster or to get a new one), confirms the rest are correctly ignored, lets the owner review every proposal in revdiff, and generates Ruby scripts to run in a production console. Use when asked to review, audit or go through the ignored inks / ignored micro clusters.
+hooks:
+  PreToolUse:
+    - matcher: "Bash|Read|Grep|Glob"
+      hooks:
+        - type: command
+          command: 'ruby "${CLAUDE_PROJECT_DIR}"/.claude/skills/review-ignored-inks/scripts/block_production_clis.rb'
 ---
 
 # Review ignored inks
@@ -66,28 +72,14 @@ repository root. Below, `S=.claude/skills/review-ignored-inks/scripts` and `RUN=
 
 ## 1. Set up or resume
 
-- Before every run, also a resumed one, the owner adds the deny rules in
-  `references/run-deny-rules.json` to `.claude/settings.local.json` (untracked, per machine) and
-  removes them after the run. Subagents have Bash, and the logged-in production CLIs on this machine
-  (`doctl`, `fly`, `gh`) give far broader access than the database role; the rules deny those CLIs and
-  reads of their credential files. Do not run these CLIs yourself during the run either. From the
-  repository root, set `R=.claude/skills/review-ignored-inks/references/run-deny-rules.json` and
-  `L=.claude/settings.local.json`. Add the rules before the run (creates `$L` if missing):
-
-  ```sh
-  [ -f $L ] || echo '{}' > $L
-  jq --slurpfile r $R '.permissions.deny = ((.permissions.deny // []) - $r[0].permissions.deny + $r[0].permissions.deny)' $L > $L.new && mv $L.new $L || rm -f $L.new
-  ```
-
-  Remove them after the run:
-
-  ```sh
-  jq --slurpfile r $R '.permissions.deny -= $r[0].permissions.deny' $L > $L.new && mv $L.new $L || rm -f $L.new
-  ```
-
-  Add them before starting the session, or with `/permissions` (local settings) in it, which applies
-  from the next tool call. The rules are a speed bump, not a boundary; the database role and the
-  scripts' checks are the main control.
+- Invoking this skill registers a hook (`scripts/block_production_clis.rb`, in the frontmatter) that
+  refuses `doctl`, `fly`, `flyctl` and `gh` in Bash and any access to their credential files, for you
+  and for subagents, for the rest of the session. Subagents have Bash, and those logged-in CLIs give
+  far broader production access than the database role. The hook is a speed bump, not a boundary;
+  the database role and the scripts' checks are the main control.
+- Before the first batch of every run, also a resumed one, check that the hook works: run
+  `doctl version` yourself, then start one subagent with the prompt "Run `doctl version` and report
+  whether it ran or a hook refused it." Both must be refused. If either runs, stop and tell the owner.
 
 - If a run directory from an unfinished run exists, resume it: skip to the loop, `next.rb` picks up where
   it stopped (an input batch without an output is handed out again).
