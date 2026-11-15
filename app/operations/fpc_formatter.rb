@@ -8,22 +8,29 @@ class FpcFormatter < Slodown::Formatter
   HOST_NAME = /\A[a-z0-9_-]+(\.[a-z0-9_-]+)*\z/
   MAX_BRACKET_DEPTH = 5
   RENDER_TIMEOUT = 0.5
+  RENDER_ERRORS = [Kramdown::Error, ArgumentError, SystemStackError].freeze
   FORMAT_VERSION = 1
   CACHE_EXPIRY = 4.weeks
-
-  class RenderTimeout < StandardError
-  end
+  FALLBACK_CACHE_EXPIRY = 15.minutes
 
   def self.render(source)
-    html =
-      Rails
-        .cache
-        .fetch(cache_key(source), expires_in: CACHE_EXPIRY) { String.new(render_uncached(source)) }
+    key = cache_key(source)
+    html = Rails.cache.read(key) || render_and_cache(source, key)
     html.html_safe
   end
 
   def self.cache_key(source)
-    ["markdown", name, FORMAT_VERSION, Digest::SHA256.hexdigest(source.to_s)].join("/")
+    [
+      "markdown",
+      name,
+      FORMAT_VERSION,
+      Sanitize::VERSION,
+      Nokogiri::VERSION,
+      Kramdown::VERSION,
+      Rinku::VERSION,
+      Slodown::VERSION,
+      Digest::SHA256.hexdigest(source.to_s)
+    ].join("/")
   end
 
   def self.too_deeply_nested?(source)
@@ -31,11 +38,13 @@ class FpcFormatter < Slodown::Formatter
   end
 
   def self.too_slow_to_render?(source)
-    timed_render(source)
+    return false if too_deeply_nested?(source)
+
+    Rails.cache.write(cache_key(source), timed_render(source), expires_in: CACHE_EXPIRY)
     false
-  rescue RenderTimeout
+  rescue Timeout::Error
     true
-  rescue Kramdown::Error, ArgumentError, SystemStackError
+  rescue *RENDER_ERRORS
     false
   end
 
@@ -50,22 +59,29 @@ class FpcFormatter < Slodown::Formatter
     max
   end
 
-  def self.render_uncached(source)
-    return plain_text(source) if too_deeply_nested?(source)
-
-    timed_render(source)
-  rescue RenderTimeout, Kramdown::Error, ArgumentError, SystemStackError
-    plain_text(source)
+  def self.render_and_cache(source, key)
+    html, expires_in = render_with_expiry(source)
+    Rails.cache.write(key, html, expires_in:)
+    html
   end
-  private_class_method :render_uncached
+  private_class_method :render_and_cache
+
+  def self.render_with_expiry(source)
+    return plain_text(source), CACHE_EXPIRY if too_deeply_nested?(source)
+
+    [timed_render(source), CACHE_EXPIRY]
+  rescue Timeout::Error, *RENDER_ERRORS
+    [plain_text(source), FALLBACK_CACHE_EXPIRY]
+  end
+  private_class_method :render_with_expiry
 
   def self.timed_render(source)
-    Timeout.timeout(RENDER_TIMEOUT, RenderTimeout) { new(source).complete.to_s }
+    Timeout.timeout(RENDER_TIMEOUT) { String.new(new(source).complete.to_s) }
   end
   private_class_method :timed_render
 
   def self.plain_text(source)
-    ActionController::Base.helpers.simple_format(ERB::Util.html_escape(source.to_s))
+    String.new(ActionController::Base.helpers.simple_format(ERB::Util.html_escape(source.to_s)))
   end
   private_class_method :plain_text
 
@@ -100,7 +116,11 @@ class FpcFormatter < Slodown::Formatter
   def image_filter
     lambda do |env|
       node = env[:node]
-      node.unlink if env[:node_name] == "img" && !external_image_url?(node["src"])
+      next unless env[:node_name] == "img" && !external_image_url?(node["src"])
+
+      figure = node.parent if node.parent&.name == "figure"
+      node.unlink
+      figure.unlink if figure&.children&.all? { |child| child.text? && child.text.strip.empty? }
     end
   end
 

@@ -1,6 +1,8 @@
 require "rails_helper"
 
 describe FpcFormatter do
+  include ActiveSupport::Testing::TimeHelpers
+
   def render(source)
     described_class.render(source).to_s
   end
@@ -171,6 +173,16 @@ describe FpcFormatter do
       end
     end
 
+    it "drops the figure of a dropped image-only paragraph" do
+      expect(render("![Swab](https://fpc.ink/swab.jpg)")).not_to include("<figure")
+    end
+
+    it "keeps the caption of a dropped image" do
+      expect(render('![Swab](https://fpc.ink/swab.jpg "Caption")')).to eq(
+        "<figure><figcaption>Caption</figcaption></figure>\n"
+      )
+    end
+
     it "drops markdown images from our own hosts" do
       output = render("![Swab](https://www.fountainpencompanion.com/swab.jpg)")
 
@@ -281,11 +293,20 @@ describe FpcFormatter do
       expect(Process.clock_gettime(Process::CLOCK_MONOTONIC) - started).to be < 1
     end
 
-    it "caches the plain text of a slow text" do
+    it "caches the plain text of a slow text for 15 minutes" do
       render(slow_source)
-      expect(Kramdown::Document).not_to receive(:new)
 
+      travel(FpcFormatter::FALLBACK_CACHE_EXPIRY - 1.minute)
+      expect(Kramdown::Document).not_to receive(:new)
       expect(render(slow_source)).to eq("<p>#{ERB::Util.html_escape(slow_source)}</p>")
+    end
+
+    it "renders a slow text again after 15 minutes" do
+      render(slow_source)
+
+      travel(FpcFormatter::FALLBACK_CACHE_EXPIRY + 1.minute)
+      expect(Kramdown::Document).to receive(:new).and_call_original
+      render(slow_source)
     end
 
     it "does not swallow an outer timeout" do
@@ -340,13 +361,61 @@ describe FpcFormatter do
       render("*versioned*")
     end
 
-    it "expires cached output" do
-      expect(Rails.cache).to receive(:fetch).with(
-        a_string_starting_with("markdown/FpcFormatter/"),
-        expires_in: FpcFormatter::CACHE_EXPIRY
-      ).and_call_original
+    it "keeps rendered output for four weeks" do
+      render("*kept*")
 
-      render("*expiring*")
+      travel(FpcFormatter::CACHE_EXPIRY - 1.minute)
+      expect(Kramdown::Document).not_to receive(:new)
+      render("*kept*")
+    end
+
+    it "renders again once rendered output expires" do
+      render("*kept*")
+
+      travel(FpcFormatter::CACHE_EXPIRY + 1.minute)
+      expect(Kramdown::Document).to receive(:new).and_call_original
+      render("*kept*")
+    end
+
+    it "keeps the plain text fallback after a renderer error for only 15 minutes" do
+      allow(Kramdown::Document).to receive(:new).and_raise(Kramdown::Error, "broken")
+      render("*a*")
+      allow(Kramdown::Document).to receive(:new).and_call_original
+
+      travel(FpcFormatter::FALLBACK_CACHE_EXPIRY - 1.minute)
+      expect(render("*a*")).to eq("<p>*a*</p>")
+      travel(2.minutes)
+      expect(render("*a*")).to eq("<p><em>a</em></p>\n")
+    end
+
+    it "keeps the escaped text of deep nesting for four weeks" do
+      render("[[[[[[x")
+
+      travel(FpcFormatter::FALLBACK_CACHE_EXPIRY + 1.minute)
+      expect(described_class).not_to receive(:bracket_depth)
+      expect(render("[[[[[[x")).to eq("<p>[[[[[[x</p>")
+    end
+
+    it "uses the output of a successful timed check as the cached output" do
+      expect(described_class.too_slow_to_render?("*checked*")).to be(false)
+
+      expect(Kramdown::Document).not_to receive(:new)
+      expect(render("*checked*")).to eq("<p><em>checked</em></p>\n")
+    end
+
+    it "does not cache markdown output for deeply nested texts from the timed check" do
+      expect(described_class.too_slow_to_render?("[[[[[[*x*")).to be(false)
+
+      expect(render("[[[[[[*x*")).to eq("<p>[[[[[[*x*</p>")
+    end
+
+    it "changes the cache key when a renderer gem changes" do
+      %w[Sanitize Nokogiri Kramdown Rinku Slodown].each do |gem|
+        key = described_class.cache_key("x")
+        stub_const("#{gem}::VERSION", "0.0.0.test")
+
+        expect(described_class.cache_key("x")).not_to eq(key), gem
+      end
     end
   end
 

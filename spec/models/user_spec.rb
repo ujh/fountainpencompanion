@@ -13,6 +13,12 @@ describe User do
       expect(user.errors[:blurb]).to eq(["is too long (maximum is 5000 characters)"])
     end
 
+    it "does not render an over-long blurb to check its complexity" do
+      expect(FpcFormatter).not_to receive(:too_slow_to_render?)
+
+      expect(user.update(blurb: "x" * 5_001)).to be(false)
+    end
+
     it "rejects brackets nested more than five deep" do
       expect(user.update(blurb: "[[[[[[x]]]]]]")).to be(false)
       expect(user.errors[:blurb]).to eq(["has too many nested brackets"])
