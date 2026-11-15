@@ -147,6 +147,70 @@ describe FpcFormatter do
     end
   end
 
+  describe "image sources" do
+    def image_kept?(src)
+      render(%(<p>Swab: <img src="#{src}" alt="swab"></p>)).include?("<img")
+    end
+
+    it "keeps images from external hosts" do
+      expect(image_kept?("https://example.com/swab.jpg")).to be(true)
+      expect(image_kept?("http://i.imgur.com/swab.jpg")).to be(true)
+      expect(image_kept?("HTTPS://EXAMPLE.COM/swab.jpg")).to be(true)
+    end
+
+    it "keeps external markdown images" do
+      output = render("![Swab](https://example.com/swab.jpg)")
+
+      expect(output).to include('<img src="https://example.com/swab.jpg" alt="Swab">')
+    end
+
+    it "drops images from our own hosts" do
+      Fountainpencompanion::HOSTS.each do |host|
+        expect(image_kept?("https://#{host}/swab.jpg")).to be(false), host
+        expect(image_kept?("http://#{host}:443/swab.jpg")).to be(false), host
+      end
+    end
+
+    it "drops markdown images from our own hosts" do
+      output = render("![Swab](https://www.fountainpencompanion.com/swab.jpg)")
+
+      expect(output).not_to include("<img")
+    end
+
+    it "drops own hosts written in upper case or with a trailing dot" do
+      expect(image_kept?("HTTPS://WWW.FOUNTAINPENCOMPANION.COM/swab.jpg")).to be(false)
+      expect(image_kept?("https://fpc.ink./swab.jpg")).to be(false)
+    end
+
+    it "drops own hosts behind credentials, whitespace or percent-encoding" do
+      expect(image_kept?("https://someone@fpc.ink/swab.jpg")).to be(false)
+      expect(image_kept?(" https://fpc.ink/swab.jpg")).to be(false)
+      expect(image_kept?("https://fpc%2Eink/swab.jpg")).to be(false)
+    end
+
+    it "drops relative and protocol-relative sources" do
+      expect(image_kept?("/swab.jpg")).to be(false)
+      expect(image_kept?("swab.jpg")).to be(false)
+      expect(image_kept?("//fpc.ink/swab.jpg")).to be(false)
+      expect(image_kept?("//example.com/swab.jpg")).to be(false)
+    end
+
+    it "drops sources with a malformed scheme separator" do
+      expect(image_kept?("https:/fpc.ink/swab.jpg")).to be(false)
+      expect(image_kept?("https:fpc.ink/swab.jpg")).to be(false)
+      expect(image_kept?("https:\\\\fpc.ink\\swab.jpg")).to be(false)
+    end
+
+    it "drops sources that do not parse" do
+      expect(image_kept?("https://example.com\\@fpc.ink/swab.jpg")).to be(false)
+      expect(image_kept?("https://exa mple.com/swab.jpg")).to be(false)
+    end
+
+    it "drops images without a source" do
+      expect(render('<p><img alt="swab"></p>')).not_to include("<img")
+    end
+  end
+
   describe "regular markdown still renders" do
     it "renders headers, emphasis, lists, and links" do
       source = <<~MD

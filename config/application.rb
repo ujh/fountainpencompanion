@@ -23,6 +23,13 @@ require_relative "../lib/fly_client_ip"
 
 module Fountainpencompanion
   USER_AGENT = "FountainPenCompanion/1.0 (+https://www.fountainpencompanion.com)"
+  HOSTS = %w[
+    www.fountainpencompanion.com
+    fountainpencompanion.com
+    www.fpc.ink
+    fpc.ink
+    fountainpencompanion.fly.dev
+  ].freeze
 
   class Application < Rails::Application
     # Initialize configuration defaults for originally generated Rails version.

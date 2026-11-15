@@ -3,6 +3,8 @@ require "slodown"
 class FpcFormatter < Slodown::Formatter
   STRIPPED_ELEMENTS = %w[iframe object embed].freeze
   STRIPPED_ATTRIBUTES = %w[style class id].freeze
+  ABSOLUTE_HTTP_URL = %r{\Ahttps?://}i
+  HOST_NAME = /\A[a-z0-9_-]+(\.[a-z0-9_-]+)*\z/
 
   def self.render(source)
     new(source).complete.to_s.html_safe
@@ -16,7 +18,7 @@ class FpcFormatter < Slodown::Formatter
   end
 
   def transformers
-    []
+    [image_filter]
   end
 
   def sanitize_config
@@ -34,5 +36,22 @@ class FpcFormatter < Slodown::Formatter
 
   def stripped_attributes
     STRIPPED_ATTRIBUTES
+  end
+
+  def image_filter
+    lambda do |env|
+      node = env[:node]
+      node.unlink if env[:node_name] == "img" && !external_image_url?(node["src"])
+    end
+  end
+
+  def external_image_url?(src)
+    src = src.to_s.strip
+    return false unless src.match?(ABSOLUTE_HTTP_URL)
+
+    host = URI.parse(src).host.to_s.downcase.delete_suffix(".")
+    host.match?(HOST_NAME) && Fountainpencompanion::HOSTS.exclude?(host)
+  rescue URI::InvalidURIError
+    false
   end
 end
