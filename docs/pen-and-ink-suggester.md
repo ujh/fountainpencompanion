@@ -55,10 +55,10 @@ resistance, localised server notes, and an extractor result cache.
 
 ```
 Widget (pen_and_ink_suggestion_widget.jsx)
-  GET /dashboard/widgets/pen_and_ink_suggestion.json?extra_user_input=…&rejected_suggestions=[…]
-  └─ WidgetsController            instruction cut to 500 chars; rejected pairs parsed as
-     │                            {"ink_id","pen_id"} integers, newest 50 kept
-     │                            Rack::Attack: 10 enqueues / minute / IP (polls never throttled)
+  POST /dashboard/widgets/pen_and_ink_suggestion.json  {extra_user_input, rejected_suggestions}
+  └─ WidgetsController            CSRF-checked; instruction cut to 500 chars; rejected pairs
+     │                            parsed as {"ink_id","pen_id"} integers, newest 50 kept
+     │                            Rack::Attack: 10 POSTs / minute / IP (polls never throttled)
      └─ RequestPenAndInkSuggestion  daily-cap pre-check (fast feedback), returns suggestion_id
         └─ SchedulePenAndInkSuggestion   Sidekiq, queue "interactive", retry 0
            │  instruction gate; queue_ms; result written to Rails.cache in `ensure`
@@ -72,23 +72,28 @@ Widget (pen_and_ink_suggestion_widget.jsx)
                 7. CandidateSelector → Selection (rows, refs, notes, relaxations) or an early end
                 8. pick call: ask!(PickPrompt#user_message), tool record_suggestion
                 9. message = header + notes + sanitised reasoning; extra_data saved
-  Widget polls ?suggestion_id= every second for up to 60 s, then shows a timeout error
+  Widget polls GET …/pen_and_ink_suggestion.json?suggestion_id= every second for up to 60 s,
+  then shows a timeout error
 ```
 
 **Widget** (`app/javascript/src/dashboard/pen_and_ink_suggestion_widget.jsx`). It first loads
 `pen_and_ink_suggestion_settings` (`instructions_allowed`, `instructions_max_length`). When
 instructions are not allowed, the textarea is replaced by a one-line explanation. Every pair it
 receives is added to the rejected pairs sent with the next request ("Try again"), and the
-instruction stays in the textarea. A 429 shows a throttle
-message. Polling stops on the first result with a `message` or `status: "error"`, or after 60 s.
+instruction stays in the textarea. It starts a suggestion with a JSON:API `POST` (`postRequest`,
+which sends the CSRF token; `rejected_suggestions` is a JSON string of the pairs) and polls with
+`GET`. A 429 shows a throttle message. Polling stops on the first result with a `message` or
+`status: "error"`, or after 60 s.
 
-**Controller and operation.** `WidgetsController#pen_and_ink_suggestion_data` hands the
-parameters to `RequestPenAndInkSuggestion`. Without a `suggestion_id` it checks the daily cap
-(writing the cap message straight to the cache when it is reached) and enqueues the worker with
-the enqueue time. With a `suggestion_id` it reads the cached result, loads the pen and ink through
-the user's own collections, re-checks that an inked pen is still inked (and removes the
-clean-it-first note from the message when it was cleaned meanwhile), and renders the message with
-`FpcFormatter`.
+**Controller and operation.** `WidgetsController#start_pen_and_ink_suggestion` (the `POST`) reads
+`extra_user_input` and `rejected_suggestions` from the JSON:API body and hands them to
+`RequestPenAndInkSuggestion`, which checks the daily cap (writing the cap message straight to the
+cache when it is reached) and enqueues the worker with the enqueue time. It ignores any
+`suggestion_id`, so every `POST` starts a run. `WidgetsController#show` (the `GET`) needs a
+`suggestion_id` and answers 400 without one; it never enqueues. With a `suggestion_id` the
+operation reads the cached result, loads the pen and ink through the user's own collections,
+re-checks that an inked pen is still inked (and removes the clean-it-first note from the message
+when it was cleaned meanwhile), and renders the message with `FpcFormatter`.
 
 **Worker** (`app/workers/schedule_pen_and_ink_suggestion.rb`). It runs on the `interactive`
 queue, which `config/sidekiq.yml` lists before `agents`, so agent backlogs cannot starve it. It has
@@ -431,7 +436,7 @@ section 13.
 | --------------------------------------------- | ----------------------------------------------- | ---------------------------------------------------------------- |
 | 20 runs / day, 50 for patrons and admins      | `PenAndInkSuggester::DailyCap`                  | cost; a run counts once it can make an LLM call                  |
 | Prechecks and early ends without an instruction don't count | `extra_data["precheck"]`         | they make no LLM call                                            |
-| 10 enqueues / minute / IP, polls exempt       | `config/initializers/rack_attack.rb`            | bounds abuse and the race between concurrent cap checks          |
+| 10 starts (`POST`s) / minute / IP, polls exempt | `config/initializers/rack_attack.rb`          | bounds abuse and the race between concurrent cap checks          |
 | Instructions: account confirmed > 2 weeks and > 20 inks or > 20 pens (archived included) | `InstructionGate` | keeps free text away from throwaway accounts            |
 | Instruction ≤ 500 characters (textarea `maxLength` too) | `WidgetsController`                  | prompt size and injection surface                                |
 | ≤ 50 rejected pairs, integers only            | `WidgetsController#parse_rejected_suggestions`  | free text can never enter through this parameter                 |

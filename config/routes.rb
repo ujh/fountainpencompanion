@@ -26,6 +26,7 @@ Rails.application.routes.draw do
 
   resource :dashboard, only: [:show] do
     resources :widgets, only: [:show]
+    post "widgets/pen_and_ink_suggestion", to: "widgets#start_pen_and_ink_suggestion"
   end
   resources :pages, only: [:show]
   resources :blog, only: %i[index show] do

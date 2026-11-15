@@ -132,20 +132,8 @@ Rack::Attack.throttle("ink review submissions/ip", limit: 20, period: 60) do |re
 end
 
 def fpc_pen_and_ink_suggestion_enqueue?(request)
-  fpc_pen_and_ink_suggestion_path?(request) && !fpc_pen_and_ink_suggestion_poll?(request)
-end
-
-def fpc_pen_and_ink_suggestion_path?(request)
-  path = ActionDispatch::Journey::Router::Utils.normalize_path(request.path)
-  match = path.b.match(%r{\A/dashboard/widgets/([^/.?]+)(?:\.[^/.?]+)?\z})
-  match.present? && Rack::Utils.unescape_path(match[1]) == "pen_and_ink_suggestion"
-end
-
-def fpc_pen_and_ink_suggestion_poll?(request)
-  id = request.GET["suggestion_id"]
-  id.is_a?(String) && id.valid_encoding? && id.present?
-rescue Rack::BadRequest
-  false
+  request.post? &&
+    request.path.match?(%r{\A/dashboard/widgets/pen_and_ink_suggestion(?:\.[^/]*)?\z})
 end
 
 Rack::Attack.throttle("pen and ink suggestions/ip", limit: 10, period: 60) do |request|

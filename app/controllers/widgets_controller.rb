@@ -16,7 +16,7 @@ class WidgetsController < ApplicationController
     when "pens_grouped_by_brand"
       render json: pens_grouped_by_brand_data
     when "pen_and_ink_suggestion"
-      render json: pen_and_ink_suggestion_data
+      render_pen_and_ink_suggestion
     when "pen_and_ink_suggestion_settings"
       render json: pen_and_ink_suggestion_settings_data
     when "usage_visualization"
@@ -24,6 +24,16 @@ class WidgetsController < ApplicationController
     else
       head :unprocessable_entity
     end
+  end
+
+  def start_pen_and_ink_suggestion
+    render json:
+             RequestPenAndInkSuggestion.new(
+               user: current_user,
+               extra_user_input: extra_user_input_param,
+               rejected_suggestions:
+                 parse_rejected_suggestions(suggestion_params[:rejected_suggestions])
+             ).perform
   end
 
   private
@@ -122,13 +132,17 @@ class WidgetsController < ApplicationController
   MAX_REJECTED_SUGGESTION_ENTRIES = MAX_REJECTED_SUGGESTIONS * 4
   MAX_EXTRA_USER_INPUT_LENGTH = 500
 
-  def pen_and_ink_suggestion_data
-    RequestPenAndInkSuggestion.new(
-      user: current_user,
-      suggestion_id: params[:suggestion_id].presence,
-      extra_user_input: extra_user_input_param,
-      rejected_suggestions: parse_rejected_suggestions(params[:rejected_suggestions])
-    ).perform
+  def render_pen_and_ink_suggestion
+    suggestion_id = params[:suggestion_id]
+    if suggestion_id.is_a?(String) && suggestion_id.present?
+      render json: RequestPenAndInkSuggestion.new(user: current_user, suggestion_id:).perform
+    else
+      head :bad_request
+    end
+  end
+
+  def suggestion_params
+    params[:_jsonapi].is_a?(ActionController::Parameters) ? params[:_jsonapi] : params
   end
 
   def pen_and_ink_suggestion_settings_data
@@ -141,7 +155,7 @@ class WidgetsController < ApplicationController
   end
 
   def extra_user_input_param
-    input = params[:extra_user_input]
+    input = suggestion_params[:extra_user_input]
     input.first(MAX_EXTRA_USER_INPUT_LENGTH).presence if input.is_a?(String)
   end
 
