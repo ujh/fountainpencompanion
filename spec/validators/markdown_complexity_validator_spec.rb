@@ -1,6 +1,8 @@
 require "rails_helper"
 
 describe MarkdownComplexityValidator do
+  include SlowMarkdownHelpers
+
   subject { model_class.new }
 
   let(:model_class) do
@@ -36,8 +38,8 @@ describe MarkdownComplexityValidator do
   end
 
   it "rejects a text that takes too long to render" do
-    stub_const("FpcFormatter::RENDER_TIMEOUT", 0.05)
-    subject.description = ("**a " * 8 + "[x]( " * 1_000)[0, 5_000]
+    make_markdown_slow
+    subject.description = SlowMarkdownHelpers::SLOW_MARKDOWN
 
     expect(subject).to be_invalid
     expect(subject.errors[:description]).to eq(["is too complex to display"])

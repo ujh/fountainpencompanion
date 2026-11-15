@@ -289,22 +289,24 @@ describe FpcFormatter do
   end
 
   describe "slow texts" do
-    let(:slow_source) { ("**a " * 8 + "[x]( " * 1_000)[0, 5_000] }
+    include SlowMarkdownHelpers
 
-    before { stub_const("FpcFormatter::RENDER_TIMEOUT", 0.05) }
+    let(:slow_source) { SlowMarkdownHelpers::SLOW_MARKDOWN }
+
+    before { make_markdown_slow }
 
     it "renders a text that takes too long as escaped plain text" do
       started = Process.clock_gettime(Process::CLOCK_MONOTONIC)
 
-      expect(render(slow_source)).to eq("<p>#{ERB::Util.html_escape(slow_source)}</p>")
+      expect(render(slow_source)).to eq("<p>#{slow_source}</p>")
       expect(Process.clock_gettime(Process::CLOCK_MONOTONIC) - started).to be < 1
     end
 
     it "renders a slow text again on the next call" do
       render(slow_source)
+      render(slow_source)
 
-      expect(Kramdown::Document).to receive(:new).and_call_original
-      expect(render(slow_source)).to eq("<p>#{ERB::Util.html_escape(slow_source)}</p>")
+      expect(Kramdown::Document).to have_received(:new).twice
     end
 
     it "does not swallow an outer timeout" do

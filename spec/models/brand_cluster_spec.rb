@@ -1,6 +1,8 @@
 require "rails_helper"
 
 describe BrandCluster do
+  include SlowMarkdownHelpers
+
   describe "description" do
     let(:record) { create(:brand_cluster) }
 
@@ -19,9 +21,9 @@ describe BrandCluster do
     end
 
     it "rejects a changed description that takes too long to render" do
-      stub_const("FpcFormatter::RENDER_TIMEOUT", 0.05)
+      make_markdown_slow
 
-      expect(record.update(description: ("**a " * 8 + "[x]( " * 1_000)[0, 5_000])).to be(false)
+      expect(record.update(description: SlowMarkdownHelpers::SLOW_MARKDOWN)).to be(false)
       expect(record.errors[:description]).to eq(["is too complex to display"])
     end
 

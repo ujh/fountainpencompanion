@@ -1,6 +1,8 @@
 require "rails_helper"
 
 describe User do
+  include SlowMarkdownHelpers
+
   describe "blurb" do
     let(:user) { create(:user) }
 
@@ -25,9 +27,9 @@ describe User do
     end
 
     it "rejects a blurb that takes too long to render" do
-      stub_const("FpcFormatter::RENDER_TIMEOUT", 0.05)
+      make_markdown_slow
 
-      expect(user.update(blurb: ("**a " * 8 + "[x]( " * 1_000)[0, 5_000])).to be(false)
+      expect(user.update(blurb: SlowMarkdownHelpers::SLOW_MARKDOWN)).to be(false)
       expect(user.errors[:blurb]).to eq(["is too complex to display"])
     end
 
