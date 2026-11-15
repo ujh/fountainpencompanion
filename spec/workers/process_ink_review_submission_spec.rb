@@ -277,7 +277,7 @@ describe ProcessInkReviewSubmission do
     end
   end
 
-  it "auto approves when second submission comes in" do
+  it "auto approves when a second user submits the same review" do
     macro_cluster = create(:macro_cluster)
     submissions =
       create_list(
@@ -292,5 +292,47 @@ describe ProcessInkReviewSubmission do
     review = InkReview.first
     expect(review.approved_at).not_to eq(nil)
     expect(review.auto_approved).to eq(true)
+  end
+
+  context "when the same user submits two urls of the same review" do
+    let(:other_submission) do
+      create(
+        :ink_review_submission,
+        url: "http://example.com/?ref=other",
+        user: ink_review_submission.user,
+        macro_cluster: ink_review_submission.macro_cluster
+      )
+    end
+
+    before do
+      stub_request(:get, other_submission.url).to_return(body: content)
+      described_class.new.perform(ink_review_submission.id)
+      described_class.new.perform(other_submission.id)
+    end
+
+    it "links both submissions to one queued review" do
+      review = InkReview.sole
+      expect(review.ink_review_submissions).to contain_exactly(
+        ink_review_submission,
+        other_submission
+      )
+      expect(review.approved_at).to eq(nil)
+      expect(review.auto_approved).to eq(false)
+    end
+
+    it "schedules the review approver once" do
+      expect(RunAgent.jobs.map { |job| job["args"] }).to eq([["ReviewApprover", InkReview.sole.id]])
+    end
+  end
+
+  it "auto approves a single submission from a user with auto approval enabled" do
+    ink_review_submission.user.update!(auto_approve_ink_reviews: true)
+
+    described_class.new.perform(ink_review_submission.id)
+
+    review = InkReview.sole
+    expect(review.approved_at).not_to eq(nil)
+    expect(review.auto_approved).to eq(true)
+    expect(RunAgent.jobs).to be_empty
   end
 end

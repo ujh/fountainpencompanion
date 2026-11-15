@@ -139,6 +139,29 @@ describe InkReview do
       it "does not auto approve a single submission from a regular user" do
         expect(review.auto_approve?).to be false
       end
+
+      it "does not auto approve a second submission from the same user" do
+        create(
+          :ink_review_submission,
+          ink_review: review,
+          user: submitter,
+          macro_cluster: review.macro_cluster,
+          url: "#{review.url}?ref=other"
+        )
+
+        expect(review.auto_approve?).to be false
+      end
+
+      it "auto approves once a second user submitted the review" do
+        create(
+          :ink_review_submission,
+          ink_review: review,
+          macro_cluster: review.macro_cluster,
+          url: review.url
+        )
+
+        expect(review.auto_approve?).to be true
+      end
     end
 
     context "when the submitter deleted their account" do
