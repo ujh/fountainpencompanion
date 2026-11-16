@@ -282,8 +282,8 @@ importers:
         specifier: ^0.14.1
         version: 0.14.1
       slim-select:
-        specifier: ^4.6.2
-        version: 4.6.2(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+        specifier: ^4.7.0
+        version: 4.7.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       whatwg-fetch:
         specifier: ^3.6.20
         version: 3.6.20
@@ -3446,8 +3446,8 @@ packages:
     resolution: {integrity: sha512-bzyZ1e88w9O1iNJbKnOlvYTrWPDl46O1bG0D3XInv+9tkPrxrN8jUUTiFlDkkmKWgn1M6CfIA13SuGqOa9Korw==}
     engines: {node: '>=14'}
 
-  slim-select@4.6.2:
-    resolution: {integrity: sha512-DAfmW1sufpcIh/gNb1lUJZHs8OaxyVpRAlltrB6TDOgDnmhzeXHK6w35dC44EthGf888JRzb1orbS76+H2VvAA==}
+  slim-select@4.7.0:
+    resolution: {integrity: sha512-YvdtjVpy8w5z0wEnhX7d2E0oOOFh9wgdoMCIXgI3htVN8eTQ1bfN1SVK1fzFBBTbGgOBycDnu03ma8YQGvIpGg==}
     engines: {node: '>=20.19.0'}
     peerDependencies:
       react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
@@ -7138,7 +7138,7 @@ snapshots:
 
   signal-exit@4.1.0: {}
 
-  slim-select@4.6.2(react-dom@19.3.1(react@19.3.1))(react@19.3.1):
+  slim-select@4.7.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1):
     optionalDependencies:
       react: 19.3.1
       react-dom: 19.3.1(react@19.3.1)
