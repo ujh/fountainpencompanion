@@ -52,6 +52,7 @@ module Bench
         @extractor_class ||=
           if model
             settings = model_settings
+            RubyLLM.models.find(settings.model_id, provider: "openai")
             Class.new(PenAndInkConstraintExtractor) do
               define_singleton_method(:name) { PenAndInkConstraintExtractor.name }
               define_method(:model_id) { settings.model_id }

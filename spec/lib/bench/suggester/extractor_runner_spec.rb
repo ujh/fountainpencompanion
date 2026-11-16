@@ -211,6 +211,15 @@ RSpec.describe Bench::Suggester::ExtractorRunner do
     end
   end
 
+  it "stops before the first extraction when RubyLLM's registry does not know the model" do
+    stub_extraction(model: "gpt-9-test")
+    runner = described_class.new(labels: [label("one")], model: "gpt-9-test")
+
+    expect { runner.run }.to raise_error(RubyLLM::ModelNotFoundError)
+    expect(a_request(:post, "https://api.openai.com/v1/chat/completions")).not_to have_been_made
+    expect(AgentLog.count).to eq(0)
+  end
+
   it "stops once the budget is spent" do
     stub_extraction
     runner = described_class.new(labels: [label("one"), label("two")], max_usd: 0.0001)
