@@ -32,6 +32,7 @@ exceptions:
     - ActionDispatch::Http::MimeNegotiation::InvalidType
     - ActionDispatch::Http::Parameters::ParseError
     - ActionController::BadRequest
+    - ActionDispatch::RemoteIp::IpSpoofAttackError
     - Net::SMTPSyntaxError
     - Rack::Timeout::RequestTimeoutException
     - Rack::Timeout::RequestExpiryError

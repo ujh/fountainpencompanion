@@ -42,11 +42,8 @@ async function req(path, method, body, retries = 5, csrfRefreshed = false) {
   }
   if (response.status === 401) {
     window.location.href = "/users/sign_in";
-    return;
+    return new Promise(() => {});
   }
-  // The page's CSRF token goes stale when the session changes underneath it
-  // (e.g. the session cookie expired and the user got logged back in via
-  // remember-me). Fetch a fresh token and retry once instead of failing.
   if (!csrfRefreshed && (await isInvalidCsrfToken(response)) && (await refreshCsrfToken())) {
     return req(path, method, body, retries, true);
   }

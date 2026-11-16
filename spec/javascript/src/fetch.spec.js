@@ -1,4 +1,4 @@
-import { deleteRequest, postRequest, putRequest } from "fetch";
+import { deleteRequest, getRequest, postRequest, putRequest } from "fetch";
 import { HttpResponse, http } from "msw";
 import { setupServer } from "msw/node";
 
@@ -196,5 +196,29 @@ describe("retries", () => {
     await postRequest("/things").catch(() => {});
 
     expect(posts).toBe(1);
+  });
+});
+
+describe("unauthenticated requests", () => {
+  it.each([
+    ["GET", () => getRequest("/things"), http.get],
+    ["POST", () => postRequest("/things"), http.post]
+  ])("never settles a %s request answered with 401", async (_method, request, httpMethod) => {
+    let served = false;
+    server.use(
+      httpMethod("/things", () => {
+        served = true;
+        return new HttpResponse(null, { status: 401 });
+      })
+    );
+
+    const pending = Symbol("pending");
+    const result = await Promise.race([
+      request(),
+      new Promise((resolve) => setTimeout(() => resolve(pending), 50))
+    ]);
+
+    expect(served).toBe(true);
+    expect(result).toBe(pending);
   });
 });

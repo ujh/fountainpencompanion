@@ -1009,7 +1009,7 @@ LlmConfig.for(llm_config_key).api_base })` — resolved through the SAME path `b
     and then `raise` (re-raise the original error unchanged — this step adds visibility, it does not
     change control flow or retry behaviour). When the matcher returns false, re-raise without
     notifying (normal Honeybadger/Sidekiq handling still applies via whatever wraps the worker).
-  - Why the explicit `Honeybadger.notify` matters: `config/honeybadger.yml:42-43` sets
+  - Why the explicit `Honeybadger.notify` matters: `config/honeybadger.yml:43-44` sets
     `sidekiq.attempt_threshold: 3`, meaning Honeybadger's automatic Sidekiq integration would not
     normally report until the THIRD failed attempt. A model-not-found error will fail identically on
     every retry (it's a config problem, not a transient one), so waiting for attempt 3 just delays
@@ -4468,7 +4468,7 @@ reviews` (config/sidekiq.yml:4-8), so a saturated `low` queue starves `reviews` 
      `ids` default turns into "enumerate the first batch and chain". It is the self-chaining worker,
      not a blocking rake loop.
   5. Watch, for the duration of the run: `reviews` queue latency (Sidekiq Web or `fly logs`), DO 429
-     responses, and Honeybadger (`sidekiq.attempt_threshold: 3`, config/honeybadger.yml:42-43, so a
+     responses, and Honeybadger (`sidekiq.attempt_threshold: 3`, config/honeybadger.yml:43-44, so a
      handful of retried batches is silent — watch for a sustained climb, not single blips).
 
 - **Depends on.** S23-embeddings-bench (the DO embedding model pick), S00-ops-prereqs (the
@@ -6126,7 +6126,7 @@ cluster.pens_model_id` branch at app/workers/pens/update_model_micro_cluster.rb:
   is information only: merge in a quiet hour, `AgentLog.processing.where(name: <agent>).count` before
   and right after the deploy, and for any hit watch that log's next attempt in Honeybadger for
   `RubyLLM::BadRequestError`/`RubyLLM::Error` raised from restore_transcript-shaped requests during
-  the first hour. After each flip watch Honeybadger (`config/honeybadger.yml:42-43`
+  the first hour. After each flip watch Honeybadger (`config/honeybadger.yml:43-44`
   `attempt_threshold: 3`; honeybadger-6.9.1 `plugins/sidekiq.rb:100-111` notifies when
   `retry_count + 1 >= 3`, i.e. on the 4th execution; the Sidekiq Web retry set shows first failures
   immediately) and the token graph. The S05 "model not found" alert is already live for every agent
@@ -6958,7 +6958,7 @@ rejected_at: Time.current, agent_approved: false, extra_data: { "action" => "ass
   `flyctl secrets unset OPEN_AI_TOKEN OPEN_AI_EMBEDDINGS -a fountainpencompanion` (this itself restarts
   every machine and is the "deploy after removal"; if a code path still read an old name, the failure
   would be at request time via `ENV.fetch(name, nil)`, and Honeybadger would report a Sidekiq failure
-  only on the 3rd attempt — `config/honeybadger.yml:42-43`'s `sidekiq: attempt_threshold: 3`); (3)
+  only on the 3rd attempt — `config/honeybadger.yml:43-44`'s `sidekiq: attempt_threshold: 3`); (3)
   trigger one agent run from `fly console` (any agent, e.g. `RunAgent.perform_async("SpamClassifier",
 id)`) and confirm a fresh `agent_log` with `usage["model"]` equal to the DO response model string;
   `flyctl secrets list -a fountainpencompanion` shows only `DO_INFERENCE_TOKEN` among the LLM-related
