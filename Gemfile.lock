@@ -228,7 +228,7 @@ GEM
     hashdiff (1.2.1)
     heapy (0.2.0)
       thor
-    honeybadger (6.10.1)
+    honeybadger (6.10.2)
       logger
       ostruct
     i18n (1.15.2)
