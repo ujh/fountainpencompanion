@@ -314,7 +314,7 @@ importers:
         version: 6.3.5(webpack@5.112.2)
       '@prettier/plugin-ruby':
         specifier: ^4.0.4
-        version: 4.0.4(prettier@3.9.10)
+        version: 4.0.4(prettier@3.10.1)
       '@testing-library/dom':
         specifier: ^10.4.2
         version: 10.4.2
@@ -329,7 +329,7 @@ importers:
         version: 14.6.10(@testing-library/dom@10.4.2)
       '@trivago/prettier-plugin-sort-imports':
         specifier: ^6.0.2
-        version: 6.0.2(prettier@3.9.10)(supports-color@8.1.1)
+        version: 6.0.2(prettier@3.10.1)(supports-color@8.1.1)
       '@vitest/coverage-v8':
         specifier: ^5.0.5
         version: 5.0.5(vitest@5.0.5)
@@ -344,7 +344,7 @@ importers:
         version: 9.39.2(supports-color@8.1.1)
       eslint-plugin-prettier:
         specifier: ^5.5.7
-        version: 5.5.7(eslint@9.39.2(supports-color@8.1.1))(prettier@3.9.10)
+        version: 5.5.7(eslint@9.39.2(supports-color@8.1.1))(prettier@3.10.1)
       eslint-plugin-react:
         specifier: ^7.37.5
         version: 7.37.5(eslint@9.39.2(supports-color@8.1.1))
@@ -364,8 +364,8 @@ importers:
         specifier: 3.0.5
         version: 3.0.5(supports-color@8.1.1)(vite@8.3.7(sass@1.108.2)(terser@5.51.2)(yaml@2.9.1))
       prettier:
-        specifier: ^3.9.10
-        version: 3.9.10
+        specifier: ^3.10.1
+        version: 3.10.1
       sass:
         specifier: ^1.108.2
         version: 1.108.2
@@ -3177,8 +3177,8 @@ packages:
     resolution: {integrity: sha512-SxToR7P8Y2lWmv/kTzVLC1t/GDI2WGjMwNhLLE9qtH8Q13C+aEmuRlzDst4Up4s0Wc8sF2M+J57iB3cMLqftfg==}
     engines: {node: '>=6.0.0'}
 
-  prettier@3.9.10:
-    resolution: {integrity: sha512-skGHTH1Yb9QvaTC4hWnRTzEYtCpApF0UMBPz+t/0ZPzP8ihefo/btKd+QA7pUE0fEwA1SbS/NmhyEcstdXOIdA==}
+  prettier@3.10.1:
+    resolution: {integrity: sha512-70vp3ZUYoPlFbF9uiTdXHUUCGEIp7d4+6p+8DYbkm2jP7x/3i/paXVF6dopSI3zd/CEitrZN1rc4i85xWmmXlg==}
     engines: {node: '>=14'}
     hasBin: true
 
@@ -5090,9 +5090,9 @@ snapshots:
 
   '@popperjs/core@2.11.8': {}
 
-  '@prettier/plugin-ruby@4.0.4(prettier@3.9.10)':
+  '@prettier/plugin-ruby@4.0.4(prettier@3.10.1)':
     dependencies:
-      prettier: 3.9.10
+      prettier: 3.10.1
 
   '@rails/ujs@7.1.3-4': {}
 
@@ -5201,7 +5201,7 @@ snapshots:
     dependencies:
       '@testing-library/dom': 10.4.2
 
-  '@trivago/prettier-plugin-sort-imports@6.0.2(prettier@3.9.10)(supports-color@8.1.1)':
+  '@trivago/prettier-plugin-sort-imports@6.0.2(prettier@3.10.1)(supports-color@8.1.1)':
     dependencies:
       '@babel/generator': 7.29.7
       '@babel/parser': 7.29.7
@@ -5211,7 +5211,7 @@ snapshots:
       lodash-es: 4.18.1
       minimatch: 9.0.9
       parse-imports-exports: 0.2.4
-      prettier: 3.9.10
+      prettier: 3.10.1
     transitivePeerDependencies:
       - supports-color
 
@@ -5990,10 +5990,10 @@ snapshots:
 
   escape-string-regexp@4.0.0: {}
 
-  eslint-plugin-prettier@5.5.7(eslint@9.39.2(supports-color@8.1.1))(prettier@3.9.10):
+  eslint-plugin-prettier@5.5.7(eslint@9.39.2(supports-color@8.1.1))(prettier@3.10.1):
     dependencies:
       eslint: 9.39.2(supports-color@8.1.1)
-      prettier: 3.9.10
+      prettier: 3.10.1
       prettier-linter-helpers: 1.0.1
       synckit: 0.12.3
 
@@ -6863,7 +6863,7 @@ snapshots:
     dependencies:
       fast-diff: 1.2.0
 
-  prettier@3.9.10: {}
+  prettier@3.10.1: {}
 
   pretty-format@27.5.1:
     dependencies:
