@@ -179,7 +179,7 @@ RSpec.describe ReviewFinder do
         ).and_return(double(perform: "This page is about fountain pen ink reviews."))
 
         tool = described_class.new(unfurler_result, tool_agent_log)
-        result = tool.call({})
+        result = tool.call
 
         expect(result).to eq(
           "Here is a summary of the page:\n\nThis page is about fountain pen ink reviews."
@@ -194,7 +194,7 @@ RSpec.describe ReviewFinder do
         ).and_return(double(perform: "Reviews Pilot Tsuki-yo."))
 
         tool = described_class.new(youtube_unfurler_result, tool_agent_log)
-        result = tool.call({})
+        result = tool.call
 
         expect(result).to eq("Here is a summary of the YouTube video:\n\nReviews Pilot Tsuki-yo.")
         expect(WebPageSummarizer).not_to have_received(:new)
@@ -678,7 +678,7 @@ RSpec.describe ReviewFinder do
       end
 
       it "raises a parsing error" do
-        expect { subject.perform }.to raise_error(Faraday::ParsingError)
+        expect { subject.perform }.to raise_error(RubyLLM::Error)
       end
     end
   end

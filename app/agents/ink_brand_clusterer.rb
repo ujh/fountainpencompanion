@@ -4,7 +4,9 @@ class InkBrandClusterer
   class AddToBrandCluster < RubyLLM::Tool
     description "Add ink to the brand cluster"
 
-    param :brand_cluster_id, type: "integer", desc: "The ID of the brand cluster to add the ink to"
+    parameter :brand_cluster_id,
+              type: "integer",
+              description: "The ID of the brand cluster to add the ink to"
 
     attr_accessor :macro_cluster, :agent_log
 

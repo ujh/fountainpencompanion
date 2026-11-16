@@ -4,11 +4,12 @@ class ReviewFinder
   class SubmitReview < RubyLLM::Tool
     description "Submit a review for the ink clusters"
 
-    param :ink_cluster_id,
-          type: "integer",
-          desc:
-            "The ID of the ink cluster to submit the review for. Found via the similarity search"
-    param :explanation, desc: "An explanation of why this ink cluster was chosen for the review"
+    parameter :ink_cluster_id,
+              type: "integer",
+              description:
+                "The ID of the ink cluster to submit the review for. Found via the similarity search"
+    parameter :explanation,
+              description: "An explanation of why this ink cluster was chosen for the review"
 
     attr_accessor :page
 
@@ -30,7 +31,7 @@ class ReviewFinder
   class Done < RubyLLM::Tool
     description "Call this if you are done submitting all reviews"
 
-    param :summary, desc: "A summary of the actions you have taken"
+    parameter :summary, description: "A summary of the actions you have taken"
 
     attr_accessor :agent_log
 

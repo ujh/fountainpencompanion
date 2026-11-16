@@ -2,8 +2,8 @@ class CheckInkClustering::Human < CheckInkClustering::Base
   class SendEmail < RubyLLM::Tool
     description "Send email to human reviewer"
 
-    param :subject, desc: "Subject of the email"
-    param :body, desc: "Body of the email"
+    parameter :subject, description: "Subject of the email"
+    parameter :body, description: "Body of the email"
 
     def execute(subject:, body:)
       AdminMailer.agent_mail(subject, body).deliver_later

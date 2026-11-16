@@ -17,9 +17,9 @@ module RubyLlmAgent
   # before the API call, matching the old AgentTranscript behavior.
   # Pass `with:` (URL/path or array) to attach images/files for vision-capable models.
   def ask(prompt, with: nil)
-    chat.add_message(role: :user, content: build_user_content(prompt, with))
+    chat.add_message(role: :user, content: prompt, attachments: attachments_for(with))
     save_transcript
-    chat.complete
+    complete_chat
   end
 
   # Like ask, but forces the LLM to produce a halting tool call.
@@ -27,13 +27,13 @@ module RubyLlmAgent
   # but after that RubyLLM resets it. If the LLM calls a non-halting tool first
   # and then responds with text, we retry with a nudge message.
   def ask!(prompt, with: nil)
-    chat.add_message(role: :user, content: build_user_content(prompt, with))
+    chat.add_message(role: :user, content: prompt, attachments: attachments_for(with))
     save_transcript
-    chat.with_tool(nil, choice: :required)
-    result = chat.complete
+    chat.with_tool_options(choice: :required)
+    result = complete_chat
 
     MAX_DECISION_RETRIES.times do
-      break if result.is_a?(RubyLLM::Tool::Halt)
+      break if result&.halted?
 
       chat.add_message(
         role: :user,
@@ -41,11 +41,11 @@ module RubyLlmAgent
           "You must make a decision by calling one of the available decision tools. Do not respond with text."
       )
       save_transcript
-      chat.with_tool(nil, choice: :required)
-      result = chat.complete
+      chat.with_tool_options(choice: :required)
+      result = complete_chat
     end
 
-    unless result.is_a?(RubyLLM::Tool::Halt)
+    unless result&.halted?
       raise DecisionNotReachedError,
             "#{self.class.name} failed to reach a decision after #{MAX_DECISION_RETRIES} retries"
     end
@@ -60,14 +60,15 @@ module RubyLlmAgent
 
   private
 
-  # Wraps text + optional attachments into a RubyLLM::Content when attachments
-  # are present, otherwise returns the plain string. Attachments may be a single
-  # URL/path or an array.
-  def build_user_content(prompt, with)
-    attachments = Array(with).compact.reject { |a| a.respond_to?(:blank?) && a.blank? }
-    return prompt if attachments.empty?
+  def complete_chat
+    chat.complete
+  rescue RubyLLM::ToolRoundLimitError
+    raise ToolCallLimitExceeded,
+          "#{self.class.name} exceeded the limit of #{max_tool_calls} tool calls"
+  end
 
-    RubyLLM::Content.new(prompt, attachments)
+  def attachments_for(with)
+    Array(with).compact.reject { |a| a.respond_to?(:blank?) && a.blank? }
   end
 
   def model_id
@@ -99,11 +100,13 @@ module RubyLlmAgent
   end
 
   def build_chat
-    c = ruby_llm_context.chat(model: model_id)
+    c = ruby_llm_context.chat(model: model_id, protocol: :chat_completions)
     c.with_instructions(system_directive)
     c.with_temperature(temperature) unless temperature.nil?
     c.with_thinking(effort: reasoning_effort) unless reasoning_effort.nil?
-    c.with_tools(*tools, calls: tool_calls_mode)
+    c.with_tools(*tools)
+    c.with_tool_options(rounds: max_tool_calls)
+    c.with_tool_options(calls: tool_calls_mode) unless tool_calls_mode.nil?
     restore_transcript(c)
     register_callbacks(c)
     c
@@ -138,7 +141,10 @@ module RubyLlmAgent
   # interaction so the agent log reflects progress incrementally.
   def register_callbacks(c)
     @tool_call_count = 0
-    c.after_message { |message| save_transcript_and_usage(message) }
+    c.after_message do |message|
+      save_transcript_and_usage(message)
+      raise_on_malformed_tool_arguments(message)
+    end
     c.before_tool_call do
       @tool_call_count += 1
       if @tool_call_count > max_tool_calls
@@ -149,14 +155,26 @@ module RubyLlmAgent
     end
   end
 
+  def raise_on_malformed_tool_arguments(message)
+    return unless message&.tool_call?
+
+    malformed = message.tool_calls.find(&:malformed_arguments?)
+    return unless malformed
+
+    raise JSON::ParserError,
+          "#{self.class.name} received malformed arguments for #{malformed.name}: " \
+            "#{malformed.malformed_arguments.to_s.truncate(200)}"
+  end
+
   def save_transcript_and_usage(message)
-    if message&.input_tokens
-      agent_log.usage["model"] = message.model_id
-      agent_log.usage["prompt_tokens"] += message.input_tokens.to_i
-      agent_log.usage["completion_tokens"] += message.output_tokens.to_i
-      agent_log.usage["total_tokens"] += message.input_tokens.to_i + message.output_tokens.to_i
-      add_usage("cached_tokens", message.cached_tokens)
-      add_usage("cache_write_tokens", message.cache_creation_tokens)
+    tokens = message&.tokens
+    if tokens&.input
+      agent_log.usage["model"] = message.model
+      agent_log.usage["prompt_tokens"] += tokens.input.to_i
+      agent_log.usage["completion_tokens"] += tokens.output.to_i
+      agent_log.usage["total_tokens"] += tokens.input.to_i + tokens.output.to_i
+      add_usage("cached_tokens", tokens.cache_read)
+      add_usage("cache_write_tokens", tokens.cache_write)
     end
     save_transcript
   end
@@ -176,7 +194,7 @@ module RubyLlmAgent
     messages.map do |msg|
       entry = { role: msg.role.to_s, content: extract_text(msg.content) }
       entry[:tool_calls] = serialize_tool_calls(msg.tool_calls) if msg.tool_call?
-      entry[:tool_call_id] = msg.tool_call_id if msg.tool_result?
+      entry[:tool_call_id] = msg.provider_call_id if msg.tool_result?
       entry
     end
   end
@@ -191,7 +209,7 @@ module RubyLlmAgent
   end
 
   def serialize_tool_calls(tool_calls)
-    tool_calls.map { |id, tc| { id: id, name: tc.name, arguments: tc.arguments } }
+    tool_calls.map { |tc| { id: tc.provider_call_id, name: tc.name, arguments: tc.arguments } }
   end
 
   # PostgreSQL cannot store \u0000 (null bytes) in text/jsonb columns.

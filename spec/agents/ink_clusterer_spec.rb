@@ -679,7 +679,7 @@ RSpec.describe InkClusterer do
     let(:tool) { described_class.new(micro_cluster, tool_agent_log) }
 
     it "hands over to human and halts" do
-      result = tool.call({})
+      result = tool.call
 
       expect(result).to be_a(RubyLLM::Tool::Halt)
       expect(tool_agent_log.reload.extra_data["action"]).to eq("hand_over_to_human")
@@ -699,7 +699,7 @@ RSpec.describe InkClusterer do
       end
 
       it "returns positive message" do
-        result = tool.call({})
+        result = tool.call
 
         expect(result).to include("Yes, the ink brand is known.")
       end
@@ -712,7 +712,7 @@ RSpec.describe InkClusterer do
       let(:tool) { described_class.new(unknown_micro_cluster) }
 
       it "returns negative message" do
-        result = tool.call({})
+        result = tool.call
 
         expect(result).to include("No, the ink brand is not known.")
       end
@@ -1357,7 +1357,7 @@ RSpec.describe InkClusterer do
       end
 
       it "raises a parsing error" do
-        expect { subject.perform }.to raise_error(Faraday::ParsingError)
+        expect { subject.perform }.to raise_error(RubyLLM::Error)
       end
     end
   end

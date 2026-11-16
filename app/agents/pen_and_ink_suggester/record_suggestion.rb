@@ -5,11 +5,12 @@ class PenAndInkSuggester
 
     def name = "record_suggestion"
 
-    param :pen_ref, desc: "Pen reference from the PENS list, e.g. P3"
-    param :pen_name, desc: "Name of that pen as written in its PENS row"
-    param :ink_ref, desc: "Ink reference from the INKS list, e.g. I12"
-    param :ink_name, desc: "Name of that ink as written in its INKS row"
-    param :reasoning, desc: "Markdown reasoning, 40-120 words, no headings, no list of the items"
+    parameter :pen_ref, description: "Pen reference from the PENS list, e.g. P3"
+    parameter :pen_name, description: "Name of that pen as written in its PENS row"
+    parameter :ink_ref, description: "Ink reference from the INKS list, e.g. I12"
+    parameter :ink_name, description: "Name of that ink as written in its INKS row"
+    parameter :reasoning,
+              description: "Markdown reasoning, 40-120 words, no headings, no list of the items"
 
     attr_accessor :selection, :rejected_pairs, :result, :violations
 

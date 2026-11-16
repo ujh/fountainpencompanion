@@ -433,7 +433,7 @@ RSpec.describe GoogleSearchSummarizer do
       end
 
       it "raises a parsing error" do
-        expect { subject.perform }.to raise_error(Faraday::ParsingError)
+        expect { subject.perform }.to raise_error(RubyLLM::Error)
       end
     end
 

@@ -20,7 +20,9 @@ RSpec.describe PenAndInkSuggester::RecordSuggestion do
 
   it "is called record_suggestion and takes refs and reasoning" do
     expect(tool.name).to eq("record_suggestion")
-    expect(tool.parameters.keys).to eq(%i[pen_ref pen_name ink_ref ink_name reasoning])
+    expect(tool.parameters_schema["properties"].keys).to eq(
+      %w[pen_ref pen_name ink_ref ink_name reasoning]
+    )
   end
 
   it "records the shown pen and ink and halts" do

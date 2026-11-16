@@ -253,7 +253,7 @@ RSpec.describe CheckInkClustering::Human do
             micro_cluster_agent_log,
             agent.send(:agent_log)
           )
-        result = tool.call({})
+        result = tool.call
 
         expect(result).to be_a(String)
         parsed = JSON.parse(result)

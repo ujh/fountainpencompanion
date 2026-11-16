@@ -374,7 +374,7 @@ RSpec.describe PenAndInkSuggester do
     context "with a timeout" do
       before { stub_llm { raise Faraday::TimeoutError } }
 
-      it_behaves_like "a fallback run", "Faraday::TimeoutError"
+      it_behaves_like "a fallback run", "RubyLLM::ConnectionError"
     end
 
     context "with malformed JSON" do
@@ -384,7 +384,7 @@ RSpec.describe PenAndInkSuggester do
         end
       end
 
-      it_behaves_like "a fallback run", "Faraday::ParsingError"
+      it_behaves_like "a fallback run", "RubyLLM::Error"
     end
 
     context "when the model sends tool-call arguments that aren't JSON" do

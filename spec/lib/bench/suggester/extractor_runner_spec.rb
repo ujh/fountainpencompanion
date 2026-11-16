@@ -179,7 +179,7 @@ RSpec.describe Bench::Suggester::ExtractorRunner do
       body
     end
 
-    it "sends the lowest reasoning effort, with the temperature RubyLLM allows at effort none" do
+    it "sends the lowest reasoning effort and temperature 0 at effort none" do
       stub_extraction(model: "gpt-5.4-nano-2026-03-17")
       runner = described_class.new(labels: [label("only samples")], model: "gpt-5.4-nano")
 
@@ -188,7 +188,7 @@ RSpec.describe Bench::Suggester::ExtractorRunner do
       expect(requested_body).to include(
         "model" => "gpt-5.4-nano",
         "reasoning_effort" => "none",
-        "temperature" => 1.0
+        "temperature" => 0
       )
       expect(result["constraints"]).to eq(
         PenAndInkSuggestion::Constraints.from_h(ink: { kinds_include: ["sample"] }).to_h
@@ -209,21 +209,15 @@ RSpec.describe Bench::Suggester::ExtractorRunner do
       expect(requested_body).to include("reasoning_effort" => "low")
       expect(requested_body).not_to have_key("temperature")
     end
+  end
 
-    it "runs a model the RubyLLM registry does not know yet" do
-      stub_extraction(model: "gpt-9-test")
-      runner = described_class.new(labels: [label("one"), label("two")], model: "gpt-9-test")
+  it "stops before the first extraction when RubyLLM's registry does not know the model" do
+    stub_extraction(model: "gpt-9-test")
+    runner = described_class.new(labels: [label("one")], model: "gpt-9-test")
 
-      results = runner.run
-
-      expect(requested_body).to include(
-        "model" => "gpt-9-test",
-        "reasoning_effort" => "none",
-        "temperature" => 0
-      )
-      expect(results["one"]["error"]).to be_nil
-      expect(runner.stop_reason).to eq(described_class::UNPRICED)
-    end
+    expect { runner.run }.to raise_error(RubyLLM::ModelNotFoundError)
+    expect(a_request(:post, "https://api.openai.com/v1/chat/completions")).not_to have_been_made
+    expect(AgentLog.count).to eq(0)
   end
 
   it "stops once the budget is spent" do

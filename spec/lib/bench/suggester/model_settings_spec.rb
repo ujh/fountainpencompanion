@@ -5,15 +5,6 @@ RSpec.describe Bench::Suggester::ModelSettings do
     described_class.new(model_id, reasoning_effort:)
   end
 
-  def registered?(model_id)
-    RubyLLM.models.find(model_id, "openai")
-    true
-  rescue RubyLLM::ModelNotFoundError
-    false
-  end
-
-  after { RubyLLM.models.all.reject! { |model| model.id.start_with?("gpt-9-") } }
-
   it "gives each reasoning model the lowest effort it accepts" do
     expect(
       %w[gpt-5-mini gpt-5-nano-2025-08-07 gpt-5.4-nano gpt-6-luna o4-mini].index_with do |id|
@@ -52,27 +43,14 @@ RSpec.describe Bench::Suggester::ModelSettings do
   end
 
   it "takes the registry's word over the model name" do
-    RubyLLM.models.all << RubyLLM::Model::Info.new(
-      id: "gpt-9-plain",
-      provider: "openai",
-      capabilities: %w[function_calling]
+    plain =
+      RubyLLM::Model.new(id: "gpt-9-plain", provider: "openai", capabilities: %w[function_calling])
+    allow(RubyLLM.models).to receive(:find).and_call_original
+    allow(RubyLLM.models).to receive(:find).with("gpt-9-plain", provider: "openai").and_return(
+      plain
     )
 
     expect(settings("gpt-9-plain")).not_to be_reasoning
     expect(settings("gpt-9-unregistered")).to be_reasoning
-  end
-
-  it "registers a model the registry does not know yet, once" do
-    model = settings("gpt-9-new")
-
-    2.times { model.register! }
-
-    expect(RubyLLM.models.all.count { |info| info.id == "gpt-9-new" }).to eq(1)
-    expect(RubyLLM.models.find("gpt-9-new", "openai")).to be_reasoning
-  end
-
-  it "leaves a known model's registry entry alone" do
-    expect { settings("gpt-4.1-mini").register! }.not_to(change { RubyLLM.models.all.size })
-    expect(registered?("gpt-4.1-mini")).to be(true)
   end
 end

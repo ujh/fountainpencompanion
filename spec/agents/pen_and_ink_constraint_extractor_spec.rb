@@ -399,7 +399,7 @@ RSpec.describe PenAndInkConstraintExtractor do
     context "when the request times out" do
       before { stub_request(:post, openai_url).to_raise(Faraday::TimeoutError) }
 
-      it_behaves_like "a fallback", "Faraday::TimeoutError"
+      it_behaves_like "a fallback", "RubyLLM::ConnectionError"
     end
 
     context "when the API answers with malformed JSON" do
@@ -413,7 +413,7 @@ RSpec.describe PenAndInkConstraintExtractor do
         )
       end
 
-      it_behaves_like "a fallback", "Faraday::ParsingError"
+      it_behaves_like "a fallback", "RubyLLM::Error"
     end
 
     context "when the model sends tool-call arguments that aren't JSON" do
@@ -468,7 +468,7 @@ RSpec.describe PenAndInkConstraintExtractor do
   describe PenAndInkConstraintExtractor::SetConstraints do
     subject(:tool) { described_class.new }
 
-    let(:schema) { tool.params_schema }
+    let(:schema) { tool.parameters_schema }
 
     it "is named set_constraints" do
       expect(tool.name).to eq("set_constraints")
@@ -499,15 +499,15 @@ RSpec.describe PenAndInkConstraintExtractor do
     end
 
     it "records the constraints and halts" do
-      result = tool.call(arguments.deep_stringify_keys)
+      result = tool.call(**arguments.deep_stringify_keys)
 
       expect(result).to be_a(RubyLLM::Tool::Halt)
       expect(tool.constraints).to eq(PenAndInkSuggestion::Constraints.from_h(arguments))
     end
 
     it "keeps the first call's constraints" do
-      tool.call(arguments.deep_stringify_keys)
-      result = tool.call({ "ink" => { "kinds_include" => ["bottle"] } })
+      tool.call(**arguments.deep_stringify_keys)
+      result = tool.call(**{ "ink" => { "kinds_include" => ["bottle"] } })
 
       expect(result.content).to eq("Constraints already recorded")
       expect(tool.constraints.value("ink.kinds_include")).to eq(["sample"])
@@ -515,7 +515,7 @@ RSpec.describe PenAndInkConstraintExtractor do
 
     it "drops unknown enum values" do
       tool.call(
-        {
+        **{
           "pair_usage" => "sometimes",
           "pen" => {
             "nib_width" => "chunky",
@@ -537,7 +537,7 @@ RSpec.describe PenAndInkConstraintExtractor do
 
     it "truncates over-long strings and lists" do
       tool.call(
-        {
+        **{
           "soft_notes" => "x" * 400,
           "pen" => {
             "mentions" => (1..8).map { |index| "Pen #{index} #{"y" * 80}" }
@@ -556,24 +556,24 @@ RSpec.describe PenAndInkConstraintExtractor do
 
     it "is named set_constraints with one string parameter that outlines the fields" do
       expect(tool.name).to eq("set_constraints")
-      expect(tool.params_schema["properties"].keys).to eq(["constraints_json"])
-      expect(tool.params_schema.dig("properties", "constraints_json", "description")).to include(
-        "\"nib_width\": \"any\"|\"fine\"|\"broadish\"|\"broad\""
-      )
+      expect(tool.parameters_schema["properties"].keys).to eq(["constraints_json"])
+      expect(
+        tool.parameters_schema.dig("properties", "constraints_json", "description")
+      ).to include("\"nib_width\": \"any\"|\"fine\"|\"broadish\"|\"broad\"")
     end
 
     it "records the parsed constraints and halts" do
-      result = tool.call({ "constraints_json" => arguments.to_json })
+      result = tool.call(**{ "constraints_json" => arguments.to_json })
 
       expect(result).to be_a(RubyLLM::Tool::Halt)
       expect(tool.constraints).to eq(PenAndInkSuggestion::Constraints.from_h(arguments))
     end
 
     it "asks again for invalid JSON or a value that isn't an object" do
-      expect(tool.call({ "constraints_json" => "{" })).to eq(
+      expect(tool.call(**{ "constraints_json" => "{" })).to eq(
         "constraints_json is not valid JSON; call set_constraints again with a JSON object."
       )
-      expect(tool.call({ "constraints_json" => "[1]" })).to eq(
+      expect(tool.call(**{ "constraints_json" => "[1]" })).to eq(
         "constraints_json must be a JSON object; call set_constraints again."
       )
       expect(tool.constraints).to be_nil
