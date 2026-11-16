@@ -145,7 +145,8 @@ The same idea gives a retrieval benchmark for embeddings (see P2).
 | YoutubeSummarizer thumbnail              | Keep. Candidates for that agent must support image input — see vision constraint (Q15) above,   |
 |                                          | which applies the same rule to ReviewApprover/ReviewFinder.                                     |
 | Prompt tuning                            | After migration, separate PRs, using the bench.                                                 |
-| RubyLLM                                  | Stay on 1.16. `openai_api_base` + `assume_model_exists: true` is enough.                        |
+| RubyLLM                                  | 2.2, with every agent on the Chat Completions protocol. S01 checks DO against 2.2; the roadmap's |
+|                                          | ruby_llm-1.16.0 anchors predate the upgrade.                                                    |
 | Prompt caching                           | Best-effort spike in P0. Use if trivial, not a gate.                                            |
 | Embedding backfill on prod               | Throttled via low queue over hours; `CREATE INDEX CONCURRENTLY` off-peak.                       |
 | HNSW index build (Q30)                   | Built BY HAND at a quiet hour from a detached session (not an interactive `fly console`), with  |

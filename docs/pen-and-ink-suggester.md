@@ -400,12 +400,11 @@ picks and the scores.
 **Changing a model.**
 
 1. Set `model_id` (picker, in `PenAndInkSuggester#model_id`) or `MODEL_ID` (extractor).
-2. If RubyLLM's bundled registry does not know the model, add it to `RubyLlmModels::UNLISTED` in
-   `lib/ruby_llm_models.rb` with its capabilities; `config/initializers/ruby_llm.rb` registers it
-   at boot and the bench reuses the same registry. Drop the entry once the gem knows the model.
+2. The model must be in RubyLLM's bundled registry, for the app and the bench alike; bump the gem
+   if it isn't.
 3. Use the `RubyLlmAgent` hooks: `reasoning_effort` (the extractor sends `"none"`; the gpt-5
-   generation needs `"minimal"`) and `temperature` (the extractor sends 0; RubyLLM forces 1.0 on
-   `gpt-5*` and `o<digit>` ids, which makes the extractor less stable).
+   generation needs `"minimal"`) and `temperature` (the extractor sends 0; RubyLLM sends the value
+   as is).
 4. Add the model's prices to `lib/bench/suggester/pricing.rb` (input, cached input, cache write,
    output) before benching it; the runner stops on an unpriced model.
 5. Run the bench (section 13) and compare with the reference numbers. For the extractor,

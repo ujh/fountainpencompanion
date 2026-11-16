@@ -223,17 +223,17 @@ AI agents live in `app/agents/` and use the `RubyLlmAgent` concern (`app/agents/
 An agent includes `RubyLlmAgent` and must implement four methods:
 
 - `agent_log` (public) — returns or creates an `AgentLog` instance
-- `model_id` (private) — e.g., `"gpt-4.1"` or `"gpt-4.1-mini"`; a model missing from RubyLLM's bundled registry (e.g. `"gpt-6-luna"`) is added to `RubyLlmModels::UNLISTED` in `lib/ruby_llm_models.rb`, which `config/initializers/ruby_llm.rb` registers at boot
+- `model_id` (private) — e.g., `"gpt-4.1"` or `"gpt-4.1-mini"`; it must be in RubyLLM's bundled registry (`RubyLLM.models.find(id, provider: "openai")`), so a newer model needs a gem bump
 - `system_directive` (private) — the system prompt string
 - `tools` (private) — array of `RubyLLM::Tool` instances (can be empty)
 
-Use `ask(prompt)` in `perform` to send a user message and get a completion. The concern handles transcript saving, usage tracking, and transcript restoration automatically.
+Use `ask(prompt)` in `perform` to send a user message and get a completion; `ask!` forces a halting tool call and returns the halted message (`result.halted?`, `result.content`). The concern handles transcript saving, usage tracking, and transcript restoration automatically. Every chat uses OpenAI's Chat Completions protocol (`protocol: :chat_completions`), not RubyLLM 2's default Responses API.
 
 Optional private overrides:
 
-- `max_tool_calls` — individual tool calls allowed per chat (default 50); exceeding it raises `RubyLlmAgent::ToolCallLimitExceeded`
-- `tool_calls_mode` — passed to RubyLLM as `calls:` (`:one` sends `parallel_tool_calls: false`); default `nil` leaves the provider default
-- `temperature` — sent on every request when not `nil` (default `nil`); RubyLLM replaces any value other than 1 with 1.0 for `gpt-5*` and `o<digit>*` model ids
+- `max_tool_calls` — individual tool calls allowed per chat (default 50), also the cap on tool rounds; exceeding either raises `RubyLlmAgent::ToolCallLimitExceeded`. Tool-call arguments that aren't JSON raise `JSON::ParserError` on the first response
+- `tool_calls_mode` — passed to `with_tool_options(calls:)` (`:one` sends `parallel_tool_calls: false`); default `nil` leaves the provider default
+- `temperature` — sent as is on every request when not `nil` (default `nil`)
 - `reasoning_effort` — sent as `reasoning_effort` when not `nil` (e.g. `"none"` or `"minimal"` for reasoning models); default `nil` leaves the provider default
 
 ### Tool structure
@@ -246,8 +246,8 @@ class MyTool < RubyLLM::Tool
 
   def name = "my_tool" # The name the model sees; keep it stable
 
-  param :some_param, desc: "Description" # string (default)
-  param :other_param, type: "integer", desc: "Description" # integer
+  parameter :some_param, description: "Description" # string (default)
+  parameter :other_param, type: "integer", description: "Description" # integer
 
   attr_accessor :some_dep, :other_dep
 
@@ -268,7 +268,7 @@ Key points:
 
 - Override `def name`. Without it, `config/initializers/ruby_llm.rb` derives the name from the demodulized class name (`InkClusterer::AssignToCluster` → `assign_to_cluster`, no module prefix; a trailing `Tool` is dropped), but the name is what the system prompt and saved transcripts refer to, so an explicit name keeps it stable when the class is renamed or moved. Anonymous tool classes (`Class.new(RubyLLM::Tool)` in specs) have no class name and must define it
 - `halt "message"` stops the tool call loop; returning a plain string sends it back to the LLM
-- Tools with no parameters: omit `param` declarations and define `execute` with no arguments
+- Tools with no parameters: omit `parameter` declarations and define `execute` with no arguments
 - Pass dependencies (owner objects, agent_log) via the constructor
 
 ### agent_log patterns
@@ -304,11 +304,11 @@ Which calls `InkBrandClusterer.new(macro_cluster.id).perform`.
 
 Agent specs use WebMock to stub `https://api.openai.com/v1/chat/completions`. Key test areas:
 
-- **Tool unit tests**: instantiate tools directly, call `.call(args)`, assert on `RubyLLM::Tool::Halt` return and side effects
+- **Tool unit tests**: instantiate tools directly, call `.call(**args)`, assert on `RubyLLM::Tool::Halt` return and side effects
 - **Integration tests**: stub API responses with tool_calls, verify agent_log state and extra_data
 - **Data formatting**: use WebMock request body assertions to verify prompt content
 - **Transcript/usage**: verify `agent_log.transcript` and `agent_log.usage` are populated
-- **Error handling**: `RubyLLM::ServerError` for 500s, `Faraday::ParsingError` for malformed JSON
+- **Error handling**: `RubyLLM::ServerError` for 500s, `RubyLLM::Error` for a malformed response body, `RubyLLM::ConnectionError` for timeouts
 
 See `spec/agents/spam_classifier_spec.rb` or `spec/agents/ink_brand_clusterer_spec.rb` for reference.
 

@@ -5,10 +5,10 @@ class PenAndInkConstraintExtractor
 
     def name = "set_constraints"
 
-    param :constraints_json,
-          desc:
-            "A JSON object; leave out every field the request doesn't set: " \
-              "#{PenAndInkSuggestion::Constraints.json_outline}"
+    parameter :constraints_json,
+              description:
+                "A JSON object; leave out every field the request doesn't set: " \
+                  "#{PenAndInkSuggestion::Constraints.json_outline}"
 
     attr_accessor :constraints
 

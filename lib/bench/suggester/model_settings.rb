@@ -20,7 +20,7 @@ module Bench
 
       def reasoning?
         model = registered
-        model ? model.reasoning? : REASONING_FAMILIES.match?(model_id)
+        model ? model.supports?(:reasoning) : REASONING_FAMILIES.match?(model_id)
       end
 
       def reasoning_effort
@@ -33,17 +33,12 @@ module Bench
         TEMPERATURE if reasoning_effort.nil? || reasoning_effort == "none"
       end
 
-      def register!
-        RubyLlmModels.register(
-          model_id,
-          capabilities: reasoning? ? %w[function_calling reasoning] : %w[function_calling]
-        )
-      end
-
       private
 
       def registered
-        RubyLlmModels.find(model_id)
+        RubyLLM.models.find(model_id, provider: "openai")
+      rescue RubyLLM::ModelNotFoundError
+        nil
       end
 
       def lowest_effort

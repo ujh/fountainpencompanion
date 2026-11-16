@@ -356,7 +356,7 @@ RSpec.describe WebPageSummarizer do
       end
 
       it "raises a parsing error" do
-        expect { subject.perform }.to raise_error(Faraday::ParsingError)
+        expect { subject.perform }.to raise_error(RubyLLM::Error)
       end
     end
 
@@ -364,7 +364,7 @@ RSpec.describe WebPageSummarizer do
       before { stub_request(:post, "https://api.openai.com/v1/chat/completions").to_timeout }
 
       it "raises a timeout error" do
-        expect { subject.perform }.to raise_error(Faraday::ConnectionFailed)
+        expect { subject.perform }.to raise_error(RubyLLM::ConnectionError)
       end
     end
   end

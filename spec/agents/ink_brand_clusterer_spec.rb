@@ -252,7 +252,7 @@ RSpec.describe InkBrandClusterer do
       end
 
       it "raises a parsing error" do
-        expect { subject.perform }.to raise_error(Faraday::ParsingError)
+        expect { subject.perform }.to raise_error(RubyLLM::Error)
       end
     end
   end
@@ -354,7 +354,7 @@ RSpec.describe InkBrandClusterer do
         tool = described_class.new(macro_cluster, tool_agent_log)
 
         result = nil
-        expect { result = tool.call({}) }.to change { BrandCluster.count }.by(1)
+        expect { result = tool.call }.to change { BrandCluster.count }.by(1)
 
         expect(result).to be_a(RubyLLM::Tool::Halt)
         expect(macro_cluster.reload.brand_cluster).to eq(BrandCluster.last)

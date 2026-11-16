@@ -4,7 +4,7 @@ module Tools
 
     def name = "search_web"
 
-    param :search_query, desc: "The search query"
+    parameter :search_query, description: "The search query"
 
     attr_accessor :agent_log
 

@@ -39,7 +39,7 @@ RSpec.describe RubyLlmAgent do
 
       def name = "decide"
 
-      param :choice, desc: "The decision"
+      parameter :choice, description: "The decision"
 
       def execute(choice:)
         halt "decided: #{choice}"
@@ -53,7 +53,7 @@ RSpec.describe RubyLlmAgent do
 
       def name = "search"
 
-      param :query, desc: "Search query"
+      parameter :query, description: "Search query"
 
       def execute(query:)
         "Results for: #{query}"
@@ -307,7 +307,7 @@ RSpec.describe RubyLlmAgent do
       )
 
       result = agent_with_tools.ask!("Make a decision")
-      expect(result).to be_a(RubyLLM::Tool::Halt)
+      expect(result).to be_halted
       expect(result.content).to eq("decided: yes")
     end
 
@@ -324,7 +324,7 @@ RSpec.describe RubyLlmAgent do
         }
       )
 
-      expect(agent_with_tools.ask!("Make a decision")).to be_a(RubyLLM::Tool::Halt)
+      expect(agent_with_tools.ask!("Make a decision")).to be_halted
     end
 
     it "retries when LLM responds with text and succeeds on retry" do
@@ -346,7 +346,7 @@ RSpec.describe RubyLlmAgent do
       )
 
       result = agent_with_tools.ask!("Make a decision")
-      expect(result).to be_a(RubyLLM::Tool::Halt)
+      expect(result).to be_halted
     end
 
     it "saves transcript after adding nudge message" do
@@ -428,7 +428,7 @@ RSpec.describe RubyLlmAgent do
       )
 
       result = agent.ask!("Make a decision")
-      expect(result).to be_a(RubyLLM::Tool::Halt)
+      expect(result).to be_halted
     end
 
     it "saves a transcript whose tool-call arguments, tool results and text contain NUL" do
@@ -464,6 +464,43 @@ RSpec.describe RubyLlmAgent do
         "Still thinking.",
         "decided: yes"
       )
+    end
+
+    it "saves and sends back the provider's tool call ids" do
+      agent =
+        test_class_with_research_tools.new(agent_log, decide_tool_class.new, search_tool_class.new)
+      bodies = []
+      stub_request(:post, "https://api.openai.com/v1/chat/completions")
+        .with { |request| bodies << JSON.parse(request.body) }
+        .to_return(
+          *[
+            tool_call_response(
+              call_id: "call_search",
+              name: "search",
+              arguments: {
+                "query" => "q"
+              }
+            ),
+            tool_call_response(call_id: "call_decide", arguments: { "choice" => "yes" })
+          ].map do |body|
+            { status: 200, body: body.to_json, headers: { "Content-Type" => "application/json" } }
+          end
+        )
+
+      agent.ask!("Make a decision")
+
+      transcript = agent_log.reload.transcript
+      expect(transcript.flat_map { |entry| entry["tool_calls"] || [] }.pluck("id")).to eq(
+        %w[call_search call_decide]
+      )
+      expect(transcript.filter_map { |entry| entry["tool_call_id"] }).to eq(
+        %w[call_search call_decide]
+      )
+      sent = bodies.last["messages"]
+      expect(sent.flat_map { |message| message["tool_calls"] || [] }.pluck("id")).to eq(
+        ["call_search"]
+      )
+      expect(sent.filter_map { |message| message["tool_call_id"] }).to eq(["call_search"])
     end
   end
 
@@ -846,6 +883,33 @@ RSpec.describe RubyLlmAgent do
       agent = capped_agent_class.new(agent_log, search_tool_class.new)
 
       expect(agent.ask("Search").content).to eq("done")
+    end
+
+    def raw_tool_call_response(name:, arguments:)
+      response = parallel_search_response(1)
+      call = response["choices"][0]["message"]["tool_calls"][0]
+      call["function"] = { "name" => name, "arguments" => arguments }
+      response
+    end
+
+    it "stops after max_tool_calls rounds of calls that never run" do
+      stub_responses(raw_tool_call_response(name: "missing", arguments: "{}"))
+      agent = capped_agent_class.new(agent_log, search_tool_class.new)
+
+      expect { agent.ask("Search") }.to raise_error(
+        RubyLlmAgent::ToolCallLimitExceeded,
+        /limit of 2 tool calls/
+      )
+      expect(a_request(:post, "https://api.openai.com/v1/chat/completions")).to have_been_made.twice
+    end
+
+    it "fails on the first response whose tool arguments are not JSON, after recording its usage" do
+      stub_responses(raw_tool_call_response(name: "search", arguments: "not json"))
+      agent = search_agent_class.new(agent_log, search_tool_class.new)
+
+      expect { agent.ask("Search") }.to raise_error(JSON::ParserError, /search/)
+      expect(a_request(:post, "https://api.openai.com/v1/chat/completions")).to have_been_made.once
+      expect(agent_log.reload.usage).to include("prompt_tokens" => 100, "completion_tokens" => 20)
     end
   end
 

@@ -2,7 +2,7 @@ module Tools
   class InkFullTextSearchTool < RubyLLM::Tool
     description "Fallback search, when results using similarity search inconclusive. Finds inks by full text search"
 
-    param :search_string, desc: "The search string to find inks"
+    parameter :search_string, description: "The search string to find inks"
 
     def execute(search_string:)
       similar_clusters = MacroCluster.full_text_search(search_string)

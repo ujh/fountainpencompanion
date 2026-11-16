@@ -288,7 +288,7 @@ RSpec.describe ReviewApprover do
         ).and_return(double(perform: "This page is about fountain pen ink reviews."))
 
         tool = described_class.new(ink_review, tool_agent_log)
-        result = tool.call({})
+        result = tool.call
 
         expect(result).to eq(
           "Here is a summary of the page:\n\nThis page is about fountain pen ink reviews."
@@ -307,7 +307,7 @@ RSpec.describe ReviewApprover do
         )
 
         tool = described_class.new(ink_review, tool_agent_log)
-        result = tool.call({})
+        result = tool.call
 
         expect(result).to eq("Here is a summary of the YouTube video:\n\nReviews Pilot Tsuki-yo.")
         expect(ink_review).to have_received(:ensure_youtube_metadata!)
@@ -728,7 +728,7 @@ RSpec.describe ReviewApprover do
       end
 
       it "raises a parsing error" do
-        expect { subject.perform }.to raise_error(Faraday::ParsingError)
+        expect { subject.perform }.to raise_error(RubyLLM::Error)
       end
     end
   end

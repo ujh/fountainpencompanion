@@ -4,7 +4,7 @@ class GoogleSearchSummarizer
   class SummarizeSearchResults < RubyLLM::Tool
     description "Summarize the search results"
 
-    params { string :summary, description: "The summary of the search results" }
+    parameters { string :summary, description: "The summary of the search results" }
 
     def execute(summary:)
       halt summary

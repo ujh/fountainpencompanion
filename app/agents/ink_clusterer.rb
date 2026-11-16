@@ -32,10 +32,12 @@ class InkClusterer
   class AssignToCluster < BaseTool
     description "Assign ink to existing cluster"
 
-    param :cluster_id, type: "integer", desc: "The ID of the cluster to assign the ink to"
-    param :explanation_of_decision,
-          desc:
-            "Explain why you are assigning the ink to this cluster and not creating a cluster or ignoring it"
+    parameter :cluster_id,
+              type: "integer",
+              description: "The ID of the cluster to assign the ink to"
+    parameter :explanation_of_decision,
+              description:
+                "Explain why you are assigning the ink to this cluster and not creating a cluster or ignoring it"
 
     def execute(cluster_id:, explanation_of_decision:)
       return missing_explanation_error if missing_explanation?(explanation_of_decision)
@@ -55,9 +57,9 @@ class InkClusterer
   class CreateNewCluster < BaseTool
     description "Create a new cluster for this ink"
 
-    param :explanation_of_decision,
-          desc:
-            "Explain why you are creating a new cluster for this ink and not assigning it to an existing one or ignoring it"
+    parameter :explanation_of_decision,
+              description:
+                "Explain why you are creating a new cluster for this ink and not assigning it to an existing one or ignoring it"
 
     def execute(explanation_of_decision:)
       return missing_explanation_error if missing_explanation?(explanation_of_decision)
@@ -73,9 +75,9 @@ class InkClusterer
   class IgnoreInk < BaseTool
     description "Ignore this ink"
 
-    param :explanation_of_decision,
-          desc:
-            "Explain why you are ignoring this ink and not assigning it to a cluster or creating a new one"
+    parameter :explanation_of_decision,
+              description:
+                "Explain why you are ignoring this ink and not assigning it to a cluster or creating a new one"
 
     def execute(explanation_of_decision:)
       return missing_explanation_error if missing_explanation?(explanation_of_decision)

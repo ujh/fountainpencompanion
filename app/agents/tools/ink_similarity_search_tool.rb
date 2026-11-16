@@ -2,7 +2,7 @@ module Tools
   class InkSimilaritySearchTool < RubyLLM::Tool
     description "Find the 20 most similar ink clusters by cosine distance"
 
-    param :search_string, desc: "The search string to find similar inks"
+    parameter :search_string, description: "The search string to find similar inks"
 
     def execute(search_string:)
       similar_clusters = MacroCluster.embedding_search(search_string).take(20)

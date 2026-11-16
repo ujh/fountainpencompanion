@@ -4,7 +4,7 @@ class PenAndInkConstraintExtractor
 
     def name = "set_constraints"
 
-    params do
+    parameters do
       PenAndInkConstraintExtractor.add_fields(self, PenAndInkSuggestion::Constraints::TOP_FIELDS)
       object :pen, description: "Pen constraints", required: false do
         PenAndInkConstraintExtractor.add_fields(

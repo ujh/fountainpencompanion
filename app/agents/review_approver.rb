@@ -4,8 +4,8 @@ class ReviewApprover
   class ApproveReview < RubyLLM::Tool
     description "Approve the review to make it customer visible"
 
-    param :explanation_of_decision,
-          desc: "Provide a brief explanation of why you are approving this review."
+    parameter :explanation_of_decision,
+              description: "Provide a brief explanation of why you are approving this review."
 
     attr_accessor :ink_review
 
@@ -29,8 +29,8 @@ class ReviewApprover
   class RejectReview < RubyLLM::Tool
     description "Reject the review to ensure it is hidden from public view"
 
-    param :explanation_of_decision,
-          desc: "Provide a brief explanation of why you are rejecting this review."
+    parameter :explanation_of_decision,
+              description: "Provide a brief explanation of why you are rejecting this review."
 
     attr_accessor :ink_review
 

@@ -28,6 +28,11 @@ Ground rules this roadmap follows:
 - Each step carries an **Implementation notes** item with the file:line anchors, prod numbers, gem
   facts and test cases a less experienced implementer would otherwise have to rediscover, and a
   **Decisions applied** item naming the decisions that shaped it.
+- The app now runs ruby_llm 2.2 on the Chat Completions protocol. Gem facts and anchors written as
+  `ruby_llm-1.16.0 <file>:<line>` describe 1.16: S01 re-checks each against 2.2, and the step that
+  uses one re-verifies it first. 2.2 API names differ (`parameter`/`description:`,
+  `with_tool_options`, `message.tokens`, `models.find(id, provider:)`); `halt` and `Tool::Halt` still
+  work.
 
 **Progress is tracked outside this file.** A private status board (a Claude Artifact, link kept in
 the owner's notes — not in this public repo) carries every step's status, the date it was finished,
@@ -893,8 +898,7 @@ c.max_retries = entry[:max_retries] if entry[:max_retries] }` — the YAML key `
     constants, unchanged model ids, all provider `openai`, all pointing at `OPEN_AI_TOKEN`:
     `google_search_summarizer.rb:14` (`gpt-4.1-mini`), `ink_brand_clusterer.rb:49` (`gpt-4.1`),
     `pen_and_ink_constraint_extractor.rb:4` (`gpt-6-luna` at reasoning effort `none` and temperature 0, one entry for
-    both suggester tiers; the model is registered through `RubyLlmModels::UNLISTED` in
-    `lib/ruby_llm_models.rb` because RubyLLM 1.16 does not list it),
+    both suggester tiers; RubyLLM 2.2's bundled registry lists it),
     `spam_classifier.rb:40` (`gpt-4.1-mini`), `youtube_summarizer.rb:4` (`gpt-4.1-mini`),
     `review_approver.rb:77` (`gpt-4.1-mini`), `web_page_summarizer.rb:4` (`gpt-4.1-mini`),
     `check_ink_clustering/base.rb:4` (`gpt-4.1`, shared by all `CheckInkClustering::*` subclasses under

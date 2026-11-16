@@ -6,7 +6,7 @@ class SpamClassifier
   class ClassifyAsSpam < RubyLLM::Tool
     description "Classify the account as spam"
 
-    param :explanation_of_action, desc: "Reasoning for classifying this account as spam"
+    parameter :explanation_of_action, description: "Reasoning for classifying this account as spam"
 
     def initialize(user, agent_log)
       @user = user
@@ -23,7 +23,8 @@ class SpamClassifier
   class ClassifyAsNormal < RubyLLM::Tool
     description "Classify the account as normal"
 
-    param :explanation_of_action, desc: "Reasoning for classifying this account as normal"
+    parameter :explanation_of_action,
+              description: "Reasoning for classifying this account as normal"
 
     def initialize(user, agent_log)
       @user = user

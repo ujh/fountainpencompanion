@@ -294,7 +294,7 @@ RSpec.describe PenAndInkSuggester do
         }
       )
 
-      expect { described_class.new(user).perform }.to raise_error(Faraday::ParsingError)
+      expect { described_class.new(user).perform }.to raise_error(RubyLLM::Error)
     end
   end
 
