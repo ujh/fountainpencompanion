@@ -1,4 +1,5 @@
 import "@testing-library/jest-dom/vitest";
+import process from "node:process";
 import { afterEach } from "vitest";
 
 // jsdom does not implement the canvas API; chart components call getContext.
@@ -6,22 +7,20 @@ import { afterEach } from "vitest";
 // HTMLCanvasElement.prototype.getContext" errors.
 HTMLCanvasElement.prototype.getContext = () => null;
 
-// jsdom cannot navigate. Components redirect via window.location.href on a 401
-// (e.g. the background /account sync in useHiddenFields when unauthenticated),
-// which jsdom reports as an "Not implemented: navigation" error on
-// console.error. window.location and its href setter are both non-configurable
-// so the assignment can't be stubbed; instead drop only this known, benign
-// jsdom message and let every other console.error through. The error object
-// originates in jsdom's realm, so match on its message rather than instanceof.
-const originalConsoleError = console.error;
-console.error = (...args) => {
-  const message = String(args[0]?.message ?? args[0] ?? "");
-  if (message.includes("Not implemented: navigation")) return;
-  originalConsoleError(...args);
+// jsdom cannot navigate. fetch.js redirects via window.location.href on a 401,
+// which jsdom reports as a "Not implemented: navigation" error.
+// window.location and its href setter are both non-configurable so the
+// assignment can't be stubbed; instead drop only this known, benign jsdom
+// message. jsdom writes it to the console it was created with, before Vitest
+// replaced globalThis.console, so filter it where it reaches process.stderr.
+const originalStderrWrite = process.stderr.write.bind(process.stderr);
+process.stderr.write = (chunk, ...rest) => {
+  if (String(chunk).includes("Not implemented: navigation")) return true;
+  return originalStderrWrite(chunk, ...rest);
 };
 
-// The same background /account sync logs retry messages via console.log when
-// the request fails (no server in unit tests). Drop those benign debug logs.
+// fetch.js logs "Retrying" via console.log when a GET fails (no server in unit
+// tests). Drop those benign debug logs.
 const originalConsoleLog = console.log;
 console.log = (...args) => {
   const message = String(args[0] ?? "");
