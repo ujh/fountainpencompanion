@@ -212,13 +212,15 @@ describe("unauthenticated requests", () => {
       })
     );
 
+    const response = request();
+    await vi.waitFor(() => expect(served).toBe(true));
+
     const pending = Symbol("pending");
     const result = await Promise.race([
-      request(),
+      response,
       new Promise((resolve) => setTimeout(() => resolve(pending), 50))
     ]);
 
-    expect(served).toBe(true);
     expect(result).toBe(pending);
   });
 });

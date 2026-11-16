@@ -1,4 +1,9 @@
+import Honeybadger from "@honeybadger-io/js";
 import { shouldNotify } from "honeybadger";
+
+vi.mock("@honeybadger-io/js", () => ({
+  default: { configure: vi.fn(), beforeNotify: vi.fn() }
+}));
 
 const ourFrame = {
   file: "https://www.fountainpencompanion.com/assets/application-abc.js",
@@ -50,8 +55,13 @@ describe("shouldNotify", () => {
     expect(shouldNotify(notice(message))).toBe(false);
   });
 
-  it("reports errors that only mention a network failure", () => {
-    expect(shouldNotify(notice("Error: Failed to fetch the ink list: 500"))).toBe(true);
+  it.each([
+    "Error: TypeError: Failed to fetch the ink list: 500",
+    "Error: TypeError: NetworkError when attempting to fetch resource. Status 500",
+    "Error: TypeError: Load failed for ink 12",
+    "Error: AbortError: The operation was aborted. Retry exhausted"
+  ])("reports errors that only mention a network failure: %s", (message) => {
+    expect(shouldNotify(notice(message))).toBe(true);
   });
 
   it.each([
@@ -60,5 +70,22 @@ describe("shouldNotify", () => {
     'UnhandledPromiseRejectionWarning: Error: Permission denied to access property "then"'
   ])("drops errors raised by browser extensions: %s", (message) => {
     expect(shouldNotify(notice(message))).toBe(false);
+  });
+});
+
+describe("configuration", () => {
+  afterEach(() => {
+    document.head.innerHTML = "";
+    vi.resetModules();
+  });
+
+  it("filters notices with shouldNotify when an API key is present", async () => {
+    document.head.innerHTML = '<meta name="honeybadger-api-key" content="key">';
+    vi.resetModules();
+
+    const module = await import("honeybadger");
+
+    expect(Honeybadger.configure).toHaveBeenCalledWith(expect.objectContaining({ apiKey: "key" }));
+    expect(Honeybadger.beforeNotify).toHaveBeenCalledWith(module.shouldNotify);
   });
 });
