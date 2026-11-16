@@ -2,13 +2,13 @@ require "rails_helper"
 
 describe "security headers" do
   def policy
-    response.headers["Content-Security-Policy-Report-Only"]
+    response.headers["Content-Security-Policy"]
   end
 
-  it "sends a report-only Content Security Policy" do
+  it "enforces the Content Security Policy" do
     get "/"
 
-    expect(response.headers["Content-Security-Policy"]).to be_nil
+    expect(response.headers["Content-Security-Policy-Report-Only"]).to be_nil
     expect(policy).to include("default-src 'self'", "object-src 'none'", "report-uri /csp-reports")
   end
 
