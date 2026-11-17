@@ -192,11 +192,11 @@ importers:
   .:
     dependencies:
       '@honeybadger-io/js':
-        specifier: ^6.17.1
-        version: 6.17.1
+        specifier: ^6.17.2
+        version: 6.17.2
       '@honeybadger-io/react':
         specifier: ^6.1.40
-        version: 6.1.40(@honeybadger-io/js@6.17.1)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+        version: 6.1.40(@honeybadger-io/js@6.17.2)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       '@popperjs/core':
         specifier: ^2.11.8
         version: 2.11.8
@@ -1126,12 +1126,12 @@ packages:
   '@floating-ui/dom@1.0.2':
     resolution: {integrity: sha512-5X9WSvZ8/fjy3gDu8yx9HAA4KG1lazUN2P4/VnaXLxTO9Dz53HI1oYoh1OlhqFNlHgGDiwFX5WhFCc2ljbW3yA==}
 
-  '@honeybadger-io/core@6.12.1':
-    resolution: {integrity: sha512-0ulPjQctUgMnU3Cd8cY7Q2Q0DtgIpXK4QbOHT+sj+LLGTg0biuzS/kX6f7DSfHnoKQUgi/huEu/TNrNzG8Lscg==}
+  '@honeybadger-io/core@6.12.2':
+    resolution: {integrity: sha512-GMa49Dn5tKKjAjkYq/IhFwBnwQh3rsjK8ysIU8o6XsGmcWrqC0hmAcH41npaX1KVlUK/1zjTfjVFLIvS5Sn3Bg==}
     engines: {node: '>=14'}
 
-  '@honeybadger-io/js@6.17.1':
-    resolution: {integrity: sha512-miSd9MDYLUePlet5jJcGiAuUbLJT5aXsnPkySm1Gr0XpoJfMXfGqFqTnkTTdrZy08FK8K0huKTQgMZSzX4MJJg==}
+  '@honeybadger-io/js@6.17.2':
+    resolution: {integrity: sha512-Uxcyl94+km1T8JflgEVJtkXCFuhUfS2g1VvHkTHuBe/q5JJsXmt+NbajgZYXlitz5kzFhgBvDYcxl15V0bcBPw==}
     engines: {node: '>=14'}
     hasBin: true
     peerDependencies:
@@ -4908,14 +4908,14 @@ snapshots:
     dependencies:
       '@floating-ui/core': 1.0.1
 
-  '@honeybadger-io/core@6.12.1':
+  '@honeybadger-io/core@6.12.2':
     dependencies:
       json-nd: 1.0.0
       stacktrace-parser: 0.1.11
 
-  '@honeybadger-io/js@6.17.1':
+  '@honeybadger-io/js@6.17.2':
     dependencies:
-      '@honeybadger-io/core': 6.12.1
+      '@honeybadger-io/core': 6.12.2
       '@types/aws-lambda': 8.10.160
       '@types/express': 5.0.6
 
@@ -4928,9 +4928,9 @@ snapshots:
     transitivePeerDependencies:
       - encoding
 
-  '@honeybadger-io/react@6.1.40(@honeybadger-io/js@6.17.1)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)':
+  '@honeybadger-io/react@6.1.40(@honeybadger-io/js@6.17.2)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)':
     dependencies:
-      '@honeybadger-io/js': 6.17.1
+      '@honeybadger-io/js': 6.17.2
       react: 19.3.1
       react-dom: 19.3.1(react@19.3.1)
 
