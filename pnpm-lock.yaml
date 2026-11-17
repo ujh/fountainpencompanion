@@ -355,8 +355,8 @@ importers:
         specifier: ^17.14.0
         version: 17.14.0
       jsdom:
-        specifier: ^31.0.0
-        version: 31.0.0
+        specifier: ^31.0.1
+        version: 31.0.1
       mini-css-extract-plugin:
         specifier: ^2.10.2
         version: 2.10.2(webpack@5.112.2)
@@ -377,7 +377,7 @@ importers:
         version: 8.3.8(sass@1.108.2)(terser@5.51.2)(yaml@2.9.1)
       vitest:
         specifier: ^5.0.5
-        version: 5.0.5(@vitest/coverage-v8@5.0.5)(jsdom@31.0.0)(msw@3.0.5(supports-color@8.1.1)(vite@8.3.8(sass@1.108.2)(terser@5.51.2)(yaml@2.9.1)))(vite@8.3.8(sass@1.108.2)(terser@5.51.2)(yaml@2.9.1))
+        version: 5.0.5(@vitest/coverage-v8@5.0.5)(jsdom@31.0.1)(msw@3.0.5(supports-color@8.1.1)(vite@8.3.8(sass@1.108.2)(terser@5.51.2)(yaml@2.9.1)))(vite@8.3.8(sass@1.108.2)(terser@5.51.2)(yaml@2.9.1))
       webpack:
         specifier: ^5.112.2
         version: 5.112.2(lightningcss@1.33.0)(postcss@8.5.25)(webpack-cli@7.3.1)
@@ -2706,8 +2706,8 @@ packages:
     resolution: {integrity: sha512-SFNOvSJ+Dgf/9An904Yx+CgSlIPCkIpao4qo51lpee25TIRejdH3rhR4EZMGoNx3/TP3O+wzWuiTFl4sqbltzA==}
     hasBin: true
 
-  jsdom@31.0.0:
-    resolution: {integrity: sha512-xAkhD9z1eyFC5+QUi9K24CaZJgdCQ2GOGLW1GdVDoQvkp/AxEH9TQ0pAplPOlIiV92hfcgnFOADZypbjgbBT6Q==}
+  jsdom@31.0.1:
+    resolution: {integrity: sha512-CbhJL8ZQg3eKswxSZth4QO9tW0jPIhmR0vtSXQSbKSfWbwIT6hoRc17wdHIVTQ43KI0mdV5iTJr3281IDgVZ5g==}
     engines: {node: ^22.22.2 || ^24.15.0 || >=26.0.0}
     peerDependencies:
       '@napi-rs/canvas': ^1.0.13
@@ -5188,7 +5188,7 @@ snapshots:
       picocolors: 1.1.1
       redent: 3.0.0
     optionalDependencies:
-      vitest: 5.0.5(@vitest/coverage-v8@5.0.5)(jsdom@31.0.0)(msw@3.0.5(supports-color@8.1.1)(vite@8.3.8(sass@1.108.2)(terser@5.51.2)(yaml@2.9.1)))(vite@8.3.8(sass@1.108.2)(terser@5.51.2)(yaml@2.9.1))
+      vitest: 5.0.5(@vitest/coverage-v8@5.0.5)(jsdom@31.0.1)(msw@3.0.5(supports-color@8.1.1)(vite@8.3.8(sass@1.108.2)(terser@5.51.2)(yaml@2.9.1)))(vite@8.3.8(sass@1.108.2)(terser@5.51.2)(yaml@2.9.1))
 
   '@testing-library/react@16.3.3(@testing-library/dom@10.4.2)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)':
     dependencies:
@@ -5331,7 +5331,7 @@ snapshots:
       obug: 3.0.0
       std-env: 4.3.0
       tinyrainbow: 3.2.0
-      vitest: 5.0.5(@vitest/coverage-v8@5.0.5)(jsdom@31.0.0)(msw@3.0.5(supports-color@8.1.1)(vite@8.3.8(sass@1.108.2)(terser@5.51.2)(yaml@2.9.1)))(vite@8.3.8(sass@1.108.2)(terser@5.51.2)(yaml@2.9.1))
+      vitest: 5.0.5(@vitest/coverage-v8@5.0.5)(jsdom@31.0.1)(msw@3.0.5(supports-color@8.1.1)(vite@8.3.8(sass@1.108.2)(terser@5.51.2)(yaml@2.9.1)))(vite@8.3.8(sass@1.108.2)(terser@5.51.2)(yaml@2.9.1))
 
   '@vitest/istanbul-lib-coverage@1.0.2': {}
 
@@ -6481,7 +6481,7 @@ snapshots:
     dependencies:
       argparse: 2.0.1
 
-  jsdom@31.0.0:
+  jsdom@31.0.1:
     dependencies:
       '@exodus/bytes': 1.16.0
       bcp-47: 2.1.2
@@ -7484,7 +7484,7 @@ snapshots:
       terser: 5.51.2
       yaml: 2.9.1
 
-  vitest@5.0.5(@vitest/coverage-v8@5.0.5)(jsdom@31.0.0)(msw@3.0.5(supports-color@8.1.1)(vite@8.3.8(sass@1.108.2)(terser@5.51.2)(yaml@2.9.1)))(vite@8.3.8(sass@1.108.2)(terser@5.51.2)(yaml@2.9.1)):
+  vitest@5.0.5(@vitest/coverage-v8@5.0.5)(jsdom@31.0.1)(msw@3.0.5(supports-color@8.1.1)(vite@8.3.8(sass@1.108.2)(terser@5.51.2)(yaml@2.9.1)))(vite@8.3.8(sass@1.108.2)(terser@5.51.2)(yaml@2.9.1)):
     dependencies:
       '@types/chai': 5.2.3
       '@vitest/mocker': 5.0.5(msw@3.0.5(supports-color@8.1.1)(vite@8.3.8(sass@1.108.2)(terser@5.51.2)(yaml@2.9.1)))(vite@8.3.8(sass@1.108.2)(terser@5.51.2)(yaml@2.9.1))
@@ -7502,7 +7502,7 @@ snapshots:
       why-is-node-running: 3.2.1
     optionalDependencies:
       '@vitest/coverage-v8': 5.0.5(vitest@5.0.5)
-      jsdom: 31.0.0
+      jsdom: 31.0.1
     transitivePeerDependencies:
       - msw
 
