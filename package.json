@@ -2,7 +2,7 @@
   "license": "UNLICENSED",
   "packageManager": "pnpm@12.15.0",
   "dependencies": {
-    "@honeybadger-io/js": "^6.17.1",
+    "@honeybadger-io/js": "^6.17.2",
     "@honeybadger-io/react": "^6.1.40",
     "@popperjs/core": "^2.11.8",
     "@rails/ujs": "^7.1.3-4",
