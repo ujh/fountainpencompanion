@@ -195,8 +195,8 @@ importers:
         specifier: ^6.17.1
         version: 6.17.1
       '@honeybadger-io/react':
-        specifier: ^6.1.39
-        version: 6.1.39(@honeybadger-io/js@6.17.1)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+        specifier: ^6.1.40
+        version: 6.1.40(@honeybadger-io/js@6.17.1)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       '@popperjs/core':
         specifier: ^2.11.8
         version: 2.11.8
@@ -1146,8 +1146,8 @@ packages:
   '@honeybadger-io/plugin-core@1.4.5':
     resolution: {integrity: sha512-8cC+VfpV5AXY0ez+1ztimio/5lYzuFT/zj+VyfeGqCm4sD9xE718/Yq1vIrXglCN+zOBTF9U/vHI4yuHhafV5A==}
 
-  '@honeybadger-io/react@6.1.39':
-    resolution: {integrity: sha512-/Xqm13//Rnqf62ArwGSYDZwqYUYvVIqbgpW7/Me8LyisamE4adFL1k5qiKTZx4wiw2Akb0DK3lQpg5TfbgHQpA==}
+  '@honeybadger-io/react@6.1.40':
+    resolution: {integrity: sha512-zne8j9Cy/3rihJiO6I6GfJpPeFCJBOsgpxKPsrDUFTZCVJqdaI1dA+a2fbS/RKwYK14079SLYPf1Y/ZMnL+kKA==}
     engines: {node: '>=14'}
     peerDependencies:
       '@honeybadger-io/js': ^6.2.0
@@ -4928,7 +4928,7 @@ snapshots:
     transitivePeerDependencies:
       - encoding
 
-  '@honeybadger-io/react@6.1.39(@honeybadger-io/js@6.17.1)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)':
+  '@honeybadger-io/react@6.1.40(@honeybadger-io/js@6.17.1)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)':
     dependencies:
       '@honeybadger-io/js': 6.17.1
       react: 19.3.1
