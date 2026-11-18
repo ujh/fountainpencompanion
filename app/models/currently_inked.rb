@@ -84,7 +84,7 @@ class CurrentlyInked < ApplicationRecord
   end
 
   def used_today?
-    last_used_on == Date.today
+    last_used_on == Date.current
   end
 
   def last_used_on
