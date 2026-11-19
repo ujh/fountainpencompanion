@@ -1,6 +1,8 @@
 require "rails_helper"
 
 describe CurrentlyInked do
+  include ActiveSupport::Testing::TimeHelpers
+
   subject { described_class.new(user: user) }
 
   let(:user) { create(:user) }
