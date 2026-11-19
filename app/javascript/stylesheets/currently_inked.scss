@@ -1,25 +1,83 @@
 @use "~bootstrap/scss/bootstrap" as b;
 
 // Slim Select theme customizations for dark/light mode
+[data-bs-theme="dark"] {
+  --ss-bg-color: var(--bs-body-bg);
+  --ss-font-color: var(--fpc-text-color);
+  --ss-placeholder-color: var(--fpc-muted-text-color);
+  --ss-disabled-color: var(--bs-secondary-bg);
+  --ss-border-color: var(--bs-border-color);
+  --ss-primary-color: var(--bs-primary);
+}
+
 .ss-main {
   background-color: var(--bs-body-bg);
   border-color: var(--bs-border-color);
   color: var(--fpc-text-color);
+
+  .ss-single {
+    color: var(--fpc-text-color);
+  }
+
+  .ss-placeholder {
+    color: var(--fpc-muted-text-color);
+  }
+
+  .ss-arrow path,
+  .ss-deselect svg path {
+    stroke: var(--fpc-muted-text-color);
+  }
 }
 
 .ss-content {
   background-color: var(--bs-body-bg);
   border-color: var(--bs-border-color);
-}
 
-.ss-content .ss-option.ss-highlighted,
-.ss-content .ss-option:hover {
-  background-color: var(--bs-primary);
-  color: #fff;
-}
+  .ss-search {
+    background-color: var(--bs-body-bg);
+    border-bottom: 1px solid var(--bs-border-color);
 
-.ss-content .ss-option {
-  color: var(--fpc-text-color);
+    input {
+      background-color: var(--bs-body-bg);
+      color: var(--fpc-text-color);
+      border-color: var(--bs-border-color);
+      caret-color: var(--fpc-text-color);
+
+      &:focus {
+        border-color: var(--bs-primary);
+      }
+
+      &::placeholder {
+        color: var(--fpc-muted-text-color);
+      }
+    }
+  }
+
+  .ss-list {
+    .ss-option {
+      color: var(--fpc-text-color);
+      background-color: transparent;
+
+      &:hover:not(.ss-disabled),
+      &.ss-highlighted,
+      &.ss-selected:not(.ss-disabled) {
+        background-color: var(--bs-primary);
+        color: #fff;
+      }
+
+      .ss-search-highlight {
+        background-color: var(--bs-warning);
+        color: #000;
+        font-weight: 700;
+      }
+    }
+
+    .ss-optgroup .ss-optgroup-label .ss-optgroup-label-text,
+    .ss-searching,
+    .ss-error {
+      color: var(--fpc-muted-text-color);
+    }
+  }
 }
 
 .fpc-currently-inked-table {
