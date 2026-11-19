@@ -1,6 +1,8 @@
 require "rails_helper"
 
 describe CurrentlyInked do
+  include ActiveSupport::Testing::TimeHelpers
+
   subject { described_class.new(user: user) }
 
   let(:user) { create(:user) }
@@ -361,6 +363,19 @@ describe CurrentlyInked do
     it "returns false when there is a UsageRecord for another currently inked" do
       create(:usage_record)
       expect(subject).to_not be_used_today
+    end
+
+    it "respects Time.zone when it differs from UTC" do
+      travel_to(Time.utc(2026, 11, 17, 17, 0)) do
+        Time.use_zone("Tokyo") do
+          entry = create(:currently_inked, inked_on: Date.new(2026, 11, 13))
+          create(:usage_record, currently_inked: entry, used_on: Date.new(2026, 11, 17))
+          expect(entry.reload).to_not be_used_today
+
+          create(:usage_record, currently_inked: entry, used_on: Date.new(2026, 11, 18))
+          expect(entry.reload).to be_used_today
+        end
+      end
     end
   end
 
