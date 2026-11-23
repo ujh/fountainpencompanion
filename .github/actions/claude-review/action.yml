@@ -193,7 +193,7 @@ runs:
           echo "retention_days=7"
         } >> "$GITHUB_OUTPUT"
 
-    - uses: anthropics/claude-code-action@cc98b3ae241b0fcfb6a42a2690751afffecb4452 # v1.0.278
+    - uses: anthropics/claude-code-action@c84e279f859e2591391e95bd309286eb111c345f # v1.0.284
       id: claude
       if: steps.guard.outputs.skip != 'true'
       env:
