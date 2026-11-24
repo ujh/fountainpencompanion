@@ -11,7 +11,7 @@
 # .ruby-version and .nvmrc in sync with them.
 FROM docker.io/library/node:24.22.3-trixie-slim AS node
 
-FROM docker.io/library/ruby:4.0.9-slim-trixie AS base
+FROM docker.io/library/ruby:4.0.10-slim-trixie AS base
 
 # Rails app lives here
 WORKDIR /app
