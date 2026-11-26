@@ -209,6 +209,36 @@ describe("<UsageRecordForm />", () => {
     expect(dateInput.getAttribute("max")).toBe("2025-12-15");
   });
 
+  it("shows no date range before an entry is selected", async () => {
+    setup(<UsageRecordForm />);
+
+    const dateInput = await screen.findByLabelText("Date");
+    expect(dateInput).not.toHaveAccessibleDescription();
+  });
+
+  it("shows the allowed date range for an active entry", async () => {
+    const { user } = setup(<UsageRecordForm />);
+
+    const select = await screen.findByLabelText("Currently inked");
+    await user.selectOptions(select, "1");
+
+    expect(screen.getByLabelText("Date")).toHaveAccessibleDescription("2025-01-15 – today");
+  });
+
+  it("updates the date range when another entry is selected", async () => {
+    const { user } = setup(<UsageRecordForm />);
+
+    await screen.findByLabelText("Currently inked");
+    await user.click(screen.getByLabelText("Include archived entries"));
+
+    await screen.findByText(/Diamine Oxblood/);
+    const select = screen.getByLabelText("Currently inked");
+    await user.selectOptions(select, "1");
+    await user.selectOptions(select, "2");
+
+    expect(screen.getByLabelText("Date")).toHaveAccessibleDescription("2025-06-01 – 2025-12-15");
+  });
+
   it("disables submit button until both entry and date are selected", async () => {
     const { user } = setup(<UsageRecordForm />);
 
