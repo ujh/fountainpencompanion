@@ -216,7 +216,13 @@ export const UsageRecordForm = () => {
               disabled={!selectedId}
               min={minDate}
               max={maxDate}
+              aria-describedby={selectedEntry ? "usage-record-date-range" : undefined}
             />
+            {selectedEntry && (
+              <div id="usage-record-date-range" className="form-text">
+                {minDate} – {selectedEntry.archived_on ? maxDate : "today"}
+              </div>
+            )}
           </div>
           <div className="col-12 col-md-3">
             <label className="form-label d-none d-md-block">&nbsp;</label>
